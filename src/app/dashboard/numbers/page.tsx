@@ -26,26 +26,38 @@ import {
 import { MoreHorizontal, AlertCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 
 export default function NumbersPage() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const storedProjectId = localStorage.getItem('activeProjectId');
     
     async function fetchProject() {
-      if (storedProjectId) {
-        const projectData = await getProjectById(storedProjectId);
-        if (projectData) {
-            setProject(projectData as WithId<Project>);
+      try {
+        if (storedProjectId) {
+          const projectData = await getProjectById(storedProjectId);
+          if (projectData) {
+              setProject(projectData as WithId<Project>);
+          }
         }
+      } catch (error) {
+        console.error("Failed to fetch project data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load project numbers. Please try again later.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
 
     fetchProject();
-  }, []);
+  }, [toast]);
 
   const getStatusVariant = (status?: string) => {
     if (!status) return 'outline';

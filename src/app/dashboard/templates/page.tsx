@@ -24,20 +24,33 @@ export default function TemplatesPage() {
   const [isSyncing, startSyncTransition] = useTransition();
   const { toast } = useToast();
 
-  const fetchTemplates = async () => {
+  const fetchTemplates = async (showToast = false) => {
     setLoading(true);
-    const projectId = localStorage.getItem('activeProjectId');
-    if (projectId) {
-      const templatesData = await getTemplates(projectId);
-      setTemplates(templatesData as WithId<Template>[]);
+    try {
+      const projectId = localStorage.getItem('activeProjectId');
+      if (projectId) {
+        const templatesData = await getTemplates(projectId);
+        setTemplates(templatesData as WithId<Template>[]);
+      }
+      if (showToast) {
+        toast({ title: "Refreshed", description: "Template list has been updated." });
+      }
+    } catch (error) {
+      console.error("Failed to fetch templates:", error);
+      toast({
+        title: "Error",
+        description: "Could not fetch templates. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
   
   useEffect(() => {
-    // Set a title dynamically
     document.title = 'Message Templates | WABASimplify';
     fetchTemplates();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSync = () => {

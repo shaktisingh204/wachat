@@ -145,8 +145,14 @@ export async function handleCreateProject(
         );
 
         if (!response.ok) {
-            const errorData = await response.json();
-            const reason = errorData?.error?.message || 'Invalid credentials or API error.';
+            let reason = 'Invalid credentials or API error.';
+            try {
+                const errorData = await response.json();
+                reason = errorData?.error?.message || reason;
+            } catch (e) {
+                console.error("Could not parse error response from Meta", await response.text());
+                reason = 'Could not parse error response from Meta.';
+            }
             return { error: `Verification failed: ${reason}` };
         }
         
@@ -306,8 +312,14 @@ export async function handleStartBroadcast(
             if (response.ok) {
                 successCount++;
             } else {
-                const errorData = await response.json();
-                const reason = errorData?.error?.message || 'Unknown API error';
+                let reason = 'Unknown API error';
+                try {
+                    const errorData = await response.json();
+                    reason = errorData?.error?.message || reason;
+                } catch(e) {
+                    console.error("Could not parse error response from Meta", await response.text());
+                    reason = 'Could not parse error response from Meta.';
+                }
                 failedSends.push({ phone: contact.phone, reason });
                 console.error(`Failed to send message to ${contact.phone}:`, reason);
             }
@@ -374,8 +386,15 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
         );
 
         if (!response.ok) {
-            const errorData = await response.json();
-            return { error: `Failed to fetch templates from Meta: ${errorData?.error?.message || 'Unknown API Error'}` };
+            let reason = 'Unknown API Error';
+            try {
+                const errorData = await response.json();
+                reason = errorData?.error?.message || reason;
+            } catch (e) {
+                console.error("Could not parse error response from Meta", await response.text());
+                reason = 'Could not parse error response from Meta.';
+            }
+            return { error: `Failed to fetch templates from Meta: ${reason}` };
         }
 
         const templatesResponse: MetaTemplatesResponse = await response.json();
@@ -535,10 +554,11 @@ export async function handleCreateTemplate(
         }
       );
   
-      const responseData = await response.json();
+      const responseData = await response.json().catch(() => null);
   
       if (!response.ok) {
-        return { error: `API Error: ${responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error'}` };
+        const errorMessage = responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error creating template.';
+        return { error: `API Error: ${errorMessage}` };
       }
   
       // Sync templates after successful creation
@@ -584,13 +604,14 @@ export async function handleUploadMedia(formData: FormData): Promise<{ handle?: 
             }
         );
 
-        const data = await response.json();
+        const data = await response.json().catch(() => null);
 
         if (!response.ok) {
-            return { error: `Media upload failed: ${data?.error?.message || 'Unknown API error'}` };
+            const errorMessage = data?.error?.message || 'Unknown API error during media upload.';
+            return { error: `Media upload failed: ${errorMessage}` };
         }
         
-        if (!data.id) {
+        if (!data?.id) {
             return { error: 'Media upload succeeded but did not return an ID.' };
         }
 

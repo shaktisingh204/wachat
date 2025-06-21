@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useToast } from '@/hooks/use-toast';
 
 type Template = {
   name: string;
@@ -38,26 +39,37 @@ export default function BroadcastPage() {
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     const storedProjectId = localStorage.getItem('activeProjectId');
     
     async function fetchData() {
-      if (storedProjectId) {
-        const [projectData, templatesData, historyData] = await Promise.all([
-          getProjectById(storedProjectId),
-          getTemplates(storedProjectId),
-          getBroadcasts(),
-        ]);
-        setProject(projectData as WithId<Project>);
-        setTemplates(templatesData as WithId<Template>[]);
-        setHistory(historyData as WithId<Broadcast>[]);
+      try {
+        if (storedProjectId) {
+          const [projectData, templatesData, historyData] = await Promise.all([
+            getProjectById(storedProjectId),
+            getTemplates(storedProjectId),
+            getBroadcasts(),
+          ]);
+          setProject(projectData as WithId<Project>);
+          setTemplates(templatesData as WithId<Template>[]);
+          setHistory(historyData as WithId<Broadcast>[]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch broadcast data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load page data. Please try again later.",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     }
 
     fetchData();
-  }, []);
+  }, [toast]);
 
   if (loading) {
     return (
