@@ -1,3 +1,9 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import type { WithId } from 'mongodb';
+import { getProjectById } from '@/app/actions';
+import type { Project, PhoneNumber } from '@/app/dashboard/page';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -10,17 +16,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -28,107 +23,134 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, PlusCircle } from 'lucide-react';
-import type { Metadata } from 'next';
-import { connectToDatabase } from '@/lib/mongodb';
-import {WithId} from 'mongodb';
+import { MoreHorizontal, AlertCircle } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-export const metadata: Metadata = {
-  title: 'Phone Numbers | WABASimplify',
-};
+export default function NumbersPage() {
+  const [project, setProject] = useState<WithId<Project> | null>(null);
+  const [loading, setLoading] = useState(true);
 
-type PhoneNumber = {
-  number: string;
-  status: 'active' | 'pending' | 'rejected';
-  registeredOn: string;
-};
-
-async function getPhoneNumbers(): Promise<WithId<PhoneNumber>[]> {
-    try {
-        const { db } = await connectToDatabase();
-        const phoneNumbers = await db.collection<PhoneNumber>('phone_numbers').find({}).toArray();
-        return phoneNumbers;
-    } catch (error) {
-        console.error("Failed to fetch phone numbers:", error);
-        // In case of an error, return an empty array to prevent the page from crashing.
-        return [];
+  useEffect(() => {
+    const storedProjectId = localStorage.getItem('activeProjectId');
+    
+    async function fetchProject() {
+      if (storedProjectId) {
+        const projectData = await getProjectById(storedProjectId);
+        if (projectData) {
+            setProject(projectData as WithId<Project>);
+        }
+      }
+      setLoading(false);
     }
-}
 
+    fetchProject();
+  }, []);
 
-export default async function NumbersPage() {
-    const phoneNumbers = await getPhoneNumbers();
+  const getStatusVariant = (status: string) => {
+    if (!status) return 'outline';
+    status = status.toLowerCase();
+    if (status.includes('verified')) return 'default';
+    if (status.includes('pending')) return 'secondary';
+    return 'destructive';
+  }
+
+  const getQualityVariant = (quality: string) => {
+    if (!quality) return 'outline';
+    quality = quality.toLowerCase();
+    if (quality === 'green' || quality === 'high') return 'default';
+    if (quality === 'yellow' || quality === 'medium') return 'secondary';
+    if (quality === 'unknown') return 'secondary';
+    return 'destructive';
+  }
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-8">
+        <div>
+          <Skeleton className="h-8 w-1/2" />
+          <Skeleton className="h-4 w-3/4 mt-2" />
+        </div>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-6 w-1/4" />
+            <Skeleton className="h-4 w-1/2" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-48 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!project) {
+     return (
+        <div className="flex flex-col gap-8">
+            <div>
+                <h1 className="text-3xl font-bold font-headline">Phone Number Management</h1>
+                <p className="text-muted-foreground">Manage your project's WhatsApp phone numbers.</p>
+            </div>
+             <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>No Project Selected</AlertTitle>
+                <AlertDescription>
+                    Please select a project from the main dashboard page to see its phone numbers.
+                </AlertDescription>
+            </Alert>
+        </div>
+     )
+  }
+
+  const phoneNumbers: PhoneNumber[] = project.phoneNumbers || [];
     
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold font-headline">Phone Number Management</h1>
-          <p className="text-muted-foreground">Register and manage your WhatsApp phone numbers.</p>
+          <p className="text-muted-foreground">Your registered WhatsApp phone numbers for project "{project.name}".</p>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Register New Number
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Register a New Phone Number</DialogTitle>
-              <DialogDescription>
-                Enter the phone number you want to register for WhatsApp Business API.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="phone-number" className="text-right">
-                  Phone Number
-                </Label>
-                <Input id="phone-number" placeholder="+1 555-000-0000" className="col-span-3" />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button type="submit">Start Verification</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Registered Numbers</CardTitle>
-          <CardDescription>A list of your phone numbers and their verification status.</CardDescription>
+          <CardDescription>A list of your phone numbers retrieved from your WhatsApp Business Account.</CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Phone Number</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Registered On</TableHead>
+                <TableHead>Display Number</TableHead>
+                <TableHead>Verified Name</TableHead>
+                <TableHead>Verification Status</TableHead>
+                <TableHead>Quality Rating</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {phoneNumbers.length > 0 ? (
                 phoneNumbers.map((phone) => (
-                  <TableRow key={phone._id.toString()}>
-                    <TableCell className="font-medium">{phone.number}</TableCell>
+                  <TableRow key={phone.id}>
+                    <TableCell className="font-medium">{phone.display_phone_number}</TableCell>
+                    <TableCell>{phone.verified_name}</TableCell>
                     <TableCell>
                       <Badge
-                        variant={
-                          phone.status === 'active'
-                            ? 'default'
-                            : phone.status === 'pending'
-                            ? 'secondary'
-                            : 'destructive'
-                        }
+                        variant={getStatusVariant(phone.code_verification_status)}
+                        className="capitalize"
                       >
-                        {phone.status.charAt(0).toUpperCase() + phone.status.slice(1)}
+                        {phone.code_verification_status?.replace(/_/g, ' ').toLowerCase() || 'N/A'}
                       </Badge>
                     </TableCell>
-                    <TableCell>{new Date(phone.registeredOn).toLocaleDateString()}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={getQualityVariant(phone.quality_rating)}
+                        className="capitalize"
+                      >
+                        {phone.quality_rating?.replace(/_/g, ' ').toLowerCase() || 'N/A'}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
@@ -139,13 +161,14 @@ export default async function NumbersPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem>View Details</DropdownMenuItem>
-                          <DropdownMenuItem>Edit Number</DropdownMenuItem>
+                          <DropdownMenuItem disabled>View Details</DropdownMenuItem>
+                          <DropdownMenuItem disabled>Check Health Status</DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+                            disabled
                           >
-                            Delete Number
+                            Remove (API Sync)
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -154,8 +177,8 @@ export default async function NumbersPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
-                    No registered phone numbers found.
+                  <TableCell colSpan={5} className="h-24 text-center">
+                    No phone numbers found for this project.
                   </TableCell>
                 </TableRow>
               )}

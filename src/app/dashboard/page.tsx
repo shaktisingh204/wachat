@@ -14,6 +14,9 @@ export const metadata: Metadata = {
 export type PhoneNumber = {
     id: string;
     display_phone_number: string;
+    verified_name: string;
+    code_verification_status: string;
+    quality_rating: string;
 };
 
 export type Project = {

@@ -10,6 +10,9 @@ import type { PhoneNumber } from '@/app/dashboard/page';
 type MetaPhoneNumber = {
     id: string;
     display_phone_number: string;
+    verified_name: string;
+    code_verification_status: string;
+    quality_rating: string;
 };
 
 type MetaPhoneNumbersResponse = {
@@ -124,6 +127,9 @@ export async function handleCreateProject(
         phoneNumbers = data.data.map((num: MetaPhoneNumber) => ({
             id: num.id,
             display_phone_number: num.display_phone_number,
+            verified_name: num.verified_name,
+            code_verification_status: num.code_verification_status,
+            quality_rating: num.quality_rating,
         }));
 
     } catch (e: any) {
