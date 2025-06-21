@@ -96,7 +96,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
             }
         } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
              const type = headerComponent.format.toLowerCase();
-             const mediaObject: any = { id: "[MEDIA_ID_GENERATED_AT_SEND_TIME]" };
+             const mediaObject: any = { link: "[MEDIA_URL_FROM_TEMPLATE_OR_OVERRIDE]" };
              if (type === 'document') {
                 mediaObject.filename = "sample_file.pdf"; 
              }
@@ -168,7 +168,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
     setSelectedTemplate(template || null);
   };
 
-  const showImageUpload = selectedTemplate?.components?.some(c => c.type === 'HEADER' && c.format === 'IMAGE');
+  const showImageUpload = selectedTemplate?.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(c.format));
 
   return (
     <>
@@ -232,16 +232,16 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
                         <Separator className="my-2" />
                     </div>
                     <div className="md:col-span-3 space-y-2">
-                    <Label htmlFor="headerImageFile">4. Header Image Override (Optional)</Label>
+                    <Label htmlFor="headerImageFile">4. Header Media Override (Optional)</Label>
                     <Input
                         id="headerImageFile"
                         name="headerImageFile"
                         type="file"
-                        accept="image/png, image/jpeg"
+                        accept="image/*,video/*,audio/*,application/pdf"
                         className="file:text-primary file:font-medium"
                     />
                     <p className="text-xs text-muted-foreground">
-                        Upload a new image to override the template's default header for this broadcast only.
+                        Upload a new media file to override the template's default header for this broadcast only.
                     </p>
                     </div>
                 </>

@@ -26,6 +26,11 @@ type BroadcastJob = {
     headerImageUrl?: string;
 };
 
+type Project = {
+    _id: ObjectId;
+    rateLimitDelay?: number;
+};
+
 async function handleRequest(request: Request) {
     let db: Db;
     try {
@@ -33,7 +38,6 @@ async function handleRequest(request: Request) {
         db = conn.db;
 
     } catch (initializationError: any) {
-        console.error(`[${new Date().toISOString()}] CRON JOB FAILED TO INITIALIZE: ${initializationError.message}`);
         return new NextResponse(`Internal Server Error during initialization: ${initializationError.message}`, { status: 500 });
     }
 
@@ -51,6 +55,9 @@ async function handleRequest(request: Request) {
         }
 
         jobId = job._id;
+        
+        const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
+        const DELAY_MS = project?.rateLimitDelay || 1000;
 
         try {
             let successCount = 0;
@@ -58,7 +65,6 @@ async function handleRequest(request: Request) {
             let failedSends: { phone: string; response: any }[] = [];
             
             const CHUNK_SIZE = 80;
-            const DELAY_MS = 1000;
 
             for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
                 const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
@@ -68,53 +74,6 @@ async function handleRequest(request: Request) {
                     const phone = contact[firstColumnHeader];
 
                     try {
-                        // --- MEDIA UPLOAD LOGIC ---
-                        let mediaId: string | null = null;
-                        const headerComponent = job.components.find(c => c.type === 'HEADER');
-                        if (headerComponent && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                            const broadcastSpecificUrl = job.headerImageUrl;
-                            const templateDefaultUrl = headerComponent.example?.header_url?.[0];
-
-                            let finalUrl;
-                            if (broadcastSpecificUrl) {
-                                finalUrl = broadcastSpecificUrl.startsWith('http') ? broadcastSpecificUrl : `${process.env.APP_URL || ''}${broadcastSpecificUrl}`;
-                            } else {
-                                finalUrl = templateDefaultUrl;
-                            }
-
-                            if (finalUrl) {
-                                try {
-                                    const mediaResponse = await fetch(finalUrl);
-                                    if (!mediaResponse.ok) throw new Error(`Failed to fetch media from URL: ${finalUrl}`);
-                                    
-                                    const fileBlob = await mediaResponse.blob();
-                                    
-                                    const formData = new FormData();
-                                    formData.append('messaging_product', 'whatsapp');
-                                    formData.append('file', fileBlob);
-
-                                    const uploadResponse = await fetch(
-                                      `https://graph.facebook.com/v18.0/${job.phoneNumberId}/media`,
-                                      {
-                                        method: 'POST',
-                                        headers: {
-                                          Authorization: `Bearer ${job.accessToken}`,
-                                        },
-                                        body: formData,
-                                      }
-                                    );
-
-                                    const uploadData = await uploadResponse.json();
-                                    if (!uploadResponse.ok || !uploadData.id) {
-                                        throw new Error(`Meta media upload failed: ${JSON.stringify(uploadData.error || uploadData)}`);
-                                    }
-                                    mediaId = uploadData.id;
-                                } catch (mediaError: any) {
-                                    throw new Error(`Media processing failed: ${mediaError.message}`);
-                                }
-                            }
-                        }
-                        
                         // --- PAYLOAD CONSTRUCTION ---
                         const getVars = (text: string): number[] => {
                             const variableMatches = text.match(/{{(\d+)}}/g);
@@ -123,6 +82,7 @@ async function handleRequest(request: Request) {
                         
                         const payloadComponents: any[] = [];
                         
+                        const headerComponent = job.components.find(c => c.type === 'HEADER');
                         if (headerComponent) {
                             const parameters: any[] = [];
                             if (headerComponent.format === 'TEXT' && headerComponent.text) {
@@ -135,13 +95,25 @@ async function handleRequest(request: Request) {
                                         });
                                     });
                                 }
-                            } else if (mediaId) {
-                                 const type = headerComponent.format.toLowerCase();
-                                 const mediaObject: any = { id: mediaId };
-                                 if (type === 'document') {
+                            } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
+                                const broadcastSpecificUrl = job.headerImageUrl;
+                                const templateDefaultUrl = headerComponent.example?.header_url?.[0];
+
+                                let finalUrl;
+                                if (broadcastSpecificUrl) {
+                                    finalUrl = broadcastSpecificUrl.startsWith('http') ? broadcastSpecificUrl : `${process.env.APP_URL || ''}${broadcastSpecificUrl}`;
+                                } else {
+                                    finalUrl = templateDefaultUrl;
+                                }
+
+                                if (finalUrl) {
+                                    const type = headerComponent.format.toLowerCase();
+                                    const mediaObject: any = { link: finalUrl };
+                                    if (type === 'document') {
                                     mediaObject.filename = contact['filename'] || "file"; 
-                                 }
-                                 parameters.push({ type, [type]: mediaObject });
+                                    }
+                                    parameters.push({ type, [type]: mediaObject });
+                                }
                             }
                             if (parameters.length > 0) {
                                 payloadComponents.push({ type: 'header', parameters });
