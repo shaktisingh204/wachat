@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
@@ -116,8 +115,12 @@ export default function BroadcastReportPage() {
   }
   
   const allAttempts: ({ status: 'Success'; phone: string; detail: string } | { status: 'Failed'; phone: string; detail: string })[] = [
-    ...(broadcast.successfulSends || []).map(s => ({ status: 'Success' as const, phone: s.phone, detail: s.messageId })),
-    ...(broadcast.failedSends || []).map(f => ({ status: 'Failed' as const, phone: f.phone, detail: f.error.code ? `${f.error.code}: ${f.error.message}`: f.error.message })),
+    ...(broadcast.successfulSends || []).map(s => ({ status: 'Success' as const, phone: s.phone, detail: s.messageId || 'N/A' })),
+    ...(broadcast.failedSends || []).map(f => ({
+      status: 'Failed' as const,
+      phone: f.phone,
+      detail: f.error?.code ? `${f.error.code}: ${f.error.message}` : f.error?.message || 'Unknown error details'
+    })),
   ];
 
   return (
