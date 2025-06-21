@@ -9,9 +9,9 @@ runConfig:
 # Cron jobs for scheduled tasks
 # https://firebase.google.com/docs/app-hosting/cron-jobs
 jobs:
-  - id: send-broadcasts
+  - id: cron-test
     schedule: '*/1 * * * *' # Every minute
-    uri: /api/cron/send-broadcasts
+    uri: /api/cron/test
     timeZone: 'UTC'
     retryConfig:
       retryCount: 3
