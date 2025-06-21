@@ -106,7 +106,7 @@ async function processBroadcastJob() {
                             }
                         } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
                              const broadcastSpecificUrl = job.headerImageUrl;
-                             const templateDefaultUrl = headerComponent.example?.header_handle?.[0];
+                             const templateDefaultUrl = headerComponent.example?.header_url?.[0];
 
                              let finalUrl;
                              if (broadcastSpecificUrl) {

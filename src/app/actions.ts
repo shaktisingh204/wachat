@@ -543,7 +543,7 @@ export async function handleCreateTemplate(
             } else {
                 if (!headerUrl) return { error: 'A public media URL is required for this header format.' };
                 const absoluteHeaderUrl = headerUrl.startsWith('http') ? headerUrl : `${process.env.APP_URL || ''}${headerUrl}`;
-                headerComponent.example = { header_handle: [absoluteHeaderUrl] };
+                headerComponent.example = { header_url: [absoluteHeaderUrl] };
             }
             components.push(headerComponent);
         }
