@@ -8,6 +8,19 @@ import cron from 'node-cron';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Db, ObjectId } from 'mongodb';
 
+type SuccessfulSend = {
+    phone: string;
+    messageId: string;
+};
+
+type FailedSend = {
+    phone: string;
+    error: {
+        code?: number | string;
+        message: string;
+    };
+};
+
 type BroadcastJob = {
     _id: ObjectId;
     projectId: ObjectId;
@@ -21,8 +34,8 @@ type BroadcastJob = {
     processedAt?: Date;
     successCount?: number;
     errorCount?: number;
-    successfulSends?: { phone: string; response: any }[];
-    failedSends?: { phone: string; response: any }[];
+    successfulSends?: SuccessfulSend[];
+    failedSends?: FailedSend[];
     components: any[]; 
     language: string;
 };
@@ -66,8 +79,8 @@ async function processBroadcastJob() {
             for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
                 const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
                 
-                const chunkSuccessfulSends: { phone: string; response: any }[] = [];
-                const chunkFailedSends: { phone: string; response: any }[] = [];
+                const chunkSuccessfulSends: SuccessfulSend[] = [];
+                const chunkFailedSends: FailedSend[] = [];
 
                 const sendPromises = chunk.map(async (contact) => {
                     const firstColumnHeader = Object.keys(contact)[0];
@@ -154,13 +167,12 @@ async function processBroadcastJob() {
                         const responseData = await response.json();
 
                         if (response.ok) {
-                            chunkSuccessfulSends.push({ phone: phone, response: responseData });
+                            chunkSuccessfulSends.push({ phone, messageId: responseData.messages?.[0]?.id || 'N/A' });
                         } else {
-                            chunkFailedSends.push({ phone: phone, response: responseData });
+                            chunkFailedSends.push({ phone, error: { code: responseData.error?.code, message: responseData.error?.message || 'Unknown Error' }});
                         }
                     } catch(e: any) {
-                        const errorResponse = { error: { message: e.message || 'Exception during fetch', status: 'CLIENT_FAILURE' } };
-                        chunkFailedSends.push({ phone: phone, response: errorResponse });
+                        chunkFailedSends.push({ phone, error: { message: e.message || 'Exception during fetch' }});
                     }
                 });
 

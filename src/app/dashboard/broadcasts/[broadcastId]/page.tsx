@@ -9,16 +9,23 @@ import { getBroadcastById } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, RefreshCw, CheckCircle, XCircle, FileText, Clock, Users, Send, AlertTriangle, Eye } from 'lucide-react';
+import { ArrowLeft, RefreshCw, CheckCircle, XCircle, FileText, Clock, Users, Send, AlertTriangle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-type BroadcastSendAttempt = {
+type SuccessfulSend = {
   phone: string;
-  response: any;
+  messageId: string;
+};
+
+type FailedSend = {
+  phone: string;
+  error: {
+    code?: number | string;
+    message: string;
+  };
 };
 
 type Broadcast = {
@@ -31,15 +38,14 @@ type Broadcast = {
   status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure';
   createdAt: string;
   processedAt?: string;
-  successfulSends?: BroadcastSendAttempt[];
-  failedSends?: BroadcastSendAttempt[];
+  successfulSends?: SuccessfulSend[];
+  failedSends?: FailedSend[];
 };
 
 export default function BroadcastReportPage() {
   const [broadcast, setBroadcast] = useState<WithId<Broadcast> | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
-  const [selectedResponse, setSelectedResponse] = useState<object | null>(null);
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
@@ -109,9 +115,9 @@ export default function BroadcastReportPage() {
     return <div>Broadcast not found.</div>;
   }
   
-  const allAttempts: ({ status: 'Success' } & BroadcastSendAttempt | { status: 'Failed' } & BroadcastSendAttempt)[] = [
-    ...(broadcast.successfulSends || []).map(s => ({ ...s, status: 'Success' as const })),
-    ...(broadcast.failedSends || []).map(f => ({ ...f, status: 'Failed' as const })),
+  const allAttempts: ({ status: 'Success'; phone: string; detail: string } | { status: 'Failed'; phone: string; detail: string })[] = [
+    ...(broadcast.successfulSends || []).map(s => ({ status: 'Success' as const, phone: s.phone, detail: s.messageId })),
+    ...(broadcast.failedSends || []).map(f => ({ status: 'Failed' as const, phone: f.phone, detail: f.error.code ? `${f.error.code}: ${f.error.message}`: f.error.message })),
   ];
 
   return (
@@ -195,8 +201,7 @@ export default function BroadcastReportPage() {
                             <TableRow>
                                 <TableHead>Phone Number</TableHead>
                                 <TableHead>Status</TableHead>
-                                <TableHead>Message ID / Error Code</TableHead>
-                                <TableHead className="text-right">Full Response</TableHead>
+                                <TableHead>Message ID / Error</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -210,20 +215,12 @@ export default function BroadcastReportPage() {
                                         </Badge>
                                     </TableCell>
                                     <TableCell className="font-mono text-xs">
-                                        {attempt.status === 'Success' 
-                                            ? attempt.response?.messages?.[0]?.id 
-                                            : attempt.response?.error?.code || attempt.response?.error?.message || 'Unknown Error'}
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="ghost" size="sm" onClick={() => setSelectedResponse(attempt.response)}>
-                                            <Eye className="mr-2 h-4 w-4" />
-                                            View
-                                        </Button>
+                                        {attempt.detail}
                                     </TableCell>
                                 </TableRow>
                             )) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="h-24 text-center">
+                                    <TableCell colSpan={3} className="h-24 text-center">
                                         {broadcast.status === 'QUEUED' || broadcast.status === 'PROCESSING'
                                             ? 'Processing... results will appear here shortly.'
                                             : 'No results to display for this broadcast.'}
@@ -237,20 +234,6 @@ export default function BroadcastReportPage() {
         </Card>
 
       </div>
-
-      <Dialog open={!!selectedResponse} onOpenChange={(isOpen) => !isOpen && setSelectedResponse(null)}>
-        <DialogContent className="sm:max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Full API Response</DialogTitle>
-            <DialogDescription>The complete JSON response from the Meta Graph API.</DialogDescription>
-          </DialogHeader>
-          <ScrollArea className="max-h-[60vh] mt-4">
-            <pre className="bg-muted text-muted-foreground p-4 rounded-md text-xs whitespace-pre-wrap font-code">
-                {JSON.stringify(selectedResponse, null, 2)}
-            </pre>
-          </ScrollArea>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
