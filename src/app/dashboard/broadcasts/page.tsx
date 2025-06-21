@@ -25,7 +25,7 @@ type Broadcast = {
   contactCount: number;
   successCount?: number;
   errorCount?: number;
-  status: 'Completed' | 'Processing' | 'Failed' | 'Partial Failure';
+  status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure';
   createdAt: string;
 };
 
@@ -121,7 +121,8 @@ export default function BroadcastPage() {
                 <TableHead>Date</TableHead>
                 <TableHead>Template</TableHead>
                 <TableHead>File Name</TableHead>
-                <TableHead>Sent</TableHead>
+                <TableHead>Contacts</TableHead>
+                <TableHead>Progress</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -132,15 +133,18 @@ export default function BroadcastPage() {
                     <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
                     <TableCell>{item.templateName}</TableCell>
                     <TableCell>{item.fileName}</TableCell>
+                    <TableCell>{item.contactCount}</TableCell>
                     <TableCell>
                       {item.successCount !== undefined
-                        ? `${item.successCount} / ${item.contactCount}`
-                        : item.contactCount}
+                        ? `${item.successCount} sent, ${item.errorCount || 0} failed`
+                        : '-'}
                     </TableCell>
                     <TableCell>
                       <Badge
                         variant={
-                          item.status === 'Processing'
+                          item.status === 'QUEUED'
+                            ? 'outline'
+                            : item.status === 'PROCESSING'
                             ? 'secondary'
                             : item.status === 'Completed'
                             ? 'default'
@@ -148,15 +152,16 @@ export default function BroadcastPage() {
                             ? 'secondary'
                             : 'destructive'
                         }
+                        className="capitalize"
                       >
-                        {item.status}
+                        {item.status.toLowerCase()}
                       </Badge>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     No broadcast history found.
                   </TableCell>
                 </TableRow>

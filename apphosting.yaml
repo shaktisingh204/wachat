@@ -5,3 +5,14 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+
+# Cron jobs for scheduled tasks
+# https://firebase.google.com/docs/app-hosting/cron-jobs
+jobs:
+  - id: send-broadcasts
+    schedule: '*/1 * * * *' # Every minute
+    uri: /api/cron/send-broadcasts
+    timeZone: 'UTC'
+    retryConfig:
+      retryCount: 3
+      minBackoffSeconds: 60

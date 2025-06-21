@@ -7,7 +7,7 @@ import { ObjectId, WithId } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
-import type { PhoneNumber, Project } from '@/app/dashboard/page';
+import type { PhoneNumber, Project, Template } from '@/app/dashboard/page';
 
 type MetaPhoneNumber = {
     id: string;
@@ -54,6 +54,21 @@ type MetaTemplatesResponse = {
             after: string;
         }
     }
+};
+
+type BroadcastJob = {
+    projectId: ObjectId;
+    templateId: ObjectId;
+    templateName: string;
+    phoneNumberId: string;
+    accessToken: string;
+    contacts: Record<string, string>[];
+    status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed';
+    createdAt: Date;
+    contactCount: number;
+    fileName: string;
+    body: string;
+    language: string;
 };
 
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
@@ -281,7 +296,7 @@ export async function handleStartBroadcast(
       return { error: 'File must contain a "phone" column header.' };
     }
 
-    const validContacts = contacts.filter((c) => c.phone && c.phone.trim() !== '');
+    const validContacts = contacts.filter((c) => c.phone && String(c.phone).trim() !== '');
 
     if (validContacts.length === 0) {
       return { error: 'No valid contacts with phone numbers found in the file.' };
@@ -296,98 +311,28 @@ export async function handleStartBroadcast(
         }
     }
     
-    let successCount = 0;
-    let failedSends: { phone: string; reason: string }[] = [];
+    const broadcastJob: Omit<WithId<BroadcastJob>, '_id'> = {
+        projectId: new ObjectId(projectId),
+        templateId: new ObjectId(templateId),
+        templateName: template.name,
+        phoneNumberId,
+        accessToken,
+        contacts: validContacts,
+        status: 'QUEUED',
+        createdAt: new Date(),
+        contactCount: validContacts.length,
+        fileName: contactFile.name,
+        body: template.body,
+        language: template.language,
+    };
 
-    const sendPromises = validContacts.map(async (contact) => {
-        const components = [];
-        if (requiredVarNumbers.length > 0) {
-            const parameters = requiredVarNumbers.sort((a,b) => a - b).map(varNum => ({
-                type: 'text',
-                text: contact[`variable${varNum}`] || '',
-            }));
-            components.push({
-                type: 'body',
-                parameters: parameters,
-            });
-        }
-
-        const messageData = {
-            messaging_product: 'whatsapp',
-            to: contact.phone,
-            type: 'template',
-            template: {
-                name: template.name,
-                language: { code: template.language || 'en_US' },
-                ...(components.length > 0 && { components }),
-            },
-        };
-        
-        try {
-            const response = await fetch(
-              `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`,
-              {
-                method: 'POST',
-                headers: {
-                  Authorization: `Bearer ${accessToken}`,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(messageData),
-              }
-            );
-
-            if (response.ok) {
-                successCount++;
-            } else {
-                let reason = 'Unknown API error';
-                try {
-                    const errorData = await response.json();
-                    reason = errorData?.error?.message || reason;
-                } catch(e) {
-                    reason = `Could not parse error response from Meta. Status: ${response.status} ${response.statusText}`;
-                }
-                failedSends.push({ phone: contact.phone, reason });
-                console.error(`Failed to send message to ${contact.phone}:`, reason);
-            }
-        } catch(e: any) {
-            const reason = e.message || 'Exception during fetch';
-            failedSends.push({ phone: contact.phone, reason });
-            console.error(`Exception sending message to ${contact.phone}:`, e);
-        }
-    });
-
-    await Promise.all(sendPromises);
-
-    const errorCount = failedSends.length;
-    let status: 'Completed' | 'Partial Failure' | 'Failed' | 'Processing';
-    if (errorCount > 0) {
-      status = successCount > 0 ? 'Partial Failure' : 'Failed';
-    } else {
-      status = 'Completed';
-    }
-
-    await db.collection('broadcasts').insertOne({
-      projectId: new ObjectId(projectId),
-      templateId: new ObjectId(templateId),
-      templateName: template.name,
-      fileName: contactFile.name,
-      contactCount: validContacts.length,
-      successCount: successCount,
-      errorCount: errorCount,
-      status: status,
-      createdAt: new Date(),
-    });
-
-    if (errorCount > 0) {
-        const errorMessage = `Broadcast finished with ${errorCount} failure(s). ${successCount} messages sent successfully. Check server logs for details.`;
-        return { error: errorMessage };
-    }
+    await db.collection('broadcasts').insertOne(broadcastJob);
 
     revalidatePath('/dashboard/broadcasts');
-    return { message: `Broadcast successfully sent to ${successCount} contacts.` };
+    return { message: `Broadcast successfully queued for ${validContacts.length} contacts. Sending will begin shortly.` };
 
   } catch (e: any) {
-    console.error('Broadcast failed:', e);
+    console.error('Failed to queue broadcast:', e);
     return { error: e.message || 'An unexpected error occurred while processing the broadcast.' };
   }
 }
