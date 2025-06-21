@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getProjectById } from '@/app/actions';
+import { getProjectById, handleSyncPhoneNumbers } from '@/app/actions';
 import type { Project, PhoneNumber } from '@/app/dashboard/page';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,6 +16,13 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -23,7 +30,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, AlertCircle } from 'lucide-react';
+import { MoreHorizontal, AlertCircle, RefreshCw } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
@@ -31,33 +38,58 @@ import { useToast } from '@/hooks/use-toast';
 export default function NumbersPage() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isSyncing, startSyncTransition] = useTransition();
+  const [selectedPhone, setSelectedPhone] = useState<PhoneNumber | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const storedProjectId = localStorage.getItem('activeProjectId');
-    
-    async function fetchProject() {
-      try {
-        if (storedProjectId) {
-          const projectData = await getProjectById(storedProjectId);
-          if (projectData) {
-              setProject(projectData as WithId<Project>);
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch project data:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load project numbers. Please try again later.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
+  const fetchProjectData = async () => {
+    try {
+      const storedProjectId = localStorage.getItem('activeProjectId');
+      if (storedProjectId) {
+        const projectData = await getProjectById(storedProjectId);
+        setProject(projectData || null);
       }
+    } catch (error) {
+      console.error("Failed to fetch project data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load project numbers. Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
+  };
 
-    fetchProject();
-  }, [toast]);
+  useEffect(() => {
+    setLoading(true);
+    fetchProjectData();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const onSync = () => {
+    startSyncTransition(async () => {
+      const projectId = localStorage.getItem('activeProjectId');
+      if (!projectId) {
+        toast({ title: "Error", description: "No active project selected.", variant: "destructive" });
+        return;
+      }
+      const result = await handleSyncPhoneNumbers(projectId);
+      if (result.error) {
+        toast({ title: "Sync Failed", description: result.error, variant: "destructive" });
+      } else {
+        toast({ title: "Sync Successful", description: result.message });
+        await fetchProjectData();
+      }
+    });
+  };
+
+  const onCheckHealth = () => {
+    toast({
+        title: "Health Status",
+        description: "Health information (Status, Quality, Throughput) is shown in the table and is up-to-date with the latest sync."
+    });
+  };
 
   const getStatusVariant = (status?: string) => {
     if (!status) return 'outline';
@@ -84,7 +116,6 @@ export default function NumbersPage() {
     if (level === 'low') return 'destructive';
     return 'outline';
   }
-
 
   if (loading) {
     return (
@@ -133,6 +164,10 @@ export default function NumbersPage() {
           <h1 className="text-3xl font-bold font-headline">Phone Number Management</h1>
           <p className="text-muted-foreground">Your registered WhatsApp phone numbers for project "{project.name}".</p>
         </div>
+        <Button onClick={onSync} disabled={isSyncing || !project} variant="outline">
+          <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+          Sync Phone Numbers
+        </Button>
       </div>
 
       <Card>
@@ -196,8 +231,8 @@ export default function NumbersPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuItem disabled>View Details</DropdownMenuItem>
-                          <DropdownMenuItem disabled>Check Health Status</DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => setSelectedPhone(phone)}>View Details</DropdownMenuItem>
+                          <DropdownMenuItem onSelect={onCheckHealth}>Check Health Status</DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-destructive focus:bg-destructive/10 focus:text-destructive"
@@ -221,6 +256,22 @@ export default function NumbersPage() {
           </Table>
         </CardContent>
       </Card>
+
+      <Dialog open={!!selectedPhone} onOpenChange={(open) => !open && setSelectedPhone(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Phone Number Details</DialogTitle>
+            <DialogDescription>{selectedPhone?.display_phone_number} | {selectedPhone?.verified_name}</DialogDescription>
+          </DialogHeader>
+          {selectedPhone && (
+              <div className="mt-2 text-sm max-h-96 overflow-y-auto">
+                <pre className="p-4 bg-muted/50 rounded-md whitespace-pre-wrap font-code">
+                    {JSON.stringify(selectedPhone, null, 2)}
+                </pre>
+              </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

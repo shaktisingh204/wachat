@@ -368,6 +368,63 @@ export async function handleStartBroadcast(
   }
 }
 
+export async function handleSyncPhoneNumbers(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
+    if (!ObjectId.isValid(projectId)) {
+        return { error: 'Invalid Project ID.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+
+        if (!project) {
+            return { error: 'Project not found.' };
+        }
+
+        const { wabaId, accessToken } = project;
+        const fields = 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput';
+        const response = await fetch(
+            `https://graph.facebook.com/v18.0/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}`,
+            { method: 'GET' }
+        );
+        
+        const responseText = await response.text();
+        const responseData = responseText ? JSON.parse(responseText) : {};
+        
+        if (!response.ok) {
+            const errorMessage = responseData?.error?.message || 'Unknown error syncing phone numbers.';
+            return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
+        }
+        
+        if (!responseData.data || responseData.data.length === 0) {
+            return { message: "No phone numbers found in your WhatsApp Business Account to sync." };
+        }
+
+        const phoneNumbers: PhoneNumber[] = responseData.data.map((num: MetaPhoneNumber) => ({
+            id: num.id,
+            display_phone_number: num.display_phone_number,
+            verified_name: num.verified_name,
+            code_verification_status: num.code_verification_status,
+            quality_rating: num.quality_rating,
+            platform_type: num.platform_type,
+            throughput: num.throughput,
+        }));
+        
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { phoneNumbers: phoneNumbers } }
+        );
+
+        revalidatePath('/dashboard/numbers');
+
+        return { message: `Successfully synced ${phoneNumbers.length} phone number(s).`, count: phoneNumbers.length };
+
+    } catch (e: any) {
+        console.error('Phone number sync failed:', e);
+        return { error: e.message || 'An unexpected error occurred during phone number sync.' };
+    }
+}
+
 export async function handleSyncTemplates(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
     if (!ObjectId.isValid(projectId)) {
         return { error: 'Invalid Project ID.' };
