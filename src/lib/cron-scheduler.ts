@@ -38,6 +38,7 @@ type BroadcastJob = {
     failedSends?: FailedSend[];
     components: any[]; 
     language: string;
+    headerImageUrl?: string;
 };
 
 async function processBroadcastJob() {
@@ -107,10 +108,19 @@ async function processBroadcastJob() {
                                 });
                             }
                         } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                             const mediaUrl = headerComponent.example?.header_url?.[0];
-                             if (mediaUrl) {
+                             const broadcastSpecificUrl = job.headerImageUrl;
+                             const templateDefaultUrl = headerComponent.example?.header_url?.[0];
+
+                             let finalUrl;
+                             if (broadcastSpecificUrl) {
+                                finalUrl = `${process.env.APP_URL}${broadcastSpecificUrl}`;
+                             } else {
+                                finalUrl = templateDefaultUrl;
+                             }
+                             
+                             if (finalUrl) {
                                  const type = headerComponent.format.toLowerCase();
-                                 const mediaObject: any = { link: mediaUrl };
+                                 const mediaObject: any = { link: finalUrl };
                                  if (type === 'document') {
                                     mediaObject.filename = contact['filename'] || "file"; 
                                  }

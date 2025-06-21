@@ -71,6 +71,7 @@ type BroadcastJob = {
     fileName: string;
     components: any[];
     language: string;
+    headerImageUrl?: string;
 };
 
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
@@ -266,6 +267,7 @@ export async function handleStartBroadcast(
 
     const templateId = formData.get('templateId') as string;
     const contactFile = formData.get('csvFile') as File;
+    const headerImageFile = formData.get('headerImageFile') as File | null;
 
     if (!templateId) return { error: 'Please select a message template.' };
     if (!ObjectId.isValid(templateId)) {
@@ -327,6 +329,19 @@ export async function handleStartBroadcast(
       return { error: 'No valid contacts with phone numbers found in the first column of the file.' };
     }
     
+    let headerImageUrl: string | undefined = undefined;
+    if (headerImageFile && headerImageFile.size > 0) {
+        const uploadFormData = new FormData();
+        uploadFormData.append('file', headerImageFile);
+        const uploadResult = await handleUploadMedia(uploadFormData);
+        
+        if (uploadResult.url) {
+            headerImageUrl = uploadResult.url;
+        } else {
+            return { error: uploadResult.error || 'Failed to upload custom header image.' };
+        }
+    }
+
     const broadcastJob: Omit<WithId<BroadcastJob>, '_id'> = {
         projectId: new ObjectId(projectId),
         templateId: new ObjectId(templateId),
@@ -340,6 +355,7 @@ export async function handleStartBroadcast(
         fileName: contactFile.name,
         components: template.components,
         language: template.language,
+        headerImageUrl,
     };
 
     await db.collection('broadcasts').insertOne(broadcastJob);
@@ -527,7 +543,7 @@ export async function handleCreateTemplate(
             } else {
                 if (!headerUrl) return { error: 'A public media URL is required for this header format.' };
                 const absoluteHeaderUrl = `${process.env.APP_URL}${headerUrl}`;
-                headerComponent.example = { header_url: [absoluteHeaderUrl] };
+                headerComponent.example = { header_handle: [absoluteHeaderUrl] };
             }
             components.push(headerComponent);
         }

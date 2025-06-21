@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useFormStatus } from 'react-dom';
@@ -12,13 +13,8 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { LoaderCircle, Send, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import type { Project } from '@/app/dashboard/page';
-
-type Template = {
-  name: string;
-  category: string;
-  body: string;
-};
+import type { Project, Template } from '@/app/dashboard/page';
+import { Separator } from '@/components/ui/separator';
 
 const initialState = {
   message: null,
@@ -50,6 +46,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [fileName, setFileName] = useState('');
+  const [selectedTemplate, setSelectedTemplate] = useState<WithId<Template> | null>(null);
 
   useEffect(() => {
     if (state?.message) {
@@ -59,6 +56,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
       });
       formRef.current?.reset();
       setFileName('');
+      setSelectedTemplate(null);
     }
     if (state?.error) {
       toast({
@@ -88,6 +86,13 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
     )
   }
 
+  const handleTemplateChange = (templateId: string) => {
+    const template = templates.find(t => t._id.toString() === templateId);
+    setSelectedTemplate(template || null);
+  };
+
+  const showImageUpload = selectedTemplate?.components?.some(c => c.type === 'HEADER' && c.format === 'IMAGE');
+
   return (
     <Card>
       <form ref={formRef} action={formAction}>
@@ -114,7 +119,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
           </div>
           <div className="space-y-2">
             <Label htmlFor="templateId">2. Select Message Template</Label>
-            <Select name="templateId" required>
+            <Select name="templateId" required onValueChange={handleTemplateChange}>
               <SelectTrigger id="templateId">
                 <SelectValue placeholder="Choose a template..." />
               </SelectTrigger>
@@ -142,6 +147,28 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
               First column must be phone numbers. For variables like {'{{1}}'}, use 'variable1' columns.
             </p>
           </div>
+
+          {showImageUpload && (
+            <>
+                <div className="md:col-span-3">
+                    <Separator className="my-2" />
+                </div>
+                <div className="md:col-span-3 space-y-2">
+                  <Label htmlFor="headerImageFile">4. Header Image Override (Optional)</Label>
+                  <Input
+                    id="headerImageFile"
+                    name="headerImageFile"
+                    type="file"
+                    accept="image/png, image/jpeg"
+                    className="file:text-primary file:font-medium"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Upload a new image to override the template's default header for this broadcast only.
+                  </p>
+                </div>
+            </>
+          )}
+
         </CardContent>
         <CardFooter className="flex justify-end">
           <SubmitButton />
