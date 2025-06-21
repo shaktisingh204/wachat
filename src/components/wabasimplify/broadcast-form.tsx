@@ -231,18 +231,38 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
                     <div className="md:col-span-3">
                         <Separator className="my-2" />
                     </div>
-                    <div className="md:col-span-3 space-y-2">
-                    <Label htmlFor="headerImageFile">4. Header Media Override (Optional)</Label>
-                    <Input
-                        id="headerImageFile"
-                        name="headerImageFile"
-                        type="file"
-                        accept="image/*,video/*,audio/*,application/pdf"
-                        className="file:text-primary file:font-medium"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                        Upload a new media file to override the template's default header for this broadcast only.
-                    </p>
+                    <div className="md:col-span-3 space-y-4">
+                        <Label>4. Header Media Override (Optional)</Label>
+                        <div className="grid md:grid-cols-2 gap-4 items-start">
+                            <div className="space-y-2">
+                                <Label htmlFor="headerImageFile">Upload File</Label>
+                                <Input
+                                    id="headerImageFile"
+                                    name="headerImageFile"
+                                    type="file"
+                                    accept="image/*,video/*,audio/*,application/pdf"
+                                    className="file:text-primary file:font-medium"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Upload a new media file from your device.
+                                </p>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="headerImageUrl">Or Paste URL</Label>
+                                <Input
+                                    id="headerImageUrl"
+                                    name="headerImageUrl"
+                                    type="url"
+                                    placeholder="https://example.com/image.png"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Use a publicly accessible URL for your media.
+                                </p>
+                            </div>
+                        </div>
+                         <p className="text-xs text-muted-foreground text-center">
+                            Provide a new media file to override the template's default header. If both are provided, the URL will be used.
+                        </p>
                     </div>
                 </>
             )}

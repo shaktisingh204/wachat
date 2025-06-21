@@ -270,6 +270,7 @@ export async function handleStartBroadcast(
     const templateId = formData.get('templateId') as string;
     const contactFile = formData.get('csvFile') as File;
     const headerImageFile = formData.get('headerImageFile') as File | null;
+    const headerImageUrlFromInput = formData.get('headerImageUrl') as string | null;
 
     if (!templateId) return { error: 'Please select a message template.' };
     if (!ObjectId.isValid(templateId)) {
@@ -332,7 +333,10 @@ export async function handleStartBroadcast(
     }
     
     let headerImageUrl: string | undefined = undefined;
-    if (headerImageFile && headerImageFile.size > 0) {
+
+    if (headerImageUrlFromInput && headerImageUrlFromInput.trim() !== '') {
+        headerImageUrl = headerImageUrlFromInput.trim();
+    } else if (headerImageFile && headerImageFile.size > 0) {
         const uploadFormData = new FormData();
         uploadFormData.append('file', headerImageFile);
         const uploadResult = await handleUploadMedia(uploadFormData);
