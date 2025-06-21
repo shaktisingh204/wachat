@@ -93,21 +93,16 @@ async function processBroadcastJob() {
                                     });
                                 });
                             }
-                        } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerComponent.format)) {
-                             const mediaId = headerComponent.example?.header_handle?.[0];
-                             if (mediaId) {
+                        } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
+                             const mediaUrl = headerComponent.example?.header_url?.[0];
+                             if (mediaUrl) {
                                  const type = headerComponent.format.toLowerCase();
-                                 const mediaObject: any = { id: mediaId };
-                                 if (type === 'document' || type === 'image') {
+                                 const mediaObject: any = { link: mediaUrl };
+                                 if (type === 'document') {
                                     mediaObject.filename = contact['filename'] || "file"; 
                                  }
                                  parameters.push({ type, [type]: mediaObject });
                              }
-                        } else if (headerComponent.format === 'AUDIO'){
-                            const mediaId = headerComponent.example?.header_handle?.[0];
-                            if(mediaId){
-                                parameters.push({type: 'audio', audio: {id: mediaId}});
-                            }
                         }
                         if (parameters.length > 0) {
                             payloadComponents.push({ type: 'header', parameters });

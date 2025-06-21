@@ -135,11 +135,10 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   const [footer, setFooter] = useState('');
   const [headerFormat, setHeaderFormat] = useState('NONE');
   const [headerText, setHeaderText] = useState('');
-  const [headerHandle, setHeaderHandle] = useState('');
+  const [headerUrl, setHeaderUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [phoneNumberId, setPhoneNumberId] = useState('');
   const [buttons, setButtons] = useState<ButtonType[]>([]);
   
   useEffect(() => {
@@ -160,8 +159,10 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
         setHeaderFormat(headerComp.format || 'NONE');
         if(headerComp.format === 'TEXT') {
             setHeaderText(headerComp.text || '');
-        } else if (headerComp.example?.header_handle?.[0]) {
-            setHeaderHandle(headerComp.example.header_handle[0]);
+        } else if (headerComp.example?.header_url?.[0]) {
+            const fullUrl = headerComp.example.header_url[0];
+            const urlObject = new URL(fullUrl);
+            setHeaderUrl(urlObject.pathname);
         }
       } else {
         setHeaderFormat('NONE');
@@ -188,23 +189,17 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   }, [state, toast, router]);
   
   const handleUpload = async (file: File) => {
-    if (!phoneNumberId) {
-        setUploadError('Please select a phone number to upload media from.');
-        return;
-    }
     setIsUploading(true);
     setUploadError(null);
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('projectId', project._id.toString());
-    formData.append('phoneNumberId', phoneNumberId);
-
+    
     const result = await handleUploadMedia(formData);
     if (result.error) {
         setUploadError(result.error);
-        setHeaderHandle('');
+        setHeaderUrl('');
     } else {
-        setHeaderHandle(result.handle!);
+        setHeaderUrl(result.url!);
     }
     setIsUploading(false);
     if(fileInputRef.current) {
@@ -238,6 +233,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   return (
     <form action={formAction}>
       <input type="hidden" name="projectId" value={project._id.toString()} />
+      <input type="hidden" name="headerUrl" value={headerUrl} />
       <input type="hidden" name="buttons" value={JSON.stringify(buttons)} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
@@ -303,28 +299,17 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                 {['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat) && (
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Phone Number for Upload</Label>
-                            <Select onValueChange={setPhoneNumberId} value={phoneNumberId}>
-                                <SelectTrigger><SelectValue placeholder="Select a number..." /></SelectTrigger>
-                                <SelectContent>
-                                {project.phoneNumbers?.map((phone) => (
-                                    <SelectItem key={phone.id} value={phone.id}>{phone.display_phone_number}</SelectItem>
-                                ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="mediaFile">Upload Media for Handle</Label>
+                            <Label htmlFor="mediaFile">Upload Media</Label>
                             <div className="flex gap-2">
-                                <Input id="mediaFile" type="file" ref={fileInputRef} className="flex-grow" onChange={e => e.target.files?.[0] && handleUpload(e.target.files[0])} disabled={isUploading || !phoneNumberId} />
-                                <Button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading || !phoneNumberId}>{isUploading ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <UploadCloud className="h-4 w-4"/>}</Button>
+                                <Input id="mediaFile" type="file" ref={fileInputRef} className="flex-grow" onChange={e => e.target.files?.[0] && handleUpload(e.target.files[0])} disabled={isUploading} />
+                                <Button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>{isUploading ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <UploadCloud className="h-4 w-4"/>}</Button>
                             </div>
-                            <p className="text-xs text-muted-foreground">Upload your media to get a handle required by Meta.</p>
+                            <p className="text-xs text-muted-foreground">Upload your media file to be hosted on this server.</p>
                             {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
                         </div>
                         <div className="space-y-2">
-                           <Label htmlFor="headerHandle">Media Handle</Label>
-                           <Input name="headerHandle" id="headerHandle" value={headerHandle} readOnly placeholder="Upload a file to generate a handle..."/>
+                           <Label htmlFor="headerUrlDisplay">Media URL</Label>
+                           <Input name="headerUrlDisplay" id="headerUrlDisplay" value={headerUrl} readOnly placeholder="Upload a file to generate a URL..."/>
                         </div>
                     </div>
                 )}

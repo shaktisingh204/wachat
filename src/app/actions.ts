@@ -8,6 +8,8 @@ import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
 import type { PhoneNumber, Project, Template } from '@/app/dashboard/page';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
 
 type MetaPhoneNumber = {
     id: string;
@@ -497,7 +499,7 @@ export async function handleCreateTemplate(
         const language = formData.get('language') as string;
         const headerFormat = formData.get('headerFormat') as string;
         const headerText = formData.get('headerText') as string;
-        const headerHandle = formData.get('headerHandle') as string;
+        const headerUrl = formData.get('headerUrl') as string;
         const footerText = formData.get('footer') as string;
         const buttonsJson = formData.get('buttons') as string;
         const buttons = buttonsJson ? JSON.parse(buttonsJson) : [];
@@ -517,20 +519,19 @@ export async function handleCreateTemplate(
     
         const components: any[] = [];
     
-        // Header Component
         if (headerFormat !== 'NONE') {
             const headerComponent: any = { type: 'HEADER', format: headerFormat };
             if (headerFormat === 'TEXT') {
                 if (!headerText) return { error: 'Header text is required for TEXT header format.' };
                 headerComponent.text = headerText;
             } else {
-                if (!headerHandle) return { error: 'Media handle is required for this header format.' };
-                headerComponent.example = { header_handle: [headerHandle] };
+                if (!headerUrl) return { error: 'A public media URL is required for this header format.' };
+                const absoluteHeaderUrl = `${process.env.APP_URL}${headerUrl}`;
+                headerComponent.example = { header_url: [absoluteHeaderUrl] };
             }
             components.push(headerComponent);
         }
 
-        // Body Component
         const bodyComponent: any = { type: 'BODY', text: bodyText };
         const bodyVarMatches = bodyText.match(/{{(\d+)}}/g);
         if (bodyVarMatches) {
@@ -539,12 +540,10 @@ export async function handleCreateTemplate(
         }
         components.push(bodyComponent);
 
-        // Footer Component
         if (footerText) {
             components.push({ type: 'FOOTER', text: footerText });
         }
 
-        // Buttons Component
         if (buttons.length > 0) {
             components.push({ type: 'BUTTONS', buttons });
         }
@@ -575,8 +574,26 @@ export async function handleCreateTemplate(
             const errorMessage = responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error creating template.';
             return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
         }
+
+        const newMetaTemplateId = responseData?.id;
+        if (!newMetaTemplateId) {
+            return { error: 'Template created on Meta, but no ID was returned. Please sync manually.' };
+        }
+
+        const { db } = await connectToDatabase();
+        const templateToInsert = {
+            name: payload.name,
+            category,
+            language,
+            status: responseData?.status || 'PENDING',
+            body: bodyText,
+            projectId: new ObjectId(projectId),
+            metaId: newMetaTemplateId,
+            components, 
+        };
+
+        await db.collection('templates').insertOne(templateToInsert);
     
-        await handleSyncTemplates(projectId);
         revalidatePath('/dashboard/templates');
     
         const message = `Template "${name}" submitted successfully!`;
@@ -588,55 +605,33 @@ export async function handleCreateTemplate(
     }
 }
 
-export async function handleUploadMedia(formData: FormData): Promise<{ handle?: string; error?: string }> {
+export async function handleUploadMedia(formData: FormData): Promise<{ url?: string; error?: string }> {
     try {
-        const projectId = formData.get('projectId') as string;
-        const phoneNumberId = formData.get('phoneNumberId') as string;
         const file = formData.get('file') as File;
 
-        if (!projectId || !phoneNumberId || !file) {
-            return { error: 'Missing project ID, phone number ID, or file.' };
-        }
-        if (!ObjectId.isValid(projectId)) {
-            return { error: 'Invalid Project ID.' };
+        if (!file) {
+            return { error: 'No file provided.' };
         }
 
-        const project = await getProjectById(projectId);
-        if (!project) {
-            return { error: 'Project not found.' };
-        }
-        const { accessToken } = project;
+        const bytes = await file.arrayBuffer();
+        const buffer = Buffer.from(bytes);
 
-        const uploadFormData = new FormData();
-        uploadFormData.append('file', file);
-        uploadFormData.append('messaging_product', 'whatsapp');
+        const extension = file.name.split('.').pop() || 'unknown';
+        const filename = `${Date.now()}-${Math.round(Math.random() * 1E9)}.${extension}`;
         
-        const response = await fetch(
-            `https://graph.facebook.com/v18.0/${phoneNumberId}/media`,
-            {
-                method: 'POST',
-                headers: {
-                    Authorization: `Bearer ${accessToken}`,
-                },
-                body: uploadFormData,
-            }
-        );
+        const uploadDir = join(process.cwd(), 'public', 'uploads');
+        const path = join(uploadDir, filename);
 
-        const responseText = await response.text();
-        const data = responseText ? JSON.parse(responseText) : null;
+        await mkdir(uploadDir, { recursive: true });
 
-        if (!response.ok) {
-            const errorMessage = data?.error?.message || 'Unknown API error during media upload.';
-            return { error: `Media upload failed: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
-        }
+        await writeFile(path, buffer);
+
+        const publicUrl = `/uploads/${filename}`;
         
-        if (!data?.id) {
-            return { error: 'Media upload succeeded but did not return an ID.' };
-        }
-
-        return { handle: data.id };
+        return { url: publicUrl };
 
     } catch (e: any) {
+        console.error('Media upload to server failed:', e);
         return { error: e.message || 'An unexpected error occurred during media upload.' };
     }
 }
