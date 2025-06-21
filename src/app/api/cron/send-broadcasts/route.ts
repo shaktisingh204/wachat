@@ -39,6 +39,7 @@ async function updateLogs(db: Db, jobId: ObjectId, logs: string[]) {
 
 
 export async function POST(request: Request) {
+    console.log(`[${new Date().toISOString()}] CRON JOB: Triggered.`);
     const logBuffer: string[] = [];
     const log = (message: string) => {
         const logMessage = `[${new Date().toISOString()}] ${message}`;
@@ -50,13 +51,16 @@ export async function POST(request: Request) {
     let jobId: ObjectId | null = null;
 
     try {
-        log('Triggered.');
-
         const cronSecret = request.headers.get('x-cron-secret');
-        if (cronSecret !== process.env.CRON_SECRET) {
-            console.error('CRON JOB: Unauthorized access. Invalid or missing secret.');
+        if (!process.env.CRON_SECRET) {
+            console.error(`[${new Date().toISOString()}] CRON JOB: CRON_SECRET is not set in the environment.`);
             return new NextResponse('Unauthorized', { status: 401 });
         }
+        if (cronSecret !== process.env.CRON_SECRET) {
+            console.error(`[${new Date().toISOString()}] CRON JOB: Unauthorized access. Invalid or missing secret.`);
+            return new NextResponse('Unauthorized', { status: 401 });
+        }
+        console.log(`[${new Date().toISOString()}] CRON JOB: Cron secret verified.`);
 
         log('Connecting to database...');
         const conn = await connectToDatabase();
@@ -71,7 +75,7 @@ export async function POST(request: Request) {
         );
 
         if (!job) {
-            console.log('CRON JOB: No queued broadcasts to process.');
+            console.log(`[${new Date().toISOString()}] CRON JOB: No queued broadcasts to process.`);
             return NextResponse.json({ message: 'No queued broadcasts to process.' });
         }
 
@@ -205,7 +209,7 @@ export async function POST(request: Request) {
                 }
             );
             
-            console.log(`CRON JOB: Broadcast job ${jobId} finished with status: ${finalStatus}. Success: ${successCount}, Failed: ${errorCount}.`);
+            console.log(`[${new Date().toISOString()}] CRON JOB: Broadcast job ${jobId} finished with status: ${finalStatus}. Success: ${successCount}, Failed: ${errorCount}.`);
             return NextResponse.json({ message: `Job ${jobId} processed.`, status: finalStatus, success: successCount, failed: errorCount });
         } catch (processingError: any) {
             const errorMessage = `CRON JOB: Error during processing job ${jobId}: ${processingError.message}`;
@@ -223,7 +227,7 @@ export async function POST(request: Request) {
         }
     } catch (error: any) {
         // This outer catch handles initial setup errors (DB connection, finding the job)
-        const errorMessage = `CRON JOB FAILED: ${error.message}`;
+        const errorMessage = `[${new Date().toISOString()}] CRON JOB FAILED: ${error.message}`;
         console.error(errorMessage, error);
         // We cannot log to the DB here because we might not have a DB connection or a job ID.
         return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
