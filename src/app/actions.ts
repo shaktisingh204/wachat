@@ -56,16 +56,20 @@ type MetaTemplatesResponse = {
 };
 
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
+  console.log(`[DEBUG] handleSuggestContent called with topic: ${topic}`);
   if (!topic) {
-    return { error: 'Topic cannot be empty.' };
+    const error = 'Topic cannot be empty.';
+    console.error(`[DEBUG] ${error}`);
+    return { error };
   }
 
   try {
     const result = await suggestTemplateContent({ topic });
+    console.log('[DEBUG] handleSuggestContent got result:', result);
     return { suggestions: result.suggestions };
-  } catch (e) {
-    console.error(e);
-    return { error: 'Failed to generate suggestions. Please try again.' };
+  } catch (e: any) {
+    console.error('[DEBUG] handleSuggestContent failed:', e);
+    return { error: e.message || 'Failed to generate suggestions. Please try again.' };
   }
 }
 
@@ -81,15 +85,18 @@ export async function getProjects(): Promise<WithId<Project>[]> {
 }
 
 export async function getProjectById(projectId: string): Promise<WithId<Project> | null> {
+    console.log(`[DEBUG] getProjectById called with projectId: ${projectId}`);
     if (!ObjectId.isValid(projectId)) {
+        console.error(`[DEBUG] Invalid projectId provided to getProjectById: ${projectId}`);
         return null;
     }
     try {
         const { db } = await connectToDatabase();
         const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+        console.log('[DEBUG] getProjectById found project:', project ? `ID: ${project._id}` : 'null');
         return JSON.parse(JSON.stringify(project));
     } catch (error) {
-        console.error("Failed to fetch project:", error);
+        console.error("[DEBUG] Exception in getProjectById:", error);
         return null;
     }
 }
@@ -444,6 +451,8 @@ export async function handleCreateTemplate(
     prevState: CreateTemplateState,
     formData: FormData
   ): Promise<CreateTemplateState> {
+    const formDataObject = Object.fromEntries(formData.entries());
+    console.log('[DEBUG] handleCreateTemplate called with formData:', formDataObject);
     try {
         const projectId = formData.get('projectId') as string;
         const name = formData.get('templateName') as string;
@@ -458,15 +467,21 @@ export async function handleCreateTemplate(
         const footerText = formData.get('footerText') as string;
     
         if (!projectId || !name || !category || !bodyText || !language) {
-        return { error: 'Project, Name, Language, Category, and Body are required.' };
+            const error = 'Project, Name, Language, Category, and Body are required.';
+            console.error(`[DEBUG] handleCreateTemplate validation error: ${error}`);
+            return { error };
         }
         if (!ObjectId.isValid(projectId)) {
-            return { error: 'Invalid Project ID.' };
+            const error = 'Invalid Project ID.';
+            console.error(`[DEBUG] handleCreateTemplate validation error: ${error}`);
+            return { error };
         }
     
         const project = await getProjectById(projectId);
         if (!project) {
-        return { error: 'Project not found.' };
+            const error = 'Project not found.';
+            console.error(`[DEBUG] handleCreateTemplate project lookup error: ${error}`);
+            return { error };
         }
         const { wabaId, accessToken } = project;
     
@@ -536,11 +551,12 @@ export async function handleCreateTemplate(
         }
     
         const payload = {
-        name: name.toLowerCase().replace(/\s+/g, '_'),
-        language,
-        category,
-        components,
+            name: name.toLowerCase().replace(/\s+/g, '_'),
+            language,
+            category,
+            components,
         };
+        console.log('[DEBUG] Payload to Meta API for template creation:', JSON.stringify(payload, null, 2));
     
         const response = await fetch(
             `https://graph.facebook.com/v18.0/${wabaId}/message_templates`,
@@ -554,10 +570,13 @@ export async function handleCreateTemplate(
             }
         );
     
-        const responseData = await response.json().catch(() => null);
+        const responseText = await response.text();
+        console.log(`[DEBUG] Meta API raw response for create template: [Status: ${response.status}] ${responseText}`);
+        const responseData = responseText ? JSON.parse(responseText) : null;
     
         if (!response.ok) {
             const errorMessage = responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error creating template.';
+            console.error(`[DEBUG] Meta API Error during template creation: ${errorMessage}`);
             return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
         }
     
@@ -565,30 +584,39 @@ export async function handleCreateTemplate(
         await handleSyncTemplates(projectId);
         revalidatePath('/dashboard/templates');
     
-        return { message: `Template "${name}" submitted successfully!` };
+        const message = `Template "${name}" submitted successfully!`;
+        console.log(`[DEBUG] handleCreateTemplate success: ${message}`);
+        return { message };
   
     } catch (e: any) {
-        console.error('Template creation failed:', e);
+        console.error('[DEBUG] Exception in handleCreateTemplate:', e);
         return { error: e.message || 'An unexpected error occurred.' };
     }
 }
 
 export async function handleUploadMedia(formData: FormData): Promise<{ handle?: string; error?: string }> {
+    console.log('[DEBUG] handleUploadMedia called.');
     try {
         const projectId = formData.get('projectId') as string;
         const phoneNumberId = formData.get('phoneNumberId') as string;
         const file = formData.get('file') as File;
 
         if (!projectId || !phoneNumberId || !file) {
-            return { error: 'Missing project ID, phone number ID, or file.' };
+            const error = 'Missing project ID, phone number ID, or file.';
+            console.error(`[DEBUG] handleUploadMedia validation error: ${error}`);
+            return { error };
         }
         if (!ObjectId.isValid(projectId)) {
-            return { error: 'Invalid Project ID.' };
+            const error = 'Invalid Project ID.';
+            console.error(`[DEBUG] handleUploadMedia validation error: ${error}`);
+            return { error };
         }
 
         const project = await getProjectById(projectId);
         if (!project) {
-            return { error: 'Project not found.' };
+            const error = 'Project not found.';
+            console.error(`[DEBUG] handleUploadMedia project lookup error: ${error}`);
+            return { error };
         }
         const { accessToken } = project;
 
@@ -596,6 +624,7 @@ export async function handleUploadMedia(formData: FormData): Promise<{ handle?: 
         uploadFormData.append('file', file);
         uploadFormData.append('messaging_product', 'whatsapp');
         
+        console.log(`[DEBUG] Uploading media file "${file.name}" for phone number ${phoneNumberId}`);
         const response = await fetch(
             `https://graph.facebook.com/v18.0/${phoneNumberId}/media`,
             {
@@ -607,23 +636,27 @@ export async function handleUploadMedia(formData: FormData): Promise<{ handle?: 
             }
         );
 
-        const data = await response.json().catch(() => null);
+        const responseText = await response.text();
+        console.log(`[DEBUG] Meta API raw response for media upload: [Status: ${response.status}] ${responseText}`);
+        const data = responseText ? JSON.parse(responseText) : null;
 
         if (!response.ok) {
             const errorMessage = data?.error?.message || 'Unknown API error during media upload.';
+            console.error(`[DEBUG] Media upload failed: ${errorMessage}`);
             return { error: `Media upload failed: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
         }
         
         if (!data?.id) {
-            return { error: 'Media upload succeeded but did not return an ID.' };
+            const error = 'Media upload succeeded but did not return an ID.';
+            console.error(`[DEBUG] ${error}`);
+            return { error };
         }
 
+        console.log(`[DEBUG] Media upload successful, handle: ${data.id}`);
         return { handle: data.id };
 
     } catch (e: any) {
-        console.error('Media upload exception:', e);
+        console.error('[DEBUG] Exception in handleUploadMedia:', e);
         return { error: e.message || 'An unexpected error occurred during media upload.' };
     }
 }
-
-    

@@ -94,14 +94,36 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
 
   useEffect(() => {
     async function fetchProject() {
-      if (projectId) {
-        const projectData = await getProjectById(projectId);
-        setProject(projectData as WithId<Project>);
+      setIsProjectLoading(true);
+      try {
+        if (projectId) {
+          console.log(`[DEBUG-CLIENT] Fetching project with ID: ${projectId}`);
+          const projectData = await getProjectById(projectId);
+          if (projectData) {
+            console.log(`[DEBUG-CLIENT] Project data received:`, projectData);
+            setProject(projectData as WithId<Project>);
+          } else {
+            console.warn(`[DEBUG-CLIENT] No project data found for ID: ${projectId}`);
+            toast({
+              title: "Project Not Found",
+              description: "Could not find project details. You may need to select a project again.",
+              variant: "destructive",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("[DEBUG-CLIENT] Failed to fetch project in form:", error);
+        toast({
+          title: "Error Loading Project",
+          description: "An error occurred while loading project details. Please check the console and try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsProjectLoading(false);
       }
-      setIsProjectLoading(false);
     }
     fetchProject();
-  }, [projectId]);
+  }, [projectId, toast]);
 
   useEffect(() => {
     if (state?.message) {
