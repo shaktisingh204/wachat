@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useEffect, useState, useRef } from 'react';
@@ -50,29 +51,76 @@ type ButtonType = {
 };
 
 const languages = [
-    { code: 'af', name: 'Afrikaans' }, { code: 'sq', name: 'Albanian' }, { code: 'ar', name: 'Arabic' },
-    { code: 'az', name: 'Azerbaijani' }, { code: 'bn', name: 'Bengali' }, { code: 'bg', name: 'Bulgarian' },
-    { code: 'ca', name: 'Catalan' }, { code: 'zh_CN', name: 'Chinese (CHN)' }, { code: 'zh_HK', name: 'Chinese (HKG)' },
-    { code: 'zh_TW', name: 'Chinese (TAI)' }, { code: 'hr', name: 'Croatian' }, { code: 'cs', name: 'Czech' },
-    { code: 'da', name: 'Danish' }, { code: 'nl', name: 'Dutch' }, { code: 'en', name: 'English' },
-    { code: 'en_US', name: 'English (US)' }, { code: 'et', name: 'Estonian' }, { code: 'fil', name: 'Filipino' },
-    { code: 'fi', name: 'Finnish' }, { code: 'fr', name: 'French' }, { code: 'ka', name: 'Georgian' },
-    { code: 'de', name: 'German' }, { code: 'el', name: 'Greek' }, { code: 'gu', name: 'Gujarati' },
-    { code: 'ha', name: 'Hausa' }, { code: 'he', name: 'Hebrew' }, { code: 'hi', name: 'Hindi' },
-    { code: 'hu', name: 'Hungarian' }, { code: 'id', name: 'Indonesian' }, { code: 'ga', name: 'Irish' },
-    { code: 'it', name: 'Italian' }, { code: 'ja', name: 'Japanese' }, { code: 'kn', name: 'Kannada' },
-    { code: 'kk', name: 'Kazakh' }, { code: 'rw_RW', name: 'Kinyarwanda' }, { code: 'ko', name: 'Korean' },
-    { code: 'ky_KG', name: 'Kyrgyz (Kyrgyzstan)' }, { code: 'lo', name: 'Lao' }, { code: 'lv', name: 'Latvian' },
-    { code: 'lt', name: 'Lithuanian' }, { code: 'mk', name: 'Macedonian' }, { code: 'ms', name: 'Malay' },
-    { code: 'ml', name: 'Malayalam' }, { code: 'mr', name: 'Marathi' }, { code: 'nb', name: 'Norwegian' },
-    { code: 'fa', name: 'Persian' }, { code: 'pl', name: 'Polish' }, { code: 'pt_BR', name: 'Portuguese (BR)' },
-    { code: 'pt_PT', name: 'Portuguese (POR)' }, { code: 'pa', name: 'Punjabi' }, { code: 'ro', name: 'Romanian' },
-    { code: 'ru', name: 'Russian' }, { code: 'sr', name: 'Serbian' }, { code: 'sk', name: 'Slovak' },
-    { code: 'sl', name: 'Slovenian' }, { code: 'es', name: 'Spanish' }, { code: 'es_AR', name: 'Spanish (ARG)' },
-    { code: 'es_MX', name: 'Spanish (MEX)' }, { code: 'es_ES', name: 'Spanish (SPA)' }, { code: 'sw', name: 'Swahili' },
-    { code: 'sv', name: 'Swedish' }, { code: 'ta', name: 'Tamil' }, { code: 'te', name: 'Telugu' },
-    { code: 'th', name: 'Thai' }, { code: 'tr', name: 'Turkish' }, { code: 'uk', name: 'Ukrainian' },
-    { code: 'ur', name: 'Urdu' }, { code: 'uz', name: 'Uzbek' }, { code: 'vi', name: 'Vietnamese' }, { code: 'zu', name: 'Zulu' }
+    { name: 'Afrikaans', code: 'af' },
+    { name: 'Albanian', code: 'sq' },
+    { name: 'Arabic', code: 'ar' },
+    { name: 'Azerbaijani', code: 'az' },
+    { name: 'Bengali', code: 'bn' },
+    { name: 'Bulgarian', code: 'bg' },
+    { name: 'Catalan', code: 'ca' },
+    { name: 'Chinese (CHN)', code: 'zh_CN' },
+    { name: 'Chinese (HKG)', code: 'zh_HK' },
+    { name: 'Chinese (TAI)', code: 'zh_TW' },
+    { name: 'Croatian', code: 'hr' },
+    { name: 'Czech', code: 'cs' },
+    { name: 'Danish', code: 'da' },
+    { name: 'Dutch', code: 'nl' },
+    { name: 'English', code: 'en' },
+    { name: 'English (US)', code: 'en_US' },
+    { name: 'Estonian', code: 'et' },
+    { name: 'Filipino', code: 'fil' },
+    { name: 'Finnish', code: 'fi' },
+    { name: 'French', code: 'fr' },
+    { name: 'Georgian', code: 'ka' },
+    { name: 'German', code: 'de' },
+    { name: 'Greek', code: 'el' },
+    { name: 'Gujarati', code: 'gu' },
+    { name: 'Hausa', code: 'ha' },
+    { name: 'Hebrew', code: 'he' },
+    { name: 'Hindi', code: 'hi' },
+    { name: 'Hungarian', code: 'hu' },
+    { name: 'Indonesian', code: 'id' },
+    { name: 'Irish', code: 'ga' },
+    { name: 'Italian', code: 'it' },
+    { name: 'Japanese', code: 'ja' },
+    { name: 'Kannada', code: 'kn' },
+    { name: 'Kazakh', code: 'kk' },
+    { name: 'Kinyarwanda', code: 'rw_RW' },
+    { name: 'Korean', code: 'ko' },
+    { name: 'Kyrgyz (Kyrgyzstan)', code: 'ky_KG' },
+    { name: 'Lao', code: 'lo' },
+    { name: 'Latvian', code: 'lv' },
+    { name: 'Lithuanian', code: 'lt' },
+    { name: 'Macedonian', code: 'mk' },
+    { name: 'Malay', code: 'ms' },
+    { name: 'Malayalam', code: 'ml' },
+    { name: 'Marathi', code: 'mr' },
+    { name: 'Norwegian', code: 'nb' },
+    { name: 'Persian', code: 'fa' },
+    { name: 'Polish', code: 'pl' },
+    { name: 'Portuguese (BR)', code: 'pt_BR' },
+    { name: 'Portuguese (POR)', code: 'pt_PT' },
+    { name: 'Punjabi', code: 'pa' },
+    { name: 'Romanian', code: 'ro' },
+    { name: 'Russian', code: 'ru' },
+    { name: 'Serbian', code: 'sr' },
+    { name: 'Slovak', code: 'sk' },
+    { name: 'Slovenian', code: 'sl' },
+    { name: 'Spanish', code: 'es' },
+    { name: 'Spanish (ARG)', code: 'es_AR' },
+    { name: 'Spanish (MEX)', code: 'es_MX' },
+    { name: 'Spanish (SPA)', code: 'es_ES' },
+    { name: 'Swahili', code: 'sw' },
+    { name: 'Swedish', code: 'sv' },
+    { name: 'Tamil', code: 'ta' },
+    { name: 'Telugu', code: 'te' },
+    { name: 'Thai', code: 'th' },
+    { name: 'Turkish', code: 'tr' },
+    { name: 'Ukrainian', code: 'uk' },
+    { name: 'Urdu', code: 'ur' },
+    { name: 'Uzbek', code: 'uz' },
+    { name: 'Vietnamese', code: 'vi' },
+    { name: 'Zulu', code: 'zu' }
 ];
 
 export function CreateTemplateForm({ project, initialTemplate, isCloning }: { project: WithId<Project>, initialTemplate?: WithId<Template> | null, isCloning?: boolean }) {
@@ -298,6 +346,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
             <Card>
                 <CardHeader>
                     <CardTitle>Buttons (Optional)</CardTitle>
+                    <CardDescription>Add quick replies or calls to action to your message.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
@@ -321,16 +370,11 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
 
                 </CardContent>
             </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle>Submit</CardTitle>
-                    <CardDescription>When you're ready, submit your template for review by Meta.</CardDescription>
-                </CardHeader>
-                <CardFooter>
-                    <SubmitButton />
-                </CardFooter>
-            </Card>
         </div>
+      </div>
+      <Separator className="my-8" />
+      <div className="flex justify-end">
+        <SubmitButton />
       </div>
     </form>
   );
