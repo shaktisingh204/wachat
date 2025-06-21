@@ -67,7 +67,7 @@ type BroadcastJob = {
     createdAt: Date;
     contactCount: number;
     fileName: string;
-    body: string;
+    components: any[];
     language: string;
 };
 
@@ -324,15 +324,6 @@ export async function handleStartBroadcast(
     if (validContacts.length === 0) {
       return { error: 'No valid contacts with phone numbers found in the first column of the file.' };
     }
-
-    const variableMatches = template.body.match(/{{(\d+)}}/g);
-    const requiredVarNumbers = variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
-    
-    for (const varNum of requiredVarNumbers) {
-        if (!(`variable${varNum}` in firstRow)) {
-            return { error: `Template requires variable {{${varNum}}}, but file is missing a "variable${varNum}" column header.` };
-        }
-    }
     
     const broadcastJob: Omit<WithId<BroadcastJob>, '_id'> = {
         projectId: new ObjectId(projectId),
@@ -345,7 +336,7 @@ export async function handleStartBroadcast(
         createdAt: new Date(),
         contactCount: validContacts.length,
         fileName: contactFile.name,
-        body: template.body,
+        components: template.components,
         language: template.language,
     };
 

@@ -18,7 +18,7 @@ type BroadcastJob = {
     errorCount?: number;
     successfulSends?: { phone: string; response: any }[];
     failedSends?: { phone: string; response: any }[];
-    body: string; 
+    components: any[]; 
     language: string;
 };
 
@@ -46,8 +46,7 @@ export async function POST(request: Request) {
         let successCount = 0;
         let successfulSends: { phone: string; response: any }[] = [];
         let failedSends: { phone: string; response: any }[] = [];
-        const requiredVarNumbers = getRequiredVars(job.body);
-
+        
         const CHUNK_SIZE = 80;
         const DELAY_MS = 1000; // 1 second delay between chunks
 
@@ -55,23 +54,49 @@ export async function POST(request: Request) {
             const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
             
             const sendPromises = chunk.map(async (contact) => {
-                const components = [];
-                if (requiredVarNumbers.length > 0) {
-                    const parameters = requiredVarNumbers.sort((a,b) => a - b).map(varNum => ({
-                        type: 'text',
-                        text: contact[`variable${varNum}`] || '',
-                    }));
-                    components.push({ type: 'body', parameters });
+
+                const getVars = (text: string): number[] => {
+                    const variableMatches = text.match(/{{(\d+)}}/g);
+                    return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
+                };
+                
+                const payloadComponents: any[] = [];
+
+                // Process Header
+                const headerComponent = job.components.find(c => c.type === 'HEADER' && c.format === 'TEXT');
+                if (headerComponent?.text) {
+                    const headerVars = getVars(headerComponent.text);
+                    if (headerVars.length > 0) {
+                        const parameters = headerVars.sort((a,b) => a-b).map(varNum => ({
+                            type: 'text',
+                            text: contact[`variable${varNum}`] || '',
+                        }));
+                        payloadComponents.push({ type: 'header', parameters });
+                    }
                 }
 
+                // Process Body
+                const bodyComponent = job.components.find(c => c.type === 'BODY');
+                if (bodyComponent?.text) {
+                    const bodyVars = getVars(bodyComponent.text);
+                    if (bodyVars.length > 0) {
+                        const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({
+                            type: 'text',
+                            text: contact[`variable${varNum}`] || '',
+                        }));
+                        payloadComponents.push({ type: 'body', parameters });
+                    }
+                }
+                
                 const messageData = {
                     messaging_product: 'whatsapp',
                     to: contact.phone,
+                    recipient_type: 'individual',
                     type: 'template',
                     template: {
                         name: job.templateName,
                         language: { code: job.language || 'en_US' },
-                        ...(components.length > 0 && { components }),
+                        ...(payloadComponents.length > 0 && { components: payloadComponents }),
                     },
                 };
 
@@ -104,7 +129,6 @@ export async function POST(request: Request) {
 
             await Promise.all(sendPromises);
 
-            // If it's not the last chunk, wait for the delay
             if (i + CHUNK_SIZE < job.contacts.length) {
                 await new Promise(resolve => setTimeout(resolve, DELAY_MS));
             }
@@ -138,9 +162,4 @@ export async function POST(request: Request) {
         console.error('Cron job failed:', error);
         return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
     }
-}
-
-function getRequiredVars(body: string): number[] {
-    const variableMatches = body.match(/{{(\d+)}}/g);
-    return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
 }
