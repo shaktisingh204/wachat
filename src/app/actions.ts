@@ -29,6 +29,31 @@ type MetaPhoneNumbersResponse = {
     }
 };
 
+type MetaTemplateComponent = {
+    type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
+    text?: string;
+    format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
+};
+
+type MetaTemplate = {
+    id: string;
+    name: string;
+    language: string;
+    status: string;
+    category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
+    components: MetaTemplateComponent[];
+};
+
+type MetaTemplatesResponse = {
+    data: MetaTemplate[];
+    paging?: {
+        cursors: {
+            before: string;
+            after: string;
+        }
+    }
+};
+
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
   if (!topic) {
     return { error: 'Topic cannot be empty.' };
@@ -69,15 +94,18 @@ export async function getProjectById(projectId: string): Promise<WithId<any> | n
 }
 
 
-export async function getTemplates() {
-  try {
-    const { db } = await connectToDatabase();
-    const templates = await db.collection('templates').find({}).sort({ name: 1 }).toArray();
-    return templates;
-  } catch (error) {
-    console.error('Failed to fetch templates:', error);
-    return [];
-  }
+export async function getTemplates(projectId: string) {
+    if (!ObjectId.isValid(projectId)) {
+        return [];
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const templates = await db.collection('templates').find({ projectId: new ObjectId(projectId) }).sort({ name: 1 }).toArray();
+        return templates;
+    } catch (error) {
+        console.error('Failed to fetch templates:', error);
+        return [];
+    }
 }
 
 export async function getBroadcasts() {
@@ -323,4 +351,70 @@ export async function handleStartBroadcast(
     console.error('Broadcast failed:', e);
     return { error: e.message || 'An unexpected error occurred while processing the broadcast.' };
   }
+}
+
+export async function handleSyncTemplates(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
+    if (!ObjectId.isValid(projectId)) {
+        return { error: 'Invalid Project ID.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+
+        if (!project) {
+            return { error: 'Project not found.' };
+        }
+
+        const { wabaId, accessToken } = project;
+
+        const response = await fetch(
+            `https://graph.facebook.com/v18.0/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id`,
+            { method: 'GET' }
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            return { error: `Failed to fetch templates from Meta: ${errorData?.error?.message || 'Unknown API Error'}` };
+        }
+
+        const templatesResponse: MetaTemplatesResponse = await response.json();
+        
+        if (!templatesResponse.data || templatesResponse.data.length === 0) {
+            return { message: "No templates found in your WhatsApp Business Account to sync." }
+        }
+
+        const templatesToUpsert = templatesResponse.data.map(t => {
+            const bodyComponent = t.components.find(c => c.type === 'BODY');
+            return {
+                name: t.name,
+                category: t.category,
+                language: t.language,
+                status: t.status,
+                body: bodyComponent?.text || '',
+                projectId: new ObjectId(projectId),
+                metaId: t.id,
+                components: t.components,
+            };
+        });
+
+        const bulkOps = templatesToUpsert.map(template => ({
+            updateOne: {
+                filter: { metaId: template.metaId, projectId: template.projectId },
+                update: { $set: template },
+                upsert: true,
+            }
+        }));
+
+        const result = await db.collection('templates').bulkWrite(bulkOps);
+        const syncedCount = result.upsertedCount + result.modifiedCount;
+        
+        revalidatePath('/dashboard/templates');
+        
+        return { message: `Successfully synced ${syncedCount} template(s).`, count: syncedCount };
+
+    } catch (e: any) {
+        console.error('Template sync failed:', e);
+        return { error: e.message || 'An unexpected error occurred during template sync.' };
+    }
 }
