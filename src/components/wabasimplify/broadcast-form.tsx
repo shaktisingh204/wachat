@@ -95,9 +95,8 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
                 });
             }
         } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-             const templateDefaultUrl = headerComponent.example?.header_url?.[0] || 'https://placehold.co/600x400.png';
              const type = headerComponent.format.toLowerCase();
-             const mediaObject: any = { link: templateDefaultUrl };
+             const mediaObject: any = { id: "[MEDIA_ID_GENERATED_AT_SEND_TIME]" };
              if (type === 'document') {
                 mediaObject.filename = "sample_file.pdf"; 
              }

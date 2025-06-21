@@ -68,6 +68,54 @@ async function handleRequest(request: Request) {
                     const phone = contact[firstColumnHeader];
 
                     try {
+                        // --- MEDIA UPLOAD LOGIC ---
+                        let mediaId: string | null = null;
+                        const headerComponent = job.components.find(c => c.type === 'HEADER');
+                        if (headerComponent && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
+                            const broadcastSpecificUrl = job.headerImageUrl;
+                            const templateDefaultUrl = headerComponent.example?.header_url?.[0];
+
+                            let finalUrl;
+                            if (broadcastSpecificUrl) {
+                                finalUrl = broadcastSpecificUrl.startsWith('http') ? broadcastSpecificUrl : `${process.env.APP_URL || ''}${broadcastSpecificUrl}`;
+                            } else {
+                                finalUrl = templateDefaultUrl;
+                            }
+
+                            if (finalUrl) {
+                                try {
+                                    const mediaResponse = await fetch(finalUrl);
+                                    if (!mediaResponse.ok) throw new Error(`Failed to fetch media from URL: ${finalUrl}`);
+                                    
+                                    const fileBlob = await mediaResponse.blob();
+                                    
+                                    const formData = new FormData();
+                                    formData.append('messaging_product', 'whatsapp');
+                                    formData.append('file', fileBlob);
+
+                                    const uploadResponse = await fetch(
+                                      `https://graph.facebook.com/v18.0/${job.phoneNumberId}/media`,
+                                      {
+                                        method: 'POST',
+                                        headers: {
+                                          Authorization: `Bearer ${job.accessToken}`,
+                                        },
+                                        body: formData,
+                                      }
+                                    );
+
+                                    const uploadData = await uploadResponse.json();
+                                    if (!uploadResponse.ok || !uploadData.id) {
+                                        throw new Error(`Meta media upload failed: ${JSON.stringify(uploadData.error || uploadData)}`);
+                                    }
+                                    mediaId = uploadData.id;
+                                } catch (mediaError: any) {
+                                    throw new Error(`Media processing failed: ${mediaError.message}`);
+                                }
+                            }
+                        }
+                        
+                        // --- PAYLOAD CONSTRUCTION ---
                         const getVars = (text: string): number[] => {
                             const variableMatches = text.match(/{{(\d+)}}/g);
                             return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
@@ -75,7 +123,6 @@ async function handleRequest(request: Request) {
                         
                         const payloadComponents: any[] = [];
                         
-                        const headerComponent = job.components.find(c => c.type === 'HEADER');
                         if (headerComponent) {
                             const parameters: any[] = [];
                             if (headerComponent.format === 'TEXT' && headerComponent.text) {
@@ -88,25 +135,13 @@ async function handleRequest(request: Request) {
                                         });
                                     });
                                 }
-                            } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                                 const broadcastSpecificUrl = job.headerImageUrl;
-                                 const templateDefaultUrl = headerComponent.example?.header_url?.[0];
-
-                                 let finalUrl;
-                                 if (broadcastSpecificUrl) {
-                                    finalUrl = `${process.env.APP_URL || ''}${broadcastSpecificUrl}`;
-                                 } else {
-                                    finalUrl = templateDefaultUrl;
+                            } else if (mediaId) {
+                                 const type = headerComponent.format.toLowerCase();
+                                 const mediaObject: any = { id: mediaId };
+                                 if (type === 'document') {
+                                    mediaObject.filename = contact['filename'] || "file"; 
                                  }
-                                 
-                                 if (finalUrl) {
-                                     const type = headerComponent.format.toLowerCase();
-                                     const mediaObject: any = { link: finalUrl };
-                                     if (type === 'document') {
-                                        mediaObject.filename = contact['filename'] || "file"; 
-                                     }
-                                     parameters.push({ type, [type]: mediaObject });
-                                 }
+                                 parameters.push({ type, [type]: mediaObject });
                             }
                             if (parameters.length > 0) {
                                 payloadComponents.push({ type: 'header', parameters });
