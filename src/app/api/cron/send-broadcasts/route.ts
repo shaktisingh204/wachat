@@ -5,6 +5,8 @@ config();
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Db, ObjectId } from 'mongodb';
+import axios from 'axios';
+import FormData from 'form-data';
 
 type SuccessfulSend = {
     phone: string;
@@ -92,28 +94,29 @@ async function handleRequest(request: Request) {
                     const mediaResponse = await fetch(finalUrl);
                     if (!mediaResponse.ok) throw new Error(`Failed to fetch media from URL: ${finalUrl}`);
                     
-                    const fileBlob = await mediaResponse.blob();
+                    const fileBuffer = Buffer.from(await mediaResponse.arrayBuffer());
+                    const filename = finalUrl.split('/').pop()?.split('?')[0] || 'media-file';
+
                     const formData = new FormData();
                     formData.append('messaging_product', 'whatsapp');
-                    const filename = finalUrl.split('/').pop()?.split('?')[0] || 'media-file';
-                    formData.append('file', fileBlob, filename);
-                     if (fileBlob.type) {
-                        formData.append('type', fileBlob.type);
-                    }
-
-                    const uploadResponse = await fetch(
-                      `https://graph.facebook.com/v22.0/${job.phoneNumberId}/media`,
-                      {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${job.accessToken}` },
-                        body: formData,
-                      }
+                    formData.append('file', fileBuffer, { filename });
+                    
+                    const uploadResponse = await axios.post(
+                        `https://graph.facebook.com/v22.0/${job.phoneNumberId}/media`,
+                        formData,
+                        {
+                            headers: {
+                                'Authorization': `Bearer ${job.accessToken}`,
+                                ...formData.getHeaders(),
+                            },
+                        }
                     );
-                    const uploadData = await uploadResponse.json();
-
+                    
+                    const uploadData = uploadResponse.data;
+                    
                     await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { debug: { mediaUploadResponse: uploadData } } });
 
-                    if (!uploadResponse.ok || !uploadData.id) {
+                    if (uploadResponse.status !== 200 || !uploadData.id) {
                         throw new Error(`Meta media upload failed: ${JSON.stringify(uploadData.error || uploadData)}`);
                     }
                     mediaId = uploadData.id;
@@ -121,10 +124,11 @@ async function handleRequest(request: Request) {
                 }
             }
         } catch (mediaError: any) {
+            const errorMessage = mediaError.response?.data?.error?.message || mediaError.message;
             if (jobId && db) {
-                await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', failedSends: [{ phone: 'N/A', response: { error: { message: `Media Upload Failed: ${mediaError.message}` } }, payload: {} }] } });
+                await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', failedSends: [{ phone: 'N/A', response: { error: { message: `Media Upload Failed: ${errorMessage}` } }, payload: {} }] } });
             }
-            return new NextResponse(`Internal Server Error during media upload: ${mediaError.message}`, { status: 500 });
+            return new NextResponse(`Internal Server Error during media upload: ${errorMessage}`, { status: 500 });
         }
 
 
