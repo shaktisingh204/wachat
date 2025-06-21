@@ -141,6 +141,21 @@ export async function getBroadcasts() {
   }
 }
 
+export async function getBroadcastById(broadcastId: string) {
+    if (!ObjectId.isValid(broadcastId)) {
+        console.error("Invalid Broadcast ID in getBroadcastById:", broadcastId);
+        return null;
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const broadcast = await db.collection('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
+        return JSON.parse(JSON.stringify(broadcast));
+    } catch (error) {
+        console.error('Failed to fetch broadcast by ID:', error);
+        return null;
+    }
+}
+
 type CreateProjectState = {
   message?: string | null;
   error?: string | null;

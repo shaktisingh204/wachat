@@ -15,19 +15,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import Link from 'next/link';
+import { FileText } from 'lucide-react';
 
 type Broadcast = {
   _id: any;
@@ -47,7 +40,6 @@ export default function BroadcastPage() {
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedBroadcast, setSelectedBroadcast] = useState<WithId<Broadcast> | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -195,8 +187,11 @@ export default function BroadcastPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button variant="outline" size="sm" onClick={() => setSelectedBroadcast(item)}>
-                            Details
+                        <Button asChild variant="outline" size="sm">
+                            <Link href={`/dashboard/broadcasts/${item._id.toString()}`}>
+                                <FileText className="h-4 w-4" />
+                                <span>View Report</span>
+                            </Link>
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -213,53 +208,6 @@ export default function BroadcastPage() {
           </CardContent>
         </Card>
       </div>
-
-      <Dialog open={!!selectedBroadcast} onOpenChange={(isOpen) => !isOpen && setSelectedBroadcast(null)}>
-        <DialogContent className="sm:max-w-2xl">
-            <DialogHeader>
-                <DialogTitle>Broadcast Details</DialogTitle>
-                <DialogDescription>
-                    Template: {selectedBroadcast?.templateName} | File: {selectedBroadcast?.fileName}
-                </DialogDescription>
-            </DialogHeader>
-            <ScrollArea className="max-h-[60vh] mt-4">
-              <div className="pr-6">
-                <Accordion type="multiple" className="w-full space-y-4">
-                    <AccordionItem value="success">
-                        <AccordionTrigger>Successful Sends ({selectedBroadcast?.successfulSends?.length || 0})</AccordionTrigger>
-                        <AccordionContent>
-                        {selectedBroadcast?.successfulSends && selectedBroadcast.successfulSends.length > 0 ? (
-                            selectedBroadcast.successfulSends.map((s, i) => (
-                                <div key={i} className="mb-2 p-2 border-b">
-                                    <p className="font-semibold text-sm">To: {s.phone}</p>
-                                    <pre className="mt-1 text-xs bg-muted/50 p-2 rounded-md whitespace-pre-wrap font-code">
-                                        {JSON.stringify(s.response, null, 2)}
-                                    </pre>
-                                </div>
-                            ))
-                        ) : <p className="text-sm text-muted-foreground p-2">No successful sends to show.</p>}
-                        </AccordionContent>
-                    </AccordionItem>
-                    <AccordionItem value="failure">
-                        <AccordionTrigger className="text-destructive hover:text-destructive focus:text-destructive">Failed Sends ({selectedBroadcast?.failedSends?.length || 0})</AccordionTrigger>
-                        <AccordionContent>
-                        {selectedBroadcast?.failedSends && selectedBroadcast.failedSends.length > 0 ? (
-                            selectedBroadcast.failedSends.map((f, i) => (
-                                <div key={i} className="mb-2 p-2 border-b">
-                                    <p className="font-semibold text-sm">To: {f.phone}</p>
-                                    <pre className="mt-1 text-xs bg-muted/50 p-2 rounded-md whitespace-pre-wrap font-code">
-                                        {JSON.stringify(f.response, null, 2)}
-                                    </pre>
-                                </div>
-                            ))
-                        ) : <p className="text-sm text-muted-foreground p-2">No failed sends to show.</p>}
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
-              </div>
-            </ScrollArea>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }
