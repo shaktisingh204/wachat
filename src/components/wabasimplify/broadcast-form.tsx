@@ -10,7 +10,8 @@ import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { LoaderCircle, Send } from 'lucide-react';
+import { LoaderCircle, Send, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
 type Template = {
   name: string;
@@ -49,6 +50,12 @@ export function BroadcastForm({ templates }: { templates: WithId<Template>[] }) 
   const formRef = useRef<HTMLFormElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState('');
+  const [projectId, setProjectId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedProjectId = localStorage.getItem('activeProjectId');
+    setProjectId(storedProjectId);
+  }, []);
 
   useEffect(() => {
     if (state?.message) {
@@ -68,9 +75,29 @@ export function BroadcastForm({ templates }: { templates: WithId<Template>[] }) 
     }
   }, [state, toast]);
 
+  if (!projectId) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>No Project Selected</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Action Required</AlertTitle>
+                    <AlertDescription>
+                        Please select a project from the main dashboard page before sending a broadcast.
+                    </AlertDescription>
+                </Alert>
+            </CardContent>
+        </Card>
+    )
+  }
+
   return (
     <Card>
       <form ref={formRef} action={formAction}>
+        <input type="hidden" name="projectId" value={projectId} />
         <CardHeader>
           <CardTitle>New Broadcast Campaign</CardTitle>
           <CardDescription>Select a template and upload your contacts CSV file.</CardDescription>

@@ -1,82 +1,54 @@
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { AnalyticsChart } from '@/components/wabasimplify/analytics-chart';
-import { ArrowDown, ArrowUp, MessagesSquare, CheckCircle, XCircle } from 'lucide-react';
 import type { Metadata } from "next";
+import { WithId } from "mongodb";
+import { getProjects } from "@/app/actions";
+import { ProjectCard } from "@/components/wabasimplify/project-card";
+import { CreateProjectDialog } from "@/components/wabasimplify/project-dialog";
+import { FileText } from "lucide-react";
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "Dashboard | WABASimplify",
+  title: "Select Project | WABASimplify",
 };
 
+export type Project = {
+    name: string;
+    appId: string;
+    phoneNumberId: string;
+    accessToken: string;
+    createdAt: Date;
+};
 
-export default function DashboardPage() {
-  return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-3xl font-bold font-headline">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome back! Here's your message analytics overview.</p>
-      </div>
+export default async function SelectProjectPage() {
+    const projects = await getProjects() as WithId<Project>[];
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Messages</CardTitle>
-            <MessagesSquare className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">12,543</div>
-            <p className="text-xs text-muted-foreground">+20.1% from last month</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Delivered</CardTitle>
-            <CheckCircle className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">98.2%</div>
-            <p className="text-xs text-muted-foreground flex items-center">
-              <ArrowUp className="h-3 w-3 text-primary mr-1" />
-              +1.2% from last month
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Read</CardTitle>
-             <CheckCircle className="h-4 w-4 text-accent-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">75.6%</div>
-             <p className="text-xs text-muted-foreground flex items-center">
-              <ArrowUp className="h-3 w-3 text-primary mr-1" />
-              +5.4% from last month
-            </p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Failed</CardTitle>
-            <XCircle className="h-4 w-4 text-destructive" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">1.8%</div>
-            <p className="text-xs text-muted-foreground flex items-center">
-              <ArrowDown className="h-3 w-3 text-destructive mr-1" />
-              -0.2% from last month
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+    return (
+        <div className="flex flex-col gap-8">
+            <div>
+                <h1 className="text-3xl font-bold font-headline">Select a Project</h1>
+                <p className="text-muted-foreground">
+                    Choose an existing project or create a new one to get started.
+                </p>
+            </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Message Performance</CardTitle>
-          <CardDescription>Performance of your broadcast messages over the last 30 days.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <AnalyticsChart />
-        </CardContent>
-      </Card>
-    </div>
-  );
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {projects.map((project) => (
+                    <ProjectCard key={project._id.toString()} project={project} />
+                ))}
+                <CreateProjectDialog />
+            </div>
+
+            {projects.length === 0 && (
+                 <div className="col-span-full">
+                    <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 py-20 text-center">
+                        <FileText className="h-12 w-12 text-muted-foreground" />
+                        <h3 className="text-xl font-semibold mt-4">No Projects Found</h3>
+                        <p className="text-muted-foreground mt-2">
+                        Click "Create New Project" to set up your first WhatsApp Business project.
+                        </p>
+                    </div>
+                </div>
+            )}
+        </div>
+    )
 }

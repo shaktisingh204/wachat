@@ -4,6 +4,7 @@ import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions'
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 import Papa from 'papaparse';
+import { revalidatePath } from 'next/cache';
 
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
   if (!topic) {
@@ -19,6 +20,74 @@ export async function handleSuggestContent(topic: string): Promise<{ suggestions
   }
 }
 
+export async function getProjects() {
+    try {
+        const { db } = await connectToDatabase();
+        const projects = await db.collection('projects').find({}).sort({ name: 1 }).toArray();
+        return projects;
+    } catch (error) {
+        console.error("Failed to fetch projects:", error);
+        return [];
+    }
+}
+
+type CreateProjectState = {
+  message?: string | null;
+  error?: string | null;
+};
+
+export async function handleCreateProject(
+  prevState: CreateProjectState,
+  formData: FormData
+): Promise<CreateProjectState> {
+    const name = formData.get('name') as string;
+    const appId = formData.get('appId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    const accessToken = formData.get('accessToken') as string;
+
+    if (!name || !appId || !phoneNumberId || !accessToken) {
+        return { error: 'All fields are required.' };
+    }
+
+    try {
+        const response = await fetch(
+            `https://graph.facebook.com/v20.0/${phoneNumberId}?access_token=${accessToken}`,
+            { method: 'GET' }
+        );
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            const reason = errorData?.error?.message || 'Invalid credentials or API error.';
+            return { error: `Verification failed: ${reason}` };
+        }
+    } catch (e: any) {
+        return { error: `Failed to connect to WhatsApp API for verification: ${e.message}` };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('projects').insertOne({
+            name,
+            appId,
+            phoneNumberId,
+            accessToken,
+            createdAt: new Date(),
+        });
+        
+        revalidatePath('/dashboard');
+
+        return { message: `Project "${name}" created successfully!` };
+
+    } catch (e: any) {
+        console.error('Project creation failed:', e);
+        if (e.code === 11000) {
+            return { error: `A project with these details might already exist.` };
+        }
+        return { error: e.message || 'An unexpected error occurred while saving the project.' };
+    }
+}
+
+
 type BroadcastState = {
   message?: string | null;
   error?: string | null;
@@ -28,14 +97,21 @@ export async function handleStartBroadcast(
   prevState: BroadcastState,
   formData: FormData
 ): Promise<BroadcastState> {
-  const accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
-  const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
+  const projectId = formData.get('projectId') as string;
 
-  if (!accessToken || !phoneNumberId) {
-    return { error: 'WhatsApp API credentials (WHATSAPP_ACCESS_TOKEN, WHATSAPP_PHONE_NUMBER_ID) are not configured in the .env file.' };
+  if (!projectId) {
+    return { error: 'No project selected. Please go to the dashboard and select a project first.' };
   }
 
   const { db } = await connectToDatabase();
+  const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+
+  if (!project) {
+    return { error: 'Selected project not found. It may have been deleted.' };
+  }
+  
+  const accessToken = project.accessToken;
+  const phoneNumberId = project.phoneNumberId;
 
   const templateId = formData.get('templateId') as string;
   const csvFile = formData.get('csvFile') as File;
@@ -142,6 +218,7 @@ export async function handleStartBroadcast(
     }
 
     await db.collection('broadcasts').insertOne({
+      projectId: new ObjectId(projectId),
       templateId: new ObjectId(templateId),
       templateName: template.name,
       fileName: csvFile.name,

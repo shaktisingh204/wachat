@@ -26,10 +26,10 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { WabaSimplifyLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send } from 'lucide-react';
+import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send, Briefcase } from 'lucide-react';
 
 const menuItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/numbers', label: 'Phone Numbers', icon: Phone },
   { href: '/dashboard/templates', label: 'Message Templates', icon: FileText },
   { href: '/dashboard/broadcasts', label: 'Broadcasts', icon: Send },
@@ -37,6 +37,13 @@ const menuItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [activeProjectName, setActiveProjectName] = React.useState('');
+
+  React.useEffect(() => {
+    const name = localStorage.getItem('activeProjectName');
+    setActiveProjectName(name || 'No Project Selected');
+  }, [pathname]);
+
 
   return (
     <SidebarProvider>
@@ -62,10 +69,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname === '/dashboard/settings'}>
-                  <Link href="/dashboard/settings">
-                    <Settings className="h-4 w-4" />
-                    <span>Settings</span>
+                 <SidebarMenuButton asChild isActive={pathname === '/dashboard'}>
+                  <Link href="/dashboard">
+                    <Briefcase className="h-4 w-4" />
+                    <span>Change Project</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -83,6 +90,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <SidebarInset>
           <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10">
             <SidebarTrigger className="md:hidden" />
+            <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
+                <Briefcase className="h-4 w-4" />
+                <span>{activeProjectName}</span>
+            </div>
             <div className="flex-1" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
