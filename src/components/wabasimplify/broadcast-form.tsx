@@ -12,6 +12,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { LoaderCircle, Send, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import type { Project } from '@/app/dashboard/page';
 
 type Template = {
   name: string;
@@ -44,18 +45,11 @@ function SubmitButton() {
   );
 }
 
-export function BroadcastForm({ templates }: { templates: WithId<Template>[] }) {
+export function BroadcastForm({ templates, project }: { templates: WithId<Template>[]; project: WithId<Project> | null }) {
   const [state, formAction] = useFormState(handleStartBroadcast, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [fileName, setFileName] = useState('');
-  const [projectId, setProjectId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const storedProjectId = localStorage.getItem('activeProjectId');
-    setProjectId(storedProjectId);
-  }, []);
 
   useEffect(() => {
     if (state?.message) {
@@ -75,7 +69,7 @@ export function BroadcastForm({ templates }: { templates: WithId<Template>[] }) 
     }
   }, [state, toast]);
 
-  if (!projectId) {
+  if (!project) {
     return (
         <Card>
             <CardHeader>
@@ -97,14 +91,29 @@ export function BroadcastForm({ templates }: { templates: WithId<Template>[] }) 
   return (
     <Card>
       <form ref={formRef} action={formAction}>
-        <input type="hidden" name="projectId" value={projectId} />
+        <input type="hidden" name="projectId" value={project._id.toString()} />
         <CardHeader>
           <CardTitle>New Broadcast Campaign</CardTitle>
-          <CardDescription>Select a template and upload your contacts CSV file.</CardDescription>
+          <CardDescription>Select a phone number, template, and upload your contacts CSV file.</CardDescription>
         </CardHeader>
-        <CardContent className="grid md:grid-cols-2 gap-6">
+        <CardContent className="grid md:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="templateId">1. Select Message Template</Label>
+            <Label htmlFor="phoneNumberId">1. Select Phone Number</Label>
+            <Select name="phoneNumberId" required>
+              <SelectTrigger id="phoneNumberId">
+                <SelectValue placeholder="Choose a number..." />
+              </SelectTrigger>
+              <SelectContent>
+                {project.phoneNumbers?.map((phone) => (
+                  <SelectItem key={phone.id} value={phone.id}>
+                    {phone.display_phone_number}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="templateId">2. Select Message Template</Label>
             <Select name="templateId" required>
               <SelectTrigger id="templateId">
                 <SelectValue placeholder="Choose a template..." />
@@ -119,20 +128,18 @@ export function BroadcastForm({ templates }: { templates: WithId<Template>[] }) 
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="csvFile">2. Upload Contacts</Label>
+            <Label htmlFor="csvFile">3. Upload Contacts</Label>
             <Input
               id="csvFile"
               name="csvFile"
               type="file"
               accept=".csv"
               required
-              ref={fileInputRef}
               onChange={(e) => setFileName(e.target.files?.[0]?.name ?? '')}
               className="file:text-primary file:font-medium"
             />
             <p className="text-xs text-muted-foreground">
-              Must be a .csv file with a 'phone' column header. For templates
-              with variables like {'{{1}}'}, include columns named 'variable1', etc.
+              CSV with 'phone' column. For variables like {'{{1}}'}, use 'variable1' columns.
             </p>
           </div>
         </CardContent>

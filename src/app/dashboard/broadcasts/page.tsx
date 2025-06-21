@@ -1,6 +1,9 @@
-import type { Metadata } from 'next';
-import { connectToDatabase } from '@/lib/mongodb';
-import { WithId } from 'mongodb';
+'use client';
+
+import { useState, useEffect } from 'react';
+import type { WithId } from 'mongodb';
+import { getTemplates, getProjectById, getBroadcasts } from '@/app/actions';
+import type { Project } from '@/app/dashboard/page';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -12,10 +15,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-
-export const metadata: Metadata = {
-  title: 'Broadcasts | WABASimplify',
-};
+import { Skeleton } from '@/components/ui/skeleton';
 
 type Template = {
   name: string;
@@ -33,31 +33,62 @@ type Broadcast = {
   createdAt: string;
 };
 
-async function getTemplates(): Promise<WithId<Template>[]> {
-  try {
-    const { db } = await connectToDatabase();
-    const templates = await db.collection<Template>('templates').find({}).sort({ name: 1 }).toArray();
-    return templates;
-  } catch (error) {
-    console.error('Failed to fetch templates:', error);
-    return [];
-  }
-}
+export default function BroadcastPage() {
+  const [project, setProject] = useState<WithId<Project> | null>(null);
+  const [templates, setTemplates] = useState<WithId<Template>[]>([]);
+  const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
+  const [loading, setLoading] = useState(true);
 
-async function getBroadcastHistory(): Promise<WithId<Broadcast>[]> {
-  try {
-    const { db } = await connectToDatabase();
-    const broadcasts = await db.collection<Broadcast>('broadcasts').find({}).sort({ createdAt: -1 }).limit(10).toArray();
-    return broadcasts;
-  } catch (error) {
-    console.error('Failed to fetch broadcast history:', error);
-    return [];
-  }
-}
+  useEffect(() => {
+    const storedProjectId = localStorage.getItem('activeProjectId');
+    
+    async function fetchData() {
+      if (storedProjectId) {
+        const [projectData, templatesData, historyData] = await Promise.all([
+          getProjectById(storedProjectId),
+          getTemplates(),
+          getBroadcasts(),
+        ]);
+        setProject(projectData as WithId<Project>);
+        setTemplates(templatesData as WithId<Template>[]);
+        setHistory(historyData as WithId<Broadcast>[]);
+      }
+      setLoading(false);
+    }
 
-export default async function BroadcastPage() {
-  const templates = await getTemplates();
-  const history = await getBroadcastHistory();
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-8">
+        <div className="space-y-2">
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-4 w-2/3" />
+        </div>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-1/4" />
+            <Skeleton className="h-4 w-1/2" />
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-6">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-1/4" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-48 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8">
@@ -68,7 +99,7 @@ export default async function BroadcastPage() {
         </p>
       </div>
 
-      <BroadcastForm templates={templates} />
+      <BroadcastForm templates={templates} project={project} />
 
       <Card>
         <CardHeader>

@@ -25,7 +25,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <Card className="flex flex-col justify-between hover:shadow-lg hover:border-primary transition-all">
             <CardHeader>
                 <CardTitle>{project.name}</CardTitle>
-                <CardDescription>Phone ID: {project.phoneNumberId}</CardDescription>
+                <CardDescription>WABA ID: {project.wabaId}</CardDescription>
             </CardHeader>
             <CardContent>
                 <Button className="w-full" onClick={handleSelectProject}>

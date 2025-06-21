@@ -13,9 +13,9 @@ export const metadata: Metadata = {
 
 export type Project = {
     name: string;
-    appId: string;
-    phoneNumberId: string;
+    wabaId: string;
     accessToken: string;
+    phoneNumbers: { id: string; display_phone_number: string }[];
     createdAt: Date;
 };
 

@@ -78,7 +78,7 @@ export function CreateProjectDialog() {
           <DialogHeader>
             <DialogTitle>Create New Project</DialogTitle>
             <DialogDescription>
-              Enter your WhatsApp Business credentials. These are stored securely and used for sending messages.
+              Enter your WhatsApp Business credentials. We'll retrieve your associated phone numbers.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -87,16 +87,12 @@ export function CreateProjectDialog() {
               <Input id="name" name="name" placeholder="My Awesome Business" className="col-span-3" required />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="appId" className="text-right">App ID</Label>
-              <Input id="appId" name="appId" placeholder="WhatsApp App ID" className="col-span-3" required />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="phoneNumberId" className="text-right">Phone Number ID</Label>
-              <Input id="phoneNumberId" name="phoneNumberId" placeholder="WhatsApp Phone Number ID" className="col-span-3" required />
+              <Label htmlFor="wabaId" className="text-right">Business ID</Label>
+              <Input id="wabaId" name="wabaId" placeholder="WhatsApp Business Account ID" className="col-span-3" required />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="accessToken" className="text-right">Access Token</Label>
-              <Input id="accessToken" name="accessToken" type="password" placeholder="WhatsApp Access Token" className="col-span-3" required />
+              <Input id="accessToken" name="accessToken" type="password" placeholder="A permanent System User Token" className="col-span-3" required />
             </div>
           </div>
           <DialogFooter>

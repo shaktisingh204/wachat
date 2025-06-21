@@ -2,7 +2,7 @@
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
 import { connectToDatabase } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
 import Papa from 'papaparse';
 import { revalidatePath } from 'next/cache';
 
@@ -31,6 +31,43 @@ export async function getProjects() {
     }
 }
 
+export async function getProjectById(projectId: string): Promise<WithId<any> | null> {
+    if (!ObjectId.isValid(projectId)) {
+        return null;
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+        return project;
+    } catch (error) {
+        console.error("Failed to fetch project:", error);
+        return null;
+    }
+}
+
+
+export async function getTemplates() {
+  try {
+    const { db } = await connectToDatabase();
+    const templates = await db.collection('templates').find({}).sort({ name: 1 }).toArray();
+    return templates;
+  } catch (error) {
+    console.error('Failed to fetch templates:', error);
+    return [];
+  }
+}
+
+export async function getBroadcasts() {
+  try {
+    const { db } = await connectToDatabase();
+    const broadcasts = await db.collection('broadcasts').find({}).sort({ createdAt: -1 }).limit(10).toArray();
+    return broadcasts;
+  } catch (error) {
+    console.error('Failed to fetch broadcast history:', error);
+    return [];
+  }
+}
+
 type CreateProjectState = {
   message?: string | null;
   error?: string | null;
@@ -41,17 +78,18 @@ export async function handleCreateProject(
   formData: FormData
 ): Promise<CreateProjectState> {
     const name = formData.get('name') as string;
-    const appId = formData.get('appId') as string;
-    const phoneNumberId = formData.get('phoneNumberId') as string;
+    const wabaId = formData.get('wabaId') as string;
     const accessToken = formData.get('accessToken') as string;
 
-    if (!name || !appId || !phoneNumberId || !accessToken) {
+    if (!name || !wabaId || !accessToken) {
         return { error: 'All fields are required.' };
     }
+    
+    let phoneNumbers: { id: string; display_phone_number: string }[] = [];
 
     try {
         const response = await fetch(
-            `https://graph.facebook.com/v20.0/${phoneNumberId}?access_token=${accessToken}`,
+            `https://graph.facebook.com/v20.0/${wabaId}/phone_numbers?access_token=${accessToken}`,
             { method: 'GET' }
         );
 
@@ -60,28 +98,41 @@ export async function handleCreateProject(
             const reason = errorData?.error?.message || 'Invalid credentials or API error.';
             return { error: `Verification failed: ${reason}` };
         }
+        
+        const data = await response.json();
+        
+        if (!data.data || data.data.length === 0) {
+            return { error: 'Verification successful, but no phone numbers are associated with this Business Account ID.' };
+        }
+
+        phoneNumbers = data.data.map((num: any) => ({
+            id: num.id,
+            display_phone_number: num.display_phone_number,
+        }));
+
     } catch (e: any) {
         return { error: `Failed to connect to WhatsApp API for verification: ${e.message}` };
     }
+
 
     try {
         const { db } = await connectToDatabase();
         await db.collection('projects').insertOne({
             name,
-            appId,
-            phoneNumberId,
+            wabaId,
             accessToken,
+            phoneNumbers,
             createdAt: new Date(),
         });
         
         revalidatePath('/dashboard');
 
-        return { message: `Project "${name}" created successfully!` };
+        return { message: `Project "${name}" created successfully with ${phoneNumbers.length} phone number(s)!` };
 
     } catch (e: any) {
         console.error('Project creation failed:', e);
         if (e.code === 11000) {
-            return { error: `A project with these details might already exist.` };
+            return { error: `A project with this name or Business ID might already exist.` };
         }
         return { error: e.message || 'An unexpected error occurred while saving the project.' };
     }
@@ -98,9 +149,14 @@ export async function handleStartBroadcast(
   formData: FormData
 ): Promise<BroadcastState> {
   const projectId = formData.get('projectId') as string;
+  const phoneNumberId = formData.get('phoneNumberId') as string;
 
   if (!projectId) {
     return { error: 'No project selected. Please go to the dashboard and select a project first.' };
+  }
+  
+  if (!phoneNumberId) {
+    return { error: 'No phone number selected. Please select a number to send the broadcast from.' };
   }
 
   const { db } = await connectToDatabase();
@@ -111,7 +167,6 @@ export async function handleStartBroadcast(
   }
   
   const accessToken = project.accessToken;
-  const phoneNumberId = project.phoneNumberId;
 
   const templateId = formData.get('templateId') as string;
   const csvFile = formData.get('csvFile') as File;
