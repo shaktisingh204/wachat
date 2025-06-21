@@ -104,7 +104,8 @@ export function BroadcastForm({ templates }: { templates: WithId<Template>[] }) 
               className="file:text-primary file:font-medium"
             />
             <p className="text-xs text-muted-foreground">
-              Must be a .csv file with a 'phone' column header.
+              Must be a .csv file with a 'phone' column header. For templates
+              with variables like {'{{1}}'}, include columns named 'variable1', etc.
             </p>
           </div>
         </CardContent>

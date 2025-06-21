@@ -27,7 +27,9 @@ type Broadcast = {
   templateName: string;
   fileName: string;
   contactCount: number;
-  status: 'Completed' | 'Processing' | 'Failed';
+  successCount?: number;
+  errorCount?: number;
+  status: 'Completed' | 'Processing' | 'Failed' | 'Partial Failure';
   createdAt: string;
 };
 
@@ -80,7 +82,7 @@ export default async function BroadcastPage() {
                 <TableHead>Date</TableHead>
                 <TableHead>Template</TableHead>
                 <TableHead>File Name</TableHead>
-                <TableHead>Contacts</TableHead>
+                <TableHead>Sent</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -91,7 +93,11 @@ export default async function BroadcastPage() {
                     <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
                     <TableCell>{item.templateName}</TableCell>
                     <TableCell>{item.fileName}</TableCell>
-                    <TableCell>{item.contactCount}</TableCell>
+                    <TableCell>
+                      {item.successCount !== undefined
+                        ? `${item.successCount} / ${item.contactCount}`
+                        : item.contactCount}
+                    </TableCell>
                     <TableCell>
                       <Badge
                         variant={
