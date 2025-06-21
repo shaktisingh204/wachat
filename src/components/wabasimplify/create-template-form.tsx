@@ -163,7 +163,11 @@ const languages = [
 ];
 
 const uniqueLanguagesMap = new Map();
-languages.forEach(lang => uniqueLanguagesMap.set(lang.code, lang));
+languages.forEach(lang => {
+    if (!uniqueLanguagesMap.has(lang.code)) {
+        uniqueLanguagesMap.set(lang.code, lang);
+    }
+});
 const uniqueLanguages = Array.from(uniqueLanguagesMap.values());
 
 export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
@@ -343,9 +347,6 @@ export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
                 </div>
             </CardContent>
           </Card>
-          <div className="flex justify-end pt-4">
-            <SubmitButton />
-          </div>
         </div>
         
         <div className="lg:col-span-1 space-y-6">
@@ -376,6 +377,9 @@ export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
                 </CardContent>
             </Card>
         </div>
+      </div>
+      <div className="flex justify-end mt-8 pt-8 border-t">
+        <SubmitButton />
       </div>
     </form>
   );
