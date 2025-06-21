@@ -26,6 +26,10 @@ type BroadcastJob = {
     logs?: string[];
 };
 
+export async function GET(request: Request) {
+    return new NextResponse('This endpoint is for the automated broadcast sending cron job. It is triggered automatically and only accepts POST requests.', { status: 200 });
+}
+
 // Helper function to update logs in the DB
 async function updateLogs(db: Db, jobId: ObjectId, logs: string[]) {
     if (logs.length === 0) return;
@@ -128,7 +132,7 @@ export async function POST(request: Request) {
                                 });
                                 log(`    - Added TEXT header with params: ${JSON.stringify(parameters)}`);
                             }
-                        } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerComponent.format)) {
+                        } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
                             const mediaId = headerComponent.example?.header_handle?.[0];
                             if (mediaId) {
                                 const type = headerComponent.format.toLowerCase();
