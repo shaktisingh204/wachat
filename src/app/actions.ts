@@ -432,14 +432,16 @@ export async function handleCreateTemplate(
     const name = formData.get('templateName') as string;
     const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
     const bodyText = formData.get('body') as string;
+    const language = formData.get('language') as string;
+    const buttonsJSON = formData.get('buttons') as string;
+
     const headerType = formData.get('headerType') as 'NONE' | 'TEXT' | 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT';
     const headerText = formData.get('headerText') as string;
     const headerMediaHandle = formData.get('headerMediaHandle') as string;
     const footerText = formData.get('footerText') as string;
-    const language = 'en_US'; // Hardcoded for simplicity
   
-    if (!projectId || !name || !category || !bodyText) {
-      return { error: 'Project, Name, Category, and Body are required.' };
+    if (!projectId || !name || !category || !bodyText || !language) {
+      return { error: 'Project, Name, Language, Category, and Body are required.' };
     }
   
     const project = await getProjectById(projectId);
@@ -486,6 +488,31 @@ export async function handleCreateTemplate(
       if (footerText.length > 60) return { error: 'Footer text cannot exceed 60 characters.' };
       if (/{{(\d+)}}/.test(footerText)) return { error: 'Variables are not allowed in the footer.' };
       components.push({ type: 'FOOTER', text: footerText });
+    }
+
+    // Buttons Component
+    if (buttonsJSON) {
+        const buttons = JSON.parse(buttonsJSON);
+        if (buttons.length > 0) {
+            const apiButtons = buttons.map((btn: any) => {
+                const apiButton: any = {
+                    type: btn.type,
+                    text: btn.text,
+                };
+                if (btn.type === 'URL') {
+                    apiButton.url = btn.url;
+                    // Add example only if URL has a variable and an example is provided
+                    if (btn.url?.includes('{{1}}') && btn.urlExample) {
+                        apiButton.example = [btn.urlExample];
+                    }
+                }
+                if (btn.type === 'PHONE_NUMBER') {
+                    apiButton.phone_number = btn.phoneNumber;
+                }
+                return apiButton;
+            });
+            components.push({ type: 'BUTTONS', buttons: apiButtons });
+        }
     }
   
     const payload = {

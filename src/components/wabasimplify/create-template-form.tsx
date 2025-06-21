@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Wand2, LoaderCircle, AlertCircle, Info, FileUp, Loader2 } from 'lucide-react';
+import { Wand2, LoaderCircle, AlertCircle, Info, FileUp, Loader2, PlusCircle, Trash2, Phone, Link as LinkIcon, MessageSquareQuote } from 'lucide-react';
 import { handleSuggestContent, handleCreateTemplate, getProjectById, handleUploadMedia } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -23,6 +23,16 @@ import type { WithId } from 'mongodb';
 import type { Project } from '@/app/dashboard/page';
 
 type HeaderType = 'NONE' | 'TEXT' | 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT';
+type ButtonType = 'QUICK_REPLY' | 'URL' | 'PHONE_NUMBER';
+type ButtonState = {
+  id: number;
+  type: ButtonType;
+  text: string;
+  phoneNumber?: string;
+  url?: string;
+  urlExample?: string;
+};
+
 
 const createTemplateInitialState = {
   message: null,
@@ -54,8 +64,10 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleCreateTemplate, createTemplateInitialState);
 
+  // Form State
   const [body, setBody] = useState('');
   const [headerType, setHeaderType] = useState<HeaderType>('NONE');
+  const [buttons, setButtons] = useState<ButtonState[]>([]);
   
   // Project and Media Upload State
   const [project, setProject] = useState<WithId<Project> | null>(null);
@@ -71,6 +83,13 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+  // Derived state for button limits
+  const hasCtaButton = buttons.some(b => b.type === 'URL' || b.type === 'PHONE_NUMBER');
+  const hasQuickReplyButton = buttons.some(b => b.type === 'QUICK_REPLY');
+  const urlButtonCount = buttons.filter(b => b.type === 'URL').length;
+  const phoneButtonCount = buttons.filter(b => b.type === 'PHONE_NUMBER').length;
+  const quickReplyButtonCount = buttons.filter(b => b.type === 'QUICK_REPLY').length;
 
   useEffect(() => {
     async function fetchProject() {
@@ -92,7 +111,7 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
       toast({ title: 'Submission Error', description: state.error, variant: 'destructive' });
     }
   }, [state, toast, router]);
-
+  
   const onGenerateSuggestions = async () => {
     if (!topic) {
         toast({
@@ -156,11 +175,24 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
     })
   };
 
+  const handleAddButton = (type: ButtonType) => {
+    setButtons(prev => [...prev, { id: Date.now(), type, text: '' }]);
+  };
+  
+  const handleUpdateButton = (id: number, field: keyof ButtonState, value: string) => {
+    setButtons(prev => prev.map(b => b.id === id ? { ...b, [field]: value } : b));
+  };
+
+  const handleRemoveButton = (id: number) => {
+    setButtons(prev => prev.filter(b => b.id !== id));
+  };
+
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <form action={formAction} className="lg:col-span-2 space-y-6">
         <input type="hidden" name="projectId" value={projectId} />
+        <input type="hidden" name="buttons" value={JSON.stringify(buttons)} />
 
         <Card>
           <CardHeader>
@@ -173,7 +205,7 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
               <Input id="templateName" name="templateName" placeholder="e.g., order_confirmation" required />
               <p className="text-xs text-muted-foreground">Lowercase letters, numbers, and underscores only.</p>
             </div>
-            <div className="space-y-2">
+             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
               <Select name="category" required>
                 <SelectTrigger id="category">
@@ -183,6 +215,24 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
                   <SelectItem value="MARKETING">Marketing</SelectItem>
                   <SelectItem value="UTILITY">Utility</SelectItem>
                   <SelectItem value="AUTHENTICATION">Authentication</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="language">Language</Label>
+              <Select name="language" defaultValue="en_US" required>
+                <SelectTrigger id="language">
+                  <SelectValue placeholder="Select a language" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="en_US">English (US)</SelectItem>
+                    <SelectItem value="en_GB">English (UK)</SelectItem>
+                    <SelectItem value="es">Spanish</SelectItem>
+                    <SelectItem value="fr">French</SelectItem>
+                    <SelectItem value="de">German</SelectItem>
+                    <SelectItem value="pt_BR">Portuguese (Brazil)</SelectItem>
+                    <SelectItem value="hi">Hindi</SelectItem>
+                    <SelectItem value="ar">Arabic</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -292,12 +342,72 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
                     <Input name="footerText" id="footerText" placeholder="e.g., Thank you for your business." maxLength={60} />
                     <p className="text-xs text-muted-foreground">Max 60 characters. Variables are not allowed.</p>
                 </div>
-
             </CardContent>
-            <CardFooter className="flex justify-end">
-                <SubmitButton />
+        </Card>
+        
+        <Card>
+            <CardHeader>
+                <CardTitle>Buttons (Optional)</CardTitle>
+                <CardDescription>Add call-to-action or quick reply buttons. You cannot mix button types.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+            {buttons.map((button, index) => (
+              <div key={button.id} className="p-4 border rounded-lg bg-muted/50 space-y-4 relative">
+                <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveButton(button.id)}>
+                    <Trash2 className="h-4 w-4" />
+                    <span className="sr-only">Remove Button</span>
+                </Button>
+
+                <div className="flex items-center gap-2 font-medium text-foreground">
+                    {button.type === 'QUICK_REPLY' && <><MessageSquareQuote className="h-4 w-4 text-primary" />Quick Reply</>}
+                    {button.type === 'URL' && <><LinkIcon className="h-4 w-4 text-primary" />URL Button</>}
+                    {button.type === 'PHONE_NUMBER' && <><Phone className="h-4 w-4 text-primary" />Phone Button</>}
+                </div>
+                
+                <div className="space-y-2">
+                    <Label htmlFor={`btn-text-${button.id}`}>Button Text</Label>
+                    <Input id={`btn-text-${button.id}`} value={button.text} onChange={(e) => handleUpdateButton(button.id, 'text', e.target.value)} placeholder="e.g., View Details" maxLength={25} required/>
+                </div>
+                
+                {button.type === 'URL' && (
+                    <>
+                        <div className="space-y-2">
+                            <Label htmlFor={`btn-url-${button.id}`}>URL</Label>
+                            <Input id={`btn-url-${button.id}`} value={button.url} onChange={(e) => handleUpdateButton(button.id, 'url', e.target.value)} placeholder="https://example.com/promo={{1}}" required />
+                            <p className="text-xs text-muted-foreground">Use {{1}} for one variable.</p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor={`btn-url-example-${button.id}`}>URL Example</Label>
+                            <Input id={`btn-url-example-${button.id}`} value={button.urlExample} onChange={(e) => handleUpdateButton(button.id, 'urlExample', e.target.value)} placeholder="https://example.com/promo/summer-sale" />
+                             <p className="text-xs text-muted-foreground">Required if URL contains a variable.</p>
+                        </div>
+                    </>
+                )}
+                {button.type === 'PHONE_NUMBER' && (
+                    <div className="space-y-2">
+                        <Label htmlFor={`btn-phone-${button.id}`}>Phone Number</Label>
+                        <Input id={`btn-phone-${button.id}`} value={button.phoneNumber} onChange={(e) => handleUpdateButton(button.id, 'phoneNumber', e.target.value)} placeholder="+1234567890" required/>
+                    </div>
+                )}
+              </div>
+            ))}
+            </CardContent>
+            <CardFooter className="flex flex-wrap gap-2">
+                <Button type="button" variant="outline" onClick={() => handleAddButton('QUICK_REPLY')} disabled={hasCtaButton || quickReplyButtonCount >= 3}>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Quick Reply
+                </Button>
+                <Button type="button" variant="outline" onClick={() => handleAddButton('URL')} disabled={hasQuickReplyButton || urlButtonCount >= 1}>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add URL Button
+                </Button>
+                <Button type="button" variant="outline" onClick={() => handleAddButton('PHONE_NUMBER')} disabled={hasQuickReplyButton || phoneButtonCount >= 1}>
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Phone Button
+                </Button>
             </CardFooter>
         </Card>
+
+        <div className="flex justify-end pt-4">
+            <SubmitButton />
+        </div>
       </form>
 
       <div className="lg:col-span-1 space-y-6">
