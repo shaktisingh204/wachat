@@ -16,15 +16,12 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 type SuccessfulSend = {
   phone: string;
-  messageId: string;
+  response: any;
 };
 
 type FailedSend = {
   phone: string;
-  error: {
-    code?: number | string;
-    message: string;
-  };
+  response: any;
 };
 
 type Broadcast = {
@@ -114,12 +111,27 @@ export default function BroadcastReportPage() {
     return <div>Broadcast not found.</div>;
   }
   
+  const getErrorDetail = (response: any): string => {
+    if (!response) return 'No response data';
+    if (response.error?.message) {
+      return response.error.message;
+    }
+    if (typeof response === 'string') {
+      return response;
+    }
+    return 'Unknown error details';
+  };
+
   const allAttempts: ({ status: 'Success'; phone: string; detail: string } | { status: 'Failed'; phone: string; detail: string })[] = [
-    ...(broadcast.successfulSends || []).map(s => ({ status: 'Success' as const, phone: s.phone, detail: s.messageId || 'N/A' })),
+    ...(broadcast.successfulSends || []).map(s => ({
+      status: 'Success' as const,
+      phone: s.phone,
+      detail: s.response?.messages?.[0]?.id ?? 'N/A'
+    })),
     ...(broadcast.failedSends || []).map(f => ({
       status: 'Failed' as const,
       phone: f.phone,
-      detail: f.error?.code ? `${f.error.code}: ${f.error.message}` : f.error?.message || 'Unknown error details'
+      detail: getErrorDetail(f.response)
     })),
   ];
 

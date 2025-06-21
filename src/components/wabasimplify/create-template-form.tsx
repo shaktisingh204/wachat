@@ -159,10 +159,8 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
         setHeaderFormat(headerComp.format || 'NONE');
         if(headerComp.format === 'TEXT') {
             setHeaderText(headerComp.text || '');
-        } else if (headerComp.example?.header_url?.[0]) {
-            const fullUrl = headerComp.example.header_url[0];
-            const urlObject = new URL(fullUrl);
-            setHeaderUrl(urlObject.pathname);
+        } else if (headerComp.example?.header_handle?.[0]) {
+            setHeaderUrl(headerComp.example.header_handle[0]);
         }
       } else {
         setHeaderFormat('NONE');
@@ -299,17 +297,17 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                 {['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat) && (
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="mediaFile">Upload Media</Label>
+                            <Label htmlFor="mediaFile">Upload Media (Optional)</Label>
                             <div className="flex gap-2">
                                 <Input id="mediaFile" type="file" ref={fileInputRef} className="flex-grow" onChange={e => e.target.files?.[0] && handleUpload(e.target.files[0])} disabled={isUploading} />
                                 <Button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>{isUploading ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <UploadCloud className="h-4 w-4"/>}</Button>
                             </div>
-                            <p className="text-xs text-muted-foreground">Upload your media file to be hosted on this server.</p>
                             {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
                         </div>
                         <div className="space-y-2">
-                           <Label htmlFor="headerUrlDisplay">Media URL</Label>
-                           <Input name="headerUrlDisplay" id="headerUrlDisplay" value={headerUrl} readOnly placeholder="Upload a file to generate a URL..."/>
+                           <Label htmlFor="headerUrlDisplay">Or Paste Media URL</Label>
+                           <Input name="headerUrlDisplay" id="headerUrlDisplay" value={headerUrl} onChange={(e) => setHeaderUrl(e.target.value)} placeholder="https://... or upload to get a local URL"/>
+                           <p className="text-xs text-muted-foreground">Provide a public URL or upload a file to host it.</p>
                         </div>
                     </div>
                 )}

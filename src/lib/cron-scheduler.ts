@@ -10,15 +10,12 @@ import { Db, ObjectId } from 'mongodb';
 
 type SuccessfulSend = {
     phone: string;
-    messageId: string;
+    response: any;
 };
 
 type FailedSend = {
     phone: string;
-    error: {
-        code?: number | string;
-        message: string;
-    };
+    response: any;
 };
 
 type BroadcastJob = {
@@ -109,7 +106,7 @@ async function processBroadcastJob() {
                             }
                         } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
                              const broadcastSpecificUrl = job.headerImageUrl;
-                             const templateDefaultUrl = headerComponent.example?.header_url?.[0];
+                             const templateDefaultUrl = headerComponent.example?.header_handle?.[0];
 
                              let finalUrl;
                              if (broadcastSpecificUrl) {
@@ -177,12 +174,12 @@ async function processBroadcastJob() {
                         const responseData = await response.json();
 
                         if (response.ok) {
-                            chunkSuccessfulSends.push({ phone, messageId: responseData.messages?.[0]?.id || 'N/A' });
+                            chunkSuccessfulSends.push({ phone, response: responseData });
                         } else {
-                            chunkFailedSends.push({ phone, error: { code: responseData.error?.code, message: responseData.error?.message || 'Unknown Error' }});
+                            chunkFailedSends.push({ phone, response: responseData });
                         }
                     } catch(e: any) {
-                        chunkFailedSends.push({ phone, error: { message: e.message || 'Exception during fetch' }});
+                        chunkFailedSends.push({ phone, response: { error: { message: e.message || 'Exception during fetch' } }});
                     }
                 });
 
