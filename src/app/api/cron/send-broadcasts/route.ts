@@ -30,7 +30,22 @@ export async function GET(request: Request) {
     return new NextResponse('This endpoint is for the automated broadcast sending cron job. It is triggered automatically and only accepts POST requests.', { status: 200 });
 }
 
-// Helper function to update logs in the DB
+// Helper to log to the general cron log collection
+const logToCronCollection = async (db: Db, level: 'INFO' | 'ERROR', message: string, details: any = {}) => {
+    try {
+        await db.collection('cron_logs').insertOne({
+            timestamp: new Date(),
+            level,
+            message,
+            details,
+        });
+    } catch (e) {
+        console.error('CRON: FATAL - Could not write to cron_logs collection.', e);
+    }
+};
+
+
+// Helper function to update logs in the DB for a specific job
 async function updateLogs(db: Db, jobId: ObjectId, logs: string[]) {
     if (logs.length === 0) return;
     try {
@@ -46,30 +61,34 @@ async function updateLogs(db: Db, jobId: ObjectId, logs: string[]) {
 
 
 export async function POST(request: Request) {
-    console.log(`[${new Date().toISOString()}] CRON JOB: Triggered.`);
+    let db: Db;
+    // Initialization block
+    try {
+        const isCron = request.headers.get('X-App-Hosting-Cron');
+        if (!isCron) {
+            return new NextResponse('Unauthorized', { status: 401 });
+        }
+        
+        const conn = await connectToDatabase();
+        db = conn.db;
+
+        await logToCronCollection(db, 'INFO', 'Cron job triggered by scheduler.');
+
+    } catch (initializationError: any) {
+        console.error(`[${new Date().toISOString()}] CRON JOB FAILED TO INITIALIZE: ${initializationError.message}`);
+        return new NextResponse(`Internal Server Error during initialization: ${initializationError.message}`, { status: 500 });
+    }
+
+    // Processing block
+    let jobId: ObjectId | null = null;
     const logBuffer: string[] = [];
     const log = (message: string) => {
         const logMessage = `[${new Date().toISOString()}] ${message}`;
         console.log(`CRON JOB: ${logMessage}`);
         logBuffer.push(logMessage);
     };
-    
-    let db: Db;
-    let jobId: ObjectId | null = null;
 
     try {
-        const isCron = request.headers.get('X-App-Hosting-Cron');
-        if (!isCron) {
-            console.error(`[${new Date().toISOString()}] CRON JOB: Unauthorized access. Missing X-App-Hosting-Cron header.`);
-            return new NextResponse('Unauthorized', { status: 401 });
-        }
-        console.log(`[${new Date().toISOString()}] CRON JOB: Cron header verified.`);
-
-        log('Connecting to database...');
-        const conn = await connectToDatabase();
-        db = conn.db;
-        log('Database connected.');
-        
         log('Searching for a queued broadcast job...');
         const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
@@ -78,12 +97,14 @@ export async function POST(request: Request) {
         );
 
         if (!job) {
-            console.log(`[${new Date().toISOString()}] CRON JOB: No queued broadcasts to process.`);
+            await logToCronCollection(db, 'INFO', 'No queued broadcasts to process.');
             return NextResponse.json({ message: 'No queued broadcasts to process.' });
         }
 
         jobId = job._id;
-        log(`Found and processing broadcast job ${jobId}.`);
+        const startMsg = `Found and processing broadcast job ${jobId}.`;
+        log(startMsg);
+        await logToCronCollection(db, 'INFO', startMsg, { jobId: jobId.toString() });
         await updateLogs(db, jobId, logBuffer);
 
 
@@ -117,7 +138,6 @@ export async function POST(request: Request) {
                     
                     const payloadComponents: any[] = [];
                     
-                    // HEADER COMPONENT
                     const headerComponent = job.components.find(c => c.type === 'HEADER');
                     if (headerComponent) {
                         const parameters: any[] = [];
@@ -130,24 +150,20 @@ export async function POST(request: Request) {
                                         text: contact[`variable${varNum}`] || '',
                                     });
                                 });
-                                log(`    - Added TEXT header with params: ${JSON.stringify(parameters)}`);
                             }
                         } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                            const mediaId = headerComponent.example?.header_handle?.[0];
-                            if (mediaId) {
-                                const type = headerComponent.format.toLowerCase();
-                                parameters.push({ type, [type]: { id: mediaId } });
-                                log(`    - Added ${type.toUpperCase()} header with media ID: ${mediaId}`);
-                            } else {
-                                log(`    - WARNING: Template has ${headerComponent.format} header but no media handle was found.`);
-                            }
+                             const mediaId = headerComponent.example?.header_handle?.[0];
+                             if (mediaId) {
+                                 const type = headerComponent.format.toLowerCase();
+                                 const mediaObject: any = { id: mediaId };
+                                 parameters.push({ type, [type]: mediaObject });
+                             }
                         }
                         if (parameters.length > 0) {
                             payloadComponents.push({ type: 'header', parameters });
                         }
                     }
 
-                    // BODY COMPONENT
                     const bodyComponent = job.components.find(c => c.type === 'BODY');
                     if (bodyComponent?.text) {
                         const bodyVars = getVars(bodyComponent.text);
@@ -157,7 +173,6 @@ export async function POST(request: Request) {
                                 text: contact[`variable${varNum}`] || '',
                             }));
                             payloadComponents.push({ type: 'body', parameters });
-                            log(`    - Added BODY with params: ${JSON.stringify(parameters)}`);
                         }
                     }
                     
@@ -221,7 +236,10 @@ export async function POST(request: Request) {
               finalStatus = successCount > 0 ? 'Partial Failure' : 'Failed';
             }
             
-            log('Finished sending all messages. Updating job status in database...');
+            const finalMsg = `Finished sending all messages. Updating job status to ${finalStatus}.`;
+            log(finalMsg);
+            await logToCronCollection(db, 'INFO', finalMsg, { jobId: jobId.toString(), successCount, errorCount });
+            
             await db.collection('broadcasts').updateOne(
                 { _id: jobId },
                 {
@@ -242,6 +260,7 @@ export async function POST(request: Request) {
         } catch (processingError: any) {
             const errorMessage = `CRON JOB: Error during processing job ${jobId}: ${processingError.message}`;
             log(errorMessage);
+            await logToCronCollection(db, 'ERROR', errorMessage, { jobId: jobId.toString(), stack: processingError.stack });
             console.error(errorMessage, processingError);
 
             await db.collection('broadcasts').updateOne(
@@ -254,11 +273,12 @@ export async function POST(request: Request) {
             return new NextResponse(`Internal Server Error while-processing job: ${processingError.message}`, { status: 500 });
         }
     } catch (error: any) {
-        // This outer catch handles initial setup errors (DB connection, finding the job)
-        const errorMessage = `[${new Date().toISOString()}] CRON JOB FAILED: ${error.message}`;
+        const errorMessage = `CRON JOB FAILED: ${error.message}`;
         console.error(errorMessage, error);
         
-        if (jobId && db) {
+        await logToCronCollection(db, 'ERROR', errorMessage, { stack: error.stack });
+        
+        if (jobId) {
              await db.collection('broadcasts').updateOne(
                 { _id: jobId },
                 {
