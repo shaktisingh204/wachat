@@ -34,11 +34,12 @@ export type Project = {
 
 export type Template = {
   name: string;
-  category: string;
+  category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
   body: string;
   language: string;
   status: string;
-  components?: any[];
+  components: any[];
+  metaId: string;
 };
 
 export default async function SelectProjectPage() {

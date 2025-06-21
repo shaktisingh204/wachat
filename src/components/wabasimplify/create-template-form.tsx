@@ -14,7 +14,8 @@ import { LoaderCircle, FileUp, Plus, Trash2, UploadCloud } from 'lucide-react';
 import { handleCreateTemplate, handleUploadMedia } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
-import type { Project } from '@/app/dashboard/page';
+import type { Project, Template } from '@/app/dashboard/page';
+import { Separator } from '../ui/separator';
 
 const createTemplateInitialState = {
   message: null,
@@ -40,7 +41,7 @@ function SubmitButton() {
     );
 }
 
-type Button = {
+type ButtonType = {
   type: 'QUICK_REPLY' | 'URL' | 'PHONE_NUMBER';
   text: string;
   url?: string;
@@ -49,140 +50,84 @@ type Button = {
 };
 
 const languages = [
-    { code: 'af', name: 'Afrikaans' },
-    { code: 'sq', name: 'Albanian' },
-    { code: 'ar', name: 'Arabic' },
-    { code: 'ar_EG', name: 'Arabic (EGY)' },
-    { code: 'ar_AE', name: 'Arabic (UAE)' },
-    { code: 'ar_LB', name: 'Arabic (LBN)' },
-    { code: 'ar_MA', name: 'Arabic (MAR)' },
-    { code: 'ar_QA', name: 'Arabic (QAT)' },
-    { code: 'az', name: 'Azerbaijani' },
-    { code: 'be_BY', name: 'Belarusian' },
-    { code: 'bn', name: 'Bengali' },
-    { code: 'bn_IN', name: 'Bengali (IND)' },
-    { code: 'bg', name: 'Bulgarian' },
-    { code: 'ca', name: 'Catalan' },
-    { code: 'zh_CN', name: 'Chinese (CHN)' },
-    { code: 'zh_HK', name: 'Chinese (HKG)' },
-    { code: 'zh_TW', name: 'Chinese (TAI)' },
-    { code: 'hr', name: 'Croatian' },
-    { code: 'cs', name: 'Czech' },
-    { code: 'da', name: 'Danish' },
-    { code: 'prs_AF', name: 'Dari' },
-    { code: 'nl', name: 'Dutch' },
-    { code: 'nl_BE', name: 'Dutch (BEL)' },
-    { code: 'en', name: 'English' },
-    { code: 'en_GB', name: 'English (UK)' },
-    { code: 'en_US', name: 'English (US)' },
-    { code: 'en_AE', name: 'English (UAE)' },
-    { code: 'en_AU', name: 'English (AUS)' },
-    { code: 'en_CA', name: 'English (CAN)' },
-    { code: 'en_GH', name: 'English (GHA)' },
-    { code: 'en_IE', name: 'English (IRL)' },
-    { code: 'en_IN', name: 'English (IND)' },
-    { code: 'en_JM', name: 'English (JAM)' },
-    { code: 'en_MY', name: 'English (MYS)' },
-    { code: 'en_NZ', name: 'English (NZL)' },
-    { code: 'en_QA', name: 'English (QAT)' },
-    { code: 'en_SG', name: 'English (SGP)' },
-    { code: 'en_UG', name: 'English (UGA)' },
-    { code: 'en_ZA', name: 'English (ZAF)' },
-    { code: 'et', name: 'Estonian' },
-    { code: 'fil', name: 'Filipino' },
-    { code: 'fi', name: 'Finnish' },
-    { code: 'fr', name: 'French' },
-    { code: 'fr_BE', name: 'French (BEL)' },
-    { code: 'fr_CA', name: 'French (CAN)' },
-    { code: 'fr_CH', name: 'French (CHE)' },
-    { code: 'fr_CI', name: 'French (CIV)' },
-    { code: 'fr_MA', name: 'French (MAR)' },
-    { code: 'ka', name: 'Georgian' },
-    { code: 'de', name: 'German' },
-    { code: 'de_AT', name: 'German (AUT)' },
-    { code: 'de_CH', name: 'German (CHE)' },
-    { code: 'el', name: 'Greek' },
-    { code: 'gu', name: 'Gujarati' },
-    { code: 'ha', name: 'Hausa' },
-    { code: 'he', name: 'Hebrew' },
-    { code: 'hi', name: 'Hindi' },
-    { code: 'hu', name: 'Hungarian' },
-    { code: 'id', name: 'Indonesian' },
-    { code: 'ga', name: 'Irish' },
-    { code: 'it', name: 'Italian' },
-    { code: 'ja', name: 'Japanese' },
-    { code: 'kn', name: 'Kannada' },
-    { code: 'kk', name: 'Kazakh' },
-    { code: 'rw_RW', name: 'Kinyarwanda' },
-    { code: 'ko', name: 'Korean' },
-    { code: 'ky_KG', name: 'Kyrgyz (Kyrgyzstan)' },
-    { code: 'lo', name: 'Lao' },
-    { code: 'lv', name: 'Latvian' },
-    { code: 'lt', name: 'Lithuanian' },
-    { code: 'mk', name: 'Macedonian' },
-    { code: 'ms', name: 'Malay' },
-    { code: 'ml', name: 'Malayalam' },
-    { code: 'mr', name: 'Marathi' },
-    { code: 'nb', name: 'Norwegian' },
-    { code: 'ps_AF', name: 'Pashto' },
-    { code: 'fa', name: 'Persian' },
-    { code: 'pl', name: 'Polish' },
-    { code: 'pt_BR', name: 'Portuguese (BR)' },
-    { code: 'pt_PT', name: 'Portuguese (POR)' },
-    { code: 'pa', name: 'Punjabi' },
-    { code: 'ro', name: 'Romanian' },
-    { code: 'ru', name: 'Russian' },
-    { code: 'sr', name: 'Serbian' },
-    { code: 'si_LK', name: 'Sinhala' },
-    { code: 'sk', name: 'Slovak' },
-    { code: 'sl', name: 'Slovenian' },
-    { code: 'es', name: 'Spanish' },
-    { code: 'es_AR', name: 'Spanish (ARG)' },
-    { code: 'es_CL', name: 'Spanish (CHL)' },
-    { code: 'es_CO', name: 'Spanish (COL)' },
-    { code: 'es_CR', name: 'Spanish (CRI)' },
-    { code: 'es_DO', name: 'Spanish (DOM)' },
-    { code: 'es_EC', name: 'Spanish (ECU)' },
-    { code: 'es_HN', name: 'Spanish (HND)' },
-    { code: 'es_MX', name: 'Spanish (MEX)' },
-    { code: 'es_PA', name: 'Spanish (PAN)' },
-    { code: 'es_PE', name: 'Spanish (PER)' },
-    { code: 'es_ES', name: 'Spanish (SPA)' },
-    { code: 'es_UY', name: 'Spanish (URY)' },
-    { code: 'sw', name: 'Swahili' },
-    { code: 'sv', name: 'Swedish' },
-    { code: 'ta', name: 'Tamil' },
-    { code: 'te', name: 'Telugu' },
-    { code: 'th', name: 'Thai' },
-    { code: 'tr', name: 'Turkish' },
-    { code: 'uk', name: 'Ukrainian' },
-    { code: 'ur', name: 'Urdu' },
-    { code: 'uz', name: 'Uzbek' },
-    { code: 'vi', name: 'Vietnamese' },
-    { code: 'zu', name: 'Zulu' },
+    { code: 'af', name: 'Afrikaans' }, { code: 'sq', name: 'Albanian' }, { code: 'ar', name: 'Arabic' },
+    { code: 'az', name: 'Azerbaijani' }, { code: 'bn', name: 'Bengali' }, { code: 'bg', name: 'Bulgarian' },
+    { code: 'ca', name: 'Catalan' }, { code: 'zh_CN', name: 'Chinese (CHN)' }, { code: 'zh_HK', name: 'Chinese (HKG)' },
+    { code: 'zh_TW', name: 'Chinese (TAI)' }, { code: 'hr', name: 'Croatian' }, { code: 'cs', name: 'Czech' },
+    { code: 'da', name: 'Danish' }, { code: 'nl', name: 'Dutch' }, { code: 'en', name: 'English' },
+    { code: 'en_US', name: 'English (US)' }, { code: 'et', name: 'Estonian' }, { code: 'fil', name: 'Filipino' },
+    { code: 'fi', name: 'Finnish' }, { code: 'fr', name: 'French' }, { code: 'ka', name: 'Georgian' },
+    { code: 'de', name: 'German' }, { code: 'el', name: 'Greek' }, { code: 'gu', name: 'Gujarati' },
+    { code: 'ha', name: 'Hausa' }, { code: 'he', name: 'Hebrew' }, { code: 'hi', name: 'Hindi' },
+    { code: 'hu', name: 'Hungarian' }, { code: 'id', name: 'Indonesian' }, { code: 'ga', name: 'Irish' },
+    { code: 'it', name: 'Italian' }, { code: 'ja', name: 'Japanese' }, { code: 'kn', name: 'Kannada' },
+    { code: 'kk', name: 'Kazakh' }, { code: 'rw_RW', name: 'Kinyarwanda' }, { code: 'ko', name: 'Korean' },
+    { code: 'ky_KG', name: 'Kyrgyz (Kyrgyzstan)' }, { code: 'lo', name: 'Lao' }, { code: 'lv', name: 'Latvian' },
+    { code: 'lt', name: 'Lithuanian' }, { code: 'mk', name: 'Macedonian' }, { code: 'ms', name: 'Malay' },
+    { code: 'ml', name: 'Malayalam' }, { code: 'mr', name: 'Marathi' }, { code: 'nb', name: 'Norwegian' },
+    { code: 'fa', name: 'Persian' }, { code: 'pl', name: 'Polish' }, { code: 'pt_BR', name: 'Portuguese (BR)' },
+    { code: 'pt_PT', name: 'Portuguese (POR)' }, { code: 'pa', name: 'Punjabi' }, { code: 'ro', name: 'Romanian' },
+    { code: 'ru', name: 'Russian' }, { code: 'sr', name: 'Serbian' }, { code: 'sk', name: 'Slovak' },
+    { code: 'sl', name: 'Slovenian' }, { code: 'es', name: 'Spanish' }, { code: 'es_AR', name: 'Spanish (ARG)' },
+    { code: 'es_MX', name: 'Spanish (MEX)' }, { code: 'es_ES', name: 'Spanish (SPA)' }, { code: 'sw', name: 'Swahili' },
+    { code: 'sv', name: 'Swedish' }, { code: 'ta', name: 'Tamil' }, { code: 'te', name: 'Telugu' },
+    { code: 'th', name: 'Thai' }, { code: 'tr', name: 'Turkish' }, { code: 'uk', name: 'Ukrainian' },
+    { code: 'ur', name: 'Urdu' }, { code: 'uz', name: 'Uzbek' }, { code: 'vi', name: 'Vietnamese' }, { code: 'zu', name: 'Zulu' }
 ];
 
-const uniqueLanguagesMap = new Map();
-languages.forEach(lang => {
-    if (!uniqueLanguagesMap.has(lang.code)) {
-        uniqueLanguagesMap.set(lang.code, lang);
-    }
-});
-const uniqueLanguages = Array.from(uniqueLanguagesMap.values());
-
-export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
+export function CreateTemplateForm({ project, initialTemplate, isCloning }: { project: WithId<Project>, initialTemplate?: WithId<Template> | null, isCloning?: boolean }) {
   const router = useRouter();
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleCreateTemplate, createTemplateInitialState);
 
+  const [templateName, setTemplateName] = useState('');
+  const [category, setCategory] = useState<Template['category'] | ''>('');
+  const [language, setLanguage] = useState('en_US');
+  const [body, setBody] = useState('');
+  const [footer, setFooter] = useState('');
   const [headerFormat, setHeaderFormat] = useState('NONE');
+  const [headerText, setHeaderText] = useState('');
   const [headerHandle, setHeaderHandle] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [phoneNumberId, setPhoneNumberId] = useState('');
+  const [buttons, setButtons] = useState<ButtonType[]>([]);
+  
+  useEffect(() => {
+    if (initialTemplate) {
+      let name = initialTemplate.name;
+      if (isCloning) {
+        name = `${name}_clone_${Math.floor(Math.random() * 100)}`;
+      }
+      setTemplateName(name);
+      setCategory(initialTemplate.category);
+      setLanguage(initialTemplate.language);
 
-  const [buttons, setButtons] = useState<Button[]>([]);
+      const bodyComp = initialTemplate.components?.find(c => c.type === 'BODY');
+      setBody(bodyComp?.text || initialTemplate.body || '');
+
+      const headerComp = initialTemplate.components?.find(c => c.type === 'HEADER');
+      if (headerComp) {
+        setHeaderFormat(headerComp.format || 'NONE');
+        if(headerComp.format === 'TEXT') {
+            setHeaderText(headerComp.text || '');
+        } else if (headerComp.example?.header_handle?.[0]) {
+            setHeaderHandle(headerComp.example.header_handle[0]);
+        }
+      } else {
+        setHeaderFormat('NONE');
+      }
+      
+      const footerComp = initialTemplate.components?.find(c => c.type === 'FOOTER');
+      setFooter(footerComp?.text || '');
+
+      const buttonsComp = initialTemplate.components?.find(c => c.type === 'BUTTONS');
+      setButtons(buttonsComp?.buttons || []);
+
+    }
+  }, [initialTemplate, isCloning]);
+
 
   useEffect(() => {
     if (state?.message) {
@@ -219,7 +164,7 @@ export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
     }
   };
 
-  const handleAddButton = (type: Button['type']) => {
+  const handleAddButton = (type: ButtonType['type']) => {
     const hasQuickReply = buttons.some(b => b.type === 'QUICK_REPLY');
     const hasCta = buttons.some(b => b.type === 'URL' || b.type === 'PHONE_NUMBER');
     
@@ -235,7 +180,7 @@ export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
     setButtons(buttons.filter((_, i) => i !== index));
   };
 
-  const handleButtonChange = (index: number, field: keyof Button, value: string) => {
+  const handleButtonChange = (index: number, field: keyof ButtonType, value: string) => {
     const newButtons = [...buttons];
     newButtons[index] = { ...newButtons[index], [field]: value };
     setButtons(newButtons);
@@ -256,12 +201,12 @@ export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
             <CardContent className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="templateName">Template Name</Label>
-                <Input id="templateName" name="templateName" placeholder="e.g., order_confirmation" required />
+                <Input id="templateName" name="templateName" placeholder="e.g., order_confirmation" value={templateName} onChange={(e) => setTemplateName(e.target.value)} required />
                 <p className="text-xs text-muted-foreground">Lowercase letters, numbers, and underscores only.</p>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
-                <Select name="category" required>
+                <Select name="category" value={category} onValueChange={(v) => setCategory(v as Template['category'])} required>
                   <SelectTrigger id="category"><SelectValue placeholder="Select a category" /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="MARKETING">Marketing</SelectItem>
@@ -272,10 +217,10 @@ export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
               </div>
               <div className="space-y-2 col-span-2">
                 <Label htmlFor="language">Language</Label>
-                <Select name="language" defaultValue="en_US" required>
+                <Select name="language" value={language} onValueChange={setLanguage} required>
                   <SelectTrigger id="language"><SelectValue placeholder="Select a language" /></SelectTrigger>
                   <SelectContent>
-                    {uniqueLanguages.map((lang) => (
+                    {languages.map((lang) => (
                         <SelectItem key={lang.code} value={lang.code}>{lang.name} ({lang.code})</SelectItem>
                     ))}
                   </SelectContent>
@@ -303,7 +248,7 @@ export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
                 {headerFormat === 'TEXT' && (
                     <div className="space-y-2">
                         <Label htmlFor="headerText">Header Text</Label>
-                        <Input name="headerText" id="headerText" placeholder="Your header text..." maxLength={60} />
+                        <Input name="headerText" id="headerText" placeholder="Your header text..." maxLength={60} value={headerText} onChange={(e) => setHeaderText(e.target.value)} />
                     </div>
                 )}
 
@@ -338,12 +283,12 @@ export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
               
                 <div className="space-y-2">
                     <Label htmlFor="body">Body</Label>
-                    <Textarea id="body" name="body" placeholder="Hi {{1}}, this is a reminder..." className="min-h-[150px]" required/>
+                    <Textarea id="body" name="body" placeholder="Hi {{1}}, this is a reminder..." className="min-h-[150px]" value={body} onChange={(e) => setBody(e.target.value)} required/>
                 </div>
 
                 <div className="space-y-2">
                     <Label htmlFor="footer">Footer (Optional)</Label>
-                    <Input name="footer" id="footer" placeholder="e.g., Not a customer? Tap to unsubscribe." maxLength={60} />
+                    <Input name="footer" id="footer" placeholder="e.g., Not a customer? Tap to unsubscribe." maxLength={60} value={footer} onChange={(e) => setFooter(e.target.value)}/>
                 </div>
             </CardContent>
           </Card>
@@ -376,10 +321,16 @@ export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
 
                 </CardContent>
             </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle>Submit</CardTitle>
+                    <CardDescription>When you're ready, submit your template for review by Meta.</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                    <SubmitButton />
+                </CardFooter>
+            </Card>
         </div>
-      </div>
-      <div className="flex justify-end mt-8 pt-8 border-t">
-        <SubmitButton />
       </div>
     </form>
   );

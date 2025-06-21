@@ -2,11 +2,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Languages, Copy } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Languages, Edit, FilePlus2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -14,20 +14,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import type { WithId } from 'mongodb';
+import type { Template } from '@/app/dashboard/page';
 
 interface TemplateCardProps {
-  template: {
-    name: string;
-    category: string;
-    body: string;
-    language: string;
-    status: string;
-    components?: any[];
-  };
+  template: WithId<Template>;
 }
 
 export function TemplateCard({ template }: TemplateCardProps) {
-  const { toast } = useToast();
+  const router = useRouter();
   const [isViewOpen, setIsViewOpen] = useState(false);
 
   const getStatusVariant = (status: string) => {
@@ -37,22 +32,9 @@ export function TemplateCard({ template }: TemplateCardProps) {
     return 'destructive';
   };
 
-  const handleCopyBody = () => {
-    const bodyComponent = template.components?.find(c => c.type === 'BODY');
-    const textToCopy = bodyComponent?.text || template.body;
-    navigator.clipboard.writeText(textToCopy).then(() => {
-      toast({
-        title: 'Copied to Clipboard',
-        description: 'The template body has been copied.',
-      });
-    }).catch(err => {
-      console.error('Failed to copy text: ', err);
-      toast({
-        title: 'Copy Failed',
-        description: 'Could not copy text to clipboard.',
-        variant: 'destructive',
-      });
-    });
+  const handleAction = (action: 'edit' | 'clone') => {
+    localStorage.setItem('templateToAction', JSON.stringify(template));
+    router.push(`/dashboard/templates/create?action=${action}`);
   };
 
   const renderComponentContent = (component: any) => {
@@ -63,7 +45,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
         <ul className="list-disc pl-5 space-y-1">
           {component.buttons.map((button: any, index: number) => (
             <li key={index}>
-              <strong>{button.text}</strong> ({button.type.replace('_', ' ')})
+              <strong>{button.text}</strong> ({button.type.replace(/_/g, ' ')})
               {button.url && <span className="block text-xs text-muted-foreground">{button.url}</span>}
               {button.phone_number && <span className="block text-xs text-muted-foreground">Call: {button.phone_number}</span>}
             </li>
@@ -97,12 +79,15 @@ export function TemplateCard({ template }: TemplateCardProps) {
           <p className="text-sm text-foreground/80 line-clamp-4">{template.body}</p>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
-          <Button variant="ghost" onClick={handleCopyBody}>
-            <Copy className="mr-2 h-4 w-4"/>
-            Copy
+          <Button variant="ghost" onClick={() => setIsViewOpen(true)}>View</Button>
+          <Button variant="outline" onClick={() => handleAction('clone')}>
+            <FilePlus2 className="mr-2 h-4 w-4" />
+            Clone
           </Button>
-          <Button variant="outline" onClick={() => setIsViewOpen(true)}>View</Button>
-          <Button variant="secondary" disabled>Edit</Button>
+          <Button variant="secondary" onClick={() => handleAction('edit')}>
+            <Edit className="mr-2 h-4 w-4" />
+            Edit
+          </Button>
         </CardFooter>
       </Card>
 

@@ -10,15 +10,7 @@ import { WithId } from 'mongodb';
 import { useEffect, useState, useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-
-type Template = {
-  name: string;
-  category: string;
-  body: string;
-  language: string;
-  status: string;
-  components?: any[];
-};
+import type { Template } from '@/app/dashboard/page';
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
