@@ -30,35 +30,50 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import type { Metadata } from 'next';
+import { connectToDatabase } from '@/lib/mongodb';
+import {WithId} from 'mongodb';
 
 export const metadata: Metadata = {
   title: 'Phone Numbers | WABASimplify',
 };
 
-const phoneNumbers = [
-  {
-    number: '+1 555-123-4567',
-    status: 'active',
-    registeredOn: '2023-10-26',
-  },
-  {
-    number: '+44 20 7946 0958',
-    status: 'pending',
-    registeredOn: '2023-11-15',
-  },
-  {
-    number: '+91 98765 43210',
-    status: 'active',
-    registeredOn: '2023-09-01',
-  },
-  {
-    number: '+1 555-987-6543',
-    status: 'rejected',
-    registeredOn: '2023-11-20',
-  },
-];
+type PhoneNumber = {
+  number: string;
+  status: 'active' | 'pending' | 'rejected';
+  registeredOn: string;
+};
 
-export default function NumbersPage() {
+async function getPhoneNumbers(): Promise<WithId<PhoneNumber>[]> {
+    try {
+        const { db } = await connectToDatabase();
+        const phoneNumbers = await db.collection<PhoneNumber>('phone_numbers').find({}).toArray();
+        return phoneNumbers;
+    } catch (error) {
+        console.error("Failed to fetch phone numbers:", error);
+        // In case of an error, return an empty array to prevent the page from crashing.
+        return [];
+    }
+}
+
+
+export default async function NumbersPage() {
+    const phoneNumbers = await getPhoneNumbers();
+    
+    // Seed data if collection is empty
+    if (phoneNumbers.length === 0) {
+        const { db } = await connectToDatabase();
+        const seedData: PhoneNumber[] = [
+            { number: '+1 555-123-4567', status: 'active', registeredOn: '2023-10-26' },
+            { number: '+44 20 7946 0958', status: 'pending', registeredOn: '2023-11-15' },
+            { number: '+91 98765 43210', status: 'active', registeredOn: '2023-09-01' },
+            { number: '+1 555-987-6543', status: 'rejected', registeredOn: '2023-11-20' },
+        ];
+        await db.collection('phone_numbers').insertMany(seedData);
+        // Re-fetch after seeding
+        const freshData = await getPhoneNumbers();
+        phoneNumbers.push(...freshData);
+    }
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
@@ -112,7 +127,7 @@ export default function NumbersPage() {
             </TableHeader>
             <TableBody>
               {phoneNumbers.map((phone) => (
-                <TableRow key={phone.number}>
+                <TableRow key={phone._id.toString()}>
                   <TableCell className="font-medium">{phone.number}</TableCell>
                   <TableCell>
                     <Badge
