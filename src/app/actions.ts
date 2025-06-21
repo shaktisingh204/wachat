@@ -37,6 +37,7 @@ type MetaTemplateComponent = {
     type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
     text?: string;
     format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'AUDIO';
+    link?: string;
 };
 
 type MetaTemplate = {
@@ -216,6 +217,7 @@ export async function handleCreateProject(
             accessToken,
             phoneNumbers,
             createdAt: new Date(),
+            rateLimitDelay: 1000,
         });
         
         revalidatePath('/dashboard');
@@ -649,5 +651,50 @@ export async function handleUploadMedia(formData: FormData): Promise<{ url?: str
     } catch (e: any) {
         console.error('Media upload to server failed:', e);
         return { error: e.message || 'An unexpected error occurred during media upload.' };
+    }
+}
+
+type UpdateProjectSettingsState = {
+  message?: string | null;
+  error?: string | null;
+};
+
+export async function handleUpdateProjectSettings(
+  prevState: UpdateProjectSettingsState,
+  formData: FormData
+): Promise<UpdateProjectSettingsState> {
+    try {
+        const projectId = formData.get('projectId') as string;
+        const rateLimitDelay = formData.get('rateLimitDelay') as string;
+
+        if (!projectId || !rateLimitDelay) {
+            return { error: 'Missing required fields.' };
+        }
+        if (!ObjectId.isValid(projectId)) {
+            return { error: 'Invalid Project ID.' };
+        }
+
+        const delay = parseInt(rateLimitDelay, 10);
+        if (isNaN(delay) || delay < 1000) {
+            return { error: 'Rate limit delay must be a number and at least 1000ms (1 second).' };
+        }
+
+        const { db } = await connectToDatabase();
+        const result = await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { rateLimitDelay: delay } }
+        );
+        
+        if (result.matchedCount === 0) {
+            return { error: 'Project not found.' };
+        }
+        
+        revalidatePath('/dashboard/settings');
+
+        return { message: 'Settings updated successfully!' };
+
+    } catch (e: any) {
+        console.error('Project settings update failed:', e);
+        return { error: e.message || 'An unexpected error occurred while saving the settings.' };
     }
 }

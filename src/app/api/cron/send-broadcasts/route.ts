@@ -23,64 +23,28 @@ type BroadcastJob = {
     failedSends?: { phone: string; response: any }[];
     components: any[]; 
     language: string;
-    logs?: string[];
+    headerImageUrl?: string;
 };
 
-// Helper to log to the general cron log collection
-const logToCronCollection = async (db: Db, level: 'INFO' | 'ERROR', message: string, details: any = {}) => {
-    try {
-        await db.collection('cron_logs').insertOne({
-            timestamp: new Date(),
-            level,
-            message,
-            details,
-        });
-    } catch (e) {
-        console.error('CRON: FATAL - Could not write to cron_logs collection.', e);
-    }
+type Project = {
+    _id: ObjectId;
+    rateLimitDelay?: number;
 };
-
-
-// Helper function to update logs in the DB for a specific job
-async function updateLogs(db: Db, jobId: ObjectId, logs: string[]) {
-    if (logs.length === 0) return;
-    try {
-        await db.collection('broadcasts').updateOne(
-            { _id: jobId },
-            { $push: { logs: { $each: logs } } }
-        );
-        logs.length = 0; // Clear the array for the next batch of logs
-    } catch (e) {
-        console.error(`CRON JOB: Failed to update logs for job ${jobId}`, e);
-    }
-}
 
 async function handleRequest(request: Request) {
     let db: Db;
-    // Initialization block
     try {
-        // Auth removed for manual testing
         const conn = await connectToDatabase();
         db = conn.db;
-
-        await logToCronCollection(db, 'INFO', 'Cron job triggered.');
 
     } catch (initializationError: any) {
         console.error(`[${new Date().toISOString()}] CRON JOB FAILED TO INITIALIZE: ${initializationError.message}`);
         return new NextResponse(`Internal Server Error during initialization: ${initializationError.message}`, { status: 500 });
     }
 
-    // Processing block
     let jobId: ObjectId | null = null;
-    const logBuffer: string[] = [];
-    const log = (message: string) => {
-        const logMessage = `[${new Date().toISOString()}] ${message}`;
-        console.log(`CRON JOB: ${logMessage}`);
-        logBuffer.push(logMessage);
-    };
 
     try {
-        log('Searching for a queued broadcast job...');
         const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
             { $set: { status: 'PROCESSING', processedAt: new Date() } },
@@ -88,108 +52,138 @@ async function handleRequest(request: Request) {
         );
 
         if (!job) {
-            await logToCronCollection(db, 'INFO', 'No queued broadcasts to process.');
             return NextResponse.json({ message: 'No queued broadcasts to process.' });
         }
 
         jobId = job._id;
-        const startMsg = `Found and processing broadcast job ${jobId}.`;
-        log(startMsg);
-        await logToCronCollection(db, 'INFO', startMsg, { jobId: jobId.toString() });
-        await updateLogs(db, jobId, logBuffer);
+        
+        const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
+        const DELAY_MS = project?.rateLimitDelay || 1000;
 
-
-        // --- Start of inner try...catch block for job processing ---
         try {
             let successCount = 0;
             let successfulSends: { phone: string; response: any }[] = [];
             let failedSends: { phone: string; response: any }[] = [];
             
             const CHUNK_SIZE = 80;
-            const DELAY_MS = 1000;
-
-            log(`Starting to send messages to ${job.contacts.length} contacts in chunks of ${CHUNK_SIZE}...`);
-            await updateLogs(db, jobId, logBuffer);
-
 
             for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
                 const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
-                const chunkNumber = Math.floor(i / CHUNK_SIZE) + 1;
-                log(`Processing chunk ${chunkNumber} of ${Math.ceil(job.contacts.length / CHUNK_SIZE)}...`);
                 
                 const sendPromises = chunk.map(async (contact) => {
                     const firstColumnHeader = Object.keys(contact)[0];
                     const phone = contact[firstColumnHeader];
-                    log(`  - Processing contact: ${phone}`);
-
-                    const getVars = (text: string): number[] => {
-                        const variableMatches = text.match(/{{(\d+)}}/g);
-                        return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
-                    };
-                    
-                    const payloadComponents: any[] = [];
-                    
-                    const headerComponent = job.components.find(c => c.type === 'HEADER');
-                    if (headerComponent) {
-                        const parameters: any[] = [];
-                        if (headerComponent.format === 'TEXT' && headerComponent.text) {
-                            const headerVars = getVars(headerComponent.text);
-                            if (headerVars.length > 0) {
-                                headerVars.sort((a,b) => a-b).forEach(varNum => {
-                                    parameters.push({
-                                        type: 'text',
-                                        text: contact[`variable${varNum}`] || '',
-                                    });
-                                });
-                            }
-                        } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                             const mediaId = headerComponent.example?.header_handle?.[0];
-                             if (mediaId) {
-                                 const type = headerComponent.format.toLowerCase();
-                                 const mediaObject: any = { id: mediaId };
-                                 if (type === 'document' || type === 'image') {
-                                    mediaObject.filename = "file"; 
-                                 }
-                                 parameters.push({ type, [type]: mediaObject });
-                             }
-                        }
-                        if (parameters.length > 0) {
-                            payloadComponents.push({ type: 'header', parameters });
-                        }
-                    }
-
-                    const bodyComponent = job.components.find(c => c.type === 'BODY');
-                    if (bodyComponent?.text) {
-                        const bodyVars = getVars(bodyComponent.text);
-                        if (bodyVars.length > 0) {
-                            const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({
-                                type: 'text',
-                                text: contact[`variable${varNum}`] || '',
-                            }));
-                            payloadComponents.push({ type: 'body', parameters });
-                        }
-                    }
-
-                    const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
-                    if (buttonsComponent) {
-                        payloadComponents.push(buttonsComponent);
-                    }
-                    
-                    const messageData = {
-                        messaging_product: 'whatsapp',
-                        to: phone,
-                        recipient_type: 'individual',
-                        type: 'template',
-                        template: {
-                            name: job.templateName,
-                            language: { code: job.language || 'en_US' },
-                            ...(payloadComponents.length > 0 && { components: payloadComponents }),
-                        },
-                    };
-
-                    log(`    - Payload for ${phone}: ${JSON.stringify(messageData)}`);
 
                     try {
+                        // --- MEDIA UPLOAD LOGIC ---
+                        let mediaId: string | null = null;
+                        const headerComponent = job.components.find(c => c.type === 'HEADER');
+                        if (headerComponent && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
+                            const broadcastSpecificUrl = job.headerImageUrl;
+                            const templateDefaultUrl = headerComponent.example?.header_url?.[0];
+
+                            let finalUrl;
+                            if (broadcastSpecificUrl) {
+                                finalUrl = broadcastSpecificUrl.startsWith('http') ? broadcastSpecificUrl : `${process.env.APP_URL || ''}${broadcastSpecificUrl}`;
+                            } else {
+                                finalUrl = templateDefaultUrl;
+                            }
+
+                            if (finalUrl) {
+                                try {
+                                    const mediaResponse = await fetch(finalUrl);
+                                    if (!mediaResponse.ok) throw new Error(`Failed to fetch media from URL: ${finalUrl}`);
+                                    
+                                    const fileBlob = await mediaResponse.blob();
+                                    
+                                    const formData = new FormData();
+                                    formData.append('messaging_product', 'whatsapp');
+                                    formData.append('file', fileBlob);
+
+                                    const uploadResponse = await fetch(
+                                      `https://graph.facebook.com/v18.0/${job.phoneNumberId}/media`,
+                                      {
+                                        method: 'POST',
+                                        headers: {
+                                          Authorization: `Bearer ${job.accessToken}`,
+                                        },
+                                        body: formData,
+                                      }
+                                    );
+
+                                    const uploadData = await uploadResponse.json();
+                                    if (!uploadResponse.ok || !uploadData.id) {
+                                        throw new Error(`Meta media upload failed: ${JSON.stringify(uploadData.error || uploadData)}`);
+                                    }
+                                    mediaId = uploadData.id;
+                                } catch (mediaError: any) {
+                                    throw new Error(`Media processing failed: ${mediaError.message}`);
+                                }
+                            }
+                        }
+                        
+                        // --- PAYLOAD CONSTRUCTION ---
+                        const getVars = (text: string): number[] => {
+                            const variableMatches = text.match(/{{(\d+)}}/g);
+                            return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
+                        };
+                        
+                        const payloadComponents: any[] = [];
+                        
+                        if (headerComponent) {
+                            const parameters: any[] = [];
+                            if (headerComponent.format === 'TEXT' && headerComponent.text) {
+                                const headerVars = getVars(headerComponent.text);
+                                if (headerVars.length > 0) {
+                                    headerVars.sort((a,b) => a-b).forEach(varNum => {
+                                        parameters.push({
+                                            type: 'text',
+                                            text: contact[`variable${varNum}`] || '',
+                                        });
+                                    });
+                                }
+                            } else if (mediaId) {
+                                 const type = headerComponent.format.toLowerCase();
+                                 const mediaObject: any = { id: mediaId };
+                                 if (type === 'document') {
+                                    mediaObject.filename = contact['filename'] || "file"; 
+                                 }
+                                 parameters.push({ type, [type]: mediaObject });
+                            }
+                            if (parameters.length > 0) {
+                                payloadComponents.push({ type: 'header', parameters });
+                            }
+                        }
+
+                        const bodyComponent = job.components.find(c => c.type === 'BODY');
+                        if (bodyComponent?.text) {
+                            const bodyVars = getVars(bodyComponent.text);
+                            if (bodyVars.length > 0) {
+                                const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({
+                                    type: 'text',
+                                    text: contact[`variable${varNum}`] || '',
+                                }));
+                                payloadComponents.push({ type: 'body', parameters });
+                            }
+                        }
+
+                        const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
+                        if (buttonsComponent) {
+                            payloadComponents.push(buttonsComponent);
+                        }
+                        
+                        const messageData = {
+                            messaging_product: 'whatsapp',
+                            to: phone,
+                            recipient_type: 'individual',
+                            type: 'template',
+                            template: {
+                                name: job.templateName,
+                                language: { code: job.language || 'en_US' },
+                                ...(payloadComponents.length > 0 && { components: payloadComponents }),
+                            },
+                        };
+
                         const response = await fetch(
                           `https://graph.facebook.com/v18.0/${job.phoneNumberId}/messages`,
                           {
@@ -218,12 +212,7 @@ async function handleRequest(request: Request) {
 
                 await Promise.all(sendPromises);
                 
-                log(`Chunk ${chunkNumber} finished. So far: ${successfulSends.length} success, ${failedSends.length} failed.`);
-
-
                 if (i + CHUNK_SIZE < job.contacts.length) {
-                    log(`Waiting for ${DELAY_MS}ms...`);
-                    await updateLogs(db, jobId, logBuffer);
                     await new Promise(resolve => setTimeout(resolve, DELAY_MS));
                 }
             }
@@ -235,10 +224,6 @@ async function handleRequest(request: Request) {
               finalStatus = successCount > 0 ? 'Partial Failure' : 'Failed';
             }
             
-            const finalMsg = `Finished sending all messages. Updating job status to ${finalStatus}.`;
-            log(finalMsg);
-            await logToCronCollection(db, 'INFO', finalMsg, { jobId: jobId.toString(), successCount, errorCount });
-            
             await db.collection('broadcasts').updateOne(
                 { _id: jobId },
                 {
@@ -249,40 +234,26 @@ async function handleRequest(request: Request) {
                         successfulSends,
                         failedSends,
                         processedAt: new Date(),
-                    },
-                     $push: { logs: { $each: logBuffer } }
+                    }
                 }
             );
             
-            console.log(`[${new Date().toISOString()}] CRON JOB: Broadcast job ${jobId} finished with status: ${finalStatus}. Success: ${successCount}, Failed: ${errorCount}.`);
             return NextResponse.json({ message: `Job ${jobId} processed.`, status: finalStatus, success: successCount, failed: errorCount });
         } catch (processingError: any) {
-            const errorMessage = `CRON JOB: Error during processing job ${jobId}: ${processingError.message}`;
-            log(errorMessage);
-            await logToCronCollection(db, 'ERROR', errorMessage, { jobId: jobId.toString(), stack: processingError.stack });
-            console.error(errorMessage, processingError);
-
             await db.collection('broadcasts').updateOne(
                 { _id: jobId },
                 {
                     $set: { status: 'Failed', processedAt: new Date() },
-                    $push: { logs: { $each: logBuffer } }
                 }
             );
             return new NextResponse(`Internal Server Error while-processing job: ${processingError.message}`, { status: 500 });
         }
     } catch (error: any) {
-        const errorMessage = `CRON JOB FAILED: ${error.message}`;
-        console.error(errorMessage, error);
-        
-        await logToCronCollection(db, 'ERROR', errorMessage, { stack: error.stack });
-        
         if (jobId) {
              await db.collection('broadcasts').updateOne(
                 { _id: jobId },
                 {
                     $set: { status: 'Failed', processedAt: new Date() },
-                    $push: { logs: { $each: [errorMessage, ...logBuffer] } }
                 }
             );
         }

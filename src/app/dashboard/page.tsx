@@ -30,6 +30,7 @@ export type Project = {
     accessToken: string;
     phoneNumbers: PhoneNumber[];
     createdAt: Date;
+    rateLimitDelay?: number;
 };
 
 export type Template = {
