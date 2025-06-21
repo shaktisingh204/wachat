@@ -78,7 +78,6 @@ async function processBroadcastJob() {
 
         const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
         const CHUNK_SIZE = project?.messagesPerSecond || 80;
-        const DELAY_MS = 1000;
         
         let mediaId: string | null = null;
         try {
@@ -258,10 +257,6 @@ async function processBroadcastJob() {
                             }
                         }
                     );
-                }
-
-                if (i + CHUNK_SIZE < job.contacts.length) {
-                    await new Promise(resolve => setTimeout(resolve, DELAY_MS));
                 }
             }
 
