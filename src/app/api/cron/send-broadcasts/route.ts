@@ -46,59 +46,72 @@ export async function POST(request: Request) {
         let failedSends: { phone: string; reason: string }[] = [];
         const requiredVarNumbers = getRequiredVars(job.body);
 
-        const sendPromises = job.contacts.map(async (contact) => {
-            const components = [];
-            if (requiredVarNumbers.length > 0) {
-                const parameters = requiredVarNumbers.sort((a,b) => a - b).map(varNum => ({
-                    type: 'text',
-                    text: contact[`variable${varNum}`] || '',
-                }));
-                components.push({ type: 'body', parameters });
-            }
+        const CHUNK_SIZE = 80;
+        const DELAY_MS = 1000; // 1 second delay between chunks
 
-            const messageData = {
-                messaging_product: 'whatsapp',
-                to: contact.phone,
-                type: 'template',
-                template: {
-                    name: job.templateName,
-                    language: { code: job.language || 'en_US' },
-                    ...(components.length > 0 && { components }),
-                },
-            };
+        for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
+            const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
+            
+            const sendPromises = chunk.map(async (contact) => {
+                const components = [];
+                if (requiredVarNumbers.length > 0) {
+                    const parameters = requiredVarNumbers.sort((a,b) => a - b).map(varNum => ({
+                        type: 'text',
+                        text: contact[`variable${varNum}`] || '',
+                    }));
+                    components.push({ type: 'body', parameters });
+                }
 
-            try {
-                const response = await fetch(
-                  `https://graph.facebook.com/v18.0/${job.phoneNumberId}/messages`,
-                  {
-                    method: 'POST',
-                    headers: {
-                      Authorization: `Bearer ${job.accessToken}`,
-                      'Content-Type': 'application/json',
+                const messageData = {
+                    messaging_product: 'whatsapp',
+                    to: contact.phone,
+                    type: 'template',
+                    template: {
+                        name: job.templateName,
+                        language: { code: job.language || 'en_US' },
+                        ...(components.length > 0 && { components }),
                     },
-                    body: JSON.stringify(messageData),
-                  }
-                );
+                };
 
-                if (response.ok) {
-                    successCount++;
-                } else {
-                    let reason = 'Unknown API error';
-                    try {
-                        const errorData = await response.json();
-                        reason = errorData?.error?.message || `API Error: ${response.status}`;
-                    } catch(e) {
-                        reason = `Could not parse error response from Meta. Status: ${response.status} ${response.statusText}`;
+                try {
+                    const response = await fetch(
+                      `https://graph.facebook.com/v18.0/${job.phoneNumberId}/messages`,
+                      {
+                        method: 'POST',
+                        headers: {
+                          Authorization: `Bearer ${job.accessToken}`,
+                          'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(messageData),
+                      }
+                    );
+
+                    if (response.ok) {
+                        successCount++;
+                    } else {
+                        let reason = 'Unknown API error';
+                        try {
+                            const errorData = await response.json();
+                            reason = errorData?.error?.message || `API Error: ${response.status}`;
+                        } catch(e) {
+                            reason = `Could not parse error response from Meta. Status: ${response.status} ${response.statusText}`;
+                        }
+                        failedSends.push({ phone: contact.phone, reason });
                     }
+                } catch(e: any) {
+                    const reason = e.message || 'Exception during fetch';
                     failedSends.push({ phone: contact.phone, reason });
                 }
-            } catch(e: any) {
-                const reason = e.message || 'Exception during fetch';
-                failedSends.push({ phone: contact.phone, reason });
-            }
-        });
+            });
 
-        await Promise.all(sendPromises);
+            await Promise.all(sendPromises);
+
+            // If it's not the last chunk, wait for the delay
+            if (i + CHUNK_SIZE < job.contacts.length) {
+                await new Promise(resolve => setTimeout(resolve, DELAY_MS));
+            }
+        }
+
 
         const errorCount = failedSends.length;
         let finalStatus: 'Completed' | 'Partial Failure' | 'Failed' = 'Completed';
