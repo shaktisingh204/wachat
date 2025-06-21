@@ -57,7 +57,7 @@ export default function BroadcastReportPage() {
         router.push('/dashboard/broadcasts');
       }
       if (showToast) {
-        toast({ title: "Refreshed", description: "Broadcast details updated." });
+        toast({ title: "Refreshed", description: "Broadcast details and delivery report updated." });
       }
     } catch (error) {
       console.error("Failed to fetch broadcast details:", error);
@@ -181,7 +181,7 @@ export default function BroadcastReportPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle>Delivery Results</CardTitle>
-                        <CardDescription>Status for each contact in the broadcast.</CardDescription>
+                        <CardDescription>Live status for each contact in the broadcast. This report updates automatically.</CardDescription>
                     </div>
                      <Badge variant={getStatusVariant(broadcast.status)} className="capitalize text-base px-4 py-2">
                         {broadcast.status}
