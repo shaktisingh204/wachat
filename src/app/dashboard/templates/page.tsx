@@ -3,45 +3,33 @@ import { TemplateCard } from '@/components/wabasimplify/template-card';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import type { Metadata } from 'next';
+import { connectToDatabase } from '@/lib/mongodb';
+import { WithId } from 'mongodb';
 
 export const metadata: Metadata = {
   title: 'Message Templates | WABASimplify',
 };
 
-const templates = [
-  {
-    name: 'Appointment Reminder',
-    category: 'Utility',
-    body: 'Hi {{1}}, this is a reminder for your appointment on {{2}} at {{3}}. Please reply YES to confirm.',
-  },
-  {
-    name: 'Order Confirmation',
-    category: 'Utility',
-    body: 'Your order #{{1}} has been confirmed! We will notify you once it ships. Thank you for shopping with us!',
-  },
-  {
-    name: 'Weekly Newsletter',
-    category: 'Marketing',
-    body: "This week's top deals are here! Don't miss out on our exclusive offers. Tap here: {{1}}",
-  },
-  {
-    name: 'Account Alert',
-    category: 'Authentication',
-    body: 'A new device has signed into your account. If this wasn\'t you, please secure your account immediately.',
-  },
-   {
-    name: 'Feedback Request',
-    category: 'Marketing',
-    body: 'Thanks for your recent purchase! We\'d love to hear your feedback. Please take a moment to review: {{1}}',
-  },
-  {
-    name: 'Shipping Update',
-    category: 'Utility',
-    body: 'Good news! Your order #{{1}} has shipped and is on its way. Track it here: {{2}}',
-  },
-];
+type Template = {
+  name: string;
+  category: string;
+  body: string;
+};
 
-export default function TemplatesPage() {
+async function getTemplates(): Promise<WithId<Template>[]> {
+  try {
+    const { db } = await connectToDatabase();
+    const templates = await db.collection<Template>('templates').find({}).toArray();
+    return templates;
+  } catch (error) {
+    console.error('Failed to fetch templates:', error);
+    return [];
+  }
+}
+
+export default async function TemplatesPage() {
+  const templates = await getTemplates();
+
   return (
     <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
@@ -56,12 +44,28 @@ export default function TemplatesPage() {
           </Link>
         </Button>
       </div>
-
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {templates.map((template, index) => (
-          <TemplateCard key={index} {...template} />
-        ))}
-      </div>
+      
+      {templates.length > 0 ? (
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {templates.map((template) => (
+            <TemplateCard
+              key={template._id.toString()}
+              name={template.name}
+              category={template.category}
+              body={template.body}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="md:col-span-3">
+          <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 py-20 text-center">
+            <h3 className="text-xl font-semibold">No Templates Yet</h3>
+            <p className="text-muted-foreground mt-2">
+              Click "Create New Template" to get started.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
