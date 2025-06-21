@@ -96,7 +96,8 @@ async function processBroadcastJob() {
                     const fileBlob = await mediaResponse.blob();
                     const formData = new FormData();
                     formData.append('messaging_product', 'whatsapp');
-                    formData.append('file', fileBlob, 'media-file');
+                    const filename = finalUrl.split('/').pop()?.split('?')[0] || 'media-file';
+                    formData.append('file', fileBlob, filename);
 
                     const uploadResponse = await fetch(
                       `https://graph.facebook.com/v22.0/${job.phoneNumberId}/media`,
