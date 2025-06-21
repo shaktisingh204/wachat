@@ -11,11 +11,16 @@ export const metadata: Metadata = {
   title: "Select Project | WABASimplify",
 };
 
+export type PhoneNumber = {
+    id: string;
+    display_phone_number: string;
+};
+
 export type Project = {
     name: string;
     wabaId: string;
     accessToken: string;
-    phoneNumbers: { id: string; display_phone_number: string }[];
+    phoneNumbers: PhoneNumber[];
     createdAt: Date;
 };
 

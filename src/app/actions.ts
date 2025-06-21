@@ -5,6 +5,22 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
 import Papa from 'papaparse';
 import { revalidatePath } from 'next/cache';
+import type { PhoneNumber } from '@/app/dashboard/page';
+
+type MetaPhoneNumber = {
+    id: string;
+    display_phone_number: string;
+};
+
+type MetaPhoneNumbersResponse = {
+    data: MetaPhoneNumber[];
+    paging?: {
+        cursors: {
+            before: string;
+            after: string;
+        }
+    }
+};
 
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
   if (!topic) {
@@ -85,7 +101,7 @@ export async function handleCreateProject(
         return { error: 'All fields are required.' };
     }
     
-    let phoneNumbers: { id: string; display_phone_number: string }[] = [];
+    let phoneNumbers: PhoneNumber[] = [];
 
     try {
         const response = await fetch(
@@ -99,13 +115,13 @@ export async function handleCreateProject(
             return { error: `Verification failed: ${reason}` };
         }
         
-        const data = await response.json();
+        const data: MetaPhoneNumbersResponse = await response.json();
         
         if (!data.data || data.data.length === 0) {
             return { error: 'Verification successful, but no phone numbers are associated with this Business Account ID.' };
         }
 
-        phoneNumbers = data.data.map((num: any) => ({
+        phoneNumbers = data.data.map((num: MetaPhoneNumber) => ({
             id: num.id,
             display_phone_number: num.display_phone_number,
         }));
