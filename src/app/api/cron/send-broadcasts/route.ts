@@ -42,22 +42,22 @@ export async function POST(request: Request) {
     const logBuffer: string[] = [];
     const log = (message: string) => {
         const logMessage = `[${new Date().toISOString()}] ${message}`;
-        console.log(`CRON JOB: ${logMessage}`); // Keep console logs for server-side debugging
+        console.log(`CRON JOB: ${logMessage}`);
         logBuffer.push(logMessage);
     };
     
-    log('Triggered.');
-
-    const cronSecret = request.headers.get('x-cron-secret');
-    if (cronSecret !== process.env.CRON_SECRET) {
-        console.error('CRON JOB: Unauthorized access. Invalid or missing secret.');
-        return new NextResponse('Unauthorized', { status: 401 });
-    }
-
     let db: Db;
     let jobId: ObjectId | null = null;
 
     try {
+        log('Triggered.');
+
+        const cronSecret = request.headers.get('x-cron-secret');
+        if (cronSecret !== process.env.CRON_SECRET) {
+            console.error('CRON JOB: Unauthorized access. Invalid or missing secret.');
+            return new NextResponse('Unauthorized', { status: 401 });
+        }
+
         log('Connecting to database...');
         const conn = await connectToDatabase();
         db = conn.db;
@@ -80,149 +80,152 @@ export async function POST(request: Request) {
         await updateLogs(db, jobId, logBuffer);
 
 
-        let successCount = 0;
-        let successfulSends: { phone: string; response: any }[] = [];
-        let failedSends: { phone: string; response: any }[] = [];
-        
-        const CHUNK_SIZE = 80;
-        const DELAY_MS = 1000; // 1 second delay between chunks
-
-        log(`Starting to send messages to ${job.contacts.length} contacts in chunks of ${CHUNK_SIZE}...`);
-        await updateLogs(db, jobId, logBuffer);
-
-
-        for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
-            const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
-            const chunkNumber = Math.floor(i / CHUNK_SIZE) + 1;
-            log(`Processing chunk ${chunkNumber} of ${Math.ceil(job.contacts.length / CHUNK_SIZE)}...`);
+        // --- Start of inner try...catch block for job processing ---
+        try {
+            let successCount = 0;
+            let successfulSends: { phone: string; response: any }[] = [];
+            let failedSends: { phone: string; response: any }[] = [];
             
-            const sendPromises = chunk.map(async (contact) => {
+            const CHUNK_SIZE = 80;
+            const DELAY_MS = 1000;
 
-                const getVars = (text: string): number[] => {
-                    const variableMatches = text.match(/{{(\d+)}}/g);
-                    return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
-                };
+            log(`Starting to send messages to ${job.contacts.length} contacts in chunks of ${CHUNK_SIZE}...`);
+            await updateLogs(db, jobId, logBuffer);
+
+
+            for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
+                const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
+                const chunkNumber = Math.floor(i / CHUNK_SIZE) + 1;
+                log(`Processing chunk ${chunkNumber} of ${Math.ceil(job.contacts.length / CHUNK_SIZE)}...`);
                 
-                const payloadComponents: any[] = [];
+                const sendPromises = chunk.map(async (contact) => {
 
-                // Process Header
-                const headerComponent = job.components.find(c => c.type === 'HEADER');
-                if (headerComponent?.text) {
-                    const headerVars = getVars(headerComponent.text);
-                    if (headerVars.length > 0) {
-                        const parameters = headerVars.sort((a,b) => a-b).map(varNum => ({
-                            type: 'text',
-                            text: contact[`variable${varNum}`] || '',
-                        }));
-                        payloadComponents.push({ type: 'header', parameters });
+                    const getVars = (text: string): number[] => {
+                        const variableMatches = text.match(/{{(\d+)}}/g);
+                        return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
+                    };
+                    
+                    const payloadComponents: any[] = [];
+
+                    const headerComponent = job.components.find(c => c.type === 'HEADER');
+                    if (headerComponent?.text) {
+                        const headerVars = getVars(headerComponent.text);
+                        if (headerVars.length > 0) {
+                            const parameters = headerVars.sort((a,b) => a-b).map(varNum => ({
+                                type: 'text',
+                                text: contact[`variable${varNum}`] || '',
+                            }));
+                            payloadComponents.push({ type: 'header', parameters });
+                        }
                     }
-                }
 
-                // Process Body
-                const bodyComponent = job.components.find(c => c.type === 'BODY');
-                if (bodyComponent?.text) {
-                    const bodyVars = getVars(bodyComponent.text);
-                    if (bodyVars.length > 0) {
-                        const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({
-                            type: 'text',
-                            text: contact[`variable${varNum}`] || '',
-                        }));
-                        payloadComponents.push({ type: 'body', parameters });
+                    const bodyComponent = job.components.find(c => c.type === 'BODY');
+                    if (bodyComponent?.text) {
+                        const bodyVars = getVars(bodyComponent.text);
+                        if (bodyVars.length > 0) {
+                            const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({
+                                type: 'text',
+                                text: contact[`variable${varNum}`] || '',
+                            }));
+                            payloadComponents.push({ type: 'body', parameters });
+                        }
                     }
-                }
-                
-                const messageData = {
-                    messaging_product: 'whatsapp',
-                    to: contact.phone,
-                    recipient_type: 'individual',
-                    type: 'template',
-                    template: {
-                        name: job.templateName,
-                        language: { code: job.language || 'en_US' },
-                        ...(payloadComponents.length > 0 && { components: payloadComponents }),
-                    },
-                };
-
-                try {
-                    const response = await fetch(
-                      `https://graph.facebook.com/v18.0/${job.phoneNumberId}/messages`,
-                      {
-                        method: 'POST',
-                        headers: {
-                          Authorization: `Bearer ${job.accessToken}`,
-                          'Content-Type': 'application/json',
+                    
+                    const messageData = {
+                        messaging_product: 'whatsapp',
+                        to: contact.phone,
+                        recipient_type: 'individual',
+                        type: 'template',
+                        template: {
+                            name: job.templateName,
+                            language: { code: job.language || 'en_US' },
+                            ...(payloadComponents.length > 0 && { components: payloadComponents }),
                         },
-                        body: JSON.stringify(messageData),
-                      }
-                    );
+                    };
 
-                    const responseData = await response.json();
+                    try {
+                        const response = await fetch(
+                          `https://graph.facebook.com/v18.0/${job.phoneNumberId}/messages`,
+                          {
+                            method: 'POST',
+                            headers: {
+                              Authorization: `Bearer ${job.accessToken}`,
+                              'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(messageData),
+                          }
+                        );
 
-                    if (response.ok) {
-                        successfulSends.push({ phone: contact.phone, response: responseData });
-                        successCount++;
-                    } else {
-                        failedSends.push({ phone: contact.phone, response: responseData });
+                        const responseData = await response.json();
+
+                        if (response.ok) {
+                            successfulSends.push({ phone: contact.phone, response: responseData });
+                            successCount++;
+                        } else {
+                            failedSends.push({ phone: contact.phone, response: responseData });
+                        }
+                    } catch(e: any) {
+                        const errorResponse = { error: { message: e.message || 'Exception during fetch', status: 'CLIENT_FAILURE' } };
+                        failedSends.push({ phone: contact.phone, response: errorResponse });
                     }
-                } catch(e: any) {
-                    const errorResponse = { error: { message: e.message || 'Exception during fetch', status: 'CLIENT_FAILURE' } };
-                    failedSends.push({ phone: contact.phone, response: errorResponse });
+                });
+
+                await Promise.all(sendPromises);
+                
+                log(`Chunk ${chunkNumber} finished. So far: ${successfulSends.length} success, ${failedSends.length} failed.`);
+
+
+                if (i + CHUNK_SIZE < job.contacts.length) {
+                    log(`Waiting for ${DELAY_MS}ms...`);
+                    await updateLogs(db, jobId, logBuffer);
+                    await new Promise(resolve => setTimeout(resolve, DELAY_MS));
                 }
-            });
+            }
 
-            await Promise.all(sendPromises);
+
+            const errorCount = failedSends.length;
+            let finalStatus: 'Completed' | 'Partial Failure' | 'Failed' = 'Completed';
+            if (errorCount > 0) {
+              finalStatus = successCount > 0 ? 'Partial Failure' : 'Failed';
+            }
             
-            const currentSuccess = successfulSends.length - (successCount - chunk.length);
-            const currentFailed = failedSends.length - (job.contacts.length - successCount - chunk.length);
-            log(`Chunk ${chunkNumber} finished. Sent: ${chunk.length}, Success: ${currentSuccess}, Failed: ${currentFailed}.`);
+            log('Finished sending all messages. Updating job status in database...');
+            await db.collection('broadcasts').updateOne(
+                { _id: jobId },
+                {
+                    $set: {
+                        status: finalStatus,
+                        successCount,
+                        errorCount,
+                        successfulSends,
+                        failedSends,
+                        processedAt: new Date(),
+                    },
+                     $push: { logs: { $each: logBuffer } }
+                }
+            );
+            
+            console.log(`CRON JOB: Broadcast job ${jobId} finished with status: ${finalStatus}. Success: ${successCount}, Failed: ${errorCount}.`);
+            return NextResponse.json({ message: `Job ${jobId} processed.`, status: finalStatus, success: successCount, failed: errorCount });
+        } catch (processingError: any) {
+            const errorMessage = `CRON JOB: Error during processing job ${jobId}: ${processingError.message}`;
+            log(errorMessage);
+            console.error(errorMessage, processingError);
 
-
-            if (i + CHUNK_SIZE < job.contacts.length) {
-                log(`Waiting for ${DELAY_MS}ms...`);
-                await updateLogs(db, jobId, logBuffer);
-                await new Promise(resolve => setTimeout(resolve, DELAY_MS));
-            }
-        }
-
-
-        const errorCount = failedSends.length;
-        let finalStatus: 'Completed' | 'Partial Failure' | 'Failed' = 'Completed';
-        if (errorCount > 0) {
-          finalStatus = successCount > 0 ? 'Partial Failure' : 'Failed';
-        }
-        
-        log('Finished sending all messages. Updating job status in database...');
-        await db.collection('broadcasts').updateOne(
-            { _id: jobId },
-            {
-                $set: {
-                    status: finalStatus,
-                    successCount,
-                    errorCount,
-                    successfulSends,
-                    failedSends,
-                    processedAt: new Date(),
-                },
-                 $push: { logs: { $each: logBuffer } }
-            }
-        );
-        
-        console.log(`CRON JOB: Broadcast job ${jobId} finished with status: ${finalStatus}. Success: ${successCount}, Failed: ${errorCount}.`);
-        return NextResponse.json({ message: `Job ${jobId} processed.`, status: finalStatus, success: successCount, failed: errorCount });
-
-    } catch (error: any) {
-        const errorMessage = `CRON JOB FAILED: ${error.message}`;
-        log(errorMessage);
-        if (db! && jobId) {
-             await db.collection('broadcasts').updateOne(
+            await db.collection('broadcasts').updateOne(
                 { _id: jobId },
                 {
                     $set: { status: 'Failed', processedAt: new Date() },
                     $push: { logs: { $each: logBuffer } }
                 }
             );
+            return new NextResponse(`Internal Server Error while processing job: ${processingError.message}`, { status: 500 });
         }
+    } catch (error: any) {
+        // This outer catch handles initial setup errors (DB connection, finding the job)
+        const errorMessage = `CRON JOB FAILED: ${error.message}`;
         console.error(errorMessage, error);
+        // We cannot log to the DB here because we might not have a DB connection or a job ID.
         return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
     }
 }
