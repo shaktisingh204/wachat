@@ -26,22 +26,9 @@ type BroadcastJob = {
     headerImageUrl?: string;
 };
 
-// Helper to log to the general cron log collection
-const logToCronCollection = async (db: Db, level: 'INFO' | 'ERROR', message: string, details: any = {}) => {
-    // Logging disabled as per user request
-};
-
-
-// Helper function to update logs in the DB for a specific job
-async function updateLogs(db: Db, jobId: ObjectId, logs: string[]) {
-    // Logging disabled as per user request
-}
-
 async function handleRequest(request: Request) {
     let db: Db;
-    // Initialization block
     try {
-        // Auth removed for manual testing
         const conn = await connectToDatabase();
         db = conn.db;
 
@@ -50,7 +37,6 @@ async function handleRequest(request: Request) {
         return new NextResponse(`Internal Server Error during initialization: ${initializationError.message}`, { status: 500 });
     }
 
-    // Processing block
     let jobId: ObjectId | null = null;
 
     try {
@@ -66,7 +52,6 @@ async function handleRequest(request: Request) {
 
         jobId = job._id;
 
-        // --- Start of inner try...catch block for job processing ---
         try {
             let successCount = 0;
             let successfulSends: { phone: string; response: any }[] = [];
@@ -82,81 +67,100 @@ async function handleRequest(request: Request) {
                     const firstColumnHeader = Object.keys(contact)[0];
                     const phone = contact[firstColumnHeader];
 
-                    const getVars = (text: string): number[] => {
-                        const variableMatches = text.match(/{{(\d+)}}/g);
-                        return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
-                    };
-                    
-                    const payloadComponents: any[] = [];
-                    
-                    const headerComponent = job.components.find(c => c.type === 'HEADER');
-                    if (headerComponent) {
-                        const parameters: any[] = [];
-                        if (headerComponent.format === 'TEXT' && headerComponent.text) {
-                            const headerVars = getVars(headerComponent.text);
-                            if (headerVars.length > 0) {
-                                headerVars.sort((a,b) => a-b).forEach(varNum => {
-                                    parameters.push({
-                                        type: 'text',
-                                        text: contact[`variable${varNum}`] || '',
-                                    });
-                                });
-                            }
-                        } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                             const broadcastSpecificUrl = job.headerImageUrl;
-                             const templateDefaultUrl = headerComponent.example?.header_url?.[0];
-
-                             let finalUrl;
-                             if (broadcastSpecificUrl) {
-                                finalUrl = `${process.env.APP_URL || ''}${broadcastSpecificUrl}`;
-                             } else {
-                                finalUrl = templateDefaultUrl;
-                             }
-                             
-                             if (finalUrl) {
-                                 const type = headerComponent.format.toLowerCase();
-                                 const mediaObject: any = { link: finalUrl };
-                                 if (type === 'document') {
-                                    mediaObject.filename = contact['filename'] || "file"; 
-                                 }
-                                 parameters.push({ type, [type]: mediaObject });
-                             }
-                        }
-                        if (parameters.length > 0) {
-                            payloadComponents.push({ type: 'header', parameters });
-                        }
-                    }
-
-                    const bodyComponent = job.components.find(c => c.type === 'BODY');
-                    if (bodyComponent?.text) {
-                        const bodyVars = getVars(bodyComponent.text);
-                        if (bodyVars.length > 0) {
-                            const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({
-                                type: 'text',
-                                text: contact[`variable${varNum}`] || '',
-                            }));
-                            payloadComponents.push({ type: 'body', parameters });
-                        }
-                    }
-
-                    const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
-                    if (buttonsComponent) {
-                        payloadComponents.push(buttonsComponent);
-                    }
-                    
-                    const messageData = {
-                        messaging_product: 'whatsapp',
-                        to: phone,
-                        recipient_type: 'individual',
-                        type: 'template',
-                        template: {
-                            name: job.templateName,
-                            language: { code: job.language || 'en_US' },
-                            ...(payloadComponents.length > 0 && { components: payloadComponents }),
-                        },
-                    };
-
                     try {
+                        const getVars = (text: string): number[] => {
+                            const variableMatches = text.match(/{{(\d+)}}/g);
+                            return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
+                        };
+                        
+                        const payloadComponents: any[] = [];
+                        
+                        const headerComponent = job.components.find(c => c.type === 'HEADER');
+                        if (headerComponent) {
+                            const parameters: any[] = [];
+                            if (headerComponent.format === 'TEXT' && headerComponent.text) {
+                                const headerVars = getVars(headerComponent.text);
+                                if (headerVars.length > 0) {
+                                    headerVars.sort((a,b) => a-b).forEach(varNum => {
+                                        parameters.push({
+                                            type: 'text',
+                                            text: contact[`variable${varNum}`] || '',
+                                        });
+                                    });
+                                }
+                            } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
+                                 const broadcastSpecificUrl = job.headerImageUrl;
+                                 const templateDefaultUrl = headerComponent.example?.header_url?.[0];
+
+                                 let finalUrl;
+                                 if (broadcastSpecificUrl) {
+                                    finalUrl = `${process.env.APP_URL || ''}${broadcastSpecificUrl}`;
+                                 } else {
+                                    finalUrl = templateDefaultUrl;
+                                 }
+                                 
+                                 if (finalUrl) {
+                                     const mediaUploadResponse = await fetch(
+                                         `https://graph.facebook.com/v18.0/${job.phoneNumberId}/media`,
+                                         {
+                                             method: 'POST',
+                                             headers: {
+                                                 Authorization: `Bearer ${job.accessToken}`,
+                                                 'Content-Type': 'application/json',
+                                             },
+                                             body: JSON.stringify({
+                                                 messaging_product: 'whatsapp',
+                                                 link: finalUrl,
+                                             }),
+                                         }
+                                     );
+                                     const mediaUploadData = await mediaUploadResponse.json();
+                                     if (!mediaUploadResponse.ok || !mediaUploadData.id) {
+                                         throw new Error(`Media upload failed: ${mediaUploadData.error?.message || 'Unknown error'}`);
+                                     }
+                                     const mediaId = mediaUploadData.id;
+                                     const type = headerComponent.format.toLowerCase();
+                                     const mediaObject: any = { id: mediaId };
+                                     if (type === 'document') {
+                                        mediaObject.filename = contact['filename'] || "file"; 
+                                     }
+                                     parameters.push({ type, [type]: mediaObject });
+                                 }
+                            }
+                            if (parameters.length > 0) {
+                                payloadComponents.push({ type: 'header', parameters });
+                            }
+                        }
+
+                        const bodyComponent = job.components.find(c => c.type === 'BODY');
+                        if (bodyComponent?.text) {
+                            const bodyVars = getVars(bodyComponent.text);
+                            if (bodyVars.length > 0) {
+                                const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({
+                                    type: 'text',
+                                    text: contact[`variable${varNum}`] || '',
+                                }));
+                                payloadComponents.push({ type: 'body', parameters });
+                            }
+                        }
+
+                        const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
+                        if (buttonsComponent) {
+                            payloadComponents.push(buttonsComponent);
+                        }
+                        
+                        const messageData = {
+                            messaging_product: 'whatsapp',
+                            to: phone,
+                            recipient_type: 'individual',
+                            type: 'template',
+                            template: {
+                                name: job.templateName,
+                                language: { code: job.language || 'en_US' },
+                                ...(payloadComponents.length > 0 && { components: payloadComponents }),
+                            },
+                        };
+
                         const response = await fetch(
                           `https://graph.facebook.com/v18.0/${job.phoneNumberId}/messages`,
                           {
