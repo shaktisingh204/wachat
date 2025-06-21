@@ -16,7 +16,8 @@ type BroadcastJob = {
     processedAt?: Date;
     successCount?: number;
     errorCount?: number;
-    failedSends?: { phone: string; reason: string }[];
+    successfulSends?: { phone: string; response: any }[];
+    failedSends?: { phone: string; response: any }[];
     body: string; 
     language: string;
 };
@@ -43,7 +44,8 @@ export async function POST(request: Request) {
         console.log(`Processing broadcast job ${job._id}...`);
 
         let successCount = 0;
-        let failedSends: { phone: string; reason: string }[] = [];
+        let successfulSends: { phone: string; response: any }[] = [];
+        let failedSends: { phone: string; response: any }[] = [];
         const requiredVarNumbers = getRequiredVars(job.body);
 
         const CHUNK_SIZE = 80;
@@ -86,21 +88,17 @@ export async function POST(request: Request) {
                       }
                     );
 
+                    const responseData = await response.json();
+
                     if (response.ok) {
+                        successfulSends.push({ phone: contact.phone, response: responseData });
                         successCount++;
                     } else {
-                        let reason = 'Unknown API error';
-                        try {
-                            const errorData = await response.json();
-                            reason = errorData?.error?.message || `API Error: ${response.status}`;
-                        } catch(e) {
-                            reason = `Could not parse error response from Meta. Status: ${response.status} ${response.statusText}`;
-                        }
-                        failedSends.push({ phone: contact.phone, reason });
+                        failedSends.push({ phone: contact.phone, response: responseData });
                     }
                 } catch(e: any) {
-                    const reason = e.message || 'Exception during fetch';
-                    failedSends.push({ phone: contact.phone, reason });
+                    const errorResponse = { error: { message: e.message || 'Exception during fetch', status: 'CLIENT_FAILURE' } };
+                    failedSends.push({ phone: contact.phone, response: errorResponse });
                 }
             });
 
@@ -126,6 +124,7 @@ export async function POST(request: Request) {
                     status: finalStatus,
                     successCount,
                     errorCount,
+                    successfulSends,
                     failedSends,
                     processedAt: new Date(),
                 }
