@@ -15,10 +15,12 @@ import {
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Wand2, LoaderCircle, AlertCircle, Info, FileUp } from 'lucide-react';
-import { handleSuggestContent, handleCreateTemplate } from '@/app/actions';
+import { Wand2, LoaderCircle, AlertCircle, Info, FileUp, Loader2 } from 'lucide-react';
+import { handleSuggestContent, handleCreateTemplate, getProjectById, handleUploadMedia } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import type { WithId } from 'mongodb';
+import type { Project } from '@/app/dashboard/page';
 
 type HeaderType = 'NONE' | 'TEXT' | 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT';
 
@@ -54,12 +56,32 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
 
   const [body, setBody] = useState('');
   const [headerType, setHeaderType] = useState<HeaderType>('NONE');
+  
+  // Project and Media Upload State
+  const [project, setProject] = useState<WithId<Project> | null>(null);
+  const [isProjectLoading, setIsProjectLoading] = useState(true);
+  const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [mediaHandle, setMediaHandle] = useState('');
+  const [uploadedFileName, setUploadedFileName] = useState('');
 
   // AI Assistant State
   const [topic, setTopic] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchProject() {
+      if (projectId) {
+        const projectData = await getProjectById(projectId);
+        setProject(projectData as WithId<Project>);
+      }
+      setIsProjectLoading(false);
+    }
+    fetchProject();
+  }, [projectId]);
 
   useEffect(() => {
     if (state?.message) {
@@ -84,7 +106,7 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
     setAiError(null);
     setSuggestions([]);
     
-    const result = await handleSuggestContent(topic);
+    const result = await handleSuggestContent({ topic });
     
     setIsGenerating(false);
     if (result.error) {
@@ -92,6 +114,38 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
     } else if (result.suggestions) {
       setSuggestions(result.suggestions);
     }
+  };
+  
+  const onFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    if (!selectedPhoneNumberId) {
+        toast({ title: 'Phone Number Required', description: 'Please select a phone number to upload media for.', variant: 'destructive' });
+        return;
+    }
+
+    setIsUploading(true);
+    setUploadError(null);
+    setMediaHandle('');
+    setUploadedFileName('');
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('projectId', projectId);
+    formData.append('phoneNumberId', selectedPhoneNumberId);
+
+    const result = await handleUploadMedia(formData);
+
+    if (result.error) {
+        setUploadError(result.error);
+        toast({ title: 'Upload Failed', description: result.error, variant: 'destructive' });
+    } else if (result.handle) {
+        setMediaHandle(result.handle);
+        setUploadedFileName(file.name);
+        toast({ title: 'Upload Successful', description: `Media "${file.name}" uploaded.` });
+    }
+    setIsUploading(false);
   };
 
   const insertSuggestion = (suggestion: string) => {
@@ -166,17 +220,57 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
                     </div>
                 )}
                 {['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerType) && (
-                    <div className="space-y-2">
-                        <Label htmlFor="headerMediaHandle">Media Handle</Label>
-                        <Input name="headerMediaHandle" id="headerMediaHandle" placeholder="Paste your media handle here" />
-                        <Alert variant="default" className="bg-muted/50">
-                            <Info className="h-4 w-4" />
-                            <AlertTitle>Media Handle Required</AlertTitle>
-                            <AlertDescription className="text-xs">
-                                You must first upload your media to the Meta API to get a handle. This handle is then used to create the template.
-                            </AlertDescription>
-                        </Alert>
-                    </div>
+                  <div className="space-y-4 rounded-md border p-4 bg-muted/50">
+                      <div className="space-y-2">
+                          <Label htmlFor="phone-number">Phone Number for Upload</Label>
+                          <Select value={selectedPhoneNumberId} onValueChange={setSelectedPhoneNumberId} required>
+                              <SelectTrigger id="phone-number">
+                                  <SelectValue placeholder="Select a number..."/>
+                              </SelectTrigger>
+                              <SelectContent>
+                                  {isProjectLoading ? (
+                                      <SelectItem value="loading" disabled>Loading numbers...</SelectItem>
+                                  ) : (
+                                      project?.phoneNumbers?.map(phone => (
+                                          <SelectItem key={phone.id} value={phone.id}>{phone.display_phone_number}</SelectItem>
+                                      ))
+                                  )}
+                              </SelectContent>
+                          </Select>
+                          <p className="text-xs text-muted-foreground">Media uploads are associated with a specific phone number.</p>
+                      </div>
+
+                      <div className="space-y-2">
+                          <Label htmlFor="headerMediaFile">Upload Media File</Label>
+                          <Input 
+                              id="headerMediaFile" 
+                              type="file" 
+                              onChange={onFileChange} 
+                              disabled={isUploading || !selectedPhoneNumberId}
+                              className="file:text-primary file:font-medium"
+                          />
+                          {isUploading && (
+                              <div className="flex items-center text-sm text-muted-foreground">
+                                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  Uploading...
+                              </div>
+                          )}
+                          {uploadError && <p className="text-sm text-destructive">{uploadError}</p>}
+                      </div>
+
+                      <div className="space-y-2">
+                          <Label htmlFor="headerMediaHandle">Media Handle</Label>
+                          <Input name="headerMediaHandle" id="headerMediaHandle" value={mediaHandle} readOnly placeholder="Upload a file to generate a handle" />
+                          {uploadedFileName && <p className="text-sm text-muted-foreground">Uploaded: {uploadedFileName}</p>}
+                          <Alert variant="default" className="bg-background">
+                              <Info className="h-4 w-4" />
+                              <AlertTitle>Media Upload</AlertTitle>
+                              <AlertDescription className="text-xs">
+                                  Select a phone number and upload your media. A handle will be automatically generated and used to create the template.
+                              </AlertDescription>
+                          </Alert>
+                      </div>
+                  </div>
                 )}
 
                 <div className="space-y-2">

@@ -525,3 +525,52 @@ export async function handleCreateTemplate(
       return { error: e.message || 'An unexpected error occurred.' };
     }
 }
+
+export async function handleUploadMedia(formData: FormData): Promise<{ handle?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    const file = formData.get('file') as File;
+
+    if (!projectId || !phoneNumberId || !file) {
+        return { error: 'Missing project ID, phone number ID, or file.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project) {
+        return { error: 'Project not found.' };
+    }
+    const { accessToken } = project;
+
+    const uploadFormData = new FormData();
+    uploadFormData.append('file', file);
+    uploadFormData.append('messaging_product', 'whatsapp');
+    
+    try {
+        const response = await fetch(
+            `https://graph.facebook.com/v18.0/${phoneNumberId}/media`,
+            {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+                body: uploadFormData,
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            return { error: `Media upload failed: ${data?.error?.message || 'Unknown API error'}` };
+        }
+        
+        if (!data.id) {
+            return { error: 'Media upload succeeded but did not return an ID.' };
+        }
+
+        return { handle: data.id };
+
+    } catch (e: any) {
+        console.error('Media upload exception:', e);
+        return { error: e.message || 'An unexpected error occurred during media upload.' };
+    }
+}
