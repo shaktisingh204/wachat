@@ -32,7 +32,7 @@ type MetaPhoneNumbersResponse = {
 type MetaTemplateComponent = {
     type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
     text?: string;
-    format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
+    format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'AUDIO';
 };
 
 type MetaTemplate = {
@@ -416,5 +416,112 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
     } catch (e: any) {
         console.error('Template sync failed:', e);
         return { error: e.message || 'An unexpected error occurred during template sync.' };
+    }
+}
+
+type CreateTemplateState = {
+    message?: string | null;
+    error?: string | null;
+};
+  
+export async function handleCreateTemplate(
+    prevState: CreateTemplateState,
+    formData: FormData
+  ): Promise<CreateTemplateState> {
+    const projectId = formData.get('projectId') as string;
+    const name = formData.get('templateName') as string;
+    const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
+    const bodyText = formData.get('body') as string;
+    const headerType = formData.get('headerType') as 'NONE' | 'TEXT' | 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT';
+    const headerText = formData.get('headerText') as string;
+    const headerMediaHandle = formData.get('headerMediaHandle') as string;
+    const footerText = formData.get('footerText') as string;
+    const language = 'en_US'; // Hardcoded for simplicity
+  
+    if (!projectId || !name || !category || !bodyText) {
+      return { error: 'Project, Name, Category, and Body are required.' };
+    }
+  
+    const project = await getProjectById(projectId);
+    if (!project) {
+      return { error: 'Project not found.' };
+    }
+    const { wabaId, accessToken } = project;
+  
+    const components: any[] = [];
+  
+    // Header Component
+    if (headerType !== 'NONE') {
+      const headerComponent: any = { type: 'HEADER' };
+      if (headerType === 'TEXT') {
+        if (!headerText) return { error: 'Header text is required.' };
+        if (headerText.length > 60) return { error: 'Header text cannot exceed 60 characters.' };
+        if (/{{(\d+)}}/.test(headerText) && category === 'AUTHENTICATION') {
+            return { error: 'Variables are not allowed in headers for Authentication templates.' };
+        }
+        headerComponent.format = 'TEXT';
+        headerComponent.text = headerText;
+        if (/{{(\d+)}}/.test(headerText)) {
+            headerComponent.example = { header_text: ['Example Header'] };
+        }
+      } else {
+        if (!headerMediaHandle) return { error: `A media handle is required for ${headerType} header.` };
+        headerComponent.format = headerType;
+        headerComponent.example = { header_handle: [headerMediaHandle] };
+      }
+      components.push(headerComponent);
+    }
+  
+    // Body Component
+    const bodyComponent: any = { type: 'BODY', text: bodyText };
+    const bodyVarMatches = bodyText.match(/{{(\d+)}}/g);
+    if (bodyVarMatches) {
+      const exampleParams = bodyVarMatches.map((_, i) => `example_var_${i + 1}`);
+      bodyComponent.example = { body_text: [exampleParams] };
+    }
+    components.push(bodyComponent);
+  
+    // Footer Component
+    if (footerText) {
+      if (footerText.length > 60) return { error: 'Footer text cannot exceed 60 characters.' };
+      if (/{{(\d+)}}/.test(footerText)) return { error: 'Variables are not allowed in the footer.' };
+      components.push({ type: 'FOOTER', text: footerText });
+    }
+  
+    const payload = {
+      name: name.toLowerCase().replace(/\s+/g, '_'),
+      language,
+      category,
+      components,
+    };
+  
+    try {
+      const response = await fetch(
+        `https://graph.facebook.com/v18.0/${wabaId}/message_templates`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        }
+      );
+  
+      const responseData = await response.json();
+  
+      if (!response.ok) {
+        return { error: `API Error: ${responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error'}` };
+      }
+  
+      // Sync templates after successful creation
+      await handleSyncTemplates(projectId);
+      revalidatePath('/dashboard/templates');
+  
+      return { message: `Template "${name}" submitted successfully!` };
+  
+    } catch (e: any) {
+      console.error('Template creation failed:', e);
+      return { error: e.message || 'An unexpected error occurred.' };
     }
 }
