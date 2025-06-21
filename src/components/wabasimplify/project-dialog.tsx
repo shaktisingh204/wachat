@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useEffect, useState, useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 import { handleCreateProject } from '@/app/actions';
 import { Button } from '@/components/ui/button';
@@ -43,7 +43,7 @@ function SubmitButton() {
 
 export function CreateProjectDialog() {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useFormState(handleCreateProject, initialState);
+  const [state, formAction] = useActionState(handleCreateProject, initialState);
   const { toast } = useToast();
   
   useEffect(() => {

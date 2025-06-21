@@ -1,7 +1,7 @@
 'use client';
 
-import { useFormState, useFormStatus } from 'react-dom';
-import { useEffect, useRef, useState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { handleStartBroadcast } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
@@ -46,7 +46,7 @@ function SubmitButton() {
 }
 
 export function BroadcastForm({ templates, project }: { templates: WithId<Template>[]; project: WithId<Project> | null }) {
-  const [state, formAction] = useFormState(handleStartBroadcast, initialState);
+  const [state, formAction] = useActionState(handleStartBroadcast, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [fileName, setFileName] = useState('');
