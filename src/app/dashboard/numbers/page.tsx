@@ -57,21 +57,26 @@ async function getPhoneNumbers(): Promise<WithId<PhoneNumber>[]> {
 
 
 export default async function NumbersPage() {
-    const phoneNumbers = await getPhoneNumbers();
+    let phoneNumbers = await getPhoneNumbers();
     
     // Seed data if collection is empty
     if (phoneNumbers.length === 0) {
-        const { db } = await connectToDatabase();
-        const seedData: PhoneNumber[] = [
-            { number: '+1 555-123-4567', status: 'active', registeredOn: '2023-10-26' },
-            { number: '+44 20 7946 0958', status: 'pending', registeredOn: '2023-11-15' },
-            { number: '+91 98765 43210', status: 'active', registeredOn: '2023-09-01' },
-            { number: '+1 555-987-6543', status: 'rejected', registeredOn: '2023-11-20' },
-        ];
-        await db.collection('phone_numbers').insertMany(seedData);
-        // Re-fetch after seeding
-        const freshData = await getPhoneNumbers();
-        phoneNumbers.push(...freshData);
+        try {
+            const { db } = await connectToDatabase();
+            const seedData: PhoneNumber[] = [
+                { number: '+1 555-123-4567', status: 'active', registeredOn: '2023-10-26' },
+                { number: '+44 20 7946 0958', status: 'pending', registeredOn: '2023-11-15' },
+                { number: '+91 98765 43210', status: 'active', registeredOn: '2023-09-01' },
+                { number: '+1 555-987-6543', status: 'rejected', registeredOn: '2023-11-20' },
+            ];
+            await db.collection('phone_numbers').insertMany(seedData);
+            // Re-fetch after seeding
+            phoneNumbers = await getPhoneNumbers();
+        } catch (error) {
+            console.error("Failed to seed or fetch phone numbers:", error);
+            // If seeding or fetching fails, we'll proceed with an empty array,
+            // preventing the page from crashing.
+        }
     }
 
   return (
