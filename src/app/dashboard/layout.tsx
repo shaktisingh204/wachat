@@ -26,12 +26,13 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { WabaSimplifyLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send } from 'lucide-react';
 
 const menuItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/dashboard/numbers', label: 'Phone Numbers', icon: Phone },
   { href: '/dashboard/templates', label: 'Message Templates', icon: FileText },
+  { href: '/dashboard/broadcasts', label: 'Broadcasts', icon: Send },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -48,7 +49,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={pathname === item.href}>
+                  <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)}>
                     <Link href={item.href}>
                       <item.icon className="h-4 w-4" />
                       <span>{item.label}</span>
