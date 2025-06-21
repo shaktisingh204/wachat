@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import { WithId } from "mongodb";
 import { getProjects } from "@/app/actions";
 import { ProjectCard } from "@/components/wabasimplify/project-card";
-import { CreateProjectDialog } from "@/components/wabasimplify/project-dialog";
 import { FileText } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
@@ -32,7 +30,7 @@ export type Project = {
 };
 
 export default async function SelectProjectPage() {
-    const projects = await getProjects() as WithId<Project>[];
+    const projects = await getProjects();
 
     return (
         <div className="flex flex-col gap-8">
@@ -44,8 +42,8 @@ export default async function SelectProjectPage() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {projects.map((project) => (
-                    <ProjectCard key={project._id.toString()} project={project} />
+                {projects.map((project: any) => (
+                    <ProjectCard key={project._id} project={project} />
                 ))}
                 <CreateProjectDialog />
             </div>

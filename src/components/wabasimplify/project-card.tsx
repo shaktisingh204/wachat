@@ -3,11 +3,9 @@
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import type { WithId } from 'mongodb';
-import type { Project } from '@/app/dashboard/page';
 
 interface ProjectCardProps {
-    project: WithId<Project>;
+    project: any;
 }
 
 export function ProjectCard({ project }: ProjectCardProps) {
@@ -15,7 +13,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
     const handleSelectProject = () => {
         if (typeof window !== 'undefined') {
-            localStorage.setItem('activeProjectId', project._id.toString());
+            localStorage.setItem('activeProjectId', project._id);
             localStorage.setItem('activeProjectName', project.name);
         }
         router.push('/dashboard/overview');

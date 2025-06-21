@@ -72,7 +72,7 @@ export async function getProjects() {
     try {
         const { db } = await connectToDatabase();
         const projects = await db.collection('projects').find({}).sort({ name: 1 }).toArray();
-        return projects;
+        return JSON.parse(JSON.stringify(projects));
     } catch (error) {
         console.error("Failed to fetch projects:", error);
         return [];
