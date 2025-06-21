@@ -23,13 +23,17 @@ type BroadcastJob = {
 };
 
 export async function POST(request: Request) {
+    console.log('CRON JOB: Triggered at:', new Date().toISOString());
     const cronSecret = request.headers.get('x-cron-secret');
     if (cronSecret !== process.env.CRON_SECRET) {
+        console.error('CRON JOB: Unauthorized access. Invalid or missing secret.');
         return new NextResponse('Unauthorized', { status: 401 });
     }
 
     try {
+        console.log('CRON JOB: Connecting to database...');
         const { db } = await connectToDatabase();
+        console.log('CRON JOB: Database connected. Searching for a queued broadcast job...');
 
         const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
@@ -38,10 +42,11 @@ export async function POST(request: Request) {
         );
 
         if (!job) {
+            console.log('CRON JOB: No queued broadcasts to process.');
             return NextResponse.json({ message: 'No queued broadcasts to process.' });
         }
 
-        console.log(`Processing broadcast job ${job._id}...`);
+        console.log(`CRON JOB: Found and processing broadcast job ${job._id}.`);
 
         let successCount = 0;
         let successfulSends: { phone: string; response: any }[] = [];
@@ -50,8 +55,11 @@ export async function POST(request: Request) {
         const CHUNK_SIZE = 80;
         const DELAY_MS = 1000; // 1 second delay between chunks
 
+        console.log(`CRON JOB: Starting to send messages to ${job.contacts.length} contacts in chunks of ${CHUNK_SIZE}...`);
+
         for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
             const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
+            console.log(`CRON JOB: Processing chunk ${Math.floor(i / CHUNK_SIZE) + 1}...`);
             
             const sendPromises = chunk.map(async (contact) => {
 
@@ -130,6 +138,7 @@ export async function POST(request: Request) {
             await Promise.all(sendPromises);
 
             if (i + CHUNK_SIZE < job.contacts.length) {
+                console.log(`CRON JOB: Chunk finished. Waiting for ${DELAY_MS}ms...`);
                 await new Promise(resolve => setTimeout(resolve, DELAY_MS));
             }
         }
@@ -140,7 +149,8 @@ export async function POST(request: Request) {
         if (errorCount > 0) {
           finalStatus = successCount > 0 ? 'Partial Failure' : 'Failed';
         }
-
+        
+        console.log('CRON JOB: Finished sending all messages. Updating job status in database...');
         await db.collection('broadcasts').updateOne(
             { _id: job._id },
             {
@@ -155,11 +165,13 @@ export async function POST(request: Request) {
             }
         );
         
-        console.log(`Broadcast job ${job._id} finished with status: ${finalStatus}.`);
+        console.log(`CRON JOB: Broadcast job ${job._id} finished with status: ${finalStatus}. Success: ${successCount}, Failed: ${errorCount}.`);
         return NextResponse.json({ message: `Job ${job._id} processed.`, status: finalStatus, success: successCount, failed: errorCount });
 
     } catch (error: any) {
-        console.error('Cron job failed:', error);
+        console.error('CRON JOB FAILED:', error);
+        // If an error happens before the job is even fetched, we can't update its status.
+        // This logging is our best tool for debugging such cases.
         return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
     }
 }
