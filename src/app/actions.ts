@@ -156,18 +156,6 @@ export async function getBroadcastById(broadcastId: string) {
     }
 }
 
-export async function getCronLogs() {
-    try {
-        const { db } = await connectToDatabase();
-        const logs = await db.collection('cron_logs').find({}).sort({ timestamp: -1 }).limit(100).toArray();
-        return JSON.parse(JSON.stringify(logs));
-    } catch (error) {
-        console.error('Failed to fetch cron logs:', error);
-        return [];
-    }
-}
-
-
 type CreateProjectState = {
   message?: string | null;
   error?: string | null;

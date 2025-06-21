@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useTransition, useRef } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { WithId } from 'mongodb';
@@ -33,7 +33,6 @@ type Broadcast = {
   processedAt?: string;
   successfulSends?: BroadcastSendAttempt[];
   failedSends?: BroadcastSendAttempt[];
-  logs?: string[];
 };
 
 export default function BroadcastReportPage() {
@@ -44,8 +43,6 @@ export default function BroadcastReportPage() {
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
-  const logContainerRef = useRef<HTMLDivElement>(null);
-
 
   const broadcastId = Array.isArray(params.broadcastId) ? params.broadcastId[0] : params.broadcastId;
 
@@ -84,13 +81,6 @@ export default function BroadcastReportPage() {
       }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [broadcast, loading]);
-
-  useEffect(() => {
-    if (logContainerRef.current) {
-        logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
-    }
-  }, [broadcast?.logs]);
-
 
   const onRefresh = () => {
     startRefreshTransition(() => {
@@ -242,31 +232,6 @@ export default function BroadcastReportPage() {
                             )}
                         </TableBody>
                     </Table>
-                </ScrollArea>
-            </CardContent>
-        </Card>
-
-        <Card>
-            <CardHeader>
-                <CardTitle>Job Log</CardTitle>
-                <CardDescription>Real-time log from the background sending process.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <ScrollArea className="h-[300px] w-full bg-muted rounded-md font-mono text-xs">
-                    <div ref={logContainerRef} className="p-4">
-                    {(broadcast.logs && broadcast.logs.length > 0) ? (
-                        broadcast.logs.map((log, index) => (
-                            <p key={index} className="whitespace-pre-wrap">{log}</p>
-                        ))
-                    ) : (
-                        <p className="text-muted-foreground">
-                            {broadcast.status === 'QUEUED'
-                                ? 'Waiting for the cron job to start processing...'
-                                : 'No logs were generated for this broadcast.'
-                            }
-                        </p>
-                    )}
-                    </div>
                 </ScrollArea>
             </CardContent>
         </Card>

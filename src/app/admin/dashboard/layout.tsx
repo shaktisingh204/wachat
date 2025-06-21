@@ -26,13 +26,12 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { WabaSimplifyLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown, Terminal } from 'lucide-react';
+import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown } from 'lucide-react';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/dashboard/users', label: 'User Management', icon: Users },
   { href: '/admin/dashboard/system', label: 'System Health', icon: ShieldCheck },
-  { href: '/admin/dashboard/cron-logs', label: 'Cron Job Logs', icon: Terminal },
 ];
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {

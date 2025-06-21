@@ -25,56 +25,16 @@ type BroadcastJob = {
     failedSends?: { phone: string; response: any }[];
     components: any[]; 
     language: string;
-    logs?: string[];
 };
-
-const logToCronCollection = async (db: Db, level: 'INFO' | 'ERROR', message: string, details: any = {}) => {
-    try {
-        await db.collection('cron_logs').insertOne({
-            timestamp: new Date(),
-            level,
-            message,
-            details,
-        });
-    } catch (e) {
-        console.error('CRON: FATAL - Could not write to cron_logs collection.', e);
-    }
-};
-
-async function updateLogs(db: Db, jobId: ObjectId, logs: string[]) {
-    if (logs.length === 0) return;
-    try {
-        await db.collection('broadcasts').updateOne(
-            { _id: jobId },
-            { $push: { logs: { $each: logs } } }
-        );
-        logs.length = 0; // Clear the array for the next batch of logs
-    } catch (e) {
-        console.error(`CRON JOB: Failed to update logs for job ${jobId}`, e);
-    }
-}
 
 async function processBroadcastJob() {
     let db: Db;
+    let jobId: ObjectId | null = null;
+    
     try {
         const conn = await connectToDatabase();
         db = conn.db;
-    } catch (initializationError: any) {
-        console.error(`[${new Date().toISOString()}] CRON SCHEDULER FAILED TO INITIALIZE DB: ${initializationError.message}`);
-        // Cannot log to DB if connection fails, so we just log to console.
-        return;
-    }
 
-    let jobId: ObjectId | null = null;
-    const logBuffer: string[] = [];
-    const log = (message: string) => {
-        const logMessage = `[${new Date().toISOString()}] ${message}`;
-        console.log(`CRON SCHEDULER: ${logMessage}`);
-        logBuffer.push(logMessage);
-    };
-
-    try {
-        log('Searching for a queued broadcast job...');
         const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
             { $set: { status: 'PROCESSING', processedAt: new Date() } },
@@ -82,16 +42,10 @@ async function processBroadcastJob() {
         );
 
         if (!job) {
-            log('No queued broadcasts to process.');
-            // This is a normal state, so we don't log to the cron_logs collection unless we want verbosity.
             return;
         }
 
         jobId = job._id;
-        const startMsg = `Found and processing broadcast job ${jobId}.`;
-        log(startMsg);
-        await logToCronCollection(db, 'INFO', startMsg, { jobId: jobId.toString() });
-        await updateLogs(db, jobId, logBuffer);
 
         try {
             let successCount = 0;
@@ -101,18 +55,12 @@ async function processBroadcastJob() {
             const CHUNK_SIZE = 80;
             const DELAY_MS = 1000;
 
-            log(`Starting to send messages to ${job.contacts.length} contacts in chunks of ${CHUNK_SIZE}...`);
-            await updateLogs(db, jobId, logBuffer);
-
             for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
                 const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
-                const chunkNumber = Math.floor(i / CHUNK_SIZE) + 1;
-                log(`Processing chunk ${chunkNumber} of ${Math.ceil(job.contacts.length / CHUNK_SIZE)}...`);
                 
                 const sendPromises = chunk.map(async (contact) => {
                     const firstColumnHeader = Object.keys(contact)[0];
                     const phone = contact[firstColumnHeader];
-                    log(`  - Processing contact: ${phone}`);
 
                     const getVars = (text: string): number[] => {
                         const variableMatches = text.match(/{{(\d+)}}/g);
@@ -184,8 +132,6 @@ async function processBroadcastJob() {
                         },
                     };
 
-                    log(`    - Payload for ${phone}: ${JSON.stringify(messageData)}`);
-
                     try {
                         const response = await fetch(
                           `https://graph.facebook.com/v18.0/${job.phoneNumberId}/messages`,
@@ -214,12 +160,8 @@ async function processBroadcastJob() {
                 });
 
                 await Promise.all(sendPromises);
-                
-                log(`Chunk ${chunkNumber} finished. So far: ${successfulSends.length} success, ${failedSends.length} failed.`);
 
                 if (i + CHUNK_SIZE < job.contacts.length) {
-                    log(`Waiting for ${DELAY_MS}ms...`);
-                    await updateLogs(db, jobId, logBuffer);
                     await new Promise(resolve => setTimeout(resolve, DELAY_MS));
                 }
             }
@@ -229,10 +171,6 @@ async function processBroadcastJob() {
             if (errorCount > 0) {
               finalStatus = successCount > 0 ? 'Partial Failure' : 'Failed';
             }
-            
-            const finalMsg = `Finished sending all messages. Updating job status to ${finalStatus}.`;
-            log(finalMsg);
-            await logToCronCollection(db, 'INFO', finalMsg, { jobId: jobId.toString(), successCount, errorCount });
             
             await db.collection('broadcasts').updateOne(
                 { _id: jobId },
@@ -244,39 +182,28 @@ async function processBroadcastJob() {
                         successfulSends,
                         failedSends,
                         processedAt: new Date(),
-                    },
-                     $push: { logs: { $each: logBuffer } }
+                    }
                 }
             );
-            
-            console.log(`[${new Date().toISOString()}] CRON SCHEDULER: Broadcast job ${jobId} finished with status: ${finalStatus}. Success: ${successCount}, Failed: ${errorCount}.`);
         
         } catch (processingError: any) {
-            const errorMessage = `CRON SCHEDULER: Error during processing job ${jobId}: ${processingError.message}`;
-            log(errorMessage);
-            await logToCronCollection(db, 'ERROR', errorMessage, { jobId: jobId.toString(), stack: processingError.stack });
-            console.error(errorMessage, processingError);
-
-            await db.collection('broadcasts').updateOne(
-                { _id: jobId },
-                {
-                    $set: { status: 'Failed', processedAt: new Date() },
-                    $push: { logs: { $each: logBuffer } }
-                }
-            );
+            console.error(processingError);
+            if (jobId && db) {
+                await db.collection('broadcasts').updateOne(
+                    { _id: jobId },
+                    {
+                        $set: { status: 'Failed', processedAt: new Date() },
+                    }
+                );
+            }
         }
     } catch (error: any) {
-        const errorMessage = `CRON SCHEDULER FAILED: ${error.message}`;
-        console.error(errorMessage, error);
-        
-        await logToCronCollection(db, 'ERROR', errorMessage, { stack: error.stack });
-        
-        if (jobId) {
+        console.error(error);
+        if (jobId && db) {
              await db.collection('broadcasts').updateOne(
                 { _id: jobId },
                 {
                     $set: { status: 'Failed', processedAt: new Date() },
-                    $push: { logs: { $each: [errorMessage, ...logBuffer] } }
                 }
             );
         }
@@ -285,21 +212,11 @@ async function processBroadcastJob() {
 
 
 export function startScheduler() {
-  // This task runs every minute.
   cron.schedule('* * * * *', async () => {
-    console.log(`[${new Date().toISOString()}] Cron scheduler triggered.`);
     try {
         await processBroadcastJob();
     } catch (e: any) {
         console.error(`[${new Date().toISOString()}] FATAL: Unhandled error in cron scheduler:`, e);
-        try {
-            const { db } = await connectToDatabase();
-            await logToCronCollection(db, 'ERROR', 'Cron scheduler top-level error.', { error: e.message, stack: e.stack });
-        } catch (dbError) {
-            console.error(`[${new Date().toISOString()}] FATAL: Could not log top-level cron error to DB.`, dbError);
-        }
     }
   });
-
-  console.log('Broadcast scheduler initialized with node-cron.');
 }
