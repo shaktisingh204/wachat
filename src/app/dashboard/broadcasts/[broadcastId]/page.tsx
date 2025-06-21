@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
@@ -13,16 +14,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, RefreshCw, CheckCircle, XCircle, FileText, Clock, Users, Send, AlertTriangle } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
-type SuccessfulSend = {
+type Attempt = {
   phone: string;
   response: any;
+  payload: any;
 };
 
-type FailedSend = {
-  phone: string;
-  response: any;
-};
+type SuccessfulSend = Attempt;
+type FailedSend = Attempt;
 
 type Broadcast = {
   _id: any;
@@ -42,6 +43,7 @@ export default function BroadcastReportPage() {
   const [broadcast, setBroadcast] = useState<WithId<Broadcast> | null>(null);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
+  const [selectedAttempt, setSelectedAttempt] = useState<any>(null);
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
@@ -114,7 +116,9 @@ export default function BroadcastReportPage() {
   const getErrorDetail = (response: any): string => {
     if (!response) return 'No response data';
     if (response.error?.message) {
-      return response.error.message;
+      let detail = response.error.message;
+      if(response.error.error_user_title) detail = `${response.error.error_user_title}: ${detail}`;
+      return detail;
     }
     if (typeof response === 'string') {
       return response;
@@ -122,15 +126,15 @@ export default function BroadcastReportPage() {
     return 'Unknown error details';
   };
 
-  const allAttempts: ({ status: 'Success'; phone: string; detail: string } | { status: 'Failed'; phone: string; detail: string })[] = [
+  const allAttempts: ({ status: 'Success'; detail: string } & Attempt)[] | ({ status: 'Failed'; detail: string } & Attempt)[] = [
     ...(broadcast.successfulSends || []).map(s => ({
+      ...s,
       status: 'Success' as const,
-      phone: s.phone,
       detail: s.response?.messages?.[0]?.id ?? 'N/A'
     })),
     ...(broadcast.failedSends || []).map(f => ({
+      ...f,
       status: 'Failed' as const,
-      phone: f.phone,
       detail: getErrorDetail(f.response)
     })),
   ];
@@ -202,7 +206,7 @@ export default function BroadcastReportPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle>Delivery Results</CardTitle>
-                        <CardDescription>Live status for each contact in the broadcast. This report updates automatically.</CardDescription>
+                        <CardDescription>Live status for each contact. Click a row to see details. This report updates automatically.</CardDescription>
                     </div>
                      <Badge variant={getStatusVariant(broadcast.status)} className="capitalize text-base px-4 py-2">
                         {broadcast.status}
@@ -221,7 +225,7 @@ export default function BroadcastReportPage() {
                         </TableHeader>
                         <TableBody>
                             {allAttempts.length > 0 ? allAttempts.map((attempt, index) => (
-                                <TableRow key={index}>
+                                <TableRow key={index} onClick={() => setSelectedAttempt(attempt)} className="cursor-pointer">
                                     <TableCell className="font-mono">{attempt.phone}</TableCell>
                                     <TableCell>
                                         <Badge variant={attempt.status === 'Success' ? 'default' : 'destructive'}>
@@ -247,8 +251,34 @@ export default function BroadcastReportPage() {
                 </ScrollArea>
             </CardContent>
         </Card>
-
       </div>
+
+       <Dialog open={!!selectedAttempt} onOpenChange={(open) => !open && setSelectedAttempt(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Attempt Details</DialogTitle>
+            <DialogDescription>
+                Showing details for message sent to {selectedAttempt?.phone}
+            </DialogDescription>
+          </DialogHeader>
+          {selectedAttempt && (
+              <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[70vh] overflow-y-auto">
+                <div className="space-y-2">
+                    <h3 className="font-semibold">Request Payload</h3>
+                    <pre className="p-4 bg-muted/50 rounded-md whitespace-pre-wrap font-code text-xs">
+                        {JSON.stringify(selectedAttempt.payload, null, 2)}
+                    </pre>
+                </div>
+                 <div className="space-y-2">
+                    <h3 className="font-semibold">API Response</h3>
+                    <pre className="p-4 bg-muted/50 rounded-md whitespace-pre-wrap font-code text-xs">
+                        {JSON.stringify(selectedAttempt.response, null, 2)}
+                    </pre>
+                </div>
+              </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

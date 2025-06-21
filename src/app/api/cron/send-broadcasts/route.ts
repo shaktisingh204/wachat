@@ -9,11 +9,13 @@ import { Db, ObjectId } from 'mongodb';
 type SuccessfulSend = {
     phone: string;
     response: any;
+    payload: any;
 };
 
 type FailedSend = {
     phone: string;
     response: any;
+    payload: any;
 };
 
 type BroadcastJob = {
@@ -73,7 +75,6 @@ async function handleRequest(request: Request) {
         const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
         const DELAY_MS = project?.rateLimitDelay || 1000;
         
-        // --- MEDIA UPLOAD (ONCE PER JOB) ---
         let mediaId: string | null = null;
         try {
             const headerComponent = job.components.find(c => c.type === 'HEADER');
@@ -96,6 +97,9 @@ async function handleRequest(request: Request) {
                     formData.append('messaging_product', 'whatsapp');
                     const filename = finalUrl.split('/').pop()?.split('?')[0] || 'media-file';
                     formData.append('file', fileBlob, filename);
+                     if (fileBlob.type) {
+                        formData.append('type', fileBlob.type);
+                    }
 
                     const uploadResponse = await fetch(
                       `https://graph.facebook.com/v22.0/${job.phoneNumberId}/media`,
@@ -106,15 +110,19 @@ async function handleRequest(request: Request) {
                       }
                     );
                     const uploadData = await uploadResponse.json();
+
+                    await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { debug: { mediaUploadResponse: uploadData } } });
+
                     if (!uploadResponse.ok || !uploadData.id) {
                         throw new Error(`Meta media upload failed: ${JSON.stringify(uploadData.error || uploadData)}`);
                     }
                     mediaId = uploadData.id;
+                    await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { 'debug.mediaId': mediaId } });
                 }
             }
         } catch (mediaError: any) {
             if (jobId && db) {
-                await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', failedSends: [{ phone: 'N/A', response: { error: { message: `Media Upload Failed: ${mediaError.message}` } } }] } });
+                await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', failedSends: [{ phone: 'N/A', response: { error: { message: `Media Upload Failed: ${mediaError.message}` } }, payload: {} }] } });
             }
             return new NextResponse(`Internal Server Error during media upload: ${mediaError.message}`, { status: 500 });
         }
@@ -125,6 +133,7 @@ async function handleRequest(request: Request) {
             let totalErrorCount = 0;
             
             const CHUNK_SIZE = 80;
+            const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
 
             for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
                 const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
@@ -134,7 +143,8 @@ async function handleRequest(request: Request) {
 
                 const sendPromises = chunk.map(async (contact) => {
                     const phone = contact.phone;
-                    
+                    let messageData: any = {};
+
                     try {
                         const getVars = (text: string): number[] => {
                             const variableMatches = text.match(/{{(\d+)}}/g);
@@ -160,7 +170,7 @@ async function handleRequest(request: Request) {
                                  const type = headerComponent.format.toLowerCase();
                                  const mediaObject: any = { id: mediaId };
                                  if (type === 'document') {
-                                    mediaObject.filename = contact['filename'] || "file"; 
+                                    mediaObject.filename = contact['filename'] || uploadFilename; 
                                  }
                                  parameters.push({ type, [type]: mediaObject });
                             }
@@ -186,7 +196,7 @@ async function handleRequest(request: Request) {
                             payloadComponents.push(buttonsComponent);
                         }
                         
-                        const messageData = {
+                        messageData = {
                             messaging_product: 'whatsapp',
                             to: phone,
                             recipient_type: 'individual',
@@ -213,12 +223,12 @@ async function handleRequest(request: Request) {
                         const responseData = await response.json();
 
                         if (response.ok) {
-                            chunkSuccessfulSends.push({ phone, response: responseData });
+                            chunkSuccessfulSends.push({ phone, response: responseData, payload: messageData });
                         } else {
-                            chunkFailedSends.push({ phone, response: responseData });
+                            chunkFailedSends.push({ phone, response: responseData, payload: messageData });
                         }
                     } catch(e: any) {
-                        chunkFailedSends.push({ phone, response: { error: { message: e.message || 'Exception during fetch' } }});
+                        chunkFailedSends.push({ phone, response: { error: { message: e.message || 'Exception during fetch' } }, payload: messageData});
                     }
                 });
 
