@@ -81,14 +81,19 @@ export async function getProjects(): Promise<WithId<Project>[]> {
 }
 
 export async function getProjectById(projectId: string): Promise<WithId<Project> | null> {
-    if (!ObjectId.isValid(projectId)) {
-        return null;
-    }
     try {
+        if (!ObjectId.isValid(projectId)) {
+            console.error("Invalid Project ID in getProjectById:", projectId);
+            return null;
+        }
         const { db } = await connectToDatabase();
         const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+        if (!project) {
+            console.error("Project not found in getProjectById for ID:", projectId);
+            return null;
+        }
         return JSON.parse(JSON.stringify(project));
-    } catch (error) {
+    } catch (error: any) {
         console.error("Exception in getProjectById:", error);
         return null;
     }
@@ -450,52 +455,21 @@ export async function handleCreateTemplate(
         const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
         const bodyText = formData.get('body') as string;
         const language = formData.get('language') as string;
-        const buttonsJSON = formData.get('buttons') as string;
-
-        const headerType = formData.get('headerType') as 'NONE' | 'TEXT' | 'IMAGE' | 'VIDEO' | 'AUDIO' | 'DOCUMENT';
-        const headerText = formData.get('headerText') as string;
-        const headerMediaHandle = formData.get('headerMediaHandle') as string;
-        const footerText = formData.get('footerText') as string;
     
         if (!projectId || !name || !category || !bodyText || !language) {
-            const error = 'Project, Name, Language, Category, and Body are required.';
-            return { error };
+            return { error: 'Project, Name, Language, Category, and Body are required.' };
         }
         if (!ObjectId.isValid(projectId)) {
-            const error = 'Invalid Project ID.';
-            return { error };
+            return { error: 'Invalid Project ID.' };
         }
     
         const project = await getProjectById(projectId);
         if (!project) {
-            const error = 'Project not found.';
-            return { error };
+            return { error: 'Project not found.' };
         }
         const { wabaId, accessToken } = project;
     
         const components: any[] = [];
-    
-        // Header Component
-        if (headerType !== 'NONE') {
-        const headerComponent: any = { type: 'HEADER' };
-        if (headerType === 'TEXT') {
-            if (!headerText) return { error: 'Header text is required.' };
-            if (headerText.length > 60) return { error: 'Header text cannot exceed 60 characters.' };
-            if (/{{(\d+)}}/.test(headerText) && category === 'AUTHENTICATION') {
-                return { error: 'Variables are not allowed in headers for Authentication templates.' };
-            }
-            headerComponent.format = 'TEXT';
-            headerComponent.text = headerText;
-            if (/{{(\d+)}}/.test(headerText)) {
-                headerComponent.example = { header_text: ['Example Header'] };
-            }
-        } else {
-            if (!headerMediaHandle) return { error: `A media handle is required for ${headerType} header.` };
-            headerComponent.format = headerType;
-            headerComponent.example = { header_handle: [headerMediaHandle] };
-        }
-        components.push(headerComponent);
-        }
     
         // Body Component
         const bodyComponent: any = { type: 'BODY', text: bodyText };
@@ -505,38 +479,6 @@ export async function handleCreateTemplate(
         bodyComponent.example = { body_text: [exampleParams] };
         }
         components.push(bodyComponent);
-    
-        // Footer Component
-        if (footerText) {
-        if (footerText.length > 60) return { error: 'Footer text cannot exceed 60 characters.' };
-        if (/{{(\d+)}}/.test(footerText)) return { error: 'Variables are not allowed in the footer.' };
-        components.push({ type: 'FOOTER', text: footerText });
-        }
-
-        // Buttons Component
-        if (buttonsJSON) {
-            const buttons = JSON.parse(buttonsJSON);
-            if (buttons.length > 0) {
-                const apiButtons = buttons.map((btn: any) => {
-                    const apiButton: any = {
-                        type: btn.type,
-                        text: btn.text,
-                    };
-                    if (btn.type === 'URL') {
-                        apiButton.url = btn.url;
-                        // Add example only if URL has a variable and an example is provided
-                        if (btn.url?.includes('{{1}}') && btn.urlExample) {
-                            apiButton.example = [btn.urlExample];
-                        }
-                    }
-                    if (btn.type === 'PHONE_NUMBER') {
-                        apiButton.phone_number = btn.phoneNumber;
-                    }
-                    return apiButton;
-                });
-                components.push({ type: 'BUTTONS', buttons: apiButtons });
-            }
-        }
     
         const payload = {
             name: name.toLowerCase().replace(/\s+/g, '_'),
@@ -573,6 +515,7 @@ export async function handleCreateTemplate(
         return { message };
   
     } catch (e: any) {
+        console.error('Error in handleCreateTemplate:', e);
         return { error: e.message || 'An unexpected error occurred.' };
     }
 }
