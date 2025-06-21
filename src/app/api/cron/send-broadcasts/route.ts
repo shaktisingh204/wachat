@@ -57,11 +57,11 @@ export async function POST(request: Request) {
         const cronSecret = request.headers.get('x-cron-secret');
         if (!process.env.CRON_SECRET) {
             console.error(`[${new Date().toISOString()}] CRON JOB: CRON_SECRET is not set in the environment.`);
-            return new NextResponse('Unauthorized', { status: 401 });
+            return new NextResponse('Unauthorized: Missing CRON_SECRET', { status: 401 });
         }
         if (cronSecret !== process.env.CRON_SECRET) {
             console.error(`[${new Date().toISOString()}] CRON JOB: Unauthorized access. Invalid or missing secret.`);
-            return new NextResponse('Unauthorized', { status: 401 });
+            return new NextResponse('Unauthorized: Invalid CRON_SECRET', { status: 401 });
         }
         console.log(`[${new Date().toISOString()}] CRON JOB: Cron secret verified.`);
 
@@ -106,6 +106,7 @@ export async function POST(request: Request) {
                 log(`Processing chunk ${chunkNumber} of ${Math.ceil(job.contacts.length / CHUNK_SIZE)}...`);
                 
                 const sendPromises = chunk.map(async (contact) => {
+                    log(`  - Processing contact: ${contact.phone}`);
 
                     const getVars = (text: string): number[] => {
                         const variableMatches = text.match(/{{(\d+)}}/g);
@@ -113,19 +114,34 @@ export async function POST(request: Request) {
                     };
                     
                     const payloadComponents: any[] = [];
-
+                    
+                    // HEADER COMPONENT
                     const headerComponent = job.components.find(c => c.type === 'HEADER');
-                    if (headerComponent?.text) {
-                        const headerVars = getVars(headerComponent.text);
-                        if (headerVars.length > 0) {
-                            const parameters = headerVars.sort((a,b) => a-b).map(varNum => ({
-                                type: 'text',
-                                text: contact[`variable${varNum}`] || '',
-                            }));
-                            payloadComponents.push({ type: 'header', parameters });
+                    if (headerComponent) {
+                        if (headerComponent.format === 'TEXT' && headerComponent.text) {
+                            const headerVars = getVars(headerComponent.text);
+                            if (headerVars.length > 0) {
+                                const parameters = headerVars.sort((a,b) => a-b).map(varNum => ({
+                                    type: 'text',
+                                    text: contact[`variable${varNum}`] || '',
+                                }));
+                                payloadComponents.push({ type: 'header', parameters });
+                                log(`    - Added TEXT header with params: ${JSON.stringify(parameters)}`);
+                            }
+                        } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerComponent.format)) {
+                            const mediaId = headerComponent.example?.header_handle?.[0];
+                            if (mediaId) {
+                                const type = headerComponent.format.toLowerCase();
+                                const parameters = [{ type, [type]: { id: mediaId } }];
+                                payloadComponents.push({ type: 'header', parameters });
+                                log(`    - Added ${type.toUpperCase()} header with media ID: ${mediaId}`);
+                            } else {
+                                log(`    - WARNING: Template has ${headerComponent.format} header but no media handle was found.`);
+                            }
                         }
                     }
 
+                    // BODY COMPONENT
                     const bodyComponent = job.components.find(c => c.type === 'BODY');
                     if (bodyComponent?.text) {
                         const bodyVars = getVars(bodyComponent.text);
@@ -135,6 +151,7 @@ export async function POST(request: Request) {
                                 text: contact[`variable${varNum}`] || '',
                             }));
                             payloadComponents.push({ type: 'body', parameters });
+                            log(`    - Added BODY with params: ${JSON.stringify(parameters)}`);
                         }
                     }
                     
@@ -149,6 +166,8 @@ export async function POST(request: Request) {
                             ...(payloadComponents.length > 0 && { components: payloadComponents }),
                         },
                     };
+
+                    log(`    - Payload for ${contact.phone}: ${JSON.stringify(messageData)}`);
 
                     try {
                         const response = await fetch(
