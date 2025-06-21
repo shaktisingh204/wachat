@@ -100,27 +100,8 @@ async function handleRequest(request: Request) {
                                  }
                                  
                                  if (finalUrl) {
-                                     const mediaUploadResponse = await fetch(
-                                         `https://graph.facebook.com/v18.0/${job.phoneNumberId}/media`,
-                                         {
-                                             method: 'POST',
-                                             headers: {
-                                                 Authorization: `Bearer ${job.accessToken}`,
-                                                 'Content-Type': 'application/json',
-                                             },
-                                             body: JSON.stringify({
-                                                 messaging_product: 'whatsapp',
-                                                 link: finalUrl,
-                                             }),
-                                         }
-                                     );
-                                     const mediaUploadData = await mediaUploadResponse.json();
-                                     if (!mediaUploadResponse.ok || !mediaUploadData.id) {
-                                         throw new Error(`Media upload failed: ${mediaUploadData.error?.message || 'Unknown error'}`);
-                                     }
-                                     const mediaId = mediaUploadData.id;
                                      const type = headerComponent.format.toLowerCase();
-                                     const mediaObject: any = { id: mediaId };
+                                     const mediaObject: any = { link: finalUrl };
                                      if (type === 'document') {
                                         mediaObject.filename = contact['filename'] || "file"; 
                                      }
