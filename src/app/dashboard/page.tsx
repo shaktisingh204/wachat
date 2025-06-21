@@ -30,12 +30,12 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Delivered</CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-500" />
+            <CheckCircle className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">98.2%</div>
             <p className="text-xs text-muted-foreground flex items-center">
-              <ArrowUp className="h-3 w-3 text-green-500 mr-1" />
+              <ArrowUp className="h-3 w-3 text-primary mr-1" />
               +1.2% from last month
             </p>
           </CardContent>
@@ -43,12 +43,12 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Read</CardTitle>
-             <CheckCircle className="h-4 w-4 text-blue-500" />
+             <CheckCircle className="h-4 w-4 text-accent-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">75.6%</div>
              <p className="text-xs text-muted-foreground flex items-center">
-              <ArrowUp className="h-3 w-3 text-green-500 mr-1" />
+              <ArrowUp className="h-3 w-3 text-primary mr-1" />
               +5.4% from last month
             </p>
           </CardContent>
@@ -56,12 +56,12 @@ export default function DashboardPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Failed</CardTitle>
-            <XCircle className="h-4 w-4 text-red-500" />
+            <XCircle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1.8%</div>
             <p className="text-xs text-muted-foreground flex items-center">
-              <ArrowDown className="h-3 w-3 text-red-500 mr-1" />
+              <ArrowDown className="h-3 w-3 text-destructive mr-1" />
               -0.2% from last month
             </p>
           </CardContent>

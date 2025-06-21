@@ -20,7 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle } from 'lucide-react';
+import { MoreHorizontal, PlusCircle } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -115,7 +115,6 @@ export default function NumbersPage() {
                           ? 'secondary'
                           : 'destructive'
                       }
-                      className={phone.status === 'active' ? 'bg-green-500/80 text-white' : ''}
                     >
                       {phone.status.charAt(0).toUpperCase() + phone.status.slice(1)}
                     </Badge>
@@ -123,7 +122,8 @@ export default function NumbersPage() {
                   <TableCell>{new Date(phone.registeredOn).toLocaleDateString()}</TableCell>
                   <TableCell className="text-right">
                     <Button variant="ghost" size="icon">
-                      ...
+                      <MoreHorizontal className="h-4 w-4" />
+                      <span className="sr-only">Actions</span>
                     </Button>
                   </TableCell>
                 </TableRow>

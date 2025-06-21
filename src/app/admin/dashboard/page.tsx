@@ -41,7 +41,7 @@ export default function AdminDashboardPage() {
              <Server className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-500">99.98%</div>
+            <div className="text-2xl font-bold text-primary">99.98%</div>
              <p className="text-xs text-muted-foreground">Last 30 days</p>
           </CardContent>
         </Card>
