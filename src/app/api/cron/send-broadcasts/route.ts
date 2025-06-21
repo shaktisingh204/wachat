@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import { ObjectId } from 'mongodb';
+import { Db, ObjectId } from 'mongodb';
 
 type BroadcastJob = {
     _id: ObjectId;
@@ -20,21 +20,50 @@ type BroadcastJob = {
     failedSends?: { phone: string; response: any }[];
     components: any[]; 
     language: string;
+    logs?: string[];
 };
 
+// Helper function to update logs in the DB
+async function updateLogs(db: Db, jobId: ObjectId, logs: string[]) {
+    if (logs.length === 0) return;
+    try {
+        await db.collection('broadcasts').updateOne(
+            { _id: jobId },
+            { $push: { logs: { $each: logs } } }
+        );
+        logs.length = 0; // Clear the array for the next batch of logs
+    } catch (e) {
+        console.error(`CRON JOB: Failed to update logs for job ${jobId}`, e);
+    }
+}
+
+
 export async function POST(request: Request) {
-    console.log('CRON JOB: Triggered at:', new Date().toISOString());
+    const logBuffer: string[] = [];
+    const log = (message: string) => {
+        const logMessage = `[${new Date().toISOString()}] ${message}`;
+        console.log(`CRON JOB: ${logMessage}`); // Keep console logs for server-side debugging
+        logBuffer.push(logMessage);
+    };
+    
+    log('Triggered.');
+
     const cronSecret = request.headers.get('x-cron-secret');
     if (cronSecret !== process.env.CRON_SECRET) {
         console.error('CRON JOB: Unauthorized access. Invalid or missing secret.');
         return new NextResponse('Unauthorized', { status: 401 });
     }
 
-    try {
-        console.log('CRON JOB: Connecting to database...');
-        const { db } = await connectToDatabase();
-        console.log('CRON JOB: Database connected. Searching for a queued broadcast job...');
+    let db: Db;
+    let jobId: ObjectId | null = null;
 
+    try {
+        log('Connecting to database...');
+        const conn = await connectToDatabase();
+        db = conn.db;
+        log('Database connected.');
+        
+        log('Searching for a queued broadcast job...');
         const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
             { $set: { status: 'PROCESSING', processedAt: new Date() } },
@@ -46,7 +75,10 @@ export async function POST(request: Request) {
             return NextResponse.json({ message: 'No queued broadcasts to process.' });
         }
 
-        console.log(`CRON JOB: Found and processing broadcast job ${job._id}.`);
+        jobId = job._id;
+        log(`Found and processing broadcast job ${jobId}.`);
+        await updateLogs(db, jobId, logBuffer);
+
 
         let successCount = 0;
         let successfulSends: { phone: string; response: any }[] = [];
@@ -55,11 +87,14 @@ export async function POST(request: Request) {
         const CHUNK_SIZE = 80;
         const DELAY_MS = 1000; // 1 second delay between chunks
 
-        console.log(`CRON JOB: Starting to send messages to ${job.contacts.length} contacts in chunks of ${CHUNK_SIZE}...`);
+        log(`Starting to send messages to ${job.contacts.length} contacts in chunks of ${CHUNK_SIZE}...`);
+        await updateLogs(db, jobId, logBuffer);
+
 
         for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
             const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
-            console.log(`CRON JOB: Processing chunk ${Math.floor(i / CHUNK_SIZE) + 1}...`);
+            const chunkNumber = Math.floor(i / CHUNK_SIZE) + 1;
+            log(`Processing chunk ${chunkNumber} of ${Math.ceil(job.contacts.length / CHUNK_SIZE)}...`);
             
             const sendPromises = chunk.map(async (contact) => {
 
@@ -71,7 +106,7 @@ export async function POST(request: Request) {
                 const payloadComponents: any[] = [];
 
                 // Process Header
-                const headerComponent = job.components.find(c => c.type === 'HEADER' && c.format === 'TEXT');
+                const headerComponent = job.components.find(c => c.type === 'HEADER');
                 if (headerComponent?.text) {
                     const headerVars = getVars(headerComponent.text);
                     if (headerVars.length > 0) {
@@ -136,9 +171,15 @@ export async function POST(request: Request) {
             });
 
             await Promise.all(sendPromises);
+            
+            const currentSuccess = successfulSends.length - (successCount - chunk.length);
+            const currentFailed = failedSends.length - (job.contacts.length - successCount - chunk.length);
+            log(`Chunk ${chunkNumber} finished. Sent: ${chunk.length}, Success: ${currentSuccess}, Failed: ${currentFailed}.`);
+
 
             if (i + CHUNK_SIZE < job.contacts.length) {
-                console.log(`CRON JOB: Chunk finished. Waiting for ${DELAY_MS}ms...`);
+                log(`Waiting for ${DELAY_MS}ms...`);
+                await updateLogs(db, jobId, logBuffer);
                 await new Promise(resolve => setTimeout(resolve, DELAY_MS));
             }
         }
@@ -150,9 +191,9 @@ export async function POST(request: Request) {
           finalStatus = successCount > 0 ? 'Partial Failure' : 'Failed';
         }
         
-        console.log('CRON JOB: Finished sending all messages. Updating job status in database...');
+        log('Finished sending all messages. Updating job status in database...');
         await db.collection('broadcasts').updateOne(
-            { _id: job._id },
+            { _id: jobId },
             {
                 $set: {
                     status: finalStatus,
@@ -161,17 +202,27 @@ export async function POST(request: Request) {
                     successfulSends,
                     failedSends,
                     processedAt: new Date(),
-                }
+                },
+                 $push: { logs: { $each: logBuffer } }
             }
         );
         
-        console.log(`CRON JOB: Broadcast job ${job._id} finished with status: ${finalStatus}. Success: ${successCount}, Failed: ${errorCount}.`);
-        return NextResponse.json({ message: `Job ${job._id} processed.`, status: finalStatus, success: successCount, failed: errorCount });
+        console.log(`CRON JOB: Broadcast job ${jobId} finished with status: ${finalStatus}. Success: ${successCount}, Failed: ${errorCount}.`);
+        return NextResponse.json({ message: `Job ${jobId} processed.`, status: finalStatus, success: successCount, failed: errorCount });
 
     } catch (error: any) {
-        console.error('CRON JOB FAILED:', error);
-        // If an error happens before the job is even fetched, we can't update its status.
-        // This logging is our best tool for debugging such cases.
+        const errorMessage = `CRON JOB FAILED: ${error.message}`;
+        log(errorMessage);
+        if (db! && jobId) {
+             await db.collection('broadcasts').updateOne(
+                { _id: jobId },
+                {
+                    $set: { status: 'Failed', processedAt: new Date() },
+                    $push: { logs: { $each: logBuffer } }
+                }
+            );
+        }
+        console.error(errorMessage, error);
         return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
     }
 }
