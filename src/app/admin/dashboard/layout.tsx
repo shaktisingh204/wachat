@@ -48,14 +48,12 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <Link href={item.href} passHref>
-                    <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)}>
-                      <a>
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.label}</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </Link>
+                  <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)}>
+                    <Link href={item.href}>
+                      <item.icon className="h-4 w-4" />
+                      <span>{item.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
@@ -63,24 +61,20 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
           <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
-                 <Link href="/admin/dashboard/settings" passHref>
-                    <SidebarMenuButton asChild isActive={pathname === '/admin/dashboard/settings'}>
-                      <a>
-                        <Settings className="h-4 w-4" />
-                        <span>Settings</span>
-                      </a>
-                    </SidebarMenuButton>
+                <SidebarMenuButton asChild isActive={pathname === '/admin/dashboard/settings'}>
+                  <Link href="/admin/dashboard/settings">
+                    <Settings className="h-4 w-4" />
+                    <span>Settings</span>
                   </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
-               <SidebarMenuItem>
-                 <Link href="/" passHref>
-                    <SidebarMenuButton asChild>
-                      <a>
-                        <LogOut className="h-4 w-4" />
-                        <span>Logout</span>
-                      </a>
-                    </SidebarMenuButton>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Link href="/">
+                    <LogOut className="h-4 w-4" />
+                    <span>Logout</span>
                   </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarFooter>
