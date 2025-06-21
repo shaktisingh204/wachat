@@ -94,7 +94,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
         <input type="hidden" name="projectId" value={project._id.toString()} />
         <CardHeader>
           <CardTitle>New Broadcast Campaign</CardTitle>
-          <CardDescription>Select a phone number, template, and upload your contacts CSV file.</CardDescription>
+          <CardDescription>Select a phone number, template, and upload your contacts file.</CardDescription>
         </CardHeader>
         <CardContent className="grid md:grid-cols-3 gap-6">
           <div className="space-y-2">
@@ -133,13 +133,13 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
               id="csvFile"
               name="csvFile"
               type="file"
-              accept=".csv"
+              accept=".csv,.xlsx"
               required
               onChange={(e) => setFileName(e.target.files?.[0]?.name ?? '')}
               className="file:text-primary file:font-medium"
             />
             <p className="text-xs text-muted-foreground">
-              CSV with 'phone' column. For variables like {'{{1}}'}, use 'variable1' columns.
+              CSV or XLSX with 'phone' column. For variables like {'{{1}}'}, use 'variable1' columns.
             </p>
           </div>
         </CardContent>

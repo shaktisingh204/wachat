@@ -5,6 +5,7 @@ import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions'
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
 import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
 import type { PhoneNumber, Project } from '@/app/dashboard/page';
 
@@ -232,35 +233,58 @@ export async function handleStartBroadcast(
     const accessToken = project.accessToken;
 
     const templateId = formData.get('templateId') as string;
-    const csvFile = formData.get('csvFile') as File;
+    const contactFile = formData.get('csvFile') as File;
 
     if (!templateId) return { error: 'Please select a message template.' };
     if (!ObjectId.isValid(templateId)) {
         return { error: 'Invalid Template ID.' };
     }
-    if (!csvFile || csvFile.size === 0) return { error: 'Please upload a CSV file.' };
+    if (!contactFile || contactFile.size === 0) return { error: 'Please upload a contact file.' };
 
     const template = await db.collection('templates').findOne({ _id: new ObjectId(templateId) });
     if (!template) return { error: 'Selected template not found.' };
 
-    const csvText = await csvFile.text();
-    const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+    let contacts: Record<string, string>[] = [];
+    const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
 
-    const contacts = parsed.data as Record<string, string>[];
-
+    if (contactFile.name.endsWith('.csv')) {
+        const csvText = fileBuffer.toString('utf-8');
+        const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+        contacts = parsed.data as Record<string, string>[];
+    } else if (contactFile.name.endsWith('.xlsx')) {
+        try {
+            const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
+            contacts = jsonData.map(row => {
+                const newRow: Record<string, string> = {};
+                for (const key in row) {
+                    newRow[key] = String((row as any)[key]);
+                }
+                return newRow;
+            });
+        } catch (e: any) {
+            console.error('Error parsing XLSX file:', e);
+            return { error: `Error parsing XLSX file: ${e.message}`};
+        }
+    } else {
+        return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
+    }
+    
     if (contacts.length === 0) {
-      return { error: 'CSV file is empty or invalid.' };
+      return { error: 'Contact file is empty or contains no data.' };
     }
 
     const firstRow = contacts[0];
     if (!firstRow || !('phone' in firstRow)) {
-      return { error: 'CSV must contain a "phone" column header.' };
+      return { error: 'File must contain a "phone" column header.' };
     }
 
     const validContacts = contacts.filter((c) => c.phone && c.phone.trim() !== '');
 
     if (validContacts.length === 0) {
-      return { error: 'No valid contacts with phone numbers found in the CSV.' };
+      return { error: 'No valid contacts with phone numbers found in the file.' };
     }
 
     const variableMatches = template.body.match(/{{(\d+)}}/g);
@@ -268,7 +292,7 @@ export async function handleStartBroadcast(
     
     for (const varNum of requiredVarNumbers) {
         if (!(`variable${varNum}` in firstRow)) {
-            return { error: `Template requires variable {{${varNum}}}, but CSV is missing a "variable${varNum}" column header.` };
+            return { error: `Template requires variable {{${varNum}}}, but file is missing a "variable${varNum}" column header.` };
         }
     }
     
@@ -294,7 +318,7 @@ export async function handleStartBroadcast(
             type: 'template',
             template: {
                 name: template.name,
-                language: { code: 'en_US' },
+                language: { code: template.language || 'en_US' },
                 ...(components.length > 0 && { components }),
             },
         };
@@ -346,7 +370,7 @@ export async function handleStartBroadcast(
       projectId: new ObjectId(projectId),
       templateId: new ObjectId(templateId),
       templateName: template.name,
-      fileName: csvFile.name,
+      fileName: contactFile.name,
       contactCount: validContacts.length,
       successCount: successCount,
       errorCount: errorCount,
