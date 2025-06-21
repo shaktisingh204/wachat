@@ -37,7 +37,16 @@ async function processBroadcastJob() {
 
         const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
-            { $set: { status: 'PROCESSING', processedAt: new Date() } },
+            { 
+                $set: { 
+                    status: 'PROCESSING', 
+                    processedAt: new Date(),
+                    successCount: 0,
+                    errorCount: 0,
+                    successfulSends: [],
+                    failedSends: []
+                } 
+            },
             { returnDocument: 'after', sort: { createdAt: 1 } }
         );
 
@@ -48,9 +57,8 @@ async function processBroadcastJob() {
         jobId = job._id;
 
         try {
-            let successCount = 0;
-            let successfulSends: { phone: string; response: any }[] = [];
-            let failedSends: { phone: string; response: any }[] = [];
+            let totalSuccessCount = 0;
+            let totalErrorCount = 0;
             
             const CHUNK_SIZE = 80;
             const DELAY_MS = 1000;
@@ -58,6 +66,9 @@ async function processBroadcastJob() {
             for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
                 const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
                 
+                const chunkSuccessfulSends: { phone: string; response: any }[] = [];
+                const chunkFailedSends: { phone: string; response: any }[] = [];
+
                 const sendPromises = chunk.map(async (contact) => {
                     const firstColumnHeader = Object.keys(contact)[0];
                     const phone = contact[firstColumnHeader];
@@ -87,7 +98,7 @@ async function processBroadcastJob() {
                              if (mediaId) {
                                  const type = headerComponent.format.toLowerCase();
                                  const mediaObject: any = { id: mediaId };
-                                 if (type === 'document') {
+                                 if (type === 'document' || type === 'image') {
                                     mediaObject.filename = contact['filename'] || "file"; 
                                  }
                                  parameters.push({ type, [type]: mediaObject });
@@ -148,46 +159,57 @@ async function processBroadcastJob() {
                         const responseData = await response.json();
 
                         if (response.ok) {
-                            successfulSends.push({ phone: phone, response: responseData });
-                            successCount++;
+                            chunkSuccessfulSends.push({ phone: phone, response: responseData });
                         } else {
-                            failedSends.push({ phone: phone, response: responseData });
+                            chunkFailedSends.push({ phone: phone, response: responseData });
                         }
                     } catch(e: any) {
                         const errorResponse = { error: { message: e.message || 'Exception during fetch', status: 'CLIENT_FAILURE' } };
-                        failedSends.push({ phone: phone, response: errorResponse });
+                        chunkFailedSends.push({ phone: phone, response: errorResponse });
                     }
                 });
 
                 await Promise.all(sendPromises);
+                
+                if (chunkSuccessfulSends.length > 0 || chunkFailedSends.length > 0) {
+                    totalSuccessCount += chunkSuccessfulSends.length;
+                    totalErrorCount += chunkFailedSends.length;
+                    
+                    await db.collection('broadcasts').updateOne(
+                        { _id: jobId },
+                        {
+                            $inc: {
+                                successCount: chunkSuccessfulSends.length,
+                                errorCount: chunkFailedSends.length,
+                            },
+                            $push: {
+                                successfulSends: { $each: chunkSuccessfulSends },
+                                failedSends: { $each: chunkFailedSends },
+                            }
+                        }
+                    );
+                }
 
                 if (i + CHUNK_SIZE < job.contacts.length) {
                     await new Promise(resolve => setTimeout(resolve, DELAY_MS));
                 }
             }
 
-            const errorCount = failedSends.length;
-            let finalStatus: 'Completed' | 'Partial Failure' | 'Failed' = 'Completed';
-            if (errorCount > 0) {
-              finalStatus = successCount > 0 ? 'Partial Failure' : 'Failed';
-            }
+            const finalStatus: 'Completed' | 'Partial Failure' | 'Failed' = totalErrorCount > 0
+                ? (totalSuccessCount > 0 ? 'Partial Failure' : 'Failed')
+                : 'Completed';
             
             await db.collection('broadcasts').updateOne(
                 { _id: jobId },
                 {
                     $set: {
                         status: finalStatus,
-                        successCount,
-                        errorCount,
-                        successfulSends,
-                        failedSends,
                         processedAt: new Date(),
                     }
                 }
             );
         
         } catch (processingError: any) {
-            console.error(processingError);
             if (jobId && db) {
                 await db.collection('broadcasts').updateOne(
                     { _id: jobId },
@@ -198,7 +220,6 @@ async function processBroadcastJob() {
             }
         }
     } catch (error: any) {
-        console.error(error);
         if (jobId && db) {
              await db.collection('broadcasts').updateOne(
                 { _id: jobId },
@@ -216,7 +237,7 @@ export function startScheduler() {
     try {
         await processBroadcastJob();
     } catch (e: any) {
-        console.error(`[${new Date().toISOString()}] FATAL: Unhandled error in cron scheduler:`, e);
+        // No logging as per user request
     }
   });
 }
