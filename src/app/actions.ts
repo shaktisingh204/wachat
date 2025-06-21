@@ -292,14 +292,22 @@ export async function handleStartBroadcast(
     }
 
     const firstRow = contacts[0];
-    if (!firstRow || !('phone' in firstRow)) {
-      return { error: 'File must contain a "phone" column header.' };
+    const headers = Object.keys(firstRow);
+    if (headers.length === 0) {
+        return { error: 'The contact file appears to have no columns.' };
     }
+    const phoneColumnHeader = headers[0];
+    
+    const transformedContacts = contacts.map(contact => {
+        const phone = contact[phoneColumnHeader];
+        const {[phoneColumnHeader]: _, ...rest} = contact;
+        return { phone, ...rest };
+    });
 
-    const validContacts = contacts.filter((c) => c.phone && String(c.phone).trim() !== '');
+    const validContacts = transformedContacts.filter((c) => c.phone && String(c.phone).trim() !== '');
 
     if (validContacts.length === 0) {
-      return { error: 'No valid contacts with phone numbers found in the file.' };
+      return { error: 'No valid contacts with phone numbers found in the first column of the file.' };
     }
 
     const variableMatches = template.body.match(/{{(\d+)}}/g);

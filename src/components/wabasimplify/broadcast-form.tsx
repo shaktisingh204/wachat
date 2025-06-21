@@ -139,7 +139,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
               className="file:text-primary file:font-medium"
             />
             <p className="text-xs text-muted-foreground">
-              CSV or XLSX with 'phone' column. For variables like {'{{1}}'}, use 'variable1' columns.
+              First column must be phone numbers. For variables like {'{{1}}'}, use 'variable1' columns.
             </p>
           </div>
         </CardContent>
