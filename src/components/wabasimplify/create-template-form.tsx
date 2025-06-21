@@ -60,7 +60,7 @@ function SubmitButton() {
 }
 
 
-export function CreateTemplateForm({ projectId, addLog }: { projectId: string; addLog: (message: string) => void }) {
+export function CreateTemplateForm({ projectId }: { projectId: string }) {
   const router = useRouter();
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleCreateTemplate, createTemplateInitialState);
@@ -97,9 +97,7 @@ export function CreateTemplateForm({ projectId, addLog }: { projectId: string; a
       setIsProjectLoading(true);
       try {
         if (projectId) {
-          addLog(`[CLIENT] Fetching project with ID: ${projectId}`);
           const projectData = await getProjectById(projectId);
-          addLog(`[CLIENT-RESPONSE] getProjectById returned: ${JSON.stringify(projectData, null, 2)}`);
           if (projectData) {
             setProject(projectData as WithId<Project>);
           } else {
@@ -111,7 +109,6 @@ export function CreateTemplateForm({ projectId, addLog }: { projectId: string; a
           }
         }
       } catch (error: any) {
-        addLog(`[CLIENT-ERROR] Failed to fetch project: ${error.message}`);
         toast({
           title: "Error Loading Project",
           description: "An error occurred while loading project details. Please check the console and try again.",
@@ -119,16 +116,12 @@ export function CreateTemplateForm({ projectId, addLog }: { projectId: string; a
         });
       } finally {
         setIsProjectLoading(false);
-        addLog(`[CLIENT] Finished fetching project details.`);
       }
     }
     fetchProject();
-  }, [projectId, toast, addLog]);
+  }, [projectId, toast]);
 
   useEffect(() => {
-    if (state) {
-        addLog(`[FORM-STATE] Received new state: ${JSON.stringify(state, null, 2)}`);
-    }
     if (state?.message) {
       toast({ title: 'Success!', description: state.message });
       router.push('/dashboard/templates');
@@ -136,7 +129,7 @@ export function CreateTemplateForm({ projectId, addLog }: { projectId: string; a
     if (state?.error) {
       toast({ title: 'Submission Error', description: state.error, variant: 'destructive' });
     }
-  }, [state, toast, router, addLog]);
+  }, [state, toast, router]);
   
   const onGenerateSuggestions = async () => {
     if (!topic) {
@@ -151,9 +144,7 @@ export function CreateTemplateForm({ projectId, addLog }: { projectId: string; a
     setAiError(null);
     setSuggestions([]);
     
-    addLog(`[AI] Generating suggestions for topic: "${topic}"`);
     const result = await handleSuggestContent(topic);
-    addLog(`[AI-RESPONSE] handleSuggestContent returned: ${JSON.stringify(result, null, 2)}`);
     
     setIsGenerating(false);
     if (result.error) {
@@ -182,9 +173,7 @@ export function CreateTemplateForm({ projectId, addLog }: { projectId: string; a
     formData.append('projectId', projectId);
     formData.append('phoneNumberId', selectedPhoneNumberId);
     
-    addLog(`[MEDIA] Uploading file: ${file.name} for phone number ID: ${selectedPhoneNumberId}`);
     const result = await handleUploadMedia(formData);
-    addLog(`[MEDIA-RESPONSE] handleUploadMedia returned: ${JSON.stringify(result, null, 2)}`);
 
     if (result.error) {
         setUploadError(result.error);
