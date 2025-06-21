@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
 import type { WithId } from 'mongodb';
 import { getTemplates, getProjectById, getBroadcasts } from '@/app/actions';
-import type { Project } from '@/app/dashboard/page';
+import type { Project, Template } from '@/app/dashboard/page';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -17,12 +18,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-
-type Template = {
-  name: string;
-  category: string;
-  body: string;
-};
+import { revalidatePath } from 'next/cache';
 
 type Broadcast = {
   templateName: string;
@@ -45,6 +41,7 @@ export default function BroadcastPage() {
     const storedProjectId = localStorage.getItem('activeProjectId');
     
     async function fetchData() {
+      setLoading(true);
       try {
         if (storedProjectId) {
           const [projectData, templatesData, historyData] = await Promise.all([
@@ -52,7 +49,7 @@ export default function BroadcastPage() {
             getTemplates(storedProjectId),
             getBroadcasts(),
           ]);
-          setProject(projectData as WithId<Project>);
+          setProject(projectData as WithId<Project> | null);
           setTemplates(templatesData as WithId<Template>[]);
           setHistory(historyData as WithId<Broadcast>[]);
         }
@@ -148,6 +145,8 @@ export default function BroadcastPage() {
                             ? 'secondary'
                             : item.status === 'Completed'
                             ? 'default'
+                            : item.status === 'Partial Failure'
+                            ? 'secondary'
                             : 'destructive'
                         }
                       >
@@ -170,3 +169,5 @@ export default function BroadcastPage() {
     </div>
   );
 }
+
+    
