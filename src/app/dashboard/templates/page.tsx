@@ -9,6 +9,7 @@ import { WithId } from 'mongodb';
 import { useEffect, useState, useTransition } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 type Template = {
   name: string;
@@ -23,19 +24,30 @@ export default function TemplatesPage() {
   const [loading, setLoading] = useState(true);
   const [isSyncing, startSyncTransition] = useTransition();
   const { toast } = useToast();
+  const [logs, setLogs] = useState<string[]>([]);
+
+  const addLog = (message: string) => {
+    setLogs(prev => [`[${new Date().toLocaleTimeString()}] ${message}`, ...prev]);
+  };
 
   const fetchTemplates = async (showToast = false) => {
+    addLog('[CLIENT] Starting fetchTemplates...');
     setLoading(true);
     try {
       const projectId = localStorage.getItem('activeProjectId');
+      addLog(`[CLIENT] Project ID from localStorage: ${projectId}`);
       if (projectId) {
         const templatesData = await getTemplates(projectId);
+        addLog(`[CLIENT-RESPONSE] getTemplates returned: ${JSON.stringify(templatesData, null, 2)}`);
         setTemplates(templatesData as WithId<Template>[]);
+      } else {
+        addLog('[CLIENT] No project ID found.');
       }
       if (showToast) {
         toast({ title: "Refreshed", description: "Template list has been updated." });
       }
-    } catch (error) {
+    } catch (error: any) {
+      addLog(`[CLIENT-ERROR] Failed to fetch templates: ${error.message}`);
       console.error("Failed to fetch templates:", error);
       toast({
         title: "Error",
@@ -43,30 +55,38 @@ export default function TemplatesPage() {
         variant: "destructive"
       });
     } finally {
+      addLog('[CLIENT] Finished fetchTemplates.');
       setLoading(false);
     }
   };
   
   useEffect(() => {
     document.title = 'Message Templates | WABASimplify';
+    addLog('[CLIENT] Page mounted. Initializing template fetch.');
     fetchTemplates();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const onSync = () => {
     startSyncTransition(async () => {
+      addLog('[CLIENT] Starting onSync...');
       const projectId = localStorage.getItem('activeProjectId');
+      addLog(`[CLIENT] Project ID for sync: ${projectId}`);
       if (!projectId) {
-        toast({ title: "Error", description: "No active project selected. Please go to the main dashboard and select a project.", variant: "destructive" });
+        const errorMsg = "No active project selected. Please go to the main dashboard and select a project.";
+        addLog(`[CLIENT-ERROR] ${errorMsg}`);
+        toast({ title: "Error", description: errorMsg, variant: "destructive" });
         return;
       }
       const result = await handleSyncTemplates(projectId);
+      addLog(`[CLIENT-RESPONSE] handleSyncTemplates returned: ${JSON.stringify(result, null, 2)}`);
       if (result.error) {
         toast({ title: "Sync Failed", description: result.error, variant: "destructive" });
       } else {
         toast({ title: "Sync Successful", description: result.message });
-        await fetchTemplates();
+        await fetchTemplates(true);
       }
+      addLog('[CLIENT] Finished onSync.');
     });
   };
 
@@ -114,6 +134,20 @@ export default function TemplatesPage() {
           </div>
         </div>
       )}
+
+      <Card>
+        <CardHeader>
+            <CardTitle>Live Debug Log</CardTitle>
+            <CardDescription>This panel shows live events and API responses as you interact with this page.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div className="bg-muted p-4 rounded-lg h-64 overflow-y-auto text-xs font-mono text-muted-foreground whitespace-pre-wrap break-all">
+                {logs.length > 0 ? logs.map((log, i) => (
+                    <p key={i}>{log}</p>
+                )) : 'Logs will appear here...'}
+            </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }
