@@ -96,7 +96,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
             }
         } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
              const type = headerComponent.format.toLowerCase();
-             const mediaObject: any = { link: "[MEDIA_URL_FROM_TEMPLATE_OR_OVERRIDE]" };
+             const mediaObject: any = { id: "[MEDIA_ID_GENERATED_AT_SEND_TIME]" };
              if (type === 'document') {
                 mediaObject.filename = "sample_file.pdf"; 
              }

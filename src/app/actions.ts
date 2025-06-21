@@ -179,7 +179,7 @@ export async function handleCreateProject(
         }
         
         const response = await fetch(
-            `https://graph.facebook.com/v18.0/${wabaId}/phone_numbers?access_token=${accessToken}`,
+            `https://graph.facebook.com/v22.0/${wabaId}/phone_numbers?access_token=${accessToken}`,
             { method: 'GET' }
         );
 
@@ -391,7 +391,7 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
         const { wabaId, accessToken } = project;
         const fields = 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput';
         const response = await fetch(
-            `https://graph.facebook.com/v18.0/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}`,
+            `https://graph.facebook.com/v22.0/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}`,
             { method: 'GET' }
         );
         
@@ -448,7 +448,7 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
         const { wabaId, accessToken } = project;
 
         const response = await fetch(
-            `https://graph.facebook.com/v18.0/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id`,
+            `https://graph.facebook.com/v22.0/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id`,
             { method: 'GET' }
         );
 
@@ -578,7 +578,7 @@ export async function handleCreateTemplate(
         };
     
         const response = await fetch(
-            `https://graph.facebook.com/v18.0/${wabaId}/message_templates`,
+            `https://graph.facebook.com/v22.0/${wabaId}/message_templates`,
             {
             method: 'POST',
             headers: {

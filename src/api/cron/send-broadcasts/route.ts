@@ -58,6 +58,50 @@ async function handleRequest(request: Request) {
         
         const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
         const DELAY_MS = project?.rateLimitDelay || 1000;
+        
+        // --- MEDIA UPLOAD (ONCE PER JOB) ---
+        let mediaId: string | null = null;
+        try {
+            const headerComponent = job.components.find(c => c.type === 'HEADER');
+            if (headerComponent && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
+                const broadcastSpecificUrl = job.headerImageUrl;
+                const templateDefaultUrl = headerComponent.example?.header_url?.[0];
+                let finalUrl;
+                if (broadcastSpecificUrl) {
+                    finalUrl = broadcastSpecificUrl.startsWith('http') ? broadcastSpecificUrl : `${process.env.APP_URL || ''}${broadcastSpecificUrl}`;
+                } else {
+                    finalUrl = templateDefaultUrl;
+                }
+
+                if (finalUrl) {
+                    const mediaResponse = await fetch(finalUrl);
+                    if (!mediaResponse.ok) throw new Error(`Failed to fetch media from URL: ${finalUrl}`);
+                    
+                    const fileBlob = await mediaResponse.blob();
+                    const formData = new FormData();
+                    formData.append('messaging_product', 'whatsapp');
+                    formData.append('file', fileBlob, 'media-file');
+
+                    const uploadResponse = await fetch(
+                      `https://graph.facebook.com/v22.0/${job.phoneNumberId}/media`,
+                      {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${job.accessToken}` },
+                        body: formData,
+                      }
+                    );
+                    const uploadData = await uploadResponse.json();
+                    if (!uploadResponse.ok || !uploadData.id) {
+                        throw new Error(`Meta media upload failed: ${JSON.stringify(uploadData.error || uploadData)}`);
+                    }
+                    mediaId = uploadData.id;
+                }
+            }
+        } catch (mediaError: any) {
+            await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', failedSends: [{ phone: 'N/A', response: { error: { message: `Media Upload Failed: ${mediaError.message}` } } }] } });
+            return new NextResponse(`Internal Server Error during media upload: ${mediaError.message}`, { status: 500 });
+        }
+
 
         try {
             let successCount = 0;
@@ -70,8 +114,7 @@ async function handleRequest(request: Request) {
                 const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
                 
                 const sendPromises = chunk.map(async (contact) => {
-                    const firstColumnHeader = Object.keys(contact)[0];
-                    const phone = contact[firstColumnHeader];
+                    const phone = contact.phone;
 
                     try {
                         // --- PAYLOAD CONSTRUCTION ---
@@ -95,25 +138,13 @@ async function handleRequest(request: Request) {
                                         });
                                     });
                                 }
-                            } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                                const broadcastSpecificUrl = job.headerImageUrl;
-                                const templateDefaultUrl = headerComponent.example?.header_url?.[0];
-
-                                let finalUrl;
-                                if (broadcastSpecificUrl) {
-                                    finalUrl = broadcastSpecificUrl.startsWith('http') ? broadcastSpecificUrl : `${process.env.APP_URL || ''}${broadcastSpecificUrl}`;
-                                } else {
-                                    finalUrl = templateDefaultUrl;
-                                }
-
-                                if (finalUrl) {
-                                    const type = headerComponent.format.toLowerCase();
-                                    const mediaObject: any = { link: finalUrl };
-                                    if (type === 'document') {
+                            } else if (mediaId) {
+                                 const type = headerComponent.format.toLowerCase();
+                                 const mediaObject: any = { id: mediaId };
+                                 if (type === 'document') {
                                     mediaObject.filename = contact['filename'] || "file"; 
-                                    }
-                                    parameters.push({ type, [type]: mediaObject });
-                                }
+                                 }
+                                 parameters.push({ type, [type]: mediaObject });
                             }
                             if (parameters.length > 0) {
                                 payloadComponents.push({ type: 'header', parameters });
@@ -150,7 +181,7 @@ async function handleRequest(request: Request) {
                         };
 
                         const response = await fetch(
-                          `https://graph.facebook.com/v18.0/${job.phoneNumberId}/messages`,
+                          `https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`,
                           {
                             method: 'POST',
                             headers: {
