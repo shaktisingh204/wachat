@@ -89,7 +89,7 @@ export async function handleCreateProject(
 
     try {
         const response = await fetch(
-            `https://graph.facebook.com/v20.0/${wabaId}/phone_numbers?access_token=${accessToken}`,
+            `https://graph.facebook.com/v18.0/${wabaId}/phone_numbers?access_token=${accessToken}`,
             { method: 'GET' }
         );
 
@@ -236,7 +236,7 @@ export async function handleStartBroadcast(
         
         try {
             const response = await fetch(
-              `https://graph.facebook.com/v20.0/${phoneNumberId}/messages`,
+              `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`,
               {
                 method: 'POST',
                 headers: {
