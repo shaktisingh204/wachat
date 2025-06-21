@@ -6,6 +6,16 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Db, ObjectId } from 'mongodb';
 
+type SuccessfulSend = {
+    phone: string;
+    response: any;
+};
+
+type FailedSend = {
+    phone: string;
+    response: any;
+};
+
 type BroadcastJob = {
     _id: ObjectId;
     projectId: ObjectId;
@@ -19,8 +29,8 @@ type BroadcastJob = {
     processedAt?: Date;
     successCount?: number;
     errorCount?: number;
-    successfulSends?: { phone: string; response: any }[];
-    failedSends?: { phone: string; response: any }[];
+    successfulSends?: SuccessfulSend[];
+    failedSends?: FailedSend[];
     components: any[]; 
     language: string;
     headerImageUrl?: string;
@@ -33,96 +43,99 @@ type Project = {
 
 async function handleRequest(request: Request) {
     let db: Db;
+    let jobId: ObjectId | null = null;
+    
     try {
         const conn = await connectToDatabase();
         db = conn.db;
 
-    } catch (initializationError: any) {
-        console.error(`[${new Date().toISOString()}] CRON JOB FAILED TO INITIALIZE: ${initializationError.message}`);
-        return new NextResponse(`Internal Server Error during initialization: ${initializationError.message}`, { status: 500 });
-    }
-
-    let jobId: ObjectId | null = null;
-
-    try {
         const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
-            { $set: { status: 'PROCESSING', processedAt: new Date() } },
+            { 
+                $set: { 
+                    status: 'PROCESSING', 
+                    processedAt: new Date(),
+                    successCount: 0,
+                    errorCount: 0,
+                    successfulSends: [],
+                    failedSends: []
+                } 
+            },
             { returnDocument: 'after', sort: { createdAt: 1 } }
         );
 
         if (!job) {
-            return NextResponse.json({ message: 'No queued broadcasts to process.' });
+             return NextResponse.json({ message: 'No queued broadcasts to process.' });
         }
 
         jobId = job._id;
-        
+
         const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
         const DELAY_MS = project?.rateLimitDelay || 1000;
+        
+        // --- MEDIA UPLOAD (ONCE PER JOB) ---
+        let mediaId: string | null = null;
+        try {
+            const headerComponent = job.components.find(c => c.type === 'HEADER');
+            if (headerComponent && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
+                const broadcastSpecificUrl = job.headerImageUrl;
+                const templateDefaultUrl = headerComponent.example?.header_url?.[0];
+                let finalUrl;
+                if (broadcastSpecificUrl) {
+                    finalUrl = broadcastSpecificUrl.startsWith('http') ? broadcastSpecificUrl : `${process.env.APP_URL || ''}${broadcastSpecificUrl}`;
+                } else {
+                    finalUrl = templateDefaultUrl;
+                }
+
+                if (finalUrl) {
+                    const mediaResponse = await fetch(finalUrl);
+                    if (!mediaResponse.ok) throw new Error(`Failed to fetch media from URL: ${finalUrl}`);
+                    
+                    const fileBlob = await mediaResponse.blob();
+                    const formData = new FormData();
+                    formData.append('messaging_product', 'whatsapp');
+                    const filename = finalUrl.split('/').pop()?.split('?')[0] || 'media-file';
+                    formData.append('file', fileBlob, filename);
+
+                    const uploadResponse = await fetch(
+                      `https://graph.facebook.com/v22.0/${job.phoneNumberId}/media`,
+                      {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${job.accessToken}` },
+                        body: formData,
+                      }
+                    );
+                    const uploadData = await uploadResponse.json();
+                    if (!uploadResponse.ok || !uploadData.id) {
+                        throw new Error(`Meta media upload failed: ${JSON.stringify(uploadData.error || uploadData)}`);
+                    }
+                    mediaId = uploadData.id;
+                }
+            }
+        } catch (mediaError: any) {
+            if (jobId && db) {
+                await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', failedSends: [{ phone: 'N/A', response: { error: { message: `Media Upload Failed: ${mediaError.message}` } } }] } });
+            }
+            return new NextResponse(`Internal Server Error during media upload: ${mediaError.message}`, { status: 500 });
+        }
+
 
         try {
-            let successCount = 0;
-            let successfulSends: { phone: string; response: any }[] = [];
-            let failedSends: { phone: string; response: any }[] = [];
+            let totalSuccessCount = 0;
+            let totalErrorCount = 0;
             
             const CHUNK_SIZE = 80;
 
             for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
                 const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
                 
+                const chunkSuccessfulSends: SuccessfulSend[] = [];
+                const chunkFailedSends: FailedSend[] = [];
+
                 const sendPromises = chunk.map(async (contact) => {
-                    const firstColumnHeader = Object.keys(contact)[0];
-                    const phone = contact[firstColumnHeader];
-
+                    const phone = contact.phone;
+                    
                     try {
-                        // --- MEDIA UPLOAD LOGIC ---
-                        let mediaId: string | null = null;
-                        const headerComponent = job.components.find(c => c.type === 'HEADER');
-                        if (headerComponent && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                            const broadcastSpecificUrl = job.headerImageUrl;
-                            const templateDefaultUrl = headerComponent.example?.header_url?.[0];
-
-                            let finalUrl;
-                            if (broadcastSpecificUrl) {
-                                finalUrl = broadcastSpecificUrl.startsWith('http') ? broadcastSpecificUrl : `${process.env.APP_URL || ''}${broadcastSpecificUrl}`;
-                            } else {
-                                finalUrl = templateDefaultUrl;
-                            }
-
-                            if (finalUrl) {
-                                try {
-                                    const mediaResponse = await fetch(finalUrl);
-                                    if (!mediaResponse.ok) throw new Error(`Failed to fetch media from URL: ${finalUrl}`);
-                                    
-                                    const fileBlob = await mediaResponse.blob();
-                                    
-                                    const formData = new FormData();
-                                    formData.append('messaging_product', 'whatsapp');
-                                    formData.append('file', fileBlob);
-
-                                    const uploadResponse = await fetch(
-                                      `https://graph.facebook.com/v18.0/${job.phoneNumberId}/media`,
-                                      {
-                                        method: 'POST',
-                                        headers: {
-                                          Authorization: `Bearer ${job.accessToken}`,
-                                        },
-                                        body: formData,
-                                      }
-                                    );
-
-                                    const uploadData = await uploadResponse.json();
-                                    if (!uploadResponse.ok || !uploadData.id) {
-                                        throw new Error(`Meta media upload failed: ${JSON.stringify(uploadData.error || uploadData)}`);
-                                    }
-                                    mediaId = uploadData.id;
-                                } catch (mediaError: any) {
-                                    throw new Error(`Media processing failed: ${mediaError.message}`);
-                                }
-                            }
-                        }
-                        
-                        // --- PAYLOAD CONSTRUCTION ---
                         const getVars = (text: string): number[] => {
                             const variableMatches = text.match(/{{(\d+)}}/g);
                             return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
@@ -130,6 +143,7 @@ async function handleRequest(request: Request) {
                         
                         const payloadComponents: any[] = [];
                         
+                        const headerComponent = job.components.find(c => c.type === 'HEADER');
                         if (headerComponent) {
                             const parameters: any[] = [];
                             if (headerComponent.format === 'TEXT' && headerComponent.text) {
@@ -185,7 +199,7 @@ async function handleRequest(request: Request) {
                         };
 
                         const response = await fetch(
-                          `https://graph.facebook.com/v18.0/${job.phoneNumberId}/messages`,
+                          `https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`,
                           {
                             method: 'POST',
                             headers: {
@@ -199,57 +213,70 @@ async function handleRequest(request: Request) {
                         const responseData = await response.json();
 
                         if (response.ok) {
-                            successfulSends.push({ phone: phone, response: responseData });
-                            successCount++;
+                            chunkSuccessfulSends.push({ phone, response: responseData });
                         } else {
-                            failedSends.push({ phone: phone, response: responseData });
+                            chunkFailedSends.push({ phone, response: responseData });
                         }
                     } catch(e: any) {
-                        const errorResponse = { error: { message: e.message || 'Exception during fetch', status: 'CLIENT_FAILURE' } };
-                        failedSends.push({ phone: phone, response: errorResponse });
+                        chunkFailedSends.push({ phone, response: { error: { message: e.message || 'Exception during fetch' } }});
                     }
                 });
 
                 await Promise.all(sendPromises);
                 
+                if (chunkSuccessfulSends.length > 0 || chunkFailedSends.length > 0) {
+                    totalSuccessCount += chunkSuccessfulSends.length;
+                    totalErrorCount += chunkFailedSends.length;
+                    
+                    await db.collection('broadcasts').updateOne(
+                        { _id: jobId },
+                        {
+                            $inc: {
+                                successCount: chunkSuccessfulSends.length,
+                                errorCount: chunkFailedSends.length,
+                            },
+                            $push: {
+                                successfulSends: { $each: chunkSuccessfulSends },
+                                failedSends: { $each: chunkFailedSends },
+                            }
+                        }
+                    );
+                }
+
                 if (i + CHUNK_SIZE < job.contacts.length) {
                     await new Promise(resolve => setTimeout(resolve, DELAY_MS));
                 }
             }
 
-
-            const errorCount = failedSends.length;
-            let finalStatus: 'Completed' | 'Partial Failure' | 'Failed' = 'Completed';
-            if (errorCount > 0) {
-              finalStatus = successCount > 0 ? 'Partial Failure' : 'Failed';
-            }
+            const finalStatus: 'Completed' | 'Partial Failure' | 'Failed' = totalErrorCount > 0
+                ? (totalSuccessCount > 0 ? 'Partial Failure' : 'Failed')
+                : 'Completed';
             
             await db.collection('broadcasts').updateOne(
                 { _id: jobId },
                 {
                     $set: {
                         status: finalStatus,
-                        successCount,
-                        errorCount,
-                        successfulSends,
-                        failedSends,
                         processedAt: new Date(),
                     }
                 }
             );
-            
-            return NextResponse.json({ message: `Job ${jobId} processed.`, status: finalStatus, success: successCount, failed: errorCount });
+
+            return NextResponse.json({ message: `Job ${jobId} processed.`, status: finalStatus, success: totalSuccessCount, failed: totalErrorCount });
+        
         } catch (processingError: any) {
-            await db.collection('broadcasts').updateOne(
-                { _id: jobId },
-                {
-                    $set: { status: 'Failed', processedAt: new Date() },
-                }
-            );
-            return new NextResponse(`Internal Server Error while-processing job: ${processingError.message}`, { status: 500 });
+            if (jobId && db) {
+                await db.collection('broadcasts').updateOne(
+                    { _id: jobId },
+                    {
+                        $set: { status: 'Failed', processedAt: new Date() },
+                    }
+                );
+            }
+             return new NextResponse(`Internal Server Error while-processing job: ${processingError.message}`, { status: 500 });
         }
     } catch (error: any) {
-        if (jobId) {
+        if (jobId && db) {
              await db.collection('broadcasts').updateOne(
                 { _id: jobId },
                 {
