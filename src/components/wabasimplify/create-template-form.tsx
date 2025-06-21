@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
@@ -125,7 +126,7 @@ export function CreateTemplateForm({ projectId }: { projectId: string }) {
     setAiError(null);
     setSuggestions([]);
     
-    const result = await handleSuggestContent({ topic });
+    const result = await handleSuggestContent(topic);
     
     setIsGenerating(false);
     if (result.error) {
