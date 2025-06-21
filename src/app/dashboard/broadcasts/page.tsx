@@ -67,6 +67,27 @@ export default function BroadcastPage() {
     fetchData();
   }, [toast]);
 
+  useEffect(() => {
+    const hasActiveBroadcasts = history.some(
+      (b) => b.status === 'QUEUED' || b.status === 'PROCESSING'
+    );
+
+    if (!hasActiveBroadcasts || loading) {
+      return;
+    }
+
+    const interval = setInterval(async () => {
+      try {
+        const historyData = await getBroadcasts();
+        setHistory(historyData as WithId<Broadcast>[]);
+      } catch (error) {
+        console.error("Failed to poll broadcast history:", error);
+      }
+    }, 5000); // Poll every 5 seconds
+
+    return () => clearInterval(interval);
+  }, [history, loading]);
+
   if (loading) {
     return (
       <div className="flex flex-col gap-8">
@@ -103,7 +124,7 @@ export default function BroadcastPage() {
       <div>
         <h1 className="text-3xl font-bold font-headline">Send Broadcast</h1>
         <p className="text-muted-foreground">
-          Send a message template to a list of contacts via CSV upload.
+          Send a message template to a list of contacts via CSV or XLSX upload.
         </p>
       </div>
 
