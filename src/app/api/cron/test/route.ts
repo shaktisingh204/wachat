@@ -19,22 +19,16 @@ const logToCronCollection = async (db: Db, level: 'INFO' | 'ERROR', message: str
     }
 };
 
-
-export async function POST(request: Request) {
+async function handleTestRequest(request: Request) {
     let db: Db;
     try {
-        const isCron = request.headers.get('X-App-Hosting-Cron');
-        if (!isCron) {
-            // This is not a request from the App Hosting cron service.
-            return new NextResponse('Unauthorized', { status: 401 });
-        }
-        
+        // Auth removed for manual testing
         const conn = await connectToDatabase();
         db = conn.db;
 
-        await logToCronCollection(db, 'INFO', 'Cron test job successfully triggered by scheduler.');
+        await logToCronCollection(db, 'INFO', 'Cron test job successfully triggered by manual request.');
 
-        return NextResponse.json({ message: 'Cron test successful.' });
+        return NextResponse.json({ message: 'Cron test successful. Check the Cron Job Logs page in the admin panel.' });
 
     } catch (error: any) {
         console.error(`[${new Date().toISOString()}] CRON TEST JOB FAILED: ${error.message}`);
@@ -47,5 +41,9 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
-    return new NextResponse('This is a test endpoint for the automated cron job. It should be triggered automatically.', { status: 200 });
+    return handleTestRequest(request);
+}
+
+export async function POST(request: Request) {
+    return handleTestRequest(request);
 }

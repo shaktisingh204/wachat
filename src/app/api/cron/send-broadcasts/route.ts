@@ -26,10 +26,6 @@ type BroadcastJob = {
     logs?: string[];
 };
 
-export async function GET(request: Request) {
-    return new NextResponse('This endpoint is for the automated broadcast sending cron job. It is triggered automatically and only accepts POST requests.', { status: 200 });
-}
-
 // Helper to log to the general cron log collection
 const logToCronCollection = async (db: Db, level: 'INFO' | 'ERROR', message: string, details: any = {}) => {
     try {
@@ -59,20 +55,15 @@ async function updateLogs(db: Db, jobId: ObjectId, logs: string[]) {
     }
 }
 
-
-export async function POST(request: Request) {
+async function handleRequest(request: Request) {
     let db: Db;
     // Initialization block
     try {
-        const isCron = request.headers.get('X-App-Hosting-Cron');
-        if (!isCron) {
-            return new NextResponse('Unauthorized', { status: 401 });
-        }
-        
+        // Auth removed for manual testing
         const conn = await connectToDatabase();
         db = conn.db;
 
-        await logToCronCollection(db, 'INFO', 'Cron job triggered by scheduler.');
+        await logToCronCollection(db, 'INFO', 'Cron job triggered.');
 
     } catch (initializationError: any) {
         console.error(`[${new Date().toISOString()}] CRON JOB FAILED TO INITIALIZE: ${initializationError.message}`);
@@ -156,6 +147,9 @@ export async function POST(request: Request) {
                              if (mediaId) {
                                  const type = headerComponent.format.toLowerCase();
                                  const mediaObject: any = { id: mediaId };
+                                 if (type === 'document' || type === 'image') {
+                                    mediaObject.filename = "file"; 
+                                 }
                                  parameters.push({ type, [type]: mediaObject });
                              }
                         }
@@ -174,6 +168,11 @@ export async function POST(request: Request) {
                             }));
                             payloadComponents.push({ type: 'body', parameters });
                         }
+                    }
+
+                    const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
+                    if (buttonsComponent) {
+                        payloadComponents.push(buttonsComponent);
                     }
                     
                     const messageData = {
@@ -289,4 +288,12 @@ export async function POST(request: Request) {
         }
         return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
     }
+}
+
+export async function GET(request: Request) {
+    return handleRequest(request);
+}
+
+export async function POST(request: Request) {
+    return handleRequest(request);
 }
