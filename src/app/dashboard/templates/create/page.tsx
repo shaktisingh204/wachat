@@ -7,16 +7,25 @@ import { AlertCircle, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import { getProjectById } from '@/app/actions';
+import type { WithId } from 'mongodb';
+import type { Project } from '@/app/dashboard/page';
 
 export default function CreateTemplatePage() {
-  const [projectId, setProjectId] = useState<string | null>(null);
+  const [project, setProject] = useState<WithId<Project> | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     document.title = 'Create Template | WABASimplify';
     const storedProjectId = localStorage.getItem('activeProjectId');
-    setProjectId(storedProjectId);
-    setLoading(false);
+    if (storedProjectId) {
+      getProjectById(storedProjectId).then(projectData => {
+        setProject(projectData);
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   return (
@@ -33,18 +42,13 @@ export default function CreateTemplatePage() {
       </div>
 
       {loading && (
-         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
-                <Skeleton className="h-48 w-full" />
-                <Skeleton className="h-64 w-full" />
-            </div>
-            <div className="lg:col-span-1">
-                <Skeleton className="h-96 w-full" />
-            </div>
+         <div className="space-y-6">
+            <Skeleton className="h-48 w-full" />
+            <Skeleton className="h-64 w-full" />
          </div>
       )}
       
-      {!loading && !projectId && (
+      {!loading && !project && (
          <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>No Project Selected</AlertTitle>
@@ -54,7 +58,7 @@ export default function CreateTemplatePage() {
         </Alert>
       )}
 
-      {!loading && projectId && <CreateTemplateForm projectId={projectId} />}
+      {!loading && project && <CreateTemplateForm project={project} />}
 
     </div>
   );

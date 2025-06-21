@@ -455,6 +455,12 @@ export async function handleCreateTemplate(
         const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
         const bodyText = formData.get('body') as string;
         const language = formData.get('language') as string;
+        const headerFormat = formData.get('headerFormat') as string;
+        const headerText = formData.get('headerText') as string;
+        const headerHandle = formData.get('headerHandle') as string;
+        const footerText = formData.get('footer') as string;
+        const buttonsJson = formData.get('buttons') as string;
+        const buttons = buttonsJson ? JSON.parse(buttonsJson) : [];
     
         if (!projectId || !name || !category || !bodyText || !language) {
             return { error: 'Project, Name, Language, Category, and Body are required.' };
@@ -471,14 +477,37 @@ export async function handleCreateTemplate(
     
         const components: any[] = [];
     
+        // Header Component
+        if (headerFormat !== 'NONE') {
+            const headerComponent: any = { type: 'HEADER', format: headerFormat };
+            if (headerFormat === 'TEXT') {
+                if (!headerText) return { error: 'Header text is required for TEXT header format.' };
+                headerComponent.text = headerText;
+            } else {
+                if (!headerHandle) return { error: 'Media handle is required for this header format.' };
+                headerComponent.example = { header_handle: [headerHandle] };
+            }
+            components.push(headerComponent);
+        }
+
         // Body Component
         const bodyComponent: any = { type: 'BODY', text: bodyText };
         const bodyVarMatches = bodyText.match(/{{(\d+)}}/g);
         if (bodyVarMatches) {
-        const exampleParams = bodyVarMatches.map((_, i) => `example_var_${i + 1}`);
-        bodyComponent.example = { body_text: [exampleParams] };
+            const exampleParams = bodyVarMatches.map((_, i) => `example_var_${i + 1}`);
+            bodyComponent.example = { body_text: [exampleParams] };
         }
         components.push(bodyComponent);
+
+        // Footer Component
+        if (footerText) {
+            components.push({ type: 'FOOTER', text: footerText });
+        }
+
+        // Buttons Component
+        if (buttons.length > 0) {
+            components.push({ type: 'BUTTONS', buttons });
+        }
     
         const payload = {
             name: name.toLowerCase().replace(/\s+/g, '_'),
@@ -507,7 +536,6 @@ export async function handleCreateTemplate(
             return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
         }
     
-        // Sync templates after successful creation
         await handleSyncTemplates(projectId);
         revalidatePath('/dashboard/templates');
     
@@ -527,18 +555,15 @@ export async function handleUploadMedia(formData: FormData): Promise<{ handle?: 
         const file = formData.get('file') as File;
 
         if (!projectId || !phoneNumberId || !file) {
-            const error = 'Missing project ID, phone number ID, or file.';
-            return { error };
+            return { error: 'Missing project ID, phone number ID, or file.' };
         }
         if (!ObjectId.isValid(projectId)) {
-            const error = 'Invalid Project ID.';
-            return { error };
+            return { error: 'Invalid Project ID.' };
         }
 
         const project = await getProjectById(projectId);
         if (!project) {
-            const error = 'Project not found.';
-            return { error };
+            return { error: 'Project not found.' };
         }
         const { accessToken } = project;
 
@@ -566,8 +591,7 @@ export async function handleUploadMedia(formData: FormData): Promise<{ handle?: 
         }
         
         if (!data?.id) {
-            const error = 'Media upload succeeded but did not return an ID.';
-            return { error };
+            return { error: 'Media upload succeeded but did not return an ID.' };
         }
 
         return { handle: data.id };
