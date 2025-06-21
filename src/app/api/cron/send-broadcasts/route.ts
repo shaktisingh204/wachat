@@ -54,16 +54,12 @@ export async function POST(request: Request) {
     let jobId: ObjectId | null = null;
 
     try {
-        const cronSecret = request.headers.get('x-cron-secret');
-        if (!process.env.CRON_SECRET) {
-            console.error(`[${new Date().toISOString()}] CRON JOB: CRON_SECRET is not set in the environment.`);
-            return new NextResponse('Unauthorized: Missing CRON_SECRET', { status: 401 });
+        const isCron = request.headers.get('X-App-Hosting-Cron');
+        if (!isCron) {
+            console.error(`[${new Date().toISOString()}] CRON JOB: Unauthorized access. Missing X-App-Hosting-Cron header.`);
+            return new NextResponse('Unauthorized', { status: 401 });
         }
-        if (cronSecret !== process.env.CRON_SECRET) {
-            console.error(`[${new Date().toISOString()}] CRON JOB: Unauthorized access. Invalid or missing secret.`);
-            return new NextResponse('Unauthorized: Invalid CRON_SECRET', { status: 401 });
-        }
-        console.log(`[${new Date().toISOString()}] CRON JOB: Cron secret verified.`);
+        console.log(`[${new Date().toISOString()}] CRON JOB: Cron header verified.`);
 
         log('Connecting to database...');
         const conn = await connectToDatabase();
@@ -106,7 +102,9 @@ export async function POST(request: Request) {
                 log(`Processing chunk ${chunkNumber} of ${Math.ceil(job.contacts.length / CHUNK_SIZE)}...`);
                 
                 const sendPromises = chunk.map(async (contact) => {
-                    log(`  - Processing contact: ${contact.phone}`);
+                    const firstColumnHeader = Object.keys(contact)[0];
+                    const phone = contact[firstColumnHeader];
+                    log(`  - Processing contact: ${phone}`);
 
                     const getVars = (text: string): number[] => {
                         const variableMatches = text.match(/{{(\d+)}}/g);
@@ -118,26 +116,30 @@ export async function POST(request: Request) {
                     // HEADER COMPONENT
                     const headerComponent = job.components.find(c => c.type === 'HEADER');
                     if (headerComponent) {
+                        const parameters: any[] = [];
                         if (headerComponent.format === 'TEXT' && headerComponent.text) {
                             const headerVars = getVars(headerComponent.text);
                             if (headerVars.length > 0) {
-                                const parameters = headerVars.sort((a,b) => a-b).map(varNum => ({
-                                    type: 'text',
-                                    text: contact[`variable${varNum}`] || '',
-                                }));
-                                payloadComponents.push({ type: 'header', parameters });
+                                headerVars.sort((a,b) => a-b).forEach(varNum => {
+                                    parameters.push({
+                                        type: 'text',
+                                        text: contact[`variable${varNum}`] || '',
+                                    });
+                                });
                                 log(`    - Added TEXT header with params: ${JSON.stringify(parameters)}`);
                             }
                         } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerComponent.format)) {
                             const mediaId = headerComponent.example?.header_handle?.[0];
                             if (mediaId) {
                                 const type = headerComponent.format.toLowerCase();
-                                const parameters = [{ type, [type]: { id: mediaId } }];
-                                payloadComponents.push({ type: 'header', parameters });
+                                parameters.push({ type, [type]: { id: mediaId } });
                                 log(`    - Added ${type.toUpperCase()} header with media ID: ${mediaId}`);
                             } else {
                                 log(`    - WARNING: Template has ${headerComponent.format} header but no media handle was found.`);
                             }
+                        }
+                        if (parameters.length > 0) {
+                            payloadComponents.push({ type: 'header', parameters });
                         }
                     }
 
@@ -157,7 +159,7 @@ export async function POST(request: Request) {
                     
                     const messageData = {
                         messaging_product: 'whatsapp',
-                        to: contact.phone,
+                        to: phone,
                         recipient_type: 'individual',
                         type: 'template',
                         template: {
@@ -167,7 +169,7 @@ export async function POST(request: Request) {
                         },
                     };
 
-                    log(`    - Payload for ${contact.phone}: ${JSON.stringify(messageData)}`);
+                    log(`    - Payload for ${phone}: ${JSON.stringify(messageData)}`);
 
                     try {
                         const response = await fetch(
@@ -185,14 +187,14 @@ export async function POST(request: Request) {
                         const responseData = await response.json();
 
                         if (response.ok) {
-                            successfulSends.push({ phone: contact.phone, response: responseData });
+                            successfulSends.push({ phone: phone, response: responseData });
                             successCount++;
                         } else {
-                            failedSends.push({ phone: contact.phone, response: responseData });
+                            failedSends.push({ phone: phone, response: responseData });
                         }
                     } catch(e: any) {
                         const errorResponse = { error: { message: e.message || 'Exception during fetch', status: 'CLIENT_FAILURE' } };
-                        failedSends.push({ phone: contact.phone, response: errorResponse });
+                        failedSends.push({ phone: phone, response: errorResponse });
                     }
                 });
 
@@ -251,7 +253,16 @@ export async function POST(request: Request) {
         // This outer catch handles initial setup errors (DB connection, finding the job)
         const errorMessage = `[${new Date().toISOString()}] CRON JOB FAILED: ${error.message}`;
         console.error(errorMessage, error);
-        // We cannot log to the DB here because we might not have a DB connection or a job ID.
+        
+        if (jobId && db) {
+             await db.collection('broadcasts').updateOne(
+                { _id: jobId },
+                {
+                    $set: { status: 'Failed', processedAt: new Date() },
+                    $push: { logs: { $each: [errorMessage, ...logBuffer] } }
+                }
+            );
+        }
         return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
     }
 }
