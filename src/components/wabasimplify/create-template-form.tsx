@@ -10,7 +10,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { LoaderCircle, FileUp, Plus, Trash2, UploadCloud, X } from 'lucide-react';
+import { LoaderCircle, FileUp, Plus, Trash2, UploadCloud } from 'lucide-react';
 import { handleCreateTemplate, handleUploadMedia } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
@@ -47,6 +47,124 @@ type Button = {
   phone_number?: string;
   example?: string[];
 };
+
+const languages = [
+    { code: 'af', name: 'Afrikaans' },
+    { code: 'sq', name: 'Albanian' },
+    { code: 'ar', name: 'Arabic' },
+    { code: 'ar_EG', name: 'Arabic (EGY)' },
+    { code: 'ar_AE', name: 'Arabic (UAE)' },
+    { code: 'ar_LB', name: 'Arabic (LBN)' },
+    { code: 'ar_MA', name: 'Arabic (MAR)' },
+    { code: 'ar_QA', name: 'Arabic (QAT)' },
+    { code: 'az', name: 'Azerbaijani' },
+    { code: 'be_BY', name: 'Belarusian' },
+    { code: 'bn', name: 'Bengali' },
+    { code: 'bn_IN', name: 'Bengali (IND)' },
+    { code: 'bg', name: 'Bulgarian' },
+    { code: 'ca', name: 'Catalan' },
+    { code: 'zh_CN', name: 'Chinese (CHN)' },
+    { code: 'zh_HK', name: 'Chinese (HKG)' },
+    { code: 'zh_TW', name: 'Chinese (TAI)' },
+    { code: 'hr', name: 'Croatian' },
+    { code: 'cs', name: 'Czech' },
+    { code: 'da', name: 'Danish' },
+    { code: 'prs_AF', name: 'Dari' },
+    { code: 'nl', name: 'Dutch' },
+    { code: 'nl_BE', name: 'Dutch (BEL)' },
+    { code: 'en', name: 'English' },
+    { code: 'en_GB', name: 'English (UK)' },
+    { code: 'en_US', name: 'English (US)' },
+    { code: 'en_AE', name: 'English (UAE)' },
+    { code: 'en_AU', name: 'English (AUS)' },
+    { code: 'en_CA', name: 'English (CAN)' },
+    { code: 'en_GH', name: 'English (GHA)' },
+    { code: 'en_IE', name: 'English (IRL)' },
+    { code: 'en_IN', name: 'English (IND)' },
+    { code: 'en_JM', name: 'English (JAM)' },
+    { code: 'en_MY', name: 'English (MYS)' },
+    { code: 'en_NZ', name: 'English (NZL)' },
+    { code: 'en_QA', name: 'English (QAT)' },
+    { code: 'en_SG', name: 'English (SGP)' },
+    { code: 'en_UG', name: 'English (UGA)' },
+    { code: 'en_ZA', name: 'English (ZAF)' },
+    { code: 'et', name: 'Estonian' },
+    { code: 'fil', name: 'Filipino' },
+    { code: 'fi', name: 'Finnish' },
+    { code: 'fr', name: 'French' },
+    { code: 'fr_BE', name: 'French (BEL)' },
+    { code: 'fr_CA', name: 'French (CAN)' },
+    { code: 'fr_CH', name: 'French (CHE)' },
+    { code: 'fr_CI', name: 'French (CIV)' },
+    { code: 'fr_MA', name: 'French (MAR)' },
+    { code: 'ka', name: 'Georgian' },
+    { code: 'de', name: 'German' },
+    { code: 'de_AT', name: 'German (AUT)' },
+    { code: 'de_CH', name: 'German (CHE)' },
+    { code: 'el', name: 'Greek' },
+    { code: 'gu', name: 'Gujarati' },
+    { code: 'ha', name: 'Hausa' },
+    { code: 'he', name: 'Hebrew' },
+    { code: 'hi', name: 'Hindi' },
+    { code: 'hu', name: 'Hungarian' },
+    { code: 'id', name: 'Indonesian' },
+    { code: 'ga', name: 'Irish' },
+    { code: 'it', name: 'Italian' },
+    { code: 'ja', name: 'Japanese' },
+    { code: 'kn', name: 'Kannada' },
+    { code: 'kk', name: 'Kazakh' },
+    { code: 'rw_RW', name: 'Kinyarwanda' },
+    { code: 'ko', name: 'Korean' },
+    { code: 'ky_KG', name: 'Kyrgyz (Kyrgyzstan)' },
+    { code: 'lo', name: 'Lao' },
+    { code: 'lv', name: 'Latvian' },
+    { code: 'lt', name: 'Lithuanian' },
+    { code: 'mk', name: 'Macedonian' },
+    { code: 'ms', name: 'Malay' },
+    { code: 'ml', name: 'Malayalam' },
+    { code: 'mr', name: 'Marathi' },
+    { code: 'nb', name: 'Norwegian' },
+    { code: 'ps_AF', name: 'Pashto' },
+    { code: 'fa', name: 'Persian' },
+    { code: 'pl', name: 'Polish' },
+    { code: 'pt_BR', name: 'Portuguese (BR)' },
+    { code: 'pt_PT', name: 'Portuguese (POR)' },
+    { code: 'pa', name: 'Punjabi' },
+    { code: 'ro', name: 'Romanian' },
+    { code: 'ru', name: 'Russian' },
+    { code: 'sr', name: 'Serbian' },
+    { code: 'si_LK', name: 'Sinhala' },
+    { code: 'sk', name: 'Slovak' },
+    { code: 'sl', name: 'Slovenian' },
+    { code: 'es', name: 'Spanish' },
+    { code: 'es_AR', name: 'Spanish (ARG)' },
+    { code: 'es_CL', name: 'Spanish (CHL)' },
+    { code: 'es_CO', name: 'Spanish (COL)' },
+    { code: 'es_CR', name: 'Spanish (CRI)' },
+    { code: 'es_DO', name: 'Spanish (DOM)' },
+    { code: 'es_EC', name: 'Spanish (ECU)' },
+    { code: 'es_HN', name: 'Spanish (HND)' },
+    { code: 'es_MX', name: 'Spanish (MEX)' },
+    { code: 'es_PA', name: 'Spanish (PAN)' },
+    { code: 'es_PE', name: 'Spanish (PER)' },
+    { code: 'es_ES', name: 'Spanish (SPA)' },
+    { code: 'es_UY', name: 'Spanish (URY)' },
+    { code: 'sw', name: 'Swahili' },
+    { code: 'sv', name: 'Swedish' },
+    { code: 'ta', name: 'Tamil' },
+    { code: 'te', name: 'Telugu' },
+    { code: 'th', name: 'Thai' },
+    { code: 'tr', name: 'Turkish' },
+    { code: 'uk', name: 'Ukrainian' },
+    { code: 'ur', name: 'Urdu' },
+    { code: 'uz', name: 'Uzbek' },
+    { code: 'vi', name: 'Vietnamese' },
+    { code: 'zu', name: 'Zulu' },
+];
+
+const uniqueLanguagesMap = new Map();
+languages.forEach(lang => uniqueLanguagesMap.set(lang.code, lang));
+const uniqueLanguages = Array.from(uniqueLanguagesMap.values());
 
 export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
   const router = useRouter();
@@ -148,19 +266,14 @@ export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2 col-span-2">
                 <Label htmlFor="language">Language</Label>
                 <Select name="language" defaultValue="en_US" required>
                   <SelectTrigger id="language"><SelectValue placeholder="Select a language" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="en_US">English (US)</SelectItem>
-                    <SelectItem value="en_GB">English (UK)</SelectItem>
-                    <SelectItem value="es">Spanish</SelectItem>
-                    <SelectItem value="fr">French</SelectItem>
-                    <SelectItem value="de">German</SelectItem>
-                    <SelectItem value="pt_BR">Portuguese (Brazil)</SelectItem>
-                    <SelectItem value="hi">Hindi</SelectItem>
-                    <SelectItem value="ar">Arabic</SelectItem>
+                    {uniqueLanguages.map((lang) => (
+                        <SelectItem key={lang.code} value={lang.code}>{lang.name} ({lang.code})</SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -247,8 +360,8 @@ export function CreateTemplateForm({ project }: { project: WithId<Project> }) {
                                 <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => handleRemoveButton(index)}><Trash2 className="h-4 w-4"/></Button>
                                 <p className="text-sm font-medium text-muted-foreground">{button.type.replace('_', ' ')}</p>
                                 <Input placeholder="Button Text (max 25 chars)" value={button.text} onChange={(e) => handleButtonChange(index, 'text', e.target.value)} maxLength={25} required/>
-                                {button.type === 'URL' && <Input placeholder="https://example.com/..." value={button.url} onChange={(e) => handleButtonChange(index, 'url', e.target.value)} required/>}
-                                {button.type === 'PHONE_NUMBER' && <Input placeholder="+15551234567" value={button.phone_number} onChange={(e) => handleButtonChange(index, 'phone_number', e.target.value)} required/>}
+                                {button.type === 'URL' && <Input placeholder="https://example.com/..." value={button.url || ''} onChange={(e) => handleButtonChange(index, 'url', e.target.value)} required/>}
+                                {button.type === 'PHONE_NUMBER' && <Input placeholder="+15551234567" value={button.phone_number || ''} onChange={(e) => handleButtonChange(index, 'phone_number', e.target.value)} required/>}
                             </div>
                         ))}
                     </div>
