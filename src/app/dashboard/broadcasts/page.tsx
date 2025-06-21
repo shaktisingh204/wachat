@@ -18,7 +18,6 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { revalidatePath } from 'next/cache';
 
 type Broadcast = {
   templateName: string;
@@ -169,5 +168,3 @@ export default function BroadcastPage() {
     </div>
   );
 }
-
-    
