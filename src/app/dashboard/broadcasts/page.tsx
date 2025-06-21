@@ -46,7 +46,7 @@ export default function BroadcastPage() {
       if (storedProjectId) {
         const [projectData, templatesData, historyData] = await Promise.all([
           getProjectById(storedProjectId),
-          getTemplates(),
+          getTemplates(storedProjectId),
           getBroadcasts(),
         ]);
         setProject(projectData as WithId<Project>);

@@ -86,7 +86,7 @@ export async function getProjectById(projectId: string): Promise<WithId<any> | n
     try {
         const { db } = await connectToDatabase();
         const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
-        return project;
+        return JSON.parse(JSON.stringify(project));
     } catch (error) {
         console.error("Failed to fetch project:", error);
         return null;
@@ -101,7 +101,7 @@ export async function getTemplates(projectId: string) {
     try {
         const { db } = await connectToDatabase();
         const templates = await db.collection('templates').find({ projectId: new ObjectId(projectId) }).sort({ name: 1 }).toArray();
-        return templates;
+        return JSON.parse(JSON.stringify(templates));
     } catch (error) {
         console.error('Failed to fetch templates:', error);
         return [];
@@ -112,7 +112,7 @@ export async function getBroadcasts() {
   try {
     const { db } = await connectToDatabase();
     const broadcasts = await db.collection('broadcasts').find({}).sort({ createdAt: -1 }).limit(10).toArray();
-    return broadcasts;
+    return JSON.parse(JSON.stringify(broadcasts));
   } catch (error) {
     console.error('Failed to fetch broadcast history:', error);
     return [];
