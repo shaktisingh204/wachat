@@ -17,6 +17,10 @@ export type PhoneNumber = {
     verified_name: string;
     code_verification_status: string;
     quality_rating: string;
+    platform_type?: string;
+    throughput?: {
+        level: string;
+    };
 };
 
 export type Project = {

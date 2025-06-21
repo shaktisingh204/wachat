@@ -47,7 +47,7 @@ export default function NumbersPage() {
     fetchProject();
   }, []);
 
-  const getStatusVariant = (status: string) => {
+  const getStatusVariant = (status?: string) => {
     if (!status) return 'outline';
     status = status.toLowerCase();
     if (status.includes('verified')) return 'default';
@@ -55,7 +55,7 @@ export default function NumbersPage() {
     return 'destructive';
   }
 
-  const getQualityVariant = (quality: string) => {
+  const getQualityVariant = (quality?: string) => {
     if (!quality) return 'outline';
     quality = quality.toLowerCase();
     if (quality === 'green' || quality === 'high') return 'default';
@@ -63,6 +63,16 @@ export default function NumbersPage() {
     if (quality === 'unknown') return 'secondary';
     return 'destructive';
   }
+  
+  const getThroughputVariant = (level?: string) => {
+    if (!level) return 'outline';
+    level = level.toLowerCase();
+    if (level === 'high') return 'default';
+    if (level === 'medium') return 'secondary';
+    if (level === 'low') return 'destructive';
+    return 'outline';
+  }
+
 
   if (loading) {
     return (
@@ -122,10 +132,11 @@ export default function NumbersPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Display Number</TableHead>
-                <TableHead>Verified Name</TableHead>
-                <TableHead>Verification Status</TableHead>
-                <TableHead>Quality Rating</TableHead>
+                <TableHead>Number / Name</TableHead>
+                <TableHead>Platform</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Quality</TableHead>
+                <TableHead>Throughput</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -133,8 +144,15 @@ export default function NumbersPage() {
               {phoneNumbers.length > 0 ? (
                 phoneNumbers.map((phone) => (
                   <TableRow key={phone.id}>
-                    <TableCell className="font-medium">{phone.display_phone_number}</TableCell>
-                    <TableCell>{phone.verified_name}</TableCell>
+                    <TableCell className="font-medium">
+                      <div>{phone.display_phone_number}</div>
+                      <div className="text-xs text-muted-foreground">{phone.verified_name}</div>
+                    </TableCell>
+                     <TableCell>
+                       <Badge variant="outline" className="capitalize">
+                         {phone.platform_type?.replace(/_/g, ' ').toLowerCase() || 'N/A'}
+                       </Badge>
+                    </TableCell>
                     <TableCell>
                       <Badge
                         variant={getStatusVariant(phone.code_verification_status)}
@@ -150,6 +168,11 @@ export default function NumbersPage() {
                       >
                         {phone.quality_rating?.replace(/_/g, ' ').toLowerCase() || 'N/A'}
                       </Badge>
+                    </TableCell>
+                     <TableCell>
+                       <Badge variant={getThroughputVariant(phone.throughput?.level)} className="capitalize">
+                         {phone.throughput?.level?.toLowerCase() || 'N/A'}
+                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -177,7 +200,7 @@ export default function NumbersPage() {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-24 text-center">
+                  <TableCell colSpan={6} className="h-24 text-center">
                     No phone numbers found for this project.
                   </TableCell>
                 </TableRow>

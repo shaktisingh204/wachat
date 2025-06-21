@@ -13,6 +13,10 @@ type MetaPhoneNumber = {
     verified_name: string;
     code_verification_status: string;
     quality_rating: string;
+    platform_type?: string;
+    throughput?: {
+        level: string;
+    };
 };
 
 type MetaPhoneNumbersResponse = {
@@ -130,6 +134,8 @@ export async function handleCreateProject(
             verified_name: num.verified_name,
             code_verification_status: num.code_verification_status,
             quality_rating: num.quality_rating,
+            platform_type: num.platform_type,
+            throughput: num.throughput,
         }));
 
     } catch (e: any) {
