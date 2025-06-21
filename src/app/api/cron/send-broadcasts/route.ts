@@ -1,4 +1,7 @@
 
+import { config } from 'dotenv';
+config();
+
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Db, ObjectId } from 'mongodb';
@@ -223,7 +226,7 @@ export async function POST(request: Request) {
                     $push: { logs: { $each: logBuffer } }
                 }
             );
-            return new NextResponse(`Internal Server Error while processing job: ${processingError.message}`, { status: 500 });
+            return new NextResponse(`Internal Server Error while-processing job: ${processingError.message}`, { status: 500 });
         }
     } catch (error: any) {
         // This outer catch handles initial setup errors (DB connection, finding the job)
