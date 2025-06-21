@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -16,6 +17,7 @@ type Template = {
   body: string;
   language: string;
   status: string;
+  components?: any[];
 };
 
 export default function TemplatesPage() {

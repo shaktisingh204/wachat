@@ -38,6 +38,7 @@ export type Template = {
   body: string;
   language: string;
   status: string;
+  components?: any[];
 };
 
 export default async function SelectProjectPage() {
