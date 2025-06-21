@@ -42,7 +42,7 @@ type BroadcastJob = {
 
 type Project = {
     _id: ObjectId;
-    rateLimitDelay?: number;
+    messagesPerSecond?: number;
 };
 
 async function handleRequest(request: Request) {
@@ -75,7 +75,8 @@ async function handleRequest(request: Request) {
         jobId = job._id;
 
         const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
-        const DELAY_MS = project?.rateLimitDelay || 1000;
+        const CHUNK_SIZE = project?.messagesPerSecond || 80;
+        const DELAY_MS = 1000;
         
         let mediaId: string | null = null;
         try {
@@ -136,7 +137,6 @@ async function handleRequest(request: Request) {
             let totalSuccessCount = 0;
             let totalErrorCount = 0;
             
-            const CHUNK_SIZE = 80;
             const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
 
             for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {

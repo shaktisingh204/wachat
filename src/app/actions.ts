@@ -217,7 +217,7 @@ export async function handleCreateProject(
             accessToken,
             phoneNumbers,
             createdAt: new Date(),
-            rateLimitDelay: 1000,
+            messagesPerSecond: 80,
         });
         
         revalidatePath('/dashboard');
@@ -669,24 +669,24 @@ export async function handleUpdateProjectSettings(
 ): Promise<UpdateProjectSettingsState> {
     try {
         const projectId = formData.get('projectId') as string;
-        const rateLimitDelay = formData.get('rateLimitDelay') as string;
+        const messagesPerSecond = formData.get('messagesPerSecond') as string;
 
-        if (!projectId || !rateLimitDelay) {
+        if (!projectId || !messagesPerSecond) {
             return { error: 'Missing required fields.' };
         }
         if (!ObjectId.isValid(projectId)) {
             return { error: 'Invalid Project ID.' };
         }
 
-        const delay = parseInt(rateLimitDelay, 10);
-        if (isNaN(delay) || delay < 1000) {
-            return { error: 'Rate limit delay must be a number and at least 1000ms (1 second).' };
+        const mps = parseInt(messagesPerSecond, 10);
+        if (isNaN(mps) || mps < 1) {
+            return { error: 'Messages per second must be a number and at least 1.' };
         }
 
         const { db } = await connectToDatabase();
         const result = await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
-            { $set: { rateLimitDelay: delay } }
+            { $set: { messagesPerSecond: mps } }
         );
         
         if (result.matchedCount === 0) {

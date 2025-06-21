@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useActionState } from 'react';
@@ -42,7 +43,7 @@ function SubmitButton() {
 export default function SettingsPage() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [loading, setLoading] = useState(true);
-  const [rateLimit, setRateLimit] = useState(1000);
+  const [messagesPerSecond, setMessagesPerSecond] = useState(80);
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleUpdateProjectSettings, updateSettingsInitialState);
 
@@ -54,7 +55,7 @@ export default function SettingsPage() {
         .then((data) => {
           if (data) {
             setProject(data);
-            setRateLimit(data.rateLimitDelay || 1000);
+            setMessagesPerSecond(data.messagesPerSecond || 80);
           }
         })
         .finally(() => setLoading(false));
@@ -130,19 +131,19 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-w-sm">
-              <Label htmlFor="rateLimitDelay">Delay Between Batches (ms)</Label>
+              <Label htmlFor="messagesPerSecond">Messages Per Second</Label>
               <Input
-                id="rateLimitDelay"
-                name="rateLimitDelay"
+                id="messagesPerSecond"
+                name="messagesPerSecond"
                 type="number"
-                min="1000"
-                step="100"
-                value={rateLimit}
-                onChange={(e) => setRateLimit(Number(e.target.value))}
+                min="1"
+                step="10"
+                value={messagesPerSecond}
+                onChange={(e) => setMessagesPerSecond(Number(e.target.value))}
                 required
               />
               <p className="text-xs text-muted-foreground">
-                The delay in milliseconds between sending batches of 80 messages. Minimum is 1000ms (1 second).
+                The number of messages to send per second. A batch of this size will be sent every second. Default is 80.
               </p>
             </div>
           </CardContent>

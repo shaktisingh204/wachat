@@ -30,7 +30,7 @@ export type Project = {
     accessToken: string;
     phoneNumbers: PhoneNumber[];
     createdAt: Date;
-    rateLimitDelay?: number;
+    messagesPerSecond?: number;
 };
 
 export type Template = {
