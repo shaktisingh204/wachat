@@ -77,7 +77,15 @@ async function processBroadcastJob() {
         jobId = job._id;
 
         const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
-        const CHUNK_SIZE = project?.messagesPerSecond || 80;
+        const CHUNK_SIZE = project?.messagesPerSecond;
+
+        if (!CHUNK_SIZE || CHUNK_SIZE < 1) {
+            const errorMessage = 'Configuration Error: "Messages Per Second" is not set or is invalid for this project. Please set it in the project settings.';
+            if (jobId && db) {
+                await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', failedSends: [{ phone: 'N/A', response: { error: { message: errorMessage } }, payload: {} }] } });
+            }
+            return; // Stop processing this job
+        }
         
         let mediaId: string | null = null;
         try {
@@ -298,7 +306,8 @@ async function processBroadcastJob() {
 
 
 export function startScheduler() {
-  cron.schedule('* * * * *', async () => {
+  // This cron job runs every second to check for new broadcast jobs.
+  cron.schedule('* * * * * *', async () => {
     try {
         await processBroadcastJob();
     } catch (e: any) {
