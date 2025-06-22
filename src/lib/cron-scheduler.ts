@@ -99,6 +99,7 @@ export async function processBroadcastJob() {
                 const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
                 const MESSAGES_PER_SECOND = project?.messagesPerSecond || 80;
                 const CONCURRENCY_LIMIT = 10; 
+                const WRITE_INTERVAL_MS = 10000; // Write to DB every 10 seconds
 
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
 
@@ -115,9 +116,11 @@ export async function processBroadcastJob() {
                     }
 
                     const intervalStartTime = Date.now();
+                    let lastWriteTime = intervalStartTime;
                     
                     let successThisInterval = 0;
                     let errorsThisInterval = 0;
+                    const operationsBuffer: any[] = [];
 
                     for (let j = 0; j < contactsForInterval.length; j += CONCURRENCY_LIMIT) {
                         const chunk = contactsForInterval.slice(j, j + CONCURRENCY_LIMIT);
@@ -165,11 +168,14 @@ export async function processBroadcastJob() {
 
                                 const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
                                 if (buttonsComponent && Array.isArray(buttonsComponent.button)) {
-                                    buttonsComponent.button.forEach((button: any, index: number) => {
-                                        if (button.type === 'QUICK_REPLY' && contact[`button_payload_${index}`]) {
-                                            payloadComponents.push({ type: 'button', sub_type: 'quick_reply', index: String(index), parameters: [{ type: 'payload', payload: contact[`button_payload_${index}`] }] });
-                                        } else if (button.type === 'URL' && button.url?.includes('{{1}}') && contact[`button_url_param_${index}`]) {
-                                            payloadComponents.push({ type: 'button', sub_type: 'url', index: String(index), parameters: [{ type: 'text', text: contact[`button_url_param_${index}`] }] });
+                                     buttonsComponent.button.forEach((button: any, index: number) => {
+                                        if (button.type === 'URL' && button.url?.includes('{{1}}') && contact[`button_url_param_${index}`]) {
+                                            payloadComponents.push({
+                                                type: 'button',
+                                                sub_type: 'url',
+                                                index: String(index),
+                                                parameters: [{ type: 'text', text: contact[`button_url_param_${index}`] }]
+                                            });
                                         }
                                     });
                                 }
@@ -210,13 +216,25 @@ export async function processBroadcastJob() {
 
                         const results = await Promise.all(sendPromises);
                         
-                        const bulkOperations = results.map(r => r.operation).filter(op => op);
-                        if (bulkOperations.length > 0) {
-                            await db.collection('broadcast_contacts').bulkWrite(bulkOperations, { ordered: false });
+                        const operations = results.map(r => r.operation).filter(op => op);
+                        if (operations.length > 0) {
+                            operationsBuffer.push(...operations);
                         }
 
                         successThisInterval += results.filter(r => r.success).length;
                         errorsThisInterval += results.filter(r => !r.success).length;
+
+                        const now = Date.now();
+                        if (operationsBuffer.length > 0 && (now - lastWriteTime >= WRITE_INTERVAL_MS)) {
+                            await db.collection('broadcast_contacts').bulkWrite(operationsBuffer, { ordered: false });
+                            operationsBuffer.length = 0;
+                            lastWriteTime = now;
+                        }
+                    }
+
+                    if (operationsBuffer.length > 0) {
+                        await db.collection('broadcast_contacts').bulkWrite(operationsBuffer, { ordered: false });
+                        operationsBuffer.length = 0;
                     }
 
                     if (successThisInterval > 0 || errorsThisInterval > 0) {
