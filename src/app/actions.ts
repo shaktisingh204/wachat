@@ -143,7 +143,22 @@ export async function getTemplates(projectId: string) {
 export async function getBroadcasts() {
   try {
     const { db } = await connectToDatabase();
-    const broadcasts = await db.collection('broadcasts').find({}).sort({ createdAt: -1 }).limit(10).toArray();
+    const projection = {
+        templateName: 1,
+        fileName: 1,
+        contactCount: 1,
+        successCount: 1,
+        errorCount: 1,
+        status: 1,
+        createdAt: 1,
+        completedAt: 1,
+    };
+    const broadcasts = await db.collection('broadcasts')
+      .find({})
+      .project(projection)
+      .sort({ createdAt: -1 })
+      .limit(10)
+      .toArray();
     return JSON.parse(JSON.stringify(broadcasts));
   } catch (error) {
     console.error('Failed to fetch broadcast history:', error);
@@ -555,7 +570,7 @@ export async function handleCreateTemplate(
         const headerText = formData.get('headerText') as string;
         const footerText = formData.get('footer') as string;
         const buttonsJson = formData.get('buttons') as string;
-        const buttons = buttonsJson ? JSON.parse(buttonsJson) : [];
+        const button = buttonsJson ? JSON.parse(buttonsJson) : [];
     
         if (!projectId || !name || !category || !bodyText || !language) {
             return { error: 'Project, Name, Language, Category, and Body are required.' };
@@ -593,10 +608,10 @@ export async function handleCreateTemplate(
             components.push({ type: 'FOOTER', text: footerText });
         }
 
-        if (buttons.length > 0) {
+        if (button.length > 0) {
             components.push({
                 type: 'BUTTONS',
-                button: buttons,
+                button: button,
             });
         }
     
@@ -732,4 +747,5 @@ export async function handleCleanDatabase(
         return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
     }
 }
+
 
