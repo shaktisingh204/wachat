@@ -15,7 +15,7 @@ type BroadcastJob = {
     templateName: string;
     phoneNumberId: string;
     accessToken: string;
-    status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed';
+    status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled';
     createdAt: Date;
     startedAt?: Date;
     completedAt?: Date;

@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, getProjectForBroadcast, getBroadcasts } from '@/app/actions';
+import { getTemplates, getProjectForBroadcast, getBroadcasts, handleStopBroadcast } from '@/app/actions';
 import type { Project, Template } from '@/app/dashboard/page';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +20,19 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, RefreshCw } from 'lucide-react';
+import { FileText, RefreshCw, StopCircle, LoaderCircle } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+
 
 type Broadcast = {
   _id: any;
@@ -29,10 +41,62 @@ type Broadcast = {
   contactCount: number;
   successCount?: number;
   errorCount?: number;
-  status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure';
+  status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure' | 'Cancelled';
   createdAt: string;
   completedAt?: string;
 };
+
+function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
+  const [open, setOpen] = useState(false);
+  const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
+
+  const onStop = () => {
+    startTransition(async () => {
+        const result = await handleStopBroadcast(broadcastId);
+        if (result.error) {
+          toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        } else {
+          toast({ title: 'Success', description: result.message });
+        }
+        setOpen(false);
+    });
+  }
+
+  return (
+    <AlertDialog open={open} onOpenChange={setOpen}>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive" size="sm">
+          <StopCircle />
+          Stop
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure you want to stop this broadcast?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. Any remaining messages in the queue for this broadcast will be cancelled.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction asChild>
+              <Button variant="destructive" onClick={onStop} disabled={isPending}>
+                  {isPending ? (
+                    <>
+                      <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                      Stopping...
+                    </>
+                  ) : (
+                    'Yes, Stop Broadcast'
+                  )}
+              </Button>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+}
 
 export default function BroadcastPage() {
   const [isClient, setIsClient] = useState(false);
@@ -224,12 +288,17 @@ export default function BroadcastPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button asChild variant="outline" size="sm">
-                            <Link href={`/dashboard/broadcasts/${item._id.toString()}`}>
-                                <FileText className="h-4 w-4" />
-                                <span>View Report</span>
-                            </Link>
-                        </Button>
+                        <div className="flex items-center justify-end gap-2">
+                           {(item.status === 'QUEUED' || item.status === 'PROCESSING') && (
+                                <StopBroadcastButton broadcastId={item._id.toString()} />
+                            )}
+                            <Button asChild variant="outline" size="sm">
+                                <Link href={`/dashboard/broadcasts/${item._id.toString()}`}>
+                                    <FileText />
+                                    <span>View Report</span>
+                                </Link>
+                            </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

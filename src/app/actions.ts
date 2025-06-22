@@ -67,7 +67,7 @@ type BroadcastJob = {
     templateName: string;
     phoneNumberId: string;
     accessToken: string;
-    status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed';
+    status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled';
     createdAt: Date;
     contactCount: number;
     fileName: string;
@@ -787,6 +787,52 @@ export async function handleCreateTemplate(
     } catch (e: any) {
         console.error('Error in handleCreateTemplate:', e);
         return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleStopBroadcast(broadcastId: string): Promise<{ message?: string; error?: string }> {
+    if (!ObjectId.isValid(broadcastId)) {
+        return { error: 'Invalid Broadcast ID.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const broadcastObjectId = new ObjectId(broadcastId);
+
+        const broadcast = await db.collection('broadcasts').findOne({ _id: broadcastObjectId });
+
+        if (!broadcast) {
+            return { error: 'Broadcast not found.' };
+        }
+
+        if (broadcast.status !== 'QUEUED' && broadcast.status !== 'PROCESSING') {
+            return { error: 'This broadcast cannot be stopped as it is not currently active.' };
+        }
+        
+        const updateResult = await db.collection('broadcasts').updateOne(
+            { _id: broadcastObjectId },
+            { $set: { status: 'Cancelled', completedAt: new Date() } }
+        );
+
+        if (updateResult.modifiedCount === 0) {
+            const currentBroadcast = await db.collection('broadcasts').findOne({ _id: broadcastObjectId });
+            if (currentBroadcast?.status !== 'QUEUED' && currentBroadcast?.status !== 'PROCESSING') {
+                 return { message: 'Broadcast already completed or stopped.' };
+            }
+            return { error: 'Failed to update broadcast status.' };
+        }
+        
+        const deleteResult = await db.collection('broadcast_contacts').deleteMany({
+            broadcastId: broadcastObjectId,
+            status: 'PENDING'
+        });
+
+        revalidatePath('/dashboard/broadcasts');
+
+        return { message: `Broadcast has been stopped. ${deleteResult.deletedCount} pending messages were cancelled.` };
+    } catch (e: any) {
+        console.error('Failed to stop broadcast:', e);
+        return { error: e.message || 'An unexpected error occurred while stopping the broadcast.' };
     }
 }
 
