@@ -47,6 +47,17 @@ type Project = {
     messagesPerSecond?: number;
 };
 
+
+const getAxiosErrorMessage = (error: any): string => {
+    if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.error?.message || error.message;
+        const details = error.response?.data?.error ? ` (Code: ${error.response.data.error.code}, Type: ${error.response.data.error.type})` : '';
+        return `${message}${details}`;
+    }
+    return error.message || 'An unknown error occurred';
+};
+
+
 export async function processBroadcastJob() {
     let db: Db;
     const processedJobsSummary = [];
@@ -93,12 +104,11 @@ export async function processBroadcastJob() {
                     const finalUrl = job.headerImageUrl || templateDefaultUrl;
 
                     if (finalUrl) {
-                        const mediaResponse = await fetch(finalUrl);
-                        if (!mediaResponse.ok) throw new Error(`Failed to fetch media from URL: ${finalUrl}`);
+                        const mediaResponse = await axios.get(finalUrl, { responseType: 'arraybuffer' });
                         
-                        const fileBuffer = Buffer.from(await mediaResponse.arrayBuffer());
+                        const fileBuffer = Buffer.from(mediaResponse.data, 'binary');
                         const filename = finalUrl.split('/').pop()?.split('?')[0] || 'media-file';
-                        const mediaType = mediaResponse.headers.get('content-type') || 'application/octet-stream';
+                        const mediaType = mediaResponse.headers['content-type'] || 'application/octet-stream';
 
                         const formData = new FormData();
                         formData.append('messaging_product', 'whatsapp');
@@ -110,7 +120,7 @@ export async function processBroadcastJob() {
                             { headers: { 'Authorization': `Bearer ${job.accessToken}`, ...formData.getHeaders() } }
                         );
                         
-                        if (uploadResponse.status !== 200 || !uploadResponse.data.id) {
+                        if (!uploadResponse.data.id) {
                             throw new Error(`Meta media upload failed: ${JSON.stringify(uploadResponse.data.error || uploadResponse.data)}`);
                         }
                         mediaId = uploadResponse.data.id;
@@ -180,16 +190,17 @@ export async function processBroadcastJob() {
                                 template: { name: job.templateName, language: { code: job.language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
                             };
 
-                            const response = await fetch(`https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`, {
-                                method: 'POST',
-                                headers: { Authorization: `Bearer ${job.accessToken}`, 'Content-Type': 'application/json' },
-                                body: JSON.stringify(messageData),
-                            });
-                            const responseData = await response.json();
-                            if (response.ok) chunkSuccessfulSends.push({ phone, response: responseData, payload: messageData });
-                            else chunkFailedSends.push({ phone, response: responseData, payload: messageData });
-                        } catch(e: any) {
-                            chunkFailedSends.push({ phone, response: { error: { message: e.message || 'Exception during fetch' } }, payload: messageData });
+                            const response = await axios.post(
+                                `https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`,
+                                messageData,
+                                { headers: { 'Authorization': `Bearer ${job.accessToken}` } }
+                            );
+
+                            chunkSuccessfulSends.push({ phone, response: response.data, payload: messageData });
+
+                        } catch(error: any) {
+                            const errorResponse = error.response?.data || { error: { message: getAxiosErrorMessage(error) } };
+                            chunkFailedSends.push({ phone, response: errorResponse, payload: messageData });
                         }
                     });
 
@@ -225,9 +236,9 @@ export async function processBroadcastJob() {
                 totalErrorCountAllJobs += errorCount;
                 await db.collection('broadcasts').updateOne(
                     { _id: jobId },
-                    { $set: { status: 'Failed', completedAt: new Date(), errorCount, successCount: 0, failedSends: [{ phone: 'N/A', response: { error: { message: processingError.message } }, payload: {} }] } }
+                    { $set: { status: 'Failed', completedAt: new Date(), errorCount, successCount: 0, failedSends: [{ phone: 'N/A', response: { error: { message: getAxiosErrorMessage(processingError) } }, payload: {} }] } }
                 );
-                processedJobsSummary.push({ jobId: jobId.toString(), status: 'Failed', error: processingError.message });
+                processedJobsSummary.push({ jobId: jobId.toString(), status: 'Failed', error: getAxiosErrorMessage(processingError) });
             }
         } // End of while loop
 
@@ -243,7 +254,7 @@ export async function processBroadcastJob() {
         };
 
     } catch (error: any) {
-        console.error("Cron scheduler failed:", error);
-        throw new Error(`Cron scheduler failed: ${error.message}`);
+        console.error("Cron scheduler failed:", getAxiosErrorMessage(error));
+        throw new Error(`Cron scheduler failed: ${getAxiosErrorMessage(error)}`);
     }
 }
