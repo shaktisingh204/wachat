@@ -74,7 +74,6 @@ export async function processBroadcastJob() {
         const conn = await connectToDatabase();
         db = conn.db;
 
-        // Process up to 100 jobs in a single cron run for high throughput.
         for (let i = 0; i < 100; i++) {
             const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
                 { status: 'QUEUED' },
@@ -90,7 +89,6 @@ export async function processBroadcastJob() {
             );
 
             if (!job) {
-                // No more jobs in the queue, we can exit the loop.
                 break;
             }
             
@@ -100,8 +98,6 @@ export async function processBroadcastJob() {
             try {
                 const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
                 const MESSAGES_PER_SECOND = project?.messagesPerSecond || 80;
-                
-                // Instead of sending all messages concurrently, we use a smaller limit to avoid overwhelming the server.
                 const CONCURRENCY_LIMIT = 10; 
 
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
@@ -123,7 +119,6 @@ export async function processBroadcastJob() {
                     let successThisInterval = 0;
                     let errorsThisInterval = 0;
 
-                    // Process the full interval's contacts in smaller, more manageable parallel chunks.
                     for (let j = 0; j < contactsForInterval.length; j += CONCURRENCY_LIMIT) {
                         const chunk = contactsForInterval.slice(j, j + CONCURRENCY_LIMIT);
                         
@@ -140,7 +135,6 @@ export async function processBroadcastJob() {
                                 };
 
                                 const payloadComponents: any[] = [];
-
                                 const headerComponent = job.components.find(c => c.type === 'HEADER');
                                 if (headerComponent) {
                                     const parameters: any[] = [];
@@ -174,40 +168,53 @@ export async function processBroadcastJob() {
                                     buttonsComponent.button.forEach((button: any, index: number) => {
                                         if (button.type === 'QUICK_REPLY' && contact[`button_payload_${index}`]) {
                                             payloadComponents.push({ type: 'button', sub_type: 'quick_reply', index: String(index), parameters: [{ type: 'payload', payload: contact[`button_payload_${index}`] }] });
-                                        } else if (button.type === 'URL' && button.url?.includes('{{1}}') && contact[`button_url_text_0`]) {
-                                            payloadComponents.push({ type: 'button', sub_type: 'url', index: String(index), parameters: [{ type: 'text', text: contact[`button_url_text_0`] }] });
+                                        } else if (button.type === 'URL' && button.url?.includes('{{1}}') && contact[`button_url_param_${index}`]) {
+                                            payloadComponents.push({ type: 'button', sub_type: 'url', index: String(index), parameters: [{ type: 'text', text: contact[`button_url_param_${index}`] }] });
                                         }
                                     });
                                 }
-
+                                
                                 messageData = {
                                     messaging_product: 'whatsapp', to: phone, recipient_type: 'individual', type: 'template',
                                     template: { name: job.templateName, language: { code: job.language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
                                 };
-
+                                
                                 const response = await axios.post(
                                     `https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`,
                                     messageData,
                                     { headers: { 'Authorization': `Bearer ${job.accessToken}` } }
                                 );
 
-                                await db.collection('broadcast_contacts').updateOne(
-                                    { _id: contactDoc._id },
-                                    { $set: { status: 'SENT', sentAt: new Date(), messageId: response.data?.messages?.[0]?.id } }
-                                );
-                                return { success: true };
-
+                                return {
+                                    success: true,
+                                    operation: {
+                                        updateOne: {
+                                            filter: { _id: contactDoc._id },
+                                            update: { $set: { status: 'SENT', sentAt: new Date(), messageId: response.data?.messages?.[0]?.id } }
+                                        }
+                                    }
+                                };
                             } catch(error: any) {
-                                const errorResponse = error.response?.data || { error: { message: getAxiosErrorMessage(error) } };
-                                await db.collection('broadcast_contacts').updateOne(
-                                    { _id: contactDoc._id },
-                                    { $set: { status: 'FAILED', sentAt: new Date(), error: errorResponse?.error?.message || getAxiosErrorMessage(error) } }
-                                );
-                                return { success: false };
+                                const errorMessage = getAxiosErrorMessage(error);
+                                return {
+                                    success: false,
+                                    operation: {
+                                        updateOne: {
+                                            filter: { _id: contactDoc._id },
+                                            update: { $set: { status: 'FAILED', sentAt: new Date(), error: errorMessage } }
+                                        }
+                                    }
+                                };
                             }
                         });
 
                         const results = await Promise.all(sendPromises);
+                        
+                        const bulkOperations = results.map(r => r.operation).filter(op => op);
+                        if (bulkOperations.length > 0) {
+                            await db.collection('broadcast_contacts').bulkWrite(bulkOperations, { ordered: false });
+                        }
+
                         successThisInterval += results.filter(r => r.success).length;
                         errorsThisInterval += results.filter(r => !r.success).length;
                     }
