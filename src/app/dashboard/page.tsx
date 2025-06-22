@@ -5,6 +5,7 @@ import { CreateProjectDialog } from "@/components/wabasimplify/project-dialog";
 import { ProjectCard } from "@/components/wabasimplify/project-card";
 import { FileText } from "lucide-react";
 import type { WithId } from "mongodb";
+import { CleanDatabaseButton } from "@/components/wabasimplify/clean-database-button";
 
 export const dynamic = 'force-dynamic';
 
@@ -48,11 +49,14 @@ export default async function SelectProjectPage() {
 
     return (
         <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-bold font-headline">Select a Project</h1>
-                <p className="text-muted-foreground">
-                    Choose an existing project or create a new one to get started.
-                </p>
+            <div className="flex justify-between items-start">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline">Select a Project</h1>
+                    <p className="text-muted-foreground">
+                        Choose an existing project or create a new one to get started.
+                    </p>
+                </div>
+                <CleanDatabaseButton />
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">

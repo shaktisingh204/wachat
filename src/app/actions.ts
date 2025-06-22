@@ -549,7 +549,7 @@ export async function handleCreateTemplate(
             } else {
                 if (!headerUrl) return { error: 'A public media URL is required for this header format.' };
                 const absoluteHeaderUrl = headerUrl.startsWith('http') ? headerUrl : `${process.env.APP_URL || ''}${headerUrl}`;
-                headerComponent.example = { header_url: [absoluteHeaderUrl] };
+                headerComponent.example = { header_handle: [absoluteHeaderUrl] };
             }
             components.push(headerComponent);
         }
@@ -703,5 +703,35 @@ export async function handleUpdateProjectSettings(
     } catch (e: any) {
         console.error('Project settings update failed:', e);
         return { error: e.message || 'An unexpected error occurred while saving the settings.' };
+    }
+}
+
+type CleanDatabaseState = {
+    message?: string | null;
+    error?: string | null;
+};
+
+export async function handleCleanDatabase(
+    prevState: CleanDatabaseState,
+    formData: FormData
+): Promise<CleanDatabaseState> {
+    try {
+        const { db } = await connectToDatabase();
+        const collections = await db.listCollections().toArray();
+        const collectionsToDrop = collections
+            .map(c => c.name)
+            .filter(name => !name.startsWith('system.'));
+
+        for (const collectionName of collectionsToDrop) {
+            await db.collection(collectionName).drop();
+        }
+
+        revalidatePath('/dashboard');
+
+        return { message: `Successfully cleared ${collectionsToDrop.length} collections from the database.` };
+
+    } catch (e: any) {
+        console.error('Database cleaning failed:', e);
+        return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
     }
 }
