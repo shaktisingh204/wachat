@@ -26,6 +26,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
   const [isViewOpen, setIsViewOpen] = useState(false);
 
   const getStatusVariant = (status: string) => {
+    if (!status) return 'secondary';
     status = status.toLowerCase();
     if (status === 'approved') return 'default';
     if (status === 'pending' || status === 'in_review') return 'secondary';
@@ -64,9 +65,9 @@ export function TemplateCard({ template }: TemplateCardProps) {
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg font-headline break-all">{template.name}</CardTitle>
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
-              <Badge variant="outline" className="capitalize">{template.category.toLowerCase()}</Badge>
+              <Badge variant="outline" className="capitalize">{template.category?.toLowerCase() || 'N/A'}</Badge>
               <Badge variant={getStatusVariant(template.status)} className="capitalize">
-                {template.status.replace(/_/g, ' ')}
+                {template.status?.replace(/_/g, ' ') || 'Unknown'}
               </Badge>
             </div>
           </div>
@@ -96,7 +97,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
           <DialogHeader>
             <DialogTitle>{template.name}</DialogTitle>
             <DialogDescription>
-              Category: {template.category} | Language: {template.language} | Status: <span className="capitalize">{template.status.replace(/_/g, ' ')}</span>
+              Category: {template.category} | Language: {template.language} | Status: <span className="capitalize">{template.status?.replace(/_/g, ' ') || 'Unknown'}</span>
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto pr-4">
