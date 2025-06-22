@@ -132,7 +132,16 @@ export async function getTemplates(projectId: string) {
     }
     try {
         const { db } = await connectToDatabase();
-        const templates = await db.collection('templates').find({ projectId: new ObjectId(projectId) }).sort({ name: 1 }).toArray();
+        const projection = {
+            name: 1,
+            category: 1,
+            components: 1,
+        };
+        const templates = await db.collection('templates')
+            .find({ projectId: new ObjectId(projectId) })
+            .project(projection)
+            .sort({ name: 1 })
+            .toArray();
         return JSON.parse(JSON.stringify(templates));
     } catch (error) {
         console.error('Failed to fetch templates:', error);
@@ -747,5 +756,6 @@ export async function handleCleanDatabase(
         return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
     }
 }
+
 
 
