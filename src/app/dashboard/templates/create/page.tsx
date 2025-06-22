@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { CreateTemplateForm } from '@/components/wabasimplify/create-template-form';
 import Link from 'next/link';
@@ -13,7 +13,7 @@ import { getProjectById } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, Template } from '@/app/dashboard/page';
 
-export default function CreateTemplatePage() {
+function CreateTemplatePageContent() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [loading, setLoading] = useState(true);
   const [initialTemplate, setInitialTemplate] = useState<WithId<Template> | null>(null);
@@ -83,4 +83,26 @@ export default function CreateTemplatePage() {
 
     </div>
   );
+}
+
+const LoadingSkeleton = () => (
+    <div className="flex flex-col gap-8">
+      <div>
+        <Skeleton className="h-10 w-48 mb-4" />
+        <Skeleton className="h-8 w-1/3" />
+        <Skeleton className="h-4 w-2/3 mt-2" />
+      </div>
+      <div className="space-y-6">
+        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    </div>
+  );
+
+export default function CreateTemplatePage() {
+    return (
+        <Suspense fallback={<LoadingSkeleton />}>
+            <CreateTemplatePageContent />
+        </Suspense>
+    )
 }
