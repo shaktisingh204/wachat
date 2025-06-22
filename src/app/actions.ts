@@ -249,6 +249,45 @@ export async function getBroadcastAttempts(broadcastId: string, page: number = 1
     }
 }
 
+export async function getDashboardStats(projectId: string): Promise<{
+    totalMessages: number;
+    totalSent: number;
+    totalFailed: number;
+    totalCampaigns: number;
+}> {
+    if (!ObjectId.isValid(projectId)) {
+        return { totalMessages: 0, totalSent: 0, totalFailed: 0, totalCampaigns: 0 };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const stats = await db.collection('broadcasts').aggregate([
+            { $match: { projectId: new ObjectId(projectId) } },
+            {
+                $group: {
+                    _id: null,
+                    totalMessages: { $sum: '$contactCount' },
+                    totalSent: { $sum: '$successCount' },
+                    totalFailed: { $sum: '$errorCount' },
+                    totalCampaigns: { $sum: 1 }
+                }
+            }
+        ]).toArray();
+
+        if (stats.length > 0) {
+            return {
+                totalMessages: stats[0].totalMessages || 0,
+                totalSent: stats[0].totalSent || 0,
+                totalFailed: stats[0].totalFailed || 0,
+                totalCampaigns: stats[0].totalCampaigns || 0,
+            };
+        }
+        return { totalMessages: 0, totalSent: 0, totalFailed: 0, totalCampaigns: 0 };
+    } catch (error) {
+        console.error("Failed to fetch dashboard stats:", error);
+        return { totalMessages: 0, totalSent: 0, totalFailed: 0, totalCampaigns: 0 };
+    }
+}
+
 type CreateProjectState = {
   message?: string | null;
   error?: string | null;
