@@ -567,7 +567,10 @@ export async function handleCreateTemplate(
         }
 
         if (buttons.length > 0) {
-            components.push({ type: 'BUTTONS', buttons });
+            components.push({
+                type: 'BUTTONS',
+                button: buttons,
+            });
         }
     
         const payload = {

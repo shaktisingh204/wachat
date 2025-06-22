@@ -40,10 +40,10 @@ export function TemplateCard({ template }: TemplateCardProps) {
   const renderComponentContent = (component: any) => {
     if (component.text) return component.text;
     if (component.format) return `Format: ${component.format}`;
-    if (component.buttons && Array.isArray(component.buttons)) {
+    if (component.button && Array.isArray(component.button)) {
       return (
         <ul className="list-disc pl-5 space-y-1">
-          {component.buttons.map((button: any, index: number) => (
+          {component.button.map((button: any, index: number) => (
             <li key={index}>
               <strong>{button.text}</strong> ({button.type.replace(/_/g, ' ')})
               {button.url && <span className="block text-xs text-muted-foreground">{button.url}</span>}

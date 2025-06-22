@@ -204,8 +204,8 @@ export async function processBroadcastJob() {
                         }
 
                         const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
-                        if (buttonsComponent && Array.isArray(buttonsComponent.buttons)) {
-                            buttonsComponent.buttons.forEach((button: any, index: number) => {
+                        if (buttonsComponent && Array.isArray(buttonsComponent.button)) {
+                            buttonsComponent.button.forEach((button: any, index: number) => {
                                 let buttonPayloadComponent: any = null;
 
                                 if (button.type === 'QUICK_REPLY') {
