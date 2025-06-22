@@ -21,7 +21,7 @@ type BroadcastJob = {
     completedAt?: Date;
     successCount?: number;
     errorCount?: number;
-    components: any[]; 
+    components: any[];
     language: string;
     headerImageUrl?: string;
     contactCount?: number;
@@ -65,38 +65,42 @@ const getAxiosErrorMessage = (error: any): string => {
 
 export async function processBroadcastJob() {
     let db: Db;
-    const processedJobsSummary = [];
+    const processedJobsSummary: any[] = [];
     let totalSuccessCountAllJobs = 0;
     let totalErrorCountAllJobs = 0;
+    let jobsProcessedCount = 0;
 
     try {
         const conn = await connectToDatabase();
         db = conn.db;
 
-        while (true) {
+        // Process up to 100 jobs in a single cron run for high throughput.
+        for (let i = 0; i < 100; i++) {
             const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
                 { status: 'QUEUED' },
-                { 
-                    $set: { 
-                        status: 'PROCESSING', 
+                {
+                    $set: {
+                        status: 'PROCESSING',
                         startedAt: new Date(),
                         successCount: 0,
                         errorCount: 0,
-                    } 
+                    }
                 },
                 { returnDocument: 'after', sort: { createdAt: 1 } }
             );
 
             if (!job) {
+                // No more jobs in the queue, we can exit the loop.
                 break;
             }
-
-            const jobId = job._id;
             
+            jobsProcessedCount++;
+            const jobId = job._id;
+
             try {
                 const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
                 const CHUNK_SIZE = project?.messagesPerSecond || 80;
-                
+
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
 
                 let hasMoreContacts = true;
@@ -110,23 +114,23 @@ export async function processBroadcastJob() {
                         hasMoreContacts = false;
                         continue;
                     }
-                    
+
                     const processingStartTime = Date.now();
 
                     const sendPromises = contactsToProcess.map(async (contactDoc) => {
                         const contact = { phone: contactDoc.phone, ...contactDoc.variables };
                         const phone = contact.phone;
                         let messageData: any = {};
-                        
+
                         try {
                             const getVars = (text: string): number[] => {
                                 if (!text) return [];
                                 const variableMatches = text.match(/{{(\d+)}}/g);
                                 return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
                             };
-                            
+
                             const payloadComponents: any[] = [];
-                            
+
                             const headerComponent = job.components.find(c => c.type === 'HEADER');
                             if (headerComponent) {
                                 const parameters: any[] = [];
@@ -165,7 +169,7 @@ export async function processBroadcastJob() {
                                     }
                                 });
                             }
-                            
+
                             messageData = {
                                 messaging_product: 'whatsapp', to: phone, recipient_type: 'individual', type: 'template',
                                 template: { name: job.templateName, language: { code: job.language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
@@ -219,12 +223,12 @@ export async function processBroadcastJob() {
                 const finalStatus: 'Completed' | 'Partial Failure' | 'Failed' = jobErrorCount > 0
                     ? (jobSuccessCount > 0 ? 'Partial Failure' : 'Failed')
                     : 'Completed';
-                
+
                 await db.collection('broadcasts').updateOne(
                     { _id: jobId },
                     { $set: { status: finalStatus, completedAt: new Date() } }
                 );
-                
+
                 processedJobsSummary.push({ jobId: jobId.toString(), status: finalStatus, success: jobSuccessCount, failed: jobErrorCount });
                 totalSuccessCountAllJobs += jobSuccessCount;
                 totalErrorCountAllJobs += jobErrorCount;
@@ -232,7 +236,7 @@ export async function processBroadcastJob() {
             } catch (processingError: any) {
                  const errorMsg = getAxiosErrorMessage(processingError);
                  console.error(`Processing failed for job ${jobId}: ${errorMsg}`);
-                 
+
                  const finalJobState = await db.collection('broadcasts').findOne({_id: jobId});
                  const finalStatus = (finalJobState?.successCount || 0) > 0 ? 'Partial Failure' : 'Failed';
 
@@ -244,12 +248,12 @@ export async function processBroadcastJob() {
             }
         }
 
-        if (processedJobsSummary.length === 0) {
+        if (jobsProcessedCount === 0) {
             return { message: 'No queued broadcasts to process.' };
         }
 
         return {
-            message: `Processed ${processedJobsSummary.length} broadcast(s).`,
+            message: `Processed ${jobsProcessedCount} broadcast job(s).`,
             totalSuccess: totalSuccessCountAllJobs,
             totalFailed: totalErrorCountAllJobs,
             jobs: processedJobsSummary,
