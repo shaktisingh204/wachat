@@ -41,7 +41,7 @@ function SubmitButton() {
   );
 }
 
-export function BroadcastForm({ templates, project }: { templates: WithId<Template>[]; project: WithId<Project> | null }) {
+export function BroadcastForm({ templates, project }: { templates: WithId<Template>[]; project: Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null }) {
   const [state, formAction] = useActionState(handleStartBroadcast, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);

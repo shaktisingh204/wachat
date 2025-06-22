@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, getProjectById, getBroadcasts } from '@/app/actions';
+import { getTemplates, getProjectForBroadcast, getBroadcasts } from '@/app/actions';
 import type { Project, Template } from '@/app/dashboard/page';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -36,7 +36,7 @@ type Broadcast = {
 
 export default function BroadcastPage() {
   const [isClient, setIsClient] = useState(false);
-  const [project, setProject] = useState<WithId<Project> | null>(null);
+  const [project, setProject] = useState<Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null>(null);
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
   const [loading, setLoading] = useState(true);
@@ -75,10 +75,10 @@ export default function BroadcastPage() {
       try {
         if (storedProjectId) {
           const [projectData, templatesData] = await Promise.all([
-            getProjectById(storedProjectId),
+            getProjectForBroadcast(storedProjectId),
             getTemplates(storedProjectId),
           ]);
-          setProject(projectData as WithId<Project> | null);
+          setProject(projectData as Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null);
           setTemplates(templatesData as WithId<Template>[]);
         }
         await fetchHistory();

@@ -125,6 +125,35 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
     }
 }
 
+export async function getProjectForBroadcast(projectId: string): Promise<Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null> {
+    try {
+        if (!ObjectId.isValid(projectId)) {
+            console.error("Invalid Project ID in getProjectForBroadcast:", projectId);
+            return null;
+        }
+        const { db } = await connectToDatabase();
+        const project = await db.collection('projects').findOne(
+            { _id: new ObjectId(projectId) },
+            { 
+                projection: { 
+                    'phoneNumbers.id': 1, 
+                    'phoneNumbers.display_phone_number': 1 
+                } 
+            }
+        );
+
+        if (!project) {
+            console.error("Project not found for ID:", projectId);
+            return null;
+        }
+        
+        return JSON.parse(JSON.stringify(project));
+    } catch (error: any) {
+        console.error("Exception in getProjectForBroadcast:", error);
+        return null;
+    }
+}
+
 
 export async function getTemplates(projectId: string) {
     if (!ObjectId.isValid(projectId)) {
@@ -756,6 +785,7 @@ export async function handleCleanDatabase(
         return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
     }
 }
+
 
 
 
