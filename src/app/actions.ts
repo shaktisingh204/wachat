@@ -298,11 +298,10 @@ export async function handleCreateProject(
   formData: FormData
 ): Promise<CreateProjectState> {
     try {
-        const name = formData.get('name') as string;
         const wabaId = formData.get('wabaId') as string;
         const accessToken = formData.get('accessToken') as string;
 
-        if (!name || !wabaId || !accessToken) {
+        if (!wabaId || !accessToken) {
             return { error: 'All fields are required.' };
         }
         
@@ -328,6 +327,11 @@ export async function handleCreateProject(
             return { error: 'Verification successful, but no phone numbers are associated with this Business Account ID.' };
         }
 
+        const name = data.data[0].verified_name;
+        if (!name) {
+            return { error: 'Could not determine the business name from the API. Please ensure your business is verified.' };
+        }
+
         const phoneNumbers: PhoneNumber[] = data.data.map((num: MetaPhoneNumber) => ({
             id: num.id,
             display_phone_number: num.display_phone_number,
@@ -339,6 +343,12 @@ export async function handleCreateProject(
         }));
 
         const { db } = await connectToDatabase();
+        
+        const existingProject = await db.collection('projects').findOne({ $or: [{ name }, { wabaId }] });
+        if (existingProject) {
+            return { error: `A project for "${name}" or with the same Business ID already exists.` };
+        }
+
         await db.collection('projects').insertOne({
             name,
             wabaId,

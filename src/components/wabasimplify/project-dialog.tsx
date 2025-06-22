@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useActionState } from 'react';
@@ -78,14 +79,10 @@ export function CreateProjectDialog() {
           <DialogHeader>
             <DialogTitle>Create New Project</DialogTitle>
             <DialogDescription>
-              Enter your WhatsApp Business credentials. We'll retrieve your associated phone numbers.
+              Enter your WhatsApp Business ID and a permanent System User Token. The project will be automatically named after your verified business name.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">Project Name</Label>
-              <Input id="name" name="name" placeholder="MORDE FOODS PVT LTD" className="col-span-3" required />
-            </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="wabaId" className="text-right">Business ID</Label>
               <Input id="wabaId" name="wabaId" placeholder="WhatsApp Business Account ID" className="col-span-3" required />
