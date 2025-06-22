@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -40,9 +41,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [activeProjectName, setActiveProjectName] = React.useState('');
 
   React.useEffect(() => {
+    // This now runs only on the client after the initial render, preventing hydration errors.
     const name = localStorage.getItem('activeProjectName');
     setActiveProjectName(name || 'No Project Selected');
-  }, [pathname]);
+  }, []);
 
 
   return (
