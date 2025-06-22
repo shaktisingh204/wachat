@@ -43,11 +43,18 @@ function SubmitButton() {
 export default function SettingsPage() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
   const [messagesPerSecond, setMessagesPerSecond] = useState(80);
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleUpdateProjectSettings, updateSettingsInitialState);
 
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
     document.title = 'Project Settings | WABASimplify';
     const storedProjectId = localStorage.getItem('activeProjectId');
     if (storedProjectId) {
@@ -62,7 +69,7 @@ export default function SettingsPage() {
     } else {
       setLoading(false);
     }
-  }, []);
+  }, [isClient]);
 
   useEffect(() => {
     if (state?.message) {
@@ -80,7 +87,7 @@ export default function SettingsPage() {
     }
   }, [state, toast]);
 
-  if (loading) {
+  if (!isClient || loading) {
     return (
       <div className="flex flex-col gap-8">
         <Skeleton className="h-8 w-1/3" />
@@ -143,7 +150,7 @@ export default function SettingsPage() {
                 required
               />
               <p className="text-xs text-muted-foreground">
-                The number of messages to send per second. A batch of this size will be sent every second. Default is 80.
+                The number of messages to send per second. A batch of this size will be sent every second.
               </p>
             </div>
           </CardContent>
