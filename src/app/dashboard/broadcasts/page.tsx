@@ -36,6 +36,7 @@ type Broadcast = {
 };
 
 export default function BroadcastPage() {
+  const [isClient, setIsClient] = useState(false);
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
@@ -59,8 +60,15 @@ export default function BroadcastPage() {
       });
     }
   }, [toast]);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
+    if (!isClient) {
+      return;
+    }
     const storedProjectId = localStorage.getItem('activeProjectId');
     
     async function fetchInitialData() {
@@ -88,9 +96,11 @@ export default function BroadcastPage() {
     }
 
     fetchInitialData();
-  }, [fetchHistory, toast]);
+  }, [isClient, fetchHistory, toast]);
 
   useEffect(() => {
+    if (!isClient) return;
+
     const hasActiveBroadcasts = history.some(
       (b) => b.status === 'QUEUED' || b.status === 'PROCESSING'
     );
@@ -104,7 +114,7 @@ export default function BroadcastPage() {
     }, 5000); // Poll every 5 seconds
 
     return () => clearInterval(interval);
-  }, [history, loading, fetchHistory]);
+  }, [isClient, history, loading, fetchHistory]);
 
   const onRefresh = () => {
     startRefreshTransition(() => {
@@ -112,7 +122,7 @@ export default function BroadcastPage() {
     });
   };
 
-  if (loading) {
+  if (!isClient || loading) {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-2">
