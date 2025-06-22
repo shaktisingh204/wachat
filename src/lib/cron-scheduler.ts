@@ -62,6 +62,32 @@ const getAxiosErrorMessage = (error: any): string => {
     return error.message || 'An unknown error occurred';
 };
 
+/**
+ * Runs an async iterator function over an array of items with a specified concurrency limit.
+ * @param poolLimit The maximum number of promises to run in parallel.
+ * @param iterable The array of items to iterate over.
+ * @param iteratorFn The async function to apply to each item.
+ */
+async function promisePool<T>(
+  poolLimit: number,
+  iterable: T[],
+  iteratorFn: (item: T) => Promise<any>
+): Promise<void> {
+  const executing = new Set<Promise<any>>();
+  for (const item of iterable) {
+    const p = iteratorFn(item);
+    executing.add(p);
+    // When the promise is done, remove it from the set
+    p.then(() => executing.delete(p));
+    // If the pool is full, wait for one promise to complete
+    if (executing.size >= poolLimit) {
+      await Promise.race(executing);
+    }
+  }
+  // Wait for all remaining promises to complete
+  await Promise.all(Array.from(executing));
+}
+
 
 export async function processBroadcastJob() {
     let db: Db;
@@ -89,7 +115,7 @@ export async function processBroadcastJob() {
             );
 
             if (!job) {
-                break;
+                break; // No more queued jobs
             }
             
             jobsProcessedCount++;
@@ -98,13 +124,124 @@ export async function processBroadcastJob() {
             try {
                 const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
                 const MESSAGES_PER_SECOND = project?.messagesPerSecond || 80;
-                const CONCURRENCY_LIMIT = 10; 
-                const WRITE_INTERVAL_MS = 10000; // Write to DB every 10 seconds
+                // Set a robust concurrency limit, maxing out at 50 parallel requests
+                const CONCURRENCY_LIMIT = Math.min(MESSAGES_PER_SECOND, 50); 
+                const WRITE_INTERVAL_MS = 10000;
 
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
 
+                const operationsBuffer: any[] = [];
                 let hasMoreContacts = true;
+
+                // Set up a periodic writer to flush the buffer to the DB every 10 seconds
+                const writeInterval = setInterval(async () => {
+                    if (operationsBuffer.length > 0) {
+                        const bufferCopy = [...operationsBuffer];
+                        operationsBuffer.length = 0; // Clear the buffer immediately
+                        
+                        await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
+                        
+                        const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
+                        const errorCount = bufferCopy.length - successCount;
+
+                        if (successCount > 0 || errorCount > 0) {
+                            await db.collection('broadcasts').updateOne({ _id: jobId }, {
+                                $inc: { successCount, errorCount },
+                            });
+                        }
+                    }
+                }, WRITE_INTERVAL_MS);
+
+                const sendSingleMessage = async (contactDoc: BroadcastContact) => {
+                    // This function sends one message and returns the DB operation object
+                    const contact = { phone: contactDoc.phone, ...contactDoc.variables };
+                    const phone = contact.phone;
+                    
+                    try {
+                        const getVars = (text: string): number[] => {
+                            if (!text) return [];
+                            const variableMatches = text.match(/{{(\d+)}}/g);
+                            return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
+                        };
+
+                        const payloadComponents: any[] = [];
+                        const headerComponent = job.components.find(c => c.type === 'HEADER');
+                        if (headerComponent) {
+                            const parameters: any[] = [];
+                            if (headerComponent.format === 'TEXT' && headerComponent.text) {
+                                const headerVars = getVars(headerComponent.text);
+                                if (headerVars.length > 0) {
+                                    headerVars.sort((a,b) => a-b).forEach(varNum => {
+                                        parameters.push({ type: 'text', text: contact[`variable${varNum}`] || '' });
+                                    });
+                                }
+                            } else if (job.headerImageUrl && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
+                                const type = headerComponent.format.toLowerCase();
+                                const mediaObject: any = { link: job.headerImageUrl };
+                                if (type === 'document') mediaObject.filename = contact['filename'] || uploadFilename;
+                                parameters.push({ type, [type]: mediaObject });
+                            }
+                            if (parameters.length > 0) payloadComponents.push({ type: 'header', parameters });
+                        }
+
+                        const bodyComponent = job.components.find(c => c.type === 'BODY');
+                        if (bodyComponent?.text) {
+                            const bodyVars = getVars(bodyComponent.text);
+                            if (bodyVars.length > 0) {
+                                const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({ type: 'text', text: contact[`variable${varNum}`] || '' }));
+                                payloadComponents.push({ type: 'body', parameters });
+                            }
+                        }
+
+                        const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
+                        if (buttonsComponent && Array.isArray(buttonsComponent.buttons)) {
+                             buttonsComponent.buttons.forEach((button: any, index: number) => {
+                                if (button.type === 'URL' && button.url?.includes('{{1}}') && contact[`button_url_param_${index}`]) {
+                                    payloadComponents.push({
+                                        type: 'button',
+                                        sub_type: 'url',
+                                        index: String(index),
+                                        parameters: [{ type: 'text', text: contact[`button_url_param_${index}`] }]
+                                    });
+                                }
+                            });
+                        }
+                        
+                        const messageData = {
+                            messaging_product: 'whatsapp', to: phone, recipient_type: 'individual', type: 'template',
+                            template: { name: job.templateName, language: { code: job.language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
+                        };
+                        
+                        const response = await axios.post(
+                            `https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`,
+                            messageData,
+                            { headers: { 'Authorization': `Bearer ${job.accessToken}` } }
+                        );
+
+                        return {
+                            updateOne: {
+                                filter: { _id: contactDoc._id },
+                                update: { $set: { status: 'SENT', sentAt: new Date(), messageId: response.data?.messages?.[0]?.id } }
+                            }
+                        };
+                    } catch(error: any) {
+                        const errorMessage = getAxiosErrorMessage(error);
+                        return {
+                            updateOne: {
+                                filter: { _id: contactDoc._id },
+                                update: { $set: { status: 'FAILED', sentAt: new Date(), error: errorMessage } }
+                            }
+                        };
+                    }
+                };
+
                 while (hasMoreContacts) {
+                    const currentJobState = await db.collection<BroadcastJob>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
+                    if (currentJobState?.status === 'Cancelled') {
+                        hasMoreContacts = false;
+                        break;
+                    }
+                    
                     const contactsForInterval = await db.collection<BroadcastContact>('broadcast_contacts').find({
                         broadcastId: jobId,
                         status: 'PENDING'
@@ -116,149 +253,50 @@ export async function processBroadcastJob() {
                     }
 
                     const intervalStartTime = Date.now();
-                    let lastWriteTime = intervalStartTime;
                     
-                    let successThisInterval = 0;
-                    let errorsThisInterval = 0;
-                    const operationsBuffer: any[] = [];
+                    // Use the promise pool to process all contacts for this second with high concurrency
+                    await promisePool(CONCURRENCY_LIMIT, contactsForInterval, async (contact) => {
+                        const operation = await sendSingleMessage(contact);
+                        operationsBuffer.push(operation);
+                    });
 
-                    for (let j = 0; j < contactsForInterval.length; j += CONCURRENCY_LIMIT) {
-                        const chunk = contactsForInterval.slice(j, j + CONCURRENCY_LIMIT);
-                        
-                        const sendPromises = chunk.map(async (contactDoc) => {
-                            const contact = { phone: contactDoc.phone, ...contactDoc.variables };
-                            const phone = contact.phone;
-                            let messageData: any = {};
-
-                            try {
-                                const getVars = (text: string): number[] => {
-                                    if (!text) return [];
-                                    const variableMatches = text.match(/{{(\d+)}}/g);
-                                    return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
-                                };
-
-                                const payloadComponents: any[] = [];
-                                const headerComponent = job.components.find(c => c.type === 'HEADER');
-                                if (headerComponent) {
-                                    const parameters: any[] = [];
-                                    if (headerComponent.format === 'TEXT' && headerComponent.text) {
-                                        const headerVars = getVars(headerComponent.text);
-                                        if (headerVars.length > 0) {
-                                            headerVars.sort((a,b) => a-b).forEach(varNum => {
-                                                parameters.push({ type: 'text', text: contact[`variable${varNum}`] || '' });
-                                            });
-                                        }
-                                    } else if (job.headerImageUrl) {
-                                        const type = headerComponent.format.toLowerCase();
-                                        const mediaObject: any = { link: job.headerImageUrl };
-                                        if (type === 'document') mediaObject.filename = contact['filename'] || uploadFilename;
-                                        parameters.push({ type, [type]: mediaObject });
-                                    }
-                                    if (parameters.length > 0) payloadComponents.push({ type: 'header', parameters });
-                                }
-
-                                const bodyComponent = job.components.find(c => c.type === 'BODY');
-                                if (bodyComponent?.text) {
-                                    const bodyVars = getVars(bodyComponent.text);
-                                    if (bodyVars.length > 0) {
-                                        const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({ type: 'text', text: contact[`variable${varNum}`] || '' }));
-                                        payloadComponents.push({ type: 'body', parameters });
-                                    }
-                                }
-
-                                const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
-                                if (buttonsComponent && Array.isArray(buttonsComponent.button)) {
-                                     buttonsComponent.button.forEach((button: any, index: number) => {
-                                        if (button.type === 'URL' && button.url?.includes('{{1}}') && contact[`button_url_param_${index}`]) {
-                                            payloadComponents.push({
-                                                type: 'button',
-                                                sub_type: 'url',
-                                                index: String(index),
-                                                parameters: [{ type: 'text', text: contact[`button_url_param_${index}`] }]
-                                            });
-                                        }
-                                    });
-                                }
-                                
-                                messageData = {
-                                    messaging_product: 'whatsapp', to: phone, recipient_type: 'individual', type: 'template',
-                                    template: { name: job.templateName, language: { code: job.language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
-                                };
-                                
-                                const response = await axios.post(
-                                    `https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`,
-                                    messageData,
-                                    { headers: { 'Authorization': `Bearer ${job.accessToken}` } }
-                                );
-
-                                return {
-                                    success: true,
-                                    operation: {
-                                        updateOne: {
-                                            filter: { _id: contactDoc._id },
-                                            update: { $set: { status: 'SENT', sentAt: new Date(), messageId: response.data?.messages?.[0]?.id } }
-                                        }
-                                    }
-                                };
-                            } catch(error: any) {
-                                const errorMessage = getAxiosErrorMessage(error);
-                                return {
-                                    success: false,
-                                    operation: {
-                                        updateOne: {
-                                            filter: { _id: contactDoc._id },
-                                            update: { $set: { status: 'FAILED', sentAt: new Date(), error: errorMessage } }
-                                        }
-                                    }
-                                };
-                            }
-                        });
-
-                        const results = await Promise.all(sendPromises);
-                        
-                        const operations = results.map(r => r.operation).filter(op => op);
-                        if (operations.length > 0) {
-                            operationsBuffer.push(...operations);
-                        }
-
-                        successThisInterval += results.filter(r => r.success).length;
-                        errorsThisInterval += results.filter(r => !r.success).length;
-
-                        const now = Date.now();
-                        if (operationsBuffer.length > 0 && (now - lastWriteTime >= WRITE_INTERVAL_MS)) {
-                            await db.collection('broadcast_contacts').bulkWrite(operationsBuffer, { ordered: false });
-                            operationsBuffer.length = 0;
-                            lastWriteTime = now;
-                        }
-                    }
-
-                    if (operationsBuffer.length > 0) {
-                        await db.collection('broadcast_contacts').bulkWrite(operationsBuffer, { ordered: false });
-                        operationsBuffer.length = 0;
-                    }
-
-                    if (successThisInterval > 0 || errorsThisInterval > 0) {
-                        await db.collection('broadcasts').updateOne({ _id: jobId }, {
-                            $inc: { successCount: successThisInterval, errorCount: errorsThisInterval },
-                        });
-                    }
-
-                    const intervalEndTime = Date.now();
-                    const duration = intervalEndTime - intervalStartTime;
+                    const duration = Date.now() - intervalStartTime;
                     const delay = 1000 - duration;
 
                     if (hasMoreContacts && delay > 0) {
                         await new Promise(resolve => setTimeout(resolve, delay));
                     }
                 }
+                
+                // Cleanup: Stop the periodic writer and do one final flush
+                clearInterval(writeInterval);
 
+                if (operationsBuffer.length > 0) {
+                     const bufferCopy = [...operationsBuffer];
+                     await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
+                        
+                     const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
+                     const errorCount = bufferCopy.length - successCount;
+
+                     if (successCount > 0 || errorCount > 0) {
+                        await db.collection('broadcasts').updateOne({ _id: jobId }, {
+                            $inc: { successCount, errorCount },
+                        });
+                     }
+                }
+
+                // Finalize job status
                 const finalJobState = await db.collection('broadcasts').findOne({_id: jobId});
                 const jobSuccessCount = finalJobState?.successCount || 0;
                 const jobErrorCount = finalJobState?.errorCount || 0;
+                const jobStatus = finalJobState?.status;
 
-                const finalStatus: 'Completed' | 'Partial Failure' | 'Failed' = jobErrorCount > 0
-                    ? (jobSuccessCount > 0 ? 'Partial Failure' : 'Failed')
-                    : 'Completed';
+                let finalStatus: 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled' = 'Completed';
+                if (jobStatus === 'Cancelled') {
+                    finalStatus = 'Cancelled';
+                } else if (jobErrorCount > 0) {
+                    finalStatus = (jobSuccessCount > 0) ? 'Partial Failure' : 'Failed';
+                }
 
                 await db.collection('broadcasts').updateOne(
                     { _id: jobId },
@@ -272,10 +310,8 @@ export async function processBroadcastJob() {
             } catch (processingError: any) {
                  const errorMsg = getAxiosErrorMessage(processingError);
                  console.error(`Processing failed for job ${jobId}: ${errorMsg}`);
-
                  const finalJobState = await db.collection('broadcasts').findOne({_id: jobId});
                  const finalStatus = (finalJobState?.successCount || 0) > 0 ? 'Partial Failure' : 'Failed';
-
                  await db.collection('broadcasts').updateOne(
                     { _id: jobId },
                     { $set: { status: finalStatus, completedAt: new Date() } }
@@ -300,3 +336,5 @@ export async function processBroadcastJob() {
         throw new Error(`Cron scheduler failed: ${getAxiosErrorMessage(error)}`);
     }
 }
+
+    
