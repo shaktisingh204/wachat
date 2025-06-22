@@ -48,8 +48,6 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
   
   const [selectedTemplate, setSelectedTemplate] = useState<WithId<Template> | null>(null);
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState('');
-  const [fileName, setFileName] = useState('');
-  const [jsonPayload, setJsonPayload] = useState('');
 
   useEffect(() => {
     if (state?.message) {
@@ -58,7 +56,6 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
         description: state.message,
       });
       formRef.current?.reset();
-      setFileName('');
       setSelectedTemplate(null);
       setSelectedPhoneNumber('');
     }
@@ -70,79 +67,6 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
       });
     }
   }, [state, toast]);
-
-  useEffect(() => {
-    if (selectedPhoneNumber && selectedTemplate && fileName) {
-      const getVars = (text: string): number[] => {
-        if (!text) return [];
-        const variableMatches = text.match(/{{(\d+)}}/g);
-        return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
-      };
-
-      const payloadComponents: any[] = [];
-      
-      const headerComponent = selectedTemplate.components.find(c => c.type === 'HEADER');
-      if (headerComponent) {
-        const parameters: any[] = [];
-        if (headerComponent.format === 'TEXT' && headerComponent.text) {
-            const headerVars = getVars(headerComponent.text);
-            if (headerVars.length > 0) {
-                headerVars.sort((a,b) => a-b).forEach(varNum => {
-                    parameters.push({
-                        type: 'text',
-                        text: `[Sample Variable ${varNum}]`,
-                    });
-                });
-            }
-        } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-             const type = headerComponent.format.toLowerCase();
-             const mediaObject: any = { id: "[MEDIA_ID_GENERATED_AT_SEND_TIME]" };
-             if (type === 'document') {
-                mediaObject.filename = "sample_file.pdf"; 
-             }
-             parameters.push({ type, [type]: mediaObject });
-        }
-        if (parameters.length > 0) {
-            payloadComponents.push({ type: 'header', parameters });
-        }
-      }
-
-      const bodyComponent = selectedTemplate.components.find(c => c.type === 'BODY');
-      if (bodyComponent?.text) {
-          const bodyVars = getVars(bodyComponent.text);
-          if (bodyVars.length > 0) {
-              const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({
-                  type: 'text',
-                  text: `[Sample Variable ${varNum}]`,
-              }));
-              payloadComponents.push({ type: 'body', parameters });
-          }
-      }
-
-      const buttonsComponent = selectedTemplate.components.find(c => c.type === 'BUTTONS');
-      if (buttonsComponent) {
-          payloadComponents.push(buttonsComponent);
-      }
-
-      const messageData = {
-        messaging_product: 'whatsapp',
-        to: 'RECIPIENT_PHONE_NUMBER_FROM_FILE',
-        recipient_type: 'individual',
-        type: 'template',
-        template: {
-          name: selectedTemplate.name,
-          language: { code: selectedTemplate.language || 'en_US' },
-          ...(payloadComponents.length > 0 && { components: payloadComponents }),
-        },
-      };
-
-      setJsonPayload(JSON.stringify(messageData, null, 2));
-
-    } else {
-      setJsonPayload('');
-    }
-  }, [selectedPhoneNumber, selectedTemplate, fileName]);
-
 
   if (!project) {
     return (
@@ -171,121 +95,105 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
   const showImageUpload = selectedTemplate?.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(c.format));
 
   return (
-    <>
-        <Card>
-        <form ref={formRef} action={formAction}>
-            <input type="hidden" name="projectId" value={project._id.toString()} />
-            <CardHeader>
-            <CardTitle>New Broadcast Campaign</CardTitle>
-            <CardDescription>Select a phone number, template, and upload your contacts file.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-3 gap-6">
-            <div className="space-y-2">
-                <Label htmlFor="phoneNumberId">1. Select Phone Number</Label>
-                <Select name="phoneNumberId" required onValueChange={setSelectedPhoneNumber}>
-                <SelectTrigger id="phoneNumberId">
-                    <SelectValue placeholder="Choose a number..." />
-                </SelectTrigger>
-                <SelectContent>
-                    {project.phoneNumbers?.map((phone) => (
-                    <SelectItem key={phone.id} value={phone.id}>
-                        {phone.display_phone_number}
-                    </SelectItem>
-                    ))}
-                </SelectContent>
-                </Select>
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="templateId">2. Select Message Template</Label>
-                <Select name="templateId" required onValueChange={handleTemplateChange}>
-                <SelectTrigger id="templateId">
-                    <SelectValue placeholder="Choose a template..." />
-                </SelectTrigger>
-                <SelectContent>
-                    {templates.map((template) => (
-                    <SelectItem key={template._id.toString()} value={template._id.toString()}>
-                        {template.name} ({template.category})
-                    </SelectItem>
-                    ))}
-                </SelectContent>
-                </Select>
-            </div>
-            <div className="space-y-2">
-                <Label htmlFor="csvFile">3. Upload Contacts</Label>
-                <Input
-                id="csvFile"
-                name="csvFile"
-                type="file"
-                accept=".csv,.xlsx"
-                required
-                onChange={(e) => setFileName(e.target.files?.[0]?.name ?? '')}
-                className="file:text-primary file:font-medium"
-                />
-                <p className="text-xs text-muted-foreground">
-                First column must be phone numbers. For variables like {'{{1}}'}, use 'variable1' columns.
-                </p>
-            </div>
+    <Card>
+      <form ref={formRef} action={formAction}>
+          <input type="hidden" name="projectId" value={project._id.toString()} />
+          <CardHeader>
+          <CardTitle>New Broadcast Campaign</CardTitle>
+          <CardDescription>Select a phone number, template, and upload your contacts file.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid md:grid-cols-3 gap-6">
+          <div className="space-y-2">
+              <Label htmlFor="phoneNumberId">1. Select Phone Number</Label>
+              <Select name="phoneNumberId" required onValueChange={setSelectedPhoneNumber}>
+              <SelectTrigger id="phoneNumberId">
+                  <SelectValue placeholder="Choose a number..." />
+              </SelectTrigger>
+              <SelectContent>
+                  {project.phoneNumbers?.map((phone) => (
+                  <SelectItem key={phone.id} value={phone.id}>
+                      {phone.display_phone_number}
+                  </SelectItem>
+                  ))}
+              </SelectContent>
+              </Select>
+          </div>
+          <div className="space-y-2">
+              <Label htmlFor="templateId">2. Select Message Template</Label>
+              <Select name="templateId" required onValueChange={handleTemplateChange}>
+              <SelectTrigger id="templateId">
+                  <SelectValue placeholder="Choose a template..." />
+              </SelectTrigger>
+              <SelectContent>
+                  {templates.map((template) => (
+                  <SelectItem key={template._id.toString()} value={template._id.toString()}>
+                      {template.name} ({template.category})
+                  </SelectItem>
+                  ))}
+              </SelectContent>
+              </Select>
+          </div>
+          <div className="space-y-2">
+              <Label htmlFor="csvFile">3. Upload Contacts</Label>
+              <Input
+              id="csvFile"
+              name="csvFile"
+              type="file"
+              accept=".csv,.xlsx"
+              required
+              className="file:text-primary file:font-medium"
+              />
+              <p className="text-xs text-muted-foreground">
+              First column must be phone numbers. For variables like {'{{1}}'}, use 'variable1' columns.
+              </p>
+          </div>
 
-            {showImageUpload && (
-                <>
-                    <div className="md:col-span-3">
-                        <Separator className="my-2" />
-                    </div>
-                    <div className="md:col-span-3 space-y-4">
-                        <Label>4. Header Media Override (Optional)</Label>
-                        <div className="grid md:grid-cols-2 gap-4 items-start">
-                            <div className="space-y-2">
-                                <Label htmlFor="headerImageFile">Upload File</Label>
-                                <Input
-                                    id="headerImageFile"
-                                    name="headerImageFile"
-                                    type="file"
-                                    accept="image/*,video/*,audio/*,application/pdf"
-                                    className="file:text-primary file:font-medium"
-                                />
-                                <p className="text-xs text-muted-foreground">
-                                    Upload a new media file from your device.
-                                </p>
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="headerImageUrl">Or Paste URL</Label>
-                                <Input
-                                    id="headerImageUrl"
-                                    name="headerImageUrl"
-                                    type="url"
-                                    placeholder="https://example.com/image.png"
-                                />
-                                <p className="text-xs text-muted-foreground">
-                                    Use a publicly accessible URL for your media.
-                                </p>
-                            </div>
-                        </div>
-                         <p className="text-xs text-muted-foreground text-center">
-                            Provide a new media file to override the template's default header. If both are provided, the URL will be used.
-                        </p>
-                    </div>
-                </>
-            )}
+          {showImageUpload && (
+              <>
+                  <div className="md:col-span-3">
+                      <Separator className="my-2" />
+                  </div>
+                  <div className="md:col-span-3 space-y-4">
+                      <Label>4. Header Media Override (Optional)</Label>
+                      <div className="grid md:grid-cols-2 gap-4 items-start">
+                          <div className="space-y-2">
+                              <Label htmlFor="headerImageFile">Upload File</Label>
+                              <Input
+                                  id="headerImageFile"
+                                  name="headerImageFile"
+                                  type="file"
+                                  accept="image/*,video/*,audio/*,application/pdf"
+                                  className="file:text-primary file:font-medium"
+                              />
+                              <p className="text-xs text-muted-foreground">
+                                  Upload a new media file from your device.
+                              </p>
+                          </div>
+                          <div className="space-y-2">
+                              <Label htmlFor="headerImageUrl">Or Paste URL</Label>
+                              <Input
+                                  id="headerImageUrl"
+                                  name="headerImageUrl"
+                                  type="url"
+                                  placeholder="https://example.com/image.png"
+                              />
+                              <p className="text-xs text-muted-foreground">
+                                  Use a publicly accessible URL for your media.
+                              </p>
+                          </div>
+                      </div>
+                       <p className="text-xs text-muted-foreground text-center">
+                          Provide a new media file to override the template's default header. If both are provided, the URL will be used.
+                      </p>
+                  </div>
+              </>
+          )}
 
-            </CardContent>
-            <CardFooter className="flex justify-end">
-            <SubmitButton />
-            </CardFooter>
-        </form>
-        </Card>
-        {jsonPayload && (
-            <Card className="mt-6">
-                <CardHeader>
-                    <CardTitle>Sample API Request Body</CardTitle>
-                    <CardDescription>This is an example of the JSON that will be sent to the Meta API for each contact.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <pre className="p-4 bg-muted/50 rounded-md whitespace-pre-wrap font-code text-sm overflow-x-auto">
-                        <code>{jsonPayload}</code>
-                    </pre>
-                </CardContent>
-            </Card>
-        )}
-    </>
+          </CardContent>
+          <CardFooter className="flex justify-end">
+          <SubmitButton />
+          </CardFooter>
+      </form>
+    </Card>
   );
 }

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getTemplates, getProjectById, getBroadcasts } from '@/app/actions';
 import type { Project, Template } from '@/app/dashboard/page';
@@ -20,7 +20,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText } from 'lucide-react';
+import { FileText, RefreshCw } from 'lucide-react';
 
 type Broadcast = {
   _id: any;
@@ -40,24 +40,41 @@ export default function BroadcastPage() {
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isRefreshing, startRefreshTransition] = useTransition();
   const { toast } = useToast();
+
+  const fetchHistory = useCallback(async (showToast = false) => {
+    try {
+      const historyData = await getBroadcasts();
+      setHistory(historyData as WithId<Broadcast>[]);
+      if (showToast) {
+        toast({ title: 'Refreshed', description: 'Broadcast history has been updated.' });
+      }
+    } catch (error) {
+      console.error("Failed to fetch broadcast history:", error);
+      toast({
+        title: "Error",
+        description: "Could not fetch history. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
 
   useEffect(() => {
     const storedProjectId = localStorage.getItem('activeProjectId');
     
-    async function fetchData() {
+    async function fetchInitialData() {
       setLoading(true);
       try {
         if (storedProjectId) {
-          const [projectData, templatesData, historyData] = await Promise.all([
+          const [projectData, templatesData] = await Promise.all([
             getProjectById(storedProjectId),
             getTemplates(storedProjectId),
-            getBroadcasts(),
           ]);
           setProject(projectData as WithId<Project> | null);
           setTemplates(templatesData as WithId<Template>[]);
-          setHistory(historyData as WithId<Broadcast>[]);
         }
+        await fetchHistory();
       } catch (error) {
         console.error("Failed to fetch broadcast data:", error);
         toast({
@@ -70,8 +87,8 @@ export default function BroadcastPage() {
       }
     }
 
-    fetchData();
-  }, [toast]);
+    fetchInitialData();
+  }, [fetchHistory, toast]);
 
   useEffect(() => {
     const hasActiveBroadcasts = history.some(
@@ -82,17 +99,18 @@ export default function BroadcastPage() {
       return;
     }
 
-    const interval = setInterval(async () => {
-      try {
-        const historyData = await getBroadcasts();
-        setHistory(historyData as WithId<Broadcast>[]);
-      } catch (error) {
-        console.error("Failed to poll broadcast history:", error);
-      }
+    const interval = setInterval(() => {
+      fetchHistory();
     }, 5000); // Poll every 5 seconds
 
     return () => clearInterval(interval);
-  }, [history, loading]);
+  }, [history, loading, fetchHistory]);
+
+  const onRefresh = () => {
+    startRefreshTransition(() => {
+      fetchHistory(true);
+    });
+  };
 
   if (loading) {
     return (
@@ -139,8 +157,16 @@ export default function BroadcastPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Broadcast History</CardTitle>
-            <CardDescription>A log of your 10 most recent broadcast campaigns.</CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Broadcast History</CardTitle>
+                <CardDescription>A log of your 10 most recent broadcast campaigns.</CardDescription>
+              </div>
+              <Button onClick={onRefresh} disabled={isRefreshing} variant="outline" size="sm">
+                <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
             <Table>
