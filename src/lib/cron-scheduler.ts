@@ -124,8 +124,8 @@ export async function processBroadcastJob() {
             try {
                 const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
                 const MESSAGES_PER_SECOND = project?.messagesPerSecond || 80;
-                // Set a robust concurrency limit, maxing out at 50 parallel requests
-                const CONCURRENCY_LIMIT = Math.min(MESSAGES_PER_SECOND, 50); 
+                // A higher concurrency limit allows for much faster sending, controlled by the user's 'messagesPerSecond' setting.
+                const CONCURRENCY_LIMIT = Math.min(MESSAGES_PER_SECOND, 300); 
                 const WRITE_INTERVAL_MS = 10000;
 
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
