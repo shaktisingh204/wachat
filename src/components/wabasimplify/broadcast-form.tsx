@@ -153,7 +153,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
               className="file:text-primary file:font-medium"
               />
               <p className="text-xs text-muted-foreground">
-                For variables like {'{{1}}'}, use 'variable1' columns. For dynamic buttons, use 'button_payload_0' or 'button_url_text_0'.
+                For variables like {'{{1}}'}, use 'variable1'. For dynamic URL buttons, use a column named 'button_url_param_0'.
               </p>
           </div>
 

@@ -48,6 +48,7 @@ type ButtonType = {
   text: string;
   url?: string;
   phone_number?: string;
+  payload?: string;
   example?: string[];
 };
 
@@ -200,7 +201,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
     setButtons(buttons.filter((_, i) => i !== index));
   };
 
-  const handleButtonChange = (index: number, field: 'text' | 'url' | 'phone_number', value: string) => {
+  const handleButtonChange = (index: number, field: 'text' | 'url' | 'phone_number' | 'payload', value: string) => {
     const newButtons = [...buttons];
     newButtons[index] = { ...newButtons[index], [field]: value };
     setButtons(newButtons);
@@ -318,6 +319,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                                 <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => handleRemoveButton(index)}><Trash2 className="h-4 w-4"/></Button>
                                 <p className="text-sm font-medium text-muted-foreground">{button.type.replace('_', ' ')}</p>
                                 <Input placeholder="Button Text (max 25 chars)" value={button.text} onChange={(e) => handleButtonChange(index, 'text', e.target.value)} maxLength={25} required/>
+                                {button.type === 'QUICK_REPLY' && <Input className="mt-2" placeholder="Payload (optional, max 1000)" value={button.payload || ''} onChange={(e) => handleButtonChange(index, 'payload', e.target.value)} maxLength={1000} />}
                                 {button.type === 'URL' && (
                                   <div className="space-y-2">
                                     <Input placeholder="https://example.com/{{1}}" value={button.url || ''} onChange={(e) => handleButtonChange(index, 'url', e.target.value)} required/>
