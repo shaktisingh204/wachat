@@ -23,7 +23,7 @@ type Broadcast = {
   contactCount: number;
   successCount?: number;
   errorCount?: number;
-  status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure';
+  status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure' | 'Cancelled';
   createdAt: string;
   startedAt?: string;
   completedAt?: string;
@@ -52,34 +52,37 @@ export default function BroadcastReportPage() {
       setLoading(false);
       return;
     }
-    try {
-        const [broadcastData, attemptsData] = await Promise.all([
-            getBroadcastById(broadcastId),
-            getBroadcastAttempts(broadcastId, page, ATTEMPTS_PER_PAGE, filterValue),
-        ]);
+    
+    startRefreshTransition(async () => {
+        try {
+            const [broadcastData, attemptsData] = await Promise.all([
+                getBroadcastById(broadcastId),
+                getBroadcastAttempts(broadcastId, page, ATTEMPTS_PER_PAGE, filterValue),
+            ]);
 
-        if (broadcastData) {
-            setBroadcast(broadcastData);
-            setAttempts(attemptsData.attempts);
-            setTotalPages(Math.ceil(attemptsData.total / ATTEMPTS_PER_PAGE));
-        } else {
-            toast({ title: "Error", description: "Broadcast not found.", variant: "destructive" });
-            router.push('/dashboard/broadcasts');
-        }
+            if (broadcastData) {
+                setBroadcast(broadcastData);
+                setAttempts(attemptsData.attempts);
+                setTotalPages(Math.ceil(attemptsData.total / ATTEMPTS_PER_PAGE));
+            } else {
+                toast({ title: "Error", description: "Broadcast not found.", variant: "destructive" });
+                router.push('/dashboard/broadcasts');
+            }
 
-        if (showToast) {
-            toast({ title: "Refreshed", description: "Broadcast details and delivery report updated." });
+            if (showToast) {
+                toast({ title: "Refreshed", description: "Broadcast details and delivery report updated." });
+            }
+        } catch (error) {
+          console.error("Failed to fetch broadcast details:", error);
+          toast({ title: "Error", description: "Failed to load broadcast details.", variant: "destructive" });
         }
-    } catch (error) {
-      console.error("Failed to fetch broadcast details:", error);
-      toast({ title: "Error", description: "Failed to load broadcast details.", variant: "destructive" });
-    }
+    });
   }, [broadcastId, router, toast]);
 
   useEffect(() => {
     setLoading(true);
     fetchPageData(currentPage, filter).finally(() => setLoading(false));
-  }, [fetchPageData, currentPage, filter]);
+  }, [currentPage, filter]);
 
 
   useEffect(() => {
@@ -89,9 +92,7 @@ export default function BroadcastReportPage() {
 
       if (shouldAutoRefresh) {
           const interval = setInterval(() => {
-            startRefreshTransition(() => {
-                fetchPageData(currentPage, filter, false);
-            });
+            fetchPageData(currentPage, filter, false);
           }, 5000);
           return () => clearInterval(interval);
       }
@@ -99,9 +100,7 @@ export default function BroadcastReportPage() {
 
 
   const onRefresh = () => {
-    startRefreshTransition(() => {
-      fetchPageData(currentPage, filter, true);
-    });
+    fetchPageData(currentPage, filter, true);
   };
 
   const handleFilterChange = (value: string) => {
@@ -112,7 +111,7 @@ export default function BroadcastReportPage() {
   const getStatusVariant = (status: string) => {
     status = status.toLowerCase();
     if (status === 'completed') return 'default';
-    if (status === 'queued' || status === 'processing' || status === 'partial failure') return 'secondary';
+    if (status === 'queued' || status === 'processing' || status === 'partial failure' || status === 'cancelled') return 'secondary';
     return 'destructive';
   };
 
@@ -257,7 +256,13 @@ export default function BroadcastReportPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {allAttempts.length > 0 ? allAttempts.map((attempt) => (
+                            {isRefreshing && attempts.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={3} className="h-24 text-center">
+                                        Loading results...
+                                    </TableCell>
+                                </TableRow>
+                            ) : allAttempts.length > 0 ? allAttempts.map((attempt) => (
                                 <TableRow key={attempt._id}>
                                     <TableCell className="font-mono">{attempt.phone}</TableCell>
                                     <TableCell>
@@ -270,9 +275,7 @@ export default function BroadcastReportPage() {
                             )) : (
                                 <TableRow>
                                     <TableCell colSpan={3} className="h-24 text-center">
-                                        {loading
-                                            ? 'Loading results...'
-                                            : `No ${filter !== 'ALL' ? filter.toLowerCase() : ''} results to display for this broadcast.`}
+                                        No {filter.toLowerCase()} results to display for this broadcast.
                                     </TableCell>
                                 </TableRow>
                             )}
