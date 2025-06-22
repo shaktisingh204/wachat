@@ -8,6 +8,7 @@ import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
 import type { PhoneNumber, Project, Template } from '@/app/dashboard/page';
+import axios from 'axios';
 
 type MetaPhoneNumber = {
     id: string;
@@ -168,6 +169,10 @@ export async function getTemplates(projectId: string) {
             name: 1,
             category: 1,
             components: 1,
+            metaId: 1,
+            language: 1,
+            body: 1,
+            status: 1
         };
         const templates = await db.collection('templates')
             .find({ projectId: new ObjectId(projectId) })
@@ -637,6 +642,7 @@ export async function handleCreateTemplate(
         const language = formData.get('language') as string;
         const headerFormat = formData.get('headerFormat') as string;
         const headerText = formData.get('headerText') as string;
+        const headerUrl = formData.get('headerUrl') as string;
         const footerText = formData.get('footer') as string;
         const buttonsJson = formData.get('buttons') as string;
         const button = buttonsJson ? JSON.parse(buttonsJson) : [];
@@ -661,6 +667,9 @@ export async function handleCreateTemplate(
             if (headerFormat === 'TEXT') {
                 if (!headerText) return { error: 'Header text is required for TEXT header format.' };
                 headerComponent.text = headerText;
+            } else {
+                if (!headerUrl) return { error: 'Header media URL is required.' };
+                headerComponent.example = { header_handle: [headerUrl] };
             }
             components.push(headerComponent);
         }
@@ -784,35 +793,5 @@ export async function handleUpdateProjectSettings(
     } catch (e: any) {
         console.error('Project settings update failed:', e);
         return { error: e.message || 'An unexpected error occurred while saving the settings.' };
-    }
-}
-
-type CleanDatabaseState = {
-    message?: string | null;
-    error?: string | null;
-};
-
-export async function handleCleanDatabase(
-    prevState: CleanDatabaseState,
-    formData: FormData
-): Promise<CleanDatabaseState> {
-    try {
-        const { db } = await connectToDatabase();
-        const collections = await db.listCollections().toArray();
-        const collectionsToDrop = collections
-            .map(c => c.name)
-            .filter(name => !name.startsWith('system.'));
-
-        for (const collectionName of collectionsToDrop) {
-            await db.collection(collectionName).drop();
-        }
-
-        revalidatePath('/dashboard');
-
-        return { message: `Successfully cleared ${collectionsToDrop.length} collections from the database.` };
-
-    } catch (e: any) {
-        console.error('Database cleaning failed:', e);
-        return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
     }
 }

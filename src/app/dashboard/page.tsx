@@ -1,6 +1,6 @@
 
 import type { Metadata } from "next";
-import { getProjects } from "@/app/actions";
+import { getProjects, handleCleanDatabase } from "@/app/actions";
 import { CreateProjectDialog } from "@/components/wabasimplify/project-dialog";
 import { ProjectCard } from "@/components/wabasimplify/project-card";
 import { FileText } from "lucide-react";

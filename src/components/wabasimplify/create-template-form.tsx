@@ -17,6 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project, Template } from '@/app/dashboard/page';
 import { Separator } from '../ui/separator';
+import { AiSuggestions } from './ai-suggestions';
 
 const createTemplateInitialState = {
   message: null,
@@ -281,7 +282,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                             onChange={(e) => setHeaderUrl(e.target.value)} 
                             placeholder="https://example.com/media.png"
                         />
-                        <p className="text-xs text-muted-foreground">Provide a publicly accessible URL for your media. Direct file uploads are not supported.</p>
+                        <p className="text-xs text-muted-foreground">Provide a publicly accessible URL for your media. This will be used as a sample for submission.</p>
                     </div>
                 )}
               
@@ -326,6 +327,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
 
                 </CardContent>
             </Card>
+            <AiSuggestions onSuggestionSelect={setBody} />
         </div>
       </div>
       <Separator className="my-8" />
