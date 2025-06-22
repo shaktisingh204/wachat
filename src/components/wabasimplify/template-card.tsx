@@ -100,7 +100,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto pr-4">
-            {(template.components && template.components.length > 0) ? (
+            {(Array.isArray(template.components) && template.components.length > 0) ? (
               template.components.map((component, index) => (
                 <div key={index} className="space-y-2">
                   <h4 className="font-semibold text-primary">{component.type}</h4>
