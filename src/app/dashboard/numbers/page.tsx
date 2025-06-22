@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useCallback } from 'react';
 import type { WithId } from 'mongodb';
 import { getProjectById, handleSyncPhoneNumbers } from '@/app/actions';
 import type { Project, PhoneNumber } from '@/app/dashboard/page';
@@ -41,8 +42,13 @@ export default function NumbersPage() {
   const [isSyncing, startSyncTransition] = useTransition();
   const [selectedPhone, setSelectedPhone] = useState<PhoneNumber | null>(null);
   const { toast } = useToast();
+  const [isClient, setIsClient] = useState(false);
 
-  const fetchProjectData = async () => {
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const fetchProjectData = useCallback(async () => {
     try {
       const storedProjectId = localStorage.getItem('activeProjectId');
       if (storedProjectId) {
@@ -59,13 +65,14 @@ export default function NumbersPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
-    setLoading(true);
-    fetchProjectData();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (isClient) {
+      setLoading(true);
+      fetchProjectData();
+    }
+  }, [isClient, fetchProjectData]);
 
   const onSync = () => {
     startSyncTransition(async () => {
@@ -117,7 +124,7 @@ export default function NumbersPage() {
     return 'outline';
   }
 
-  if (loading) {
+  if (!isClient || loading) {
     return (
       <div className="flex flex-col gap-8">
         <div>

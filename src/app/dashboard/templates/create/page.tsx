@@ -17,37 +17,47 @@ function CreateTemplatePageContent() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [loading, setLoading] = useState(true);
   const [initialTemplate, setInitialTemplate] = useState<WithId<Template> | null>(null);
+  const [isClient, setIsClient] = useState(false);
   const searchParams = useSearchParams();
   const action = searchParams.get('action');
 
   useEffect(() => {
-    document.title = `${action === 'edit' ? 'Edit' : action === 'clone' ? 'Clone' : 'Create'} Template | WABASimplify`;
-    
-    const storedProjectId = localStorage.getItem('activeProjectId');
-    
-    const templateJson = localStorage.getItem('templateToAction');
-    if (templateJson) {
-      try {
-        setInitialTemplate(JSON.parse(templateJson));
-      } catch (e) {
-        console.error("Failed to parse template data from localStorage", e);
-      }
-      localStorage.removeItem('templateToAction');
-    }
+    setIsClient(true);
+  }, []);
 
-    if (storedProjectId) {
-      getProjectById(storedProjectId).then(projectData => {
-        setProject(projectData);
+  useEffect(() => {
+    if (isClient) {
+      document.title = `${action === 'edit' ? 'Edit' : action === 'clone' ? 'Clone' : 'Create'} Template | WABASimplify`;
+      
+      const storedProjectId = localStorage.getItem('activeProjectId');
+      
+      const templateJson = localStorage.getItem('templateToAction');
+      if (templateJson) {
+        try {
+          setInitialTemplate(JSON.parse(templateJson));
+        } catch (e) {
+          console.error("Failed to parse template data from localStorage", e);
+        }
+        localStorage.removeItem('templateToAction');
+      }
+
+      if (storedProjectId) {
+        getProjectById(storedProjectId).then(projectData => {
+          setProject(projectData);
+          setLoading(false);
+        });
+      } else {
         setLoading(false);
-      });
-    } else {
-      setLoading(false);
+      }
     }
-  }, [action]);
+  }, [action, isClient]);
 
   const pageTitle = action === 'edit' ? 'Edit Message Template' : action === 'clone' ? 'Clone Message Template' : 'Create New Message Template';
   const pageDescription = action ? 'Modify the details below and submit it as a new template for approval.' : 'Design your template and submit it for approval.';
 
+  if (!isClient) {
+    return <LoadingSkeleton />;
+  }
 
   return (
     <div className="flex flex-col gap-8">
