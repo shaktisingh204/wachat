@@ -4,7 +4,6 @@
 import { config } from 'dotenv';
 config();
 
-import cron from 'node-cron';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Db, ObjectId } from 'mongodb';
 import axios from 'axios';
@@ -47,7 +46,7 @@ type Project = {
     messagesPerSecond?: number;
 };
 
-async function processBroadcastJob() {
+export async function processBroadcastJob() {
     let db: Db;
     let jobId: ObjectId | null = null;
     
@@ -71,7 +70,7 @@ async function processBroadcastJob() {
         );
 
         if (!job) {
-            return;
+            return { message: 'No queued broadcasts to process.' };
         }
 
         jobId = job._id;
@@ -84,7 +83,7 @@ async function processBroadcastJob() {
             if (jobId && db) {
                 await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', failedSends: [{ phone: 'N/A', response: { error: { message: errorMessage } }, payload: {} }] } });
             }
-            return; // Stop processing this job
+            throw new Error(errorMessage);
         }
         
         let mediaId: string | null = null;
@@ -106,10 +105,11 @@ async function processBroadcastJob() {
                     
                     const fileBuffer = Buffer.from(await mediaResponse.arrayBuffer());
                     const filename = finalUrl.split('/').pop()?.split('?')[0] || 'media-file';
+                    const mediaType = mediaResponse.headers.get('content-type') || 'application/octet-stream';
 
                     const formData = new FormData();
                     formData.append('messaging_product', 'whatsapp');
-                    formData.append('file', fileBuffer, { filename });
+                    formData.append('file', fileBuffer, { filename: filename, contentType: mediaType });
                     
                     const uploadResponse = await axios.post(
                         `https://graph.facebook.com/v22.0/${job.phoneNumberId}/media`,
@@ -124,8 +124,6 @@ async function processBroadcastJob() {
                     
                     const uploadData = uploadResponse.data;
                     
-                    await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { debug: { mediaUploadResponse: uploadData } } });
-
                     if (uploadResponse.status !== 200 || !uploadData.id) {
                         throw new Error(`Meta media upload failed: ${JSON.stringify(uploadData.error || uploadData)}`);
                     }
@@ -138,7 +136,7 @@ async function processBroadcastJob() {
             if (jobId && db) {
                 await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', failedSends: [{ phone: 'N/A', response: { error: { message: `Media Upload Failed: ${errorMessage}` } }, payload: {} }] } });
             }
-            return;
+            throw new Error(`Media Upload Failed: ${errorMessage}`);
         }
 
 
@@ -281,6 +279,8 @@ async function processBroadcastJob() {
                     }
                 }
             );
+
+            return { message: `Job ${jobId} processed.`, status: finalStatus, success: totalSuccessCount, failed: totalErrorCount };
         
         } catch (processingError: any) {
             if (jobId && db) {
@@ -291,6 +291,7 @@ async function processBroadcastJob() {
                     }
                 );
             }
+             throw new Error(`Internal Server Error while-processing job: ${processingError.message}`);
         }
     } catch (error: any) {
         if (jobId && db) {
@@ -301,17 +302,6 @@ async function processBroadcastJob() {
                 }
             );
         }
+        throw new Error(`Internal Server Error: ${error.message}`);
     }
-}
-
-
-export function startScheduler() {
-  // This cron job runs every second to check for new broadcast jobs.
-  cron.schedule('* * * * * *', async () => {
-    try {
-        await processBroadcastJob();
-    } catch (e: any) {
-        // No logging as per user request
-    }
-  });
 }
