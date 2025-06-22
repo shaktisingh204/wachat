@@ -7,19 +7,6 @@ config();
 import { connectToDatabase } from '@/lib/mongodb';
 import { Db, ObjectId } from 'mongodb';
 import axios from 'axios';
-import FormData from 'form-data';
-
-type SuccessfulSend = {
-    phone: string;
-    response: any;
-    payload: any;
-};
-
-type FailedSend = {
-    phone: string;
-    response: any;
-    payload: any;
-};
 
 type BroadcastJob = {
     _id: ObjectId;
@@ -34,8 +21,6 @@ type BroadcastJob = {
     completedAt?: Date;
     successCount?: number;
     errorCount?: number;
-    successfulSends?: SuccessfulSend[];
-    failedSends?: FailedSend[];
     components: any[]; 
     language: string;
     headerImageUrl?: string;
@@ -49,6 +34,8 @@ type BroadcastContact = {
     variables: Record<string, string>;
     status: 'PENDING' | 'SENT' | 'FAILED';
     createdAt: Date;
+    payload?: any;
+    response?: any;
 }
 
 type Project = {
@@ -60,18 +47,14 @@ type Project = {
 const getAxiosErrorMessage = (error: any): string => {
     if (axios.isAxiosError(error)) {
         if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
             const apiError = error.response.data?.error;
             if (apiError) {
                 return `${apiError.message || 'API Error'} (Code: ${apiError.code}, Type: ${apiError.type})`;
             }
             return `Request failed with status code ${error.response.status}`;
         } else if (error.request) {
-            // The request was made but no response was received
             return 'No response received from server. Check network connectivity.';
         } else {
-            // Something happened in setting up the request that triggered an Error
             return error.message;
         }
     }
@@ -98,8 +81,6 @@ export async function processBroadcastJob() {
                         startedAt: new Date(),
                         successCount: 0,
                         errorCount: 0,
-                        successfulSends: [],
-                        failedSends: []
                     } 
                 },
                 { returnDocument: 'after', sort: { createdAt: 1 } }
@@ -114,14 +95,6 @@ export async function processBroadcastJob() {
             try {
                 const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
                 const CHUNK_SIZE = project?.messagesPerSecond || 80;
-
-                let mediaId: string | null = null;
-                const headerComponent = job.components.find(c => c.type === 'HEADER');
-                
-                if (headerComponent && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                     // This feature is removed as it's not compatible with serverless read-only filesystems.
-                     // A URL must be provided in the broadcast form.
-                }
                 
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
 
@@ -136,12 +109,7 @@ export async function processBroadcastJob() {
                         hasMoreContacts = false;
                         continue;
                     }
-
-                    const chunkSuccessfulSends: SuccessfulSend[] = [];
-                    const chunkFailedSends: FailedSend[] = [];
-                    const successfulContactIds: ObjectId[] = [];
-                    const failedContactIds: ObjectId[] = [];
-
+                    
                     const sendPromises = contactsToProcess.map(async (contactDoc) => {
                         const contact = { phone: contactDoc.phone, ...contactDoc.variables };
                         const phone = contact.phone;
@@ -156,6 +124,7 @@ export async function processBroadcastJob() {
                             
                             const payloadComponents: any[] = [];
                             
+                            const headerComponent = job.components.find(c => c.type === 'HEADER');
                             if (headerComponent) {
                                 const parameters: any[] = [];
                                 if (headerComponent.format === 'TEXT' && headerComponent.text) {
@@ -166,8 +135,6 @@ export async function processBroadcastJob() {
                                         });
                                     }
                                 } else if (job.headerImageUrl) {
-                                     // For non-text headers, we use an image URL provided at broadcast time.
-                                     // This assumes the URL is publicly accessible. Direct upload to Meta is no longer used.
                                      const type = headerComponent.format.toLowerCase();
                                      const mediaObject: any = { link: job.headerImageUrl };
                                      if (type === 'document') mediaObject.filename = contact['filename'] || uploadFilename;
@@ -207,36 +174,30 @@ export async function processBroadcastJob() {
                                 { headers: { 'Authorization': `Bearer ${job.accessToken}` } }
                             );
 
-                            chunkSuccessfulSends.push({ phone, response: response.data, payload: messageData });
-                            successfulContactIds.push(contactDoc._id);
+                            await db.collection('broadcast_contacts').updateOne(
+                                { _id: contactDoc._id },
+                                { $set: { status: 'SENT', payload: messageData, response: response.data } }
+                            );
+                            return { success: true };
 
                         } catch(error: any) {
                             const errorResponse = error.response?.data || { error: { message: getAxiosErrorMessage(error) } };
-                            chunkFailedSends.push({ phone, response: errorResponse, payload: messageData });
-                            failedContactIds.push(contactDoc._id);
+                            await db.collection('broadcast_contacts').updateOne(
+                                { _id: contactDoc._id },
+                                { $set: { status: 'FAILED', payload: messageData, response: errorResponse } }
+                            );
+                            return { success: false };
                         }
                     });
 
-                    await Promise.all(sendPromises);
-                    
-                    if (chunkSuccessfulSends.length > 0 || chunkFailedSends.length > 0) {
-                        await db.collection('broadcasts').updateOne({ _id: jobId }, {
-                            $inc: { successCount: chunkSuccessfulSends.length, errorCount: chunkFailedSends.length },
-                            $push: { successfulSends: { $each: chunkSuccessfulSends }, failedSends: { $each: chunkFailedSends } }
-                        });
-                    }
+                    const results = await Promise.all(sendPromises);
+                    const successCount = results.filter(r => r.success).length;
+                    const errorCount = results.filter(r => !r.success).length;
 
-                    if (successfulContactIds.length > 0) {
-                        await db.collection('broadcast_contacts').updateMany(
-                            { _id: { $in: successfulContactIds } },
-                            { $set: { status: 'SENT' } }
-                        );
-                    }
-                    if (failedContactIds.length > 0) {
-                        await db.collection('broadcast_contacts').updateMany(
-                            { _id: { $in: failedContactIds } },
-                            { $set: { status: 'FAILED' } }
-                        );
+                    if (successCount > 0 || errorCount > 0) {
+                        await db.collection('broadcasts').updateOne({ _id: jobId }, {
+                            $inc: { successCount: successCount, errorCount: errorCount },
+                        });
                     }
                 }
 

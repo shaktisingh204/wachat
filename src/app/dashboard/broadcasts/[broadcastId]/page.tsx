@@ -5,7 +5,7 @@ import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { WithId } from 'mongodb';
-import { getBroadcastById } from '@/app/actions';
+import { getBroadcastById, getBroadcastAttempts, type BroadcastAttempt } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -15,15 +15,6 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, RefreshCw, CheckCircle, XCircle, FileText, Clock, Users, Send, AlertTriangle, CalendarCheck } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-
-type Attempt = {
-  phone: string;
-  response: any;
-  payload: any;
-};
-
-type SuccessfulSend = Attempt;
-type FailedSend = Attempt;
 
 type Broadcast = {
   _id: any;
@@ -36,12 +27,11 @@ type Broadcast = {
   createdAt: string;
   startedAt?: string;
   completedAt?: string;
-  successfulSends?: SuccessfulSend[];
-  failedSends?: FailedSend[];
 };
 
 export default function BroadcastReportPage() {
   const [broadcast, setBroadcast] = useState<WithId<Broadcast> | null>(null);
+  const [attempts, setAttempts] = useState<BroadcastAttempt[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [selectedAttempt, setSelectedAttempt] = useState<any>(null);
@@ -51,34 +41,38 @@ export default function BroadcastReportPage() {
 
   const broadcastId = Array.isArray(params.broadcastId) ? params.broadcastId[0] : params.broadcastId;
 
-  const fetchBroadcast = useCallback(async (showToast = false) => {
+  const fetchPageData = useCallback(async (showToast = false) => {
     if (!broadcastId) {
       setLoading(false);
       return;
     }
     try {
-      const data = await getBroadcastById(broadcastId);
-      if (data) {
-        setBroadcast(data);
-      } else {
-        toast({ title: "Error", description: "Broadcast not found.", variant: "destructive" });
-        router.push('/dashboard/broadcasts');
-      }
-      if (showToast) {
-        toast({ title: "Refreshed", description: "Broadcast details and delivery report updated." });
-      }
+        const [broadcastData, attemptsData] = await Promise.all([
+            getBroadcastById(broadcastId),
+            getBroadcastAttempts(broadcastId),
+        ]);
+
+        if (broadcastData) {
+            setBroadcast(broadcastData);
+            setAttempts(attemptsData);
+        } else {
+            toast({ title: "Error", description: "Broadcast not found.", variant: "destructive" });
+            router.push('/dashboard/broadcasts');
+        }
+
+        if (showToast) {
+            toast({ title: "Refreshed", description: "Broadcast details and delivery report updated." });
+        }
     } catch (error) {
       console.error("Failed to fetch broadcast details:", error);
       toast({ title: "Error", description: "Failed to load broadcast details.", variant: "destructive" });
-    } finally {
-        setLoading(false);
     }
   }, [broadcastId, router, toast]);
 
   useEffect(() => {
     setLoading(true);
-    fetchBroadcast();
-  }, [fetchBroadcast]);
+    fetchPageData().finally(() => setLoading(false));
+  }, [fetchPageData]);
 
   useEffect(() => {
       if (!broadcast || loading) return;
@@ -86,16 +80,16 @@ export default function BroadcastReportPage() {
       if (broadcast.status === 'QUEUED' || broadcast.status === 'PROCESSING') {
           const interval = setInterval(() => {
             // We don't set loading to true for background polls to avoid UI flicker
-            fetchBroadcast(false);
+            fetchPageData(false);
           }, 5000);
           return () => clearInterval(interval);
       }
-  }, [broadcast, loading, fetchBroadcast]);
+  }, [broadcast, loading, fetchPageData]);
 
 
   const onRefresh = () => {
     startRefreshTransition(() => {
-      fetchBroadcast(true);
+      fetchPageData(true);
     });
   };
   
@@ -133,21 +127,16 @@ export default function BroadcastReportPage() {
     return 'Unknown error details';
   };
 
-  const successfulSends = Array.isArray(broadcast.successfulSends) ? broadcast.successfulSends : [];
-  const failedSends = Array.isArray(broadcast.failedSends) ? broadcast.failedSends : [];
-
-  const allAttempts = [
-    ...successfulSends.map(s => ({
-      ...s,
-      status: 'Success' as const,
-      detail: s.response?.messages?.[0]?.id ?? 'N/A'
-    })),
-    ...failedSends.map(f => ({
-      ...f,
-      status: 'Failed' as const,
-      detail: getErrorDetail(f.response)
-    })),
-  ];
+  const allAttempts = attempts
+    .filter(a => a.status === 'SENT' || a.status === 'FAILED')
+    .map(attempt => {
+        const isSuccess = attempt.status === 'SENT';
+        return {
+            ...attempt,
+            status: isSuccess ? 'Success' as const : 'Failed' as const,
+            detail: isSuccess ? (attempt.response?.messages?.[0]?.id ?? 'N/A') : getErrorDetail(attempt.response),
+        };
+    });
 
   return (
     <>

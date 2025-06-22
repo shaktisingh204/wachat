@@ -73,6 +73,14 @@ type BroadcastJob = {
     headerImageUrl?: string;
 };
 
+export type BroadcastAttempt = {
+    _id: string;
+    phone: string;
+    status: 'PENDING' | 'SENT' | 'FAILED';
+    payload?: any;
+    response?: any;
+};
+
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
   if (!topic) {
     const error = 'Topic cannot be empty.';
@@ -155,6 +163,21 @@ export async function getBroadcastById(broadcastId: string) {
     } catch (error) {
         console.error('Failed to fetch broadcast by ID:', error);
         return null;
+    }
+}
+
+export async function getBroadcastAttempts(broadcastId: string): Promise<BroadcastAttempt[]> {
+    if (!ObjectId.isValid(broadcastId)) {
+        console.error("Invalid Broadcast ID in getBroadcastAttempts:", broadcastId);
+        return [];
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const attempts = await db.collection('broadcast_contacts').find({ broadcastId: new ObjectId(broadcastId) }).toArray();
+        return JSON.parse(JSON.stringify(attempts));
+    } catch (error) {
+        console.error('Failed to fetch broadcast attempts:', error);
+        return [];
     }
 }
 
@@ -709,3 +732,4 @@ export async function handleCleanDatabase(
         return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
     }
 }
+

@@ -32,8 +32,6 @@ type Broadcast = {
   status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure';
   createdAt: string;
   completedAt?: string;
-  successfulSends?: { phone: string; response: any }[];
-  failedSends?: { phone: string; response: any }[];
 };
 
 export default function BroadcastPage() {
