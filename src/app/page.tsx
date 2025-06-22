@@ -3,14 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { WabaSimplifyLogo } from '@/components/wabasimplify/logo';
+import { WachatLogo } from '@/components/wabasimplify/logo';
 
 export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
-          <WabaSimplifyLogo className="w-48 h-auto" />
+          <WachatLogo className="w-48 h-auto" />
         </div>
         <Card>
           <CardHeader>

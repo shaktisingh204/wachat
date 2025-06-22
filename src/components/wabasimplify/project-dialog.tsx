@@ -84,7 +84,7 @@ export function CreateProjectDialog() {
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="name" className="text-right">Project Name</Label>
-              <Input id="name" name="name" placeholder="My Awesome Business" className="col-span-3" required />
+              <Input id="name" name="name" placeholder="MORDE FOODS PVT LTD" className="col-span-3" required />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="wabaId" className="text-right">Business ID</Label>

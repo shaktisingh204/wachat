@@ -27,7 +27,7 @@ function CreateTemplatePageContent() {
 
   useEffect(() => {
     if (isClient) {
-      document.title = `${action === 'edit' ? 'Edit' : action === 'clone' ? 'Clone' : 'Create'} Template | WABASimplify`;
+      document.title = `${action === 'edit' ? 'Edit' : action === 'clone' ? 'Clone' : 'Create'} Template | Wachat`;
       
       const storedProjectId = localStorage.getItem('activeProjectId');
       

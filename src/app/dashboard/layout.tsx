@@ -26,7 +26,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { WabaSimplifyLogo } from '@/components/wabasimplify/logo';
+import { WachatLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send, Briefcase } from 'lucide-react';
 
 const menuItems = [
@@ -52,7 +52,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="flex min-h-screen">
         <Sidebar>
           <SidebarHeader>
-            <WabaSimplifyLogo className="w-32 h-auto" />
+            <WachatLogo className="w-32 h-auto" />
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu>

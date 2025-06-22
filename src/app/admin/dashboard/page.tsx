@@ -3,7 +3,7 @@ import { Users, CheckSquare, Server, AlertTriangle } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Admin Dashboard | WABASimplify',
+  title: 'Admin Dashboard | Wachat',
 };
 
 export default function AdminDashboardPage() {
@@ -11,7 +11,7 @@ export default function AdminDashboardPage() {
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="text-3xl font-bold font-headline">Admin Dashboard</h1>
-        <p className="text-muted-foreground">High-level overview of the WABASimplify platform.</p>
+        <p className="text-muted-foreground">High-level overview of the Wachat platform.</p>
       </div>
 
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -48,7 +48,7 @@ export default function TemplatesPage() {
   
   useEffect(() => {
     if (isClient) {
-      document.title = 'Message Templates | WABASimplify';
+      document.title = 'Message Templates | Wachat';
       fetchTemplates();
     }
   }, [isClient, fetchTemplates]);

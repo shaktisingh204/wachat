@@ -55,7 +55,7 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!isClient) return;
 
-    document.title = 'Project Settings | WABASimplify';
+    document.title = 'Project Settings | Wachat';
     const storedProjectId = localStorage.getItem('activeProjectId');
     if (storedProjectId) {
       getProjectById(storedProjectId)

@@ -42,7 +42,7 @@ export default function DashboardOverviewPage() {
 
   useEffect(() => {
     if (isClient) {
-        document.title = "Dashboard Overview | WABASimplify";
+        document.title = "Dashboard Overview | Wachat";
         const fetchStats = async () => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (storedProjectId) {

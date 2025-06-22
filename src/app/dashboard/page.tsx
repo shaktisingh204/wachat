@@ -10,7 +10,7 @@ import { CleanDatabaseButton } from "@/components/wabasimplify/clean-database-bu
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "Select Project | WABASimplify",
+  title: "Select Project | Wachat",
 };
 
 export type PhoneNumber = {

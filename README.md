@@ -1,6 +1,5 @@
-# Firebase Studio
+# Wachat
 
-This is a NextJS starter in Firebase Studio.
+This is a NextJS application to streamline your WhatsApp Business API experience.
 
-To get started, take a look at src/app/page.tsx.
-# wachat
+To get started, run the app and navigate to the home page.
