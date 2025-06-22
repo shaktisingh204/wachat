@@ -34,8 +34,9 @@ type BroadcastContact = {
     variables: Record<string, string>;
     status: 'PENDING' | 'SENT' | 'FAILED';
     createdAt: Date;
-    payload?: any;
-    response?: any;
+    sentAt?: Date;
+    messageId?: string;
+    error?: string;
 }
 
 type Project = {
@@ -110,6 +111,8 @@ export async function processBroadcastJob() {
                         continue;
                     }
                     
+                    const processingStartTime = Date.now();
+
                     const sendPromises = contactsToProcess.map(async (contactDoc) => {
                         const contact = { phone: contactDoc.phone, ...contactDoc.variables };
                         const phone = contact.phone;
@@ -176,7 +179,7 @@ export async function processBroadcastJob() {
 
                             await db.collection('broadcast_contacts').updateOne(
                                 { _id: contactDoc._id },
-                                { $set: { status: 'SENT', payload: messageData, response: response.data } }
+                                { $set: { status: 'SENT', sentAt: new Date(), messageId: response.data?.messages?.[0]?.id } }
                             );
                             return { success: true };
 
@@ -184,7 +187,7 @@ export async function processBroadcastJob() {
                             const errorResponse = error.response?.data || { error: { message: getAxiosErrorMessage(error) } };
                             await db.collection('broadcast_contacts').updateOne(
                                 { _id: contactDoc._id },
-                                { $set: { status: 'FAILED', payload: messageData, response: errorResponse } }
+                                { $set: { status: 'FAILED', sentAt: new Date(), error: errorResponse?.error?.message || getAxiosErrorMessage(error) } }
                             );
                             return { success: false };
                         }
@@ -198,6 +201,14 @@ export async function processBroadcastJob() {
                         await db.collection('broadcasts').updateOne({ _id: jobId }, {
                             $inc: { successCount: successCount, errorCount: errorCount },
                         });
+                    }
+
+                    const processingEndTime = Date.now();
+                    const duration = processingEndTime - processingStartTime;
+                    const delay = 1000 - duration;
+
+                    if (hasMoreContacts && delay > 0) {
+                        await new Promise(resolve => setTimeout(resolve, delay));
                     }
                 }
 

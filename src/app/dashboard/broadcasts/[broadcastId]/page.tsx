@@ -12,9 +12,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, RefreshCw, CheckCircle, XCircle, FileText, Clock, Users, Send, AlertTriangle, CalendarCheck } from 'lucide-react';
+import { ArrowLeft, RefreshCw, CheckCircle, XCircle, FileText, Clock, Users, Send, AlertTriangle, CalendarCheck, CircleDashed } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 type Broadcast = {
   _id: any;
@@ -29,19 +28,22 @@ type Broadcast = {
   completedAt?: string;
 };
 
+const ATTEMPTS_PER_PAGE = 50;
+
 export default function BroadcastReportPage() {
   const [broadcast, setBroadcast] = useState<WithId<Broadcast> | null>(null);
   const [attempts, setAttempts] = useState<BroadcastAttempt[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
-  const [selectedAttempt, setSelectedAttempt] = useState<any>(null);
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   const broadcastId = Array.isArray(params.broadcastId) ? params.broadcastId[0] : params.broadcastId;
 
-  const fetchPageData = useCallback(async (showToast = false) => {
+  const fetchPageData = useCallback(async (page: number, showToast = false) => {
     if (!broadcastId) {
       setLoading(false);
       return;
@@ -49,12 +51,13 @@ export default function BroadcastReportPage() {
     try {
         const [broadcastData, attemptsData] = await Promise.all([
             getBroadcastById(broadcastId),
-            getBroadcastAttempts(broadcastId),
+            getBroadcastAttempts(broadcastId, page, ATTEMPTS_PER_PAGE),
         ]);
 
         if (broadcastData) {
             setBroadcast(broadcastData);
-            setAttempts(attemptsData);
+            setAttempts(attemptsData.attempts);
+            setTotalPages(Math.ceil(attemptsData.total / ATTEMPTS_PER_PAGE));
         } else {
             toast({ title: "Error", description: "Broadcast not found.", variant: "destructive" });
             router.push('/dashboard/broadcasts');
@@ -71,25 +74,29 @@ export default function BroadcastReportPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetchPageData().finally(() => setLoading(false));
-  }, [fetchPageData]);
+    fetchPageData(currentPage).finally(() => setLoading(false));
+  }, [fetchPageData, currentPage]);
+
 
   useEffect(() => {
       if (!broadcast || loading) return;
 
-      if (broadcast.status === 'QUEUED' || broadcast.status === 'PROCESSING') {
+      const shouldAutoRefresh = broadcast.status === 'QUEUED' || broadcast.status === 'PROCESSING';
+
+      if (shouldAutoRefresh) {
           const interval = setInterval(() => {
-            // We don't set loading to true for background polls to avoid UI flicker
-            fetchPageData(false);
+            startRefreshTransition(() => {
+                fetchPageData(currentPage, false);
+            });
           }, 5000);
           return () => clearInterval(interval);
       }
-  }, [broadcast, loading, fetchPageData]);
+  }, [broadcast, loading, fetchPageData, currentPage]);
 
 
   const onRefresh = () => {
     startRefreshTransition(() => {
-      fetchPageData(true);
+      fetchPageData(currentPage, true);
     });
   };
   
@@ -100,7 +107,17 @@ export default function BroadcastReportPage() {
     return 'destructive';
   };
 
-  if (loading) {
+  const getAttemptStatusBadge = (status: BroadcastAttempt['status']) => {
+    switch(status) {
+        case 'SENT': return <Badge variant="default"><CheckCircle className="mr-2 h-4 w-4" />Sent</Badge>;
+        case 'FAILED': return <Badge variant="destructive"><XCircle className="mr-2 h-4 w-4" />Failed</Badge>;
+        case 'PENDING':
+        default:
+            return <Badge variant="outline"><CircleDashed className="mr-2 h-4 w-4" />Pending</Badge>;
+    }
+  };
+
+  if (loading && currentPage === 1) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-10 w-48" />
@@ -113,30 +130,21 @@ export default function BroadcastReportPage() {
   if (!broadcast) {
     return <div>Broadcast not found.</div>;
   }
-  
-  const getErrorDetail = (response: any): string => {
-    if (!response) return 'No response data';
-    if (response.error?.message) {
-      let detail = response.error.message;
-      if(response.error.error_user_title) detail = `${response.error.error_user_title}: ${detail}`;
-      return detail;
-    }
-    if (typeof response === 'string') {
-      return response;
-    }
-    return 'Unknown error details';
-  };
 
-  const allAttempts = attempts
-    .filter(a => a.status === 'SENT' || a.status === 'FAILED')
-    .map(attempt => {
-        const isSuccess = attempt.status === 'SENT';
-        return {
-            ...attempt,
-            status: isSuccess ? 'Success' as const : 'Failed' as const,
-            detail: isSuccess ? (attempt.response?.messages?.[0]?.id ?? 'N/A') : getErrorDetail(attempt.response),
-        };
-    });
+  const allAttempts = attempts.map((attempt) => {
+    let detail = '';
+    if (attempt.status === 'SENT') {
+        detail = attempt.messageId || 'Sent successfully';
+    } else if (attempt.status === 'FAILED') {
+        detail = attempt.error || 'Failed with unknown error';
+    } else {
+        detail = 'Waiting to be sent...';
+    }
+    return {
+        ...attempt,
+        detail,
+    };
+});
 
   return (
     <>
@@ -214,7 +222,7 @@ export default function BroadcastReportPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle>Delivery Results</CardTitle>
-                        <CardDescription>Live status for each contact. Click a row to see details. This report updates automatically.</CardDescription>
+                        <CardDescription>Live status for each contact. This report updates automatically for active campaigns.</CardDescription>
                     </div>
                      <Badge variant={getStatusVariant(broadcast.status)} className="capitalize text-base px-4 py-2">
                         {broadcast.status}
@@ -228,18 +236,15 @@ export default function BroadcastReportPage() {
                             <TableRow>
                                 <TableHead>Phone Number</TableHead>
                                 <TableHead>Status</TableHead>
-                                <TableHead>Message ID / Error</TableHead>
+                                <TableHead>Message ID / Error Details</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {allAttempts.length > 0 ? allAttempts.map((attempt, index) => (
-                                <TableRow key={index} onClick={() => setSelectedAttempt(attempt)} className="cursor-pointer">
+                            {allAttempts.length > 0 ? allAttempts.map((attempt) => (
+                                <TableRow key={attempt._id}>
                                     <TableCell className="font-mono">{attempt.phone}</TableCell>
                                     <TableCell>
-                                        <Badge variant={attempt.status === 'Success' ? 'default' : 'destructive'}>
-                                            {attempt.status === 'Success' ? <CheckCircle className="mr-2 h-4 w-4" /> : <XCircle className="mr-2 h-4 w-4" />}
-                                            {attempt.status}
-                                        </Badge>
+                                        {getAttemptStatusBadge(attempt.status)}
                                     </TableCell>
                                     <TableCell className="font-mono text-xs">
                                         {attempt.detail}
@@ -257,36 +262,30 @@ export default function BroadcastReportPage() {
                         </TableBody>
                     </Table>
                 </ScrollArea>
+                 <div className="flex items-center justify-end space-x-2 py-4">
+                    <span className="text-sm text-muted-foreground">
+                        Page {currentPage} of {totalPages > 0 ? totalPages : 1}
+                    </span>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => p - 1)}
+                        disabled={currentPage <= 1}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => p + 1)}
+                        disabled={currentPage >= totalPages}
+                    >
+                        Next
+                    </Button>
+                </div>
             </CardContent>
         </Card>
       </div>
-
-       <Dialog open={!!selectedAttempt} onOpenChange={(open) => !open && setSelectedAttempt(null)}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>Attempt Details</DialogTitle>
-            <DialogDescription>
-                Showing details for message sent to {selectedAttempt?.phone}
-            </DialogDescription>
-          </DialogHeader>
-          {selectedAttempt && (
-              <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[70vh] overflow-y-auto">
-                <div className="space-y-2">
-                    <h3 className="font-semibold">Request Payload</h3>
-                    <pre className="p-4 bg-muted/50 rounded-md whitespace-pre-wrap font-code text-xs">
-                        {JSON.stringify(selectedAttempt.payload, null, 2)}
-                    </pre>
-                </div>
-                 <div className="space-y-2">
-                    <h3 className="font-semibold">API Response</h3>
-                    <pre className="p-4 bg-muted/50 rounded-md whitespace-pre-wrap font-code text-xs">
-                        {JSON.stringify(selectedAttempt.response, null, 2)}
-                    </pre>
-                </div>
-              </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

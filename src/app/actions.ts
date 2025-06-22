@@ -77,8 +77,9 @@ export type BroadcastAttempt = {
     _id: string;
     phone: string;
     status: 'PENDING' | 'SENT' | 'FAILED';
-    payload?: any;
-    response?: any;
+    sentAt?: Date;
+    messageId?: string; // a successful send from Meta
+    error?: string; // a failed send reason
 };
 
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
@@ -219,18 +220,25 @@ export async function getBroadcastById(broadcastId: string) {
     }
 }
 
-export async function getBroadcastAttempts(broadcastId: string): Promise<BroadcastAttempt[]> {
+export async function getBroadcastAttempts(broadcastId: string, page: number = 1, limit: number = 50): Promise<{ attempts: BroadcastAttempt[], total: number }> {
     if (!ObjectId.isValid(broadcastId)) {
         console.error("Invalid Broadcast ID in getBroadcastAttempts:", broadcastId);
-        return [];
+        return { attempts: [], total: 0 };
     }
     try {
         const { db } = await connectToDatabase();
-        const attempts = await db.collection('broadcast_contacts').find({ broadcastId: new ObjectId(broadcastId) }).toArray();
-        return JSON.parse(JSON.stringify(attempts));
+        const query = { broadcastId: new ObjectId(broadcastId) };
+        const skip = (page - 1) * limit;
+
+        const [attempts, total] = await Promise.all([
+            db.collection('broadcast_contacts').find(query).sort({createdAt: -1}).skip(skip).limit(limit).toArray(),
+            db.collection('broadcast_contacts').countDocuments(query)
+        ]);
+        
+        return { attempts: JSON.parse(JSON.stringify(attempts)), total };
     } catch (error) {
         console.error('Failed to fetch broadcast attempts:', error);
-        return [];
+        return { attempts: [], total: 0 };
     }
 }
 
@@ -785,6 +793,7 @@ export async function handleCleanDatabase(
         return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
     }
 }
+
 
 
 
