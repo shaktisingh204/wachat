@@ -168,7 +168,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
       setFooter(footerComp?.text || '');
 
       const buttonsComp = initialTemplate.components?.find(c => c.type === 'BUTTONS');
-      setButtons(buttonsComp?.button || []);
+      setButtons(buttonsComp?.buttons || []);
 
     }
   }, [initialTemplate, isCloning]);
@@ -200,9 +200,15 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
     setButtons(buttons.filter((_, i) => i !== index));
   };
 
-  const handleButtonChange = (index: number, field: keyof ButtonType, value: string) => {
+  const handleButtonChange = (index: number, field: 'text' | 'url' | 'phone_number', value: string) => {
     const newButtons = [...buttons];
     newButtons[index] = { ...newButtons[index], [field]: value };
+    setButtons(newButtons);
+  };
+
+  const handleButtonExampleChange = (index: number, value: string) => {
+    const newButtons = [...buttons];
+    newButtons[index].example = [value];
     setButtons(newButtons);
   };
 
@@ -312,7 +318,19 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                                 <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => handleRemoveButton(index)}><Trash2 className="h-4 w-4"/></Button>
                                 <p className="text-sm font-medium text-muted-foreground">{button.type.replace('_', ' ')}</p>
                                 <Input placeholder="Button Text (max 25 chars)" value={button.text} onChange={(e) => handleButtonChange(index, 'text', e.target.value)} maxLength={25} required/>
-                                {button.type === 'URL' && <Input placeholder="https://example.com/..." value={button.url || ''} onChange={(e) => handleButtonChange(index, 'url', e.target.value)} required/>}
+                                {button.type === 'URL' && (
+                                  <div className="space-y-2">
+                                    <Input placeholder="https://example.com/{{1}}" value={button.url || ''} onChange={(e) => handleButtonChange(index, 'url', e.target.value)} required/>
+                                    {button.url?.includes('{{1}}') && (
+                                        <Input 
+                                            placeholder="Example URL: https://example.com/test" 
+                                            value={button.example?.[0] || ''} 
+                                            onChange={(e) => handleButtonExampleChange(index, e.target.value)} 
+                                            required
+                                        />
+                                    )}
+                                  </div>
+                                )}
                                 {button.type === 'PHONE_NUMBER' && <Input placeholder="+15551234567" value={button.phone_number || ''} onChange={(e) => handleButtonChange(index, 'phone_number', e.target.value)} required/>}
                             </div>
                         ))}

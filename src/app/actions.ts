@@ -37,7 +37,7 @@ type MetaTemplateComponent = {
     type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
     text?: string;
     format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'AUDIO';
-    button?: any[];
+    buttons?: any[];
 };
 
 type MetaTemplate = {
@@ -684,7 +684,7 @@ export async function handleCreateTemplate(
         const headerUrl = formData.get('headerUrl') as string;
         const footerText = formData.get('footer') as string;
         const buttonsJson = formData.get('buttons') as string;
-        const button = buttonsJson ? JSON.parse(buttonsJson) : [];
+        const buttons = buttonsJson ? JSON.parse(buttonsJson) : [];
     
         if (!projectId || !name || !category || !bodyText || !language) {
             return { error: 'Project, Name, Language, Category, and Body are required.' };
@@ -725,10 +725,10 @@ export async function handleCreateTemplate(
             components.push({ type: 'FOOTER', text: footerText });
         }
 
-        if (button.length > 0) {
+        if (buttons.length > 0) {
             components.push({
                 type: 'BUTTONS',
-                button: button,
+                buttons: buttons,
             });
         }
     
