@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { WithId } from 'mongodb';
@@ -50,8 +50,11 @@ export default function BroadcastReportPage() {
 
   const broadcastId = Array.isArray(params.broadcastId) ? params.broadcastId[0] : params.broadcastId;
 
-  const fetchBroadcast = async (showToast = false) => {
-    if (!broadcastId) return;
+  const fetchBroadcast = useCallback(async (showToast = false) => {
+    if (!broadcastId) {
+      setLoading(false);
+      return;
+    }
     try {
       const data = await getBroadcastById(broadcastId);
       if (data) {
@@ -67,24 +70,27 @@ export default function BroadcastReportPage() {
       console.error("Failed to fetch broadcast details:", error);
       toast({ title: "Error", description: "Failed to load broadcast details.", variant: "destructive" });
     } finally {
-        if(loading) setLoading(false);
+        setLoading(false);
     }
-  };
+  }, [broadcastId, router, toast]);
 
   useEffect(() => {
     setLoading(true);
     fetchBroadcast();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [broadcastId]);
+  }, [fetchBroadcast]);
 
   useEffect(() => {
       if (!broadcast || loading) return;
+
       if (broadcast.status === 'QUEUED' || broadcast.status === 'PROCESSING') {
-          const interval = setInterval(() => fetchBroadcast(), 5000);
+          const interval = setInterval(() => {
+            // We don't set loading to true for background polls to avoid UI flicker
+            fetchBroadcast(false);
+          }, 5000);
           return () => clearInterval(interval);
       }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [broadcast, loading]);
+  }, [broadcast, loading, fetchBroadcast]);
+
 
   const onRefresh = () => {
     startRefreshTransition(() => {
