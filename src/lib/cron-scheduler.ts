@@ -204,8 +204,43 @@ export async function processBroadcastJob() {
                         }
 
                         const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
-                        if (buttonsComponent) {
-                            payloadComponents.push(buttonsComponent);
+                        if (buttonsComponent && Array.isArray(buttonsComponent.buttons)) {
+                            buttonsComponent.buttons.forEach((button: any, index: number) => {
+                                let buttonPayloadComponent: any = null;
+
+                                if (button.type === 'QUICK_REPLY') {
+                                    const payloadValue = contact[`button_payload_${index}`];
+                                    if (payloadValue) {
+                                        buttonPayloadComponent = {
+                                            type: 'button',
+                                            sub_type: 'quick_reply',
+                                            index: String(index),
+                                            parameters: [{
+                                                type: 'payload',
+                                                payload: payloadValue
+                                            }]
+                                        };
+                                    }
+                                }
+                                else if (button.type === 'URL' && button.url?.includes('{{')) {
+                                    const urlTextValue = contact[`button_url_text_${index}`];
+                                    if (urlTextValue) {
+                                        buttonPayloadComponent = {
+                                            type: 'button',
+                                            sub_type: 'url',
+                                            index: String(index),
+                                            parameters: [{
+                                                type: 'text',
+                                                text: urlTextValue
+                                            }]
+                                        };
+                                    }
+                                }
+
+                                if (buttonPayloadComponent) {
+                                    payloadComponents.push(buttonPayloadComponent);
+                                }
+                            });
                         }
                         
                         messageData = {

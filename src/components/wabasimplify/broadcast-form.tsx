@@ -45,9 +45,14 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
   const [state, formAction] = useActionState(handleStartBroadcast, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const [isClient, setIsClient] = useState(false);
   
   const [selectedTemplate, setSelectedTemplate] = useState<WithId<Template> | null>(null);
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState('');
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   useEffect(() => {
     if (state?.message) {
@@ -67,6 +72,10 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
       });
     }
   }, [state, toast]);
+
+  if (!isClient) {
+    return null;
+  }
 
   if (!project) {
     return (
@@ -144,7 +153,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
               className="file:text-primary file:font-medium"
               />
               <p className="text-xs text-muted-foreground">
-              First column must be phone numbers. For variables like {'{{1}}'}, use 'variable1' columns.
+                For variables like {'{{1}}'}, use 'variable1' columns. For dynamic buttons, use 'button_payload_0' or 'button_url_text_0'.
               </p>
           </div>
 
