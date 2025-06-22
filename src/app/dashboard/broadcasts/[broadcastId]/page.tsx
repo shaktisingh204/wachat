@@ -133,13 +133,16 @@ export default function BroadcastReportPage() {
     return 'Unknown error details';
   };
 
-  const allAttempts: ({ status: 'Success'; detail: string } & Attempt)[] | ({ status: 'Failed'; detail: string } & Attempt)[] = [
-    ...(broadcast.successfulSends || []).map(s => ({
+  const successfulSends = Array.isArray(broadcast.successfulSends) ? broadcast.successfulSends : [];
+  const failedSends = Array.isArray(broadcast.failedSends) ? broadcast.failedSends : [];
+
+  const allAttempts = [
+    ...successfulSends.map(s => ({
       ...s,
       status: 'Success' as const,
       detail: s.response?.messages?.[0]?.id ?? 'N/A'
     })),
-    ...(broadcast.failedSends || []).map(f => ({
+    ...failedSends.map(f => ({
       ...f,
       status: 'Failed' as const,
       detail: getErrorDetail(f.response)
