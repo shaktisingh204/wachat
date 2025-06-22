@@ -99,116 +99,127 @@ export async function processBroadcastJob() {
 
             try {
                 const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
-                const CHUNK_SIZE = project?.messagesPerSecond || 80;
+                const MESSAGES_PER_SECOND = project?.messagesPerSecond || 80;
+                
+                // Instead of sending all messages concurrently, we use a smaller limit to avoid overwhelming the server.
+                const CONCURRENCY_LIMIT = 10; 
 
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
 
                 let hasMoreContacts = true;
                 while (hasMoreContacts) {
-                    const contactsToProcess = await db.collection<BroadcastContact>('broadcast_contacts').find({
+                    const contactsForInterval = await db.collection<BroadcastContact>('broadcast_contacts').find({
                         broadcastId: jobId,
                         status: 'PENDING'
-                    }).limit(CHUNK_SIZE).toArray();
+                    }).limit(MESSAGES_PER_SECOND).toArray();
 
-                    if (contactsToProcess.length === 0) {
+                    if (contactsForInterval.length === 0) {
                         hasMoreContacts = false;
                         continue;
                     }
 
-                    const processingStartTime = Date.now();
+                    const intervalStartTime = Date.now();
+                    
+                    let successThisInterval = 0;
+                    let errorsThisInterval = 0;
 
-                    const sendPromises = contactsToProcess.map(async (contactDoc) => {
-                        const contact = { phone: contactDoc.phone, ...contactDoc.variables };
-                        const phone = contact.phone;
-                        let messageData: any = {};
+                    // Process the full interval's contacts in smaller, more manageable parallel chunks.
+                    for (let j = 0; j < contactsForInterval.length; j += CONCURRENCY_LIMIT) {
+                        const chunk = contactsForInterval.slice(j, j + CONCURRENCY_LIMIT);
+                        
+                        const sendPromises = chunk.map(async (contactDoc) => {
+                            const contact = { phone: contactDoc.phone, ...contactDoc.variables };
+                            const phone = contact.phone;
+                            let messageData: any = {};
 
-                        try {
-                            const getVars = (text: string): number[] => {
-                                if (!text) return [];
-                                const variableMatches = text.match(/{{(\d+)}}/g);
-                                return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
-                            };
+                            try {
+                                const getVars = (text: string): number[] => {
+                                    if (!text) return [];
+                                    const variableMatches = text.match(/{{(\d+)}}/g);
+                                    return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
+                                };
 
-                            const payloadComponents: any[] = [];
+                                const payloadComponents: any[] = [];
 
-                            const headerComponent = job.components.find(c => c.type === 'HEADER');
-                            if (headerComponent) {
-                                const parameters: any[] = [];
-                                if (headerComponent.format === 'TEXT' && headerComponent.text) {
-                                    const headerVars = getVars(headerComponent.text);
-                                    if (headerVars.length > 0) {
-                                        headerVars.sort((a,b) => a-b).forEach(varNum => {
-                                            parameters.push({ type: 'text', text: contact[`variable${varNum}`] || '' });
-                                        });
+                                const headerComponent = job.components.find(c => c.type === 'HEADER');
+                                if (headerComponent) {
+                                    const parameters: any[] = [];
+                                    if (headerComponent.format === 'TEXT' && headerComponent.text) {
+                                        const headerVars = getVars(headerComponent.text);
+                                        if (headerVars.length > 0) {
+                                            headerVars.sort((a,b) => a-b).forEach(varNum => {
+                                                parameters.push({ type: 'text', text: contact[`variable${varNum}`] || '' });
+                                            });
+                                        }
+                                    } else if (job.headerImageUrl) {
+                                        const type = headerComponent.format.toLowerCase();
+                                        const mediaObject: any = { link: job.headerImageUrl };
+                                        if (type === 'document') mediaObject.filename = contact['filename'] || uploadFilename;
+                                        parameters.push({ type, [type]: mediaObject });
                                     }
-                                } else if (job.headerImageUrl) {
-                                     const type = headerComponent.format.toLowerCase();
-                                     const mediaObject: any = { link: job.headerImageUrl };
-                                     if (type === 'document') mediaObject.filename = contact['filename'] || uploadFilename;
-                                     parameters.push({ type, [type]: mediaObject });
+                                    if (parameters.length > 0) payloadComponents.push({ type: 'header', parameters });
                                 }
-                                if (parameters.length > 0) payloadComponents.push({ type: 'header', parameters });
-                            }
 
-                            const bodyComponent = job.components.find(c => c.type === 'BODY');
-                            if (bodyComponent?.text) {
-                                const bodyVars = getVars(bodyComponent.text);
-                                if (bodyVars.length > 0) {
-                                    const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({ type: 'text', text: contact[`variable${varNum}`] || '' }));
-                                    payloadComponents.push({ type: 'body', parameters });
-                                }
-                            }
-
-                            const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
-                            if (buttonsComponent && Array.isArray(buttonsComponent.button)) {
-                                buttonsComponent.button.forEach((button: any, index: number) => {
-                                    if (button.type === 'QUICK_REPLY' && contact[`button_payload_${index}`]) {
-                                        payloadComponents.push({ type: 'button', sub_type: 'quick_reply', index: String(index), parameters: [{ type: 'payload', payload: contact[`button_payload_${index}`] }] });
-                                    } else if (button.type === 'URL' && button.url?.includes('{{1}}') && contact[`button_url_text_0`]) {
-                                        payloadComponents.push({ type: 'button', sub_type: 'url', index: String(index), parameters: [{ type: 'text', text: contact[`button_url_text_0`] }] });
+                                const bodyComponent = job.components.find(c => c.type === 'BODY');
+                                if (bodyComponent?.text) {
+                                    const bodyVars = getVars(bodyComponent.text);
+                                    if (bodyVars.length > 0) {
+                                        const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({ type: 'text', text: contact[`variable${varNum}`] || '' }));
+                                        payloadComponents.push({ type: 'body', parameters });
                                     }
-                                });
+                                }
+
+                                const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
+                                if (buttonsComponent && Array.isArray(buttonsComponent.button)) {
+                                    buttonsComponent.button.forEach((button: any, index: number) => {
+                                        if (button.type === 'QUICK_REPLY' && contact[`button_payload_${index}`]) {
+                                            payloadComponents.push({ type: 'button', sub_type: 'quick_reply', index: String(index), parameters: [{ type: 'payload', payload: contact[`button_payload_${index}`] }] });
+                                        } else if (button.type === 'URL' && button.url?.includes('{{1}}') && contact[`button_url_text_0`]) {
+                                            payloadComponents.push({ type: 'button', sub_type: 'url', index: String(index), parameters: [{ type: 'text', text: contact[`button_url_text_0`] }] });
+                                        }
+                                    });
+                                }
+
+                                messageData = {
+                                    messaging_product: 'whatsapp', to: phone, recipient_type: 'individual', type: 'template',
+                                    template: { name: job.templateName, language: { code: job.language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
+                                };
+
+                                const response = await axios.post(
+                                    `https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`,
+                                    messageData,
+                                    { headers: { 'Authorization': `Bearer ${job.accessToken}` } }
+                                );
+
+                                await db.collection('broadcast_contacts').updateOne(
+                                    { _id: contactDoc._id },
+                                    { $set: { status: 'SENT', sentAt: new Date(), messageId: response.data?.messages?.[0]?.id } }
+                                );
+                                return { success: true };
+
+                            } catch(error: any) {
+                                const errorResponse = error.response?.data || { error: { message: getAxiosErrorMessage(error) } };
+                                await db.collection('broadcast_contacts').updateOne(
+                                    { _id: contactDoc._id },
+                                    { $set: { status: 'FAILED', sentAt: new Date(), error: errorResponse?.error?.message || getAxiosErrorMessage(error) } }
+                                );
+                                return { success: false };
                             }
+                        });
 
-                            messageData = {
-                                messaging_product: 'whatsapp', to: phone, recipient_type: 'individual', type: 'template',
-                                template: { name: job.templateName, language: { code: job.language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
-                            };
+                        const results = await Promise.all(sendPromises);
+                        successThisInterval += results.filter(r => r.success).length;
+                        errorsThisInterval += results.filter(r => !r.success).length;
+                    }
 
-                            const response = await axios.post(
-                                `https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`,
-                                messageData,
-                                { headers: { 'Authorization': `Bearer ${job.accessToken}` } }
-                            );
-
-                            await db.collection('broadcast_contacts').updateOne(
-                                { _id: contactDoc._id },
-                                { $set: { status: 'SENT', sentAt: new Date(), messageId: response.data?.messages?.[0]?.id } }
-                            );
-                            return { success: true };
-
-                        } catch(error: any) {
-                            const errorResponse = error.response?.data || { error: { message: getAxiosErrorMessage(error) } };
-                            await db.collection('broadcast_contacts').updateOne(
-                                { _id: contactDoc._id },
-                                { $set: { status: 'FAILED', sentAt: new Date(), error: errorResponse?.error?.message || getAxiosErrorMessage(error) } }
-                            );
-                            return { success: false };
-                        }
-                    });
-
-                    const results = await Promise.all(sendPromises);
-                    const successCount = results.filter(r => r.success).length;
-                    const errorCount = results.filter(r => !r.success).length;
-
-                    if (successCount > 0 || errorCount > 0) {
+                    if (successThisInterval > 0 || errorsThisInterval > 0) {
                         await db.collection('broadcasts').updateOne({ _id: jobId }, {
-                            $inc: { successCount: successCount, errorCount: errorCount },
+                            $inc: { successCount: successThisInterval, errorCount: errorsThisInterval },
                         });
                     }
 
-                    const processingEndTime = Date.now();
-                    const duration = processingEndTime - processingStartTime;
+                    const intervalEndTime = Date.now();
+                    const duration = intervalEndTime - intervalStartTime;
                     const delay = 1000 - duration;
 
                     if (hasMoreContacts && delay > 0) {

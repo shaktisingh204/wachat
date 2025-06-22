@@ -795,3 +795,24 @@ export async function handleUpdateProjectSettings(
         return { error: e.message || 'An unexpected error occurred while saving the settings.' };
     }
 }
+
+export async function handleCleanDatabase(
+    prevState: { message?: string | null; error?: string | null; },
+    formData: FormData
+  ): Promise<{ message?: string | null; error?: string | null; }> {
+      try {
+          const { db } = await connectToDatabase();
+          
+          await db.collection('projects').deleteMany({});
+          await db.collection('templates').deleteMany({});
+          await db.collection('broadcasts').deleteMany({});
+          await db.collection('broadcast_contacts').deleteMany({});
+          
+          revalidatePath('/dashboard');
+  
+          return { message: 'Database has been successfully cleaned of all projects, templates, and broadcast data.' };
+      } catch (e: any) {
+          console.error('Database cleaning failed:', e);
+          return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
+      }
+  }
