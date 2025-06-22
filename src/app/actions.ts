@@ -227,14 +227,23 @@ export async function getBroadcastById(broadcastId: string) {
     }
 }
 
-export async function getBroadcastAttempts(broadcastId: string, page: number = 1, limit: number = 50): Promise<{ attempts: BroadcastAttempt[], total: number }> {
+export async function getBroadcastAttempts(
+    broadcastId: string, 
+    page: number = 1, 
+    limit: number = 50, 
+    filter: 'ALL' | 'SENT' | 'FAILED' | 'PENDING' = 'ALL'
+): Promise<{ attempts: BroadcastAttempt[], total: number }> {
     if (!ObjectId.isValid(broadcastId)) {
         console.error("Invalid Broadcast ID in getBroadcastAttempts:", broadcastId);
         return { attempts: [], total: 0 };
     }
     try {
         const { db } = await connectToDatabase();
-        const query = { broadcastId: new ObjectId(broadcastId) };
+        const query: any = { broadcastId: new ObjectId(broadcastId) };
+        if (filter !== 'ALL') {
+            query.status = filter;
+        }
+
         const skip = (page - 1) * limit;
 
         const [attempts, total] = await Promise.all([
@@ -736,9 +745,28 @@ export async function handleCreateTemplate(
         }
 
         if (buttons.length > 0) {
+            const formattedButtons = buttons.map((button: any) => {
+                const newButton: any = {
+                    type: button.type,
+                    text: button.text,
+                };
+                if (button.type === 'URL') {
+                    newButton.url = button.url;
+                    if (button.example) {
+                        newButton.example = button.example;
+                    }
+                }
+                if (button.type === 'PHONE_NUMBER') {
+                    newButton.phone_number = button.phone_number;
+                }
+                if (button.type === 'QUICK_REPLY') {
+                    newButton.payload = button.payload || button.text;
+                }
+                return newButton;
+            });
             components.push({
                 type: 'BUTTONS',
-                buttons: buttons,
+                buttons: formattedButtons,
             });
         }
     
@@ -911,3 +939,4 @@ export async function handleCleanDatabase(
           return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
       }
   }
+

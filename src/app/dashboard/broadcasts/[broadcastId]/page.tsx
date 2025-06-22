@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, RefreshCw, CheckCircle, XCircle, FileText, Clock, Users, Send, AlertTriangle, CalendarCheck, CircleDashed } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 type Broadcast = {
   _id: any;
@@ -28,6 +29,8 @@ type Broadcast = {
   completedAt?: string;
 };
 
+type FilterStatus = 'ALL' | 'SENT' | 'FAILED' | 'PENDING';
+
 const ATTEMPTS_PER_PAGE = 50;
 
 export default function BroadcastReportPage() {
@@ -40,10 +43,11 @@ export default function BroadcastReportPage() {
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const [filter, setFilter] = useState<FilterStatus>('ALL');
 
   const broadcastId = Array.isArray(params.broadcastId) ? params.broadcastId[0] : params.broadcastId;
 
-  const fetchPageData = useCallback(async (page: number, showToast = false) => {
+  const fetchPageData = useCallback(async (page: number, filterValue: FilterStatus, showToast = false) => {
     if (!broadcastId) {
       setLoading(false);
       return;
@@ -51,7 +55,7 @@ export default function BroadcastReportPage() {
     try {
         const [broadcastData, attemptsData] = await Promise.all([
             getBroadcastById(broadcastId),
-            getBroadcastAttempts(broadcastId, page, ATTEMPTS_PER_PAGE),
+            getBroadcastAttempts(broadcastId, page, ATTEMPTS_PER_PAGE, filterValue),
         ]);
 
         if (broadcastData) {
@@ -74,8 +78,8 @@ export default function BroadcastReportPage() {
 
   useEffect(() => {
     setLoading(true);
-    fetchPageData(currentPage).finally(() => setLoading(false));
-  }, [fetchPageData, currentPage]);
+    fetchPageData(currentPage, filter).finally(() => setLoading(false));
+  }, [fetchPageData, currentPage, filter]);
 
 
   useEffect(() => {
@@ -86,18 +90,23 @@ export default function BroadcastReportPage() {
       if (shouldAutoRefresh) {
           const interval = setInterval(() => {
             startRefreshTransition(() => {
-                fetchPageData(currentPage, false);
+                fetchPageData(currentPage, filter, false);
             });
           }, 5000);
           return () => clearInterval(interval);
       }
-  }, [broadcast, loading, fetchPageData, currentPage]);
+  }, [broadcast, loading, fetchPageData, currentPage, filter]);
 
 
   const onRefresh = () => {
     startRefreshTransition(() => {
-      fetchPageData(currentPage, true);
+      fetchPageData(currentPage, filter, true);
     });
+  };
+
+  const handleFilterChange = (value: string) => {
+    setCurrentPage(1);
+    setFilter(value as FilterStatus);
   };
   
   const getStatusVariant = (status: string) => {
@@ -230,6 +239,14 @@ export default function BroadcastReportPage() {
                 </div>
             </CardHeader>
             <CardContent>
+                <Tabs defaultValue="ALL" className="mb-4" onValueChange={handleFilterChange}>
+                    <TabsList>
+                        <TabsTrigger value="ALL">All</TabsTrigger>
+                        <TabsTrigger value="SENT">Sent</TabsTrigger>
+                        <TabsTrigger value="FAILED">Failed</TabsTrigger>
+                        <TabsTrigger value="PENDING">Pending</TabsTrigger>
+                    </TabsList>
+                </Tabs>
                 <ScrollArea className="h-[50vh]">
                     <Table>
                         <TableHeader className="sticky top-0 bg-background">
@@ -253,9 +270,9 @@ export default function BroadcastReportPage() {
                             )) : (
                                 <TableRow>
                                     <TableCell colSpan={3} className="h-24 text-center">
-                                        {broadcast.status === 'QUEUED' || broadcast.status === 'PROCESSING'
-                                            ? 'Processing... results will appear here shortly.'
-                                            : 'No results to display for this broadcast.'}
+                                        {loading
+                                            ? 'Loading results...'
+                                            : `No ${filter !== 'ALL' ? filter.toLowerCase() : ''} results to display for this broadcast.`}
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -289,3 +306,4 @@ export default function BroadcastReportPage() {
     </>
   );
 }
+
