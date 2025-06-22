@@ -27,7 +27,8 @@ type MetaPhoneNumbersResponse = {
         cursors: {
             before: string;
             after: string;
-        }
+        },
+        next?: string;
     }
 };
 
@@ -53,7 +54,8 @@ type MetaTemplatesResponse = {
         cursors: {
             before: string;
             after: string;
-        }
+        },
+        next?: string;
     }
 };
 
@@ -483,24 +485,37 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
 
         const { wabaId, accessToken } = project;
         const fields = 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput';
-        const response = await fetch(
-            `https://graph.facebook.com/v22.0/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}`,
-            { method: 'GET' }
-        );
         
-        const responseText = await response.text();
-        const responseData = responseText ? JSON.parse(responseText) : {};
-        
-        if (!response.ok) {
-            const errorMessage = responseData?.error?.message || 'Unknown error syncing phone numbers.';
-            return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
+        const allPhoneNumbers: MetaPhoneNumber[] = [];
+        let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}&limit=100`;
+
+        while (nextUrl) {
+            const response = await fetch(nextUrl, { method: 'GET' });
+            
+            const responseText = await response.text();
+            const responseData: MetaPhoneNumbersResponse = responseText ? JSON.parse(responseText) : {};
+            
+            if (!response.ok) {
+                const errorMessage = (responseData as any)?.error?.message || 'Unknown error syncing phone numbers.';
+                return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
+            }
+
+            if (responseData.data && responseData.data.length > 0) {
+                allPhoneNumbers.push(...responseData.data);
+            }
+            
+            nextUrl = responseData.paging?.next;
         }
-        
-        if (!responseData.data || responseData.data.length === 0) {
+
+        if (allPhoneNumbers.length === 0) {
+            await db.collection('projects').updateOne(
+                { _id: new ObjectId(projectId) },
+                { $set: { phoneNumbers: [] } }
+            );
             return { message: "No phone numbers found in your WhatsApp Business Account to sync." };
         }
 
-        const phoneNumbers: PhoneNumber[] = responseData.data.map((num: MetaPhoneNumber) => ({
+        const phoneNumbers: PhoneNumber[] = allPhoneNumbers.map((num: MetaPhoneNumber) => ({
             id: num.id,
             display_phone_number: num.display_phone_number,
             verified_name: num.verified_name,
@@ -540,29 +555,37 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
 
         const { wabaId, accessToken } = project;
 
-        const response = await fetch(
-            `https://graph.facebook.com/v22.0/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id`,
-            { method: 'GET' }
-        );
+        const allTemplates: MetaTemplate[] = [];
+        let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id&limit=100`;
 
-        if (!response.ok) {
-            let reason = 'Unknown API Error';
-            try {
-                const errorData = await response.json();
-                reason = errorData?.error?.message || reason;
-            } catch (e) {
-                reason = `Could not parse error response from Meta. Status: ${response.status} ${response.statusText}`;
+        while(nextUrl) {
+            const response = await fetch(nextUrl, { method: 'GET' });
+
+            if (!response.ok) {
+                let reason = 'Unknown API Error';
+                try {
+                    const errorData = await response.json();
+                    reason = errorData?.error?.message || reason;
+                } catch (e) {
+                    reason = `Could not parse error response from Meta. Status: ${response.status} ${response.statusText}`;
+                }
+                return { error: `Failed to fetch templates from Meta: ${reason}` };
             }
-            return { error: `Failed to fetch templates from Meta: ${reason}` };
-        }
 
-        const templatesResponse: MetaTemplatesResponse = await response.json();
+            const templatesResponse: MetaTemplatesResponse = await response.json();
+            
+            if (templatesResponse.data && templatesResponse.data.length > 0) {
+                allTemplates.push(...templatesResponse.data);
+            }
+
+            nextUrl = templatesResponse.paging?.next;
+        }
         
-        if (!templatesResponse.data || templatesResponse.data.length === 0) {
+        if (allTemplates.length === 0) {
             return { message: "No templates found in your WhatsApp Business Account to sync." }
         }
 
-        const templatesToUpsert = templatesResponse.data.map(t => {
+        const templatesToUpsert = allTemplates.map(t => {
             const bodyComponent = t.components.find(c => c.type === 'BODY');
             return {
                 name: t.name,
@@ -793,8 +816,3 @@ export async function handleCleanDatabase(
         return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
     }
 }
-
-
-
-
-
