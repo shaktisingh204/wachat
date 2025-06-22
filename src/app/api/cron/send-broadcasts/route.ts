@@ -150,6 +150,7 @@ async function handleRequest(request: Request) {
 
                     try {
                         const getVars = (text: string): number[] => {
+                            if (!text) return [];
                             const variableMatches = text.match(/{{(\d+)}}/g);
                             return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
                         };
