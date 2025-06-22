@@ -28,7 +28,6 @@ type BroadcastJob = {
     templateName: string;
     phoneNumberId: string;
     accessToken: string;
-    contacts: Record<string, string>[];
     status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed';
     createdAt: Date;
     startedAt?: Date;
@@ -40,7 +39,17 @@ type BroadcastJob = {
     components: any[]; 
     language: string;
     headerImageUrl?: string;
+    contactCount?: number;
 };
+
+type BroadcastContact = {
+    _id: ObjectId;
+    broadcastId: ObjectId;
+    phone: string;
+    variables: Record<string, string>;
+    status: 'PENDING' | 'SENT' | 'FAILED';
+    createdAt: Date;
+}
 
 type Project = {
     _id: ObjectId;
@@ -50,9 +59,21 @@ type Project = {
 
 const getAxiosErrorMessage = (error: any): string => {
     if (axios.isAxiosError(error)) {
-        const message = error.response?.data?.error?.message || error.message;
-        const details = error.response?.data?.error ? ` (Code: ${error.response.data.error.code}, Type: ${error.response.data.error.type})` : '';
-        return `${message}${details}`;
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            const apiError = error.response.data?.error;
+            if (apiError) {
+                return `${apiError.message || 'API Error'} (Code: ${apiError.code}, Type: ${apiError.type})`;
+            }
+            return `Request failed with status code ${error.response.status}`;
+        } else if (error.request) {
+            // The request was made but no response was received
+            return 'No response received from server. Check network connectivity.';
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            return error.message;
+        }
     }
     return error.message || 'An unknown error occurred';
 };
@@ -68,7 +89,6 @@ export async function processBroadcastJob() {
         const conn = await connectToDatabase();
         db = conn.db;
 
-        // This loop will continue to fetch and process jobs until the queue is empty.
         while (true) {
             const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
                 { status: 'QUEUED' },
@@ -85,56 +105,45 @@ export async function processBroadcastJob() {
                 { returnDocument: 'after', sort: { createdAt: 1 } }
             );
 
-            // If no job is found, the queue is empty. Break the loop.
             if (!job) {
                 break;
             }
 
             const jobId = job._id;
             
-            // This inner try-catch ensures that one failed job doesn't stop the entire cron run.
             try {
                 const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
                 const CHUNK_SIZE = project?.messagesPerSecond || 80;
 
                 let mediaId: string | null = null;
                 const headerComponent = job.components.find(c => c.type === 'HEADER');
+                
                 if (headerComponent && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                    const templateDefaultUrl = headerComponent.example?.header_handle?.[0];
-                    const finalUrl = job.headerImageUrl || templateDefaultUrl;
-
-                    if (finalUrl) {
-                        const mediaResponse = await axios.get(finalUrl, { responseType: 'arraybuffer' });
-                        
-                        const fileBuffer = Buffer.from(mediaResponse.data, 'binary');
-                        const filename = finalUrl.split('/').pop()?.split('?')[0] || 'media-file';
-                        const mediaType = mediaResponse.headers['content-type'] || 'application/octet-stream';
-
-                        const formData = new FormData();
-                        formData.append('messaging_product', 'whatsapp');
-                        formData.append('file', fileBuffer, { filename: filename, contentType: mediaType });
-                        
-                        const uploadResponse = await axios.post(
-                            `https://graph.facebook.com/v22.0/${job.phoneNumberId}/media`,
-                            formData,
-                            { headers: { 'Authorization': `Bearer ${job.accessToken}`, ...formData.getHeaders() } }
-                        );
-                        
-                        if (!uploadResponse.data.id) {
-                            throw new Error(`Meta media upload failed: ${JSON.stringify(uploadResponse.data.error || uploadResponse.data)}`);
-                        }
-                        mediaId = uploadResponse.data.id;
-                    }
+                     // This feature is removed as it's not compatible with serverless read-only filesystems.
+                     // A URL must be provided in the broadcast form.
                 }
                 
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
 
-                for (let i = 0; i < job.contacts.length; i += CHUNK_SIZE) {
-                    const chunk = job.contacts.slice(i, i + CHUNK_SIZE);
+                let hasMoreContacts = true;
+                while (hasMoreContacts) {
+                    const contactsToProcess = await db.collection<BroadcastContact>('broadcast_contacts').find({
+                        broadcastId: jobId,
+                        status: 'PENDING'
+                    }).limit(CHUNK_SIZE).toArray();
+
+                    if (contactsToProcess.length === 0) {
+                        hasMoreContacts = false;
+                        continue;
+                    }
+
                     const chunkSuccessfulSends: SuccessfulSend[] = [];
                     const chunkFailedSends: FailedSend[] = [];
+                    const successfulContactIds: ObjectId[] = [];
+                    const failedContactIds: ObjectId[] = [];
 
-                    const sendPromises = chunk.map(async (contact) => {
+                    const sendPromises = contactsToProcess.map(async (contactDoc) => {
+                        const contact = { phone: contactDoc.phone, ...contactDoc.variables };
                         const phone = contact.phone;
                         let messageData: any = {};
                         
@@ -156,9 +165,11 @@ export async function processBroadcastJob() {
                                             parameters.push({ type: 'text', text: contact[`variable${varNum}`] || '' });
                                         });
                                     }
-                                } else if (mediaId) {
+                                } else if (job.headerImageUrl) {
+                                     // For non-text headers, we use an image URL provided at broadcast time.
+                                     // This assumes the URL is publicly accessible. Direct upload to Meta is no longer used.
                                      const type = headerComponent.format.toLowerCase();
-                                     const mediaObject: any = { id: mediaId };
+                                     const mediaObject: any = { link: job.headerImageUrl };
                                      if (type === 'document') mediaObject.filename = contact['filename'] || uploadFilename;
                                      parameters.push({ type, [type]: mediaObject });
                                 }
@@ -197,10 +208,12 @@ export async function processBroadcastJob() {
                             );
 
                             chunkSuccessfulSends.push({ phone, response: response.data, payload: messageData });
+                            successfulContactIds.push(contactDoc._id);
 
                         } catch(error: any) {
                             const errorResponse = error.response?.data || { error: { message: getAxiosErrorMessage(error) } };
                             chunkFailedSends.push({ phone, response: errorResponse, payload: messageData });
+                            failedContactIds.push(contactDoc._id);
                         }
                     });
 
@@ -211,6 +224,19 @@ export async function processBroadcastJob() {
                             $inc: { successCount: chunkSuccessfulSends.length, errorCount: chunkFailedSends.length },
                             $push: { successfulSends: { $each: chunkSuccessfulSends }, failedSends: { $each: chunkFailedSends } }
                         });
+                    }
+
+                    if (successfulContactIds.length > 0) {
+                        await db.collection('broadcast_contacts').updateMany(
+                            { _id: { $in: successfulContactIds } },
+                            { $set: { status: 'SENT' } }
+                        );
+                    }
+                    if (failedContactIds.length > 0) {
+                        await db.collection('broadcast_contacts').updateMany(
+                            { _id: { $in: failedContactIds } },
+                            { $set: { status: 'FAILED' } }
+                        );
                     }
                 }
 
@@ -232,15 +258,19 @@ export async function processBroadcastJob() {
                 totalErrorCountAllJobs += jobErrorCount;
 
             } catch (processingError: any) {
-                const errorCount = job.contacts?.length || 0;
-                totalErrorCountAllJobs += errorCount;
-                await db.collection('broadcasts').updateOne(
+                 const errorMsg = getAxiosErrorMessage(processingError);
+                 console.error(`Processing failed for job ${jobId}: ${errorMsg}`);
+                 
+                 const finalJobState = await db.collection('broadcasts').findOne({_id: jobId});
+                 const finalStatus = (finalJobState?.successCount || 0) > 0 ? 'Partial Failure' : 'Failed';
+
+                 await db.collection('broadcasts').updateOne(
                     { _id: jobId },
-                    { $set: { status: 'Failed', completedAt: new Date(), errorCount, successCount: 0, failedSends: [{ phone: 'N/A', response: { error: { message: getAxiosErrorMessage(processingError) } }, payload: {} }] } }
-                );
-                processedJobsSummary.push({ jobId: jobId.toString(), status: 'Failed', error: getAxiosErrorMessage(processingError) });
+                    { $set: { status: finalStatus, completedAt: new Date() } }
+                 );
+                processedJobsSummary.push({ jobId: jobId.toString(), status: `Processing Error - ${finalStatus}`, error: errorMsg });
             }
-        } // End of while loop
+        }
 
         if (processedJobsSummary.length === 0) {
             return { message: 'No queued broadcasts to process.' };

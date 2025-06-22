@@ -35,7 +35,7 @@ type MetaTemplateComponent = {
     type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
     text?: string;
     format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'AUDIO';
-    link?: string;
+    button?: any[];
 };
 
 type MetaTemplate = {
@@ -57,13 +57,13 @@ type MetaTemplatesResponse = {
     }
 };
 
+// This type is used within the action, the cron scheduler has its own definition.
 type BroadcastJob = {
     projectId: ObjectId;
     templateId: ObjectId;
     templateName: string;
     phoneNumberId: string;
     accessToken: string;
-    contacts: Record<string, string>[];
     status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed';
     createdAt: Date;
     contactCount: number;
@@ -241,6 +241,9 @@ export async function handleStartBroadcast(
   prevState: BroadcastState,
   formData: FormData
 ): Promise<BroadcastState> {
+  let broadcastId: ObjectId | null = null;
+  const { db } = await connectToDatabase();
+
   try {
     const projectId = formData.get('projectId') as string;
     const phoneNumberId = formData.get('phoneNumberId') as string;
@@ -256,7 +259,6 @@ export async function handleStartBroadcast(
       return { error: 'No phone number selected. Please select a number to send the broadcast from.' };
     }
 
-    const { db } = await connectToDatabase();
     const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
 
     if (!project) {
@@ -317,15 +319,18 @@ export async function handleStartBroadcast(
     }
     const phoneColumnHeader = headers[0];
     
-    const transformedContacts = contacts.map(contact => {
-        const phone = contact[phoneColumnHeader];
-        const {[phoneColumnHeader]: _, ...rest} = contact;
-        return { phone, ...rest };
-    });
+    const transformedContacts = contacts
+        .map(contact => {
+            const phone = contact[phoneColumnHeader];
+            if (!phone || String(phone).trim() === '') return null;
+            
+            const {[phoneColumnHeader]: _, ...rest} = contact;
+            return { phone: String(phone).trim(), variables: rest };
+        })
+        .filter(c => c !== null) as { phone: string; variables: Record<string, string> }[];
 
-    const validContacts = transformedContacts.filter((c) => c.phone && String(c.phone).trim() !== '');
 
-    if (validContacts.length === 0) {
+    if (transformedContacts.length === 0) {
       return { error: 'No valid contacts with phone numbers found in the first column of the file.' };
     }
     
@@ -334,29 +339,47 @@ export async function handleStartBroadcast(
         finalHeaderImageUrl = headerImageUrl.trim();
     }
     
-    const broadcastJob: Omit<WithId<BroadcastJob>, '_id'> = {
+    const broadcastJobData: Omit<WithId<BroadcastJob>, '_id'> = {
         projectId: new ObjectId(projectId),
         templateId: new ObjectId(templateId),
         templateName: template.name,
         phoneNumberId,
         accessToken,
-        contacts: validContacts,
         status: 'QUEUED',
         createdAt: new Date(),
-        contactCount: validContacts.length,
+        contactCount: transformedContacts.length,
         fileName: contactFile.name,
         components: template.components,
         language: template.language,
         headerImageUrl: finalHeaderImageUrl,
     };
 
-    await db.collection('broadcasts').insertOne(broadcastJob);
+    const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData);
+    broadcastId = broadcastResult.insertedId;
+
+    const contactsToInsert = transformedContacts.map(c => ({
+        broadcastId,
+        phone: c.phone,
+        variables: c.variables,
+        status: 'PENDING' as const,
+        createdAt: new Date(),
+    }));
+
+    const batchSize = 5000;
+    for (let i = 0; i < contactsToInsert.length; i += batchSize) {
+        const batch = contactsToInsert.slice(i, i + batchSize);
+        await db.collection('broadcast_contacts').insertMany(batch);
+    }
 
     revalidatePath('/dashboard/broadcasts');
-    return { message: `Broadcast successfully queued for ${validContacts.length} contacts. Sending will begin shortly.` };
+    return { message: `Broadcast successfully queued for ${transformedContacts.length} contacts. Sending will begin shortly.` };
 
   } catch (e: any) {
     console.error('Failed to queue broadcast:', e);
+    if (broadcastId) {
+        await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+        await db.collection('broadcast_contacts').deleteMany({ broadcastId: broadcastId });
+    }
     return { error: e.message || 'An unexpected error occurred while processing the broadcast.' };
   }
 }
@@ -507,7 +530,6 @@ export async function handleCreateTemplate(
         const language = formData.get('language') as string;
         const headerFormat = formData.get('headerFormat') as string;
         const headerText = formData.get('headerText') as string;
-        const headerUrl = formData.get('headerUrl') as string;
         const footerText = formData.get('footer') as string;
         const buttonsJson = formData.get('buttons') as string;
         const buttons = buttonsJson ? JSON.parse(buttonsJson) : [];
@@ -532,12 +554,6 @@ export async function handleCreateTemplate(
             if (headerFormat === 'TEXT') {
                 if (!headerText) return { error: 'Header text is required for TEXT header format.' };
                 headerComponent.text = headerText;
-            } else {
-                if (!headerUrl) return { error: 'A public media URL is required for this header format.' };
-                if (!headerUrl.startsWith('http')) {
-                    return { error: 'Media URL must be a full, public URL (e.g., https://...)' };
-                }
-                headerComponent.example = { header_handle: [headerUrl] };
             }
             components.push(headerComponent);
         }
@@ -566,6 +582,7 @@ export async function handleCreateTemplate(
             language,
             category,
             components,
+            allow_category_change: true,
         };
     
         const response = await fetch(
