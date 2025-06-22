@@ -122,22 +122,22 @@ export default function DashboardOverviewPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Delivery Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Sent</CardTitle>
             <CheckCircle className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{deliveredPercentage}%</div>
-            <p className="text-xs text-muted-foreground">{stats.totalSent.toLocaleString()} sent successfully.</p>
+            <div className="text-2xl font-bold">{stats.totalSent.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">{deliveredPercentage}% of all messages sent.</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Failure Rate</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Failed</CardTitle>
             <XCircle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{failedPercentage}%</div>
-            <p className="text-xs text-muted-foreground">{stats.totalFailed.toLocaleString()} failed to send.</p>
+            <div className="text-2xl font-bold">{stats.totalFailed.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">{failedPercentage}% of all messages failed.</p>
           </CardContent>
         </Card>
         <Card>
