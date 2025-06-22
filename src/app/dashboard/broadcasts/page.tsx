@@ -31,6 +31,7 @@ type Broadcast = {
   errorCount?: number;
   status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure';
   createdAt: string;
+  completedAt?: string;
   successfulSends?: { phone: string; response: any }[];
   failedSends?: { phone: string; response: any }[];
 };
@@ -182,7 +183,8 @@ export default function BroadcastPage() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Date</TableHead>
+                  <TableHead>Queued</TableHead>
+                  <TableHead>Completed</TableHead>
                   <TableHead>Template</TableHead>
                   <TableHead>File Name</TableHead>
                   <TableHead>Contacts</TableHead>
@@ -196,6 +198,7 @@ export default function BroadcastPage() {
                   history.map((item) => (
                     <TableRow key={item._id.toString()}>
                       <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
+                      <TableCell>{item.completedAt ? new Date(item.completedAt).toLocaleString() : '-'}</TableCell>
                       <TableCell>{item.templateName}</TableCell>
                       <TableCell>{item.fileName}</TableCell>
                       <TableCell>{item.contactCount}</TableCell>
@@ -234,7 +237,7 @@ export default function BroadcastPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={7} className="h-24 text-center">
+                    <TableCell colSpan={8} className="h-24 text-center">
                       No broadcast history found.
                     </TableCell>
                   </TableRow>

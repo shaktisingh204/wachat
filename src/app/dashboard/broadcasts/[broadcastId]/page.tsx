@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, RefreshCw, CheckCircle, XCircle, FileText, Clock, Users, Send, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, RefreshCw, CheckCircle, XCircle, FileText, Clock, Users, Send, AlertTriangle, CalendarCheck } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
@@ -34,7 +34,8 @@ type Broadcast = {
   errorCount?: number;
   status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure';
   createdAt: string;
-  processedAt?: string;
+  startedAt?: string;
+  completedAt?: string;
   successfulSends?: SuccessfulSend[];
   failedSends?: FailedSend[];
 };
@@ -167,7 +168,7 @@ export default function BroadcastReportPage() {
                 <CardTitle>Campaign Summary</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 text-sm">
                     <div className="flex items-start gap-3">
                         <FileText className="h-8 w-8 text-primary" />
                         <div>
@@ -182,6 +183,15 @@ export default function BroadcastReportPage() {
                             <p className="font-semibold">{new Date(broadcast.createdAt).toLocaleString()}</p>
                         </div>
                     </div>
+                    {broadcast.completedAt && (
+                        <div className="flex items-start gap-3">
+                            <CalendarCheck className="h-8 w-8 text-primary" />
+                            <div>
+                                <p className="text-muted-foreground">Completed At</p>
+                                <p className="font-semibold">{new Date(broadcast.completedAt).toLocaleString()}</p>
+                            </div>
+                        </div>
+                    )}
                     <div className="flex items-start gap-3">
                         <Users className="h-8 w-8 text-primary" />
                          <div>

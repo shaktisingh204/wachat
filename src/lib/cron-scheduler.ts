@@ -31,7 +31,8 @@ type BroadcastJob = {
     contacts: Record<string, string>[];
     status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed';
     createdAt: Date;
-    processedAt?: Date;
+    startedAt?: Date;
+    completedAt?: Date;
     successCount?: number;
     errorCount?: number;
     successfulSends?: SuccessfulSend[];
@@ -59,7 +60,7 @@ export async function processBroadcastJob() {
             { 
                 $set: { 
                     status: 'PROCESSING', 
-                    processedAt: new Date(),
+                    startedAt: new Date(),
                     successCount: 0,
                     errorCount: 0,
                     successfulSends: [],
@@ -81,7 +82,7 @@ export async function processBroadcastJob() {
         if (!CHUNK_SIZE || CHUNK_SIZE < 1) {
             const errorMessage = 'Configuration Error: "Messages Per Second" is not set or is invalid for this project. Please set it in the project settings.';
             if (jobId && db) {
-                await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', failedSends: [{ phone: 'N/A', response: { error: { message: errorMessage } }, payload: {} }] } });
+                await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', completedAt: new Date(), failedSends: [{ phone: 'N/A', response: { error: { message: errorMessage } }, payload: {} }] } });
             }
             throw new Error(errorMessage);
         }
@@ -134,7 +135,7 @@ export async function processBroadcastJob() {
         } catch (mediaError: any) {
             const errorMessage = mediaError.response?.data?.error?.message || mediaError.message;
             if (jobId && db) {
-                await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', failedSends: [{ phone: 'N/A', response: { error: { message: `Media Upload Failed: ${errorMessage}` } }, payload: {} }] } });
+                await db.collection('broadcasts').updateOne({ _id: jobId }, { $set: { status: 'Failed', completedAt: new Date(), failedSends: [{ phone: 'N/A', response: { error: { message: `Media Upload Failed: ${errorMessage}` } }, payload: {} }] } });
             }
             throw new Error(`Media Upload Failed: ${errorMessage}`);
         }
@@ -310,7 +311,7 @@ export async function processBroadcastJob() {
                 {
                     $set: {
                         status: finalStatus,
-                        processedAt: new Date(),
+                        completedAt: new Date(),
                     }
                 }
             );
@@ -322,7 +323,7 @@ export async function processBroadcastJob() {
                 await db.collection('broadcasts').updateOne(
                     { _id: jobId },
                     {
-                        $set: { status: 'Failed', processedAt: new Date() },
+                        $set: { status: 'Failed', completedAt: new Date() },
                     }
                 );
             }
@@ -333,7 +334,7 @@ export async function processBroadcastJob() {
              await db.collection('broadcasts').updateOne(
                 { _id: jobId },
                 {
-                    $set: { status: 'Failed', processedAt: new Date() },
+                    $set: { status: 'Failed', completedAt: new Date() },
                 }
             );
         }
