@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useState, useRef } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,8 +11,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { LoaderCircle, FileUp, Plus, Trash2, UploadCloud } from 'lucide-react';
-import { handleCreateTemplate, handleUploadMedia } from '@/app/actions';
+import { LoaderCircle, FileUp, Plus, Trash2 } from 'lucide-react';
+import { handleCreateTemplate } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project, Template } from '@/app/dashboard/page';
@@ -136,9 +136,6 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   const [headerFormat, setHeaderFormat] = useState('NONE');
   const [headerText, setHeaderText] = useState('');
   const [headerUrl, setHeaderUrl] = useState('');
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [buttons, setButtons] = useState<ButtonType[]>([]);
   
   useEffect(() => {
@@ -170,7 +167,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
       setFooter(footerComp?.text || '');
 
       const buttonsComp = initialTemplate.components?.find(c => c.type === 'BUTTONS');
-      setButtons(buttonsComp?.buttons || []);
+      setButtons(buttonsComp?.button || []);
 
     }
   }, [initialTemplate, isCloning]);
@@ -185,25 +182,6 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
       toast({ title: 'Submission Error', description: state.error, variant: 'destructive' });
     }
   }, [state, toast, router]);
-  
-  const handleUpload = async (file: File) => {
-    setIsUploading(true);
-    setUploadError(null);
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    const result = await handleUploadMedia(formData);
-    if (result.error) {
-        setUploadError(result.error);
-        setHeaderUrl('');
-    } else {
-        setHeaderUrl(result.url!);
-    }
-    setIsUploading(false);
-    if(fileInputRef.current) {
-        fileInputRef.current.value = '';
-    }
-  };
 
   const handleAddButton = (type: ButtonType['type']) => {
     const hasQuickReply = buttons.some(b => b.type === 'QUICK_REPLY');
@@ -231,7 +209,6 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   return (
     <form action={formAction}>
       <input type="hidden" name="projectId" value={project._id.toString()} />
-      <input type="hidden" name="headerUrl" value={headerUrl} />
       <input type="hidden" name="buttons" value={JSON.stringify(buttons)} />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
@@ -295,20 +272,16 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                 )}
 
                 {['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat) && (
-                    <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="mediaFile">Upload Media (Optional)</Label>
-                            <div className="flex gap-2">
-                                <Input id="mediaFile" type="file" ref={fileInputRef} className="flex-grow" onChange={e => e.target.files?.[0] && handleUpload(e.target.files[0])} disabled={isUploading} />
-                                <Button type="button" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>{isUploading ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <UploadCloud className="h-4 w-4"/>}</Button>
-                            </div>
-                            {uploadError && <p className="text-xs text-destructive">{uploadError}</p>}
-                        </div>
-                        <div className="space-y-2">
-                           <Label htmlFor="headerUrlDisplay">Or Paste Media URL</Label>
-                           <Input name="headerUrlDisplay" id="headerUrlDisplay" value={headerUrl} onChange={(e) => setHeaderUrl(e.target.value)} placeholder="https://... or upload to get a local URL"/>
-                           <p className="text-xs text-muted-foreground">Provide a public URL or upload a file to host it.</p>
-                        </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="headerUrl">Header Media URL</Label>
+                        <Input 
+                            name="headerUrl" 
+                            id="headerUrl" 
+                            value={headerUrl} 
+                            onChange={(e) => setHeaderUrl(e.target.value)} 
+                            placeholder="https://example.com/media.png"
+                        />
+                        <p className="text-xs text-muted-foreground">Provide a publicly accessible URL for your media. Direct file uploads are not supported.</p>
                     </div>
                 )}
               

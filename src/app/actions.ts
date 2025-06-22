@@ -8,8 +8,6 @@ import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
 import type { PhoneNumber, Project, Template } from '@/app/dashboard/page';
-import { writeFile, mkdir } from 'fs/promises';
-import { join } from 'path';
 
 type MetaPhoneNumber = {
     id: string;
@@ -269,8 +267,7 @@ export async function handleStartBroadcast(
 
     const templateId = formData.get('templateId') as string;
     const contactFile = formData.get('csvFile') as File;
-    const headerImageFile = formData.get('headerImageFile') as File | null;
-    const headerImageUrlFromInput = formData.get('headerImageUrl') as string | null;
+    const headerImageUrl = formData.get('headerImageUrl') as string | null;
 
     if (!templateId) return { error: 'Please select a message template.' };
     if (!ObjectId.isValid(templateId)) {
@@ -332,22 +329,11 @@ export async function handleStartBroadcast(
       return { error: 'No valid contacts with phone numbers found in the first column of the file.' };
     }
     
-    let headerImageUrl: string | undefined = undefined;
-
-    if (headerImageUrlFromInput && headerImageUrlFromInput.trim() !== '') {
-        headerImageUrl = headerImageUrlFromInput.trim();
-    } else if (headerImageFile && headerImageFile.size > 0) {
-        const uploadFormData = new FormData();
-        uploadFormData.append('file', headerImageFile);
-        const uploadResult = await handleUploadMedia(uploadFormData);
-        
-        if (uploadResult.url) {
-            headerImageUrl = uploadResult.url;
-        } else {
-            return { error: uploadResult.error || 'Failed to upload custom header image.' };
-        }
+    let finalHeaderImageUrl: string | undefined = undefined;
+    if (headerImageUrl && headerImageUrl.trim() !== '') {
+        finalHeaderImageUrl = headerImageUrl.trim();
     }
-
+    
     const broadcastJob: Omit<WithId<BroadcastJob>, '_id'> = {
         projectId: new ObjectId(projectId),
         templateId: new ObjectId(templateId),
@@ -361,7 +347,7 @@ export async function handleStartBroadcast(
         fileName: contactFile.name,
         components: template.components,
         language: template.language,
-        headerImageUrl,
+        headerImageUrl: finalHeaderImageUrl,
     };
 
     await db.collection('broadcasts').insertOne(broadcastJob);
@@ -548,8 +534,10 @@ export async function handleCreateTemplate(
                 headerComponent.text = headerText;
             } else {
                 if (!headerUrl) return { error: 'A public media URL is required for this header format.' };
-                const absoluteHeaderUrl = headerUrl.startsWith('http') ? headerUrl : `${process.env.APP_URL || ''}${headerUrl}`;
-                headerComponent.example = { header_handle: [absoluteHeaderUrl] };
+                if (!headerUrl.startsWith('http')) {
+                    return { error: 'Media URL must be a full, public URL (e.g., https://...)' };
+                }
+                headerComponent.example = { header_handle: [headerUrl] };
             }
             components.push(headerComponent);
         }
@@ -627,37 +615,6 @@ export async function handleCreateTemplate(
     } catch (e: any) {
         console.error('Error in handleCreateTemplate:', e);
         return { error: e.message || 'An unexpected error occurred.' };
-    }
-}
-
-export async function handleUploadMedia(formData: FormData): Promise<{ url?: string; error?: string }> {
-    try {
-        const file = formData.get('file') as File;
-
-        if (!file) {
-            return { error: 'No file provided.' };
-        }
-
-        const bytes = await file.arrayBuffer();
-        const buffer = Buffer.from(bytes);
-
-        const extension = file.name.split('.').pop() || 'unknown';
-        const filename = `${Date.now()}-${Math.round(Math.random() * 1E9)}.${extension}`;
-        
-        const uploadDir = join(process.cwd(), 'public', 'uploads');
-        const path = join(uploadDir, filename);
-
-        await mkdir(uploadDir, { recursive: true });
-
-        await writeFile(path, buffer);
-
-        const publicUrl = `/uploads/${filename}`;
-        
-        return { url: publicUrl };
-
-    } catch (e: any) {
-        console.error('Media upload to server failed:', e);
-        return { error: e.message || 'An unexpected error occurred during media upload.' };
     }
 }
 

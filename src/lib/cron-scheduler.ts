@@ -89,11 +89,8 @@ export async function processBroadcastJob() {
                 let mediaId: string | null = null;
                 const headerComponent = job.components.find(c => c.type === 'HEADER');
                 if (headerComponent && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                    const broadcastSpecificUrl = job.headerImageUrl;
                     const templateDefaultUrl = headerComponent.example?.header_handle?.[0];
-                    let finalUrl = broadcastSpecificUrl 
-                        ? (broadcastSpecificUrl.startsWith('http') ? broadcastSpecificUrl : `${process.env.APP_URL || ''}${broadcastSpecificUrl}`)
-                        : templateDefaultUrl;
+                    const finalUrl = job.headerImageUrl || templateDefaultUrl;
 
                     if (finalUrl) {
                         const mediaResponse = await fetch(finalUrl);
