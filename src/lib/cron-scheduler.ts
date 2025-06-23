@@ -177,10 +177,15 @@ export async function processBroadcastJob() {
             const jobId = job._id;
 
             try {
-                const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
+                // Fetch project-specific sending rate
+                const project = await db.collection<Project>('projects').findOne(
+                    { _id: job.projectId },
+                    { projection: { messagesPerSecond: 1 } }
+                );
+
+                // Use the project's configured rate, or default to 80 messages/sec
                 const MESSAGES_PER_SECOND = project?.messagesPerSecond || 80;
                 const CONCURRENCY_LIMIT = 500; 
-                const WRITE_INTERVAL_MS = 10000;
 
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
 
