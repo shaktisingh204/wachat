@@ -118,12 +118,19 @@ async function* contactGenerator(
     const chunkInterval = 100; // ms. We will process contacts in chunks over this interval.
     const contactsPerChunk = Math.max(1, Math.floor(rate / (1000 / chunkInterval))); // Contacts to process per chunk.
 
+    let lastCancelCheckTime = 0;
+    const CANCEL_CHECK_INTERVAL_MS = 2000; // Check every 2 seconds to reduce DB load.
+
     try {
         while (true) {
-            if (await checkCancelled()) {
-                break;
+            const now = Date.now();
+            if (now - lastCancelCheckTime > CANCEL_CHECK_INTERVAL_MS) {
+                if (await checkCancelled()) {
+                    break;
+                }
+                lastCancelCheckTime = now;
             }
-            
+
             const intervalStartTime = Date.now();
             
             for (let i = 0; i < contactsPerChunk; i++) {
