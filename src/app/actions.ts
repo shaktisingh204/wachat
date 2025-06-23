@@ -192,6 +192,7 @@ export async function getBroadcasts() {
   try {
     const { db } = await connectToDatabase();
     const projection = {
+        templateId: 1,
         templateName: 1,
         fileName: 1,
         contactCount: 1,
@@ -395,7 +396,7 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
     return new Promise<number>((resolve, reject) => {
         let localContactCount = 0;
         let contactBatch: any[] = [];
-        const batchSize = 1000; // Reduced batch size for lower memory usage
+        const batchSize = 1000;
         let phoneColumnHeader: string | null = null;
         
         Papa.parse(inputStream, {
@@ -971,48 +972,72 @@ export async function handleCleanDatabase(
       }
   }
 
-export async function handleRequeueBroadcast(broadcastId: string): Promise<{ message?: string; error?: string }> {
-    if (!ObjectId.isValid(broadcastId)) {
+export async function handleRequeueBroadcast(
+    prevState: { message?: string | null; error?: string | null; },
+    formData: FormData
+): Promise<{ message?: string | null; error?: string | null; }> {
+    const broadcastId = formData.get('broadcastId') as string;
+    const newTemplateId = formData.get('templateId') as string;
+    const requeueScope = formData.get('requeueScope') as 'ALL' | 'FAILED' | null;
+    const newHeaderImageUrl = formData.get('headerImageUrl') as string | null;
+
+    if (!broadcastId || !ObjectId.isValid(broadcastId)) {
         return { error: 'Invalid Broadcast ID.' };
+    }
+    if (!newTemplateId || !ObjectId.isValid(newTemplateId)) {
+        return { error: 'A valid template must be selected.' };
+    }
+    if (!requeueScope) {
+        return { error: 'Please select which contacts to send to (All or Failed).' };
     }
 
     const { db } = await connectToDatabase();
     const originalBroadcastId = new ObjectId(broadcastId);
 
     try {
-        // 1. Find the original broadcast
-        const originalBroadcast = await db.collection('broadcasts').findOne({ _id: originalBroadcastId });
+        const [originalBroadcast, newTemplate] = await Promise.all([
+            db.collection('broadcasts').findOne({ _id: originalBroadcastId }),
+            db.collection('templates').findOne({ _id: new ObjectId(newTemplateId) })
+        ]);
+        
         if (!originalBroadcast) {
             return { error: 'Original broadcast not found.' };
         }
+        if (!newTemplate) {
+            return { error: 'Selected template not found.' };
+        }
 
-        // 2. Create a new broadcast document by copying data
+        const finalHeaderImageUrl = newHeaderImageUrl && newHeaderImageUrl.trim() !== '' ? newHeaderImageUrl.trim() : undefined;
+        
         const newBroadcastData = {
             projectId: originalBroadcast.projectId,
-            templateId: originalBroadcast.templateId,
-            templateName: originalBroadcast.templateName,
+            templateId: newTemplate._id,
+            templateName: newTemplate.name,
             phoneNumberId: originalBroadcast.phoneNumberId,
             accessToken: originalBroadcast.accessToken,
             status: 'QUEUED' as const,
             createdAt: new Date(),
-            contactCount: originalBroadcast.contactCount,
-            fileName: `Requeue of ${originalBroadcast.fileName}`, // Indicate it's a requeue
-            components: originalBroadcast.components,
-            language: originalBroadcast.language,
-            headerImageUrl: originalBroadcast.headerImageUrl,
+            contactCount: 0, // will be updated
+            fileName: `Requeue of ${originalBroadcast.fileName}`,
+            components: newTemplate.components,
+            language: newTemplate.language,
+            headerImageUrl: finalHeaderImageUrl,
         };
 
         const newBroadcastResult = await db.collection('broadcasts').insertOne(newBroadcastData);
         const newBroadcastId = newBroadcastResult.insertedId;
 
-        // 3. Find original contacts
-        const originalContactsCursor = db.collection('broadcast_contacts').find({ broadcastId: originalBroadcastId });
+        const contactQuery: any = { broadcastId: originalBroadcastId };
+        if (requeueScope === 'FAILED') {
+            contactQuery.status = 'FAILED';
+        }
+
+        const originalContactsCursor = db.collection('broadcast_contacts').find(contactQuery);
         
         let newContactsCount = 0;
         const contactBatchSize = 1000;
         let contactBatch: any[] = [];
 
-        // 4. Create new contacts for the new broadcast
         for await (const contact of originalContactsCursor) {
             const newContact = {
                 broadcastId: newBroadcastId,
@@ -1034,14 +1059,12 @@ export async function handleRequeueBroadcast(broadcastId: string): Promise<{ mes
             await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
         }
         
-        // 5. Final check and update of contact count
-        if (newContactsCount !== originalBroadcast.contactCount) {
-           await db.collection('broadcasts').updateOne({ _id: newBroadcastId }, { $set: { contactCount: newContactsCount } });
-        }
+        await db.collection('broadcasts').updateOne({ _id: newBroadcastId }, { $set: { contactCount: newContactsCount } });
 
         if (newContactsCount === 0) {
             await db.collection('broadcasts').deleteOne({ _id: newBroadcastId });
-            return { error: 'No contacts found to requeue from the original broadcast.' };
+            const scopeText = requeueScope.toLowerCase();
+            return { error: `No ${scopeText} contacts found to requeue from the original broadcast.` };
         }
         
         revalidatePath('/dashboard/broadcasts');

@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, getProjectForBroadcast, getBroadcasts, handleStopBroadcast, handleRequeueBroadcast } from '@/app/actions';
+import { getTemplates, getProjectForBroadcast, getBroadcasts, handleStopBroadcast } from '@/app/actions';
 import type { Project, Template } from '@/app/dashboard/page';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock, RotateCw } from 'lucide-react';
+import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -33,10 +33,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { RequeueBroadcastDialog } from '@/components/wabasimplify/requeue-broadcast-dialog';
 
 
 type Broadcast = {
   _id: any;
+  templateId: any;
   templateName: string;
   fileName: string;
   contactCount: number;
@@ -99,58 +101,6 @@ function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
                     </>
                   ) : (
                     'Yes, Stop Broadcast'
-                  )}
-              </Button>
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
-}
-
-function RequeueBroadcastButton({ broadcastId }: { broadcastId: string }) {
-  const [open, setOpen] = useState(false);
-  const { toast } = useToast();
-  const [isPending, startTransition] = useTransition();
-
-  const onRequeue = () => {
-    startTransition(async () => {
-        const result = await handleRequeueBroadcast(broadcastId);
-        if (result.error) {
-          toast({ title: 'Error', description: result.error, variant: 'destructive' });
-        } else {
-          toast({ title: 'Success', description: result.message });
-        }
-        setOpen(false);
-    });
-  }
-
-  return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <RotateCw />
-          Requeue
-        </Button>
-      </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure you want to requeue this broadcast?</AlertDialogTitle>
-          <AlertDialogDescription>
-            This will create a new copy of this campaign and add it to the queue to be sent to all original contacts.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction asChild>
-              <Button onClick={onRequeue} disabled={isPending}>
-                  {isPending ? (
-                    <>
-                      <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                      Requeuing...
-                    </>
-                  ) : (
-                    'Yes, Requeue Broadcast'
                   )}
               </Button>
           </AlertDialogAction>
@@ -482,7 +432,12 @@ export default function BroadcastPage() {
                                 <StopBroadcastButton broadcastId={item._id.toString()} />
                             )}
                             {['Completed', 'Partial Failure', 'Failed', 'Cancelled'].includes(item.status) && (
-                                <RequeueBroadcastButton broadcastId={item._id.toString()} />
+                                <RequeueBroadcastDialog
+                                  broadcastId={item._id.toString()}
+                                  originalTemplateId={item.templateId.toString()}
+                                  project={project}
+                                  templates={templates}
+                                />
                             )}
                             <Button asChild variant="outline" size="sm">
                                 <Link href={`/dashboard/broadcasts/${item._id.toString()}`}>
