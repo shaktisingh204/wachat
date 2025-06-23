@@ -49,6 +49,8 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
   
   const [selectedTemplate, setSelectedTemplate] = useState<WithId<Template> | null>(null);
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState('');
+  const [fileInputKey, setFileInputKey] = useState(Date.now());
+  const [headerImageUrl, setHeaderImageUrl] = useState('');
 
   useEffect(() => {
     setIsClient(true);
@@ -60,9 +62,9 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
         title: 'Success!',
         description: state.message,
       });
-      formRef.current?.reset();
-      setSelectedTemplate(null);
-      setSelectedPhoneNumber('');
+      // Instead of resetting the whole form, just reset the file input and header image url
+      setFileInputKey(Date.now());
+      setHeaderImageUrl('');
     }
     if (state?.error) {
       toast({
@@ -114,7 +116,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
           <CardContent className="grid md:grid-cols-3 gap-6">
           <div className="space-y-2">
               <Label htmlFor="phoneNumberId">1. Select Phone Number</Label>
-              <Select name="phoneNumberId" required onValueChange={setSelectedPhoneNumber}>
+              <Select name="phoneNumberId" required value={selectedPhoneNumber} onValueChange={setSelectedPhoneNumber}>
               <SelectTrigger id="phoneNumberId">
                   <SelectValue placeholder="Choose a number..." />
               </SelectTrigger>
@@ -129,7 +131,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
           </div>
           <div className="space-y-2">
               <Label htmlFor="templateId">2. Select Message Template</Label>
-              <Select name="templateId" required onValueChange={handleTemplateChange}>
+              <Select name="templateId" required value={selectedTemplate?._id.toString() || ''} onValueChange={handleTemplateChange}>
               <SelectTrigger id="templateId">
                   <SelectValue placeholder="Choose a template..." />
               </SelectTrigger>
@@ -145,6 +147,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
           <div className="space-y-2">
               <Label htmlFor="csvFile">3. Upload Contacts</Label>
               <Input
+              key={fileInputKey}
               id="csvFile"
               name="csvFile"
               type="file"
@@ -169,6 +172,8 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
                           name="headerImageUrl"
                           type="url"
                           placeholder="https://example.com/image.png"
+                          value={headerImageUrl}
+                          onChange={(e) => setHeaderImageUrl(e.target.value)}
                       />
                       <p className="text-xs text-muted-foreground">
                           Provide a new public media URL to override the template's default header.
