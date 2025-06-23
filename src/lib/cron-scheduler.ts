@@ -111,32 +111,39 @@ async function* contactGenerator(
             localAttemptedCount = 0;
         }
     };
-    const flushInterval = setInterval(flushAttemptedCount, 2000); // Flush every 2s for faster UI updates
+    const flushInterval = setInterval(flushAttemptedCount, 2000);
 
     try {
-        while(await cursor.hasNext()) {
+        while (true) {
             if (await checkCancelled()) {
                 break;
             }
+            
+            const hasNext = await cursor.hasNext();
+            if (!hasNext) {
+                break;
+            }
+
             const intervalStartTime = Date.now();
-            for (let i=0; i<rate; i++) {
-                if (!(await cursor.hasNext())) break;
+            for (let i = 0; i < rate; i++) {
                 const contact = await cursor.next();
                 if (contact) {
                     yield contact;
                     localAttemptedCount++;
+                } else {
+                    return; 
                 }
             }
     
             const duration = Date.now() - intervalStartTime;
             const delay = 1000 - duration;
-            if (delay > 0 && (await cursor.hasNext())) {
+            if (delay > 0) {
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
     } finally {
         clearInterval(flushInterval);
-        await flushAttemptedCount(); // Final flush
+        await flushAttemptedCount();
     }
 }
 
@@ -164,7 +171,6 @@ export async function processBroadcastJob() {
                 { projection: { messagesPerSecond: 1 } }
             );
 
-            // Use the project's configured rate, or default to 80 messages/sec
             const MESSAGES_PER_SECOND = project?.messagesPerSecond || 80;
 
             const findOneAndUpdateOptions: FindOneAndUpdateOptions = {
@@ -187,7 +193,6 @@ export async function processBroadcastJob() {
             );
 
             if (!job) {
-                // Another worker picked up the job, try the next one.
                 continue;
             }
             
@@ -195,7 +200,7 @@ export async function processBroadcastJob() {
             const jobId = job._id;
 
             try {
-                const CONCURRENCY_LIMIT = 500; 
+                const CONCURRENCY_LIMIT = 1000; 
 
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
 
