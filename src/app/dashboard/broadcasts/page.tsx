@@ -41,6 +41,7 @@ type Broadcast = {
   _id: any;
   templateId: any;
   templateName: string;
+  templateStatus?: string;
   fileName: string;
   contactCount: number;
   attemptedCount?: number;
@@ -324,6 +325,14 @@ export default function BroadcastPage() {
     });
   };
 
+  const getTemplateStatusVariant = (status?: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+    if (!status) return 'secondary';
+    status = status.toLowerCase();
+    if (status === 'approved') return 'default';
+    if (status.includes('review') || status.includes('pending')) return 'secondary';
+    return 'destructive';
+  };
+
   if (!isClient || loading) {
     return (
       <div className="flex flex-col gap-8">
@@ -394,6 +403,7 @@ export default function BroadcastPage() {
                   <TableHead>Queued</TableHead>
                   <TableHead>Duration</TableHead>
                   <TableHead>Template</TableHead>
+                  <TableHead>Template Status</TableHead>
                   <TableHead>File Name</TableHead>
                   <TableHead>Contacts</TableHead>
                   <TableHead>Progress</TableHead>
@@ -416,6 +426,14 @@ export default function BroadcastPage() {
                         )}
                       </TableCell>
                       <TableCell>{item.templateName}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant={getTemplateStatusVariant(item.templateStatus)}
+                          className="capitalize"
+                        >
+                          {item.templateStatus?.replace(/_/g, ' ') || 'Unknown'}
+                        </Badge>
+                      </TableCell>
                       <TableCell>{item.fileName}</TableCell>
                       <TableCell>{item.contactCount}</TableCell>
                       <TableCell>
@@ -476,7 +494,7 @@ export default function BroadcastPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={8} className="h-24 text-center">
+                    <TableCell colSpan={9} className="h-24 text-center">
                       No broadcast history found.
                     </TableCell>
                   </TableRow>

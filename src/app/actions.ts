@@ -194,6 +194,7 @@ export async function getBroadcasts() {
     const projection = {
         templateId: 1,
         templateName: 1,
+        templateStatus: 1,
         fileName: 1,
         contactCount: 1,
         attemptedCount: 1,
@@ -508,6 +509,7 @@ export async function handleStartBroadcast(
         projectId: new ObjectId(projectId),
         templateId: new ObjectId(templateId),
         templateName: template.name,
+        templateStatus: template.status,
         phoneNumberId,
         accessToken,
         status: 'QUEUED',
@@ -1013,6 +1015,7 @@ export async function handleRequeueBroadcast(
             projectId: originalBroadcast.projectId,
             templateId: newTemplate._id,
             templateName: newTemplate.name,
+            templateStatus: newTemplate.status,
             phoneNumberId: originalBroadcast.phoneNumberId,
             accessToken: originalBroadcast.accessToken,
             status: 'QUEUED' as const,
