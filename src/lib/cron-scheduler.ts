@@ -46,6 +46,8 @@ type Project = {
     messagesPerSecond?: number;
 };
 
+const WRITE_INTERVAL_MS = 2000; // How often to write bulk updates to the DB.
+
 
 const getAxiosErrorMessage = (error: any): string => {
     if (axios.isAxiosError(error)) {
