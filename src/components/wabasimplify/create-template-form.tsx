@@ -246,7 +246,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                 <Label htmlFor="language">Language</Label>
                 <Select name="language" value={language} onValueChange={setLanguage} required>
                   <SelectTrigger id="language"><SelectValue placeholder="Select a language" /></SelectTrigger>
-                  <SelectContent>
+                  <SelectContent searchable>
                     {languages.map((lang) => (
                         <SelectItem key={lang.code} value={lang.code}>{lang.name} ({lang.code})</SelectItem>
                     ))}

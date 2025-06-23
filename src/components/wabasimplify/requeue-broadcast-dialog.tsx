@@ -102,7 +102,7 @@ export function RequeueBroadcastDialog({ broadcastId, originalTemplateId, projec
                 <SelectTrigger id="templateId">
                   <SelectValue placeholder="Choose a template..." />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent searchable>
                   {templates.map((template) => (
                     <SelectItem key={template._id.toString()} value={template._id.toString()}>
                       {template.name} ({template.category})
