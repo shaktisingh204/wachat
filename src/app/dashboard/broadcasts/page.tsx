@@ -47,6 +47,13 @@ type Broadcast = {
   createdAt: string;
   completedAt?: string;
   startedAt?: string;
+  messagesPerSecond?: number;
+};
+
+type RateData = {
+    lastAttemptedCount: number;
+    lastFetchTime: number;
+    rate: number;
 };
 
 function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
@@ -191,11 +198,36 @@ export default function BroadcastPage() {
   const [loading, setLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const { toast } = useToast();
+  const [sendRateData, setSendRateData] = useState<Record<string, RateData>>({});
+
 
   const fetchHistory = useCallback(async (showToast = false) => {
     try {
-      const historyData = await getBroadcasts();
-      setHistory(historyData as WithId<Broadcast>[]);
+      const newHistoryData = await getBroadcasts();
+      setHistory(newHistoryData as WithId<Broadcast>[]);
+      
+      const now = Date.now();
+      setSendRateData(prevData => {
+        const newData = { ...prevData };
+        (newHistoryData as WithId<Broadcast>[]).forEach(item => {
+            const id = item._id.toString();
+            if (item.status === 'PROCESSING' && item.attemptedCount !== undefined) {
+                const prevItemData = prevData[id];
+                if (prevItemData && now > prevItemData.lastFetchTime) {
+                    const deltaTime = (now - prevItemData.lastFetchTime) / 1000;
+                    const deltaCount = item.attemptedCount - prevItemData.lastAttemptedCount;
+                    const currentRate = deltaTime > 0 ? Math.round(deltaCount / deltaTime) : 0;
+                    newData[id] = { lastAttemptedCount: item.attemptedCount, lastFetchTime: now, rate: currentRate };
+                } else if (!prevItemData) {
+                    newData[id] = { lastAttemptedCount: item.attemptedCount, lastFetchTime: now, rate: 0 };
+                }
+            } else if (newData[id]) {
+                delete newData[id];
+            }
+        });
+        return newData;
+      });
+
       if (showToast) {
         toast({ title: 'Refreshed', description: 'Broadcast history has been updated.' });
       }
@@ -362,7 +394,12 @@ export default function BroadcastPage() {
                       <TableCell>{item.contactCount}</TableCell>
                       <TableCell>
                         {item.status === 'PROCESSING' ? (
-                          `${item.attemptedCount ?? 0} / ${item.contactCount}`
+                          <div>
+                            <p>{`${item.attemptedCount ?? 0} / ${item.contactCount}`}</p>
+                            <p className="text-xs text-muted-foreground font-mono">
+                                {`${sendRateData[item._id.toString()]?.rate ?? 0} / ${item.messagesPerSecond ?? 'N/A'} msg/s`}
+                            </p>
+                          </div>
                         ) : item.successCount !== undefined ? (
                           `${item.successCount} sent, ${item.errorCount || 0} failed`
                         ) : (

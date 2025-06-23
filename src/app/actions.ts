@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -201,6 +202,7 @@ export async function getBroadcasts() {
         createdAt: 1,
         startedAt: 1,
         completedAt: 1,
+        messagesPerSecond: 1,
     };
     const broadcasts = await db.collection('broadcasts')
       .find({})

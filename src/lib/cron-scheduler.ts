@@ -27,6 +27,7 @@ type BroadcastJob = {
     language: string;
     headerImageUrl?: string;
     contactCount?: number;
+    messagesPerSecond?: number;
 };
 
 type BroadcastContact = {
@@ -152,13 +153,26 @@ export async function processBroadcastJob() {
         db = conn.db;
 
         for (let i = 0; i < 100; i++) {
+            const preJob = await db.collection<BroadcastJob>('broadcasts').findOne({ status: 'QUEUED' }, { sort: { createdAt: 1 }});
+
+            if (!preJob) {
+                break; // No more queued jobs
+            }
+            
+            const project = await db.collection<Project>('projects').findOne(
+                { _id: preJob.projectId },
+                { projection: { messagesPerSecond: 1 } }
+            );
+
+            // Use the project's configured rate, or default to 80 messages/sec
+            const MESSAGES_PER_SECOND = project?.messagesPerSecond || 80;
+
             const findOneAndUpdateOptions: FindOneAndUpdateOptions = {
-                returnDocument: 'after',
-                sort: { createdAt: 1 }
+                returnDocument: 'after'
             };
 
             const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
-                { status: 'QUEUED' },
+                { _id: preJob._id, status: 'QUEUED' },
                 {
                     $set: {
                         status: 'PROCESSING',
@@ -166,27 +180,21 @@ export async function processBroadcastJob() {
                         attemptedCount: 0,
                         successCount: 0,
                         errorCount: 0,
+                        messagesPerSecond: MESSAGES_PER_SECOND,
                     }
                 },
                 findOneAndUpdateOptions
             );
 
             if (!job) {
-                break; // No more queued jobs
+                // Another worker picked up the job, try the next one.
+                continue;
             }
             
             jobsProcessedCount++;
             const jobId = job._id;
 
             try {
-                // Fetch project-specific sending rate
-                const project = await db.collection<Project>('projects').findOne(
-                    { _id: job.projectId },
-                    { projection: { messagesPerSecond: 1 } }
-                );
-
-                // Use the project's configured rate, or default to 80 messages/sec
-                const MESSAGES_PER_SECOND = project?.messagesPerSecond || 80;
                 const CONCURRENCY_LIMIT = 500; 
 
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
