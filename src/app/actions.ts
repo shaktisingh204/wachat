@@ -194,6 +194,7 @@ export async function getBroadcasts() {
         templateName: 1,
         fileName: 1,
         contactCount: 1,
+        attemptedCount: 1,
         successCount: 1,
         errorCount: 1,
         status: 1,
@@ -762,7 +763,9 @@ export async function handleCreateTemplate(
                     newButton.phone_number = button.phone_number;
                 }
                 if (button.type === 'QUICK_REPLY') {
-                    newButton.payload = button.payload || button.text;
+                    // Quick replies don't have a payload field in the API request,
+                    // the text itself is used as the payload by default.
+                    // The payload field in our form is for dev convenience but not sent to Meta.
                 }
                 return newButton;
             });
@@ -941,6 +944,7 @@ export async function handleCleanDatabase(
           return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
       }
   }
+
 
 
 

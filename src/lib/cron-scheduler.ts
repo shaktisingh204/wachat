@@ -1,11 +1,12 @@
 
+
 'use server';
 
 import { config } from 'dotenv';
 config();
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { Db, ObjectId } from 'mongodb';
+import { Db, ObjectId, FindOneAndUpdateOptions } from 'mongodb';
 import axios from 'axios';
 
 type BroadcastJob = {
@@ -19,6 +20,7 @@ type BroadcastJob = {
     createdAt: Date;
     startedAt?: Date;
     completedAt?: Date;
+    attemptedCount?: number;
     successCount?: number;
     errorCount?: number;
     components: any[];
@@ -63,29 +65,76 @@ const getAxiosErrorMessage = (error: any): string => {
 };
 
 /**
- * Runs an async iterator function over an array of items with a specified concurrency limit.
+ * Runs an async iterator function over an async generator of items with a specified concurrency limit.
  * @param poolLimit The maximum number of promises to run in parallel.
- * @param iterable The array of items to iterate over.
+ * @param iterable An async generator that yields items to process.
  * @param iteratorFn The async function to apply to each item.
  */
 async function promisePool<T>(
   poolLimit: number,
-  iterable: T[],
+  iterable: AsyncGenerator<T>,
   iteratorFn: (item: T) => Promise<any>
 ): Promise<void> {
   const executing = new Set<Promise<any>>();
-  for (const item of iterable) {
-    const p = iteratorFn(item);
+  for await (const item of iterable) {
+    const p = iteratorFn(item).finally(() => executing.delete(p));
     executing.add(p);
-    // When the promise is done, remove it from the set
-    p.then(() => executing.delete(p));
-    // If the pool is full, wait for one promise to complete
     if (executing.size >= poolLimit) {
       await Promise.race(executing);
     }
   }
-  // Wait for all remaining promises to complete
   await Promise.all(Array.from(executing));
+}
+
+/**
+ * An async generator that yields contacts at a specified rate and updates the attempted count.
+ * @param db The database instance.
+ * @param cursor The database cursor for contacts.
+ * @param jobId The ID of the current broadcast job.
+ * @param rate The number of contacts to yield per second.
+ * @param checkCancelled A function to check if the job has been cancelled.
+ */
+async function* contactGenerator(
+    db: Db, 
+    cursor: any, 
+    jobId: ObjectId, 
+    rate: number,
+    checkCancelled: () => Promise<boolean>
+) {
+    let localAttemptedCount = 0;
+    const flushAttemptedCount = async () => {
+        if (localAttemptedCount > 0) {
+            await db.collection('broadcasts').updateOne({ _id: jobId }, { $inc: { attemptedCount: localAttemptedCount } });
+            localAttemptedCount = 0;
+        }
+    };
+    const flushInterval = setInterval(flushAttemptedCount, 2000); // Flush every 2s for faster UI updates
+
+    try {
+        while(await cursor.hasNext()) {
+            if (await checkCancelled()) {
+                break;
+            }
+            const intervalStartTime = Date.now();
+            for (let i=0; i<rate; i++) {
+                if (!(await cursor.hasNext())) break;
+                const contact = await cursor.next();
+                if (contact) {
+                    yield contact;
+                    localAttemptedCount++;
+                }
+            }
+    
+            const duration = Date.now() - intervalStartTime;
+            const delay = 1000 - duration;
+            if (delay > 0 && (await cursor.hasNext())) {
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    } finally {
+        clearInterval(flushInterval);
+        await flushAttemptedCount(); // Final flush
+    }
 }
 
 
@@ -101,17 +150,23 @@ export async function processBroadcastJob() {
         db = conn.db;
 
         for (let i = 0; i < 100; i++) {
+            const findOneAndUpdateOptions: FindOneAndUpdateOptions = {
+                returnDocument: 'after',
+                sort: { createdAt: 1 }
+            };
+
             const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
                 { status: 'QUEUED' },
                 {
                     $set: {
                         status: 'PROCESSING',
                         startedAt: new Date(),
+                        attemptedCount: 0,
                         successCount: 0,
                         errorCount: 0,
                     }
                 },
-                { returnDocument: 'after', sort: { createdAt: 1 } }
+                findOneAndUpdateOptions
             );
 
             if (!job) {
@@ -124,8 +179,7 @@ export async function processBroadcastJob() {
             try {
                 const project = await db.collection<Project>('projects').findOne({ _id: job.projectId });
                 const MESSAGES_PER_SECOND = project?.messagesPerSecond || 80;
-                // A higher concurrency limit allows for much faster sending, controlled by the user's 'messagesPerSecond' setting.
-                const CONCURRENCY_LIMIT = Math.min(MESSAGES_PER_SECOND, 300); 
+                const CONCURRENCY_LIMIT = 500; 
                 const WRITE_INTERVAL_MS = 10000;
 
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
@@ -133,7 +187,6 @@ export async function processBroadcastJob() {
                 const operationsBuffer: any[] = [];
                 
                 const sendSingleMessage = async (contactDoc: BroadcastContact) => {
-                    // This function sends one message and returns the DB operation object
                     const contact = { phone: contactDoc.phone, ...contactDoc.variables };
                     const phone = contact.phone;
                     
@@ -215,11 +268,10 @@ export async function processBroadcastJob() {
                     }
                 };
 
-                // Set up a periodic writer to flush the buffer to the DB every 10 seconds
                 const writeInterval = setInterval(async () => {
                     if (operationsBuffer.length > 0) {
                         const bufferCopy = [...operationsBuffer];
-                        operationsBuffer.length = 0; // Clear the buffer immediately
+                        operationsBuffer.length = 0; 
                         
                         await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
                         
@@ -234,49 +286,32 @@ export async function processBroadcastJob() {
                     }
                 }, WRITE_INTERVAL_MS);
 
-                const cursor = db.collection<BroadcastContact>('broadcast_contacts').find({
-                    broadcastId: jobId,
-                    status: 'PENDING'
-                });
+                const cursor = db.collection<BroadcastContact>('broadcast_contacts').find({ broadcastId: jobId, status: 'PENDING' });
+                
+                let isCancelled = false;
+                const checkCancelled = async (): Promise<boolean> => {
+                    if (isCancelled) return true;
+                    const currentJobState = await db.collection<BroadcastJob>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
+                    if (currentJobState?.status === 'Cancelled') {
+                        isCancelled = true;
+                        return true;
+                    }
+                    return false;
+                };
 
                 try {
-                    while (await cursor.hasNext()) {
-                        const currentJobState = await db.collection<BroadcastJob>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
-                        if (currentJobState?.status === 'Cancelled') {
-                            break;
+                    const generator = contactGenerator(db, cursor, jobId, MESSAGES_PER_SECOND, checkCancelled);
+
+                    await promisePool(CONCURRENCY_LIMIT, generator, async (contact) => {
+                        const operation = await sendSingleMessage(contact);
+                        if (operation) {
+                            operationsBuffer.push(operation);
                         }
-                        
-                        const contactsForInterval: BroadcastContact[] = [];
-                        const intervalStartTime = Date.now();
-    
-                        // Collect contacts for the next second's batch
-                        for (let i = 0; i < MESSAGES_PER_SECOND && (await cursor.hasNext()); i++) {
-                            const contact = await cursor.next();
-                            if (contact) {
-                                contactsForInterval.push(contact);
-                            }
-                        }
-    
-                        if (contactsForInterval.length > 0) {
-                             // Use the promise pool to process all contacts for this second with high concurrency
-                             await promisePool(CONCURRENCY_LIMIT, contactsForInterval, async (contact) => {
-                                const operation = await sendSingleMessage(contact);
-                                operationsBuffer.push(operation);
-                            });
-                        }
-    
-                        const duration = Date.now() - intervalStartTime;
-                        const delay = 1000 - duration;
-    
-                        if ((await cursor.hasNext()) && delay > 0) {
-                            await new Promise(resolve => setTimeout(resolve, delay));
-                        }
-                    }
+                    });
                 } finally {
                     await cursor.close();
                 }
 
-                // Cleanup: Stop the periodic writer and do one final flush
                 clearInterval(writeInterval);
 
                 if (operationsBuffer.length > 0) {
@@ -293,7 +328,6 @@ export async function processBroadcastJob() {
                      }
                 }
 
-                // Finalize job status
                 const finalJobState = await db.collection('broadcasts').findOne({_id: jobId});
                 const jobSuccessCount = finalJobState?.successCount || 0;
                 const jobErrorCount = finalJobState?.errorCount || 0;

@@ -40,6 +40,7 @@ type Broadcast = {
   templateName: string;
   fileName: string;
   contactCount: number;
+  attemptedCount?: number;
   successCount?: number;
   errorCount?: number;
   status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure' | 'Cancelled';
@@ -360,9 +361,13 @@ export default function BroadcastPage() {
                       <TableCell>{item.fileName}</TableCell>
                       <TableCell>{item.contactCount}</TableCell>
                       <TableCell>
-                        {item.successCount !== undefined
-                          ? `${item.successCount} sent, ${item.errorCount || 0} failed`
-                          : '-'}
+                        {item.status === 'PROCESSING' ? (
+                          `${item.attemptedCount ?? 0} / ${item.contactCount}`
+                        ) : item.successCount !== undefined ? (
+                          `${item.successCount} sent, ${item.errorCount || 0} failed`
+                        ) : (
+                          '-'
+                        )}
                       </TableCell>
                       <TableCell>
                         <Badge
