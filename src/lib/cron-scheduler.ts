@@ -90,7 +90,9 @@ async function promisePool<T>(
 }
 
 /**
- * An async generator that yields contacts at a specified rate and updates the attempted count.
+ * An async generator that yields contacts at a consistent, specified rate by breaking down
+ * the per-second rate into smaller, more frequent chunks. This ensures a smooth flow of data
+ * rather than large, infrequent bursts, leading to more consistent performance.
  * @param db The database instance.
  * @param cursor The database cursor for contacts.
  * @param jobId The ID of the current broadcast job.
@@ -113,37 +115,37 @@ async function* contactGenerator(
     };
     const flushInterval = setInterval(flushAttemptedCount, 2000);
 
+    const chunkInterval = 100; // ms. We will process contacts in chunks over this interval.
+    const contactsPerChunk = Math.max(1, Math.floor(rate / (1000 / chunkInterval))); // Contacts to process per chunk.
+
     try {
         while (true) {
             if (await checkCancelled()) {
                 break;
             }
             
-            const hasNext = await cursor.hasNext();
-            if (!hasNext) {
-                break;
-            }
-
             const intervalStartTime = Date.now();
-            for (let i = 0; i < rate; i++) {
+            
+            for (let i = 0; i < contactsPerChunk; i++) {
                 const contact = await cursor.next();
                 if (contact) {
                     yield contact;
                     localAttemptedCount++;
                 } else {
+                    // No more contacts, end of cursor.
                     return; 
                 }
             }
     
             const duration = Date.now() - intervalStartTime;
-            const delay = 1000 - duration;
+            const delay = chunkInterval - duration;
             if (delay > 0) {
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
     } finally {
         clearInterval(flushInterval);
-        await flushAttemptedCount();
+        await flushAttemptedCount(); // Final flush
     }
 }
 
