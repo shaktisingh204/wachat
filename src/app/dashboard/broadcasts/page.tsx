@@ -156,6 +156,31 @@ function formatDuration(start: string, end: string) {
       ].join(':');
 }
 
+function ISTClock() {
+    const [time, setTime] = useState<string | null>(null);
+
+    useEffect(() => {
+        const updateClock = () => {
+            setTime(new Date().toLocaleString('en-US', {
+                timeZone: 'Asia/Kolkata',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true,
+            }));
+        };
+        updateClock(); // Set time on mount on the client
+        const timerId = setInterval(updateClock, 1000);
+        return () => clearInterval(timerId);
+    }, []);
+
+    return (
+        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground font-mono bg-muted px-3 py-1.5 rounded-md">
+        <Clock className="h-4 w-4" />
+        <span>{time || '--:--:-- --'} (IST)</span>
+        </div>
+    );
+}
 
 export default function BroadcastPage() {
   const [isClient, setIsClient] = useState(false);
@@ -289,15 +314,18 @@ export default function BroadcastPage() {
 
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <CardTitle>Broadcast History</CardTitle>
                 <CardDescription>A log of your 10 most recent broadcast campaigns.</CardDescription>
               </div>
-              <Button onClick={onRefresh} disabled={isRefreshing} variant="outline" size="sm">
-                <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                Refresh
-              </Button>
+              <div className="flex items-center gap-4">
+                <ISTClock />
+                <Button onClick={onRefresh} disabled={isRefreshing} variant="outline" size="sm">
+                  <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
