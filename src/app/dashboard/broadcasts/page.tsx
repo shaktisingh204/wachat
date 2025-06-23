@@ -34,6 +34,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { RequeueBroadcastDialog } from '@/components/wabasimplify/requeue-broadcast-dialog';
+import { Progress } from '@/components/ui/progress';
 
 
 type Broadcast = {
@@ -418,13 +419,14 @@ export default function BroadcastPage() {
                       <TableCell>{item.fileName}</TableCell>
                       <TableCell>{item.contactCount}</TableCell>
                       <TableCell>
-                        {item.status === 'PROCESSING' ? (
-                          <div>
-                            <p>{`${item.attemptedCount ?? 0} / ${item.contactCount}`}</p>
-                            <p className="text-xs text-muted-foreground font-mono">
-                                {`${sendRateData[item._id.toString()]?.rate ?? 0} / ${item.messagesPerSecond ?? 'N/A'} msg/s`}
-                            </p>
-                          </div>
+                        {item.status === 'PROCESSING' && item.contactCount > 0 ? (
+                            <div className="w-40 space-y-1">
+                                <div className="flex justify-between text-xs font-mono text-muted-foreground">
+                                    <span>{`${item.attemptedCount ?? 0} / ${item.contactCount}`}</span>
+                                    <span>{`${sendRateData[item._id.toString()]?.rate ?? 0}/${item.messagesPerSecond ?? 'N/A'} msg/s`}</span>
+                                </div>
+                                <Progress value={((item.attemptedCount ?? 0) * 100) / item.contactCount} className="h-2" />
+                            </div>
                         ) : item.successCount !== undefined ? (
                           `${item.successCount} sent, ${item.errorCount || 0} failed`
                         ) : (
