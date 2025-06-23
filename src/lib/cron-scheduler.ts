@@ -131,27 +131,7 @@ export async function processBroadcastJob() {
                 const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
 
                 const operationsBuffer: any[] = [];
-                let hasMoreContacts = true;
-
-                // Set up a periodic writer to flush the buffer to the DB every 10 seconds
-                const writeInterval = setInterval(async () => {
-                    if (operationsBuffer.length > 0) {
-                        const bufferCopy = [...operationsBuffer];
-                        operationsBuffer.length = 0; // Clear the buffer immediately
-                        
-                        await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
-                        
-                        const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
-                        const errorCount = bufferCopy.length - successCount;
-
-                        if (successCount > 0 || errorCount > 0) {
-                            await db.collection('broadcasts').updateOne({ _id: jobId }, {
-                                $inc: { successCount, errorCount },
-                            });
-                        }
-                    }
-                }, WRITE_INTERVAL_MS);
-
+                
                 const sendSingleMessage = async (contactDoc: BroadcastContact) => {
                     // This function sends one message and returns the DB operation object
                     const contact = { phone: contactDoc.phone, ...contactDoc.variables };
@@ -235,39 +215,67 @@ export async function processBroadcastJob() {
                     }
                 };
 
-                while (hasMoreContacts) {
-                    const currentJobState = await db.collection<BroadcastJob>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
-                    if (currentJobState?.status === 'Cancelled') {
-                        hasMoreContacts = false;
-                        break;
+                // Set up a periodic writer to flush the buffer to the DB every 10 seconds
+                const writeInterval = setInterval(async () => {
+                    if (operationsBuffer.length > 0) {
+                        const bufferCopy = [...operationsBuffer];
+                        operationsBuffer.length = 0; // Clear the buffer immediately
+                        
+                        await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
+                        
+                        const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
+                        const errorCount = bufferCopy.length - successCount;
+
+                        if (successCount > 0 || errorCount > 0) {
+                            await db.collection('broadcasts').updateOne({ _id: jobId }, {
+                                $inc: { successCount, errorCount },
+                            });
+                        }
                     }
-                    
-                    const contactsForInterval = await db.collection<BroadcastContact>('broadcast_contacts').find({
-                        broadcastId: jobId,
-                        status: 'PENDING'
-                    }).limit(MESSAGES_PER_SECOND).toArray();
+                }, WRITE_INTERVAL_MS);
 
-                    if (contactsForInterval.length === 0) {
-                        hasMoreContacts = false;
-                        continue;
+                const cursor = db.collection<BroadcastContact>('broadcast_contacts').find({
+                    broadcastId: jobId,
+                    status: 'PENDING'
+                });
+
+                try {
+                    while (await cursor.hasNext()) {
+                        const currentJobState = await db.collection<BroadcastJob>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
+                        if (currentJobState?.status === 'Cancelled') {
+                            break;
+                        }
+                        
+                        const contactsForInterval: BroadcastContact[] = [];
+                        const intervalStartTime = Date.now();
+    
+                        // Collect contacts for the next second's batch
+                        for (let i = 0; i < MESSAGES_PER_SECOND && (await cursor.hasNext()); i++) {
+                            const contact = await cursor.next();
+                            if (contact) {
+                                contactsForInterval.push(contact);
+                            }
+                        }
+    
+                        if (contactsForInterval.length > 0) {
+                             // Use the promise pool to process all contacts for this second with high concurrency
+                             await promisePool(CONCURRENCY_LIMIT, contactsForInterval, async (contact) => {
+                                const operation = await sendSingleMessage(contact);
+                                operationsBuffer.push(operation);
+                            });
+                        }
+    
+                        const duration = Date.now() - intervalStartTime;
+                        const delay = 1000 - duration;
+    
+                        if ((await cursor.hasNext()) && delay > 0) {
+                            await new Promise(resolve => setTimeout(resolve, delay));
+                        }
                     }
-
-                    const intervalStartTime = Date.now();
-                    
-                    // Use the promise pool to process all contacts for this second with high concurrency
-                    await promisePool(CONCURRENCY_LIMIT, contactsForInterval, async (contact) => {
-                        const operation = await sendSingleMessage(contact);
-                        operationsBuffer.push(operation);
-                    });
-
-                    const duration = Date.now() - intervalStartTime;
-                    const delay = 1000 - duration;
-
-                    if (hasMoreContacts && delay > 0) {
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                    }
+                } finally {
+                    await cursor.close();
                 }
-                
+
                 // Cleanup: Stop the periodic writer and do one final flush
                 clearInterval(writeInterval);
 
@@ -336,5 +344,3 @@ export async function processBroadcastJob() {
         throw new Error(`Cron scheduler failed: ${getAxiosErrorMessage(error)}`);
     }
 }
-
-    

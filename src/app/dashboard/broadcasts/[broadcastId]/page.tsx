@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, RefreshCw, CheckCircle, XCircle, FileText, Clock, Users, Send, AlertTriangle, CalendarCheck, CircleDashed } from 'lucide-react';
+import { ArrowLeft, RefreshCw, CheckCircle, XCircle, FileText, Clock, Users, Send, AlertTriangle, CalendarCheck, CircleDashed, Play } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -176,7 +176,7 @@ export default function BroadcastReportPage() {
                 <CardTitle>Campaign Summary</CardTitle>
             </CardHeader>
             <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 text-sm">
                     <div className="flex items-start gap-3">
                         <FileText className="h-8 w-8 text-primary" />
                         <div>
@@ -191,6 +191,15 @@ export default function BroadcastReportPage() {
                             <p className="font-semibold">{new Date(broadcast.createdAt).toLocaleString()}</p>
                         </div>
                     </div>
+                    {broadcast.startedAt && (
+                        <div className="flex items-start gap-3">
+                            <Play className="h-8 w-8 text-primary" />
+                            <div>
+                                <p className="text-muted-foreground">Started At</p>
+                                <p className="font-semibold">{new Date(broadcast.startedAt).toLocaleString()}</p>
+                            </div>
+                        </div>
+                    )}
                     {broadcast.completedAt && (
                         <div className="flex items-start gap-3">
                             <CalendarCheck className="h-8 w-8 text-primary" />
