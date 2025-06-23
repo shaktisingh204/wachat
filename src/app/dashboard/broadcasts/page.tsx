@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -20,7 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, RefreshCw, StopCircle, LoaderCircle } from 'lucide-react';
+import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,6 +45,7 @@ type Broadcast = {
   status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure' | 'Cancelled';
   createdAt: string;
   completedAt?: string;
+  startedAt?: string;
 };
 
 function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
@@ -97,6 +99,63 @@ function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
     </AlertDialog>
   );
 }
+
+function LiveTimer({ startTime }: { startTime: string }) {
+  const [elapsedTime, setElapsedTime] = useState('00:00:00');
+
+  useEffect(() => {
+    if (!startTime) return;
+    const start = new Date(startTime).getTime();
+    if (isNaN(start)) return;
+
+    const intervalId = setInterval(() => {
+      const now = Date.now();
+      const difference = now - start;
+      if (difference < 0) return;
+
+      const hours = Math.floor(difference / 3600000);
+      const minutes = Math.floor((difference % 3600000) / 60000);
+      const seconds = Math.floor(((difference % 3600000) % 60000) / 1000);
+
+      const formattedTime = [
+        String(hours).padStart(2, '0'),
+        String(minutes).padStart(2, '0'),
+        String(seconds).padStart(2, '0')
+      ].join(':');
+      
+      setElapsedTime(formattedTime);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [startTime]);
+
+  return (
+    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground font-mono">
+      <Clock className="h-4 w-4" />
+      <span>{elapsedTime}</span>
+    </div>
+  );
+}
+
+function formatDuration(start: string, end: string) {
+    const startDate = new Date(start).getTime();
+    const endDate = new Date(end).getTime();
+    if (isNaN(startDate) || isNaN(endDate)) return '-';
+
+    let difference = endDate - startDate;
+    if (difference < 0) difference = 0;
+    
+    const hours = Math.floor(difference / 3600000);
+    const minutes = Math.floor((difference % 3600000) / 60000);
+    const seconds = Math.floor(((difference % 3600000) % 60000) / 1000);
+
+    return [
+        String(hours).padStart(2, '0'),
+        String(minutes).padStart(2, '0'),
+        String(seconds).padStart(2, '0')
+      ].join(':');
+}
+
 
 export default function BroadcastPage() {
   const [isClient, setIsClient] = useState(false);
@@ -246,7 +305,7 @@ export default function BroadcastPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Queued</TableHead>
-                  <TableHead>Completed</TableHead>
+                  <TableHead>Duration</TableHead>
                   <TableHead>Template</TableHead>
                   <TableHead>File Name</TableHead>
                   <TableHead>Contacts</TableHead>
@@ -260,7 +319,15 @@ export default function BroadcastPage() {
                   history.map((item) => (
                     <TableRow key={item._id.toString()}>
                       <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
-                      <TableCell>{item.completedAt ? new Date(item.completedAt).toLocaleString() : '-'}</TableCell>
+                      <TableCell>
+                        {item.status === 'PROCESSING' && item.startedAt ? (
+                          <LiveTimer startTime={item.startedAt} />
+                        ) : item.completedAt && item.startedAt ? (
+                          formatDuration(item.startedAt, item.completedAt)
+                        ) : (
+                          '-'
+                        )}
+                      </TableCell>
                       <TableCell>{item.templateName}</TableCell>
                       <TableCell>{item.fileName}</TableCell>
                       <TableCell>{item.contactCount}</TableCell>

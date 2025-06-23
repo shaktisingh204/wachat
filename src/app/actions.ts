@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -197,6 +198,7 @@ export async function getBroadcasts() {
         errorCount: 1,
         status: 1,
         createdAt: 1,
+        startedAt: 1,
         completedAt: 1,
     };
     const broadcasts = await db.collection('broadcasts')
@@ -939,5 +941,6 @@ export async function handleCleanDatabase(
           return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
       }
   }
+
 
 
