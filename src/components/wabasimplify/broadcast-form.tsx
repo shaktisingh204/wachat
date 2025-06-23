@@ -137,9 +137,9 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
               </SelectTrigger>
               <SelectContent searchable>
                   {templates.map((template) => (
-                  <SelectItem key={template._id.toString()} value={template._id.toString()}>
-                      {template.name} ({template.category})
-                  </SelectItem>
+                    <SelectItem key={template._id.toString()} value={template._id.toString()}>
+                      {template.name} (<span className="capitalize">{template.status?.replace(/_/g, " ").toLowerCase() || 'N/A'}</span>)
+                    </SelectItem>
                   ))}
               </SelectContent>
               </Select>

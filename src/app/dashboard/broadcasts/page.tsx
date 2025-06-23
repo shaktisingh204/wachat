@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, getProjectForBroadcast, getBroadcasts, handleStopBroadcast } from '@/app/actions';
+import { getTemplates, getProjectForBroadcast, getBroadcasts, handleStopBroadcast, handleSyncTemplates } from '@/app/actions';
 import type { Project, Template } from '@/app/dashboard/page';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -199,6 +199,7 @@ export default function BroadcastPage() {
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
   const [loading, setLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
+  const [isSyncingTemplates, startTemplatesSyncTransition] = useTransition();
   const { toast } = useToast();
   const [sendRateData, setSendRateData] = useState<Record<string, RateData>>({});
 
@@ -246,6 +247,24 @@ export default function BroadcastPage() {
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const onSyncTemplates = useCallback(async () => {
+    startTemplatesSyncTransition(async () => {
+      const projectId = localStorage.getItem('activeProjectId');
+      if (!projectId) {
+        toast({ title: "Error", description: "No active project selected.", variant: "destructive" });
+        return;
+      }
+      const result = await handleSyncTemplates(projectId);
+      if (result.error) {
+        toast({ title: "Sync Failed", description: result.error, variant: "destructive" });
+      } else {
+        toast({ title: "Sync Successful", description: result.message });
+        const templatesData = await getTemplates(projectId);
+        setTemplates(templatesData as WithId<Template>[]);
+      }
+    });
+  }, [toast, startTemplatesSyncTransition]);
 
   useEffect(() => {
     if (!isClient) {
@@ -356,6 +375,10 @@ export default function BroadcastPage() {
               </div>
               <div className="flex items-center gap-4">
                 <ISTClock />
+                <Button onClick={onSyncTemplates} disabled={isSyncingTemplates} variant="outline" size="sm">
+                  <RefreshCw className={`mr-2 h-4 w-4 ${isSyncingTemplates ? 'animate-spin' : ''}`} />
+                  Sync Templates
+                </Button>
                 <Button onClick={onRefresh} disabled={isRefreshing} variant="outline" size="sm">
                   <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                   Refresh

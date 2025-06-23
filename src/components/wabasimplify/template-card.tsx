@@ -65,7 +65,6 @@ export function TemplateCard({ template }: TemplateCardProps) {
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg font-headline break-all">{template.name}</CardTitle>
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
-              <Badge variant="outline" className="capitalize">{template.category?.toLowerCase() || 'N/A'}</Badge>
               <Badge variant={getStatusVariant(template.status)} className="capitalize">
                 {template.status?.replace(/_/g, ' ') || 'Unknown'}
               </Badge>
