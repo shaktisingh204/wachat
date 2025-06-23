@@ -6,7 +6,7 @@ import { config } from 'dotenv';
 config();
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { Db, ObjectId, FindOneAndUpdateOptions } from 'mongodb';
+import { Db, ObjectId, FindOneAndUpdateOptions, Filter } from 'mongodb';
 import axios from 'axios';
 
 type BroadcastJob = {
@@ -90,18 +90,16 @@ async function promisePool<T>(
 }
 
 /**
- * An async generator that yields contacts at a consistent, specified rate by breaking down
- * the per-second rate into smaller, more frequent chunks. This ensures a smooth flow of data
- * rather than large, infrequent bursts, leading to more consistent performance.
+ * An async generator that yields contacts at a consistent, specified rate by fetching them
+ * from the database in efficient batches. This ensures a smooth flow of data rather than
+ * large, infrequent bursts, leading to more consistent performance.
  * @param db The database instance.
- * @param cursor The database cursor for contacts.
  * @param jobId The ID of the current broadcast job.
  * @param rate The number of contacts to yield per second.
  * @param checkCancelled A function to check if the job has been cancelled.
  */
 async function* contactGenerator(
     db: Db, 
-    cursor: any, 
     jobId: ObjectId, 
     rate: number,
     checkCancelled: () => Promise<boolean>
@@ -121,6 +119,8 @@ async function* contactGenerator(
     let lastCancelCheckTime = 0;
     const CANCEL_CHECK_INTERVAL_MS = 2000; // Check every 2 seconds to reduce DB load.
 
+    let lastId: ObjectId | null = null;
+
     try {
         while (true) {
             const now = Date.now();
@@ -133,15 +133,26 @@ async function* contactGenerator(
 
             const intervalStartTime = Date.now();
             
-            for (let i = 0; i < contactsPerChunk; i++) {
-                const contact = await cursor.next();
-                if (contact) {
-                    yield contact;
-                    localAttemptedCount++;
-                } else {
-                    // No more contacts, end of cursor.
-                    return; 
-                }
+            const query: Filter<BroadcastContact> = { broadcastId: jobId, status: 'PENDING' };
+            if (lastId) {
+                query._id = { $gt: lastId };
+            }
+
+            const contactsBatch = await db.collection<BroadcastContact>('broadcast_contacts')
+                .find(query)
+                .sort({ _id: 1 })
+                .limit(contactsPerChunk)
+                .toArray();
+            
+            if (contactsBatch.length === 0) {
+                return;
+            }
+
+            lastId = contactsBatch[contactsBatch.length - 1]._id;
+            
+            for (const contact of contactsBatch) {
+                yield contact;
+                localAttemptedCount++;
             }
     
             const duration = Date.now() - intervalStartTime;
@@ -314,8 +325,6 @@ export async function processBroadcastJob() {
                         }
                     }
                 }, WRITE_INTERVAL_MS);
-
-                const cursor = db.collection<BroadcastContact>('broadcast_contacts').find({ broadcastId: jobId, status: 'PENDING' });
                 
                 let isCancelled = false;
                 const checkCancelled = async (): Promise<boolean> => {
@@ -329,7 +338,7 @@ export async function processBroadcastJob() {
                 };
 
                 try {
-                    const generator = contactGenerator(db, cursor, jobId, MESSAGES_PER_SECOND, checkCancelled);
+                    const generator = contactGenerator(db, jobId, MESSAGES_PER_SECOND, checkCancelled);
 
                     await promisePool(CONCURRENCY_LIMIT, generator, async (contact) => {
                         const operation = await sendSingleMessage(contact);
@@ -338,7 +347,7 @@ export async function processBroadcastJob() {
                         }
                     });
                 } finally {
-                    await cursor.close();
+                    // Cleanup is handled in the generator's finally block
                 }
 
                 clearInterval(writeInterval);
