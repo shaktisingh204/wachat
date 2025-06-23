@@ -970,3 +970,86 @@ export async function handleCleanDatabase(
           return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
       }
   }
+
+export async function handleRequeueBroadcast(broadcastId: string): Promise<{ message?: string; error?: string }> {
+    if (!ObjectId.isValid(broadcastId)) {
+        return { error: 'Invalid Broadcast ID.' };
+    }
+
+    const { db } = await connectToDatabase();
+    const originalBroadcastId = new ObjectId(broadcastId);
+
+    try {
+        // 1. Find the original broadcast
+        const originalBroadcast = await db.collection('broadcasts').findOne({ _id: originalBroadcastId });
+        if (!originalBroadcast) {
+            return { error: 'Original broadcast not found.' };
+        }
+
+        // 2. Create a new broadcast document by copying data
+        const newBroadcastData = {
+            projectId: originalBroadcast.projectId,
+            templateId: originalBroadcast.templateId,
+            templateName: originalBroadcast.templateName,
+            phoneNumberId: originalBroadcast.phoneNumberId,
+            accessToken: originalBroadcast.accessToken,
+            status: 'QUEUED' as const,
+            createdAt: new Date(),
+            contactCount: originalBroadcast.contactCount,
+            fileName: `Requeue of ${originalBroadcast.fileName}`, // Indicate it's a requeue
+            components: originalBroadcast.components,
+            language: originalBroadcast.language,
+            headerImageUrl: originalBroadcast.headerImageUrl,
+        };
+
+        const newBroadcastResult = await db.collection('broadcasts').insertOne(newBroadcastData);
+        const newBroadcastId = newBroadcastResult.insertedId;
+
+        // 3. Find original contacts
+        const originalContactsCursor = db.collection('broadcast_contacts').find({ broadcastId: originalBroadcastId });
+        
+        let newContactsCount = 0;
+        const contactBatchSize = 1000;
+        let contactBatch: any[] = [];
+
+        // 4. Create new contacts for the new broadcast
+        for await (const contact of originalContactsCursor) {
+            const newContact = {
+                broadcastId: newBroadcastId,
+                phone: contact.phone,
+                variables: contact.variables,
+                status: 'PENDING' as const,
+                createdAt: new Date(),
+            };
+            contactBatch.push(newContact);
+            newContactsCount++;
+
+            if (contactBatch.length >= contactBatchSize) {
+                await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
+                contactBatch = [];
+            }
+        }
+        
+        if (contactBatch.length > 0) {
+            await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
+        }
+        
+        // 5. Final check and update of contact count
+        if (newContactsCount !== originalBroadcast.contactCount) {
+           await db.collection('broadcasts').updateOne({ _id: newBroadcastId }, { $set: { contactCount: newContactsCount } });
+        }
+
+        if (newContactsCount === 0) {
+            await db.collection('broadcasts').deleteOne({ _id: newBroadcastId });
+            return { error: 'No contacts found to requeue from the original broadcast.' };
+        }
+        
+        revalidatePath('/dashboard/broadcasts');
+
+        return { message: `Broadcast has been successfully requeued with ${newContactsCount} contacts.` };
+
+    } catch (e: any) {
+        console.error('Failed to requeue broadcast:', e);
+        return { error: e.message || 'An unexpected error occurred while requeuing the broadcast.' };
+    }
+}
