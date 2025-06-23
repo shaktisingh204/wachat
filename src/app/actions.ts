@@ -389,6 +389,70 @@ type BroadcastState = {
   error?: string | null;
 };
 
+const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId): Promise<number> => {
+    return new Promise<number>((resolve, reject) => {
+        let localContactCount = 0;
+        let contactBatch: any[] = [];
+        const batchSize = 1000; // Reduced batch size for lower memory usage
+        let phoneColumnHeader: string | null = null;
+        
+        Papa.parse(inputStream, {
+            header: true,
+            skipEmptyLines: true,
+            step: async (results, parser) => {
+                const row = results.data as Record<string, string>;
+                if (!phoneColumnHeader) {
+                    phoneColumnHeader = Object.keys(row)[0];
+                    if (!phoneColumnHeader) {
+                        parser.abort();
+                        return reject(new Error("File appears to have no columns or is empty."));
+                    }
+                }
+                
+                const phone = row[phoneColumnHeader!];
+                if (!phone || String(phone).trim() === '') return;
+
+                const {[phoneColumnHeader!]: _, ...variables} = row;
+                const contactDoc = {
+                    broadcastId,
+                    phone: String(phone).trim(),
+                    variables,
+                    status: 'PENDING' as const,
+                    createdAt: new Date(),
+                };
+                contactBatch.push(contactDoc);
+                localContactCount++;
+                
+                if (contactBatch.length >= batchSize) {
+                    parser.pause();
+                    try {
+                        await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
+                        contactBatch = [];
+                    } catch (dbError) {
+                        console.warn('Batch insert failed, some contacts may be duplicates:', dbError);
+                    } finally {
+                        parser.resume();
+                    }
+                }
+            },
+            complete: async () => {
+                try {
+                    if (contactBatch.length > 0) {
+                        await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
+                    }
+                    resolve(localContactCount);
+                } catch (dbError) {
+                    console.warn('Final batch insert failed:', dbError);
+                    resolve(localContactCount);
+                }
+            },
+            error: (error) => {
+                reject(error);
+            }
+        });
+    });
+};
+
 export async function handleStartBroadcast(
   prevState: BroadcastState,
   formData: FormData
@@ -456,71 +520,6 @@ export async function handleStartBroadcast(
     broadcastId = broadcastResult.insertedId;
 
     let contactCount = 0;
-
-    const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId): Promise<number> => {
-        return new Promise<number>((resolve, reject) => {
-            let localContactCount = 0;
-            let contactBatch: any[] = [];
-            const batchSize = 5000;
-            let phoneColumnHeader: string | null = null;
-            
-            Papa.parse(inputStream, {
-                header: true,
-                skipEmptyLines: true,
-                step: async (results, parser) => {
-                    const row = results.data as Record<string, string>;
-                    if (!phoneColumnHeader) {
-                        phoneColumnHeader = Object.keys(row)[0];
-                        if (!phoneColumnHeader) {
-                            parser.abort();
-                            return reject(new Error("File appears to have no columns or is empty."));
-                        }
-                    }
-                    
-                    const phone = row[phoneColumnHeader!];
-                    if (!phone || String(phone).trim() === '') return;
-
-                    const {[phoneColumnHeader!]: _, ...variables} = row;
-                    const contactDoc = {
-                        broadcastId,
-                        phone: String(phone).trim(),
-                        variables,
-                        status: 'PENDING' as const,
-                        createdAt: new Date(),
-                    };
-                    contactBatch.push(contactDoc);
-                    localContactCount++;
-                    
-                    if (contactBatch.length >= batchSize) {
-                        parser.pause();
-                        try {
-                            await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
-                            contactBatch = [];
-                        } catch (dbError) {
-                            // Non-fatal, continue processing
-                            console.warn('Batch insert failed, some contacts may be duplicates:', dbError);
-                        } finally {
-                            parser.resume();
-                        }
-                    }
-                },
-                complete: async () => {
-                    try {
-                        if (contactBatch.length > 0) {
-                            await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
-                        }
-                        resolve(localContactCount);
-                    } catch (dbError) {
-                        console.warn('Final batch insert failed:', dbError);
-                        resolve(localContactCount); // Resolve with count even if final batch fails
-                    }
-                },
-                error: (error) => {
-                    reject(error);
-                }
-            });
-        });
-    };
 
     if (contactFile.name.endsWith('.csv')) {
         const nodeStream = Readable.fromWeb(contactFile.stream() as any);
