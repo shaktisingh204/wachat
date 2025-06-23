@@ -33,6 +33,43 @@ type FilterStatus = 'ALL' | 'SENT' | 'FAILED' | 'PENDING';
 
 const ATTEMPTS_PER_PAGE = 50;
 
+function LiveTimer({ startTime }: { startTime: string }) {
+  const [elapsedTime, setElapsedTime] = useState('00:00:00');
+
+  useEffect(() => {
+    if (!startTime) return;
+    const start = new Date(startTime).getTime();
+    if (isNaN(start)) return;
+
+    const intervalId = setInterval(() => {
+      const now = Date.now();
+      const difference = now - start;
+      if (difference < 0) return;
+
+      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((difference / (1000 * 60)) % 60);
+      const seconds = Math.floor((difference / 1000) % 60);
+
+      const formattedTime = [
+        String(hours).padStart(2, '0'),
+        String(minutes).padStart(2, '0'),
+        String(seconds).padStart(2, '0')
+      ].join(':');
+      
+      setElapsedTime(formattedTime);
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, [startTime]);
+
+  return (
+    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground font-mono bg-muted px-3 py-1.5 rounded-md">
+      <Clock className="h-4 w-4" />
+      <span>{elapsedTime}</span>
+    </div>
+  );
+}
+
 export default function BroadcastReportPage() {
   const [broadcast, setBroadcast] = useState<WithId<Broadcast> | null>(null);
   const [attempts, setAttempts] = useState<BroadcastAttempt[]>([]);
@@ -82,7 +119,7 @@ export default function BroadcastReportPage() {
   useEffect(() => {
     setLoading(true);
     fetchPageData(currentPage, filter).finally(() => setLoading(false));
-  }, [currentPage, filter]);
+  }, [currentPage, filter, fetchPageData]);
 
 
   useEffect(() => {
@@ -165,10 +202,15 @@ export default function BroadcastReportPage() {
             <h1 className="text-3xl font-bold font-headline">Broadcast Report</h1>
             <p className="text-muted-foreground">Detailed results for your campaign.</p>
           </div>
-          <Button onClick={onRefresh} disabled={isRefreshing}>
-            <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            Refresh Status
-          </Button>
+          <div className="flex items-center gap-4">
+            {broadcast.status === 'PROCESSING' && broadcast.startedAt && (
+                <LiveTimer startTime={broadcast.startedAt} />
+            )}
+            <Button onClick={onRefresh} disabled={isRefreshing}>
+              <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh Status
+            </Button>
+          </div>
         </div>
 
         <Card>
