@@ -168,37 +168,198 @@ async function* contactGenerator(
 }
 
 
+async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: number): Promise<any> {
+    const jobId = job._id;
+    try {
+        const CONCURRENCY_LIMIT = 1000; 
+        const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
+
+        const operationsBuffer: any[] = [];
+        
+        const sendSingleMessage = async (contactDoc: BroadcastContact) => {
+            const contact = { phone: contactDoc.phone, ...contactDoc.variables };
+            const phone = contact.phone;
+            
+            try {
+                const getVars = (text: string): number[] => {
+                    if (!text) return [];
+                    const variableMatches = text.match(/{{(\d+)}}/g);
+                    return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
+                };
+
+                const payloadComponents: any[] = [];
+                const headerComponent = job.components.find(c => c.type === 'HEADER');
+                if (headerComponent) {
+                    const parameters: any[] = [];
+                    if (headerComponent.format === 'TEXT' && headerComponent.text) {
+                        const headerVars = getVars(headerComponent.text);
+                        if (headerVars.length > 0) {
+                            headerVars.sort((a,b) => a-b).forEach(varNum => {
+                                parameters.push({ type: 'text', text: contact[`variable${varNum}`] || '' });
+                            });
+                        }
+                    } else if (job.headerImageUrl && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
+                        const type = headerComponent.format.toLowerCase();
+                        const mediaObject: any = { link: job.headerImageUrl };
+                        if (type === 'document') mediaObject.filename = contact['filename'] || uploadFilename;
+                        parameters.push({ type, [type]: mediaObject });
+                    }
+                    if (parameters.length > 0) payloadComponents.push({ type: 'header', parameters });
+                }
+
+                const bodyComponent = job.components.find(c => c.type === 'BODY');
+                if (bodyComponent?.text) {
+                    const bodyVars = getVars(bodyComponent.text);
+                    if (bodyVars.length > 0) {
+                        const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({ type: 'text', text: contact[`variable${varNum}`] || '' }));
+                        payloadComponents.push({ type: 'body', parameters });
+                    }
+                }
+
+                const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
+                if (buttonsComponent && Array.isArray(buttonsComponent.buttons)) {
+                     buttonsComponent.buttons.forEach((button: any, index: number) => {
+                        if (button.type === 'URL' && button.url?.includes('{{1}}') && contact[`button_url_param_${index}`]) {
+                            payloadComponents.push({
+                                type: 'button',
+                                sub_type: 'url',
+                                index: String(index),
+                                parameters: [{ type: 'text', text: contact[`button_url_param_${index}`] }]
+                            });
+                        }
+                    });
+                }
+                
+                const messageData = {
+                    messaging_product: 'whatsapp', to: phone, recipient_type: 'individual', type: 'template',
+                    template: { name: job.templateName, language: { code: job.language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
+                };
+                
+                const response = await axios.post(
+                    `https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`,
+                    messageData,
+                    { headers: { 'Authorization': `Bearer ${job.accessToken}` } }
+                );
+
+                return {
+                    updateOne: {
+                        filter: { _id: contactDoc._id },
+                        update: { $set: { status: 'SENT', sentAt: new Date(), messageId: response.data?.messages?.[0]?.id } }
+                    }
+                };
+            } catch(error: any) {
+                const errorMessage = getAxiosErrorMessage(error);
+                return {
+                    updateOne: {
+                        filter: { _id: contactDoc._id },
+                        update: { $set: { status: 'FAILED', sentAt: new Date(), error: errorMessage } }
+                    }
+                };
+            }
+        };
+
+        const writeInterval = setInterval(async () => {
+            if (operationsBuffer.length > 0) {
+                const bufferCopy = [...operationsBuffer];
+                operationsBuffer.length = 0; 
+                
+                await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
+                
+                const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
+                const errorCount = bufferCopy.length - successCount;
+
+                if (successCount > 0 || errorCount > 0) {
+                    await db.collection('broadcasts').updateOne({ _id: jobId }, {
+                        $inc: { successCount, errorCount },
+                    });
+                }
+            }
+        }, WRITE_INTERVAL_MS);
+        
+        let isCancelled = false;
+        const checkCancelled = async (): Promise<boolean> => {
+            if (isCancelled) return true;
+            const currentJobState = await db.collection<BroadcastJob>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
+            if (currentJobState?.status === 'Cancelled') {
+                isCancelled = true;
+                return true;
+            }
+            return false;
+        };
+
+        try {
+            const generator = contactGenerator(db, jobId, perJobRate, checkCancelled);
+
+            await promisePool(CONCURRENCY_LIMIT, generator, async (contact) => {
+                const operation = await sendSingleMessage(contact);
+                if (operation) {
+                    operationsBuffer.push(operation);
+                }
+            });
+        } finally {
+            // Cleanup is handled in the generator's finally block
+        }
+
+        clearInterval(writeInterval);
+
+        if (operationsBuffer.length > 0) {
+             const bufferCopy = [...operationsBuffer];
+             await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
+                
+             const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
+             const errorCount = bufferCopy.length - successCount;
+
+             if (successCount > 0 || errorCount > 0) {
+                await db.collection('broadcasts').updateOne({ _id: jobId }, {
+                    $inc: { successCount, errorCount },
+                });
+             }
+        }
+
+        const finalJobState = await db.collection('broadcasts').findOne({_id: jobId});
+        const jobSuccessCount = finalJobState?.successCount || 0;
+        const jobErrorCount = finalJobState?.errorCount || 0;
+        const jobStatus = finalJobState?.status;
+
+        let finalStatus: 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled' = 'Completed';
+        if (jobStatus === 'Cancelled') {
+            finalStatus = 'Cancelled';
+        } else if (jobErrorCount > 0) {
+            finalStatus = (jobSuccessCount > 0) ? 'Partial Failure' : 'Failed';
+        }
+
+        await db.collection('broadcasts').updateOne(
+            { _id: jobId },
+            { $set: { status: finalStatus, completedAt: new Date() } }
+        );
+
+        return { jobId: jobId.toString(), status: finalStatus, success: jobSuccessCount, failed: jobErrorCount };
+
+    } catch (processingError: any) {
+         const errorMsg = getAxiosErrorMessage(processingError);
+         console.error(`Processing failed for job ${jobId}: ${errorMsg}`);
+         const finalJobState = await db.collection('broadcasts').findOne({_id: jobId});
+         const finalStatus = (finalJobState?.successCount || 0) > 0 ? 'Partial Failure' : 'Failed';
+         await db.collection('broadcasts').updateOne(
+            { _id: jobId },
+            { $set: { status: finalStatus, completedAt: new Date() } }
+         );
+        return { jobId: jobId.toString(), status: `Processing Error - ${finalStatus}`, error: errorMsg };
+    }
+}
+
+
 export async function processBroadcastJob() {
     let db: Db;
-    const processedJobsSummary: any[] = [];
-    let totalSuccessCountAllJobs = 0;
-    let totalErrorCountAllJobs = 0;
-    let jobsProcessedCount = 0;
-
     try {
         const conn = await connectToDatabase();
         db = conn.db;
 
-        for (let i = 0; i < 100; i++) {
-            const preJob = await db.collection<BroadcastJob>('broadcasts').findOne({ status: 'QUEUED' }, { sort: { createdAt: 1 }});
-
-            if (!preJob) {
-                break; // No more queued jobs
-            }
-            
-            const project = await db.collection<Project>('projects').findOne(
-                { _id: preJob.projectId },
-                { projection: { messagesPerSecond: 1 } }
-            );
-
-            const MESSAGES_PER_SECOND = project?.messagesPerSecond || 80;
-
-            const findOneAndUpdateOptions: FindOneAndUpdateOptions = {
-                returnDocument: 'after'
-            };
-
-            const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
-                { _id: preJob._id, status: 'QUEUED' },
+        // Atomically find all QUEUED jobs and update their status to PROCESSING
+        const queuedJobs = await db.collection<BroadcastJob>('broadcasts').find({ status: 'QUEUED' }, { sort: { createdAt: 1 } }).toArray();
+        if (queuedJobs.length > 0) {
+             await db.collection<BroadcastJob>('broadcasts').updateMany(
+                { _id: { $in: queuedJobs.map(j => j._id) } },
                 {
                     $set: {
                         status: 'PROCESSING',
@@ -206,209 +367,58 @@ export async function processBroadcastJob() {
                         attemptedCount: 0,
                         successCount: 0,
                         errorCount: 0,
-                        messagesPerSecond: MESSAGES_PER_SECOND,
                     }
-                },
-                findOneAndUpdateOptions
+                }
+            );
+        }
+        
+        // Get all jobs that are currently processing
+        const processingJobs = await db.collection<BroadcastJob>('broadcasts').find({ status: 'PROCESSING' }).toArray();
+
+        if (processingJobs.length === 0) {
+            return { message: 'No active broadcasts to process.' };
+        }
+
+        // Group jobs by project ID
+        const jobsByProject = processingJobs.reduce((acc, job) => {
+            const projectId = job.projectId.toString();
+            if (!acc[projectId]) {
+                acc[projectId] = [];
+            }
+            acc[projectId].push(job);
+            return acc;
+        }, {} as Record<string, BroadcastJob[]>);
+
+        // Create and run processing tasks for each job
+        const processingTasks: Promise<any>[] = [];
+
+        for (const projectIdStr in jobsByProject) {
+            const jobsInProject = jobsByProject[projectIdStr];
+            const project = await db.collection<Project>('projects').findOne(
+                { _id: new ObjectId(projectIdStr) },
+                { projection: { messagesPerSecond: 1 } }
             );
 
-            if (!job) {
-                continue;
-            }
-            
-            jobsProcessedCount++;
-            const jobId = job._id;
+            const totalRateForProject = project?.messagesPerSecond || 80;
+            const perJobRate = Math.floor(totalRateForProject / jobsInProject.length);
 
-            try {
-                const CONCURRENCY_LIMIT = 1000; 
-
-                const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
-
-                const operationsBuffer: any[] = [];
-                
-                const sendSingleMessage = async (contactDoc: BroadcastContact) => {
-                    const contact = { phone: contactDoc.phone, ...contactDoc.variables };
-                    const phone = contact.phone;
-                    
-                    try {
-                        const getVars = (text: string): number[] => {
-                            if (!text) return [];
-                            const variableMatches = text.match(/{{(\d+)}}/g);
-                            return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
-                        };
-
-                        const payloadComponents: any[] = [];
-                        const headerComponent = job.components.find(c => c.type === 'HEADER');
-                        if (headerComponent) {
-                            const parameters: any[] = [];
-                            if (headerComponent.format === 'TEXT' && headerComponent.text) {
-                                const headerVars = getVars(headerComponent.text);
-                                if (headerVars.length > 0) {
-                                    headerVars.sort((a,b) => a-b).forEach(varNum => {
-                                        parameters.push({ type: 'text', text: contact[`variable${varNum}`] || '' });
-                                    });
-                                }
-                            } else if (job.headerImageUrl && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                                const type = headerComponent.format.toLowerCase();
-                                const mediaObject: any = { link: job.headerImageUrl };
-                                if (type === 'document') mediaObject.filename = contact['filename'] || uploadFilename;
-                                parameters.push({ type, [type]: mediaObject });
-                            }
-                            if (parameters.length > 0) payloadComponents.push({ type: 'header', parameters });
-                        }
-
-                        const bodyComponent = job.components.find(c => c.type === 'BODY');
-                        if (bodyComponent?.text) {
-                            const bodyVars = getVars(bodyComponent.text);
-                            if (bodyVars.length > 0) {
-                                const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({ type: 'text', text: contact[`variable${varNum}`] || '' }));
-                                payloadComponents.push({ type: 'body', parameters });
-                            }
-                        }
-
-                        const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
-                        if (buttonsComponent && Array.isArray(buttonsComponent.buttons)) {
-                             buttonsComponent.buttons.forEach((button: any, index: number) => {
-                                if (button.type === 'URL' && button.url?.includes('{{1}}') && contact[`button_url_param_${index}`]) {
-                                    payloadComponents.push({
-                                        type: 'button',
-                                        sub_type: 'url',
-                                        index: String(index),
-                                        parameters: [{ type: 'text', text: contact[`button_url_param_${index}`] }]
-                                    });
-                                }
-                            });
-                        }
-                        
-                        const messageData = {
-                            messaging_product: 'whatsapp', to: phone, recipient_type: 'individual', type: 'template',
-                            template: { name: job.templateName, language: { code: job.language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
-                        };
-                        
-                        const response = await axios.post(
-                            `https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`,
-                            messageData,
-                            { headers: { 'Authorization': `Bearer ${job.accessToken}` } }
-                        );
-
-                        return {
-                            updateOne: {
-                                filter: { _id: contactDoc._id },
-                                update: { $set: { status: 'SENT', sentAt: new Date(), messageId: response.data?.messages?.[0]?.id } }
-                            }
-                        };
-                    } catch(error: any) {
-                        const errorMessage = getAxiosErrorMessage(error);
-                        return {
-                            updateOne: {
-                                filter: { _id: contactDoc._id },
-                                update: { $set: { status: 'FAILED', sentAt: new Date(), error: errorMessage } }
-                            }
-                        };
-                    }
-                };
-
-                const writeInterval = setInterval(async () => {
-                    if (operationsBuffer.length > 0) {
-                        const bufferCopy = [...operationsBuffer];
-                        operationsBuffer.length = 0; 
-                        
-                        await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
-                        
-                        const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
-                        const errorCount = bufferCopy.length - successCount;
-
-                        if (successCount > 0 || errorCount > 0) {
-                            await db.collection('broadcasts').updateOne({ _id: jobId }, {
-                                $inc: { successCount, errorCount },
-                            });
-                        }
-                    }
-                }, WRITE_INTERVAL_MS);
-                
-                let isCancelled = false;
-                const checkCancelled = async (): Promise<boolean> => {
-                    if (isCancelled) return true;
-                    const currentJobState = await db.collection<BroadcastJob>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
-                    if (currentJobState?.status === 'Cancelled') {
-                        isCancelled = true;
-                        return true;
-                    }
-                    return false;
-                };
-
-                try {
-                    const generator = contactGenerator(db, jobId, MESSAGES_PER_SECOND, checkCancelled);
-
-                    await promisePool(CONCURRENCY_LIMIT, generator, async (contact) => {
-                        const operation = await sendSingleMessage(contact);
-                        if (operation) {
-                            operationsBuffer.push(operation);
-                        }
-                    });
-                } finally {
-                    // Cleanup is handled in the generator's finally block
-                }
-
-                clearInterval(writeInterval);
-
-                if (operationsBuffer.length > 0) {
-                     const bufferCopy = [...operationsBuffer];
-                     await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
-                        
-                     const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
-                     const errorCount = bufferCopy.length - successCount;
-
-                     if (successCount > 0 || errorCount > 0) {
-                        await db.collection('broadcasts').updateOne({ _id: jobId }, {
-                            $inc: { successCount, errorCount },
-                        });
-                     }
-                }
-
-                const finalJobState = await db.collection('broadcasts').findOne({_id: jobId});
-                const jobSuccessCount = finalJobState?.successCount || 0;
-                const jobErrorCount = finalJobState?.errorCount || 0;
-                const jobStatus = finalJobState?.status;
-
-                let finalStatus: 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled' = 'Completed';
-                if (jobStatus === 'Cancelled') {
-                    finalStatus = 'Cancelled';
-                } else if (jobErrorCount > 0) {
-                    finalStatus = (jobSuccessCount > 0) ? 'Partial Failure' : 'Failed';
-                }
-
-                await db.collection('broadcasts').updateOne(
-                    { _id: jobId },
-                    { $set: { status: finalStatus, completedAt: new Date() } }
-                );
-
-                processedJobsSummary.push({ jobId: jobId.toString(), status: finalStatus, success: jobSuccessCount, failed: jobErrorCount });
-                totalSuccessCountAllJobs += jobSuccessCount;
-                totalErrorCountAllJobs += jobErrorCount;
-
-            } catch (processingError: any) {
-                 const errorMsg = getAxiosErrorMessage(processingError);
-                 console.error(`Processing failed for job ${jobId}: ${errorMsg}`);
-                 const finalJobState = await db.collection('broadcasts').findOne({_id: jobId});
-                 const finalStatus = (finalJobState?.successCount || 0) > 0 ? 'Partial Failure' : 'Failed';
-                 await db.collection('broadcasts').updateOne(
-                    { _id: jobId },
-                    { $set: { status: finalStatus, completedAt: new Date() } }
-                 );
-                processedJobsSummary.push({ jobId: jobId.toString(), status: `Processing Error - ${finalStatus}`, error: errorMsg });
+            for (const job of jobsInProject) {
+                await db.collection('broadcasts').updateOne({ _id: job._id }, { $set: { messagesPerSecond: perJobRate }});
+                const updatedJob = { ...job, messagesPerSecond: perJobRate };
+                processingTasks.push(executeSingleBroadcast(db, updatedJob, perJobRate));
             }
         }
-
-        if (jobsProcessedCount === 0) {
-            return { message: 'No queued broadcasts to process.' };
-        }
-
+        
+        const results = await Promise.all(processingTasks);
+        
+        const totalSuccessCount = results.reduce((sum, r) => sum + (r.success || 0), 0);
+        const totalFailedCount = results.reduce((sum, r) => sum + (r.failed || 0), 0);
+        
         return {
-            message: `Processed ${jobsProcessedCount} broadcast job(s).`,
-            totalSuccess: totalSuccessCountAllJobs,
-            totalFailed: totalErrorCountAllJobs,
-            jobs: processedJobsSummary,
+            message: `Processed ${results.length} broadcast job(s) concurrently.`,
+            totalSuccess: totalSuccessCount,
+            totalFailed: totalFailedCount,
+            jobs: results,
         };
 
     } catch (error: any) {
