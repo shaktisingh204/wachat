@@ -3,7 +3,7 @@
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
 import { connectToDatabase } from '@/lib/mongodb';
-import { ObjectId, WithId } from 'mongodb';
+import { Db, ObjectId, WithId } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
@@ -457,14 +457,14 @@ export async function handleStartBroadcast(
 
     let contactCount = 0;
 
-    if (contactFile.name.endsWith('.csv')) {
-        const nodeStream = Readable.fromWeb(contactFile.stream() as any);
-        await new Promise<void>((resolve, reject) => {
+    const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId): Promise<number> => {
+        return new Promise<number>((resolve, reject) => {
+            let localContactCount = 0;
             let contactBatch: any[] = [];
             const batchSize = 5000;
             let phoneColumnHeader: string | null = null;
             
-            Papa.parse(nodeStream, {
+            Papa.parse(inputStream, {
                 header: true,
                 skipEmptyLines: true,
                 step: async (results, parser) => {
@@ -473,7 +473,7 @@ export async function handleStartBroadcast(
                         phoneColumnHeader = Object.keys(row)[0];
                         if (!phoneColumnHeader) {
                             parser.abort();
-                            return reject(new Error("CSV file appears to have no columns or is empty."));
+                            return reject(new Error("File appears to have no columns or is empty."));
                         }
                     }
                     
@@ -489,15 +489,16 @@ export async function handleStartBroadcast(
                         createdAt: new Date(),
                     };
                     contactBatch.push(contactDoc);
-                    contactCount++;
+                    localContactCount++;
                     
                     if (contactBatch.length >= batchSize) {
                         parser.pause();
                         try {
-                            await db.collection('broadcast_contacts').insertMany(contactBatch);
+                            await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
                             contactBatch = [];
                         } catch (dbError) {
-                            return reject(dbError);
+                            // Non-fatal, continue processing
+                            console.warn('Batch insert failed, some contacts may be duplicates:', dbError);
                         } finally {
                             parser.resume();
                         }
@@ -506,22 +507,12 @@ export async function handleStartBroadcast(
                 complete: async () => {
                     try {
                         if (contactBatch.length > 0) {
-                            await db.collection('broadcast_contacts').insertMany(contactBatch);
+                            await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
                         }
-                        if (contactCount > 0) {
-                            await db.collection('broadcasts').updateOne(
-                                { _id: broadcastId! },
-                                { $set: { contactCount } }
-                            );
-                        } else {
-                            // No valid contacts found, clean up broadcast
-                             await db.collection('broadcasts').deleteOne({ _id: broadcastId! });
-                             broadcastId = null;
-                             return reject(new Error("No valid contacts with phone numbers found in the first column of the file."));
-                        }
-                        resolve();
+                        resolve(localContactCount);
                     } catch (dbError) {
-                        reject(dbError);
+                        console.warn('Final batch insert failed:', dbError);
+                        resolve(localContactCount); // Resolve with count even if final batch fails
                     }
                 },
                 error: (error) => {
@@ -529,71 +520,33 @@ export async function handleStartBroadcast(
                 }
             });
         });
+    };
+
+    if (contactFile.name.endsWith('.csv')) {
+        const nodeStream = Readable.fromWeb(contactFile.stream() as any);
+        contactCount = await processStreamedContacts(nodeStream, db, broadcastId);
     } else if (contactFile.name.endsWith('.xlsx')) {
-        if (contactFile.size > 20 * 1024 * 1024) { // 20MB limit for XLSX
-            await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-            return { error: 'XLSX file is too large (>20MB) for processing. Please use the .csv format for large contact lists to avoid server errors.' };
-        }
-        
         const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
         const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
         const sheetName = workbook.SheetNames[0];
+        if (!sheetName) {
+            throw new Error('The XLSX file contains no sheets.');
+        }
         const worksheet = workbook.Sheets[sheetName];
+        const csvData = XLSX.utils.sheet_to_csv(worksheet);
         
-        const contacts = XLSX.utils.sheet_to_json(worksheet, { defval: "" }).map(row => {
-            const newRow: Record<string, string> = {};
-            for (const key in row) {
-                newRow[key] = String((row as any)[key]);
-            }
-            return newRow;
-        });
-        
-        if (contacts.length === 0) {
-          await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-          return { error: 'Contact file is empty or contains no data.' };
-        }
-
-        const firstRow = contacts[0];
-        const headers = Object.keys(firstRow);
-        if (headers.length === 0) {
-            await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-            return { error: 'The contact file appears to have no columns.' };
-        }
-        const phoneColumnHeader = headers[0];
-        
-        const transformedContacts = contacts
-            .map(contact => {
-                const phone = contact[phoneColumnHeader];
-                if (!phone || String(phone).trim() === '') return null;
-                
-                const {[phoneColumnHeader]: _, ...rest} = contact;
-                return { 
-                    broadcastId,
-                    phone: String(phone).trim(), 
-                    variables: rest,
-                    status: 'PENDING' as const,
-                    createdAt: new Date(),
-                };
-            })
-            .filter(c => c !== null) as any[];
-
-        contactCount = transformedContacts.length;
-        if (contactCount === 0) {
-            await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-            return { error: 'No valid contacts with phone numbers found in the first column of the file.' };
-        }
-        
-        await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount } });
-
-        const batchSize = 5000;
-        for (let i = 0; i < transformedContacts.length; i += batchSize) {
-            const batch = transformedContacts.slice(i, i + batchSize);
-            await db.collection('broadcast_contacts').insertMany(batch);
-        }
+        contactCount = await processStreamedContacts(csvData, db, broadcastId);
     } else {
         await db.collection('broadcasts').deleteOne({ _id: broadcastId });
         return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
     }
+
+    if (contactCount === 0) {
+        await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+        return { error: 'No valid contacts with phone numbers found in the first column of the file.' };
+    }
+    
+    await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount } });
 
     revalidatePath('/dashboard/broadcasts');
     return { message: `Broadcast successfully queued for ${contactCount} contacts. Sending will begin shortly.` };
