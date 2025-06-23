@@ -191,27 +191,42 @@ export async function getTemplates(projectId: string) {
 export async function getBroadcasts() {
   try {
     const { db } = await connectToDatabase();
-    const projection = {
-        templateId: 1,
-        templateName: 1,
-        templateStatus: 1,
-        fileName: 1,
-        contactCount: 1,
-        attemptedCount: 1,
-        successCount: 1,
-        errorCount: 1,
-        status: 1,
-        createdAt: 1,
-        startedAt: 1,
-        completedAt: 1,
-        messagesPerSecond: 1,
-    };
-    const broadcasts = await db.collection('broadcasts')
-      .find({})
-      .project(projection)
-      .sort({ createdAt: -1 })
-      .limit(10)
-      .toArray();
+    const broadcasts = await db.collection('broadcasts').aggregate([
+      { $sort: { createdAt: -1 } },
+      { $limit: 10 },
+      {
+        $lookup: {
+          from: 'templates',
+          localField: 'templateId',
+          foreignField: '_id',
+          as: 'templateInfo'
+        }
+      },
+      {
+        $unwind: {
+          path: '$templateInfo',
+          preserveNullAndEmptyArrays: true // Keep broadcasts even if template is deleted
+        }
+      },
+      {
+        $project: {
+          templateId: 1,
+          templateName: 1,
+          templateStatus: '$templateInfo.status', // Get live status from joined collection
+          fileName: 1,
+          contactCount: 1,
+          attemptedCount: 1,
+          successCount: 1,
+          errorCount: 1,
+          status: 1,
+          createdAt: 1,
+          startedAt: 1,
+          completedAt: 1,
+          messagesPerSecond: 1,
+        }
+      }
+    ]).toArray();
+
     return JSON.parse(JSON.stringify(broadcasts));
   } catch (error) {
     console.error('Failed to fetch broadcast history:', error);
@@ -509,7 +524,6 @@ export async function handleStartBroadcast(
         projectId: new ObjectId(projectId),
         templateId: new ObjectId(templateId),
         templateName: template.name,
-        templateStatus: template.status,
         phoneNumberId,
         accessToken,
         status: 'QUEUED',
@@ -1015,7 +1029,6 @@ export async function handleRequeueBroadcast(
             projectId: originalBroadcast.projectId,
             templateId: newTemplate._id,
             templateName: newTemplate.name,
-            templateStatus: newTemplate.status,
             phoneNumberId: originalBroadcast.phoneNumberId,
             accessToken: originalBroadcast.accessToken,
             status: 'QUEUED' as const,
