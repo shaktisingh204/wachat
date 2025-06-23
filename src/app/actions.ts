@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -10,6 +9,7 @@ import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
 import type { PhoneNumber, Project, Template } from '@/app/dashboard/page';
 import axios from 'axios';
+import { Readable } from 'stream';
 
 type MetaPhoneNumber = {
     id: string;
@@ -42,7 +42,7 @@ type MetaTemplateComponent = {
 };
 
 type MetaTemplate = {
-    id: string;
+    id:string;
     name: string;
     language: string;
     status: string;
@@ -432,60 +432,6 @@ export async function handleStartBroadcast(
     const template = await db.collection('templates').findOne({ _id: new ObjectId(templateId) });
     if (!template) return { error: 'Selected template not found.' };
 
-    let contacts: Record<string, string>[] = [];
-    const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
-
-    if (contactFile.name.endsWith('.csv')) {
-        const csvText = fileBuffer.toString('utf-8');
-        const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-        contacts = parsed.data as Record<string, string>[];
-    } else if (contactFile.name.endsWith('.xlsx')) {
-        try {
-            const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-            const sheetName = workbook.SheetNames[0];
-            const worksheet = workbook.Sheets[sheetName];
-            const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: "" });
-            contacts = jsonData.map(row => {
-                const newRow: Record<string, string> = {};
-                for (const key in row) {
-                    newRow[key] = String((row as any)[key]);
-                }
-                return newRow;
-            });
-        } catch (e: any) {
-            console.error('Error parsing XLSX file:', e);
-            return { error: `Error parsing XLSX file: ${e.message}`};
-        }
-    } else {
-        return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
-    }
-    
-    if (contacts.length === 0) {
-      return { error: 'Contact file is empty or contains no data.' };
-    }
-
-    const firstRow = contacts[0];
-    const headers = Object.keys(firstRow);
-    if (headers.length === 0) {
-        return { error: 'The contact file appears to have no columns.' };
-    }
-    const phoneColumnHeader = headers[0];
-    
-    const transformedContacts = contacts
-        .map(contact => {
-            const phone = contact[phoneColumnHeader];
-            if (!phone || String(phone).trim() === '') return null;
-            
-            const {[phoneColumnHeader]: _, ...rest} = contact;
-            return { phone: String(phone).trim(), variables: rest };
-        })
-        .filter(c => c !== null) as { phone: string; variables: Record<string, string> }[];
-
-
-    if (transformedContacts.length === 0) {
-      return { error: 'No valid contacts with phone numbers found in the first column of the file.' };
-    }
-    
     let finalHeaderImageUrl: string | undefined = undefined;
     if (headerImageUrl && headerImageUrl.trim() !== '') {
         finalHeaderImageUrl = headerImageUrl.trim();
@@ -499,7 +445,7 @@ export async function handleStartBroadcast(
         accessToken,
         status: 'QUEUED',
         createdAt: new Date(),
-        contactCount: transformedContacts.length,
+        contactCount: 0, // Will be updated after processing the file
         fileName: contactFile.name,
         components: template.components,
         language: template.language,
@@ -509,22 +455,148 @@ export async function handleStartBroadcast(
     const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData);
     broadcastId = broadcastResult.insertedId;
 
-    const contactsToInsert = transformedContacts.map(c => ({
-        broadcastId,
-        phone: c.phone,
-        variables: c.variables,
-        status: 'PENDING' as const,
-        createdAt: new Date(),
-    }));
+    let contactCount = 0;
 
-    const batchSize = 5000;
-    for (let i = 0; i < contactsToInsert.length; i += batchSize) {
-        const batch = contactsToInsert.slice(i, i + batchSize);
-        await db.collection('broadcast_contacts').insertMany(batch);
+    if (contactFile.name.endsWith('.csv')) {
+        const nodeStream = Readable.fromWeb(contactFile.stream() as any);
+        await new Promise<void>((resolve, reject) => {
+            let contactBatch: any[] = [];
+            const batchSize = 5000;
+            let phoneColumnHeader: string | null = null;
+            
+            Papa.parse(nodeStream, {
+                header: true,
+                skipEmptyLines: true,
+                step: async (results, parser) => {
+                    const row = results.data as Record<string, string>;
+                    if (!phoneColumnHeader) {
+                        phoneColumnHeader = Object.keys(row)[0];
+                        if (!phoneColumnHeader) {
+                            parser.abort();
+                            return reject(new Error("CSV file appears to have no columns or is empty."));
+                        }
+                    }
+                    
+                    const phone = row[phoneColumnHeader!];
+                    if (!phone || String(phone).trim() === '') return;
+
+                    const {[phoneColumnHeader!]: _, ...variables} = row;
+                    const contactDoc = {
+                        broadcastId,
+                        phone: String(phone).trim(),
+                        variables,
+                        status: 'PENDING' as const,
+                        createdAt: new Date(),
+                    };
+                    contactBatch.push(contactDoc);
+                    contactCount++;
+                    
+                    if (contactBatch.length >= batchSize) {
+                        parser.pause();
+                        try {
+                            await db.collection('broadcast_contacts').insertMany(contactBatch);
+                            contactBatch = [];
+                        } catch (dbError) {
+                            return reject(dbError);
+                        } finally {
+                            parser.resume();
+                        }
+                    }
+                },
+                complete: async () => {
+                    try {
+                        if (contactBatch.length > 0) {
+                            await db.collection('broadcast_contacts').insertMany(contactBatch);
+                        }
+                        if (contactCount > 0) {
+                            await db.collection('broadcasts').updateOne(
+                                { _id: broadcastId! },
+                                { $set: { contactCount } }
+                            );
+                        } else {
+                            // No valid contacts found, clean up broadcast
+                             await db.collection('broadcasts').deleteOne({ _id: broadcastId! });
+                             broadcastId = null;
+                             return reject(new Error("No valid contacts with phone numbers found in the first column of the file."));
+                        }
+                        resolve();
+                    } catch (dbError) {
+                        reject(dbError);
+                    }
+                },
+                error: (error) => {
+                    reject(error);
+                }
+            });
+        });
+    } else if (contactFile.name.endsWith('.xlsx')) {
+        if (contactFile.size > 20 * 1024 * 1024) { // 20MB limit for XLSX
+            await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+            return { error: 'XLSX file is too large (>20MB) for processing. Please use the .csv format for large contact lists to avoid server errors.' };
+        }
+        
+        const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
+        const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        
+        const contacts = XLSX.utils.sheet_to_json(worksheet, { defval: "" }).map(row => {
+            const newRow: Record<string, string> = {};
+            for (const key in row) {
+                newRow[key] = String((row as any)[key]);
+            }
+            return newRow;
+        });
+        
+        if (contacts.length === 0) {
+          await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+          return { error: 'Contact file is empty or contains no data.' };
+        }
+
+        const firstRow = contacts[0];
+        const headers = Object.keys(firstRow);
+        if (headers.length === 0) {
+            await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+            return { error: 'The contact file appears to have no columns.' };
+        }
+        const phoneColumnHeader = headers[0];
+        
+        const transformedContacts = contacts
+            .map(contact => {
+                const phone = contact[phoneColumnHeader];
+                if (!phone || String(phone).trim() === '') return null;
+                
+                const {[phoneColumnHeader]: _, ...rest} = contact;
+                return { 
+                    broadcastId,
+                    phone: String(phone).trim(), 
+                    variables: rest,
+                    status: 'PENDING' as const,
+                    createdAt: new Date(),
+                };
+            })
+            .filter(c => c !== null) as any[];
+
+        contactCount = transformedContacts.length;
+        if (contactCount === 0) {
+            await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+            return { error: 'No valid contacts with phone numbers found in the first column of the file.' };
+        }
+        
+        await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount } });
+
+        const batchSize = 5000;
+        for (let i = 0; i < transformedContacts.length; i += batchSize) {
+            const batch = transformedContacts.slice(i, i + batchSize);
+            await db.collection('broadcast_contacts').insertMany(batch);
+        }
+    } else {
+        await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+        return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
     }
 
     revalidatePath('/dashboard/broadcasts');
-    return { message: `Broadcast successfully queued for ${transformedContacts.length} contacts. Sending will begin shortly.` };
+    return { message: `Broadcast successfully queued for ${contactCount} contacts. Sending will begin shortly.` };
 
   } catch (e: any) {
     console.error('Failed to queue broadcast:', e);
@@ -944,7 +1016,3 @@ export async function handleCleanDatabase(
           return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
       }
   }
-
-
-
-
