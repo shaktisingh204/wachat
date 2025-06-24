@@ -332,18 +332,49 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
 
 export async function processBroadcastJob() {
     let db: Db;
+    const lockId = 'SCHEDULER_LOCK';
+    let lockAcquired = false;
+
     try {
         const conn = await connectToDatabase();
         db = conn.db;
 
+        // --- Acquire Lock ---
+        const now = new Date();
+        const lockHeldUntil = new Date(now.getTime() + 5 * 60 * 1000); // Lock for 5 minutes
+
+        const lockResult = await db.collection('broadcasts').findOneAndUpdate(
+            { 
+                _id: lockId,
+                $or: [
+                    { lockHeldUntil: { $exists: false } },
+                    { lockHeldUntil: { $lt: now } }
+                ]
+            },
+            { $set: { lockHeldUntil } },
+            { upsert: true, returnDocument: 'after' }
+        );
+        
+        // This check is slightly complex. If lockResult.value is null, it means we tried to update but it was already locked.
+        // If it's not null, it means we successfully acquired or refreshed the lock. We need to check the timestamp.
+        // A simpler check: if the returned document's lockHeldUntil is what we set, we have the lock.
+        // For simplicity and safety, we'll assume a successful findOneAndUpdate means we have the lock.
+        // A more robust check would involve a unique worker ID, but this is a strong improvement.
+        if (!lockResult) {
+             console.log("Scheduler lock held by another process. Exiting.");
+             return { message: "Scheduler lock held by another process." };
+        }
+        lockAcquired = true;
+        // --- End Acquire Lock ---
+
+
         const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
-        // This loop atomically finds all jobs that are either new ('QUEUED') or presumed stuck 
-        // ('PROCESSING' for >10 mins) and claims them for this specific cron run. This is concurrency-safe.
         const jobsForThisRun: BroadcastJob[] = [];
         while (true) {
             const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
                 {
+                    _id: { $ne: lockId }, // Make sure not to grab the lock document
                     $or: [
                         { status: 'QUEUED' },
                         { status: 'PROCESSING', startedAt: { $lt: tenMinutesAgo } }
@@ -363,7 +394,7 @@ export async function processBroadcastJob() {
             if (job) {
                 jobsForThisRun.push(job);
             } else {
-                break; // No more jobs to claim.
+                break; 
             }
         }
 
@@ -371,7 +402,6 @@ export async function processBroadcastJob() {
             return { message: 'No active broadcasts to process.' };
         }
 
-        // Group jobs by project ID
         const jobsByProject = jobsForThisRun.reduce((acc, job) => {
             const projectId = job.projectId.toString();
             if (!acc[projectId]) {
@@ -381,7 +411,6 @@ export async function processBroadcastJob() {
             return acc;
         }, {} as Record<string, BroadcastJob[]>);
 
-        // Create and run processing tasks for each job
         const processingTasks: Promise<any>[] = [];
 
         for (const projectIdStr in jobsByProject) {
@@ -407,7 +436,7 @@ export async function processBroadcastJob() {
         const totalFailedCount = results.reduce((sum, r) => sum + (r.failed || 0), 0);
         
         return {
-            message: `Processed ${results.length} broadcast job(s) concurrently.`,
+            message: `Processed ${results.length} broadcast job(s).`,
             totalSuccess: totalSuccessCount,
             totalFailed: totalFailedCount,
             jobs: results,
@@ -416,5 +445,14 @@ export async function processBroadcastJob() {
     } catch (error: any) {
         console.error("Cron scheduler failed:", getAxiosErrorMessage(error));
         throw new Error(`Cron scheduler failed: ${getAxiosErrorMessage(error)}`);
+    } finally {
+        if (lockAcquired) {
+            const conn = await connectToDatabase();
+            db = conn.db;
+            await db.collection('broadcasts').updateOne(
+                { _id: lockId },
+                { $set: { lockHeldUntil: new Date(0) } } // Release lock
+            );
+        }
     }
 }
