@@ -11,6 +11,7 @@ import { revalidatePath } from 'next/cache';
 import type { PhoneNumber, Project, Template } from '@/app/dashboard/page';
 import axios from 'axios';
 import { Readable } from 'stream';
+import { processBroadcastJob } from '@/lib/cron-scheduler';
 
 type MetaPhoneNumber = {
     id: string;
@@ -222,6 +223,7 @@ export async function getBroadcasts() {
           startedAt: 1,
           completedAt: 1,
           messagesPerSecond: 1,
+          projectMessagesPerSecond: 1,
         }
       }
     ]).toArray();
@@ -1089,5 +1091,20 @@ export async function handleRequeueBroadcast(
     } catch (e: any) {
         console.error('Failed to requeue broadcast:', e);
         return { error: e.message || 'An unexpected error occurred while requeuing the broadcast.' };
+    }
+}
+
+export async function handleRunCron(): Promise<{ message?: string; error?: string }> {
+    try {
+        const result = await processBroadcastJob();
+        if (result.jobs && result.jobs.length > 0) {
+            const successCount = result.jobs.reduce((acc, j) => acc + (j.success || 0), 0);
+            const failedCount = result.jobs.reduce((acc, j) => acc + (j.failed || 0), 0);
+            return { message: `Cron run complete. Processed ${result.jobs.length} job(s). ${successCount} successful, ${failedCount} failed.` };
+        }
+        return { message: result.message || 'Cron run completed successfully. No new jobs to process.' };
+    } catch (e: any) {
+        console.error('Manual cron run failed:', e);
+        return { error: e.message || 'An unexpected error occurred while running the scheduler.' };
     }
 }

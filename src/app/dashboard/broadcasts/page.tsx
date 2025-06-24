@@ -4,7 +4,7 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, getProjectForBroadcast, getBroadcasts, handleStopBroadcast, handleSyncTemplates } from '@/app/actions';
+import { getTemplates, getProjectForBroadcast, getBroadcasts, handleStopBroadcast, handleSyncTemplates, handleRunCron } from '@/app/actions';
 import type { Project, Template } from '@/app/dashboard/page';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock } from 'lucide-react';
+import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock, Play } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -202,6 +202,7 @@ export default function BroadcastPage() {
   const [loading, setLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isSyncingTemplates, startTemplatesSyncTransition] = useTransition();
+  const [isRunningCron, startCronRunTransition] = useTransition();
   const { toast } = useToast();
   const [sendRateData, setSendRateData] = useState<Record<string, RateData>>({});
 
@@ -269,6 +270,20 @@ export default function BroadcastPage() {
       }
     });
   }, [toast, startTemplatesSyncTransition]);
+
+  const onRunCron = useCallback(async () => {
+    startCronRunTransition(async () => {
+      toast({ title: 'Starting Cron Manually', description: 'The scheduler is now processing queued jobs.' });
+      const result = await handleRunCron();
+      if (result.error) {
+        toast({ title: "Cron Run Failed", description: result.error, variant: "destructive" });
+      } else {
+        toast({ title: "Cron Run Complete", description: result.message });
+      }
+      // After cron runs, we should refresh the history to see the changes.
+      fetchHistory(false); // Refresh without a toast, as we already gave one for the cron status.
+    });
+  }, [toast, fetchHistory]);
 
   useEffect(() => {
     if (!isClient) {
@@ -385,13 +400,21 @@ export default function BroadcastPage() {
                 <CardTitle>Broadcast History</CardTitle>
                 <CardDescription>A log of your 10 most recent broadcast campaigns.</CardDescription>
               </div>
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
                 <ISTClock />
-                <Button onClick={onSyncTemplates} disabled={isSyncingTemplates} variant="outline" size="sm">
+                 <Button onClick={onRunCron} disabled={isRunningCron || isRefreshing} variant="outline" size="sm">
+                  {isRunningCron ? (
+                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Play className="mr-2 h-4 w-4" />
+                  )}
+                  <span>Run Cron</span>
+                </Button>
+                <Button onClick={onSyncTemplates} disabled={isSyncingTemplates || isRefreshing} variant="outline" size="sm">
                   <RefreshCw className={`mr-2 h-4 w-4 ${isSyncingTemplates ? 'animate-spin' : ''}`} />
                   Sync Templates
                 </Button>
-                <Button onClick={onRefresh} disabled={isRefreshing} variant="outline" size="sm">
+                <Button onClick={onRefresh} disabled={isRefreshing || isRunningCron} variant="outline" size="sm">
                   <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
