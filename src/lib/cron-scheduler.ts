@@ -115,10 +115,10 @@ async function* contactGenerator(
 
     const delayPerContact = 1000 / rate;
     let lastId: ObjectId | null = null;
-    const batchSize = 200; // Fetch in reasonable batches to be efficient
+    const batchSize = Math.max(200, rate); // Fetch at least 1s worth of contacts, or 200.
 
     try {
-        while (true) {
+        mainLoop: while (true) {
             if (await checkCancelled()) {
                 break;
             }
@@ -135,18 +135,17 @@ async function* contactGenerator(
                 .toArray();
             
             if (contactsBatch.length === 0) {
-                return;
+                return; // No more contacts to process
             }
             
             for (const contact of contactsBatch) {
-                const yieldStartTime = Date.now();
+                 if (await checkCancelled()) {
+                    break mainLoop;
+                }
                 yield contact;
                 localAttemptedCount++;
-                const yieldDuration = Date.now() - yieldStartTime;
-                const delay = delayPerContact - yieldDuration;
-                if (delay > 0) {
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
+                // Enforce a strict delay after each yield to maintain the rate
+                await new Promise(resolve => setTimeout(resolve, delayPerContact));
             }
 
             lastId = contactsBatch[contactsBatch.length - 1]._id;
@@ -269,10 +268,18 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
         let isCancelled = false;
         const checkCancelled = async (): Promise<boolean> => {
             if (isCancelled) return true;
-            const currentJobState = await db.collection<BroadcastJob>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
-            if (currentJobState?.status === 'Cancelled') {
-                isCancelled = true;
-                return true;
+            // Check less frequently to reduce DB load
+            const checkFrequency = 2000; // ms
+            const lastCheck = { time: 0 };
+            
+            const now = Date.now();
+            if (now - lastCheck.time > checkFrequency) {
+                lastCheck.time = now;
+                const currentJobState = await db.collection<BroadcastJob>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
+                if (currentJobState?.status === 'Cancelled') {
+                    isCancelled = true;
+                    return true;
+                }
             }
             return false;
         };
@@ -390,7 +397,7 @@ export async function processBroadcastJob() {
             );
 
             const totalRateForProject = project?.messagesPerSecond || 80;
-            const perJobRate = Math.floor(totalRateForProject / jobsInProject.length);
+            const perJobRate = Math.max(1, Math.floor(totalRateForProject / jobsInProject.length));
 
             for (const job of jobsInProject) {
                 await db.collection('broadcasts').updateOne({ _id: job._id }, { $set: { messagesPerSecond: perJobRate }});
