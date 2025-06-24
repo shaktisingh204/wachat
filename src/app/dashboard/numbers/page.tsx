@@ -100,27 +100,27 @@ export default function NumbersPage() {
 
   const getStatusVariant = (status?: string) => {
     if (!status) return 'outline';
-    status = status.toLowerCase();
-    if (status.includes('verified')) return 'default';
-    if (status.includes('pending')) return 'secondary';
+    const lowerStatus = status.toLowerCase();
+    if (lowerStatus.includes('verified')) return 'default';
+    if (lowerStatus.includes('pending')) return 'secondary';
     return 'destructive';
   }
 
   const getQualityVariant = (quality?: string) => {
     if (!quality) return 'outline';
-    quality = quality.toLowerCase();
-    if (quality === 'green' || quality === 'high') return 'default';
-    if (quality === 'yellow' || quality === 'medium') return 'secondary';
-    if (quality === 'unknown') return 'secondary';
+    const lowerQuality = quality.toLowerCase();
+    if (lowerQuality === 'green' || lowerQuality === 'high') return 'default';
+    if (lowerQuality === 'yellow' || lowerQuality === 'medium') return 'secondary';
+    if (lowerQuality === 'unknown') return 'secondary';
     return 'destructive';
   }
   
   const getThroughputVariant = (level?: string) => {
     if (!level) return 'outline';
-    level = level.toLowerCase();
-    if (level === 'high') return 'default';
-    if (level === 'medium') return 'secondary';
-    if (level === 'low') return 'destructive';
+    const lowerLevel = level.toLowerCase();
+    if (lowerLevel === 'high') return 'default';
+    if (lowerLevel === 'medium') return 'secondary';
+    if (lowerLevel === 'low') return 'destructive';
     return 'outline';
   }
 
@@ -204,7 +204,7 @@ export default function NumbersPage() {
                     </TableCell>
                      <TableCell>
                        <Badge variant="outline" className="capitalize">
-                         {phone.platform_type?.replace(/_/g, ' ').toLowerCase() || 'N/A'}
+                         {phone.platform_type ? phone.platform_type.replace(/_/g, ' ').toLowerCase() : 'N/A'}
                        </Badge>
                     </TableCell>
                     <TableCell>
@@ -212,7 +212,7 @@ export default function NumbersPage() {
                         variant={getStatusVariant(phone.code_verification_status)}
                         className="capitalize"
                       >
-                        {phone.code_verification_status?.replace(/_/g, ' ').toLowerCase() || 'N/A'}
+                        {phone.code_verification_status ? phone.code_verification_status.replace(/_/g, ' ').toLowerCase() : 'N/A'}
                       </Badge>
                     </TableCell>
                     <TableCell>
@@ -220,7 +220,7 @@ export default function NumbersPage() {
                         variant={getQualityVariant(phone.quality_rating)}
                         className="capitalize"
                       >
-                        {phone.quality_rating?.replace(/_/g, ' ').toLowerCase() || 'N/A'}
+                        {phone.quality_rating ? phone.quality_rating.replace(/_/g, ' ').toLowerCase() : 'N/A'}
                       </Badge>
                     </TableCell>
                      <TableCell>

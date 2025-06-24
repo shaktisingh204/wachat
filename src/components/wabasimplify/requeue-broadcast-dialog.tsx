@@ -106,7 +106,7 @@ export function RequeueBroadcastDialog({ broadcastId, originalTemplateId, projec
                 <SelectContent searchable>
                   {templates.map((template) => (
                     <SelectItem key={template._id.toString()} value={template._id.toString()}>
-                      {template.name} (<span className="capitalize">{template.status?.replace(/_/g, " ").toLowerCase() || 'N/A'}</span>)
+                      {template.name} (<span className="capitalize">{template.status ? template.status.replace(/_/g, " ").toLowerCase() : 'N/A'}</span>)
                     </SelectItem>
                   ))}
                 </SelectContent>

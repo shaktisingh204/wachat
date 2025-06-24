@@ -329,9 +329,9 @@ export default function BroadcastPage() {
 
   const getTemplateStatusVariant = (status?: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
     if (!status) return 'secondary';
-    status = status.toLowerCase();
-    if (status === 'approved') return 'default';
-    if (status.includes('review') || status.includes('pending')) return 'secondary';
+    const lowerStatus = status.toLowerCase();
+    if (lowerStatus === 'approved') return 'default';
+    if (lowerStatus.includes('review') || lowerStatus.includes('pending')) return 'secondary';
     return 'destructive';
   };
 
@@ -468,7 +468,7 @@ export default function BroadcastPage() {
                           }
                           className="capitalize"
                         >
-                          {item.status.toLowerCase()}
+                          {item.status?.toLowerCase() || 'unknown'}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
