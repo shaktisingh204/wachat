@@ -20,7 +20,6 @@ type BroadcastJob = {
     createdAt: Date;
     startedAt?: Date;
     completedAt?: Date;
-    attemptedCount?: number;
     successCount?: number;
     errorCount?: number;
     components: any[];
@@ -104,55 +103,40 @@ async function* contactGenerator(
     rate: number,
     checkCancelled: () => Promise<boolean>
 ) {
-    let localAttemptedCount = 0;
-    const flushAttemptedCount = async () => {
-        if (localAttemptedCount > 0) {
-            await db.collection('broadcasts').updateOne({ _id: jobId }, { $inc: { attemptedCount: localAttemptedCount } });
-            localAttemptedCount = 0;
-        }
-    };
-    const flushInterval = setInterval(flushAttemptedCount, 2000);
-
     const delayPerContact = 1000 / rate;
     let lastId: ObjectId | null = null;
     const batchSize = Math.max(200, rate); // Fetch at least 1s worth of contacts, or 200.
 
-    try {
-        mainLoop: while (true) {
-            if (await checkCancelled()) {
-                break;
-            }
-
-            const query: Filter<BroadcastContact> = { broadcastId: jobId, status: 'PENDING' };
-            if (lastId) {
-                query._id = { $gt: lastId };
-            }
-
-            const contactsBatch = await db.collection<BroadcastContact>('broadcast_contacts')
-                .find(query)
-                .sort({ _id: 1 })
-                .limit(batchSize)
-                .toArray();
-            
-            if (contactsBatch.length === 0) {
-                return; // No more contacts to process
-            }
-            
-            for (const contact of contactsBatch) {
-                 if (await checkCancelled()) {
-                    break mainLoop;
-                }
-                yield contact;
-                localAttemptedCount++;
-                // Enforce a strict delay after each yield to maintain the rate
-                await new Promise(resolve => setTimeout(resolve, delayPerContact));
-            }
-
-            lastId = contactsBatch[contactsBatch.length - 1]._id;
+    mainLoop: while (true) {
+        if (await checkCancelled()) {
+            break;
         }
-    } finally {
-        clearInterval(flushInterval);
-        await flushAttemptedCount(); // Final flush
+
+        const query: Filter<BroadcastContact> = { broadcastId: jobId, status: 'PENDING' };
+        if (lastId) {
+            query._id = { $gt: lastId };
+        }
+
+        const contactsBatch = await db.collection<BroadcastContact>('broadcast_contacts')
+            .find(query)
+            .sort({ _id: 1 })
+            .limit(batchSize)
+            .toArray();
+        
+        if (contactsBatch.length === 0) {
+            return; // No more contacts to process
+        }
+        
+        for (const contact of contactsBatch) {
+             if (await checkCancelled()) {
+                break mainLoop;
+            }
+            yield contact;
+            // Enforce a strict delay after each yield to maintain the rate
+            await new Promise(resolve => setTimeout(resolve, delayPerContact));
+        }
+
+        lastId = contactsBatch[contactsBatch.length - 1]._id;
     }
 }
 
@@ -369,7 +353,6 @@ export async function processBroadcastJob() {
                     $set: {
                         status: 'PROCESSING',
                         startedAt: new Date(),
-                        attemptedCount: 0,
                         successCount: 0,
                         errorCount: 0,
                     }

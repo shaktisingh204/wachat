@@ -44,7 +44,6 @@ type Broadcast = {
   templateStatus?: string;
   fileName: string;
   contactCount: number;
-  attemptedCount?: number;
   successCount?: number;
   errorCount?: number;
   status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure' | 'Cancelled';
@@ -55,7 +54,7 @@ type Broadcast = {
 };
 
 type RateData = {
-    lastAttemptedCount: number;
+    lastProcessedCount: number;
     lastFetchTime: number;
     rate: number;
 };
@@ -216,15 +215,17 @@ export default function BroadcastPage() {
         const newData = { ...prevData };
         (newHistoryData as WithId<Broadcast>[]).forEach(item => {
             const id = item._id.toString();
-            if (item.status === 'PROCESSING' && item.attemptedCount !== undefined) {
+            const totalProcessed = (item.successCount ?? 0) + (item.errorCount ?? 0);
+
+            if (item.status === 'PROCESSING') {
                 const prevItemData = prevData[id];
                 if (prevItemData && now > prevItemData.lastFetchTime) {
                     const deltaTime = (now - prevItemData.lastFetchTime) / 1000;
-                    const deltaCount = item.attemptedCount - prevItemData.lastAttemptedCount;
-                    const currentRate = deltaTime > 0 ? Math.round(deltaCount / deltaTime) : 0;
-                    newData[id] = { lastAttemptedCount: item.attemptedCount, lastFetchTime: now, rate: currentRate };
+                    const deltaCount = totalProcessed - prevItemData.lastProcessedCount;
+                    const currentRate = deltaTime > 1 ? Math.round(deltaCount / deltaTime) : (prevItemData?.rate ?? 0);
+                    newData[id] = { lastProcessedCount: totalProcessed, lastFetchTime: now, rate: currentRate };
                 } else if (!prevItemData) {
-                    newData[id] = { lastAttemptedCount: item.attemptedCount, lastFetchTime: now, rate: 0 };
+                    newData[id] = { lastProcessedCount: totalProcessed, lastFetchTime: now, rate: 0 };
                 }
             } else if (newData[id]) {
                 delete newData[id];
@@ -440,10 +441,10 @@ export default function BroadcastPage() {
                         {item.status === 'PROCESSING' && item.contactCount > 0 ? (
                             <div className="w-48 space-y-1">
                                 <div className="text-xs font-mono text-muted-foreground">
-                                    <div>{`${item.attemptedCount ?? 0} / ${item.contactCount}`}</div>
+                                    <div>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</div>
                                     <div>{`Rate: ${sendRateData[item._id.toString()]?.rate ?? 0}/${item.messagesPerSecond ?? 'N/A'} msg/s`}</div>
                                 </div>
-                                <Progress value={((item.attemptedCount ?? 0) * 100) / item.contactCount} className="h-2" />
+                                <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
                             </div>
                         ) : item.successCount !== undefined ? (
                           `${item.successCount} sent, ${item.errorCount || 0} failed`

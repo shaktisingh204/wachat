@@ -215,7 +215,6 @@ export async function getBroadcasts() {
           templateStatus: '$templateInfo.status', // Get live status from joined collection
           fileName: 1,
           contactCount: 1,
-          attemptedCount: 1,
           successCount: 1,
           errorCount: 1,
           status: 1,
