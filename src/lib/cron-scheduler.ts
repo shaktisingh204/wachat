@@ -172,8 +172,10 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
             try {
                 const getVars = (text: string): number[] => {
                     if (!text) return [];
-                    const variableMatches = text.match(/{{(\d+)}}/g);
-                    return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.match(/(\d+)/)![1])))] : [];
+                    const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
+                    return variableMatches 
+                        ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] 
+                        : [];
                 };
 
                 const payloadComponents: any[] = [];
@@ -266,15 +268,13 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
         }, WRITE_INTERVAL_MS);
         
         let isCancelled = false;
+        let lastCheckTime = 0;
         const checkCancelled = async (): Promise<boolean> => {
             if (isCancelled) return true;
-            // Check less frequently to reduce DB load
-            const checkFrequency = 2000; // ms
-            const lastCheck = { time: 0 };
             
             const now = Date.now();
-            if (now - lastCheck.time > checkFrequency) {
-                lastCheck.time = now;
+            if (now - lastCheckTime > 2000) { // Check every 2 seconds
+                lastCheckTime = now;
                 const currentJobState = await db.collection<BroadcastJob>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
                 if (currentJobState?.status === 'Cancelled') {
                     isCancelled = true;
@@ -352,11 +352,19 @@ export async function processBroadcastJob() {
         const conn = await connectToDatabase();
         db = conn.db;
 
-        // Atomically find all QUEUED jobs and update their status to PROCESSING
-        const queuedJobs = await db.collection<BroadcastJob>('broadcasts').find({ status: 'QUEUED' }, { sort: { createdAt: 1 } }).toArray();
-        if (queuedJobs.length > 0) {
-             await db.collection<BroadcastJob>('broadcasts').updateMany(
-                { _id: { $in: queuedJobs.map(j => j._id) } },
+        const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+
+        // This loop atomically finds all jobs that are either new ('QUEUED') or presumed stuck 
+        // ('PROCESSING' for >10 mins) and claims them for this specific cron run. This is concurrency-safe.
+        const jobsForThisRun: BroadcastJob[] = [];
+        while (true) {
+            const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
+                {
+                    $or: [
+                        { status: 'QUEUED' },
+                        { status: 'PROCESSING', startedAt: { $lt: tenMinutesAgo } }
+                    ]
+                },
                 {
                     $set: {
                         status: 'PROCESSING',
@@ -365,19 +373,23 @@ export async function processBroadcastJob() {
                         successCount: 0,
                         errorCount: 0,
                     }
-                }
+                },
+                { sort: { createdAt: 1 }, returnDocument: 'after' }
             );
-        }
-        
-        // Get all jobs that are currently processing
-        const processingJobs = await db.collection<BroadcastJob>('broadcasts').find({ status: 'PROCESSING' }).toArray();
 
-        if (processingJobs.length === 0) {
+            if (job) {
+                jobsForThisRun.push(job);
+            } else {
+                break; // No more jobs to claim.
+            }
+        }
+
+        if (jobsForThisRun.length === 0) {
             return { message: 'No active broadcasts to process.' };
         }
 
         // Group jobs by project ID
-        const jobsByProject = processingJobs.reduce((acc, job) => {
+        const jobsByProject = jobsForThisRun.reduce((acc, job) => {
             const projectId = job.projectId.toString();
             if (!acc[projectId]) {
                 acc[projectId] = [];
