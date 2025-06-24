@@ -438,10 +438,10 @@ export default function BroadcastPage() {
                       <TableCell>{item.contactCount}</TableCell>
                       <TableCell>
                         {item.status === 'PROCESSING' && item.contactCount > 0 ? (
-                            <div className="w-40 space-y-1">
-                                <div className="flex justify-between text-xs font-mono text-muted-foreground">
-                                    <span>{`${item.attemptedCount ?? 0} / ${item.contactCount}`}</span>
-                                    <span>{`${sendRateData[item._id.toString()]?.rate ?? 0}/${item.messagesPerSecond ?? 'N/A'} msg/s`}</span>
+                            <div className="w-48 space-y-1">
+                                <div className="text-xs font-mono text-muted-foreground">
+                                    <div>{`${item.attemptedCount ?? 0} / ${item.contactCount}`}</div>
+                                    <div>{`Rate: ${sendRateData[item._id.toString()]?.rate ?? 0}/${item.messagesPerSecond ?? 'N/A'} msg/s`}</div>
                                 </div>
                                 <Progress value={((item.attemptedCount ?? 0) * 100) / item.contactCount} className="h-2" />
                             </div>

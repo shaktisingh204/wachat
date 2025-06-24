@@ -90,9 +90,9 @@ async function promisePool<T>(
 }
 
 /**
- * An async generator that yields contacts at a consistent, specified rate by fetching them
- * from the database in efficient batches. This ensures a smooth flow of data rather than
- * large, infrequent bursts, leading to more consistent performance.
+ * An async generator that yields contacts at a consistent, specified rate. It fetches
+ * contacts from the database in efficient batches but yields them one by one with a
+ * calculated delay to ensure a smooth, steady stream of data.
  * @param db The database instance.
  * @param jobId The ID of the current broadcast job.
  * @param rate The number of contacts to yield per second.
@@ -113,26 +113,16 @@ async function* contactGenerator(
     };
     const flushInterval = setInterval(flushAttemptedCount, 2000);
 
-    const chunkInterval = 100; // ms. We will process contacts in chunks over this interval.
-    const contactsPerChunk = Math.max(1, Math.floor(rate / (1000 / chunkInterval))); // Contacts to process per chunk.
-
-    let lastCancelCheckTime = 0;
-    const CANCEL_CHECK_INTERVAL_MS = 2000; // Check every 2 seconds to reduce DB load.
-
+    const delayPerContact = 1000 / rate;
     let lastId: ObjectId | null = null;
+    const batchSize = 200; // Fetch in reasonable batches to be efficient
 
     try {
         while (true) {
-            const now = Date.now();
-            if (now - lastCancelCheckTime > CANCEL_CHECK_INTERVAL_MS) {
-                if (await checkCancelled()) {
-                    break;
-                }
-                lastCancelCheckTime = now;
+            if (await checkCancelled()) {
+                break;
             }
 
-            const intervalStartTime = Date.now();
-            
             const query: Filter<BroadcastContact> = { broadcastId: jobId, status: 'PENDING' };
             if (lastId) {
                 query._id = { $gt: lastId };
@@ -141,25 +131,25 @@ async function* contactGenerator(
             const contactsBatch = await db.collection<BroadcastContact>('broadcast_contacts')
                 .find(query)
                 .sort({ _id: 1 })
-                .limit(contactsPerChunk)
+                .limit(batchSize)
                 .toArray();
             
             if (contactsBatch.length === 0) {
                 return;
             }
-
-            lastId = contactsBatch[contactsBatch.length - 1]._id;
             
             for (const contact of contactsBatch) {
+                const yieldStartTime = Date.now();
                 yield contact;
                 localAttemptedCount++;
+                const yieldDuration = Date.now() - yieldStartTime;
+                const delay = delayPerContact - yieldDuration;
+                if (delay > 0) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
             }
-    
-            const duration = Date.now() - intervalStartTime;
-            const delay = chunkInterval - duration;
-            if (delay > 0) {
-                await new Promise(resolve => setTimeout(resolve, delay));
-            }
+
+            lastId = contactsBatch[contactsBatch.length - 1]._id;
         }
     } finally {
         clearInterval(flushInterval);
