@@ -51,6 +51,7 @@ type Broadcast = {
   completedAt?: string;
   startedAt?: string;
   messagesPerSecond?: number;
+  projectMessagesPerSecond?: number;
 };
 
 type RateData = {
@@ -442,7 +443,7 @@ export default function BroadcastPage() {
                             <div className="w-48 space-y-1">
                                 <div className="text-xs font-mono text-muted-foreground">
                                     <div>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</div>
-                                    <div>{`Rate: ${sendRateData[item._id.toString()]?.rate ?? 0}/${item.messagesPerSecond ?? 'N/A'} msg/s`}</div>
+                                    <div>{`Rate: ${sendRateData[item._id.toString()]?.rate ?? 0}/${item.projectMessagesPerSecond ?? item.messagesPerSecond ?? 'N/A'} msg/s`}</div>
                                 </div>
                                 <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
                             </div>

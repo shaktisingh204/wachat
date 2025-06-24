@@ -27,6 +27,7 @@ type BroadcastJob = {
     headerImageUrl?: string;
     contactCount?: number;
     messagesPerSecond?: number;
+    projectMessagesPerSecond?: number;
 };
 
 type BroadcastContact = {
@@ -331,8 +332,8 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
 
 
 export async function processBroadcastJob() {
-    let db: Db;
     const lockId = 'SCHEDULER_LOCK';
+    let db: Db;
     let lockAcquired = false;
 
     try {
@@ -355,11 +356,6 @@ export async function processBroadcastJob() {
             { upsert: true, returnDocument: 'after' }
         );
         
-        // This check is slightly complex. If lockResult.value is null, it means we tried to update but it was already locked.
-        // If it's not null, it means we successfully acquired or refreshed the lock. We need to check the timestamp.
-        // A simpler check: if the returned document's lockHeldUntil is what we set, we have the lock.
-        // For simplicity and safety, we'll assume a successful findOneAndUpdate means we have the lock.
-        // A more robust check would involve a unique worker ID, but this is a strong improvement.
         if (!lockResult) {
              console.log("Scheduler lock held by another process. Exiting.");
              return { message: "Scheduler lock held by another process." };
@@ -367,40 +363,33 @@ export async function processBroadcastJob() {
         lockAcquired = true;
         // --- End Acquire Lock ---
 
-
         const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
 
-        const jobsForThisRun: BroadcastJob[] = [];
-        while (true) {
-            const job = await db.collection<BroadcastJob>('broadcasts').findOneAndUpdate(
-                {
-                    _id: { $ne: lockId }, // Make sure not to grab the lock document
-                    $or: [
-                        { status: 'QUEUED' },
-                        { status: 'PROCESSING', startedAt: { $lt: tenMinutesAgo } }
-                    ]
-                },
-                {
-                    $set: {
-                        status: 'PROCESSING',
-                        startedAt: new Date(),
-                        successCount: 0,
-                        errorCount: 0,
-                    }
-                },
-                { sort: { createdAt: 1 }, returnDocument: 'after' }
-            );
+        const jobsForThisRun = await db.collection<BroadcastJob>('broadcasts').find({
+            _id: { $ne: lockId },
+            $or: [
+                { status: 'QUEUED' },
+                { status: 'PROCESSING', startedAt: { $lt: tenMinutesAgo } }
+            ]
+        }).sort({ createdAt: 1 }).toArray();
 
-            if (job) {
-                jobsForThisRun.push(job);
-            } else {
-                break; 
-            }
-        }
 
         if (jobsForThisRun.length === 0) {
             return { message: 'No active broadcasts to process.' };
         }
+        
+        const jobIdsToUpdate = jobsForThisRun.map(j => j._id);
+        await db.collection('broadcasts').updateMany(
+            { _id: { $in: jobIdsToUpdate } },
+            {
+                $set: {
+                    status: 'PROCESSING',
+                    startedAt: new Date(),
+                    successCount: 0,
+                    errorCount: 0,
+                }
+            }
+        );
 
         const jobsByProject = jobsForThisRun.reduce((acc, job) => {
             const projectId = job.projectId.toString();
@@ -424,8 +413,11 @@ export async function processBroadcastJob() {
             const perJobRate = Math.max(1, Math.floor(totalRateForProject / jobsInProject.length));
 
             for (const job of jobsInProject) {
-                await db.collection('broadcasts').updateOne({ _id: job._id }, { $set: { messagesPerSecond: perJobRate }});
-                const updatedJob = { ...job, messagesPerSecond: perJobRate };
+                await db.collection('broadcasts').updateOne(
+                    { _id: job._id }, 
+                    { $set: { messagesPerSecond: perJobRate, projectMessagesPerSecond: totalRateForProject }}
+                );
+                const updatedJob = { ...job, messagesPerSecond: perJobRate, projectMessagesPerSecond: totalRateForProject };
                 processingTasks.push(executeSingleBroadcast(db, updatedJob, perJobRate));
             }
         }
@@ -447,12 +439,16 @@ export async function processBroadcastJob() {
         throw new Error(`Cron scheduler failed: ${getAxiosErrorMessage(error)}`);
     } finally {
         if (lockAcquired) {
-            const conn = await connectToDatabase();
-            db = conn.db;
-            await db.collection('broadcasts').updateOne(
-                { _id: lockId },
-                { $set: { lockHeldUntil: new Date(0) } } // Release lock
-            );
+            try {
+                const conn = await connectToDatabase();
+                db = conn.db;
+                await db.collection('broadcasts').updateOne(
+                    { _id: lockId },
+                    { $set: { lockHeldUntil: new Date(0) } } // Release lock
+                );
+            } catch(e) {
+                console.error("Failed to release scheduler lock:", e);
+            }
         }
     }
 }
