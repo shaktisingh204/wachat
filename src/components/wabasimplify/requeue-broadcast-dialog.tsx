@@ -60,7 +60,7 @@ export function RequeueBroadcastDialog({ broadcastId, originalTemplateId, projec
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>(originalTemplateId);
   
   const selectedTemplate = templates.find(t => t._id.toString() === selectedTemplateId);
-  const showImageUpload = selectedTemplate?.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(c.format));
+  const showImageUpload = selectedTemplate?.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
 
   useEffect(() => {
     if (state?.message) {
