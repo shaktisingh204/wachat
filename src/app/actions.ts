@@ -798,7 +798,7 @@ export async function handleCreateTemplate(
             try {
                 // 1. Download the media
                 const mediaResponse = await axios.get(headerUrl, { responseType: 'arraybuffer' });
-                const mediaData = Buffer.from(mediaResponse.data, 'binary');
+                const mediaData = Buffer.from(mediaResponse.data);
                 const mimeType = mediaResponse.headers['content-type'];
 
                 // 2. Upload to Meta to get a handle
@@ -1183,3 +1183,5 @@ export async function handleRunCron(): Promise<{ message?: string; error?: strin
         return { error: e.message || 'An unexpected error occurred while running the scheduler.' };
     }
 }
+
+    
