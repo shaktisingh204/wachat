@@ -144,7 +144,7 @@ export default function SettingsPage() {
                 name="messagesPerSecond"
                 type="number"
                 min="1"
-                step="50"
+                step="1"
                 value={messagesPerSecond}
                 onChange={(e) => setMessagesPerSecond(Number(e.target.value))}
                 required
