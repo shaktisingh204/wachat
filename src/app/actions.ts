@@ -42,6 +42,11 @@ type MetaTemplateComponent = {
     text?: string;
     format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'AUDIO';
     buttons?: any[];
+    example?: {
+        header_handle?: string[];
+        header_text?: string[];
+        body_text?: string[][];
+    }
 };
 
 type MetaTemplate = {
@@ -405,7 +410,7 @@ export async function handleCreateProject(
             accessToken,
             phoneNumbers,
             createdAt: new Date(),
-            messagesPerSecond: 80,
+            messagesPerSecond: 1000,
         });
         
         revalidatePath('/dashboard');
@@ -541,7 +546,6 @@ export async function handleStartBroadcast(
         if (overrideUrl && overrideUrl.trim() !== '') {
             finalHeaderImageUrl = overrideUrl.trim();
         } else {
-            // No fallback from template.sampleHeaderUrl anymore
             return { error: 'A public media URL is required for this template.' };
         }
     }
@@ -945,7 +949,7 @@ export async function handleCreateTemplate(
         const responseData = responseText ? JSON.parse(responseText) : null;
     
         if (!response.ok) {
-            console.error('Meta Template Creation Error:', responseText);
+            console.error('Meta Template Creation Error:', responseData?.error || responseText);
             const errorMessage = responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error creating template.';
             return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}`, payload: payloadString };
         }

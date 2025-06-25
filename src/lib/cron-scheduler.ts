@@ -90,58 +90,31 @@ async function promisePool<T>(
 }
 
 /**
- * An async generator that yields contacts in bursts to match the desired rate.
- * It fetches a batch of contacts (equal to the rate) and yields them all quickly,
- * then pauses for one second before fetching the next batch.
+ * An async generator that yields contacts from the database for a given job.
+ * This is a simple cursor over the pending contacts. The rate of sending is controlled
+ * by the consumer (the promisePool).
  * @param db The database instance.
  * @param jobId The ID of the current broadcast job.
- * @param rate The number of contacts to yield per second (in a single burst).
  * @param checkCancelled A function to check if the job has been cancelled.
  */
 async function* contactGenerator(
-    db: Db, 
-    jobId: ObjectId, 
-    rate: number,
+    db: Db,
+    jobId: ObjectId,
     checkCancelled: () => Promise<boolean>
 ) {
-    const delayPerBatch = 900; // 0.9 second pause between batches
-    let lastId: ObjectId | null = null;
-    const batchSize = rate; // Fetch a batch size equal to the desired messages per second rate.
+    const cursor = db.collection<BroadcastContact>('broadcast_contacts')
+        .find({ broadcastId: jobId, status: 'PENDING' })
+        .sort({ _id: 1 });
 
-    mainLoop: while (true) {
-        if (await checkCancelled()) {
-            break;
-        }
-
-        const query: Filter<BroadcastContact> = { broadcastId: jobId, status: 'PENDING' };
-        if (lastId) {
-            query._id = { $gt: lastId };
-        }
-
-        const contactsBatch = await db.collection<BroadcastContact>('broadcast_contacts')
-            .find(query)
-            .sort({ _id: 1 })
-            .limit(batchSize)
-            .toArray();
-        
-        if (contactsBatch.length === 0) {
-            return; // No more contacts to process
-        }
-        
-        // Yield all contacts in the batch without delay
-        for (const contact of contactsBatch) {
-             if (await checkCancelled()) {
-                break mainLoop;
+    try {
+        for await (const contact of cursor) {
+            if (await checkCancelled()) {
+                break; // Stop yielding if job is cancelled
             }
             yield contact;
         }
-
-        // If we yielded a full batch, wait for 1 second before fetching the next one.
-        if (contactsBatch.length === batchSize) {
-            await new Promise(resolve => setTimeout(resolve, delayPerBatch));
-        }
-
-        lastId = contactsBatch[contactsBatch.length - 1]._id;
+    } finally {
+        await cursor.close(); // Ensure cursor is closed
     }
 }
 
@@ -184,16 +157,16 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
 
                         switch (format) {
                             case 'IMAGE':
-                                parameter = { type: 'image', image: { link: link } };
+                                parameter = { type: 'image', image: { link } };
                                 break;
                             case 'VIDEO':
-                                parameter = { type: 'video', video: { link: link } };
+                                parameter = { type: 'video', video: { link } };
                                 break;
                             case 'DOCUMENT':
-                                parameter = { type: 'document', document: { link: link, filename: contact['filename'] || uploadFilename } };
+                                parameter = { type: 'document', document: { link, filename: contact['filename'] || uploadFilename } };
                                 break;
                             case 'AUDIO':
-                                parameter = { type: 'audio', audio: { link: link } };
+                                parameter = { type: 'audio', audio: { link } };
                                 break;
                         }
 
@@ -291,7 +264,7 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
         };
 
         try {
-            const generator = contactGenerator(db, jobId, perJobRate, checkCancelled);
+            const generator = contactGenerator(db, jobId, checkCancelled);
 
             await promisePool(perJobRate, generator, async (contact) => {
                 const operation = await sendSingleMessage(contact);
@@ -430,7 +403,7 @@ export async function processBroadcastJob() {
                 { projection: { messagesPerSecond: 1 } }
             );
 
-            const totalRateForProject = project?.messagesPerSecond || 80;
+            const totalRateForProject = project?.messagesPerSecond || 1000;
             const perJobRate = Math.max(1, Math.floor(totalRateForProject / jobsInProject.length));
 
             for (const job of jobsInProject) {

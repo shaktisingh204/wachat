@@ -44,7 +44,7 @@ export default function SettingsPage() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
-  const [messagesPerSecond, setMessagesPerSecond] = useState(80);
+  const [messagesPerSecond, setMessagesPerSecond] = useState(1000);
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleUpdateProjectSettings, updateSettingsInitialState);
 
@@ -62,7 +62,7 @@ export default function SettingsPage() {
         .then((data) => {
           if (data) {
             setProject(data);
-            setMessagesPerSecond(data.messagesPerSecond || 80);
+            setMessagesPerSecond(data.messagesPerSecond || 1000);
           }
         })
         .finally(() => setLoading(false));
@@ -138,19 +138,19 @@ export default function SettingsPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 max-w-sm">
-              <Label htmlFor="messagesPerSecond">Messages Per Second</Label>
+              <Label htmlFor="messagesPerSecond">Concurrency Level (Messages in Parallel)</Label>
               <Input
                 id="messagesPerSecond"
                 name="messagesPerSecond"
                 type="number"
                 min="1"
-                step="10"
+                step="50"
                 value={messagesPerSecond}
                 onChange={(e) => setMessagesPerSecond(Number(e.target.value))}
                 required
               />
               <p className="text-xs text-muted-foreground">
-                The number of messages to send per second. A batch of this size will be sent every second.
+                The number of messages to send in parallel. Higher values increase throughput but are limited by API response times.
               </p>
             </div>
           </CardContent>
