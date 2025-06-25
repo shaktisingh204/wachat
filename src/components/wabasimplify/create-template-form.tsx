@@ -146,35 +146,44 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   
   useEffect(() => {
     if (initialTemplate) {
-      let name = initialTemplate.name;
       if (isCloning) {
-        name = `${name}_clone_${Math.floor(Math.random() * 100)}`;
+        setTemplateName(`${initialTemplate.name || ''}_clone_${Math.floor(Math.random() * 1000)}`);
+      } else {
+        setTemplateName(initialTemplate.name || '');
       }
-      setTemplateName(name);
-      setCategory(initialTemplate.category);
-      setLanguage(initialTemplate.language);
 
+      setCategory(initialTemplate.category || '');
+      setLanguage(initialTemplate.language || 'en_US');
+      
       const bodyComp = initialTemplate.components?.find(c => c.type === 'BODY');
       setBody(bodyComp?.text || initialTemplate.body || '');
-
-      const headerComp = initialTemplate.components?.find(c => c.type === 'HEADER');
-      if (headerComp) {
-        setHeaderFormat(headerComp.format || 'NONE');
-        if(headerComp.format === 'TEXT') {
-            setHeaderText(headerComp.text || '');
-        } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerComp.format)) {
-            setHeaderSampleUrl(initialTemplate.headerSampleUrl || '');
-        }
-      } else {
-        setHeaderFormat('NONE');
-      }
       
       const footerComp = initialTemplate.components?.find(c => c.type === 'FOOTER');
       setFooter(footerComp?.text || '');
-
+      
       const buttonsComp = initialTemplate.components?.find(c => c.type === 'BUTTONS');
       setButtons(buttonsComp?.buttons || []);
 
+      const headerComp = initialTemplate.components?.find(c => c.type === 'HEADER');
+      if (headerComp) {
+        const format = headerComp.format || 'NONE';
+        setHeaderFormat(format);
+
+        if (format === 'TEXT') {
+          setHeaderText(headerComp.text || '');
+          setHeaderSampleUrl('');
+        } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(format)) {
+          setHeaderSampleUrl(initialTemplate.headerSampleUrl || '');
+          setHeaderText('');
+        } else {
+          setHeaderText('');
+          setHeaderSampleUrl('');
+        }
+      } else {
+        setHeaderFormat('NONE');
+        setHeaderText('');
+        setHeaderSampleUrl('');
+      }
     }
   }, [initialTemplate, isCloning]);
 

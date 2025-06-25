@@ -771,7 +771,7 @@ export async function handleCreateTemplate(
     formData: FormData
   ): Promise<CreateTemplateState> {
     let payloadString: string | null = null;
-    let debugInfo: string | null = "";
+    let debugInfo: string = "";
     try {
         const appId = process.env.APP_ID;
         if (!appId) {
@@ -779,16 +779,23 @@ export async function handleCreateTemplate(
         }
 
         const projectId = formData.get('projectId') as string;
-        const name = formData.get('templateName') as string;
+        const name = (formData.get('templateName') as string || '').trim();
         const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
-        const bodyText = formData.get('body') as string;
+        const bodyText = (formData.get('body') as string || '').trim();
         const language = formData.get('language') as string;
         const headerFormat = formData.get('headerFormat') as string;
-        const headerText = formData.get('headerText') as string;
-        const headerSampleUrl = formData.get('headerSampleUrl') as string;
-        const footerText = formData.get('footer') as string;
+        const headerText = (formData.get('headerText') as string || '').trim();
+        const headerSampleUrl = (formData.get('headerSampleUrl') as string || '').trim();
+        const footerText = (formData.get('footer') as string || '').trim();
         const buttonsJson = formData.get('buttons') as string;
-        const buttons = buttonsJson ? JSON.parse(buttonsJson) : [];
+        
+        const buttons = (buttonsJson ? JSON.parse(buttonsJson) : []).map((button: any) => ({
+            ...button,
+            text: (button.text || '').trim(),
+            url: (button.url || '').trim(),
+            phone_number: (button.phone_number || '').trim(),
+            example: Array.isArray(button.example) ? button.example.map((ex: string) => (ex || '').trim()) : button.example,
+        }));
     
         if (!projectId || !name || !category || !bodyText || !language) {
             return { error: 'Project, Name, Language, Category, and Body are required.' };
@@ -921,12 +928,18 @@ export async function handleCreateTemplate(
                     text: button.text,
                 };
                 if (button.type === 'URL') {
+                    if (!button.url) {
+                        throw new Error('URL is required for URL buttons.');
+                    }
                     newButton.url = button.url;
-                    if (button.example) {
-                        newButton.example = [button.example];
+                    if (button.example && button.example[0]) {
+                        newButton.example = [button.example[0]];
                     }
                 }
                 if (button.type === 'PHONE_NUMBER') {
+                    if (!button.phone_number) {
+                        throw new Error('Phone number is required for phone number buttons.');
+                    }
                     newButton.phone_number = button.phone_number;
                 }
                 return newButton;
