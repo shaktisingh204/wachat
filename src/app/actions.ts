@@ -811,7 +811,7 @@ export async function handleCreateTemplate(
             try {
                 // 1. Download the media from the public URL
                 const mediaResponse = await axios.get(headerSampleUrl, { responseType: 'arraybuffer' });
-                const mediaData = Buffer.from(mediaResponse.data, 'binary');
+                const mediaData = Buffer.from(mediaResponse.data);
                 const contentType = mediaResponse.headers['content-type'] || 'application/octet-stream';
                 const originalFileName = headerSampleUrl.split('/').pop()?.split('?')[0] || 'sample';
 
