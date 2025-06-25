@@ -47,7 +47,7 @@ type Project = {
     messagesPerSecond?: number;
 };
 
-const WRITE_INTERVAL_MS = 2000; // How often to write bulk updates to the DB.
+const WRITE_INTERVAL_MS = 1000; // How often to write bulk updates to the DB.
 
 
 const getAxiosErrorMessage = (error: any): string => {
@@ -149,7 +149,6 @@ async function* contactGenerator(
 async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: number): Promise<any> {
     const jobId = job._id;
     try {
-        const CONCURRENCY_LIMIT = 1000; 
         const uploadFilename = 'media-file';
 
         const operationsBuffer: any[] = [];
@@ -294,7 +293,7 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
         try {
             const generator = contactGenerator(db, jobId, perJobRate, checkCancelled);
 
-            await promisePool(CONCURRENCY_LIMIT, generator, async (contact) => {
+            await promisePool(perJobRate, generator, async (contact) => {
                 const operation = await sendSingleMessage(contact);
                 if (operation) {
                     operationsBuffer.push(operation);
