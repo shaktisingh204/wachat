@@ -765,6 +765,10 @@ export async function handleCreateTemplate(
         }
         const { wabaId, accessToken } = project;
     
+        const hasBodyVars = !!bodyText.match(/{{\s*(\d+)\s*}}/g);
+        const hasDynamicUrlButton = buttons.some((b: any) => b.type === 'URL' && b.url?.includes('{{1}}'));
+        const hasAnyVariables = hasBodyVars || hasDynamicUrlButton;
+
         const components: any[] = [];
     
         if (headerFormat !== 'NONE') {
@@ -779,7 +783,12 @@ export async function handleCreateTemplate(
                 }
             } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat)) {
                 if (!headerUrl) return { error: 'Header media URL is required.' };
-                headerComponent.example = { header_handle: [headerUrl] };
+                // Only add the header_handle example if there are no other variables in the template.
+                // This is a workaround for a Meta API limitation that prevents creating a template
+                // with a media handle and other variables in the same call.
+                if (!hasAnyVariables) {
+                    headerComponent.example = { header_handle: [headerUrl] };
+                }
             }
             components.push(headerComponent);
         }
@@ -787,6 +796,7 @@ export async function handleCreateTemplate(
         const bodyComponent: any = { type: 'BODY', text: bodyText };
         const bodyVarMatches = bodyText.match(/{{\s*(\d+)\s*}}/g);
         if (bodyVarMatches) {
+            // Meta expects body_text to be a nested array: [["var1_val", "var2_val"]]
             const exampleParams = [bodyVarMatches.map((_, i) => `example_body_var_${i + 1}`)];
             bodyComponent.example = { body_text: exampleParams };
         }
