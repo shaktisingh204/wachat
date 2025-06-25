@@ -777,7 +777,7 @@ export async function handleCreateTemplate(
         const language = formData.get('language') as string;
         const headerFormat = formData.get('headerFormat') as string;
         const headerText = formData.get('headerText') as string;
-        const headerFile = formData.get('headerFile') as File;
+        const headerSampleUrl = formData.get('headerSampleUrl') as string;
         const footerText = formData.get('footer') as string;
         const buttonsJson = formData.get('buttons') as string;
         const buttons = buttonsJson ? JSON.parse(buttonsJson) : [];
@@ -795,11 +795,10 @@ export async function handleCreateTemplate(
         }
         const { wabaId, accessToken } = project;
 
-        // --- NEW: Media Upload Logic ---
         let uploadedMediaHandle: string | null = null;
         if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat)) {
-            if (!headerFile || headerFile.size === 0) {
-                return { error: 'Header media file is required for this header type.' };
+            if (!headerSampleUrl) {
+                return { error: 'Header sample media URL is required for this header type.' };
             }
 
             const phoneNumberId = project.phoneNumbers[0]?.id;
@@ -808,21 +807,27 @@ export async function handleCreateTemplate(
             }
 
             try {
-                // 1. Use native FormData for the upload
-                const uploadFormData = new FormData();
-                uploadFormData.append('file', headerFile);
-                uploadFormData.append('messaging_product', 'whatsapp');
-                uploadFormData.append('type', headerFile.type);
+                // 1. Download the media from the public URL
+                const mediaResponse = await axios.get(headerSampleUrl, { responseType: 'arraybuffer' });
+                const mediaData = Buffer.from(mediaResponse.data, 'binary');
+                const contentType = mediaResponse.headers['content-type'] || 'application/octet-stream';
+                const originalFileName = headerSampleUrl.split('/').pop()?.split('?')[0] || 'sample';
 
-                // 2. Upload to Meta to get a handle using fetch
+                // 2. Create a Blob to use with FormData
+                const mediaBlob = new Blob([mediaData], { type: contentType });
+
+                // 3. Use native FormData for the upload
+                const uploadFormData = new FormData();
+                uploadFormData.append('file', mediaBlob, originalFileName); 
+                uploadFormData.append('messaging_product', 'whatsapp');
+                uploadFormData.append('type', contentType);
+
+                // 4. Upload to Meta to get a handle using fetch
                 const uploadResponse = await fetch(
                     `https://graph.facebook.com/v22.0/${phoneNumberId}/media`,
                     {
                         method: 'POST',
-                        headers: {
-                            // Do NOT set Content-Type, fetch will do it automatically with the correct boundary
-                            'Authorization': `Bearer ${accessToken}`,
-                        },
+                        headers: { 'Authorization': `Bearer ${accessToken}` },
                         body: uploadFormData,
                     }
                 );
@@ -843,11 +848,11 @@ export async function handleCreateTemplate(
                 uploadedMediaHandle = uploadResponseData.id;
 
             } catch (uploadError: any) {
-                 console.error('Failed to upload media to Meta:', uploadError);
-                 return { error: `Failed to prepare media for template: ${uploadError.message || 'An unknown error occurred.'}` };
+                 console.error('Failed to prepare media for template:', uploadError);
+                 const errorMessage = axios.isAxiosError(uploadError) ? `Could not download media from URL. Status: ${uploadError.response?.status}` : uploadError.message;
+                 return { error: `Failed to prepare media for template: ${errorMessage || 'An unknown error occurred.'}` };
             }
         }
-        // --- END: Media Upload Logic ---
     
         const components: any[] = [];
     

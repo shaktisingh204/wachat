@@ -291,14 +291,15 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
 
                 {['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat) && (
                     <div className="space-y-2">
-                        <Label htmlFor="headerFile">Header Media File</Label>
+                        <Label htmlFor="headerSampleUrl">Header Sample Media URL</Label>
                          <Input
-                            name="headerFile"
-                            id="headerFile"
-                            type="file"
-                            className="file:text-primary file:font-medium"
+                            name="headerSampleUrl"
+                            id="headerSampleUrl"
+                            type="url"
+                            placeholder="https://example.com/sample.jpg"
+                            required
                          />
-                        <p className="text-xs text-muted-foreground">Upload a file from your device. This will be used as a sample for submission.</p>
+                        <p className="text-xs text-muted-foreground">Provide a public URL to a sample media file for submission.</p>
                     </div>
                 )}
               
