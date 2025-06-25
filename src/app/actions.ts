@@ -824,13 +824,25 @@ export async function handleCreateTemplate(
                 uploadFormData.append('messaging_product', 'whatsapp');
                 uploadFormData.append('type', mimeType);
                 
+                // Get headers and content length
+                const formHeaders = uploadFormData.getHeaders();
+                const contentLength = await new Promise<number>((resolve, reject) => {
+                    uploadFormData.getLength((err, length) => {
+                        if (err) {
+                            return reject(err);
+                        }
+                        resolve(length);
+                    });
+                });
+
                 // 3. Upload to Meta to get a handle
                 const uploadResponse = await axios.post(
                     `https://graph.facebook.com/v22.0/${phoneNumberId}/media`,
                     uploadFormData,
                     {
                         headers: {
-                            ...uploadFormData.getHeaders(),
+                            ...formHeaders,
+                            'Content-Length': contentLength,
                             'Authorization': `Bearer ${accessToken}`,
                         }
                     }
@@ -872,8 +884,8 @@ export async function handleCreateTemplate(
         const bodyComponent: any = { type: 'BODY', text: bodyText };
         const bodyVarMatches = bodyText.match(/{{\s*(\d+)\s*}}/g);
         if (bodyVarMatches) {
-            const exampleParams = [bodyVarMatches.map((_, i) => `example_body_var_${i + 1}`)];
-            bodyComponent.example = { body_text: exampleParams };
+            const exampleParams = bodyVarMatches.map((_, i) => `example_body_var_${i + 1}`);
+            bodyComponent.example = { body_text: [exampleParams] };
         }
         components.push(bodyComponent);
 
@@ -928,6 +940,7 @@ export async function handleCreateTemplate(
         const responseData = responseText ? JSON.parse(responseText) : null;
     
         if (!response.ok) {
+            console.error('Meta Template Creation Error:', responseText);
             const errorMessage = responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error creating template.';
             return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
         }
