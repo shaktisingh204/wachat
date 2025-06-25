@@ -758,12 +758,14 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
 type CreateTemplateState = {
     message?: string | null;
     error?: string | null;
+    payload?: string | null;
 };
   
 export async function handleCreateTemplate(
     prevState: CreateTemplateState,
     formData: FormData
   ): Promise<CreateTemplateState> {
+    let payloadString: string | null = null;
     try {
         const projectId = formData.get('projectId') as string;
         const name = formData.get('templateName') as string;
@@ -924,7 +926,7 @@ export async function handleCreateTemplate(
             allow_category_change: true,
         };
         
-        console.log('--- META TEMPLATE PAYLOAD ---', JSON.stringify(payload, null, 2));
+        payloadString = JSON.stringify(payload, null, 2);
     
         const response = await fetch(
             `https://graph.facebook.com/v22.0/${wabaId}/message_templates`,
@@ -944,12 +946,12 @@ export async function handleCreateTemplate(
         if (!response.ok) {
             console.error('Meta Template Creation Error:', responseText);
             const errorMessage = responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error creating template.';
-            return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
+            return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}`, payload: payloadString };
         }
 
         const newMetaTemplateId = responseData?.id;
         if (!newMetaTemplateId) {
-            return { error: 'Template created on Meta, but no ID was returned. Please sync manually.' };
+            return { error: 'Template created on Meta, but no ID was returned. Please sync manually.', payload: payloadString };
         }
 
         const { db } = await connectToDatabase();
@@ -973,11 +975,11 @@ export async function handleCreateTemplate(
         revalidatePath('/dashboard/templates');
     
         const message = `Template "${name}" submitted successfully!`;
-        return { message };
+        return { message, payload: payloadString };
   
     } catch (e: any) {
         console.error('Error in handleCreateTemplate:', e);
-        return { error: e.message || 'An unexpected error occurred.' };
+        return { error: e.message || 'An unexpected error occurred.', payload: payloadString };
     }
 }
 

@@ -11,7 +11,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { LoaderCircle, FileUp, Plus, Trash2 } from 'lucide-react';
+import { LoaderCircle, FileUp, Plus, Trash2, Copy } from 'lucide-react';
 import { handleCreateTemplate } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
@@ -22,6 +22,7 @@ import { AiSuggestions } from './ai-suggestions';
 const createTemplateInitialState = {
   message: null,
   error: null,
+  payload: null,
 };
 
 function SubmitButton() {
@@ -139,6 +140,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   const [headerText, setHeaderText] = useState('');
   const [headerUrl, setHeaderUrl] = useState('');
   const [buttons, setButtons] = useState<ButtonType[]>([]);
+  const [lastPayload, setLastPayload] = useState('');
   
   useEffect(() => {
     if (initialTemplate) {
@@ -183,6 +185,9 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
     if (state?.error) {
       toast({ title: 'Submission Error', description: state.error, variant: 'destructive' });
     }
+    if (state?.payload) {
+        setLastPayload(state.payload);
+    }
   }, [state, toast, router]);
 
   const handleAddButton = (type: ButtonType['type']) => {
@@ -211,6 +216,14 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
     const newButtons = [...buttons];
     newButtons[index].example = [value];
     setButtons(newButtons);
+  };
+
+  const handleCopyPayload = () => {
+    navigator.clipboard.writeText(lastPayload);
+    toast({
+        title: 'Payload Copied!',
+        description: 'The API payload has been copied to your clipboard.',
+    });
   };
 
 
@@ -351,6 +364,27 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
         </div>
       </div>
       <Separator className="my-8" />
+      
+      {lastPayload && (
+        <Card className="mb-8">
+            <CardHeader className="flex-row items-center justify-between">
+                <div>
+                    <CardTitle>Last API Payload</CardTitle>
+                    <CardDescription>This is the JSON payload that was sent (or attempted to be sent) to Meta.</CardDescription>
+                </div>
+                <Button type="button" variant="outline" size="icon" onClick={handleCopyPayload}>
+                    <Copy className="h-4 w-4" />
+                    <span className="sr-only">Copy Payload</span>
+                </Button>
+            </CardHeader>
+            <CardContent>
+                <pre className="p-4 bg-muted/50 rounded-md whitespace-pre-wrap text-xs font-code max-h-96 overflow-y-auto">
+                    {lastPayload}
+                </pre>
+            </CardContent>
+        </Card>
+      )}
+
       <div className="flex justify-end">
         <SubmitButton />
       </div>
