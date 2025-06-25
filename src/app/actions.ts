@@ -193,7 +193,8 @@ export async function getTemplates(projectId: string) {
             metaId: 1,
             language: 1,
             body: 1,
-            status: 1
+            status: 1,
+            sampleHeaderUrl: 1,
         };
         const templates = await db.collection('templates')
             .find({ projectId: new ObjectId(projectId) })
@@ -523,7 +524,6 @@ export async function handleStartBroadcast(
 
     const templateId = formData.get('templateId') as string;
     const contactFile = formData.get('csvFile') as File;
-    const headerImageUrl = formData.get('headerImageUrl') as string | null;
 
     if (!templateId) return { error: 'Please select a message template.' };
     if (!ObjectId.isValid(templateId)) {
@@ -535,8 +535,15 @@ export async function handleStartBroadcast(
     if (!template) return { error: 'Selected template not found.' };
 
     let finalHeaderImageUrl: string | undefined = undefined;
-    if (headerImageUrl && headerImageUrl.trim() !== '') {
-        finalHeaderImageUrl = headerImageUrl.trim();
+    const templateHasMediaHeader = template.components?.some((c: any) => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(c.format));
+    
+    if (templateHasMediaHeader) {
+        const overrideUrl = formData.get('headerImageUrl') as string | null;
+        if (overrideUrl && overrideUrl.trim() !== '') {
+            finalHeaderImageUrl = overrideUrl.trim();
+        } else if (template.sampleHeaderUrl) {
+            finalHeaderImageUrl = template.sampleHeaderUrl;
+        }
     }
     
     const broadcastJobData: Omit<WithId<BroadcastJob>, '_id'> = {
@@ -856,7 +863,6 @@ export async function handleCreateTemplate(
         const bodyComponent: any = { type: 'BODY', text: bodyText };
         const bodyVarMatches = bodyText.match(/{{\s*(\d+)\s*}}/g);
         if (bodyVarMatches) {
-            // Meta expects body_text to be a nested array: [["var1_val", "var2_val"]]
             const exampleParams = [bodyVarMatches.map((_, i) => `example_body_var_${i + 1}`)];
             bodyComponent.example = { body_text: exampleParams };
         }
@@ -928,7 +934,7 @@ export async function handleCreateTemplate(
         }
 
         const { db } = await connectToDatabase();
-        const templateToInsert = {
+        const templateToInsert: any = {
             name: payload.name,
             category,
             language,
@@ -938,6 +944,10 @@ export async function handleCreateTemplate(
             metaId: newMetaTemplateId,
             components, 
         };
+
+        if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat) && headerUrl) {
+            templateToInsert.sampleHeaderUrl = headerUrl;
+        }
 
         await db.collection('templates').insertOne(templateToInsert);
     

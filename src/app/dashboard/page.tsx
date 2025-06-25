@@ -42,6 +42,7 @@ export type Template = {
   status: string;
   components: any[];
   metaId: string;
+  sampleHeaderUrl?: string;
 };
 
 export default async function SelectProjectPage() {
