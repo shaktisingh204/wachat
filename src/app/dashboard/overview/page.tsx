@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -35,25 +36,33 @@ export default function DashboardOverviewPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
+  const [projectId, setProjectId] = useState<string | null>(null);
 
   useEffect(() => {
+    // This effect runs only once on the client after mount.
     setIsClient(true);
+    const storedProjectId = localStorage.getItem('activeProjectId');
+    setProjectId(storedProjectId);
   }, []);
 
   useEffect(() => {
-    if (isClient) {
-        document.title = "Dashboard Overview | Wachat";
-        const fetchStats = async () => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (storedProjectId) {
-            const data = await getDashboardStats(storedProjectId);
-            setStats(data);
-        }
-        setLoading(false);
-        };
-        fetchStats();
+    // This effect runs when projectId is set (or on initial load).
+    if (!isClient) return;
+
+    if (!projectId) {
+        setLoading(false); // If no project, we are done loading.
+        return;
     }
-  }, [isClient]);
+    
+    document.title = "Dashboard Overview | Wachat";
+    const fetchStats = async () => {
+        setLoading(true);
+        const data = await getDashboardStats(projectId);
+        setStats(data);
+        setLoading(false);
+    };
+    fetchStats();
+  }, [projectId, isClient]);
 
   if (loading || !isClient) {
     return (
@@ -81,7 +90,7 @@ export default function DashboardOverviewPage() {
     );
   }
 
-  if (!stats) {
+  if (!projectId) {
     return (
         <div className="flex flex-col gap-8">
              <div>
@@ -90,13 +99,18 @@ export default function DashboardOverviewPage() {
             </div>
              <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected or No Data</AlertTitle>
+                <AlertTitle>No Project Selected</AlertTitle>
                 <AlertDescription>
-                    Please select a project from the main dashboard page. If one is selected, no broadcast data exists for it yet.
+                    Please select a project from the main dashboard page to see its analytics.
                 </AlertDescription>
             </Alert>
         </div>
     );
+  }
+  
+  if (!stats) {
+      // This can happen briefly while loading stats for a valid project ID
+      return <StatCardSkeleton />;
   }
 
   const deliveredPercentage = stats.totalMessages > 0 ? ((stats.totalSent / stats.totalMessages) * 100).toFixed(1) : '0.0';
@@ -152,15 +166,25 @@ export default function DashboardOverviewPage() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Message Performance</CardTitle>
-          <CardDescription>Performance of your broadcast messages over the last 30 days.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <AnalyticsChart />
-        </CardContent>
-      </Card>
+      {stats.totalCampaigns > 0 ? (
+        <Card>
+            <CardHeader>
+            <CardTitle>Message Performance</CardTitle>
+            <CardDescription>Performance of your broadcast messages over the last 30 days.</CardDescription>
+            </CardHeader>
+            <CardContent>
+            <AnalyticsChart />
+            </CardContent>
+        </Card>
+      ) : (
+        <Alert>
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>No Broadcast Data Yet</AlertTitle>
+            <AlertDescription>
+                This project doesn't have any broadcast history. Send a broadcast from the 'Broadcasts' page to see analytics here.
+            </AlertDescription>
+        </Alert>
+      )}
     </div>
   );
 }
