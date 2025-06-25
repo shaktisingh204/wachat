@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
@@ -162,7 +163,7 @@ export default function NumbersPage() {
      )
   }
 
-  const phoneNumbers: PhoneNumber[] = project.phoneNumbers || [];
+  const phoneNumbers: PhoneNumber[] = project?.phoneNumbers || [];
     
   return (
     <div className="flex flex-col gap-8">

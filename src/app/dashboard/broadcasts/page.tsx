@@ -215,26 +215,24 @@ export default function BroadcastPage() {
       const now = Date.now();
       setSendRateData(prevData => {
         const newData = { ...prevData };
-        if (Array.isArray(newHistoryData)) {
-            newHistoryData.forEach(item => {
-                const id = item._id.toString();
-                const totalProcessed = (item.successCount ?? 0) + (item.errorCount ?? 0);
+        (newHistoryData || []).forEach(item => {
+            const id = item._id.toString();
+            const totalProcessed = (item.successCount ?? 0) + (item.errorCount ?? 0);
 
-                if (item.status === 'PROCESSING') {
-                    const prevItemData = prevData[id];
-                    if (prevItemData && now > prevItemData.lastFetchTime) {
-                        const deltaTime = (now - prevItemData.lastFetchTime) / 1000;
-                        const deltaCount = totalProcessed - prevItemData.lastProcessedCount;
-                        const currentRate = deltaTime > 1 ? Math.round(deltaCount / deltaTime) : (prevItemData?.rate ?? 0);
-                        newData[id] = { lastProcessedCount: totalProcessed, lastFetchTime: now, rate: currentRate };
-                    } else if (!prevItemData) {
-                        newData[id] = { lastProcessedCount: totalProcessed, lastFetchTime: now, rate: 0 };
-                    }
-                } else if (newData[id]) {
-                    delete newData[id];
+            if (item.status === 'PROCESSING') {
+                const prevItemData = prevData[id];
+                if (prevItemData && now > prevItemData.lastFetchTime) {
+                    const deltaTime = (now - prevItemData.lastFetchTime) / 1000;
+                    const deltaCount = totalProcessed - prevItemData.lastProcessedCount;
+                    const currentRate = deltaTime > 1 ? Math.round(deltaCount / deltaTime) : (prevItemData?.rate ?? 0);
+                    newData[id] = { lastProcessedCount: totalProcessed, lastFetchTime: now, rate: currentRate };
+                } else if (!prevItemData) {
+                    newData[id] = { lastProcessedCount: totalProcessed, lastFetchTime: now, rate: 0 };
                 }
-            });
-        }
+            } else if (newData[id]) {
+                delete newData[id];
+            }
+        });
         return newData;
       });
 

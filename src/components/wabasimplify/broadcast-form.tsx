@@ -123,7 +123,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
                   <SelectValue placeholder="Choose a number..." />
               </SelectTrigger>
               <SelectContent>
-                  {(project.phoneNumbers || []).map((phone) => (
+                  {(project?.phoneNumbers || []).map((phone) => (
                   <SelectItem key={phone.id} value={phone.id}>
                       {phone.display_phone_number}
                   </SelectItem>
