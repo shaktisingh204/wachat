@@ -146,7 +146,7 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
     const jobId = job._id;
     try {
         const CONCURRENCY_LIMIT = 1000; 
-        const uploadFilename = job.headerImageUrl?.split('/').pop()?.split('?')[0] || 'media-file';
+        const uploadFilename = 'media-file';
 
         const operationsBuffer: any[] = [];
         
@@ -175,10 +175,28 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
                             });
                         }
                     } else if (job.headerImageUrl && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                        const type = headerComponent.format.toLowerCase();
-                        const mediaObject: any = { link: job.headerImageUrl };
-                        if (type === 'document') mediaObject.filename = contact['filename'] || uploadFilename;
-                        parameters.push({ type, [type]: mediaObject });
+                        const format = headerComponent.format; // 'IMAGE', 'VIDEO', etc.
+                        const link = job.headerImageUrl;
+                        let parameter;
+
+                        switch (format) {
+                            case 'IMAGE':
+                                parameter = { type: 'image', image: { link: link } };
+                                break;
+                            case 'VIDEO':
+                                parameter = { type: 'video', video: { link: link } };
+                                break;
+                            case 'DOCUMENT':
+                                parameter = { type: 'document', document: { link: link, filename: contact['filename'] || uploadFilename } };
+                                break;
+                            case 'AUDIO':
+                                parameter = { type: 'audio', audio: { link: link } };
+                                break;
+                        }
+
+                        if (parameter) {
+                            parameters.push(parameter);
+                        }
                     }
                     if (parameters.length > 0) payloadComponents.push({ type: 'header', parameters });
                 }
