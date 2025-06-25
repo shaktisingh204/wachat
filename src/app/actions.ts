@@ -772,7 +772,12 @@ export async function handleCreateTemplate(
             if (headerFormat === 'TEXT') {
                 if (!headerText) return { error: 'Header text is required for TEXT header format.' };
                 headerComponent.text = headerText;
-            } else {
+                const headerVarMatches = headerText.match(/{{(\d+)}}/g);
+                if (headerVarMatches) {
+                    const exampleParams = headerVarMatches.map((_, i) => `example_header_var_${i + 1}`);
+                    headerComponent.example = { header_text: exampleParams };
+                }
+            } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat)) {
                 if (!headerUrl) return { error: 'Header media URL is required.' };
                 headerComponent.example = { header_handle: [headerUrl] };
             }
@@ -782,8 +787,8 @@ export async function handleCreateTemplate(
         const bodyComponent: any = { type: 'BODY', text: bodyText };
         const bodyVarMatches = bodyText.match(/{{(\d+)}}/g);
         if (bodyVarMatches) {
-            const exampleParams = bodyVarMatches.map((_, i) => `example_var_${i + 1}`);
-            bodyComponent.example = { body_text: [exampleParams] };
+            const exampleParams = bodyVarMatches.map((_, i) => [`example_var_${i + 1}`]);
+            bodyComponent.example = { body_text: exampleParams };
         }
         components.push(bodyComponent);
 
