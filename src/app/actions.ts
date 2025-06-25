@@ -12,7 +12,6 @@ import type { PhoneNumber, Project, Template } from '@/app/dashboard/page';
 import axios from 'axios';
 import { Readable } from 'stream';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
-import FormData from 'form-data';
 
 type MetaPhoneNumber = {
     id: string;
@@ -809,32 +808,22 @@ export async function handleCreateTemplate(
             }
 
             try {
-                // 1. Prepare form for upload to Meta
-                const mediaData = Buffer.from(await headerFile.arrayBuffer());
-                const mimeType = headerFile.type;
-
-                if (!mimeType) {
-                    return { error: 'Could not determine media type from the provided file.' };
-                }
-
+                // 1. Use native FormData for the upload
                 const uploadFormData = new FormData();
-                uploadFormData.append('file', mediaData, {
-                    filename: headerFile.name,
-                    contentType: mimeType,
-                });
+                uploadFormData.append('file', headerFile);
                 uploadFormData.append('messaging_product', 'whatsapp');
-                uploadFormData.append('type', mimeType);
-                
+                uploadFormData.append('type', headerFile.type);
+
                 // 2. Upload to Meta to get a handle using fetch
                 const uploadResponse = await fetch(
                     `https://graph.facebook.com/v22.0/${phoneNumberId}/media`,
                     {
                         method: 'POST',
                         headers: {
-                            ...uploadFormData.getHeaders(),
+                            // Do NOT set Content-Type, fetch will do it automatically with the correct boundary
                             'Authorization': `Bearer ${accessToken}`,
                         },
-                        body: uploadFormData as any, // Cast to any to handle stream types
+                        body: uploadFormData,
                     }
                 );
 
