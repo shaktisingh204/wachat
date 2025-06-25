@@ -794,6 +794,7 @@ export async function handleCreateTemplate(
         const language = formData.get('language') as string;
         const headerFormat = formData.get('headerFormat') as string;
         const headerText = cleanText(formData.get('headerText') as string);
+        const headerSampleFile = formData.get('headerSampleFile') as File;
         const headerSampleUrl = (formData.get('headerSampleUrl') as string || '').trim();
         const footerText = cleanText(formData.get('footer') as string);
         const buttonsJson = formData.get('buttons') as string;
@@ -821,17 +822,30 @@ export async function handleCreateTemplate(
 
         let uploadedMediaHandle: string | null = null;
         if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat)) {
-            if (!headerSampleUrl) {
-                return { error: 'Header sample media URL is required for this header type.' };
+            if (!headerSampleUrl && (!headerSampleFile || headerSampleFile.size === 0)) {
+                return { error: 'A header sample media URL or file upload is required for this header type.' };
             }
 
             try {
-                // Download media
-                const mediaResponse = await axios.get(headerSampleUrl, { responseType: 'arraybuffer' });
-                const mediaData = Buffer.from(mediaResponse.data);
-                const fileType = mediaResponse.headers['content-type'] || 'application/octet-stream';
-                const fileName = headerSampleUrl.split('/').pop()?.split('?')[0] || 'sample';
-                const fileLength = mediaData.length;
+                let mediaData: Buffer;
+                let fileType: string;
+                let fileName: string;
+                let fileLength: number;
+
+                if (headerSampleFile && headerSampleFile.size > 0) {
+                    mediaData = Buffer.from(await headerSampleFile.arrayBuffer());
+                    fileType = headerSampleFile.type;
+                    fileName = headerSampleFile.name;
+                    fileLength = headerSampleFile.size;
+                } else {
+                    // Download media from URL
+                    const mediaResponse = await axios.get(headerSampleUrl, { responseType: 'arraybuffer' });
+                    mediaData = Buffer.from(mediaResponse.data);
+                    fileType = mediaResponse.headers['content-type'] || 'application/octet-stream';
+                    fileName = headerSampleUrl.split('/').pop()?.split('?')[0] || 'sample';
+                    fileLength = mediaData.length;
+                }
+
 
                 // Step 1: Start an upload session
                 const sessionUrl = new URL(`https://graph.facebook.com/v22.0/${appId}/uploads`);

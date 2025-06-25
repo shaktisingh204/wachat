@@ -319,18 +319,33 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                 )}
 
                 {['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && (
-                    <div className="space-y-2">
-                        <Label htmlFor="headerSampleUrl">Header Sample Media URL</Label>
-                         <Input
-                            name="headerSampleUrl"
-                            id="headerSampleUrl"
-                            type="url"
-                            placeholder="https://example.com/sample.jpg"
-                            value={headerSampleUrl}
-                            onChange={(e) => setHeaderSampleUrl(e.target.value)}
-                            required
-                         />
-                        <p className="text-xs text-muted-foreground">Provide a public URL to a sample media file for submission.</p>
+                    <div className="space-y-4">
+                        <div>
+                            <Label htmlFor="headerSampleUrl">Header Sample Media URL</Label>
+                            <Input
+                                name="headerSampleUrl"
+                                id="headerSampleUrl"
+                                type="url"
+                                placeholder="https://example.com/sample.jpg"
+                                value={headerSampleUrl}
+                                onChange={(e) => setHeaderSampleUrl(e.target.value)}
+                            />
+                            <p className="text-xs text-muted-foreground mt-2">Provide a public URL to a sample media file for submission.</p>
+                        </div>
+                        <div className="relative">
+                            <Separator />
+                            <span className="absolute left-1/2 -translate-x-1/2 -top-2.5 bg-card px-2 text-xs text-muted-foreground">OR</span>
+                        </div>
+                        <div>
+                            <Label htmlFor="headerSampleFile">Upload a sample file</Label>
+                            <Input
+                                name="headerSampleFile"
+                                id="headerSampleFile"
+                                type="file"
+                                accept="image/jpeg,image/png,video/mp4,application/pdf"
+                            />
+                            <p className="text-xs text-muted-foreground mt-2">Upload a file from your device. Max 5MB for images, 16MB for video/docs.</p>
+                        </div>
                     </div>
                 )}
               
