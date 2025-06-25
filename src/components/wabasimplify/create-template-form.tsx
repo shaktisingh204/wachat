@@ -139,6 +139,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   const [footer, setFooter] = useState('');
   const [headerFormat, setHeaderFormat] = useState('NONE');
   const [headerText, setHeaderText] = useState('');
+  const [headerSampleUrl, setHeaderSampleUrl] = useState('');
   const [buttons, setButtons] = useState<ButtonType[]>([]);
   const [lastPayload, setLastPayload] = useState('');
   const [lastDebugInfo, setLastDebugInfo] = useState('');
@@ -161,6 +162,8 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
         setHeaderFormat(headerComp.format || 'NONE');
         if(headerComp.format === 'TEXT') {
             setHeaderText(headerComp.text || '');
+        } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerComp.format)) {
+            setHeaderSampleUrl(initialTemplate.headerSampleUrl || '');
         }
       } else {
         setHeaderFormat('NONE');
@@ -302,6 +305,8 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                             id="headerSampleUrl"
                             type="url"
                             placeholder="https://example.com/sample.jpg"
+                            value={headerSampleUrl}
+                            onChange={(e) => setHeaderSampleUrl(e.target.value)}
                             required
                          />
                         <p className="text-xs text-muted-foreground">Provide a public URL to a sample media file for submission.</p>

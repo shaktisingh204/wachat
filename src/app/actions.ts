@@ -198,6 +198,7 @@ export async function getTemplates(projectId: string) {
             language: 1,
             body: 1,
             status: 1,
+            headerSampleUrl: 1,
         };
         const templates = await db.collection('templates')
             .find({ projectId: new ObjectId(projectId) })
@@ -988,6 +989,7 @@ export async function handleCreateTemplate(
             projectId: new ObjectId(projectId),
             metaId: newMetaTemplateId,
             components, 
+            ...(headerSampleUrl && { headerSampleUrl })
         };
 
         await db.collection('templates').insertOne(templateToInsert);
