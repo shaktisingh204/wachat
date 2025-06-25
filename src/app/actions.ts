@@ -12,6 +12,7 @@ import type { PhoneNumber, Project, Template } from '@/app/dashboard/page';
 import axios from 'axios';
 import { Readable } from 'stream';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
+import FormData from 'form-data';
 
 type MetaPhoneNumber = {
     id: string;
@@ -86,6 +87,23 @@ export type BroadcastAttempt = {
     sentAt?: Date;
     messageId?: string; // a successful send from Meta
     error?: string; // a failed send reason
+};
+
+const getAxiosErrorMessage = (error: any): string => {
+    if (axios.isAxiosError(error)) {
+        if (error.response) {
+            const apiError = error.response.data?.error;
+            if (apiError) {
+                return `${apiError.message || 'API Error'} (Code: ${apiError.code}, Type: ${apiError.type})`;
+            }
+            return `Request failed with status code ${error.response.status}`;
+        } else if (error.request) {
+            return 'No response received from server. Check network connectivity.';
+        } else {
+            return error.message;
+        }
+    }
+    return error.message || 'An unknown error occurred';
 };
 
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
@@ -764,6 +782,56 @@ export async function handleCreateTemplate(
             return { error: 'Project not found.' };
         }
         const { wabaId, accessToken } = project;
+
+        // --- NEW: Media Upload Logic ---
+        let uploadedMediaHandle: string | null = null;
+        if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat)) {
+            if (!headerUrl) {
+                return { error: 'Header media URL is required for this header type.' };
+            }
+
+            const phoneNumberId = project.phoneNumbers[0]?.id;
+            if (!phoneNumberId) {
+                return { error: 'Project has no registered phone numbers to use for media uploads. Please sync phone numbers first.' };
+            }
+
+            try {
+                // 1. Download the media
+                const mediaResponse = await axios.get(headerUrl, { responseType: 'arraybuffer' });
+                const mediaData = Buffer.from(mediaResponse.data, 'binary');
+                const mimeType = mediaResponse.headers['content-type'];
+
+                // 2. Upload to Meta to get a handle
+                const uploadFormData = new FormData();
+                uploadFormData.append('file', mediaData, {
+                    contentType: mimeType,
+                    filename: 'template-sample-media' // A filename is required
+                });
+                uploadFormData.append('messaging_product', 'whatsapp');
+
+                const uploadResponse = await axios.post(
+                    `https://graph.facebook.com/v22.0/${phoneNumberId}/media`,
+                    uploadFormData,
+                    {
+                        headers: {
+                            ...uploadFormData.getHeaders(),
+                            'Authorization': `Bearer ${accessToken}`,
+                        }
+                    }
+                );
+
+                if (!uploadResponse.data.id) {
+                    return { error: 'Media uploaded, but no ID was returned from Meta.' };
+                }
+                uploadedMediaHandle = uploadResponse.data.id;
+
+            } catch (uploadError: any) {
+                 console.error('Failed to upload media to Meta:', uploadError);
+                 const errorMessage = getAxiosErrorMessage(uploadError);
+                 return { error: `Failed to prepare media for template: ${errorMessage}` };
+            }
+        }
+        // --- END: Media Upload Logic ---
     
         const hasBodyVars = !!bodyText.match(/{{\s*(\d+)\s*}}/g);
         const hasDynamicUrlButton = buttons.some((b: any) => b.type === 'URL' && b.url?.includes('{{1}}'));
@@ -782,12 +850,10 @@ export async function handleCreateTemplate(
                     headerComponent.example = { header_text: exampleParams };
                 }
             } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat)) {
-                if (!headerUrl) return { error: 'Header media URL is required.' };
-                // Only add the header_handle example if there are no other variables in the template.
-                // This is a workaround for a Meta API limitation that prevents creating a template
-                // with a media handle and other variables in the same call.
-                if (!hasAnyVariables) {
-                    headerComponent.example = { header_handle: [headerUrl] };
+                // If there are other variables in the template, we cannot also submit a header_handle.
+                // This is a Meta API limitation. The user must add the sample in the WABA manager after creation.
+                if (uploadedMediaHandle && !hasAnyVariables) {
+                    headerComponent.example = { header_handle: [uploadedMediaHandle] };
                 }
             }
             components.push(headerComponent);
