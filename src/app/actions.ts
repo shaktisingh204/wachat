@@ -39,7 +39,7 @@ type MetaPhoneNumbersResponse = {
 type MetaTemplateComponent = {
     type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
     text?: string;
-    format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT' | 'AUDIO';
+    format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
     buttons?: any[];
     example?: {
         header_handle?: string[];
@@ -538,7 +538,7 @@ export async function handleStartBroadcast(
     if (!template) return { error: 'Selected template not found.' };
 
     let finalHeaderImageUrl: string | undefined = undefined;
-    const templateHasMediaHeader = template.components?.some((c: any) => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(c.format));
+    const templateHasMediaHeader = template.components?.some((c: any) => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
     
     if (templateHasMediaHeader) {
         const overrideUrl = formData.get('headerImageUrl') as string | null;
@@ -770,7 +770,7 @@ export async function handleCreateTemplate(
     formData: FormData
   ): Promise<CreateTemplateState> {
     let payloadString: string | null = null;
-    let debugInfo: string | null = null;
+    let debugInfo: string | null = "";
     try {
         const projectId = formData.get('projectId') as string;
         const name = formData.get('templateName') as string;
@@ -798,78 +798,81 @@ export async function handleCreateTemplate(
         const { wabaId, accessToken } = project;
 
         let uploadedMediaHandle: string | null = null;
-        if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat)) {
+        if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat)) {
             if (!headerSampleUrl) {
                 return { error: 'Header sample media URL is required for this header type.' };
             }
 
-            const phoneNumberId = project.phoneNumbers[0]?.id;
-            if (!phoneNumberId) {
-                return { error: 'Project has no registered phone numbers to use for media uploads. Please sync phone numbers first.' };
-            }
-
             try {
-                // 1. Download the media from the public URL
+                // Download media
                 const mediaResponse = await axios.get(headerSampleUrl, { responseType: 'arraybuffer' });
                 const mediaData = Buffer.from(mediaResponse.data);
-                const contentType = mediaResponse.headers['content-type'] || 'application/octet-stream';
-                const originalFileName = headerSampleUrl.split('/').pop()?.split('?')[0] || 'sample';
+                const fileType = mediaResponse.headers['content-type'] || 'application/octet-stream';
+                const fileName = headerSampleUrl.split('/').pop()?.split('?')[0] || 'sample';
+                const fileLength = mediaData.length;
 
-                // 2. Create a Blob to use with FormData
-                const mediaBlob = new Blob([mediaData], { type: contentType });
+                // Step 1: Start an upload session
+                const sessionUrl = new URL(`https://graph.facebook.com/v22.0/${wabaId}/uploads`);
+                sessionUrl.searchParams.append('file_name', fileName);
+                sessionUrl.searchParams.append('file_length', fileLength.toString());
+                sessionUrl.searchParams.append('file_type', fileType);
+                sessionUrl.searchParams.append('access_token', accessToken);
+                
+                let sessionResponse;
+                let sessionResponseData;
 
-                // 3. Use native FormData for the upload
-                const uploadFormData = new FormData();
-                uploadFormData.append('file', mediaBlob, originalFileName); 
-                uploadFormData.append('messaging_product', 'whatsapp');
+                try {
+                    sessionResponse = await fetch(sessionUrl.toString(), { method: 'POST' });
+                    sessionResponseData = await sessionResponse.json();
+                } catch (e: any) {
+                    throw new Error(`Failed to start upload session: ${e.message}`);
+                }
 
-                // --- Prepare Debug Info ---
-                const uploadUrl = `https://graph.facebook.com/v22.0/${phoneNumberId}/media`;
-                let uploadRequestDebug = `URL: ${uploadUrl}\n\n`;
-                uploadRequestDebug += `Method: POST\n`;
-                uploadRequestDebug += `Headers: { Authorization: "Bearer <TOKEN>" }\n\n`;
-                uploadRequestDebug += `FormData Fields (like curl --form):\n`;
-                uploadRequestDebug += `- file=@"${originalFileName}" (binary data of size ${mediaData.length} bytes, type: ${contentType})\n`;
-                uploadRequestDebug += `- messaging_product="whatsapp"\n`;
-                // --- End Prepare Debug Info ---
+                debugInfo += `--- STEP 1: START UPLOAD SESSION ---\n`;
+                debugInfo += `URL: ${sessionUrl.toString().replace(accessToken, '<TOKEN>')}\n`;
+                debugInfo += `Response Status: ${sessionResponse.status}\n`;
+                debugInfo += `Response Body: ${JSON.stringify(sessionResponseData, null, 2)}\n\n`;
 
+                if (!sessionResponse.ok || !sessionResponseData.id) {
+                    const errorMessage = sessionResponseData?.error?.message || 'Failed to get upload session ID.';
+                    throw new Error(`Failed to start upload session: ${errorMessage}`);
+                }
+                const uploadSessionId = sessionResponseData.id;
 
-                // 4. Upload to Meta to get a handle using fetch
-                const uploadResponse = await fetch(
-                    uploadUrl,
-                    {
+                // Step 2: Upload the file
+                const uploadUrl = `https://graph.facebook.com/v22.0/${uploadSessionId}`;
+                let uploadResponse;
+                let uploadResponseData;
+
+                try {
+                    uploadResponse = await fetch(uploadUrl, {
                         method: 'POST',
-                        headers: { 'Authorization': `Bearer ${accessToken}` },
-                        body: uploadFormData,
-                    }
-                );
-
-                const responseText = await uploadResponse.text();
-                const uploadResponseData = responseText ? JSON.parse(responseText) : {};
-                
-                // --- Capture Debug Info ---
-                debugInfo = `--- MEDIA UPLOAD DEBUG ---\n\n`;
-                debugInfo += `== REQUEST ==\n${uploadRequestDebug}\n`;
-                debugInfo += `== RESPONSE ==\nStatus: ${uploadResponse.status} ${uploadResponse.statusText}\n`;
-                debugInfo += `Body:\n${JSON.stringify(uploadResponseData, null, 2)}`;
-                // --- End Capture Debug Info ---
-
-                console.log("Media Upload Response:", JSON.stringify(uploadResponseData, null, 2));
-
-                if (!uploadResponse.ok) {
-                    const errorMessage = uploadResponseData?.error?.message || `Failed with status ${uploadResponse.status}`;
-                    return { error: `Failed to prepare media for template: ${errorMessage}`, payload: payloadString, debugInfo };
+                        headers: {
+                            'Authorization': `OAuth ${accessToken}`,
+                            'file_offset': '0',
+                        },
+                        body: mediaData,
+                    });
+                    uploadResponseData = await uploadResponse.json();
+                } catch (e: any) {
+                    throw new Error(`Failed to upload file: ${e.message}`);
                 }
                 
-                if (!uploadResponseData.id) {
-                    return { error: 'Media uploaded, but no ID was returned from Meta.', debugInfo };
+                debugInfo += `--- STEP 2: UPLOAD FILE ---\n`;
+                debugInfo += `URL: ${uploadUrl}\n`;
+                debugInfo += `Response Status: ${uploadResponse.status}\n`;
+                debugInfo += `Response Body: ${JSON.stringify(uploadResponseData, null, 2)}\n\n`;
+
+                if (!uploadResponse.ok || !uploadResponseData.h) {
+                    const errorMessage = uploadResponseData?.error?.message || 'Failed to get file handle.';
+                    throw new Error(`Failed to upload file: ${errorMessage}`);
                 }
-                uploadedMediaHandle = uploadResponseData.id;
+                
+                uploadedMediaHandle = uploadResponseData.h;
 
             } catch (uploadError: any) {
-                 console.error('Failed to prepare media for template:', uploadError);
-                 const errorMessage = axios.isAxiosError(uploadError) ? `Could not download media from URL. Status: ${uploadError.response?.status}` : uploadError.message;
-                 return { error: `Failed to prepare media for template: ${errorMessage || 'An unknown error occurred.'}` };
+                 const errorMessage = getAxiosErrorMessage(uploadError);
+                 return { error: `Failed to prepare media for template: ${errorMessage}`, debugInfo };
             }
         }
     
@@ -885,7 +888,7 @@ export async function handleCreateTemplate(
                     const exampleParams = headerVarMatches.map((_, i) => `example_header_var_${i + 1}`);
                     headerComponent.example = { header_text: exampleParams };
                 }
-            } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat)) {
+            } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat)) {
                 if (uploadedMediaHandle) {
                     headerComponent.example = { header_handle: [uploadedMediaHandle] };
                 }
@@ -952,6 +955,12 @@ export async function handleCreateTemplate(
     
         const responseText = await response.text();
         const responseData = responseText ? JSON.parse(responseText) : null;
+
+        debugInfo += `--- STEP 3: CREATE TEMPLATE ---\n`;
+        debugInfo += `URL: https://graph.facebook.com/v22.0/${wabaId}/message_templates\n`;
+        debugInfo += `Payload: ${payloadString}\n`;
+        debugInfo += `Response Status: ${response.status}\n`;
+        debugInfo += `Response Body: ${JSON.stringify(responseData, null, 2)}\n`;
     
         if (!response.ok) {
             console.error('Meta Template Creation Error:', responseData?.error || responseText);
