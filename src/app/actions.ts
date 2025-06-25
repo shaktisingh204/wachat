@@ -762,6 +762,7 @@ type CreateTemplateState = {
     message?: string | null;
     error?: string | null;
     payload?: string | null;
+    debugInfo?: string | null;
 };
   
 export async function handleCreateTemplate(
@@ -769,6 +770,7 @@ export async function handleCreateTemplate(
     formData: FormData
   ): Promise<CreateTemplateState> {
     let payloadString: string | null = null;
+    let debugInfo: string | null = null;
     try {
         const projectId = formData.get('projectId') as string;
         const name = formData.get('templateName') as string;
@@ -822,9 +824,21 @@ export async function handleCreateTemplate(
                 uploadFormData.append('messaging_product', 'whatsapp');
                 uploadFormData.append('type', contentType);
 
+                // --- Prepare Debug Info ---
+                const uploadUrl = `https://graph.facebook.com/v22.0/${phoneNumberId}/media`;
+                let uploadRequestDebug = `URL: ${uploadUrl}\n\n`;
+                uploadRequestDebug += `Method: POST\n`;
+                uploadRequestDebug += `Headers: { Authorization: "Bearer <TOKEN>" }\n\n`;
+                uploadRequestDebug += `FormData Fields:\n`;
+                uploadRequestDebug += `- file: (binary data of size ${mediaData.length} bytes, name: ${originalFileName}, type: ${contentType})\n`;
+                uploadRequestDebug += `- messaging_product: whatsapp\n`;
+                uploadRequestDebug += `- type: ${contentType}\n`;
+                // --- End Prepare Debug Info ---
+
+
                 // 4. Upload to Meta to get a handle using fetch
                 const uploadResponse = await fetch(
-                    `https://graph.facebook.com/v22.0/${phoneNumberId}/media`,
+                    uploadUrl,
                     {
                         method: 'POST',
                         headers: { 'Authorization': `Bearer ${accessToken}` },
@@ -835,15 +849,22 @@ export async function handleCreateTemplate(
                 const responseText = await uploadResponse.text();
                 const uploadResponseData = responseText ? JSON.parse(responseText) : {};
                 
+                // --- Capture Debug Info ---
+                debugInfo = `--- MEDIA UPLOAD DEBUG ---\n\n`;
+                debugInfo += `== REQUEST ==\n${uploadRequestDebug}\n`;
+                debugInfo += `== RESPONSE ==\nStatus: ${uploadResponse.status} ${uploadResponse.statusText}\n`;
+                debugInfo += `Body:\n${JSON.stringify(uploadResponseData, null, 2)}`;
+                // --- End Capture Debug Info ---
+
                 console.log("Media Upload Response:", JSON.stringify(uploadResponseData, null, 2));
 
                 if (!uploadResponse.ok) {
                     const errorMessage = uploadResponseData?.error?.message || `Failed with status ${uploadResponse.status}`;
-                    return { error: `Failed to prepare media for template: ${errorMessage}` };
+                    return { error: `Failed to prepare media for template: ${errorMessage}`, payload: payloadString, debugInfo };
                 }
                 
                 if (!uploadResponseData.id) {
-                    return { error: 'Media uploaded, but no ID was returned from Meta.' };
+                    return { error: 'Media uploaded, but no ID was returned from Meta.', debugInfo };
                 }
                 uploadedMediaHandle = uploadResponseData.id;
 
@@ -937,12 +958,12 @@ export async function handleCreateTemplate(
         if (!response.ok) {
             console.error('Meta Template Creation Error:', responseData?.error || responseText);
             const errorMessage = responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error creating template.';
-            return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}`, payload: payloadString };
+            return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}`, payload: payloadString, debugInfo };
         }
 
         const newMetaTemplateId = responseData?.id;
         if (!newMetaTemplateId) {
-            return { error: 'Template created on Meta, but no ID was returned. Please sync manually.', payload: payloadString };
+            return { error: 'Template created on Meta, but no ID was returned. Please sync manually.', payload: payloadString, debugInfo };
         }
 
         const { db } = await connectToDatabase();
@@ -962,11 +983,11 @@ export async function handleCreateTemplate(
         revalidatePath('/dashboard/templates');
     
         const message = `Template "${name}" submitted successfully!`;
-        return { message, payload: payloadString };
+        return { message, payload: payloadString, debugInfo };
   
     } catch (e: any) {
         console.error('Error in handleCreateTemplate:', e);
-        return { error: e.message || 'An unexpected error occurred.', payload: payloadString };
+        return { error: e.message || 'An unexpected error occurred.', payload: payloadString, debugInfo };
     }
 }
 

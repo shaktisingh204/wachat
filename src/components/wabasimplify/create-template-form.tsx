@@ -23,6 +23,7 @@ const createTemplateInitialState = {
   message: null,
   error: null,
   payload: null,
+  debugInfo: null,
 };
 
 function SubmitButton() {
@@ -140,6 +141,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   const [headerText, setHeaderText] = useState('');
   const [buttons, setButtons] = useState<ButtonType[]>([]);
   const [lastPayload, setLastPayload] = useState('');
+  const [lastDebugInfo, setLastDebugInfo] = useState('');
   
   useEffect(() => {
     if (initialTemplate) {
@@ -184,6 +186,9 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
     }
     if (state?.payload) {
         setLastPayload(state.payload);
+    }
+    if (state?.debugInfo) {
+        setLastDebugInfo(state.debugInfo);
     }
   }, [state, toast, router]);
 
@@ -362,6 +367,20 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
       </div>
       <Separator className="my-8" />
       
+      {lastDebugInfo && (
+        <Card className="mb-8">
+            <CardHeader>
+                <CardTitle>Media Upload Debugging</CardTitle>
+                <CardDescription>Details of the request to upload media and get a handle from Meta.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <pre className="p-4 bg-muted/50 rounded-md whitespace-pre-wrap text-xs font-code max-h-96 overflow-y-auto">
+                    {lastDebugInfo}
+                </pre>
+            </CardContent>
+        </Card>
+      )}
+
       {lastPayload && (
         <Card className="mb-8">
             <CardHeader className="flex-row items-center justify-between">
