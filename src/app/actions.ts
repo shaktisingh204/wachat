@@ -825,45 +825,37 @@ export async function handleCreateTemplate(
                 uploadFormData.append('messaging_product', 'whatsapp');
                 uploadFormData.append('type', mimeType);
                 
-                // Get headers and content length
-                const formHeaders = uploadFormData.getHeaders();
-                const contentLength = await new Promise<number>((resolve, reject) => {
-                    uploadFormData.getLength((err, length) => {
-                        if (err) {
-                            return reject(err);
-                        }
-                        resolve(length);
-                    });
-                });
-
-                // 2. Upload to Meta to get a handle
-                const uploadResponse = await axios.post(
+                // 2. Upload to Meta to get a handle using fetch
+                const uploadResponse = await fetch(
                     `https://graph.facebook.com/v22.0/${phoneNumberId}/media`,
-                    uploadFormData,
                     {
+                        method: 'POST',
                         headers: {
-                            ...formHeaders,
-                            'Content-Length': contentLength,
+                            ...uploadFormData.getHeaders(),
                             'Authorization': `Bearer ${accessToken}`,
                         },
-                        maxContentLength: Infinity,
-                        maxBodyLength: Infinity,
+                        body: uploadFormData as any, // Cast to any to handle stream types
                     }
                 );
+
+                const responseText = await uploadResponse.text();
+                const uploadResponseData = responseText ? JSON.parse(responseText) : {};
                 
-                const rawResponseText = JSON.stringify(uploadResponse.data, null, 2);
-                console.log("Media Upload Response:", rawResponseText);
+                console.log("Media Upload Response:", JSON.stringify(uploadResponseData, null, 2));
 
-
-                if (!uploadResponse.data.id) {
+                if (!uploadResponse.ok) {
+                    const errorMessage = uploadResponseData?.error?.message || `Failed with status ${uploadResponse.status}`;
+                    return { error: `Failed to prepare media for template: ${errorMessage}` };
+                }
+                
+                if (!uploadResponseData.id) {
                     return { error: 'Media uploaded, but no ID was returned from Meta.' };
                 }
-                uploadedMediaHandle = uploadResponse.data.id;
+                uploadedMediaHandle = uploadResponseData.id;
 
             } catch (uploadError: any) {
-                 console.error('Failed to upload media to Meta:', uploadError.response?.data || uploadError.message);
-                 const errorMessage = getAxiosErrorMessage(uploadError);
-                 return { error: `Failed to prepare media for template: ${errorMessage}` };
+                 console.error('Failed to upload media to Meta:', uploadError);
+                 return { error: `Failed to prepare media for template: ${uploadError.message || 'An unknown error occurred.'}` };
             }
         }
         // --- END: Media Upload Logic ---
