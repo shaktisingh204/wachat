@@ -175,7 +175,7 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
                             });
                         }
                     } else if (job.headerImageUrl && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                        const format = headerComponent.format; // 'IMAGE', 'VIDEO', etc.
+                        const format = headerComponent.format.toUpperCase();
                         const link = job.headerImageUrl;
                         let parameter;
 
