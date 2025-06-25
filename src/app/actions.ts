@@ -772,6 +772,11 @@ export async function handleCreateTemplate(
     let payloadString: string | null = null;
     let debugInfo: string | null = "";
     try {
+        const appId = process.env.APP_ID;
+        if (!appId) {
+            return { error: 'APP_ID is not configured in the environment variables. Please set it in the .env file.' };
+        }
+
         const projectId = formData.get('projectId') as string;
         const name = formData.get('templateName') as string;
         const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
@@ -812,7 +817,7 @@ export async function handleCreateTemplate(
                 const fileLength = mediaData.length;
 
                 // Step 1: Start an upload session
-                const sessionUrl = new URL(`https://graph.facebook.com/v22.0/${wabaId}/uploads`);
+                const sessionUrl = new URL(`https://graph.facebook.com/v22.0/${appId}/uploads`);
                 sessionUrl.searchParams.append('file_name', fileName);
                 sessionUrl.searchParams.append('file_length', fileLength.toString());
                 sessionUrl.searchParams.append('file_type', fileType);
