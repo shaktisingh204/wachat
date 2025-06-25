@@ -726,6 +726,8 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
 
         const templatesToUpsert = allTemplates.map(t => {
             const bodyComponent = t.components.find(c => c.type === 'BODY');
+            const headerComponent = t.components.find(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format || ''));
+            
             return {
                 name: t.name,
                 category: t.category,
@@ -735,6 +737,7 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
                 projectId: new ObjectId(projectId),
                 metaId: t.id,
                 components: t.components,
+                headerSampleUrl: headerComponent?.example?.header_handle?.[0] ? `https://graph.facebook.com/${headerComponent.example.header_handle[0]}` : undefined
             };
         });
 
@@ -772,6 +775,12 @@ export async function handleCreateTemplate(
   ): Promise<CreateTemplateState> {
     let payloadString: string | null = null;
     let debugInfo: string = "";
+
+    const cleanText = (text: string | null | undefined): string => {
+        if (!text) return '';
+        return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+    };
+
     try {
         const appId = process.env.APP_ID;
         if (!appId) {
@@ -779,19 +788,19 @@ export async function handleCreateTemplate(
         }
 
         const projectId = formData.get('projectId') as string;
-        const name = (formData.get('templateName') as string || '').trim();
+        const name = cleanText(formData.get('templateName') as string);
         const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
-        const bodyText = (formData.get('body') as string || '').trim();
+        const bodyText = cleanText(formData.get('body') as string);
         const language = formData.get('language') as string;
         const headerFormat = formData.get('headerFormat') as string;
-        const headerText = (formData.get('headerText') as string || '').trim();
+        const headerText = cleanText(formData.get('headerText') as string);
         const headerSampleUrl = (formData.get('headerSampleUrl') as string || '').trim();
-        const footerText = (formData.get('footer') as string || '').trim();
+        const footerText = cleanText(formData.get('footer') as string);
         const buttonsJson = formData.get('buttons') as string;
         
         const buttons = (buttonsJson ? JSON.parse(buttonsJson) : []).map((button: any) => ({
             ...button,
-            text: (button.text || '').trim(),
+            text: cleanText(button.text),
             url: (button.url || '').trim(),
             phone_number: (button.phone_number || '').trim(),
             example: Array.isArray(button.example) ? button.example.map((ex: string) => (ex || '').trim()) : button.example,

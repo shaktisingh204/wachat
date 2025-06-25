@@ -132,6 +132,11 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleCreateTemplate, createTemplateInitialState);
 
+  const cleanText = (text: string | null | undefined): string => {
+    if (!text) return '';
+    return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+  };
+
   const [templateName, setTemplateName] = useState('');
   const [category, setCategory] = useState<Template['category'] | ''>('');
   const [language, setLanguage] = useState('en_US');
@@ -156,13 +161,20 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
       setLanguage(initialTemplate.language || 'en_US');
       
       const bodyComp = initialTemplate.components?.find(c => c.type === 'BODY');
-      setBody(bodyComp?.text || initialTemplate.body || '');
+      setBody(cleanText(bodyComp?.text || initialTemplate.body || ''));
       
       const footerComp = initialTemplate.components?.find(c => c.type === 'FOOTER');
-      setFooter(footerComp?.text || '');
+      setFooter(cleanText(footerComp?.text || ''));
       
       const buttonsComp = initialTemplate.components?.find(c => c.type === 'BUTTONS');
-      setButtons(buttonsComp?.buttons || []);
+      if (buttonsComp?.buttons) {
+        setButtons(buttonsComp.buttons.map((btn: any) => ({
+            ...btn,
+            text: cleanText(btn.text),
+        })));
+      } else {
+        setButtons([]);
+      }
 
       const headerComp = initialTemplate.components?.find(c => c.type === 'HEADER');
       if (headerComp) {
@@ -170,7 +182,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
         setHeaderFormat(format);
 
         if (format === 'TEXT') {
-          setHeaderText(headerComp.text || '');
+          setHeaderText(cleanText(headerComp.text));
           setHeaderSampleUrl('');
         } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(format)) {
           setHeaderSampleUrl(initialTemplate.headerSampleUrl || '');
@@ -292,7 +304,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                 <div className="space-y-2">
                     <Label>Header (Optional)</Label>
                     <input type="hidden" name="headerFormat" value={headerFormat} />
-                    <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                         {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].map(format => (
                             <div key={format}><RadioGroupItem value={format} id={format} className="sr-only" /><Label htmlFor={format} className={`flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground ${headerFormat === format ? 'border-primary' : ''} cursor-pointer`}><span className="text-sm font-medium">{format}</span></Label></div>
                         ))}
