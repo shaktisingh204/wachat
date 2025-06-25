@@ -24,7 +24,6 @@ export default function TemplatesPage() {
   }, []);
 
   const fetchTemplates = useCallback(async (showToast = false) => {
-    setLoading(true);
     try {
       const projectId = localStorage.getItem('activeProjectId');
       if (projectId) {
@@ -48,6 +47,7 @@ export default function TemplatesPage() {
   
   useEffect(() => {
     if (isClient) {
+      setLoading(true);
       document.title = 'Message Templates | Wachat';
       fetchTemplates();
     }

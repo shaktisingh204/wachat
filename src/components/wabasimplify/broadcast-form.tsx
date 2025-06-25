@@ -45,16 +45,11 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
   const [state, formAction] = useActionState(handleStartBroadcast, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
-  const [isClient, setIsClient] = useState(false);
   
   const [selectedTemplate, setSelectedTemplate] = useState<WithId<Template> | null>(null);
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState('');
   const [fileInputKey, setFileInputKey] = useState(Date.now());
   const [headerImageUrl, setHeaderImageUrl] = useState('');
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   useEffect(() => {
     if (state?.message) {
@@ -75,9 +70,6 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
     }
   }, [state, toast]);
 
-  if (!isClient) {
-    return null;
-  }
 
   if (!project) {
     return (
@@ -103,7 +95,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
     setSelectedTemplate(template || null);
   };
 
-  const showImageUpload = selectedTemplate?.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(c.format));
+  const showImageUpload = selectedTemplate?.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
 
   const approvedTemplates = templates.filter(t => t.status?.toUpperCase() === 'APPROVED');
 

@@ -55,7 +55,7 @@ function CreateTemplatePageContent() {
   const pageTitle = action === 'edit' ? 'Edit Message Template' : action === 'clone' ? 'Clone Message Template' : 'Create New Message Template';
   const pageDescription = action ? 'Modify the details below and submit it as a new template for approval.' : 'Design your template and submit it for approval.';
 
-  if (!isClient) {
+  if (!isClient || loading) {
     return <LoadingSkeleton />;
   }
 
@@ -71,13 +71,6 @@ function CreateTemplatePageContent() {
         <h1 className="text-3xl font-bold font-headline">{pageTitle}</h1>
         <p className="text-muted-foreground">{pageDescription}</p>
       </div>
-
-      {loading && (
-         <div className="space-y-6">
-            <Skeleton className="h-48 w-full" />
-            <Skeleton className="h-64 w-full" />
-         </div>
-      )}
       
       {!loading && !project && (
          <Alert variant="destructive">

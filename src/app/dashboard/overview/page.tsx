@@ -41,14 +41,18 @@ export default function DashboardOverviewPage() {
   useEffect(() => {
     // This effect runs only once on the client after mount.
     setIsClient(true);
-    const storedProjectId = localStorage.getItem('activeProjectId');
-    setProjectId(storedProjectId);
   }, []);
 
   useEffect(() => {
-    // This effect runs when projectId is set (or on initial load).
-    if (!isClient) return;
+    // This effect runs when isClient becomes true
+    if (isClient) {
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        setProjectId(storedProjectId);
+    }
+  }, [isClient]);
 
+  useEffect(() => {
+    // This effect runs when projectId is set.
     if (!projectId) {
         setLoading(false); // If no project, we are done loading.
         return;
@@ -62,9 +66,9 @@ export default function DashboardOverviewPage() {
         setLoading(false);
     };
     fetchStats();
-  }, [projectId, isClient]);
+  }, [projectId]);
 
-  if (loading || !isClient) {
+  if (!isClient || loading) {
     return (
         <div className="flex flex-col gap-8">
           <div>

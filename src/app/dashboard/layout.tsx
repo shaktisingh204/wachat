@@ -38,7 +38,7 @@ const menuItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [activeProjectName, setActiveProjectName] = React.useState('');
+  const [activeProjectName, setActiveProjectName] = React.useState('Loading Project...');
 
   React.useEffect(() => {
     // This now runs only on the client after the initial render, preventing hydration errors.
