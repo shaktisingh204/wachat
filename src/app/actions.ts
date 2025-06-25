@@ -822,17 +822,15 @@ export async function handleCreateTemplate(
                 const uploadFormData = new FormData();
                 uploadFormData.append('file', mediaBlob, originalFileName); 
                 uploadFormData.append('messaging_product', 'whatsapp');
-                uploadFormData.append('type', contentType);
 
                 // --- Prepare Debug Info ---
                 const uploadUrl = `https://graph.facebook.com/v22.0/${phoneNumberId}/media`;
                 let uploadRequestDebug = `URL: ${uploadUrl}\n\n`;
                 uploadRequestDebug += `Method: POST\n`;
                 uploadRequestDebug += `Headers: { Authorization: "Bearer <TOKEN>" }\n\n`;
-                uploadRequestDebug += `FormData Fields:\n`;
-                uploadRequestDebug += `- file: (binary data of size ${mediaData.length} bytes, name: ${originalFileName}, type: ${contentType})\n`;
-                uploadRequestDebug += `- messaging_product: whatsapp\n`;
-                uploadRequestDebug += `- type: ${contentType}\n`;
+                uploadRequestDebug += `FormData Fields (like curl --form):\n`;
+                uploadRequestDebug += `- file=@"${originalFileName}" (binary data of size ${mediaData.length} bytes, type: ${contentType})\n`;
+                uploadRequestDebug += `- messaging_product="whatsapp"\n`;
                 // --- End Prepare Debug Info ---
 
 
