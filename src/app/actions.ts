@@ -808,14 +808,21 @@ export async function handleCreateTemplate(
                 const mediaData = Buffer.from(mediaResponse.data);
                 const mimeType = mediaResponse.headers['content-type'];
 
-                // 2. Upload to Meta to get a handle
-                const uploadFormData = new FormData();
-                uploadFormData.append('file', mediaData, {
-                    contentType: mimeType,
-                    filename: 'template-sample-media' // A filename is required
-                });
-                uploadFormData.append('messaging_product', 'whatsapp');
+                if (!mimeType) {
+                    return { error: 'Could not determine media type from the provided URL. Please use a direct link.' };
+                }
 
+                // 2. Prepare form for upload to Meta
+                const uploadFormData = new FormData();
+                const fileExtension = mimeType.split('/')[1] || 'bin';
+                const fileName = `media-sample.${fileExtension}`;
+
+                uploadFormData.append('file', mediaData, fileName);
+                uploadFormData.append('messaging_product', 'whatsapp');
+                // The 'type' parameter is often required by Meta's API in the form itself
+                uploadFormData.append('type', mimeType);
+                
+                // 3. Upload to Meta to get a handle
                 const uploadResponse = await axios.post(
                     `https://graph.facebook.com/v22.0/${phoneNumberId}/media`,
                     uploadFormData,
