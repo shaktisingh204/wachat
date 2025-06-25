@@ -104,7 +104,7 @@ async function* contactGenerator(
     rate: number,
     checkCancelled: () => Promise<boolean>
 ) {
-    const delayPerBatch = 1000; // 1 second pause between batches
+    const delayPerBatch = 900; // 0.9 second pause between batches
     let lastId: ObjectId | null = null;
     const batchSize = rate; // Fetch a batch size equal to the desired messages per second rate.
 
