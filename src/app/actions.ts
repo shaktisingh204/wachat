@@ -817,9 +817,11 @@ export async function handleCreateTemplate(
                 const fileExtension = mimeType.split('/')[1] || 'bin';
                 const fileName = `media-sample.${fileExtension}`;
 
-                uploadFormData.append('file', mediaData, fileName);
+                uploadFormData.append('file', mediaData, {
+                    filename: fileName,
+                    contentType: mimeType,
+                });
                 uploadFormData.append('messaging_product', 'whatsapp');
-                // The 'type' parameter is often required by Meta's API in the form itself
                 uploadFormData.append('type', mimeType);
                 
                 // 3. Upload to Meta to get a handle
@@ -840,7 +842,7 @@ export async function handleCreateTemplate(
                 uploadedMediaHandle = uploadResponse.data.id;
 
             } catch (uploadError: any) {
-                 console.error('Failed to upload media to Meta:', uploadError);
+                 console.error('Failed to upload media to Meta:', uploadError.response?.data || uploadError.message);
                  const errorMessage = getAxiosErrorMessage(uploadError);
                  return { error: `Failed to prepare media for template: ${errorMessage}` };
             }
@@ -888,16 +890,11 @@ export async function handleCreateTemplate(
                 if (button.type === 'URL') {
                     newButton.url = button.url;
                     if (button.example) {
-                        newButton.example = button.example;
+                        newButton.example = [button.example];
                     }
                 }
                 if (button.type === 'PHONE_NUMBER') {
                     newButton.phone_number = button.phone_number;
-                }
-                if (button.type === 'QUICK_REPLY') {
-                    // Quick replies don't have a payload field in the API request,
-                    // the text itself is used as the payload by default.
-                    // The payload field in our form is for dev convenience but not sent to Meta.
                 }
                 return newButton;
             });
