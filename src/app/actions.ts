@@ -833,10 +833,6 @@ export async function handleCreateTemplate(
         }
         // --- END: Media Upload Logic ---
     
-        const hasBodyVars = !!bodyText.match(/{{\s*(\d+)\s*}}/g);
-        const hasDynamicUrlButton = buttons.some((b: any) => b.type === 'URL' && b.url?.includes('{{1}}'));
-        const hasAnyVariables = hasBodyVars || hasDynamicUrlButton;
-
         const components: any[] = [];
     
         if (headerFormat !== 'NONE') {
@@ -850,9 +846,7 @@ export async function handleCreateTemplate(
                     headerComponent.example = { header_text: exampleParams };
                 }
             } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat)) {
-                // If there are other variables in the template, we cannot also submit a header_handle.
-                // This is a Meta API limitation. The user must add the sample in the WABA manager after creation.
-                if (uploadedMediaHandle && !hasAnyVariables) {
+                if (uploadedMediaHandle) {
                     headerComponent.example = { header_handle: [uploadedMediaHandle] };
                 }
             }
