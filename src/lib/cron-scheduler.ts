@@ -90,12 +90,12 @@ async function promisePool<T>(
 }
 
 /**
- * An async generator that yields contacts at a consistent, specified rate. It fetches
- * contacts from the database in efficient batches but yields them one by one with a
- * calculated delay to ensure a smooth, steady stream of data.
+ * An async generator that yields contacts in bursts to match the desired rate.
+ * It fetches a batch of contacts (equal to the rate) and yields them all quickly,
+ * then pauses for one second before fetching the next batch.
  * @param db The database instance.
  * @param jobId The ID of the current broadcast job.
- * @param rate The number of contacts to yield per second.
+ * @param rate The number of contacts to yield per second (in a single burst).
  * @param checkCancelled A function to check if the job has been cancelled.
  */
 async function* contactGenerator(
@@ -104,9 +104,9 @@ async function* contactGenerator(
     rate: number,
     checkCancelled: () => Promise<boolean>
 ) {
-    const delayPerContact = 1000 / rate;
+    const delayPerBatch = 1000; // 1 second pause between batches
     let lastId: ObjectId | null = null;
-    const batchSize = Math.max(200, rate); // Fetch at least 1s worth of contacts, or 200.
+    const batchSize = rate; // Fetch a batch size equal to the desired messages per second rate.
 
     mainLoop: while (true) {
         if (await checkCancelled()) {
@@ -128,13 +128,17 @@ async function* contactGenerator(
             return; // No more contacts to process
         }
         
+        // Yield all contacts in the batch without delay
         for (const contact of contactsBatch) {
              if (await checkCancelled()) {
                 break mainLoop;
             }
             yield contact;
-            // Enforce a strict delay after each yield to maintain the rate
-            await new Promise(resolve => setTimeout(resolve, delayPerContact));
+        }
+
+        // If we yielded a full batch, wait for 1 second before fetching the next one.
+        if (contactsBatch.length === batchSize) {
+            await new Promise(resolve => setTimeout(resolve, delayPerBatch));
         }
 
         lastId = contactsBatch[contactsBatch.length - 1]._id;
@@ -381,13 +385,13 @@ export async function processBroadcastJob() {
         lockAcquired = true;
         // --- End Acquire Lock ---
 
-        const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+        const tenSecondsAgo = new Date(Date.now() - 10 * 1000);
 
         const jobsForThisRun = await db.collection<BroadcastJob>('broadcasts').find({
             _id: { $ne: lockId },
             $or: [
                 { status: 'QUEUED' },
-                { status: 'PROCESSING', startedAt: { $lt: tenMinutesAgo } }
+                { status: 'PROCESSING', startedAt: { $lt: tenSecondsAgo } }
             ]
         }).sort({ createdAt: 1 }).toArray();
 
