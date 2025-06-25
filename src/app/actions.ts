@@ -194,7 +194,6 @@ export async function getTemplates(projectId: string) {
             language: 1,
             body: 1,
             status: 1,
-            sampleHeaderUrl: 1,
         };
         const templates = await db.collection('templates')
             .find({ projectId: new ObjectId(projectId) })
@@ -541,8 +540,9 @@ export async function handleStartBroadcast(
         const overrideUrl = formData.get('headerImageUrl') as string | null;
         if (overrideUrl && overrideUrl.trim() !== '') {
             finalHeaderImageUrl = overrideUrl.trim();
-        } else if (template.sampleHeaderUrl) {
-            finalHeaderImageUrl = template.sampleHeaderUrl;
+        } else {
+            // No fallback from template.sampleHeaderUrl anymore
+            return { error: 'A public media URL is required for this template.' };
         }
     }
     
@@ -774,7 +774,7 @@ export async function handleCreateTemplate(
         const language = formData.get('language') as string;
         const headerFormat = formData.get('headerFormat') as string;
         const headerText = formData.get('headerText') as string;
-        const headerUrl = formData.get('headerUrl') as string;
+        const headerFile = formData.get('headerFile') as File;
         const footerText = formData.get('footer') as string;
         const buttonsJson = formData.get('buttons') as string;
         const buttons = buttonsJson ? JSON.parse(buttonsJson) : [];
@@ -795,8 +795,8 @@ export async function handleCreateTemplate(
         // --- NEW: Media Upload Logic ---
         let uploadedMediaHandle: string | null = null;
         if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat)) {
-            if (!headerUrl) {
-                return { error: 'Header media URL is required for this header type.' };
+            if (!headerFile || headerFile.size === 0) {
+                return { error: 'Header media file is required for this header type.' };
             }
 
             const phoneNumberId = project.phoneNumbers[0]?.id;
@@ -805,22 +805,17 @@ export async function handleCreateTemplate(
             }
 
             try {
-                // 1. Download the media
-                const mediaResponse = await axios.get(headerUrl, { responseType: 'arraybuffer' });
-                const mediaData = Buffer.from(mediaResponse.data);
-                const mimeType = mediaResponse.headers['content-type'];
+                // 1. Prepare form for upload to Meta
+                const mediaData = Buffer.from(await headerFile.arrayBuffer());
+                const mimeType = headerFile.type;
 
                 if (!mimeType) {
-                    return { error: 'Could not determine media type from the provided URL. Please use a direct link.' };
+                    return { error: 'Could not determine media type from the provided file.' };
                 }
 
-                // 2. Prepare form for upload to Meta
                 const uploadFormData = new FormData();
-                const fileExtension = mimeType.split('/')[1] || 'bin';
-                const fileName = `media-sample.${fileExtension}`;
-
                 uploadFormData.append('file', mediaData, {
-                    filename: fileName,
+                    filename: headerFile.name,
                     contentType: mimeType,
                 });
                 uploadFormData.append('messaging_product', 'whatsapp');
@@ -837,7 +832,7 @@ export async function handleCreateTemplate(
                     });
                 });
 
-                // 3. Upload to Meta to get a handle
+                // 2. Upload to Meta to get a handle
                 const uploadResponse = await axios.post(
                     `https://graph.facebook.com/v22.0/${phoneNumberId}/media`,
                     uploadFormData,
@@ -846,9 +841,15 @@ export async function handleCreateTemplate(
                             ...formHeaders,
                             'Content-Length': contentLength,
                             'Authorization': `Bearer ${accessToken}`,
-                        }
+                        },
+                        maxContentLength: Infinity,
+                        maxBodyLength: Infinity,
                     }
                 );
+                
+                const rawResponseText = JSON.stringify(uploadResponse.data, null, 2);
+                console.log("Media Upload Response:", rawResponseText);
+
 
                 if (!uploadResponse.data.id) {
                     return { error: 'Media uploaded, but no ID was returned from Meta.' };
@@ -965,10 +966,6 @@ export async function handleCreateTemplate(
             metaId: newMetaTemplateId,
             components, 
         };
-
-        if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat) && headerUrl) {
-            templateToInsert.sampleHeaderUrl = headerUrl;
-        }
 
         await db.collection('templates').insertOne(templateToInsert);
     

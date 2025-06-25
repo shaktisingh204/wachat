@@ -138,7 +138,6 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   const [footer, setFooter] = useState('');
   const [headerFormat, setHeaderFormat] = useState('NONE');
   const [headerText, setHeaderText] = useState('');
-  const [headerUrl, setHeaderUrl] = useState('');
   const [buttons, setButtons] = useState<ButtonType[]>([]);
   const [lastPayload, setLastPayload] = useState('');
   
@@ -160,8 +159,6 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
         setHeaderFormat(headerComp.format || 'NONE');
         if(headerComp.format === 'TEXT') {
             setHeaderText(headerComp.text || '');
-        } else if (headerComp.example?.header_handle?.[0]) {
-            setHeaderUrl(headerComp.example.header_handle[0]);
         }
       } else {
         setHeaderFormat('NONE');
@@ -294,15 +291,14 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
 
                 {['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerFormat) && (
                     <div className="space-y-2">
-                        <Label htmlFor="headerUrl">Header Media URL</Label>
-                        <Input 
-                            name="headerUrl" 
-                            id="headerUrl" 
-                            value={headerUrl} 
-                            onChange={(e) => setHeaderUrl(e.target.value)} 
-                            placeholder="https://example.com/media.png"
-                        />
-                        <p className="text-xs text-muted-foreground">Provide a publicly accessible URL for your media. This will be used as a sample for submission.</p>
+                        <Label htmlFor="headerFile">Header Media File</Label>
+                         <Input
+                            name="headerFile"
+                            id="headerFile"
+                            type="file"
+                            className="file:text-primary file:font-medium"
+                         />
+                        <p className="text-xs text-muted-foreground">Upload a file from your device. This will be used as a sample for submission.</p>
                     </div>
                 )}
               

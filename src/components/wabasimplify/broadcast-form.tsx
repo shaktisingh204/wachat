@@ -174,7 +174,7 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
                       <Separator className="my-2" />
                   </div>
                   <div className="md:col-span-3 space-y-2">
-                      <Label htmlFor="headerImageUrl">4. Header Media URL Override (Optional)</Label>
+                      <Label htmlFor="headerImageUrl">4. Header Media URL (Required)</Label>
                       <Input
                           id="headerImageUrl"
                           name="headerImageUrl"
@@ -182,9 +182,10 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
                           placeholder="https://example.com/image.png"
                           value={headerImageUrl}
                           onChange={(e) => setHeaderImageUrl(e.target.value)}
+                          required
                       />
                       <p className="text-xs text-muted-foreground">
-                          Provide a new public media URL to override the template's default header.
+                          A public media URL is required to send a broadcast with this template.
                       </p>
                   </div>
               </>
