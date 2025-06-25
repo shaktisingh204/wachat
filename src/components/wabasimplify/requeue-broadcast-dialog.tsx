@@ -79,6 +79,8 @@ export function RequeueBroadcastDialog({ broadcastId, originalTemplateId, projec
     }
     setOpen(isOpen);
   };
+  
+  const approvedTemplates = templates.filter(t => t.status?.toUpperCase() === 'APPROVED');
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -101,14 +103,20 @@ export function RequeueBroadcastDialog({ broadcastId, originalTemplateId, projec
               <Label htmlFor="templateId">Message Template</Label>
               <Select name="templateId" value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
                 <SelectTrigger id="templateId">
-                  <SelectValue placeholder="Choose a template..." />
+                  <SelectValue placeholder="Choose an approved template..." />
                 </SelectTrigger>
                 <SelectContent searchable>
-                  {templates.map((template) => (
-                    <SelectItem key={template._id.toString()} value={template._id.toString()}>
-                      {template.name} (<span className="capitalize">{template.status ? template.status.replace(/_/g, " ").toLowerCase() : 'N/A'}</span>)
-                    </SelectItem>
-                  ))}
+                  {approvedTemplates.length > 0 ? (
+                    approvedTemplates.map((template) => (
+                      <SelectItem key={template._id.toString()} value={template._id.toString()}>
+                        {template.name} (<span className="capitalize">{template.status ? template.status.replace(/_/g, " ").toLowerCase() : 'N/A'}</span>)
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <div className="p-4 text-center text-sm text-muted-foreground">
+                      No approved templates found.
+                    </div>
+                  )}
                 </SelectContent>
               </Select>
             </div>

@@ -105,13 +105,15 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
 
   const showImageUpload = selectedTemplate?.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(c.format));
 
+  const approvedTemplates = templates.filter(t => t.status?.toUpperCase() === 'APPROVED');
+
   return (
     <Card>
       <form ref={formRef} action={formAction}>
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <CardHeader>
           <CardTitle>New Broadcast Campaign</CardTitle>
-          <CardDescription>Select a phone number, template, and upload your contacts file.</CardDescription>
+          <CardDescription>Select a phone number, an approved template, and upload your contacts file.</CardDescription>
           </CardHeader>
           <CardContent className="grid md:grid-cols-3 gap-6">
           <div className="space-y-2">
@@ -133,14 +135,20 @@ export function BroadcastForm({ templates, project }: { templates: WithId<Templa
               <Label htmlFor="templateId">2. Select Message Template</Label>
               <Select name="templateId" required value={selectedTemplate?._id.toString() || ''} onValueChange={handleTemplateChange}>
               <SelectTrigger id="templateId">
-                  <SelectValue placeholder="Choose a template..." />
+                  <SelectValue placeholder="Choose an approved template..." />
               </SelectTrigger>
               <SelectContent searchable>
-                  {templates.map((template) => (
+                {approvedTemplates.length > 0 ? (
+                  approvedTemplates.map((template) => (
                     <SelectItem key={template._id.toString()} value={template._id.toString()}>
                       {template.name} (<span className="capitalize">{template.status ? template.status.replace(/_/g, " ").toLowerCase() : 'N/A'}</span>)
                     </SelectItem>
-                  ))}
+                  ))
+                ) : (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    No approved templates found. <br/> Please sync with Meta or create a new one.
+                  </div>
+                )}
               </SelectContent>
               </Select>
           </div>
