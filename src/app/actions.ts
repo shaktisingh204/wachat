@@ -923,6 +923,8 @@ export async function handleCreateTemplate(
             components,
             allow_category_change: true,
         };
+        
+        console.log('--- META TEMPLATE PAYLOAD ---', JSON.stringify(payload, null, 2));
     
         const response = await fetch(
             `https://graph.facebook.com/v22.0/${wabaId}/message_templates`,
