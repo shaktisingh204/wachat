@@ -2,6 +2,43 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 
+const getSearchableText = (payload: any): string => {
+    let text = '';
+    try {
+        if (payload.object === 'whatsapp_business_account' && payload.entry) {
+            for (const entry of payload.entry) {
+                text += ` ${entry.id}`;
+                if (entry.changes) {
+                    for (const change of entry.changes) {
+                        text += ` ${change.field}`;
+                        if (change.value) {
+                            text += ` ${change.value.messaging_product || ''}`;
+                            if(change.value.messages) {
+                                for(const message of change.value.messages) {
+                                    text += ` ${message.from || ''} ${message.id || ''} ${message.type || ''}`;
+                                }
+                            }
+                            if(change.value.statuses) {
+                                for(const status of change.value.statuses) {
+                                    text += ` ${status.id || ''} ${status.recipient_id || ''} ${status.status || ''}`;
+                                }
+                            }
+                            if(change.value.display_phone_number) {
+                                text += ` ${change.value.display_phone_number}`;
+                            }
+                            if(change.value.event) {
+                                text += ` ${change.value.event}`;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    } catch(e) { /* ignore errors during text creation */ }
+    return text.replace(/\s+/g, ' ').trim();
+};
+
+
 /**
  * Handles webhook verification requests from Meta.
  * https://developers.facebook.com/docs/graph-api/webhooks/getting-started#verification-requests
@@ -30,15 +67,22 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   const body = await request.json();
-  console.log('Received webhook payload:', JSON.stringify(body, null, 2));
 
   // Process the webhook in the background without blocking the response.
   // This is a best practice to avoid timeouts from Meta's servers.
   (async () => {
     try {
-      if (body.object === 'whatsapp_business_account') {
-        const { db } = await connectToDatabase();
+      const { db } = await connectToDatabase();
 
+      // Store the raw webhook log
+      const searchableText = getSearchableText(body);
+      await db.collection('webhook_logs').insertOne({
+        payload: body,
+        searchableText,
+        createdAt: new Date(),
+      });
+
+      if (body.object === 'whatsapp_business_account') {
         for (const entry of body.entry) {
           const wabaId = entry.id;
           for (const change of entry.changes) {

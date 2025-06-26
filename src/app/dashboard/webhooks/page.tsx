@@ -1,11 +1,14 @@
 
-import type { Metadata } from "next";
+
 import { WebhookInfo } from "@/components/wabasimplify/webhook-info";
+import { WebhookLogs } from "@/components/wabasimplify/webhook-logs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Lightbulb } from "lucide-react";
 
-export const metadata: Metadata = {
+export const dynamic = 'force-dynamic';
+
+export const metadata = {
   title: "Webhooks | Wachat",
 };
 
@@ -35,7 +38,7 @@ export default function WebhooksPage() {
                         <li>In the popup, paste the **Callback URL** and the **Verify token** from above into the corresponding fields.</li>
                         <li>Click **Verify and save**.</li>
                         <li>After verifying, go to the Webhook Fields section for `whatsapp_business_account` and click **Edit**.</li>
-                        <li>Subscribe to events such as `messages` to receive real-time notifications about message status changes.</li>
+                        <li>Subscribe to events such as `messages`, `phone_number_quality_update`, and others to receive real-time notifications.</li>
                     </ol>
                     <Alert>
                         <Lightbulb className="h-4 w-4" />
@@ -46,6 +49,8 @@ export default function WebhooksPage() {
                     </Alert>
                 </CardContent>
             </Card>
+
+            <WebhookLogs />
         </div>
     )
 }

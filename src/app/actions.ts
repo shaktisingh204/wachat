@@ -9,9 +9,7 @@ import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
 import type { PhoneNumber, Project, Template } from '@/app/dashboard/page';
-import axios from 'axios';
 import { Readable } from 'stream';
-import { processBroadcastJob } from '@/lib/cron-scheduler';
 
 type MetaPhoneNumber = {
     id: string;
@@ -109,22 +107,24 @@ export type BroadcastAttempt = {
     error?: string; // a failed send reason
 };
 
-const getAxiosErrorMessage = (error: any): string => {
-    if (axios.isAxiosError(error)) {
-        if (error.response) {
-            const apiError = error.response.data?.error;
-            if (apiError) {
-                return `${apiError.message || 'API Error'} (Code: ${apiError.code}, Type: ${apiError.type})`;
+const getErrorMessage = (error: any): string => {
+    if (error instanceof Error) {
+        // Handle native fetch response errors
+        if ('cause' in error && error.cause) {
+            const cause = error.cause as any;
+            if (cause.error) {
+                const apiError = cause.error;
+                 return `${apiError.message || 'API Error'} (Code: ${apiError.code}, Type: ${apiError.type})`;
             }
-            return `Request failed with status code ${error.response.status}`;
-        } else if (error.request) {
-            return 'No response received from server. Check network connectivity.';
-        } else {
-            return error.message;
+             if (cause.message) {
+                return cause.message;
+            }
         }
+        return error.message;
     }
-    return error.message || 'An unknown error occurred';
+    return String(error) || 'An unknown error occurred';
 };
+
 
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
   if (!topic) {
@@ -859,14 +859,16 @@ export async function handleCreateTemplate(
                     fileName = headerSampleFile.name;
                     fileLength = headerSampleFile.size;
                 } else {
-                    // Download media from URL
-                    const mediaResponse = await axios.get(headerSampleUrl, { responseType: 'arraybuffer' });
-                    mediaData = Buffer.from(mediaResponse.data);
-                    fileType = mediaResponse.headers['content-type'] || 'application/octet-stream';
+                    const mediaResponse = await fetch(headerSampleUrl);
+                    if (!mediaResponse.ok) {
+                        throw new Error(`Failed to download media from URL: ${mediaResponse.statusText}`);
+                    }
+                    const mediaArrayBuffer = await mediaResponse.arrayBuffer();
+                    mediaData = Buffer.from(mediaArrayBuffer);
+                    fileType = mediaResponse.headers.get('content-type') || 'application/octet-stream';
                     fileName = headerSampleUrl.split('/').pop()?.split('?')[0] || 'sample';
                     fileLength = mediaData.length;
                 }
-
 
                 // Step 1: Start an upload session
                 const sessionUrl = new URL(`https://graph.facebook.com/v22.0/${appId}/uploads`);
@@ -928,7 +930,7 @@ export async function handleCreateTemplate(
                 uploadedMediaHandle = uploadResponseData.h;
 
             } catch (uploadError: any) {
-                 const errorMessage = getAxiosErrorMessage(uploadError);
+                 const errorMessage = getErrorMessage(uploadError);
                  return { error: `Failed to prepare media for template: ${errorMessage}`, debugInfo };
             }
         }
@@ -1386,4 +1388,55 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
         return { error: e.message || 'An unexpected error occurred during project sync.' };
     }
 }
-    
+
+export type WebhookLog = {
+    _id: ObjectId;
+    payload: any;
+    searchableText: string;
+    createdAt: Date;
+};
+
+export async function getWebhookLogs(
+    page: number = 1, 
+    limit: number = 20, 
+    query?: string
+): Promise<{ logs: WithId<WebhookLog>[], total: number }> {
+    try {
+        const { db } = await connectToDatabase();
+        const filter: Filter<WebhookLog> = {};
+        if (query) {
+            // A text index on 'searchableText' would be ideal for performance
+            filter.searchableText = { $regex: query, $options: 'i' };
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [logs, total] = await Promise.all([
+            db.collection('webhook_logs').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+            db.collection('webhook_logs').countDocuments(filter)
+        ]);
+        
+        return { logs: JSON.parse(JSON.stringify(logs)), total };
+    } catch (error) {
+        console.error('Failed to fetch webhook logs:', error);
+        return { logs: [], total: 0 };
+    }
+}
+
+export async function handleClearWebhookLogs(): Promise<{ message?: string; error?: string, deletedCount?: number }> {
+    try {
+        const { db } = await connectToDatabase();
+        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        
+        const result = await db.collection('webhook_logs').deleteMany({
+            createdAt: { $lt: twentyFourHoursAgo }
+        });
+
+        revalidatePath('/dashboard/webhooks');
+
+        return { message: `Successfully cleared ${result.deletedCount} old webhook log(s).`, deletedCount: result.deletedCount };
+    } catch (e: any) {
+        console.error('Failed to clear webhook logs:', e);
+        return { error: e.message || 'An unexpected error occurred while clearing logs.' };
+    }
+}
