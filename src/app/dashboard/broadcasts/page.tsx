@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -267,7 +268,7 @@ export default function BroadcastPage() {
       } else {
         toast({ title: "Sync Successful", description: result.message });
         const templatesData = await getTemplates(projectId);
-        setTemplates(templatesData as WithId<Template>[]);
+        setTemplates(templatesData || []);
       }
     });
   }, [toast, startTemplatesSyncTransition]);
@@ -299,7 +300,7 @@ export default function BroadcastPage() {
               fetchHistory()
             ]);
             setProject(projectData as Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null);
-            setTemplates(templatesData as WithId<Template>[]);
+            setTemplates(templatesData || []);
           } else {
              await fetchHistory();
           }

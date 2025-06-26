@@ -310,8 +310,9 @@ export async function getDashboardStats(projectId: string): Promise<{
     totalFailed: number;
     totalCampaigns: number;
 }> {
+    const defaultStats = { totalMessages: 0, totalSent: 0, totalFailed: 0, totalCampaigns: 0 };
     if (!ObjectId.isValid(projectId)) {
-        return { totalMessages: 0, totalSent: 0, totalFailed: 0, totalCampaigns: 0 };
+        return defaultStats;
     }
     try {
         const { db } = await connectToDatabase();
@@ -336,10 +337,10 @@ export async function getDashboardStats(projectId: string): Promise<{
                 totalCampaigns: stats[0].totalCampaigns || 0,
             };
         }
-        return { totalMessages: 0, totalSent: 0, totalFailed: 0, totalCampaigns: 0 };
+        return defaultStats;
     } catch (error) {
         console.error("Failed to fetch dashboard stats:", error);
-        return { totalMessages: 0, totalSent: 0, totalFailed: 0, totalCampaigns: 0 };
+        return defaultStats;
     }
 }
 

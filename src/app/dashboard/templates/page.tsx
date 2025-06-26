@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -28,7 +29,7 @@ export default function TemplatesPage() {
       const projectId = localStorage.getItem('activeProjectId');
       if (projectId) {
         const templatesData = await getTemplates(projectId);
-        setTemplates(templatesData as WithId<Template>[]);
+        setTemplates(templatesData || []);
       }
       if (showToast) {
         toast({ title: "Refreshed", description: "Template list has been updated." });
