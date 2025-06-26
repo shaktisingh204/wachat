@@ -34,6 +34,7 @@ export type Project = {
     phoneNumbers: PhoneNumber[];
     createdAt: Date;
     messagesPerSecond?: number;
+    reviewStatus?: string;
 };
 
 export type Template = {

@@ -205,7 +205,19 @@ export async function POST(request: NextRequest) {
                     }
                     break;
 
-                // --- ACCOUNT & OTHER LOG-ONLY EVENTS ---
+                // --- ACCOUNT UPDATES ---
+                case 'account_review_update':
+                    if (value.decision) {
+                        console.log(`Processing account review update for WABA ${wabaId}. Decision: ${value.decision}`);
+                        const result = await db.collection('projects').updateOne(
+                            { wabaId: wabaId },
+                            { $set: { reviewStatus: value.decision } }
+                        );
+                        if (result.modifiedCount > 0) revalidatePath('/dashboard');
+                    }
+                    break;
+                
+                // --- LOG-ONLY EVENTS ---
                 case 'messages':
                 case 'message_deliveries':
                 case 'message_reads':
@@ -213,7 +225,6 @@ export async function POST(request: NextRequest) {
                 case 'message_echoes':
                 case 'smb_message_echoes':
                 case 'status':
-                case 'account_review_update':
                 case 'account_update':
                 case 'account_alerts':
                 case 'business_capability_update':

@@ -432,6 +432,7 @@ export async function handleCreateProject(
             phoneNumbers,
             createdAt: new Date(),
             messagesPerSecond: 1000,
+            reviewStatus: 'UNKNOWN',
         });
         
         revalidatePath('/dashboard');
@@ -1366,7 +1367,8 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
                         },
                         $setOnInsert: {
                              createdAt: projectDoc.createdAt,
-                             messagesPerSecond: projectDoc.messagesPerSecond
+                             messagesPerSecond: projectDoc.messagesPerSecond,
+                             reviewStatus: 'UNKNOWN',
                         }
                     },
                     upsert: true,
