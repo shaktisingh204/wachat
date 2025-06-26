@@ -4,7 +4,7 @@
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
 import { connectToDatabase } from '@/lib/mongodb';
-import { Db, ObjectId, WithId } from 'mongodb';
+import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
@@ -140,10 +140,14 @@ export async function handleSuggestContent(topic: string): Promise<{ suggestions
   }
 }
 
-export async function getProjects(): Promise<WithId<Project>[]> {
+export async function getProjects(query?: string): Promise<WithId<Project>[]> {
     try {
         const { db } = await connectToDatabase();
-        const projects = await db.collection('projects').find({}).sort({ name: 1 }).toArray();
+        const filter: Filter<Project> = {};
+        if (query) {
+            filter.name = { $regex: query, $options: 'i' }; // case-insensitive regex search
+        }
+        const projects = await db.collection('projects').find(filter).sort({ name: 1 }).toArray();
         return JSON.parse(JSON.stringify(projects));
     } catch (error) {
         console.error("Failed to fetch projects:", error);

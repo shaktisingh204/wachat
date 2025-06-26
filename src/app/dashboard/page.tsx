@@ -1,12 +1,13 @@
 
 import type { Metadata } from "next";
-import { getProjects, handleCleanDatabase } from "@/app/actions";
+import { getProjects } from "@/app/actions";
 import { CreateProjectDialog } from "@/components/wabasimplify/project-dialog";
 import { ProjectCard } from "@/components/wabasimplify/project-card";
 import { FileText } from "lucide-react";
 import type { WithId } from "mongodb";
 import { CleanDatabaseButton } from "@/components/wabasimplify/clean-database-button";
 import { SyncProjectsButton } from "@/components/wabasimplify/sync-projects-button";
+import { ProjectSearch } from "@/components/wabasimplify/project-search";
 
 export const dynamic = 'force-dynamic';
 
@@ -46,12 +47,19 @@ export type Template = {
   headerSampleUrl?: string;
 };
 
-export default async function SelectProjectPage() {
-    const projects: WithId<Project>[] = await getProjects();
+export default async function SelectProjectPage({
+  searchParams,
+}: {
+  searchParams?: {
+    query?: string;
+  };
+}) {
+    const query = searchParams?.query || '';
+    const projects: WithId<Project>[] = await getProjects(query);
 
     return (
         <div className="flex flex-col gap-8">
-            <div className="flex justify-between items-start">
+            <div className="flex flex-wrap justify-between items-start gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline">Select a Project</h1>
                     <p className="text-muted-foreground">
@@ -62,6 +70,10 @@ export default async function SelectProjectPage() {
                     <SyncProjectsButton />
                     <CleanDatabaseButton />
                 </div>
+            </div>
+
+            <div className="w-full md:max-w-sm">
+                <ProjectSearch placeholder="Search projects by name..." />
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
@@ -77,7 +89,10 @@ export default async function SelectProjectPage() {
                         <FileText className="h-12 w-12 text-muted-foreground" />
                         <h3 className="text-xl font-semibold mt-4">No Projects Found</h3>
                         <p className="text-muted-foreground mt-2">
-                        Click "Create New Project" to set up your first WhatsApp Business project.
+                          {query 
+                            ? "No projects matched your search."
+                            : 'Click "Create New Project" to set up your first WhatsApp Business project.'
+                          }
                         </p>
                     </div>
                 </div>
@@ -85,5 +100,3 @@ export default async function SelectProjectPage() {
         </div>
     )
 }
-
-    
