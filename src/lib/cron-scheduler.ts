@@ -338,17 +338,26 @@ export async function processBroadcastJob() {
         const now = new Date();
         const lockHeldUntil = new Date(now.getTime() + 5 * 60 * 1000); // Lock for 5 minutes
 
-        const lockResult = await db.collection('broadcasts').findOneAndUpdate(
-            { 
-                _id: lockId,
-                $or: [
-                    { lockHeldUntil: { $exists: false } },
-                    { lockHeldUntil: { $lt: now } }
-                ]
-            },
-            { $set: { lockHeldUntil } },
-            { upsert: true, returnDocument: 'after' }
-        );
+        let lockResult;
+        try {
+            lockResult = await db.collection('broadcasts').findOneAndUpdate(
+                { 
+                    _id: lockId,
+                    $or: [
+                        { lockHeldUntil: { $exists: false } },
+                        { lockHeldUntil: { $lt: now } }
+                    ]
+                },
+                { $set: { lockHeldUntil } },
+                { upsert: true, returnDocument: 'after' }
+            );
+        } catch (e: any) {
+            if (e.code === 11000) { // Duplicate key error from a race condition
+                lockResult = null; // We lost the race, so we don't have the lock
+            } else {
+                throw e; // Re-throw other unexpected errors
+            }
+        }
         
         if (!lockResult) {
              console.log("Scheduler lock held by another process. Exiting.");
