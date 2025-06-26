@@ -35,40 +35,24 @@ function StatCardSkeleton() {
 export default function DashboardOverviewPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isClient, setIsClient] = useState(false);
   const [projectId, setProjectId] = useState<string | null>(null);
 
   useEffect(() => {
-    // This effect runs only once on the client after mount.
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    // This effect runs when isClient becomes true
-    if (isClient) {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }
-  }, [isClient]);
-
-  useEffect(() => {
-    // This effect runs when projectId is set.
-    if (!projectId) {
-        setLoading(false); // If no project, we are done loading.
-        return;
-    }
-    
     document.title = "Dashboard Overview | Wachat";
-    const fetchStats = async () => {
-        setLoading(true);
-        const data = await getDashboardStats(projectId);
+    const storedProjectId = localStorage.getItem('activeProjectId');
+    setProjectId(storedProjectId);
+
+    if (storedProjectId) {
+      getDashboardStats(storedProjectId).then(data => {
         setStats(data);
         setLoading(false);
-    };
-    fetchStats();
-  }, [projectId]);
+      });
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
-  if (!isClient || loading) {
+  if (loading) {
     return (
         <div className="flex flex-col gap-8">
           <div>
@@ -113,8 +97,21 @@ export default function DashboardOverviewPage() {
   }
   
   if (!stats) {
-      // This can happen briefly while loading stats for a valid project ID
-      return <StatCardSkeleton />;
+      return (
+        <div className="flex flex-col gap-8">
+            <div>
+                <h1 className="text-3xl font-bold font-headline">Project Overview</h1>
+                <p className="text-muted-foreground">Your message analytics for the selected project.</p>
+            </div>
+            <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>No Broadcast Data Yet</AlertTitle>
+                <AlertDescription>
+                    This project doesn't have any broadcast history. Send a broadcast from the 'Broadcasts' page to see analytics here.
+                </AlertDescription>
+            </Alert>
+        </div>
+      )
   }
 
   const deliveredPercentage = stats.totalMessages > 0 ? ((stats.totalSent / stats.totalMessages) * 100).toFixed(1) : '0.0';
