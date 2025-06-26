@@ -53,21 +53,21 @@ export default function SettingsPage() {
   }, []);
 
   useEffect(() => {
-    if (!isClient) return;
-
-    document.title = 'Project Settings | Wachat';
-    const storedProjectId = localStorage.getItem('activeProjectId');
-    if (storedProjectId) {
-      getProjectById(storedProjectId)
-        .then((data) => {
-          if (data) {
-            setProject(data);
-            setMessagesPerSecond(data.messagesPerSecond || 1000);
-          }
-        })
-        .finally(() => setLoading(false));
-    } else {
-      setLoading(false);
+    if (isClient) {
+        document.title = 'Project Settings | Wachat';
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        if (storedProjectId) {
+        getProjectById(storedProjectId)
+            .then((data) => {
+            if (data) {
+                setProject(data);
+                setMessagesPerSecond(data.messagesPerSecond || 1000);
+            }
+            })
+            .finally(() => setLoading(false));
+        } else {
+        setLoading(false);
+        }
     }
   }, [isClient]);
 

@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/sidebar';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send, Briefcase } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const menuItems = [
   { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutDashboard },
@@ -38,7 +39,7 @@ const menuItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [activeProjectName, setActiveProjectName] = React.useState('Loading Project...');
+  const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
 
   React.useEffect(() => {
     // This now runs only on the client after the initial render, preventing hydration errors.
@@ -102,7 +103,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <SidebarTrigger className="md:hidden" />
             <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
                 <Briefcase className="h-4 w-4" />
-                <span>{activeProjectName}</span>
+                {activeProjectName === null ? (
+                    <Skeleton className="h-4 w-32" />
+                ) : (
+                    <span>{activeProjectName}</span>
+                )}
             </div>
             <div className="flex-1" />
             <DropdownMenu>

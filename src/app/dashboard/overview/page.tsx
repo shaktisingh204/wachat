@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { getDashboardStats } from '@/app/actions';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessagesSquare, CheckCircle, XCircle, Send, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -31,28 +31,35 @@ function StatCardSkeleton() {
     );
 }
 
-
 export default function DashboardOverviewPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [loading, setLoading] = useState(true);
   const [projectId, setProjectId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    document.title = "Dashboard Overview | Wachat";
-    const storedProjectId = localStorage.getItem('activeProjectId');
-    setProjectId(storedProjectId);
-
-    if (storedProjectId) {
-      getDashboardStats(storedProjectId).then(data => {
-        setStats(data);
-        setLoading(false);
-      });
-    } else {
-      setLoading(false);
-    }
+    setIsClient(true);
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    if (isClient) {
+      document.title = "Dashboard Overview | Wachat";
+      const storedProjectId = localStorage.getItem('activeProjectId');
+      setProjectId(storedProjectId);
+
+      if (storedProjectId) {
+        getDashboardStats(storedProjectId).then(data => {
+          setStats(data);
+        }).finally(() => {
+          setLoading(false);
+        });
+      } else {
+        setLoading(false);
+      }
+    }
+  }, [isClient]);
+
+  if (!isClient || loading) {
     return (
         <div className="flex flex-col gap-8">
           <div>

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -208,45 +207,47 @@ export default function BroadcastPage() {
 
 
   const fetchHistory = useCallback(async (showToast = false) => {
-    try {
-      const newHistoryData = await getBroadcasts();
-      setHistory(newHistoryData || []);
-      
-      const now = Date.now();
-      setSendRateData(prevData => {
-        const newData = { ...prevData };
-        (newHistoryData || []).forEach(item => {
-            const id = item._id.toString();
-            const totalProcessed = (item.successCount ?? 0) + (item.errorCount ?? 0);
+    startRefreshTransition(async () => {
+        try {
+            const newHistoryData = await getBroadcasts();
+            setHistory(newHistoryData || []);
+            
+            const now = Date.now();
+            setSendRateData(prevData => {
+                const newData = { ...prevData };
+                (newHistoryData || []).forEach(item => {
+                    const id = item._id.toString();
+                    const totalProcessed = (item.successCount ?? 0) + (item.errorCount ?? 0);
 
-            if (item.status === 'PROCESSING') {
-                const prevItemData = prevData[id];
-                if (prevItemData && now > prevItemData.lastFetchTime) {
-                    const deltaTime = (now - prevItemData.lastFetchTime) / 1000;
-                    const deltaCount = totalProcessed - prevItemData.lastProcessedCount;
-                    const currentRate = deltaTime > 1 ? Math.round(deltaCount / deltaTime) : (prevItemData?.rate ?? 0);
-                    newData[id] = { lastProcessedCount: totalProcessed, lastFetchTime: now, rate: currentRate };
-                } else if (!prevItemData) {
-                    newData[id] = { lastProcessedCount: totalProcessed, lastFetchTime: now, rate: 0 };
-                }
-            } else if (newData[id]) {
-                delete newData[id];
+                    if (item.status === 'PROCESSING') {
+                        const prevItemData = prevData[id];
+                        if (prevItemData && now > prevItemData.lastFetchTime) {
+                            const deltaTime = (now - prevItemData.lastFetchTime) / 1000;
+                            const deltaCount = totalProcessed - prevItemData.lastProcessedCount;
+                            const currentRate = deltaTime > 1 ? Math.round(deltaCount / deltaTime) : (prevItemData?.rate ?? 0);
+                            newData[id] = { lastProcessedCount: totalProcessed, lastFetchTime: now, rate: currentRate };
+                        } else if (!prevItemData) {
+                            newData[id] = { lastProcessedCount: totalProcessed, lastFetchTime: now, rate: 0 };
+                        }
+                    } else if (newData[id]) {
+                        delete newData[id];
+                    }
+                });
+                return newData;
+            });
+
+            if (showToast) {
+                toast({ title: 'Refreshed', description: 'Broadcast history has been updated.' });
             }
-        });
-        return newData;
-      });
-
-      if (showToast) {
-        toast({ title: 'Refreshed', description: 'Broadcast history has been updated.' });
-      }
-    } catch (error) {
-      console.error("Failed to fetch broadcast history:", error);
-      toast({
-        title: "Error",
-        description: "Could not fetch history. Please try again.",
-        variant: "destructive",
-      });
-    }
+        } catch (error) {
+            console.error("Failed to fetch broadcast history:", error);
+            toast({
+                title: "Error",
+                description: "Could not fetch history. Please try again.",
+                variant: "destructive",
+            });
+        }
+    });
   }, [toast]);
   
   useEffect(() => {
@@ -286,36 +287,36 @@ export default function BroadcastPage() {
   }, [toast, fetchHistory]);
 
   useEffect(() => {
-    if (!isClient) {
-      return;
-    }
-    const storedProjectId = localStorage.getItem('activeProjectId');
-    
-    async function fetchInitialData() {
-      setLoading(true);
-      try {
-        if (storedProjectId) {
-          const [projectData, templatesData] = await Promise.all([
-            getProjectForBroadcast(storedProjectId),
-            getTemplates(storedProjectId),
-          ]);
-          setProject(projectData as Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null);
-          setTemplates(templatesData as WithId<Template>[]);
+    if (isClient) {
+      const storedProjectId = localStorage.getItem('activeProjectId');
+      
+      const fetchInitialData = async () => {
+        try {
+          if (storedProjectId) {
+            const [projectData, templatesData] = await Promise.all([
+              getProjectForBroadcast(storedProjectId),
+              getTemplates(storedProjectId),
+              fetchHistory()
+            ]);
+            setProject(projectData as Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null);
+            setTemplates(templatesData as WithId<Template>[]);
+          } else {
+             await fetchHistory();
+          }
+        } catch (error) {
+          console.error("Failed to fetch broadcast data:", error);
+          toast({
+            title: "Error",
+            description: "Failed to load page data. Please try again later.",
+            variant: "destructive",
+          });
+        } finally {
+          setLoading(false);
         }
-        await fetchHistory();
-      } catch (error) {
-        console.error("Failed to fetch broadcast data:", error);
-        toast({
-          title: "Error",
-          description: "Failed to load page data. Please try again later.",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
       }
-    }
 
-    fetchInitialData();
+      fetchInitialData();
+    }
   }, [isClient, fetchHistory, toast]);
 
   useEffect(() => {
@@ -336,11 +337,6 @@ export default function BroadcastPage() {
     return () => clearInterval(interval);
   }, [isClient, history, loading, fetchHistory]);
 
-  const onRefresh = () => {
-    startRefreshTransition(() => {
-      fetchHistory(true);
-    });
-  };
 
   const getTemplateStatusVariant = (status?: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
     if (!status) return 'secondary';
@@ -414,7 +410,7 @@ export default function BroadcastPage() {
                   <RefreshCw className={`mr-2 h-4 w-4 ${isSyncingTemplates ? 'animate-spin' : ''}`} />
                   Sync Templates
                 </Button>
-                <Button onClick={onRefresh} disabled={isRefreshing || isRunningCron} variant="outline" size="sm">
+                <Button onClick={() => fetchHistory(true)} disabled={isRefreshing || isRunningCron} variant="outline" size="sm">
                   <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
