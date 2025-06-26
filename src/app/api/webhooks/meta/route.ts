@@ -145,20 +145,29 @@ export async function POST(request: NextRequest) {
             switch (change.field) {
                 // --- PHONE NUMBER UPDATES ---
                 case 'phone_number_quality_update':
-                    if (value.display_phone_number && value.current_limit) {
+                    if (value.display_phone_number && value.event) {
+                        const newQuality = value.event === 'FLAGGED' ? 'RED' : value.event === 'WARNED' ? 'YELLOW' : 'GREEN';
+                        const updatePayload: any = {
+                            'phoneNumbers.$.quality_rating': newQuality
+                        };
+                        if (value.current_limit) {
+                            updatePayload['phoneNumbers.$.throughput.level'] = value.current_limit;
+                        }
+
                         const result = await db.collection('projects').updateOne(
                             { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
-                            { $set: { 'phoneNumbers.$.throughput.level': value.current_limit } }
+                            { $set: updatePayload }
                         );
-                        if (result.modifiedCount > 0) revalidatePath('/dashboard/numbers');
-                    }
-                    if (value.display_phone_number && value.event && ['FLAGGED', 'UNFLAGGED', 'WARNED'].includes(value.event)) {
-                        const newQuality = value.event === 'FLAGGED' ? 'RED' : value.event === 'WARNED' ? 'YELLOW' : 'GREEN';
-                         const result = await db.collection('projects').updateOne(
-                            { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
-                            { $set: { 'phoneNumbers.$.quality_rating': newQuality } }
-                        );
-                        if (result.modifiedCount > 0) revalidatePath('/dashboard/numbers');
+                        
+                        if (result.modifiedCount > 0) {
+                            await db.collection('notifications').insertOne({
+                                projectId: project._id, wabaId,
+                                message: `Quality for ${value.display_phone_number} is now ${newQuality}. Throughput limit is ${value.current_limit || 'unchanged'}.`,
+                                link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
+                            });
+                            revalidatePath('/dashboard/numbers');
+                            revalidatePath('/dashboard/layout');
+                        }
                     }
                     break;
                 
