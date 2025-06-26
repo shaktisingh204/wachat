@@ -27,7 +27,7 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { WachatLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send, Briefcase } from 'lucide-react';
+import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send, Briefcase, Rss } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const menuItems = [
@@ -35,14 +35,16 @@ const menuItems = [
   { href: '/dashboard/numbers', label: 'Phone Numbers', icon: Phone },
   { href: '/dashboard/templates', label: 'Message Templates', icon: FileText },
   { href: '/dashboard/broadcasts', label: 'Broadcasts', icon: Send },
+  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Rss },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
+  const [isClient, setIsClient] = React.useState(false);
 
   React.useEffect(() => {
-    // This now runs only on the client after the initial render, preventing hydration errors.
+    setIsClient(true);
     const name = localStorage.getItem('activeProjectName');
     setActiveProjectName(name || 'No Project Selected');
   }, []);
@@ -103,7 +105,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <SidebarTrigger className="md:hidden" />
             <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
                 <Briefcase className="h-4 w-4" />
-                {activeProjectName === null ? (
+                {!isClient ? (
                     <Skeleton className="h-4 w-32" />
                 ) : (
                     <span>{activeProjectName}</span>
