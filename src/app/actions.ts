@@ -204,7 +204,7 @@ export async function getProjectForBroadcast(projectId: string): Promise<Pick<Wi
 }
 
 
-export async function getTemplates(projectId: string) {
+export async function getTemplates(projectId: string): Promise<WithId<Template>[]> {
     if (!ObjectId.isValid(projectId)) {
         return [];
     }
@@ -232,7 +232,7 @@ export async function getTemplates(projectId: string) {
     }
 }
 
-export async function getBroadcasts() {
+export async function getBroadcasts(): Promise<WithId<Broadcast>[]> {
   try {
     const { db } = await connectToDatabase();
     const broadcasts = await db.collection('broadcasts').aggregate([
@@ -329,7 +329,7 @@ export async function getDashboardStats(projectId: string): Promise<{
     totalSent: number;
     totalFailed: number;
     totalCampaigns: number;
-}> {
+} | null> {
     const defaultStats = { totalMessages: 0, totalSent: 0, totalFailed: 0, totalCampaigns: 0 };
     if (!ObjectId.isValid(projectId)) {
         return defaultStats;
@@ -1294,7 +1294,7 @@ export async function handleRunCron(): Promise<{ message?: string; error?: strin
     }
 }
 
-export async function handleSyncWabas(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function handleSyncWabas(): Promise<{ message?: string; error?: string }> {
     const businessId = process.env.META_MAIN_BUSINESS_ID;
     const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
     const apiVersion = 'v22.0';
