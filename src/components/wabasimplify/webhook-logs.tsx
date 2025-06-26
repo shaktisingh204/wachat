@@ -84,15 +84,44 @@ export function WebhookLogs() {
     const getEventSummary = (log: WithId<WebhookLog>): string => {
         try {
             const value = log.payload.entry?.[0]?.changes?.[0]?.value;
+            const field = log.payload.entry?.[0]?.changes?.[0]?.field;
             if (!value) return 'No details';
 
-            if (value.messages) return `Message from ${value.messages[0].from}`;
-            if (value.statuses) return `Status: ${value.statuses[0].status} for ${value.statuses[0].recipient_id}`;
-            if (value.event) return `Event: ${value.event}`;
-            
-            return 'General Update';
+            switch(field) {
+                case 'messages': return `Message from ${value.messages[0].from}`;
+                case 'status':
+                case 'message_deliveries':
+                case 'message_reads':
+                    return `Status: ${value.statuses[0].status} for ${value.statuses[0].recipient_id}`;
+                case 'message_reactions': return `Reaction to message ${value.reactions[0].message_id}`;
+                case 'smb_message_echoes':
+                case 'message_echoes':
+                    return `Echo of message to ${value.message_echoes[0].to}`;
+                case 'message_template_status_update':
+                case 'template_status_update':
+                    return `Template '${value.message_template_name}' update: ${value.event}`;
+                case 'phone_number_quality_update':
+                    return `Phone number quality update: ${value.event} (Limit: ${value.current_limit})`;
+                case 'phone_number_name_update':
+                    return `Name update for ${value.display_phone_number}: ${value.decision}`;
+                case 'phone_number_verification_update':
+                     return `Verification status for ${value.display_phone_number}: ${value.new_code_verification_status}`;
+                case 'template_category_update':
+                    return `Template '${value.message_template_name}' category changed to ${value.new_category}`;
+                case 'account_review_update':
+                    return `Account review decision: ${value.decision}`;
+                case 'account_alerts':
+                    return `Account Alert: ${value.alert_type} (${value.alert_severity})`;
+                case 'account_update':
+                    return `Account details updated. Type: ${value.update_type || 'N/A'}`;
+                case 'security':
+                    return `Security event: ${value.event} for ${value.display_phone_number}`;
+                default:
+                    if (value.event) return `Event: ${value.event}`;
+                    return `General Update for ${field}`;
+            }
         } catch {
-            return 'Could not parse details';
+            return 'Could not parse summary details';
         }
     }
 

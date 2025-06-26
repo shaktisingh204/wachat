@@ -8,16 +8,18 @@ const getSearchableText = (payload: any): string => {
     try {
         if (payload.object === 'whatsapp_business_account' && payload.entry) {
             for (const entry of payload.entry) {
-                text += ` ${entry.id}`; // WABA ID
+                text += ` ${entry.id}`; // WABA ID or 0
                 if (entry.changes) {
                     for (const change of entry.changes) {
-                        text += ` ${change.field}`; // The type of change
+                        const field = change.field;
+                        text += ` ${field}`; // The type of change, e.g., 'messages', 'account_review_update'
                         const value = change.value;
                         if (!value) continue;
 
+                        // Common fields
                         text += ` ${value.messaging_product || ''}`;
-                        text += ` ${value.event || ''}`; // Common field for template/phone updates
-                        
+                        text += ` ${value.event || ''}`;
+
                         // Message-related
                         if (value.messages) {
                             for (const message of value.messages) {
@@ -29,23 +31,49 @@ const getSearchableText = (payload: any): string => {
                                 text += ` ${status.id || ''} ${status.recipient_id || ''} ${status.status || ''}`;
                             }
                         }
+                        if (value.message_echoes) {
+                            for (const echo of value.message_echoes) {
+                                text += ` ${echo.from || ''} ${echo.to || ''} ${echo.id || ''} ${echo.type || ''}`;
+                            }
+                        }
 
                         // Phone Number related
-                        if (value.display_phone_number) text += ` ${value.display_phone_number}`;
-                        if (value.new_verified_name) text += ` ${value.new_verified_name}`;
-                        if (value.new_code_verification_status) text += ` ${value.new_code_verification_status}`;
-                        if (value.current_limit) text += ` ${value.current_limit}`;
+                        text += ` ${value.display_phone_number || ''}`;
+                        text += ` ${value.decision || ''}`;
+                        text += ` ${value.requested_verified_name || ''}`;
+                        text += ` ${value.new_verified_name || ''}`;
+                        text += ` ${value.new_code_verification_status || ''}`;
+                        text += ` ${value.current_limit || ''}`;
 
                         // Template related
-                        if (value.message_template_id) text += ` ${value.message_template_id}`;
-                        if (value.message_template_name) text += ` ${value.message_template_name}`;
-                        if (value.new_template_category) text += ` ${value.new_template_category}`;
-                        if (value.new_template_quality) text += ` ${value.new_template_quality}`;
-
+                        text += ` ${value.message_template_id || ''}`;
+                        text += ` ${value.message_template_name || ''}`;
+                        text += ` ${value.message_template_language || ''}`;
+                        text += ` ${value.previous_category || ''}`;
+                        text += ` ${value.new_template_category || ''}`;
+                        text += ` ${value.new_template_quality || ''}`;
+                        
                         // Account related
-                        if (value.update_type) text += ` ${value.update_type}`;
-                        if (value.new_review_status) text += ` ${value.new_review_status}`;
+                        text += ` ${value.update_type || ''}`;
+                        text += ` ${value.new_review_status || ''}`;
                         if (value.ban_info) text += ` ${value.ban_info.waba_ban_state}`;
+                        if (value.alert_type) text += ` ${value.alert_type} ${value.alert_status}`;
+                        if (value.entity_id) text += ` ${value.entity_id}`;
+                        
+                        // Other events
+                        if (value.configuration_name) text += ` ${value.configuration_name} ${value.provider_name} ${value.status}`;
+                        if (value.user_preferences) {
+                            for (const pref of value.user_preferences) {
+                                text += ` ${pref.wa_id} ${pref.category} ${pref.value}`;
+                            }
+                        }
+                        if (value.events && field === 'tracking_events') { // Differentiate from other 'events'
+                             for (const ev of value.events) {
+                                text += ` ${ev.event_name} ${ev.tracking_data?.click_id}`;
+                            }
+                        }
+                        if (field === 'security') text += ` ${value.requester}`;
+                        if (value.solution_id) text += ` ${value.solution_id} ${value.solution_status}`;
                     }
                 }
             }
@@ -106,48 +134,39 @@ export async function POST(request: NextRequest) {
             const value = change.value;
             if (!value) continue;
             
+            // The `field` tells us what type of event this is.
             switch (change.field) {
+                // --- PHONE NUMBER UPDATES ---
                 case 'phone_number_quality_update':
-                    if (value.event === 'messaging_limit_update') {
-                        const { current_limit, display_phone_number } = value;
-                        console.log(`Processing messaging limit update for ${display_phone_number} to ${current_limit}`);
+                    if (value.display_phone_number && value.current_limit) {
+                        console.log(`Processing messaging limit update for ${value.display_phone_number} to ${value.current_limit}`);
                         const result = await db.collection('projects').updateOne(
-                            { wabaId: wabaId, 'phoneNumbers.display_phone_number': display_phone_number },
-                            { $set: { 'phoneNumbers.$.throughput.level': current_limit } }
+                            { wabaId: wabaId, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                            { $set: { 'phoneNumbers.$.throughput.level': value.current_limit } }
                         );
-                        if (result.modifiedCount > 0) {
-                            console.log(`Successfully updated messaging limit for ${display_phone_number}.`);
-                            revalidatePath('/dashboard/numbers');
-                        }
+                        if (result.modifiedCount > 0) revalidatePath('/dashboard/numbers');
                     }
-                    break;
-
-                case 'message_template_status_update':
-                case 'template_status_update':
-                    if (value.event && value.message_template_id) {
-                        console.log(`Processing template status update for template '${value.message_template_name}'. New status: ${value.event}`);
-                        const result = await db.collection('templates').updateOne(
-                            { metaId: value.message_template_id },
-                            { $set: { status: value.event.toUpperCase() } }
+                    if (value.display_phone_number && value.event && ['FLAGGED', 'UNFLAGGED', 'WARNED'].includes(value.event)) {
+                        const newQuality = value.event === 'FLAGGED' ? 'RED' : value.event === 'WARNED' ? 'YELLOW' : 'GREEN';
+                        console.log(`Processing quality rating update for ${value.display_phone_number}. New effective rating: ${newQuality}`);
+                         const result = await db.collection('projects').updateOne(
+                            { wabaId: wabaId, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                            { $set: { 'phoneNumbers.$.quality_rating': newQuality } }
                         );
-                        if (result.modifiedCount > 0) {
-                            console.log(`Successfully updated status for template ${value.message_template_id}.`);
-                            revalidatePath('/dashboard/templates');
-                        }
+                        if (result.modifiedCount > 0) revalidatePath('/dashboard/numbers');
                     }
                     break;
                 
                 case 'phone_number_name_update':
-                    if (value.display_phone_number && value.new_verified_name) {
-                        console.log(`Processing name update for ${value.display_phone_number} to "${value.new_verified_name}"`);
+                    if (value.display_phone_number && value.requested_verified_name && value.decision === 'APPROVED') {
+                        console.log(`Processing name update for ${value.display_phone_number} to "${value.requested_verified_name}"`);
                         const result = await db.collection('projects').updateOne(
                             { wabaId: wabaId, 'phoneNumbers.display_phone_number': value.display_phone_number },
-                            { $set: { 'phoneNumbers.$.verified_name': value.new_verified_name } }
+                            { $set: { 'phoneNumbers.$.verified_name': value.requested_verified_name } }
                         );
-                        if (result.modifiedCount > 0) {
-                            console.log(`Successfully updated name for ${value.display_phone_number}.`);
-                            revalidatePath('/dashboard/numbers');
-                        }
+                        if (result.modifiedCount > 0) revalidatePath('/dashboard/numbers');
+                    } else {
+                        console.log(`Name update for ${value.display_phone_number} was not approved or had no new name.`);
                     }
                     break;
                     
@@ -158,33 +177,66 @@ export async function POST(request: NextRequest) {
                             { wabaId: wabaId, 'phoneNumbers.display_phone_number': value.display_phone_number },
                             { $set: { 'phoneNumbers.$.code_verification_status': value.new_code_verification_status } }
                         );
-                        if (result.modifiedCount > 0) {
-                            console.log(`Successfully updated verification status for ${value.display_phone_number}.`);
-                            revalidatePath('/dashboard/numbers');
-                        }
+                        if (result.modifiedCount > 0) revalidatePath('/dashboard/numbers');
+                    }
+                    break;
+
+                // --- TEMPLATE UPDATES ---
+                case 'message_template_status_update': // Covers approved, rejected, etc.
+                case 'template_status_update': // Older name for the same event
+                    if (value.event && value.message_template_id) {
+                        console.log(`Processing template status update for template '${value.message_template_name}'. New status: ${value.event}`);
+                        const result = await db.collection('templates').updateOne(
+                            { metaId: value.message_template_id },
+                            { $set: { status: value.event.toUpperCase() } }
+                        );
+                        if (result.modifiedCount > 0) revalidatePath('/dashboard/templates');
                     }
                     break;
                 
                 case 'template_category_update':
-                    if (value.message_template_id && value.new_template_category) {
-                        console.log(`Processing category update for template ${value.message_template_id} to ${value.new_template_category}`);
+                    if (value.message_template_id && value.new_category) {
+                        console.log(`Processing category update for template ${value.message_template_id} to ${value.new_category}`);
                         const result = await db.collection('templates').updateOne(
                             { metaId: value.message_template_id },
-                            { $set: { category: value.new_template_category.toUpperCase() } }
+                            { $set: { category: value.new_category.toUpperCase() } }
                         );
-                        if (result.modifiedCount > 0) {
-                            console.log(`Successfully updated category for template ${value.message_template_id}.`);
-                            revalidatePath('/dashboard/templates');
-                        }
+                        if (result.modifiedCount > 0) revalidatePath('/dashboard/templates');
                     }
                     break;
 
+                // --- ACCOUNT & OTHER LOG-ONLY EVENTS ---
+                case 'messages':
+                case 'message_deliveries':
+                case 'message_reads':
+                case 'message_reactions':
+                case 'message_echoes':
+                case 'smb_message_echoes':
+                case 'status':
                 case 'account_review_update':
-                    console.log(`Account review update for WABA ${wabaId}. New status: ${value.new_review_status}`);
+                case 'account_update':
+                case 'account_alerts':
+                case 'business_capability_update':
+                case 'message_template_quality_update':
+                case 'message_template_edit_update':
+                case 'message_template_limit_update':
+                case 'commerce_policy_update':
+                case 'permanent_failure':
+                case 'security':
+                case 'partner_solutions':
+                case 'payment_configuration_update':
+                case 'user_preferences':
+                case 'tracking_events':
+                case 'audience_consent_update':
+                case 'privacy_status_update':
+                case 'messaging_payment_update':
+                case 'two_step_verification_update':
+                case 'messaging_handovers':
+                    console.log(`Received and logged event type: "${change.field}"`);
                     break;
                     
                 default:
-                    console.log(`Received and logged unhandled event type: "${change.field}"`);
+                    console.log(`Received and logged an unhandled event type: "${change.field}"`);
                     break;
             }
           }
