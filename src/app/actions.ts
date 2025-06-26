@@ -68,6 +68,22 @@ type MetaTemplatesResponse = {
     }
 };
 
+type MetaWaba = {
+    id: string;
+    name: string;
+};
+
+type MetaWabasResponse = {
+    data: MetaWaba[];
+    paging?: {
+        cursors: {
+            before: string;
+            after: string;
+        },
+        next?: string;
+    }
+};
+
 // This type is used within the action, the cron scheduler has its own definition.
 type BroadcastJob = {
     projectId: ObjectId;
@@ -1274,4 +1290,96 @@ export async function handleRunCron(): Promise<{ message?: string; error?: strin
     }
 }
 
+export async function handleSyncWabas(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const businessId = process.env.META_MAIN_BUSINESS_ID;
+    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
+    const apiVersion = 'v22.0';
+
+    if (!businessId || !accessToken) {
+        return { error: 'Business ID and Access Token must be configured in environment variables.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        let allWabas: MetaWaba[] = [];
+        let nextUrl: string | undefined = `https://graph.facebook.com/${apiVersion}/${businessId}/client_whatsapp_business_accounts?access_token=${accessToken}&limit=100`;
+
+        while(nextUrl) {
+            const response = await fetch(nextUrl);
+            const responseData: MetaWabasResponse = await response.json();
+
+            if (!response.ok) {
+                 const errorMessage = (responseData as any)?.error?.message || 'Unknown error syncing WABAs.';
+                 return { error: `API Error: ${errorMessage}` };
+            }
+            
+            if (responseData.data && responseData.data.length > 0) {
+                allWabas.push(...responseData.data);
+            }
+            
+            nextUrl = responseData.paging?.next;
+        }
+
+        if (allWabas.length === 0) {
+            return { message: 'No client WhatsApp Business Accounts found to sync.' };
+        }
+
+        const bulkOps = await Promise.all(allWabas.map(async (waba) => {
+            const phoneNumbersResponse = await fetch(
+                `https://graph.facebook.com/${apiVersion}/${waba.id}/phone_numbers?access_token=${accessToken}&fields=verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput`
+            );
+            const phoneNumbersData: MetaPhoneNumbersResponse = await phoneNumbersResponse.json();
+            
+            const phoneNumbers: PhoneNumber[] = phoneNumbersData.data ? phoneNumbersData.data.map((num: any) => ({
+                id: num.id,
+                display_phone_number: num.display_phone_number,
+                verified_name: num.verified_name,
+                code_verification_status: num.code_verification_status,
+                quality_rating: num.quality_rating,
+                platform_type: num.platform_type,
+                throughput: num.throughput,
+            })) : [];
+
+            const projectDoc = {
+                name: waba.name,
+                wabaId: waba.id,
+                accessToken: accessToken,
+                phoneNumbers: phoneNumbers,
+                createdAt: new Date(),
+                messagesPerSecond: 1000,
+            };
+
+            return {
+                updateOne: {
+                    filter: { wabaId: waba.id },
+                    update: { 
+                        $set: {
+                            name: projectDoc.name,
+                            accessToken: projectDoc.accessToken,
+                            phoneNumbers: projectDoc.phoneNumbers
+                        },
+                        $setOnInsert: {
+                             createdAt: projectDoc.createdAt,
+                             messagesPerSecond: projectDoc.messagesPerSecond
+                        }
+                    },
+                    upsert: true,
+                }
+            };
+        }));
+        
+        if (bulkOps.length > 0) {
+            const result = await db.collection('projects').bulkWrite(bulkOps);
+            const syncedCount = result.upsertedCount + result.modifiedCount;
+            revalidatePath('/dashboard');
+            return { message: `Successfully synced ${syncedCount} projects from Meta.` };
+        } else {
+            return { message: "No new projects to sync." };
+        }
+
+    } catch (e: any) {
+        console.error('Project sync from Meta failed:', e);
+        return { error: e.message || 'An unexpected error occurred during project sync.' };
+    }
+}
     

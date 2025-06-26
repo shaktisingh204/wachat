@@ -6,6 +6,7 @@ import { ProjectCard } from "@/components/wabasimplify/project-card";
 import { FileText } from "lucide-react";
 import type { WithId } from "mongodb";
 import { CleanDatabaseButton } from "@/components/wabasimplify/clean-database-button";
+import { SyncProjectsButton } from "@/components/wabasimplify/sync-projects-button";
 
 export const dynamic = 'force-dynamic';
 
@@ -57,7 +58,10 @@ export default async function SelectProjectPage() {
                         Choose an existing project or create a new one to get started.
                     </p>
                 </div>
-                <CleanDatabaseButton />
+                <div className="flex items-center gap-2">
+                    <SyncProjectsButton />
+                    <CleanDatabaseButton />
+                </div>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
