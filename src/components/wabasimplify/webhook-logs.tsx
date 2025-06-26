@@ -88,7 +88,13 @@ export function WebhookLogs() {
             if (!value) return 'No details';
 
             switch(field) {
-                case 'messages': return `Message from ${value.messages[0].from}`;
+                case 'messages':
+                    const message = value.messages[0];
+                    if (message.type === 'text') {
+                        const bodyPreview = message.text.body.substring(0, 30);
+                        return `Message from ${message.from}: "${bodyPreview}${message.text.body.length > 30 ? '...' : ''}"`;
+                    }
+                    return `Message from ${message.from} (${message.type})`;
                 case 'status':
                 case 'message_deliveries':
                 case 'message_reads':

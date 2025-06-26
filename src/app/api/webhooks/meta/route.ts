@@ -24,6 +24,9 @@ const getSearchableText = (payload: any): string => {
                         if (value.messages) {
                             for (const message of value.messages) {
                                 text += ` ${message.from || ''} ${message.id || ''} ${message.type || ''}`;
+                                if (message.text?.body) {
+                                    text += ` ${message.text.body}`;
+                                }
                             }
                         }
                         if (value.statuses) {
