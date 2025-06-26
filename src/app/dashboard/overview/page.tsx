@@ -1,9 +1,8 @@
-
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
 import { getDashboardStats } from '@/app/actions';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessagesSquare, CheckCircle, XCircle, Send, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
