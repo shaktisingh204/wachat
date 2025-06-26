@@ -4,12 +4,13 @@
 import { useEffect, useState } from 'react';
 import { getProjectById } from '@/app/actions';
 import type { WithId } from 'mongodb';
-import type { Project, PaymentConfiguration } from '@/app/dashboard/page';
+import type { Project, PaymentConfiguration, BusinessCapabilities } from '@/app/dashboard/page';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Banknote, Briefcase } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
     return (
@@ -113,6 +114,7 @@ export default function ProjectInformationPage() {
     }
     
     const paymentConfig: PaymentConfiguration | undefined = project.paymentConfiguration;
+    const businessCaps: BusinessCapabilities | undefined = project.businessCapabilities;
 
     return (
         <div className="flex flex-col gap-8">
@@ -140,6 +142,15 @@ export default function ProjectInformationPage() {
                                     {project.reviewStatus?.replace(/_/g, ' ') || 'Unknown'}
                                 </Badge>
                             } />
+                            {businessCaps && (
+                                <>
+                                    <div className="pt-2" />
+                                    <Separator />
+                                    <div className="pt-2" />
+                                    <InfoRow label="Daily Conversation Limit" value={businessCaps.max_daily_conversation_per_phone?.toLocaleString() ?? 'N/A'} />
+                                    <InfoRow label="Phone Number Limit" value={businessCaps.max_phone_numbers_per_business?.toLocaleString() ?? 'N/A'} />
+                                </>
+                            )}
                         </dl>
                     </CardContent>
                 </Card>

@@ -15,6 +15,11 @@ export const metadata: Metadata = {
   title: "Select Project | Wachat",
 };
 
+export type BusinessCapabilities = {
+    max_daily_conversation_per_phone: number;
+    max_phone_numbers_per_business: number;
+};
+
 export type PaymentConfiguration = {
     configuration_name: string;
     provider_name: string;
@@ -45,6 +50,7 @@ export type Project = {
     messagesPerSecond?: number;
     reviewStatus?: string;
     paymentConfiguration?: PaymentConfiguration;
+    businessCapabilities?: BusinessCapabilities;
 };
 
 export type Template = {

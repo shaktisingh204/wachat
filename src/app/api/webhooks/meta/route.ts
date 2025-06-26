@@ -59,6 +59,8 @@ const getSearchableText = (payload: any): string => {
                         if (value.ban_info) text += ` ${value.ban_info.waba_ban_state}`;
                         if (value.alert_type) text += ` ${value.alert_type} ${value.alert_status}`;
                         if (value.entity_id) text += ` ${value.entity_id}`;
+                        if (value.max_daily_conversation_per_phone) text += ` ${value.max_daily_conversation_per_phone}`;
+                        if (value.max_phone_numbers_per_business) text += ` ${value.max_phone_numbers_per_business}`;
                         
                         // Other events
                         if (value.configuration_name) text += ` ${value.configuration_name} ${value.provider_name} ${value.status}`;
@@ -267,6 +269,33 @@ export async function POST(request: NextRequest) {
                     }
                     break;
                 
+                case 'business_capability_update':
+                    const updatePayload: any = {};
+                    if (value.max_daily_conversation_per_phone !== undefined) {
+                        updatePayload['businessCapabilities.max_daily_conversation_per_phone'] = value.max_daily_conversation_per_phone;
+                    }
+                    if (value.max_phone_numbers_per_business !== undefined) {
+                        updatePayload['businessCapabilities.max_phone_numbers_per_business'] = value.max_phone_numbers_per_business;
+                    }
+
+                    if (Object.keys(updatePayload).length > 0) {
+                        const result = await db.collection('projects').updateOne(
+                            { _id: project._id },
+                            { $set: updatePayload }
+                        );
+
+                        if (result.modifiedCount > 0) {
+                            await db.collection('notifications').insertOne({
+                                projectId: project._id, wabaId,
+                                message: `Your business capabilities have been updated.`,
+                                link: '/dashboard/information', isRead: false, createdAt: new Date(),
+                            });
+                            revalidatePath('/dashboard/information');
+                            revalidatePath('/dashboard/layout');
+                        }
+                    }
+                    break;
+
                 case 'payment_configuration_update':
                     if (value.configuration_name && value.provider_name) {
                         const result = await db.collection('projects').updateOne(
@@ -298,7 +327,6 @@ export async function POST(request: NextRequest) {
                 case 'status':
                 case 'account_update':
                 case 'account_alerts':
-                case 'business_capability_update':
                 case 'message_template_edit_update':
                 case 'message_template_limit_update':
                 case 'commerce_policy_update':
