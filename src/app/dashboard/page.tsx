@@ -15,6 +15,15 @@ export const metadata: Metadata = {
   title: "Select Project | Wachat",
 };
 
+export type PaymentConfiguration = {
+    configuration_name: string;
+    provider_name: string;
+    provider_mid: string;
+    status: string;
+    created_timestamp: number;
+    updated_timestamp: number;
+};
+
 export type PhoneNumber = {
     id: string;
     display_phone_number: string;
@@ -35,6 +44,7 @@ export type Project = {
     createdAt: Date;
     messagesPerSecond?: number;
     reviewStatus?: string;
+    paymentConfiguration?: PaymentConfiguration;
 };
 
 export type Template = {

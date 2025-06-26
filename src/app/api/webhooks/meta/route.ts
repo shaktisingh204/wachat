@@ -217,6 +217,28 @@ export async function POST(request: NextRequest) {
                     }
                     break;
                 
+                case 'payment_configuration_update':
+                    if (value.configuration_name && value.provider_name) {
+                        console.log(`Processing payment config update for WABA ${wabaId}. Provider: ${value.provider_name}`);
+                        const result = await db.collection('projects').updateOne(
+                            { wabaId: wabaId },
+                            { 
+                                $set: { 
+                                    'paymentConfiguration': {
+                                        configuration_name: value.configuration_name,
+                                        provider_name: value.provider_name,
+                                        provider_mid: value.provider_mid,
+                                        status: value.status,
+                                        created_timestamp: value.created_timestamp,
+                                        updated_timestamp: value.updated_timestamp,
+                                    }
+                                } 
+                            }
+                        );
+                        if (result.modifiedCount > 0) revalidatePath('/dashboard/information');
+                    }
+                    break;
+
                 // --- LOG-ONLY EVENTS ---
                 case 'messages':
                 case 'message_deliveries':
@@ -235,7 +257,6 @@ export async function POST(request: NextRequest) {
                 case 'permanent_failure':
                 case 'security':
                 case 'partner_solutions':
-                case 'payment_configuration_update':
                 case 'user_preferences':
                 case 'tracking_events':
                 case 'audience_consent_update':
