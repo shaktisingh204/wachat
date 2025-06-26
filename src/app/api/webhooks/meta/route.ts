@@ -51,7 +51,7 @@ const getSearchableText = (payload: any): string => {
                         text += ` ${value.message_template_language || ''}`;
                         text += ` ${value.previous_category || ''}`;
                         text += ` ${value.new_template_category || ''}`;
-                        text += ` ${value.new_template_quality || ''}`;
+                        text += ` ${value.new_quality_score || ''}`;
                         
                         // Account related
                         text += ` ${value.update_type || ''}`;
@@ -229,6 +229,24 @@ export async function POST(request: NextRequest) {
                         if (result.modifiedCount > 0) revalidatePath('/dashboard/templates');
                     }
                     break;
+                
+                case 'message_template_quality_update':
+                    if (value.message_template_id && value.new_quality_score) {
+                        const result = await db.collection('templates').updateOne(
+                            { metaId: value.message_template_id, projectId: project._id },
+                            { $set: { qualityScore: value.new_quality_score.toUpperCase() } }
+                        );
+                        if (result.modifiedCount > 0) {
+                            await db.collection('notifications').insertOne({
+                               projectId: project._id, wabaId,
+                               message: `Quality for template '${value.message_template_name}' is now ${value.new_quality_score}.`,
+                               link: '/dashboard/templates', isRead: false, createdAt: new Date(),
+                           });
+                           revalidatePath('/dashboard/templates');
+                           revalidatePath('/dashboard/layout');
+                        }
+                    }
+                    break;
 
                 // --- ACCOUNT UPDATES ---
                 case 'account_review_update':
@@ -281,7 +299,6 @@ export async function POST(request: NextRequest) {
                 case 'account_update':
                 case 'account_alerts':
                 case 'business_capability_update':
-                case 'message_template_quality_update':
                 case 'message_template_edit_update':
                 case 'message_template_limit_update':
                 case 'commerce_policy_update':

@@ -53,6 +53,7 @@ type MetaTemplate = {
     status: string;
     category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
     components: MetaTemplateComponent[];
+    quality_score?: { score: string };
 };
 
 type MetaTemplatesResponse = {
@@ -229,6 +230,7 @@ export async function getTemplates(projectId: string): Promise<WithId<Template>[
             body: 1,
             status: 1,
             headerSampleUrl: 1,
+            qualityScore: 1,
         };
         const templates = await db.collection('templates')
             .find({ projectId: new ObjectId(projectId) })
@@ -727,7 +729,7 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
         const { wabaId, accessToken } = project;
 
         const allTemplates: MetaTemplate[] = [];
-        let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id&limit=100`;
+        let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id,quality_score&limit=100`;
 
         while(nextUrl) {
             const response = await fetch(nextUrl, { method: 'GET' });
@@ -769,6 +771,7 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
                 projectId: new ObjectId(projectId),
                 metaId: t.id,
                 components: t.components,
+                qualityScore: t.quality_score?.score?.toUpperCase() || 'UNKNOWN',
                 headerSampleUrl: headerComponent?.example?.header_handle?.[0] ? `https://graph.facebook.com/${headerComponent.example.header_handle[0]}` : undefined
             };
         });
@@ -1055,6 +1058,7 @@ export async function handleCreateTemplate(
             category,
             language,
             status: responseData?.status || 'PENDING',
+            qualityScore: 'UNKNOWN',
             body: bodyText,
             projectId: new ObjectId(projectId),
             metaId: newMetaTemplateId,

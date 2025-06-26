@@ -56,6 +56,7 @@ export type Template = {
   components: any[];
   metaId: string;
   headerSampleUrl?: string;
+  qualityScore?: string;
 };
 
 export default async function SelectProjectPage({

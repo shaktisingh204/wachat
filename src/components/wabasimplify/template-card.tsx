@@ -33,6 +33,14 @@ export function TemplateCard({ template }: TemplateCardProps) {
     return 'destructive';
   };
 
+  const getQualityVariant = (quality?: string) => {
+    if (!quality) return 'secondary';
+    quality = quality.toLowerCase();
+    if (quality === 'green') return 'default';
+    if (quality === 'yellow') return 'secondary';
+    return 'destructive';
+  };
+
   const handleAction = (action: 'edit' | 'clone') => {
     localStorage.setItem('templateToAction', JSON.stringify(template));
     router.push(`/dashboard/templates/create?action=${action}`);
@@ -68,6 +76,11 @@ export function TemplateCard({ template }: TemplateCardProps) {
               <Badge variant={getStatusVariant(template.status)} className="capitalize">
                 {template.status?.replace(/_/g, ' ') || 'Unknown'}
               </Badge>
+              {template.qualityScore && template.qualityScore !== 'UNKNOWN' && (
+                <Badge variant={getQualityVariant(template.qualityScore)} className="capitalize">
+                  Quality: {template.qualityScore.toLowerCase()}
+                </Badge>
+              )}
             </div>
           </div>
           <CardDescription className="flex items-center pt-2 text-xs">
@@ -97,6 +110,9 @@ export function TemplateCard({ template }: TemplateCardProps) {
             <DialogTitle>{template.name}</DialogTitle>
             <DialogDescription>
               Category: {template.category} | Language: {template.language} | Status: <span className="capitalize">{template.status?.replace(/_/g, ' ') || 'Unknown'}</span>
+              {template.qualityScore && template.qualityScore !== 'UNKNOWN' && (
+                <> | Quality: <span className="capitalize">{template.qualityScore.toLowerCase()}</span></>
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto pr-4">
