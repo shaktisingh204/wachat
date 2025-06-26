@@ -122,6 +122,44 @@ export function WebhookLogs() {
         });
     };
 
+    const handleCopyAllLogs = () => {
+        if (logs.length === 0) {
+            toast({ title: "Nothing to Copy", description: "There are no logs on the current page." });
+            return;
+        }
+
+        const allLogsText = logs.map(log => {
+            const timestamp = new Date(log.createdAt).toLocaleString();
+            const eventField = getEventField(log);
+            const payloadString = JSON.stringify(log.payload, null, 2);
+            
+            return `--- Log Timestamp: ${timestamp} | Event: ${eventField} ---\n${payloadString}`;
+        }).join('\n\n');
+
+        if (!navigator.clipboard) {
+          toast({
+            title: 'Failed to copy',
+            description: 'Clipboard API is not available. Please use a secure (HTTPS) connection.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        navigator.clipboard.writeText(allLogsText).then(() => {
+            toast({
+                title: 'Logs Copied!',
+                description: `All ${logs.length} logs from this page have been copied to your clipboard.`,
+            });
+        }, (err) => {
+            console.error('Could not copy logs: ', err);
+            toast({
+                title: 'Failed to copy',
+                description: 'Could not copy logs to clipboard. Check browser permissions.',
+                variant: 'destructive',
+            });
+        });
+    };
+
 
     return (
         <Card>
@@ -140,6 +178,10 @@ export function WebhookLogs() {
                                 onChange={(e) => handleSearch(e.target.value)}
                             />
                         </div>
+                        <Button onClick={handleCopyAllLogs} disabled={logs.length === 0 || isRefreshing} variant="outline" size="sm">
+                            <Copy className="mr-2 h-4 w-4" />
+                            Copy Page Logs
+                        </Button>
                         <Button onClick={handleClearLogs} disabled={isClearing} variant="outline" size="sm">
                             {isClearing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
                             Clear Old Logs
