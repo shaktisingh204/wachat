@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
         for (const entry of body.entry) {
           const wabaId = entry.id;
           for (const change of entry.changes) {
+            console.log(`Processing change for field: "${change.field}" in WABA ${wabaId}`);
             
             // Handle changes to a phone number's messaging limit (throughput)
             if (change.field === 'phone_number_quality_update') {
