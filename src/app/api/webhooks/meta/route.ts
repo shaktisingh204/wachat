@@ -208,7 +208,15 @@ export async function POST(request: NextRequest) {
                             { metaId: value.message_template_id, projectId: project._id },
                             { $set: { status: value.event.toUpperCase() } }
                         );
-                        if (result.modifiedCount > 0) revalidatePath('/dashboard/templates');
+                        if (result.modifiedCount > 0) {
+                            await db.collection('notifications').insertOne({
+                               projectId: project._id, wabaId,
+                               message: `Template '${value.message_template_name}' status updated to ${value.event}. Reason: ${value.reason || 'None'}.`,
+                               link: '/dashboard/templates', isRead: false, createdAt: new Date(),
+                           });
+                           revalidatePath('/dashboard/templates');
+                           revalidatePath('/dashboard/layout');
+                        }
                     }
                     break;
                 
