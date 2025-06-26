@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, LoaderCircle, Save } from 'lucide-react';
+import Link from 'next/link';
 
 const updateSettingsInitialState = {
   message: null,
@@ -164,18 +165,20 @@ export default function SettingsPage() {
         <CardHeader>
           <CardTitle>Setting up Webhooks</CardTitle>
           <CardDescription>
-            Follow these steps to receive real-time updates from Meta.
+            Follow these steps in your Meta for Developers dashboard to receive real-time updates.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-foreground/90">
-          <ol className="list-decimal list-inside space-y-2">
-            <li>Create a Meta App and add the Webhooks product.</li>
-            <li>Configure a webhook URL in your Meta App's settings to receive notifications.</li>
-            <li>Subscribe your app to your WhatsApp Business Account (WABA).</li>
-            <li>
-              You'll receive webhook notifications for various events, including changes to your WABA, 
-              phone numbers, message templates, and messages sent to your phone numbers.
-            </li>
+           <ol className="list-decimal list-inside space-y-2">
+                <li>Go to your Meta App, select the **Webhooks** product, and find the "WhatsApp Business Account" object.</li>
+                <li>Click **Edit subscription** and paste your webhook URL and verify token. You can find these on the <Link href="/dashboard/webhooks" className="text-primary underline">Webhooks page</Link>.</li>
+                <li>Click **Verify and save**.</li>
+                <li>
+                    **Crucial Step:** After verifying, find the "Webhook Fields" for `whatsapp_business_account` and click **Edit**.
+                </li>
+                <li>
+                   Subscribe to all available events. This is required for the application to automatically update statuses for templates, phone numbers, and accounts.
+                </li>
           </ol>
         </CardContent>
       </Card>

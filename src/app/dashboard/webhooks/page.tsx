@@ -37,14 +37,14 @@ export default function WebhooksPage() {
                         <li>Click **Edit subscription** for the "WhatsApp Business Account" object.</li>
                         <li>In the popup, paste the **Callback URL** and the **Verify token** from above into the corresponding fields.</li>
                         <li>Click **Verify and save**.</li>
-                        <li>After verifying, go to the Webhook Fields section for `whatsapp_business_account` and click **Edit**.</li>
-                        <li>Subscribe to events such as `messages`, `phone_number_quality_update`, and others to receive real-time notifications.</li>
+                        <li>**This is the most important step:** After verifying, go to the Webhook Fields section for `whatsapp_business_account` and click **Edit**.</li>
+                        <li>Subscribe to the events you want to receive. For full functionality, it is recommended to subscribe to all events, especially `messages`, `message_template_status_update`, and `phone_number_quality_update`.</li>
                     </ol>
                     <Alert>
                         <Lightbulb className="h-4 w-4" />
                         <AlertTitle>Important</AlertTitle>
                         <AlertDescription>
-                            Your application must be deployed to a public URL for Meta's servers to be able to send requests to your Callback URL.
+                            Your application must be deployed to a public URL for Meta's servers to be able to send requests to your Callback URL. Test events work from the dashboard, but real events require a public endpoint.
                         </AlertDescription>
                     </Alert>
                 </CardContent>
