@@ -107,6 +107,16 @@ export type BroadcastAttempt = {
     error?: string; // a failed send reason
 };
 
+export type Notification = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    wabaId: string;
+    message: string;
+    link: string;
+    isRead: boolean;
+    createdAt: Date;
+};
+
 const getErrorMessage = (error: any): string => {
     if (error instanceof Error) {
         // Handle native fetch response errors
@@ -1167,6 +1177,7 @@ export async function handleCleanDatabase(
           await db.collection('templates').deleteMany({});
           await db.collection('broadcasts').deleteMany({});
           await db.collection('broadcast_contacts').deleteMany({});
+          await db.collection('notifications').deleteMany({});
           
           revalidatePath('/dashboard');
   
@@ -1440,5 +1451,41 @@ export async function handleClearWebhookLogs(): Promise<{ message?: string; erro
     } catch (e: any) {
         console.error('Failed to clear webhook logs:', e);
         return { error: e.message || 'An unexpected error occurred while clearing logs.' };
+    }
+}
+
+export async function getNotifications(projectId: string): Promise<WithId<Notification>[]> {
+    if (!ObjectId.isValid(projectId)) {
+        return [];
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const notifications = await db.collection('notifications')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .limit(10) // Limit to 10 most recent
+            .toArray();
+        return JSON.parse(JSON.stringify(notifications));
+    } catch (error) {
+        console.error('Failed to fetch notifications:', error);
+        return [];
+    }
+}
+
+export async function markNotificationAsRead(notificationId: string): Promise<{ success: boolean }> {
+    if (!ObjectId.isValid(notificationId)) {
+        return { success: false };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('notifications').updateOne(
+            { _id: new ObjectId(notificationId) },
+            { $set: { isRead: true } }
+        );
+        revalidatePath('/dashboard'); // Revalidate layout to update count
+        return { success: true };
+    } catch (error) {
+        console.error('Failed to mark notification as read:', error);
+        return { success: false };
     }
 }

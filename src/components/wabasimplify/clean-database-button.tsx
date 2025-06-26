@@ -79,7 +79,7 @@ export function CleanDatabaseButton() {
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete all projects, templates, broadcasts, and other data from the database.
+              This action cannot be undone. This will permanently delete all projects, templates, broadcasts, notifications, and other data from the database.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">

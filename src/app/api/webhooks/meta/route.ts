@@ -125,32 +125,37 @@ export async function POST(request: NextRequest) {
         searchableText,
         createdAt: new Date(),
       });
+      revalidatePath('/dashboard/webhooks');
 
       if (body.object === 'whatsapp_business_account') {
         for (const entry of body.entry) {
           const wabaId = entry.id;
+          const project = await db.collection('projects').findOne({ wabaId: wabaId }, { projection: { _id: 1 } });
+          
+          if (!project) {
+              console.log(`Webhook received for unknown WABA ID ${wabaId}, skipping DB updates.`);
+              continue;
+          }
+
           for (const change of entry.changes) {
             console.log(`Processing change for field: "${change.field}" in WABA ${wabaId}`);
             const value = change.value;
             if (!value) continue;
             
-            // The `field` tells us what type of event this is.
             switch (change.field) {
                 // --- PHONE NUMBER UPDATES ---
                 case 'phone_number_quality_update':
                     if (value.display_phone_number && value.current_limit) {
-                        console.log(`Processing messaging limit update for ${value.display_phone_number} to ${value.current_limit}`);
                         const result = await db.collection('projects').updateOne(
-                            { wabaId: wabaId, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                            { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
                             { $set: { 'phoneNumbers.$.throughput.level': value.current_limit } }
                         );
                         if (result.modifiedCount > 0) revalidatePath('/dashboard/numbers');
                     }
                     if (value.display_phone_number && value.event && ['FLAGGED', 'UNFLAGGED', 'WARNED'].includes(value.event)) {
                         const newQuality = value.event === 'FLAGGED' ? 'RED' : value.event === 'WARNED' ? 'YELLOW' : 'GREEN';
-                        console.log(`Processing quality rating update for ${value.display_phone_number}. New effective rating: ${newQuality}`);
                          const result = await db.collection('projects').updateOne(
-                            { wabaId: wabaId, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                            { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
                             { $set: { 'phoneNumbers.$.quality_rating': newQuality } }
                         );
                         if (result.modifiedCount > 0) revalidatePath('/dashboard/numbers');
@@ -159,22 +164,27 @@ export async function POST(request: NextRequest) {
                 
                 case 'phone_number_name_update':
                     if (value.display_phone_number && value.requested_verified_name && value.decision === 'APPROVED') {
-                        console.log(`Processing name update for ${value.display_phone_number} to "${value.requested_verified_name}"`);
                         const result = await db.collection('projects').updateOne(
-                            { wabaId: wabaId, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                            { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
                             { $set: { 'phoneNumbers.$.verified_name': value.requested_verified_name } }
                         );
-                        if (result.modifiedCount > 0) revalidatePath('/dashboard/numbers');
-                    } else {
-                        console.log(`Name update for ${value.display_phone_number} was not approved or had no new name.`);
+
+                        if (result.modifiedCount > 0) {
+                             await db.collection('notifications').insertOne({
+                                projectId: project._id, wabaId,
+                                message: `Display name for ${value.display_phone_number} was approved as "${value.requested_verified_name}".`,
+                                link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
+                            });
+                            revalidatePath('/dashboard/numbers');
+                            revalidatePath('/dashboard/layout');
+                        }
                     }
                     break;
                     
                 case 'phone_number_verification_update':
                     if (value.display_phone_number && value.new_code_verification_status) {
-                        console.log(`Processing verification status update for ${value.display_phone_number} to ${value.new_code_verification_status}`);
                         const result = await db.collection('projects').updateOne(
-                            { wabaId: wabaId, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                            { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
                             { $set: { 'phoneNumbers.$.code_verification_status': value.new_code_verification_status } }
                         );
                         if (result.modifiedCount > 0) revalidatePath('/dashboard/numbers');
@@ -185,9 +195,8 @@ export async function POST(request: NextRequest) {
                 case 'message_template_status_update': // Covers approved, rejected, etc.
                 case 'template_status_update': // Older name for the same event
                     if (value.event && value.message_template_id) {
-                        console.log(`Processing template status update for template '${value.message_template_name}'. New status: ${value.event}`);
                         const result = await db.collection('templates').updateOne(
-                            { metaId: value.message_template_id },
+                            { metaId: value.message_template_id, projectId: project._id },
                             { $set: { status: value.event.toUpperCase() } }
                         );
                         if (result.modifiedCount > 0) revalidatePath('/dashboard/templates');
@@ -196,9 +205,8 @@ export async function POST(request: NextRequest) {
                 
                 case 'template_category_update':
                     if (value.message_template_id && value.new_category) {
-                        console.log(`Processing category update for template ${value.message_template_id} to ${value.new_category}`);
                         const result = await db.collection('templates').updateOne(
-                            { metaId: value.message_template_id },
+                            { metaId: value.message_template_id, projectId: project._id },
                             { $set: { category: value.new_category.toUpperCase() } }
                         );
                         if (result.modifiedCount > 0) revalidatePath('/dashboard/templates');
@@ -208,20 +216,26 @@ export async function POST(request: NextRequest) {
                 // --- ACCOUNT UPDATES ---
                 case 'account_review_update':
                     if (value.decision) {
-                        console.log(`Processing account review update for WABA ${wabaId}. Decision: ${value.decision}`);
                         const result = await db.collection('projects').updateOne(
-                            { wabaId: wabaId },
+                            { _id: project._id },
                             { $set: { reviewStatus: value.decision } }
                         );
-                        if (result.modifiedCount > 0) revalidatePath('/dashboard');
+                        if (result.modifiedCount > 0) {
+                            await db.collection('notifications').insertOne({
+                                projectId: project._id, wabaId,
+                                message: `Your account review was completed. The new status is ${value.decision}.`,
+                                link: '/dashboard/information', isRead: false, createdAt: new Date(),
+                            });
+                            revalidatePath('/dashboard');
+                            revalidatePath('/dashboard/layout');
+                        }
                     }
                     break;
                 
                 case 'payment_configuration_update':
                     if (value.configuration_name && value.provider_name) {
-                        console.log(`Processing payment config update for WABA ${wabaId}. Provider: ${value.provider_name}`);
                         const result = await db.collection('projects').updateOne(
-                            { wabaId: wabaId },
+                            { _id: project._id },
                             { 
                                 $set: { 
                                     'paymentConfiguration': {
