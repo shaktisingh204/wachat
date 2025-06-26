@@ -20,7 +20,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, LoaderCircle, Eye, Search, RefreshCw } from "lucide-react";
+import { Trash2, LoaderCircle, Eye, Search, RefreshCw, Copy } from "lucide-react";
 
 const LOGS_PER_PAGE = 15;
 
@@ -95,6 +95,32 @@ export function WebhookLogs() {
             return 'Could not parse details';
         }
     }
+
+    const handleCopyPayload = (payload: any) => {
+        const payloadString = JSON.stringify(payload, null, 2);
+        if (!navigator.clipboard) {
+          toast({
+            title: 'Failed to copy',
+            description: 'Clipboard API is not available. Please use a secure (HTTPS) connection.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
+        navigator.clipboard.writeText(payloadString).then(() => {
+            toast({
+                title: 'Payload Copied!',
+                description: 'The JSON payload has been copied to your clipboard.',
+            });
+        }, (err) => {
+            console.error('Could not copy text: ', err);
+            toast({
+                title: 'Failed to copy',
+                description: 'Could not copy to clipboard. Check browser permissions.',
+                variant: 'destructive',
+            });
+        });
+    };
 
 
     return (
@@ -191,17 +217,27 @@ export function WebhookLogs() {
 
              <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
                 <DialogContent className="max-w-3xl">
-                <DialogHeader>
-                    <DialogTitle>Webhook Payload</DialogTitle>
-                    <DialogDescription>Full JSON payload received from Meta at {selectedLog ? new Date(selectedLog.createdAt).toLocaleString() : ''}</DialogDescription>
-                </DialogHeader>
-                {selectedLog && (
-                    <div className="mt-2 text-sm max-h-[60vh] overflow-y-auto">
-                        <pre className="p-4 bg-muted rounded-md whitespace-pre-wrap font-mono text-xs">
-                            {JSON.stringify(selectedLog.payload, null, 2)}
-                        </pre>
-                    </div>
-                )}
+                    <DialogHeader>
+                        <div className="flex justify-between items-start gap-4">
+                            <div>
+                                <DialogTitle>Webhook Payload</DialogTitle>
+                                <DialogDescription>Full JSON payload received from Meta at {selectedLog ? new Date(selectedLog.createdAt).toLocaleString() : ''}</DialogDescription>
+                            </div>
+                            {selectedLog && (
+                                <Button variant="outline" size="icon" onClick={() => handleCopyPayload(selectedLog.payload)}>
+                                    <Copy className="h-4 w-4" />
+                                    <span className="sr-only">Copy Payload</span>
+                                </Button>
+                            )}
+                        </div>
+                    </DialogHeader>
+                    {selectedLog && (
+                        <div className="mt-2 text-sm max-h-[60vh] overflow-y-auto">
+                            <pre className="p-4 bg-muted rounded-md whitespace-pre-wrap font-mono text-xs">
+                                {JSON.stringify(selectedLog.payload, null, 2)}
+                            </pre>
+                        </div>
+                    )}
                 </DialogContent>
             </Dialog>
         </Card>
