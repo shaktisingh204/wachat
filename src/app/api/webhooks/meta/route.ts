@@ -1,33 +1,47 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
+import { revalidatePath } from 'next/cache';
 
 const getSearchableText = (payload: any): string => {
     let text = '';
     try {
         if (payload.object === 'whatsapp_business_account' && payload.entry) {
             for (const entry of payload.entry) {
-                text += ` ${entry.id}`;
+                text += ` ${entry.id}`; // WABA ID
                 if (entry.changes) {
                     for (const change of entry.changes) {
-                        text += ` ${change.field}`;
-                        if (change.value) {
-                            text += ` ${change.value.messaging_product || ''}`;
-                            if(change.value.messages) {
-                                for(const message of change.value.messages) {
+                        text += ` ${change.field}`; // The type of change, e.g., 'messages', 'template_status_update'
+                        const value = change.value;
+                        if (value) {
+                            text += ` ${value.messaging_product || ''}`;
+                            text += ` ${value.event || ''}`; // e.g., 'sent', 'delivered', 'APPROVED', 'REJECTED'
+                            
+                            // For 'messages' field
+                            if (value.messages) {
+                                for (const message of value.messages) {
                                     text += ` ${message.from || ''} ${message.id || ''} ${message.type || ''}`;
                                 }
                             }
-                            if(change.value.statuses) {
-                                for(const status of change.value.statuses) {
+                            
+                            // For 'statuses' field (part of 'messages' change)
+                            if (value.statuses) {
+                                for (const status of value.statuses) {
                                     text += ` ${status.id || ''} ${status.recipient_id || ''} ${status.status || ''}`;
                                 }
                             }
-                            if(change.value.display_phone_number) {
-                                text += ` ${change.value.display_phone_number}`;
+                            
+                            // For 'phone_number_quality_update' or 'phone_number_name_update'
+                            if (value.display_phone_number) {
+                                text += ` ${value.display_phone_number}`;
                             }
-                            if(change.value.event) {
-                                text += ` ${change.value.event}`;
+
+                            // For 'template_status_update'
+                            if (value.message_template_id) {
+                                text += ` ${value.message_template_id}`;
+                            }
+                            if (value.message_template_name) {
+                                text += ` ${value.message_template_name}`;
                             }
                         }
                     }
@@ -105,12 +119,37 @@ export async function POST(request: NextRequest) {
 
                 if (result.matchedCount > 0 && result.modifiedCount > 0) {
                   console.log(`Successfully updated messaging limit for ${display_phone_number}.`);
+                  revalidatePath('/dashboard/numbers');
                 } else if (result.matchedCount > 0 && result.modifiedCount === 0) {
                   console.log(`Messaging limit for ${display_phone_number} is already ${current_limit}. No update needed.`);
                 } else {
                   console.warn(`Could not find a matching project or phone number for WABA ID ${wabaId} and phone ${display_phone_number} to update limit.`);
                 }
               }
+            }
+
+            // Handle message template status changes
+            if (change.field === 'message_template_status_update' || change.field === 'template_status_update') {
+                const { event, message_template_id, message_template_name } = change.value;
+                console.log(
+                    `Processing template status update for template '${message_template_name}' (${message_template_id}). New status: ${event}`
+                );
+
+                if (event && message_template_id) {
+                    const result = await db.collection('templates').updateOne(
+                        { metaId: message_template_id },
+                        { $set: { status: event.toUpperCase() } }
+                    );
+
+                    if (result.matchedCount > 0 && result.modifiedCount > 0) {
+                        console.log(`Successfully updated status for template ${message_template_id}.`);
+                        revalidatePath('/dashboard/templates');
+                    } else if (result.matchedCount > 0 && result.modifiedCount === 0) {
+                        console.log(`Template ${message_template_id} status is already ${event}. No update needed.`);
+                    } else {
+                        console.warn(`Could not find a matching template with metaId ${message_template_id} to update status.`);
+                    }
+                }
             }
 
             // You can add other event handlers here in the future
