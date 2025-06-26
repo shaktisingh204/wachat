@@ -116,14 +116,37 @@ export default function NumbersPage() {
     return 'destructive';
   }
   
-  const getThroughputVariant = (level?: string) => {
-    if (!level) return 'outline';
+  const formatThroughput = (level?: string): string => {
+    if (!level) return 'N/A';
     const lowerLevel = level.toLowerCase();
-    if (lowerLevel === 'high') return 'default';
-    if (lowerLevel === 'medium') return 'secondary';
-    if (lowerLevel === 'low') return 'destructive';
-    return 'outline';
-  }
+
+    if (lowerLevel.includes('unlimited')) {
+        return 'Unlimited';
+    }
+    if (lowerLevel.startsWith('tier_')) {
+        const tierValue = lowerLevel.replace('tier_', '').toUpperCase();
+        return `${tierValue} / 24h`;
+    }
+
+    return level.replace(/_/g, ' ').toLowerCase();
+  };
+
+  const getThroughputVariant = (level?: string) => {
+      if (!level) return 'outline';
+      const lowerLevel = level.toLowerCase();
+      
+      if (lowerLevel.includes('unlimited') || lowerLevel.includes('100k') || lowerLevel.includes('high')) {
+          return 'default'; // Green
+      }
+      if (lowerLevel.includes('10k') || lowerLevel.includes('medium')) {
+          return 'secondary'; // Yellow-ish/Grey
+      }
+      if (lowerLevel.includes('1k') || lowerLevel.includes('low')) {
+          return 'destructive'; // Red
+      }
+      
+      return 'outline'; // Default for unknown tiers
+  };
 
   if (!isClient || loading) {
     return (
@@ -226,7 +249,7 @@ export default function NumbersPage() {
                     </TableCell>
                      <TableCell>
                        <Badge variant={getThroughputVariant(phone.throughput?.level)} className="capitalize">
-                         {phone.throughput?.level?.toLowerCase() || 'N/A'}
+                         {formatThroughput(phone.throughput?.level)}
                        </Badge>
                     </TableCell>
                     <TableCell className="text-right">
@@ -283,3 +306,4 @@ export default function NumbersPage() {
     </div>
   );
 }
+
