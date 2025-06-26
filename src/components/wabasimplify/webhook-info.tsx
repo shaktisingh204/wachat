@@ -19,14 +19,25 @@ function InfoRow({ label, value, isSecret = false }: { label: string, value: str
     const { toast } = useToast();
 
     const handleCopy = () => {
+        if (!navigator.clipboard) {
+          toast({
+            title: 'Failed to copy',
+            description: 'Clipboard API is not available. Please use a secure (HTTPS) connection.',
+            variant: 'destructive',
+          });
+          return;
+        }
+
         navigator.clipboard.writeText(value).then(() => {
             toast({
                 title: 'Copied to clipboard!',
                 description: `The ${label.toLowerCase()} has been copied.`,
             });
-        }, () => {
+        }, (err) => {
+            console.error('Could not copy text: ', err);
             toast({
                 title: 'Failed to copy',
+                description: 'Could not copy to clipboard. Check browser permissions.',
                 variant: 'destructive',
             });
         });
