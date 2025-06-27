@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
 
       if (body.object === 'whatsapp_business_account') {
         for (const entry of body.entry) {
-          const wabaId = entry.id; // Can be Solution Partner ID for some events
+          const wabaId = entry.id; // Can be Solution Partner ID or 0
           
           for (const change of entry.changes) {
             const value = change.value;
@@ -236,19 +236,27 @@ export async function POST(request: NextRequest) {
                 continue; // This change has been handled, move to the next.
             }
             
-            // For all other event types, we require a project to exist that is associated with the webhook event
+            // For all other event types, we require a project to exist that is associated with the webhook event.
+            // The project can be identified by the WABA ID, or by one of the phone numbers associated with it.
             const project = await db.collection('projects').findOne(
                 { 
                     $or: [
+                        // Match by WABA ID, for account-level events
                         { wabaId: wabaId },
-                        { 'phoneNumbers.id': value.display_phone_number }
+                        // Match by phone number ID, primarily from 'messages' events
+                        { 'phoneNumbers.id': value.metadata?.phone_number_id },
+                        // Match by display phone number, from various phone-related events
+                        { 'phoneNumbers.display_phone_number': value.display_phone_number }, 
+                        // Match by display phone number from 'messages' events where it's nested
+                        { 'phoneNumbers.display_phone_number': value.metadata?.display_phone_number }
                     ]
                 }, 
                 { projection: { _id: 1, name: 1, wabaId: 1 } }
             );
 
             if (!project) {
-                console.log(`Webhook received for field '${change.field}' on unknown WABA ID ${wabaId} or phone number, skipping DB updates.`);
+                const identifiers = `WABA ID: ${wabaId}, Phone Number ID: ${value.metadata?.phone_number_id}, Display Phone: ${value.display_phone_number || value.metadata?.display_phone_number}`;
+                console.log(`Webhook received for field '${change.field}' with no matching project found for identifiers (${identifiers}). Skipping DB updates.`);
                 continue;
             }
 
