@@ -300,6 +300,11 @@ export async function POST(request: NextRequest) {
             switch (change.field) {
                 // --- MESSAGE EVENTS ---
                 case 'messages': {
+                    // Handle outgoing message status updates first
+                    if (value.statuses) {
+                        await processStatuses(db, value.statuses);
+                    }
+                    
                     // Handle incoming messages
                     if (value.messages && value.contacts) {
                          if (!project) break;
@@ -310,7 +315,8 @@ export async function POST(request: NextRequest) {
                         const contact = contacts[0];
                         const senderWaId = message.from;
                         const senderName = contact.profile?.name || 'Unknown User';
-                        
+                        const lastMessageText = message.text?.body || `[${message.type}]`;
+
                         // Upsert contact record
                         const { value: updatedContact } = await db.collection('contacts').findOneAndUpdate(
                             { waId: senderWaId, projectId: project._id },
@@ -318,7 +324,7 @@ export async function POST(request: NextRequest) {
                                 $set: {
                                     name: senderName,
                                     phoneNumberId: metadata.phone_number_id, // The business number they messaged
-                                    lastMessage: message[message.type]?.body || `[${message.type}]`,
+                                    lastMessage: lastMessageText,
                                     lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
                                 },
                                 $inc: { unreadCount: 1 },
@@ -336,37 +342,31 @@ export async function POST(request: NextRequest) {
                             await db.collection('incoming_messages').insertOne({
                                 projectId: project._id,
                                 contactId: updatedContact._id,
-                                wabaId: project.wabaId,
                                 wamid: message.id,
-                                senderWaId: senderWaId,
                                 messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
                                 type: message.type,
                                 content: message, // Store the full message object
                                 isRead: false,
-                                receivedAt: new Date()
+                                createdAt: new Date()
                             });
+
+                            // Create a notification
+                            await db.collection('notifications').insertOne({
+                                projectId: project._id,
+                                wabaId: project.wabaId,
+                                message: `New message from ${senderName} for project '${project.name}'.`,
+                                link: `/dashboard/chat?contactId=${updatedContact._id.toString()}&phoneId=${metadata.phone_number_id}`,
+                                isRead: false,
+                                createdAt: new Date(),
+                                eventType: change.field,
+                            });
+
+                            // Revalidate paths to update UI
+                            revalidatePath('/dashboard/chat');
+                            revalidatePath('/dashboard/contacts');
+                            revalidatePath('/dashboard/notifications');
+                            revalidatePath('/dashboard', 'layout'); // Update notification count in header
                         }
-
-                        // Create a notification
-                        await db.collection('notifications').insertOne({
-                            projectId: project._id,
-                            wabaId: project.wabaId,
-                            message: `New message from ${senderName} for project '${project.name}'.`,
-                            link: '/dashboard/chat',
-                            isRead: false,
-                            createdAt: new Date(),
-                            eventType: change.field,
-                        });
-
-                        // Revalidate paths to update UI
-                        revalidatePath('/dashboard/chat');
-                        revalidatePath('/dashboard/notifications');
-                        revalidatePath('/dashboard', 'layout'); // Update notification count in header
-                    }
-                    
-                    // Handle outgoing message status updates
-                    if (value.statuses) {
-                        await processStatuses(db, value.statuses);
                     }
                     break;
                 }
