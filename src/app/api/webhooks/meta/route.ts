@@ -257,17 +257,19 @@ export async function POST(request: NextRequest) {
                 { projection: { _id: 1, name: 1, wabaId: 1 } }
             );
 
-            if (!project) {
+            // Allow certain events to proceed even if the project lookup fails, as they may have self-contained identifiers
+            if (!project && change.field !== 'message_template_quality_update') {
                 const identifiers = `WABA ID: ${wabaId}, Phone Number ID: ${value.metadata?.phone_number_id}, Display Phone: ${value.display_phone_number || value.metadata?.display_phone_number || value.phone_number}`;
                 console.log(`Webhook received for field '${change.field}' with no matching project found for identifiers (${identifiers}). Skipping DB updates.`);
                 continue;
             }
 
-            console.log(`Processing change for field: "${change.field}" in WABA ${project.wabaId} for project ${project.name}`);
+            console.log(`Processing change for field: "${change.field}" for project ${project?.name || 'project identified by other means'}`);
             
             switch (change.field) {
                 // --- MESSAGE EVENTS ---
                 case 'messages': {
+                    if (!project) break; // Needs a project to associate with
                     const { metadata, contacts, messages } = value;
                     if (!metadata || !contacts || !messages) continue;
 
@@ -310,6 +312,7 @@ export async function POST(request: NextRequest) {
 
                 // --- PHONE NUMBER UPDATES ---
                 case 'phone_number_quality_update':
+                    if (!project) break;
                     if (value.display_phone_number && value.event) {
                         const updatePayload: any = {};
                         let notificationMessage = '';
@@ -347,6 +350,7 @@ export async function POST(request: NextRequest) {
                     break;
                 
                 case 'phone_number_name_update':
+                    if (!project) break;
                     if (value.display_phone_number && value.decision === 'APPROVED') {
                         const newVerifiedName = value.new_verified_name || value.requested_verified_name;
                          if (newVerifiedName) {
@@ -370,6 +374,7 @@ export async function POST(request: NextRequest) {
                     break;
                     
                 case 'phone_number_verification_update':
+                    if (!project) break;
                     if (value.display_phone_number && value.new_code_verification_status) {
                         const result = await db.collection('projects').updateOne(
                             { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
@@ -391,6 +396,7 @@ export async function POST(request: NextRequest) {
                 // --- TEMPLATE UPDATES ---
                 case 'message_template_status_update': // Covers approved, rejected, etc.
                 case 'template_status_update': // Older name for the same event
+                    if (!project) break;
                     if (value.event && value.message_template_id) {
                         const result = await db.collection('templates').updateOne(
                             { metaId: value.message_template_id, projectId: project._id },
@@ -410,6 +416,7 @@ export async function POST(request: NextRequest) {
                     break;
                 
                 case 'template_category_update':
+                    if (!project) break;
                     if (value.message_template_id && value.new_category) {
                         const result = await db.collection('templates').updateOne(
                             { metaId: value.message_template_id, projectId: project._id },
@@ -428,27 +435,46 @@ export async function POST(request: NextRequest) {
                     }
                     break;
                 
-                case 'message_template_quality_update':
+                case 'message_template_quality_update': {
                     if (value.message_template_id && value.new_quality_score) {
+                        // Find the template by its unique Meta ID, since WABA ID might be '0'
+                        const template = await db.collection('templates').findOne({ metaId: value.message_template_id });
+                        if (!template) {
+                            console.log(`Webhook for template quality update skipped: template with metaId ${value.message_template_id} not found.`);
+                            break;
+                        }
+
+                        const projectForTemplate = await db.collection('projects').findOne(
+                            { _id: template.projectId },
+                            { projection: { _id: 1, name: 1, wabaId: 1 } }
+                        );
+                        if (!projectForTemplate) {
+                            console.log(`Webhook for template quality update skipped: project with id ${template.projectId} not found for template ${template.name}.`);
+                            break;
+                        }
+
                         const result = await db.collection('templates').updateOne(
-                            { metaId: value.message_template_id, projectId: project._id },
+                            { _id: template._id },
                             { $set: { qualityScore: value.new_quality_score.toUpperCase() } }
                         );
+
                         if (result.modifiedCount > 0) {
-                            await db.collection('notifications').insertOne({
-                               projectId: project._id, wabaId: project.wabaId,
-                               message: `For project '${project.name}', quality for template '${value.message_template_name}' is now ${value.new_quality_score}.`,
-                               link: '/dashboard/templates', isRead: false, createdAt: new Date(),
-                               eventType: change.field,
-                           });
-                           revalidatePath('/dashboard/templates');
-                           revalidatePath('/dashboard', 'layout');
+                             await db.collection('notifications').insertOne({
+                                projectId: projectForTemplate._id, wabaId: projectForTemplate.wabaId,
+                                message: `For project '${projectForTemplate.name}', quality for template '${value.message_template_name}' is now ${value.new_quality_score}.`,
+                                link: '/dashboard/templates', isRead: false, createdAt: new Date(),
+                                eventType: change.field,
+                            });
+                            revalidatePath('/dashboard/templates');
+                            revalidatePath('/dashboard', 'layout');
                         }
                     }
                     break;
+                }
 
                 // --- ACCOUNT UPDATES ---
                 case 'account_review_update':
+                    if (!project) break;
                     if (value.decision) {
                         const result = await db.collection('projects').updateOne(
                             { _id: project._id },
@@ -469,6 +495,7 @@ export async function POST(request: NextRequest) {
                     break;
                 
                 case 'account_update':
+                    if (!project) break;
                     if (value.event === 'VERIFIED_ACCOUNT') {
                         const result = await db.collection('projects').updateOne(
                             { _id: project._id },
@@ -489,6 +516,7 @@ export async function POST(request: NextRequest) {
                     break;
 
                 case 'business_capability_update': {
+                    if (!project) break;
                     const updatePayload: any = {};
                     if (value.max_daily_conversation_per_phone !== undefined) {
                         updatePayload['businessCapabilities.max_daily_conversation_per_phone'] = value.max_daily_conversation_per_phone;
@@ -518,6 +546,7 @@ export async function POST(request: NextRequest) {
                 }
 
                 case 'payment_configuration_update':
+                    if (!project) break;
                     if (value.configuration_name && value.provider_name) {
                         const result = await db.collection('projects').updateOne(
                             { _id: project._id },
