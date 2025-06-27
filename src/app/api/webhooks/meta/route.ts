@@ -459,6 +459,7 @@ export async function POST(request: NextRequest) {
                                 eventType: change.field,
                             });
                             revalidatePath('/dashboard');
+                            revalidatePath('/dashboard/information');
                             revalidatePath('/dashboard', 'layout');
                         }
                     }
