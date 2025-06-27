@@ -58,6 +58,16 @@ export function Notifications() {
     setIsClient(true);
     fetchNotifs();
   }, [fetchNotifs]);
+
+  useEffect(() => {
+    if (!isClient) return;
+
+    const interval = setInterval(() => {
+        fetchNotifs();
+    }, 15000); // Poll for new notifications every 15 seconds
+
+    return () => clearInterval(interval);
+  }, [isClient, fetchNotifs]);
   
   const handleNotificationClick = async (notification: WithId<NotificationWithProject>) => {
     if (!notification.isRead) {
@@ -98,7 +108,7 @@ export function Notifications() {
         <DropdownMenuLabel>Notifications</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <div className="max-h-96 overflow-y-auto">
-            {isPending ? (
+            {isPending && notifications.length === 0 ? (
               <div className="p-2">
                 <Skeleton className="h-16 w-full" />
               </div>
