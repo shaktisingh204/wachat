@@ -27,13 +27,14 @@ function StatusTicks({ status }: { status: OutgoingMessage['status'] }) {
 }
 
 function MediaContent({ message }: { message: AnyMessage }) {
-    const content = message.content;
-    const type = content.type;
-    const media = content[type]; // e.g., content.image
+    const type = message.type;
+    const media = message.content[type as keyof typeof message.content] as any;
 
     if (!media) return <div className="text-sm text-muted-foreground italic">[Unsupported media]</div>;
-
-    const url = media.link || `https://placehold.co/300x200.png`; // Placeholder for media without a link after sending
+    
+    // For outgoing media, the link isn't immediately available, so we use a placeholder logic.
+    // For incoming, the link needs to be requested from Meta via another API call not implemented here.
+    const url = media.link || `https://placehold.co/300x200.png`; 
     const caption = media.caption || '';
     const fileName = media.filename || 'download';
     
@@ -85,10 +86,10 @@ export function ChatMessage({ message }: ChatMessageProps) {
                     "max-w-md rounded-lg p-3 text-sm flex flex-col",
                     isOutgoing
                         ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
+                        : "bg-muted"
                 )}
             >
-                {message.type === 'text' ? (
+                {message.type === 'text' && message.content.text ? (
                      <p className="whitespace-pre-wrap">{message.content.text.body}</p>
                 ) : (
                     <MediaContent message={message} />
@@ -100,7 +101,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
                     </p>
                 )}
 
-                <div className="flex items-center gap-2 self-end mt-1 pt-1 opacity-80">
+                <div className={cn("flex items-center gap-2 self-end mt-1 pt-1", isOutgoing ? 'opacity-80' : 'opacity-60')}>
                     <p className="text-xs">
                         {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>

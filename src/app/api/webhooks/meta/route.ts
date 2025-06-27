@@ -246,7 +246,7 @@ export async function POST(request: NextRequest) {
             
             const project = await db.collection('projects').findOne(
                 { $or: [ { wabaId: wabaId }, { 'phoneNumbers.id': value.metadata?.phone_number_id }, { 'phoneNumbers.display_phone_number': value.display_phone_number }, { 'phoneNumbers.display_phone_number': value.phone_number }, { 'phoneNumbers.display_phone_number': value.metadata?.display_phone_number } ] }, 
-                { projection: { _id: 1, name: 1, wabaId: 1 } }
+                { projection: { _id: 1, name: 1, wabaId: 1, businessCapabilities: 1 } }
             );
 
             if (!project && change.field !== 'message_template_quality_update') {
@@ -301,6 +301,14 @@ export async function POST(request: NextRequest) {
                     const updatedContact = contactUpdateResult.value;
 
                     if (updatedContact) {
+                         let contentToStore;
+                         const messageType = message.type as string;
+                         if (message[messageType]) {
+                            contentToStore = { [messageType]: message[messageType] };
+                         } else {
+                            contentToStore = { unknown: {} };
+                         }
+
                         await db.collection('incoming_messages').insertOne({
                             direction: 'in',
                             projectId: projectForMessage._id,
@@ -308,7 +316,7 @@ export async function POST(request: NextRequest) {
                             wamid: message.id,
                             messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
                             type: message.type,
-                            content: message,
+                            content: contentToStore,
                             isRead: false,
                             createdAt: new Date(),
                         });
