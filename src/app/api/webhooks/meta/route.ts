@@ -236,17 +236,67 @@ export async function POST(request: NextRequest) {
                 continue; // This change has been handled, move to the next.
             }
             
-            // For all other event types, we require a project to exist for the entry.id
-            const project = await db.collection('projects').findOne({ wabaId: wabaId }, { projection: { _id: 1, name: 1 } });
+            // For all other event types, we require a project to exist that is associated with the webhook event
+            const project = await db.collection('projects').findOne(
+                { 
+                    $or: [
+                        { wabaId: wabaId },
+                        { 'phoneNumbers.id': value.display_phone_number }
+                    ]
+                }, 
+                { projection: { _id: 1, name: 1, wabaId: 1 } }
+            );
 
             if (!project) {
-                console.log(`Webhook received for field '${change.field}' on unknown WABA ID ${wabaId}, skipping DB updates.`);
+                console.log(`Webhook received for field '${change.field}' on unknown WABA ID ${wabaId} or phone number, skipping DB updates.`);
                 continue;
             }
 
-            console.log(`Processing change for field: "${change.field}" in WABA ${wabaId}`);
+            console.log(`Processing change for field: "${change.field}" in WABA ${project.wabaId} for project ${project.name}`);
             
             switch (change.field) {
+                // --- MESSAGE EVENTS ---
+                case 'messages': {
+                    const { metadata, contacts, messages } = value;
+                    if (!metadata || !contacts || !messages) continue;
+
+                    const message = messages[0];
+                    const contact = contacts[0];
+                    const senderName = contact.profile?.name || 'Unknown User';
+                    
+                    // Prepare document for the new incoming_messages collection
+                    await db.collection('incoming_messages').insertOne({
+                        projectId: project._id,
+                        wabaId: project.wabaId,
+                        phoneNumberId: metadata.phone_number_id,
+                        displayPhoneNumber: metadata.display_phone_number,
+                        senderWaId: message.from,
+                        senderName: senderName,
+                        messageId: message.id,
+                        messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
+                        type: message.type,
+                        content: message.text ? { body: message.text.body } : { raw: message }, // Handle text messages, store others raw
+                        isRead: false,
+                        receivedAt: new Date()
+                    });
+
+                    // Create a notification
+                    await db.collection('notifications').insertOne({
+                        projectId: project._id,
+                        wabaId: project.wabaId,
+                        message: `New message from ${senderName} for project '${project.name}'.`,
+                        link: '/dashboard/notifications', // Placeholder for future inbox link
+                        isRead: false,
+                        createdAt: new Date(),
+                        eventType: change.field,
+                    });
+
+                    // Revalidate paths to update UI
+                    revalidatePath('/dashboard/notifications');
+                    revalidatePath('/dashboard', 'layout'); // Update notification count in header
+                    break;
+                }
+
                 // --- PHONE NUMBER UPDATES ---
                 case 'phone_number_quality_update':
                     if (value.display_phone_number && value.event) {
@@ -273,7 +323,7 @@ export async function POST(request: NextRequest) {
                             
                             if (result.modifiedCount > 0) {
                                 await db.collection('notifications').insertOne({
-                                    projectId: project._id, wabaId,
+                                    projectId: project._id, wabaId: project.wabaId,
                                     message: notificationMessage,
                                     link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
                                     eventType: change.field,
@@ -296,7 +346,7 @@ export async function POST(request: NextRequest) {
 
                             if (result.modifiedCount > 0) {
                                  await db.collection('notifications').insertOne({
-                                    projectId: project._id, wabaId,
+                                    projectId: project._id, wabaId: project.wabaId,
                                     message: `For project '${project.name}', display name for ${value.display_phone_number} was approved as "${newVerifiedName}".`,
                                     link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
                                     eventType: change.field,
@@ -316,7 +366,7 @@ export async function POST(request: NextRequest) {
                         );
                         if (result.modifiedCount > 0) {
                             await db.collection('notifications').insertOne({
-                                projectId: project._id, wabaId,
+                                projectId: project._id, wabaId: project.wabaId,
                                 message: `For project '${project.name}', verification status for ${value.display_phone_number} is now ${value.new_code_verification_status.replace(/_/g, ' ').toLowerCase()}.`,
                                 link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
                                 eventType: change.field,
@@ -337,7 +387,7 @@ export async function POST(request: NextRequest) {
                         );
                         if (result.modifiedCount > 0) {
                             await db.collection('notifications').insertOne({
-                               projectId: project._id, wabaId,
+                               projectId: project._id, wabaId: project.wabaId,
                                message: `For project '${project.name}', template '${value.message_template_name}' status updated to ${value.event}. Reason: ${value.reason || 'None'}.`,
                                link: '/dashboard/templates', isRead: false, createdAt: new Date(),
                                eventType: change.field,
@@ -356,7 +406,7 @@ export async function POST(request: NextRequest) {
                         );
                         if (result.modifiedCount > 0) {
                              await db.collection('notifications').insertOne({
-                                projectId: project._id, wabaId,
+                                projectId: project._id, wabaId: project.wabaId,
                                 message: `For project '${project.name}', category for template '${value.message_template_name}' was changed to ${value.new_category}.`,
                                 link: '/dashboard/templates', isRead: false, createdAt: new Date(),
                                 eventType: change.field,
@@ -375,7 +425,7 @@ export async function POST(request: NextRequest) {
                         );
                         if (result.modifiedCount > 0) {
                             await db.collection('notifications').insertOne({
-                               projectId: project._id, wabaId,
+                               projectId: project._id, wabaId: project.wabaId,
                                message: `For project '${project.name}', quality for template '${value.message_template_name}' is now ${value.new_quality_score}.`,
                                link: '/dashboard/templates', isRead: false, createdAt: new Date(),
                                eventType: change.field,
@@ -395,7 +445,7 @@ export async function POST(request: NextRequest) {
                         );
                         if (result.modifiedCount > 0) {
                             await db.collection('notifications').insertOne({
-                                projectId: project._id, wabaId,
+                                projectId: project._id, wabaId: project.wabaId,
                                 message: `Account review for '${project.name}' was completed. The new status is ${value.decision}.`,
                                 link: '/dashboard/information', isRead: false, createdAt: new Date(),
                                 eventType: change.field,
@@ -423,7 +473,7 @@ export async function POST(request: NextRequest) {
 
                         if (result.modifiedCount > 0) {
                             await db.collection('notifications').insertOne({
-                                projectId: project._id, wabaId,
+                                projectId: project._id, wabaId: project.wabaId,
                                 message: `Business capabilities for '${project.name}' have been updated.`,
                                 link: '/dashboard/information', isRead: false, createdAt: new Date(),
                                 eventType: change.field,
@@ -453,7 +503,7 @@ export async function POST(request: NextRequest) {
                         );
                         if (result.modifiedCount > 0) {
                             await db.collection('notifications').insertOne({
-                                projectId: project._id, wabaId,
+                                projectId: project._id, wabaId: project.wabaId,
                                 message: `For project '${project.name}', payment configuration '${value.configuration_name}' updated. New status: ${value.status}.`,
                                 link: '/dashboard/information', isRead: false, createdAt: new Date(),
                                 eventType: change.field,
@@ -465,7 +515,6 @@ export async function POST(request: NextRequest) {
                     break;
 
                 // --- LOG-ONLY EVENTS ---
-                case 'messages':
                 case 'message_deliveries':
                 case 'message_reads':
                 case 'message_reactions':
