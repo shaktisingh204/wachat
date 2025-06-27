@@ -1689,18 +1689,17 @@ export async function getConversation(contactId: string): Promise<AnyMessage[]> 
         const { db } = await connectToDatabase();
         const contactObjectId = new ObjectId(contactId);
 
-        const incoming = await db.collection<IncomingMessage>('incoming_messages').find({ contactId: contactObjectId }).toArray();
-        const outgoing = await db.collection<OutgoingMessage>('outgoing_messages').find({ contactId: contactObjectId }).toArray();
+        const incomingPromise = db.collection<IncomingMessage>('incoming_messages').find({ contactId: contactObjectId }).toArray();
+        const outgoingPromise = db.collection<OutgoingMessage>('outgoing_messages').find({ contactId: contactObjectId }).toArray();
+        
+        const [incoming, outgoing] = await Promise.all([incomingPromise, outgoingPromise]);
 
-        const allMessages: AnyMessage[] = [
-            ...incoming.map(m => ({ ...m, direction: 'in' as const })),
-            ...outgoing.map(m => ({ ...m, direction: 'out' as const }))
-        ];
+        const allMessages: AnyMessage[] = [...incoming, ...outgoing];
 
         allMessages.sort((a, b) => {
-            const timeA = a.messageTimestamp || a.createdAt;
-            const timeB = b.messageTimestamp || b.createdAt;
-            return new Date(timeA).getTime() - new Date(timeB).getTime();
+            const timeA = new Date(a.messageTimestamp || a.createdAt).getTime();
+            const timeB = new Date(b.messageTimestamp || b.createdAt).getTime();
+            return timeA - timeB;
         });
 
         return JSON.parse(JSON.stringify(allMessages));
