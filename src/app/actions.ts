@@ -1592,3 +1592,18 @@ export async function markNotificationAsRead(notificationId: string): Promise<{ 
         return { success: false };
     }
 }
+
+export async function markAllNotificationsAsRead(): Promise<{ success: boolean, updatedCount: number }> {
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('notifications').updateMany(
+            { isRead: false },
+            { $set: { isRead: true } }
+        );
+        revalidatePath('/dashboard', 'layout');
+        return { success: true, updatedCount: result.modifiedCount };
+    } catch (error) {
+        console.error('Failed to mark all notifications as read:', error);
+        return { success: false, updatedCount: 0 };
+    }
+}

@@ -2,7 +2,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { getAllNotifications, markNotificationAsRead } from '@/app/actions';
+import { getAllNotifications, markAllNotificationsAsRead, markNotificationAsRead } from '@/app/actions';
 import type { NotificationWithProject } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import { useRouter } from 'next/navigation';
@@ -11,7 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Eye, RefreshCw, Bell, BellRing } from "lucide-react";
+import { BadgeCheck, Bell, BellRing, Eye, LoaderCircle, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NOTIFICATIONS_PER_PAGE = 20;
@@ -20,6 +20,7 @@ export default function NotificationsPage() {
     const [notifications, setNotifications] = useState<WithId<NotificationWithProject>[]>([]);
     const [loading, setLoading] = useState(true);
     const [isRefreshing, startRefreshTransition] = useTransition();
+    const [isMarkingRead, startMarkingReadTransition] = useTransition();
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const { toast } = useToast();
@@ -69,6 +70,30 @@ export default function NotificationsPage() {
             .replace(/\b\w/g, char => char.toUpperCase());
     };
 
+    const handleMarkAllRead = () => {
+        startMarkingReadTransition(async () => {
+            const result = await markAllNotificationsAsRead();
+            if (result.success) {
+                toast({
+                    title: "Success",
+                    description: result.updatedCount > 0 
+                        ? `${result.updatedCount} notification(s) marked as read.`
+                        : 'No new notifications to mark as read.'
+                });
+                if (result.updatedCount > 0) {
+                    fetchNotifications(1);
+                    setCurrentPage(1);
+                }
+            } else {
+                toast({
+                    title: "Error",
+                    description: "Failed to mark all notifications as read.",
+                    variant: "destructive"
+                });
+            }
+        });
+    };
+
     return (
         <div className="flex flex-col gap-8">
             <div className="flex items-center justify-between">
@@ -76,10 +101,20 @@ export default function NotificationsPage() {
                     <h1 className="text-3xl font-bold font-headline">All Notifications</h1>
                     <p className="text-muted-foreground">A complete history of all automated events and alerts.</p>
                 </div>
-                <Button onClick={() => fetchNotifications(currentPage, true)} disabled={isRefreshing} variant="outline" size="sm">
-                    <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                    Refresh
-                </Button>
+                 <div className="flex items-center gap-2">
+                    <Button onClick={handleMarkAllRead} disabled={isRefreshing || isMarkingRead} variant="outline" size="sm">
+                        {isMarkingRead ? (
+                            <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                            <BadgeCheck className="mr-2 h-4 w-4" />
+                        )}
+                        Mark all as read
+                    </Button>
+                    <Button onClick={() => fetchNotifications(currentPage, true)} disabled={isRefreshing || isMarkingRead} variant="outline" size="sm">
+                        <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                        Refresh
+                    </Button>
+                </div>
             </div>
 
             <Card>
