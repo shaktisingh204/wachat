@@ -53,7 +53,7 @@ const getSearchableText = (payload: any): string => {
                         text += ` ${value.message_template_name || ''}`;
                         text += ` ${value.message_template_language || ''}`;
                         text += ` ${value.previous_category || ''}`;
-                        text += ` ${value.new_template_category || ''}`;
+                        text += ` ${value.new_category || ''}`;
                         text += ` ${value.new_quality_score || ''}`;
                         
                         // Account related
@@ -201,7 +201,15 @@ export async function POST(request: NextRequest) {
                             { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
                             { $set: { 'phoneNumbers.$.code_verification_status': value.new_code_verification_status } }
                         );
-                        if (result.modifiedCount > 0) revalidatePath('/dashboard/numbers');
+                        if (result.modifiedCount > 0) {
+                            await db.collection('notifications').insertOne({
+                                projectId: project._id, wabaId,
+                                message: `Verification status for ${value.display_phone_number} is now ${value.new_code_verification_status.replace(/_/g, ' ').toLowerCase()}.`,
+                                link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
+                            });
+                            revalidatePath('/dashboard/numbers');
+                            revalidatePath('/dashboard/layout');
+                        }
                     }
                     break;
 
@@ -231,7 +239,15 @@ export async function POST(request: NextRequest) {
                             { metaId: value.message_template_id, projectId: project._id },
                             { $set: { category: value.new_category.toUpperCase() } }
                         );
-                        if (result.modifiedCount > 0) revalidatePath('/dashboard/templates');
+                        if (result.modifiedCount > 0) {
+                             await db.collection('notifications').insertOne({
+                                projectId: project._id, wabaId,
+                                message: `Category for template '${value.message_template_name}' was changed to ${value.new_category}.`,
+                                link: '/dashboard/templates', isRead: false, createdAt: new Date(),
+                            });
+                            revalidatePath('/dashboard/templates');
+                            revalidatePath('/dashboard/layout');
+                        }
                     }
                     break;
                 
@@ -316,7 +332,15 @@ export async function POST(request: NextRequest) {
                                 } 
                             }
                         );
-                        if (result.modifiedCount > 0) revalidatePath('/dashboard/information');
+                        if (result.modifiedCount > 0) {
+                            await db.collection('notifications').insertOne({
+                                projectId: project._id, wabaId,
+                                message: `Payment configuration '${value.configuration_name}' updated. New status: ${value.status}.`,
+                                link: '/dashboard/information', isRead: false, createdAt: new Date(),
+                            });
+                            revalidatePath('/dashboard/information');
+                            revalidatePath('/dashboard/layout');
+                        }
                     }
                     break;
 
