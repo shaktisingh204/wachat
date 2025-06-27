@@ -173,6 +173,18 @@ export async function POST(request: NextRequest) {
             const value = change.value;
             if (!value) continue;
 
+            // A change can contain status updates. Process these first as they don't need project lookup.
+            if (value.statuses) {
+                await processStatuses(db, value.statuses);
+            }
+
+            // If the change was ONLY a status update (e.g. from message_status field),
+            // we can skip the rest of the logic for this change.
+            // The `messages` field can contain both statuses and new messages, so we only skip if `messages` isn't present.
+            if (change.field === 'message_status' || (change.field === 'messages' && !value.messages)) {
+                continue;
+            }
+
             // Handle special cases that don't rely on a pre-existing project matching the entry.id
             if (change.field === 'account_update') {
                 console.log(`Processing account_update event: ${value.event}`);
@@ -300,12 +312,7 @@ export async function POST(request: NextRequest) {
             switch (change.field) {
                 // --- MESSAGE EVENTS ---
                 case 'messages': {
-                    // Handle outgoing message status updates first
-                    if (value.statuses) {
-                        await processStatuses(db, value.statuses);
-                    }
-                    
-                    // Handle incoming messages
+                    // Statuses are handled above. Now handle incoming messages.
                     if (value.messages && value.contacts) {
                          if (!project) break;
                         const { metadata, contacts, messages } = value;
@@ -371,10 +378,9 @@ export async function POST(request: NextRequest) {
                     break;
                 }
                 
-                case 'message_status': { // Handling based on user-provided doc
-                    if (value.statuses) {
-                        await processStatuses(db, value.statuses);
-                    }
+                case 'message_status': {
+                    // This event type is fully handled by the processStatuses block above.
+                    // This case is intentionally left blank.
                     break;
                 }
 
