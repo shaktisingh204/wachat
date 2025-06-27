@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useRef } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { handleSendMessage } from '@/app/actions';
 import type { WithId } from 'mongodb';
@@ -13,7 +13,6 @@ import { useToast } from '@/hooks/use-toast';
 
 interface ChatMessageInputProps {
     contact: WithId<Contact>;
-    onMessageSent: () => void;
 }
 
 const initialState = {
@@ -31,21 +30,20 @@ function SubmitButton() {
     );
 }
 
-export function ChatMessageInput({ contact, onMessageSent }: ChatMessageInputProps) {
+export function ChatMessageInput({ contact }: ChatMessageInputProps) {
     const [state, formAction] = useActionState(handleSendMessage, initialState);
     const formRef = useRef<HTMLFormElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { toast } = useToast();
 
-    if (state?.message) {
-        onMessageSent();
-        formRef.current?.reset();
-        state.message = null; // Reset state to prevent re-triggering
-    }
-    if (state?.error) {
-        toast({ title: 'Error sending message', description: state.error, variant: 'destructive' });
-        state.error = null; // Reset state
-    }
+    useEffect(() => {
+        if (state.error) {
+            toast({ title: 'Error sending message', description: state.error, variant: 'destructive' });
+        }
+        if (state.message) {
+            formRef.current?.reset();
+        }
+    }, [state, toast]);
 
     const handleFileChange = () => {
         // Automatically submit the form when a file is selected
