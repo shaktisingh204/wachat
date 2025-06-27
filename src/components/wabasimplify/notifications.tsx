@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { getNotifications, markNotificationAsRead, type Notification } from '@/app/actions';
+import { getNotifications, markNotificationAsRead, type NotificationWithProject } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
@@ -21,7 +21,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '../ui/skeleton';
 
 export function Notifications() {
-  const [notifications, setNotifications] = useState<WithId<Notification>[]>([]);
+  const [notifications, setNotifications] = useState<WithId<NotificationWithProject>[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isClient, setIsClient] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -29,14 +29,11 @@ export function Notifications() {
   const { toast } = useToast();
 
   const fetchNotifs = useCallback(() => {
-    const projectId = localStorage.getItem('activeProjectId');
-    if (projectId) {
-      startTransition(async () => {
-        const fetchedNotifications = await getNotifications(projectId);
-        setNotifications(fetchedNotifications);
-        setUnreadCount(fetchedNotifications.filter(n => !n.isRead).length);
-      });
-    }
+    startTransition(async () => {
+      const fetchedNotifications = await getNotifications();
+      setNotifications(fetchedNotifications);
+      setUnreadCount(fetchedNotifications.filter(n => !n.isRead).length);
+    });
   }, []);
 
   useEffect(() => {
@@ -44,7 +41,7 @@ export function Notifications() {
     fetchNotifs();
   }, [fetchNotifs]);
   
-  const handleNotificationClick = async (notification: WithId<Notification>) => {
+  const handleNotificationClick = async (notification: WithId<NotificationWithProject>) => {
     if (!notification.isRead) {
       startTransition(async () => {
         const result = await markNotificationAsRead(notification._id.toString());
@@ -55,7 +52,9 @@ export function Notifications() {
         }
       });
     }
-    router.push(notification.link);
+    if (notification.link) {
+      router.push(notification.link);
+    }
   };
 
   if (!isClient) {
@@ -91,7 +90,8 @@ export function Notifications() {
                 className={cn("cursor-pointer items-start gap-3 p-3")}
                 >
                 <div className={cn("mt-1 h-2 w-2 rounded-full flex-shrink-0", !notification.isRead ? 'bg-primary' : 'bg-transparent')} />
-                <div className="flex flex-col">
+                <div className="flex flex-col gap-1">
+                    <p className="text-xs font-bold text-primary">{notification.projectName || 'System Notification'}</p>
                     <p className={cn("whitespace-normal flex-grow text-sm", !notification.isRead && "font-semibold")}>{notification.message}</p>
                     <p className="text-xs text-muted-foreground">{new Date(notification.createdAt).toLocaleString()}</p>
                 </div>

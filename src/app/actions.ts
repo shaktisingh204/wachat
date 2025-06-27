@@ -118,6 +118,9 @@ export type Notification = {
     createdAt: Date;
 };
 
+export type NotificationWithProject = Notification & { projectName?: string };
+
+
 const getErrorMessage = (error: any): string => {
     if (error instanceof Error) {
         // Handle native fetch response errors
@@ -1458,17 +1461,40 @@ export async function handleClearWebhookLogs(): Promise<{ message?: string; erro
     }
 }
 
-export async function getNotifications(projectId: string): Promise<WithId<Notification>[]> {
-    if (!ObjectId.isValid(projectId)) {
-        return [];
-    }
+export async function getNotifications(): Promise<WithId<NotificationWithProject>[]> {
     try {
         const { db } = await connectToDatabase();
-        const notifications = await db.collection('notifications')
-            .find({ projectId: new ObjectId(projectId) })
-            .sort({ createdAt: -1 })
-            .limit(10) // Limit to 10 most recent
-            .toArray();
+        const notifications = await db.collection('notifications').aggregate([
+            { $sort: { createdAt: -1 } },
+            { $limit: 20 },
+            {
+                $lookup: {
+                    from: 'projects',
+                    localField: 'projectId',
+                    foreignField: '_id',
+                    as: 'projectInfo'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$projectInfo',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    projectId: 1,
+                    wabaId: 1,
+                    message: 1,
+                    link: 1,
+                    isRead: 1,
+                    createdAt: 1,
+                    projectName: '$projectInfo.name'
+                }
+            }
+        ]).toArray();
+
         return JSON.parse(JSON.stringify(notifications));
     } catch (error) {
         console.error('Failed to fetch notifications:', error);
@@ -1486,7 +1512,7 @@ export async function markNotificationAsRead(notificationId: string): Promise<{ 
             { _id: new ObjectId(notificationId) },
             { $set: { isRead: true } }
         );
-        revalidatePath('/dashboard'); // Revalidate layout to update count
+        revalidatePath('/dashboard', 'layout'); // Revalidate layout to update count
         return { success: true };
     } catch (error) {
         console.error('Failed to mark notification as read:', error);
