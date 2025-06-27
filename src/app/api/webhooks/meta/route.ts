@@ -488,7 +488,7 @@ export async function POST(request: NextRequest) {
                     }
                     break;
 
-                case 'business_capability_update':
+                case 'business_capability_update': {
                     const updatePayload: any = {};
                     if (value.max_daily_conversation_per_phone !== undefined) {
                         updatePayload['businessCapabilities.max_daily_conversation_per_phone'] = value.max_daily_conversation_per_phone;
@@ -515,6 +515,7 @@ export async function POST(request: NextRequest) {
                         }
                     }
                     break;
+                }
 
                 case 'payment_configuration_update':
                     if (value.configuration_name && value.provider_name) {

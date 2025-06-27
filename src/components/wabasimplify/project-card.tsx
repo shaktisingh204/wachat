@@ -29,17 +29,40 @@ export function ProjectCard({ project }: ProjectCardProps) {
         return 'destructive';
     };
 
+    const formatThroughput = (level?: string): string => {
+        if (!level) return 'N/A';
+        const lowerLevel = level.toLowerCase();
+    
+        if (lowerLevel.includes('unlimited')) {
+            return 'Unlimited';
+        }
+        if (lowerLevel.startsWith('tier_')) {
+            const tierValue = lowerLevel.replace('tier_', '').toUpperCase();
+            return `${tierValue} / 24h`;
+        }
+    
+        return level.replace(/_/g, ' ').toLowerCase();
+    };
+
+    const throughputLevel = project.phoneNumbers?.[0]?.throughput?.level;
 
     return (
         <Card className="flex flex-col justify-between hover:shadow-lg hover:border-primary transition-all">
             <CardHeader>
                 <div className="flex justify-between items-start gap-2">
                     <CardTitle className="break-all">{project.name}</CardTitle>
-                    {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
-                        <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize flex-shrink-0">
-                            {project.reviewStatus.replace(/_/g, ' ').toLowerCase()}
-                        </Badge>
-                    )}
+                    <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                        {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
+                            <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize">
+                                {project.reviewStatus.replace(/_/g, ' ').toLowerCase()}
+                            </Badge>
+                        )}
+                        {throughputLevel && (
+                             <Badge variant="outline" className="capitalize">
+                                {formatThroughput(throughputLevel)}
+                            </Badge>
+                        )}
+                    </div>
                 </div>
                 <CardDescription>WABA ID: {project.wabaId}</CardDescription>
             </CardHeader>
