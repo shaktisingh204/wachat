@@ -8,15 +8,18 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
+import { Button } from '../ui/button';
+import { MessageSquarePlus } from 'lucide-react';
 
 interface ChatContactListProps {
     contacts: WithId<Contact>[];
     selectedContactId?: string;
     onSelectContact: (contact: WithId<Contact>) => void;
+    onNewChat: () => void;
     isLoading: boolean;
 }
 
-export function ChatContactList({ contacts, selectedContactId, onSelectContact, isLoading }: ChatContactListProps) {
+export function ChatContactList({ contacts, selectedContactId, onSelectContact, onNewChat, isLoading }: ChatContactListProps) {
 
     const ContactSkeleton = () => (
         <div className="flex items-center gap-3 p-3">
@@ -30,8 +33,12 @@ export function ChatContactList({ contacts, selectedContactId, onSelectContact, 
     
     return (
         <div className="h-full flex flex-col">
-            <div className="p-4 border-b">
+            <div className="p-4 border-b flex items-center justify-between">
                 <h2 className="text-lg font-semibold tracking-tight">Contacts</h2>
+                <Button variant="ghost" size="icon" onClick={onNewChat} className="h-8 w-8">
+                    <MessageSquarePlus className="h-5 w-5" />
+                    <span className="sr-only">New Chat</span>
+                </Button>
             </div>
             <ScrollArea className="flex-1">
                 {isLoading ? (
@@ -55,14 +62,16 @@ export function ChatContactList({ contacts, selectedContactId, onSelectContact, 
                                 <p className="font-semibold truncate">{contact.name}</p>
                                 <p className="text-sm text-muted-foreground truncate">{contact.lastMessage}</p>
                             </div>
-                            <div className="flex flex-col items-end gap-1 self-start">
-                                <p className="text-xs text-muted-foreground whitespace-nowrap">
-                                    {new Date(contact.lastMessageTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </p>
-                                {contact.unreadCount > 0 && (
-                                    <Badge variant="default" className="h-5 w-5 flex items-center justify-center p-0">{contact.unreadCount}</Badge>
-                                )}
-                            </div>
+                            {contact.lastMessageTimestamp && (
+                                <div className="flex flex-col items-end gap-1 self-start">
+                                    <p className="text-xs text-muted-foreground whitespace-nowrap">
+                                        {new Date(contact.lastMessageTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </p>
+                                    {contact.unreadCount && contact.unreadCount > 0 && (
+                                        <Badge variant="default" className="h-5 w-5 flex items-center justify-center p-0">{contact.unreadCount}</Badge>
+                                    )}
+                                </div>
+                            )}
                         </button>
                     ))
                 ) : (

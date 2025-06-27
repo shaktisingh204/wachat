@@ -14,10 +14,9 @@ interface ChatWindowProps {
     contact: WithId<Contact>;
     conversation: AnyMessage[];
     isLoading: boolean;
-    onMessageSent: () => void;
 }
 
-export function ChatWindow({ contact, conversation, isLoading, onMessageSent }: ChatWindowProps) {
+export function ChatWindow({ contact, conversation, isLoading }: ChatWindowProps) {
     const scrollAreaRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -71,7 +70,7 @@ export function ChatWindow({ contact, conversation, isLoading, onMessageSent }: 
             </ScrollArea>
             
             <div className="p-4 border-t bg-background/80">
-                <ChatMessageInput contact={contact} onMessageSent={onMessageSent} />
+                <ChatMessageInput contact={contact} />
             </div>
         </div>
     );

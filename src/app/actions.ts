@@ -125,15 +125,15 @@ export type NotificationWithProject = Notification & { projectName?: string };
 
 // --- Live Chat Types ---
 export type Contact = {
-    _id: ObjectId;
     projectId: ObjectId;
     waId: string; // The user's WhatsApp ID
     phoneNumberId: string; // The business phone number they are talking to
     name: string;
-    lastMessage: string;
-    lastMessageTimestamp: Date;
-    unreadCount: number;
+    lastMessage?: string;
+    lastMessageTimestamp?: Date;
+    unreadCount?: number;
     createdAt: Date;
+    variables?: Record<string, string>;
 }
 
 export type IncomingMessage = {
@@ -1663,7 +1663,7 @@ export async function markAllNotificationsAsRead(): Promise<{ success: boolean, 
     }
 }
 
-// --- Live Chat Actions ---
+// --- Live Chat & Contacts Actions ---
 
 export async function getContactsForProject(projectId: string, phoneNumberId: string): Promise<WithId<Contact>[]> {
     if (!ObjectId.isValid(projectId)) return [];
@@ -1821,11 +1821,203 @@ export async function handleSendMessage(
         );
 
         revalidatePath('/dashboard/chat');
+        revalidatePath('/dashboard/contacts');
         return { message: 'Message sent successfully', error: null };
 
     } catch (e: any) {
         console.error("Error sending message:", e);
         const error = getErrorMessage(e);
         return { message: null, error };
+    }
+}
+
+export async function findOrCreateContact(
+    projectId: string, 
+    phoneNumberId: string, 
+    waId: string
+): Promise<{ contact?: WithId<Contact>; error?: string }> {
+    if (!ObjectId.isValid(projectId) || !phoneNumberId || !waId) {
+        return { error: 'Invalid input provided.' };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        
+        const { value: contact } = await db.collection<Contact>('contacts').findOneAndUpdate(
+            { projectId: new ObjectId(projectId), waId },
+            {
+                $setOnInsert: {
+                    projectId: new ObjectId(projectId),
+                    phoneNumberId,
+                    waId,
+                    name: waId, // Default name to phone number
+                    createdAt: new Date(),
+                    unreadCount: 0,
+                    lastMessage: 'New Contact',
+                    lastMessageTimestamp: new Date(),
+                }
+            },
+            { upsert: true, returnDocument: 'after' }
+        );
+
+        if (!contact) {
+            return { error: 'Failed to find or create contact.' };
+        }
+        
+        revalidatePath('/dashboard/chat');
+        revalidatePath('/dashboard/contacts');
+        return { contact: JSON.parse(JSON.stringify(contact)) };
+    } catch (error: any) {
+        console.error("Error in findOrCreateContact:", error);
+        return { error: error.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleAddNewContact(
+    prevState: { message: string | null; error: string | null },
+    formData: FormData
+): Promise<{ message: string | null; error: string | null }> {
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    const name = formData.get('name') as string;
+    const waId = formData.get('waId') as string;
+
+    if (!projectId || !phoneNumberId || !name || !waId) {
+        return { error: 'All fields are required.' };
+    }
+     if (!ObjectId.isValid(projectId)) {
+        return { error: 'Invalid Project ID.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const existingContact = await db.collection('contacts').findOne({
+            projectId: new ObjectId(projectId),
+            waId,
+        });
+
+        if (existingContact) {
+            return { error: 'A contact with this WhatsApp ID already exists for this project.' };
+        }
+
+        const newContact: Omit<Contact, '_id'> = {
+            projectId: new ObjectId(projectId),
+            phoneNumberId,
+            name,
+            waId,
+            lastMessage: 'Manually added',
+            lastMessageTimestamp: new Date(),
+            unreadCount: 0,
+            createdAt: new Date(),
+        };
+
+        await db.collection('contacts').insertOne(newContact);
+
+        revalidatePath('/dashboard/contacts');
+        return { message: `Contact "${name}" added successfully.`, error: null };
+
+    } catch (error: any) {
+        console.error("Error adding new contact:", error);
+        return { message: null, error: error.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleImportContacts(
+    prevState: { message: string | null; error: string | null },
+    formData: FormData
+): Promise<{ message: string | null; error: string | null }> {
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    const contactFile = formData.get('contactFile') as File;
+
+    if (!projectId || !phoneNumberId || !contactFile) {
+        return { error: 'Project, phone number, and a file are required.' };
+    }
+    if (!ObjectId.isValid(projectId)) {
+        return { error: 'Invalid Project ID.' };
+    }
+
+    const { db } = await connectToDatabase();
+    
+    const processContacts = (data: string): Promise<number> => {
+        return new Promise((resolve, reject) => {
+            let importedCount = 0;
+            const operations: any[] = [];
+            
+            Papa.parse(data, {
+                header: true,
+                skipEmptyLines: true,
+                complete: async (results) => {
+                    const rows = results.data as Record<string, string>[];
+                    if (rows.length === 0) {
+                        return reject(new Error("File is empty or not formatted correctly."));
+                    }
+                    
+                    const waIdHeader = Object.keys(rows[0])[0];
+                    const nameHeader = Object.keys(rows[0])[1];
+
+                    if (!waIdHeader) {
+                        return reject(new Error("Could not find a header for the phone number (first column)."));
+                    }
+
+                    rows.forEach(row => {
+                        const waId = row[waIdHeader]?.trim();
+                        if (!waId) return;
+
+                        const name = row[nameHeader]?.trim() || waId;
+                        const { [waIdHeader]: _, [nameHeader]: __, ...variables } = row;
+
+                        const op = {
+                            updateOne: {
+                                filter: { projectId: new ObjectId(projectId), waId },
+                                update: {
+                                    $set: { name, variables },
+                                    $setOnInsert: {
+                                        projectId: new ObjectId(projectId),
+                                        phoneNumberId,
+                                        waId,
+                                        createdAt: new Date(),
+                                    }
+                                },
+                                upsert: true
+                            }
+                        };
+                        operations.push(op);
+                    });
+
+                    if (operations.length > 0) {
+                        const result = await db.collection('contacts').bulkWrite(operations, { ordered: false });
+                        importedCount = result.upsertedCount + result.modifiedCount;
+                    }
+                    
+                    resolve(importedCount);
+                },
+                error: (error: any) => reject(error)
+            });
+        });
+    };
+
+    try {
+        let importedCount = 0;
+        if (contactFile.name.endsWith('.csv')) {
+            const text = await contactFile.text();
+            importedCount = await processContacts(text);
+        } else if (contactFile.name.endsWith('.xlsx')) {
+            const buffer = Buffer.from(await contactFile.arrayBuffer());
+            const workbook = XLSX.read(buffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            if (!sheetName) throw new Error('XLSX file has no sheets.');
+            const worksheet = workbook.Sheets[sheetName];
+            const csvData = XLSX.utils.sheet_to_csv(worksheet);
+            importedCount = await processContacts(csvData);
+        } else {
+            return { error: 'Unsupported file type. Please upload a CSV or XLSX file.' };
+        }
+        
+        revalidatePath('/dashboard/contacts');
+        return { message: `Successfully imported ${importedCount} contacts.`, error: null };
+
+    } catch (error: any) {
+        console.error("Error importing contacts:", error);
+        return { message: null, error: error.message || 'An unexpected error occurred.' };
     }
 }
