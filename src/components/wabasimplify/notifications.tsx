@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect, useState, useTransition, useCallback } from 'react';
-import { Bell } from 'lucide-react';
+import { Bell, BellRing } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -23,7 +23,6 @@ import { Skeleton } from '../ui/skeleton';
 
 export function Notifications() {
   const [notifications, setNotifications] = useState<WithId<NotificationWithProject>[]>([]);
-  const [groupedNotifications, setGroupedNotifications] = useState<Record<string, WithId<NotificationWithProject>[]>>({});
   const [unreadCount, setUnreadCount] = useState(0);
   const [isClient, setIsClient] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -41,16 +40,6 @@ export function Notifications() {
       const fetchedNotifications = await getNotifications();
       setNotifications(fetchedNotifications);
       setUnreadCount(fetchedNotifications.filter(n => !n.isRead).length);
-
-      const grouped = fetchedNotifications.reduce((acc, notif) => {
-        const eventType = notif.eventType || 'general';
-        if (!acc[eventType]) {
-          acc[eventType] = [];
-        }
-        acc[eventType].push(notif);
-        return acc;
-      }, {} as Record<string, WithId<NotificationWithProject>[]>);
-      setGroupedNotifications(grouped);
     });
   }, []);
 
@@ -105,36 +94,36 @@ export function Notifications() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-96">
-        <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+        <DropdownMenuLabel>Recent Notifications</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <div className="max-h-96 overflow-y-auto">
             {isPending && notifications.length === 0 ? (
-              <div className="p-2">
+              <div className="p-2 space-y-2">
+                <Skeleton className="h-16 w-full" />
+                <Skeleton className="h-16 w-full" />
                 <Skeleton className="h-16 w-full" />
               </div>
             ) : notifications.length > 0 ? (
-              Object.entries(groupedNotifications).map(([eventType, notifs]) => (
-                <React.Fragment key={eventType}>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuLabel className="text-xs uppercase text-muted-foreground px-3 py-2">
-                    {humanizeEventType(eventType)}
-                  </DropdownMenuLabel>
-                  {notifs.map(notification => (
-                      <DropdownMenuItem
-                        key={notification._id.toString()}
-                        onSelect={() => handleNotificationClick(notification)}
-                        className={cn("cursor-pointer items-start gap-3 p-3")}
-                      >
-                        <div className={cn("mt-1.5 h-2 w-2 rounded-full flex-shrink-0", !notification.isRead ? 'bg-primary' : 'bg-transparent')} />
-                        <div className="flex flex-col gap-1 w-full">
-                            <p className="text-xs font-bold text-primary">{notification.projectName || 'System Notification'}</p>
-                            <p className={cn("whitespace-normal flex-grow text-sm", !notification.isRead && "font-semibold")}>{notification.message}</p>
-                            <p className="text-xs text-muted-foreground">{new Date(notification.createdAt).toLocaleString()}</p>
+                notifications.map(notification => (
+                  <DropdownMenuItem
+                    key={notification._id.toString()}
+                    onSelect={() => handleNotificationClick(notification)}
+                    className={cn("cursor-pointer items-start gap-3 p-3")}
+                  >
+                    <div className="mt-1">
+                      {notification.isRead ? <Bell className="h-4 w-4 text-muted-foreground" /> : <BellRing className="h-4 w-4 text-primary" />}
+                    </div>
+                    <div className="flex-1 space-y-1">
+                        <div className="flex justify-between items-start">
+                          <p className={cn("text-sm flex-1", !notification.isRead && "font-semibold")}>{notification.message}</p>
+                          <p className="text-xs text-muted-foreground ml-2 whitespace-nowrap">
+                            {new Date(notification.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </p>
                         </div>
-                      </DropdownMenuItem>
-                  ))}
-                </React.Fragment>
-              ))
+                        <Badge variant="outline" className="text-xs font-mono">{humanizeEventType(notification.eventType)}</Badge>
+                    </div>
+                  </DropdownMenuItem>
+                ))
             ) : (
             <DropdownMenuItem disabled className="text-center">No new notifications</DropdownMenuItem>
             )}
