@@ -2,6 +2,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { revalidatePath } from 'next/cache';
+import type { Db } from 'mongodb';
 
 const getSearchableText = (payload: any): string => {
     let text = '';
@@ -88,6 +89,36 @@ const getSearchableText = (payload: any): string => {
     } catch(e) { /* ignore errors during text creation */ }
     return text.replace(/\s+/g, ' ').trim();
 };
+
+async function processStatuses(db: Db, statuses: any[]) {
+    if (!statuses || !Array.isArray(statuses) || statuses.length === 0) {
+        return;
+    }
+
+    const bulkOps = statuses.map((status: any) => {
+        const updatePayload: any = {
+            status: status.status,
+            [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000)
+        };
+        
+        if (status.status === 'failed' && status.errors && status.errors.length > 0) {
+            const error = status.errors[0];
+            updatePayload.error = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
+        }
+
+        return {
+            updateOne: {
+                filter: { wamid: status.id },
+                update: { $set: updatePayload }
+            }
+        };
+    });
+
+    if (bulkOps.length > 0) {
+        await db.collection('outgoing_messages').bulkWrite(bulkOps, { ordered: false });
+        revalidatePath('/dashboard/chat');
+    }
+}
 
 
 /**
@@ -269,86 +300,80 @@ export async function POST(request: NextRequest) {
             switch (change.field) {
                 // --- MESSAGE EVENTS ---
                 case 'messages': {
-                    if (!project) break; // Needs a project to associate with
-                    const { metadata, contacts, messages } = value;
-                    if (!metadata || !contacts || !messages) continue;
-
-                    const message = messages[0];
-                    const contact = contacts[0];
-                    const senderWaId = message.from;
-                    const senderName = contact.profile?.name || 'Unknown User';
-                    
-                    // Upsert contact record
-                    const { value: updatedContact } = await db.collection('contacts').findOneAndUpdate(
-                        { waId: senderWaId, projectId: project._id },
-                        {
-                            $set: {
-                                name: senderName,
-                                phoneNumberId: metadata.phone_number_id, // The business number they messaged
-                                lastMessage: message[message.type]?.body || `[${message.type}]`,
-                                lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
+                    // Handle incoming messages
+                    if (value.messages && value.contacts) {
+                         if (!project) break;
+                        const { metadata, contacts, messages } = value;
+                        if (!metadata) continue;
+                        
+                        const message = messages[0];
+                        const contact = contacts[0];
+                        const senderWaId = message.from;
+                        const senderName = contact.profile?.name || 'Unknown User';
+                        
+                        // Upsert contact record
+                        const { value: updatedContact } = await db.collection('contacts').findOneAndUpdate(
+                            { waId: senderWaId, projectId: project._id },
+                            {
+                                $set: {
+                                    name: senderName,
+                                    phoneNumberId: metadata.phone_number_id, // The business number they messaged
+                                    lastMessage: message[message.type]?.body || `[${message.type}]`,
+                                    lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
+                                },
+                                $inc: { unreadCount: 1 },
+                                $setOnInsert: {
+                                    waId: senderWaId,
+                                    projectId: project._id,
+                                    createdAt: new Date(),
+                                }
                             },
-                            $inc: { unreadCount: 1 },
-                            $setOnInsert: {
-                                waId: senderWaId,
+                            { upsert: true, returnDocument: 'after' }
+                        );
+
+                        // Store the new incoming message, linking it to the contact
+                        if (updatedContact) {
+                            await db.collection('incoming_messages').insertOne({
                                 projectId: project._id,
-                                createdAt: new Date(),
-                            }
-                        },
-                        { upsert: true, returnDocument: 'after' }
-                    );
+                                contactId: updatedContact._id,
+                                wabaId: project.wabaId,
+                                wamid: message.id,
+                                senderWaId: senderWaId,
+                                messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
+                                type: message.type,
+                                content: message, // Store the full message object
+                                isRead: false,
+                                receivedAt: new Date()
+                            });
+                        }
 
-                    // Store the new incoming message, linking it to the contact
-                    if (updatedContact) {
-                        await db.collection('incoming_messages').insertOne({
+                        // Create a notification
+                        await db.collection('notifications').insertOne({
                             projectId: project._id,
-                            contactId: updatedContact._id,
                             wabaId: project.wabaId,
-                            wamid: message.id,
-                            senderWaId: senderWaId,
-                            messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
-                            type: message.type,
-                            content: message, // Store the full message object
+                            message: `New message from ${senderName} for project '${project.name}'.`,
+                            link: '/dashboard/chat',
                             isRead: false,
-                            receivedAt: new Date()
+                            createdAt: new Date(),
+                            eventType: change.field,
                         });
+
+                        // Revalidate paths to update UI
+                        revalidatePath('/dashboard/chat');
+                        revalidatePath('/dashboard/notifications');
+                        revalidatePath('/dashboard', 'layout'); // Update notification count in header
                     }
-
-                    // Create a notification
-                    await db.collection('notifications').insertOne({
-                        projectId: project._id,
-                        wabaId: project.wabaId,
-                        message: `New message from ${senderName} for project '${project.name}'.`,
-                        link: '/dashboard/chat',
-                        isRead: false,
-                        createdAt: new Date(),
-                        eventType: change.field,
-                    });
-
-                    // Revalidate paths to update UI
-                    revalidatePath('/dashboard/chat');
-                    revalidatePath('/dashboard/notifications');
-                    revalidatePath('/dashboard', 'layout'); // Update notification count in header
+                    
+                    // Handle outgoing message status updates
+                    if (value.statuses) {
+                        await processStatuses(db, value.statuses);
+                    }
                     break;
                 }
                 
-                case 'status': { // For outgoing message status updates
-                    if (value.statuses && Array.isArray(value.statuses)) {
-                        const bulkOps = value.statuses.map((status: any) => ({
-                            updateOne: {
-                                filter: { wamid: status.id },
-                                update: {
-                                    $set: {
-                                        status: status.status, // 'sent', 'delivered', or 'read'
-                                        [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000)
-                                    }
-                                }
-                            }
-                        }));
-                        if (bulkOps.length > 0) {
-                            await db.collection('outgoing_messages').bulkWrite(bulkOps, { ordered: false });
-                            revalidatePath('/dashboard/chat');
-                        }
+                case 'message_status': { // Handling based on user-provided doc
+                    if (value.statuses) {
+                        await processStatuses(db, value.statuses);
                     }
                     break;
                 }
@@ -538,8 +563,8 @@ export async function POST(request: NextRequest) {
                     break;
                 
                 case 'account_update':
-                    if (!project) break;
-                    if (value.event === 'VERIFIED_ACCOUNT') {
+                    // This case now handles both VERIFIED_ACCOUNT and partner updates
+                    if (value.event === 'VERIFIED_ACCOUNT' && project) {
                         const result = await db.collection('projects').updateOne(
                             { _id: project._id },
                             { $set: { reviewStatus: 'VERIFIED' } }
@@ -625,7 +650,6 @@ export async function POST(request: NextRequest) {
                 case 'message_reactions':
                 case 'message_echoes':
                 case 'smb_message_echoes':
-                // case 'status': // Now handled above
                 case 'account_alerts':
                 case 'message_template_edit_update':
                 case 'message_template_limit_update':

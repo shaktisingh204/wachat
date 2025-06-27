@@ -3,7 +3,7 @@
 
 import { AnyMessage, OutgoingMessage } from '@/app/actions';
 import { cn } from '@/lib/utils';
-import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
+import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, Video as VideoIcon, XCircle } from 'lucide-react';
 import Image from 'next/image';
 
 interface ChatMessageProps {
@@ -11,8 +11,11 @@ interface ChatMessageProps {
 }
 
 function StatusTicks({ status }: { status: OutgoingMessage['status'] }) {
+    if (status === 'failed') {
+        return <XCircle className="h-4 w-4 text-red-400" />;
+    }
     if (status === 'read') {
-        return <CheckCheck className="h-4 w-4 text-blue-500" />;
+        return <CheckCheck className="h-4 w-4 text-blue-400" />;
     }
     if (status === 'delivered') {
         return <CheckCheck className="h-4 w-4" />;
@@ -20,7 +23,7 @@ function StatusTicks({ status }: { status: OutgoingMessage['status'] }) {
     if (status === 'sent') {
         return <Check className="h-4 w-4" />;
     }
-    return <Clock className="h-4 w-4" />;
+    return <Clock className="h-4 w-4" />; // for 'pending'
 }
 
 function MediaContent({ message }: { message: AnyMessage }) {
@@ -89,6 +92,12 @@ export function ChatMessage({ message }: ChatMessageProps) {
                      <p className="whitespace-pre-wrap">{message.content.text.body}</p>
                 ) : (
                     <MediaContent message={message} />
+                )}
+
+                {isOutgoing && message.status === 'failed' && (
+                    <p className="text-xs mt-1 pt-1 border-t border-primary-foreground/20 text-red-300">
+                        Failed: {message.error}
+                    </p>
                 )}
 
                 <div className="flex items-center gap-2 self-end mt-1 pt-1 opacity-80">
