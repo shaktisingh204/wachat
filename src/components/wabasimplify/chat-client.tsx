@@ -82,7 +82,7 @@ export function ChatClient() {
     useEffect(() => {
         if (selectedPhoneNumberId) {
             fetchContacts(selectedPhoneNumberId).then(fetchedContacts => {
-                if (initialContactId) {
+                if (initialContactId && fetchedContacts) {
                     const contactToSelect = fetchedContacts.find(c => c._id.toString() === initialContactId);
                     if (contactToSelect) {
                         handleSelectContact(contactToSelect);
@@ -98,15 +98,15 @@ export function ChatClient() {
 
         const interval = setInterval(() => {
             startPollingTransition(async () => {
-                if (selectedPhoneNumberId) {
-                    const contactsData = await getContactsForProject(project!._id.toString(), selectedPhoneNumberId);
+                if (project && selectedPhoneNumberId) {
+                    const contactsData = await getContactsForProject(project._id.toString(), selectedPhoneNumberId);
                     setContacts(contactsData);
                 }
                 if (selectedContact) {
                     const conversationData = await getConversation(selectedContact._id.toString());
                     setConversation(conversationData);
                     const currentContact = contacts.find(c => c._id === selectedContact._id);
-                    if (currentContact && currentContact.unreadCount && currentContact.unreadCount > 0) {
+                    if (currentContact?.unreadCount && currentContact.unreadCount > 0) {
                         await markConversationAsRead(selectedContact._id.toString());
                     }
                 }

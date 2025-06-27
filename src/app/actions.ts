@@ -168,7 +168,7 @@ export type OutgoingMessage = {
     createdAt: Date;
 }
 
-export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>) & { direction: 'in' | 'out' };
+export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 
 
 // Re-export types for client components
@@ -1241,7 +1241,10 @@ export async function handleCleanDatabase(
           await db.collection('broadcasts').deleteMany({});
           await db.collection('broadcast_contacts').deleteMany({});
           await db.collection('notifications').deleteMany({});
-          
+          await db.collection('contacts').deleteMany({});
+          await db.collection('incoming_messages').deleteMany({});
+          await db.collection('outgoing_messages').deleteMany({});
+
           revalidatePath('/dashboard');
   
           return { message: 'Database has been successfully cleaned of all projects, templates, and broadcast data.' };
@@ -1842,7 +1845,7 @@ export async function findOrCreateContact(
     try {
         const { db } = await connectToDatabase();
         
-        const { value: contact } = await db.collection<Contact>('contacts').findOneAndUpdate(
+        const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
             { projectId: new ObjectId(projectId), waId },
             {
                 $setOnInsert: {
@@ -1852,12 +1855,12 @@ export async function findOrCreateContact(
                     name: waId, // Default name to phone number
                     createdAt: new Date(),
                     unreadCount: 0,
-                    lastMessage: 'New Contact',
-                    lastMessageTimestamp: new Date(),
                 }
             },
             { upsert: true, returnDocument: 'after' }
         );
+
+        const contact = contactResult.value;
 
         if (!contact) {
             return { error: 'Failed to find or create contact.' };
@@ -1899,14 +1902,11 @@ export async function handleAddNewContact(
             return { error: 'A contact with this WhatsApp ID already exists for this project.' };
         }
 
-        const newContact: Omit<Contact, '_id'> = {
+        const newContact: Omit<Contact, '_id' | 'lastMessage' | 'lastMessageTimestamp' | 'unreadCount'> = {
             projectId: new ObjectId(projectId),
             phoneNumberId,
             name,
             waId,
-            lastMessage: 'Manually added',
-            lastMessageTimestamp: new Date(),
-            unreadCount: 0,
             createdAt: new Date(),
         };
 

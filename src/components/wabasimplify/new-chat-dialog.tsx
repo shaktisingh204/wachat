@@ -30,6 +30,7 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
     if (!waId) return;
     setLoading(true);
     await onStartChat(waId);
+    setWaId('');
     setLoading(false);
   };
 
