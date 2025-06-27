@@ -1806,8 +1806,8 @@ export async function handleSendMessage(
             messageTimestamp: now,
             type: messagePayload.type,
             content: messagePayload,
-            status: 'pending',
-            statusTimestamps: {},
+            status: 'sent',
+            statusTimestamps: { sent: now },
             createdAt: now,
         };
 
