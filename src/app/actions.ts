@@ -116,6 +116,7 @@ export type Notification = {
     link: string;
     isRead: boolean;
     createdAt: Date;
+    eventType: string;
 };
 
 export type NotificationWithProject = Notification & { projectName?: string };
@@ -1466,7 +1467,7 @@ export async function getNotifications(): Promise<WithId<NotificationWithProject
         const { db } = await connectToDatabase();
         const notifications = await db.collection('notifications').aggregate([
             { $sort: { createdAt: -1 } },
-            { $limit: 20 },
+            { $limit: 50 },
             {
                 $lookup: {
                     from: 'projects',
@@ -1490,6 +1491,7 @@ export async function getNotifications(): Promise<WithId<NotificationWithProject
                     link: 1,
                     isRead: 1,
                     createdAt: 1,
+                    eventType: 1,
                     projectName: '$projectInfo.name'
                 }
             }
@@ -1501,6 +1503,77 @@ export async function getNotifications(): Promise<WithId<NotificationWithProject
         return [];
     }
 }
+
+export async function getAllNotifications(
+    page: number = 1, 
+    limit: number = 20, 
+    filter?: string
+): Promise<{ notifications: WithId<NotificationWithProject>[], total: number }> {
+    try {
+        const { db } = await connectToDatabase();
+        
+        const query: Filter<Notification> = {};
+        if (filter) {
+            query.eventType = filter;
+        }
+
+        const skip = (page - 1) * limit;
+
+        const pipeline: any[] = [
+            { $match: query },
+            { $sort: { createdAt: -1 } },
+            {
+                $facet: {
+                    paginatedResults: [
+                        { $skip: skip },
+                        { $limit: limit },
+                        {
+                            $lookup: {
+                                from: 'projects',
+                                localField: 'projectId',
+                                foreignField: '_id',
+                                as: 'projectInfo'
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: '$projectInfo',
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $project: {
+                                _id: 1,
+                                projectId: 1,
+                                wabaId: 1,
+                                message: 1,
+                                link: 1,
+                                isRead: 1,
+                                createdAt: 1,
+                                eventType: 1,
+                                projectName: '$projectInfo.name'
+                            }
+                        }
+                    ],
+                    totalCount: [
+                        { $count: 'count' }
+                    ]
+                }
+            }
+        ];
+
+        const results = await db.collection('notifications').aggregate(pipeline).toArray();
+
+        const notifications = results[0].paginatedResults || [];
+        const total = results[0].totalCount[0]?.count || 0;
+        
+        return { notifications: JSON.parse(JSON.stringify(notifications)), total };
+    } catch (error) {
+        console.error('Failed to fetch all notifications:', error);
+        return { notifications: [], total: 0 };
+    }
+}
+
 
 export async function markNotificationAsRead(notificationId: string): Promise<{ success: boolean }> {
     if (!ObjectId.isValid(notificationId)) {

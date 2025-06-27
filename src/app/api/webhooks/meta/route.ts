@@ -159,6 +159,7 @@ export async function POST(request: NextRequest) {
                             link: '/dashboard',
                             isRead: false,
                             createdAt: new Date(),
+                            eventType: change.field,
                         });
                         revalidatePath('/dashboard');
                         revalidatePath('/dashboard', 'layout');
@@ -223,6 +224,7 @@ export async function POST(request: NextRequest) {
                                 link: '/dashboard',
                                 isRead: false,
                                 createdAt: new Date(),
+                                eventType: change.field,
                             });
                             revalidatePath('/dashboard');
                             revalidatePath('/dashboard', 'layout');
@@ -256,11 +258,11 @@ export async function POST(request: NextRequest) {
                         }
 
                         if (value.event === 'ONBOARDING') {
-                            notificationMessage = `For '${project.name}', phone number ${value.display_phone_number} has been onboarded. New limit is ${value.current_limit || 'N/A'}.`;
+                            notificationMessage = `For project '${project.name}', phone number ${value.display_phone_number} has been onboarded. New limit is ${value.current_limit || 'N/A'}.`;
                         } else {
                             const newQuality = value.event === 'FLAGGED' ? 'RED' : value.event === 'WARNED' ? 'YELLOW' : 'GREEN';
                             updatePayload['phoneNumbers.$.quality_rating'] = newQuality;
-                            notificationMessage = `For '${project.name}', quality for ${value.display_phone_number} is now ${newQuality}. Throughput limit is ${value.current_limit || 'unchanged'}.`;
+                            notificationMessage = `For project '${project.name}', quality for ${value.display_phone_number} is now ${newQuality}. Throughput limit is ${value.current_limit || 'unchanged'}.`;
                         }
 
                         if (Object.keys(updatePayload).length > 0) {
@@ -274,6 +276,7 @@ export async function POST(request: NextRequest) {
                                     projectId: project._id, wabaId,
                                     message: notificationMessage,
                                     link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
+                                    eventType: change.field,
                                 });
                                 revalidatePath('/dashboard/numbers');
                                 revalidatePath('/dashboard', 'layout');
@@ -294,8 +297,9 @@ export async function POST(request: NextRequest) {
                             if (result.modifiedCount > 0) {
                                  await db.collection('notifications').insertOne({
                                     projectId: project._id, wabaId,
-                                    message: `For '${project.name}', display name for ${value.display_phone_number} was approved as "${newVerifiedName}".`,
+                                    message: `For project '${project.name}', display name for ${value.display_phone_number} was approved as "${newVerifiedName}".`,
                                     link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
+                                    eventType: change.field,
                                 });
                                 revalidatePath('/dashboard/numbers');
                                 revalidatePath('/dashboard', 'layout');
@@ -313,8 +317,9 @@ export async function POST(request: NextRequest) {
                         if (result.modifiedCount > 0) {
                             await db.collection('notifications').insertOne({
                                 projectId: project._id, wabaId,
-                                message: `For '${project.name}', verification status for ${value.display_phone_number} is now ${value.new_code_verification_status.replace(/_/g, ' ').toLowerCase()}.`,
+                                message: `For project '${project.name}', verification status for ${value.display_phone_number} is now ${value.new_code_verification_status.replace(/_/g, ' ').toLowerCase()}.`,
                                 link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
+                                eventType: change.field,
                             });
                             revalidatePath('/dashboard/numbers');
                             revalidatePath('/dashboard', 'layout');
@@ -333,8 +338,9 @@ export async function POST(request: NextRequest) {
                         if (result.modifiedCount > 0) {
                             await db.collection('notifications').insertOne({
                                projectId: project._id, wabaId,
-                               message: `For '${project.name}', template '${value.message_template_name}' status updated to ${value.event}. Reason: ${value.reason || 'None'}.`,
+                               message: `For project '${project.name}', template '${value.message_template_name}' status updated to ${value.event}. Reason: ${value.reason || 'None'}.`,
                                link: '/dashboard/templates', isRead: false, createdAt: new Date(),
+                               eventType: change.field,
                            });
                            revalidatePath('/dashboard/templates');
                            revalidatePath('/dashboard', 'layout');
@@ -351,8 +357,9 @@ export async function POST(request: NextRequest) {
                         if (result.modifiedCount > 0) {
                              await db.collection('notifications').insertOne({
                                 projectId: project._id, wabaId,
-                                message: `For '${project.name}', category for template '${value.message_template_name}' was changed to ${value.new_category}.`,
+                                message: `For project '${project.name}', category for template '${value.message_template_name}' was changed to ${value.new_category}.`,
                                 link: '/dashboard/templates', isRead: false, createdAt: new Date(),
+                                eventType: change.field,
                             });
                             revalidatePath('/dashboard/templates');
                             revalidatePath('/dashboard', 'layout');
@@ -369,8 +376,9 @@ export async function POST(request: NextRequest) {
                         if (result.modifiedCount > 0) {
                             await db.collection('notifications').insertOne({
                                projectId: project._id, wabaId,
-                               message: `For '${project.name}', quality for template '${value.message_template_name}' is now ${value.new_quality_score}.`,
+                               message: `For project '${project.name}', quality for template '${value.message_template_name}' is now ${value.new_quality_score}.`,
                                link: '/dashboard/templates', isRead: false, createdAt: new Date(),
+                               eventType: change.field,
                            });
                            revalidatePath('/dashboard/templates');
                            revalidatePath('/dashboard', 'layout');
@@ -390,6 +398,7 @@ export async function POST(request: NextRequest) {
                                 projectId: project._id, wabaId,
                                 message: `Account review for '${project.name}' was completed. The new status is ${value.decision}.`,
                                 link: '/dashboard/information', isRead: false, createdAt: new Date(),
+                                eventType: change.field,
                             });
                             revalidatePath('/dashboard');
                             revalidatePath('/dashboard', 'layout');
@@ -417,6 +426,7 @@ export async function POST(request: NextRequest) {
                                 projectId: project._id, wabaId,
                                 message: `Business capabilities for '${project.name}' have been updated.`,
                                 link: '/dashboard/information', isRead: false, createdAt: new Date(),
+                                eventType: change.field,
                             });
                             revalidatePath('/dashboard/information');
                             revalidatePath('/dashboard', 'layout');
@@ -444,8 +454,9 @@ export async function POST(request: NextRequest) {
                         if (result.modifiedCount > 0) {
                             await db.collection('notifications').insertOne({
                                 projectId: project._id, wabaId,
-                                message: `For '${project.name}', payment configuration '${value.configuration_name}' updated. New status: ${value.status}.`,
+                                message: `For project '${project.name}', payment configuration '${value.configuration_name}' updated. New status: ${value.status}.`,
                                 link: '/dashboard/information', isRead: false, createdAt: new Date(),
+                                eventType: change.field,
                             });
                             revalidatePath('/dashboard/information');
                             revalidatePath('/dashboard', 'layout');

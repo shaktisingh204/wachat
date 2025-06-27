@@ -27,12 +27,13 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { WachatLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send, Briefcase, Rss, Info } from 'lucide-react';
+import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send, Briefcase, Rss, Info, Bell } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Notifications } from '@/components/wabasimplify/notifications';
 
 const menuItems = [
   { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },
   { href: '/dashboard/information', label: 'Project Information', icon: Info },
   { href: '/dashboard/numbers', label: 'Phone Numbers', icon: Phone },
   { href: '/dashboard/templates', label: 'Message Templates', icon: FileText },
