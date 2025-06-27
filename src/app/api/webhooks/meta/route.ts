@@ -151,27 +151,36 @@ export async function POST(request: NextRequest) {
                 // --- PHONE NUMBER UPDATES ---
                 case 'phone_number_quality_update':
                     if (value.display_phone_number && value.event) {
-                        const newQuality = value.event === 'FLAGGED' ? 'RED' : value.event === 'WARNED' ? 'YELLOW' : 'GREEN';
-                        const updatePayload: any = {
-                            'phoneNumbers.$.quality_rating': newQuality
-                        };
+                        const updatePayload: any = {};
+                        let notificationMessage = '';
+                        
                         if (value.current_limit) {
                             updatePayload['phoneNumbers.$.throughput.level'] = value.current_limit;
                         }
 
-                        const result = await db.collection('projects').updateOne(
-                            { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
-                            { $set: updatePayload }
-                        );
-                        
-                        if (result.modifiedCount > 0) {
-                            await db.collection('notifications').insertOne({
-                                projectId: project._id, wabaId,
-                                message: `Quality for ${value.display_phone_number} is now ${newQuality}. Throughput limit is ${value.current_limit || 'unchanged'}.`,
-                                link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
-                            });
-                            revalidatePath('/dashboard/numbers');
-                            revalidatePath('/dashboard/layout');
+                        if (value.event === 'ONBOARDING') {
+                            notificationMessage = `Phone number ${value.display_phone_number} has been onboarded. New limit is ${value.current_limit || 'N/A'}.`;
+                        } else {
+                            const newQuality = value.event === 'FLAGGED' ? 'RED' : value.event === 'WARNED' ? 'YELLOW' : 'GREEN';
+                            updatePayload['phoneNumbers.$.quality_rating'] = newQuality;
+                            notificationMessage = `Quality for ${value.display_phone_number} is now ${newQuality}. Throughput limit is ${value.current_limit || 'unchanged'}.`;
+                        }
+
+                        if (Object.keys(updatePayload).length > 0) {
+                            const result = await db.collection('projects').updateOne(
+                                { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                                { $set: updatePayload }
+                            );
+                            
+                            if (result.modifiedCount > 0) {
+                                await db.collection('notifications').insertOne({
+                                    projectId: project._id, wabaId,
+                                    message: notificationMessage,
+                                    link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
+                                });
+                                revalidatePath('/dashboard/numbers');
+                                revalidatePath('/dashboard/layout');
+                            }
                         }
                     }
                     break;
