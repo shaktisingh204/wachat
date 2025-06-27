@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -10,6 +9,8 @@ import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
 import type { PhoneNumber, Project, Template } from '@/app/dashboard/page';
 import { Readable } from 'stream';
+import FormData from 'form-data';
+import axios from 'axios';
 
 type MetaPhoneNumber = {
     id: string;
@@ -122,9 +123,63 @@ export type Notification = {
 export type NotificationWithProject = Notification & { projectName?: string };
 
 
+// --- Live Chat Types ---
+export type Contact = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    waId: string; // The user's WhatsApp ID
+    phoneNumberId: string; // The business phone number they are talking to
+    name: string;
+    lastMessage: string;
+    lastMessageTimestamp: Date;
+    unreadCount: number;
+    createdAt: Date;
+}
+
+export type IncomingMessage = {
+    _id: ObjectId;
+    direction: 'in';
+    contactId: ObjectId;
+    projectId: ObjectId;
+    wamid: string;
+    messageTimestamp: Date;
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown';
+    content: any; // The raw message object from Meta
+    isRead: boolean;
+    createdAt: Date;
+}
+
+export type OutgoingMessage = {
+    _id: ObjectId;
+    direction: 'out';
+    contactId: ObjectId;
+    projectId: ObjectId;
+    wamid: string;
+    messageTimestamp: Date;
+    type: 'text' | 'image' | 'video' | 'document' | 'audio';
+    content: any; // The payload sent to Meta
+    status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
+    statusTimestamps: {
+        sent?: Date;
+        delivered?: Date;
+        read?: Date;
+    };
+    error?: string;
+    createdAt: Date;
+}
+
+export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>) & { direction: 'in' | 'out' };
+
+
+// Re-export types for client components
+export type { Project, Template, PhoneNumber };
+
 const getErrorMessage = (error: any): string => {
+    if (axios.isAxiosError(error) && error.response?.data?.error) {
+        const apiError = error.response.data.error;
+        return `${apiError.message || 'API Error'} (Code: ${apiError.code}, Type: ${apiError.type})`;
+    }
     if (error instanceof Error) {
-        // Handle native fetch response errors
         if ('cause' in error && error.cause) {
             const cause = error.cause as any;
             if (cause.error) {
@@ -248,7 +303,7 @@ export async function getTemplates(projectId: string): Promise<WithId<Template>[
     }
 }
 
-export async function getBroadcasts(): Promise<WithId<Broadcast>[]> {
+export async function getBroadcasts(): Promise<WithId<any>[]> {
   try {
     const { db } = await connectToDatabase();
     const broadcasts = await db.collection('broadcasts').aggregate([
@@ -1605,5 +1660,172 @@ export async function markAllNotificationsAsRead(): Promise<{ success: boolean, 
     } catch (error) {
         console.error('Failed to mark all notifications as read:', error);
         return { success: false, updatedCount: 0 };
+    }
+}
+
+// --- Live Chat Actions ---
+
+export async function getContactsForProject(projectId: string, phoneNumberId: string): Promise<WithId<Contact>[]> {
+    if (!ObjectId.isValid(projectId)) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const contacts = await db.collection('contacts')
+            .find({ projectId: new ObjectId(projectId), phoneNumberId })
+            .sort({ lastMessageTimestamp: -1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(contacts));
+    } catch (error) {
+        console.error("Failed to fetch contacts:", error);
+        return [];
+    }
+}
+
+export async function getConversation(contactId: string): Promise<AnyMessage[]> {
+    if (!ObjectId.isValid(contactId)) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const contactObjectId = new ObjectId(contactId);
+
+        const incoming = await db.collection<IncomingMessage>('incoming_messages').find({ contactId: contactObjectId }).toArray();
+        const outgoing = await db.collection<OutgoingMessage>('outgoing_messages').find({ contactId: contactObjectId }).toArray();
+
+        const allMessages: AnyMessage[] = [
+            ...incoming.map(m => ({ ...m, direction: 'in' as const })),
+            ...outgoing.map(m => ({ ...m, direction: 'out' as const }))
+        ];
+
+        allMessages.sort((a, b) => {
+            const timeA = a.messageTimestamp || a.createdAt;
+            const timeB = b.messageTimestamp || b.createdAt;
+            return new Date(timeA).getTime() - new Date(timeB).getTime();
+        });
+
+        return JSON.parse(JSON.stringify(allMessages));
+    } catch (error) {
+        console.error("Failed to fetch conversation:", error);
+        return [];
+    }
+}
+
+export async function markConversationAsRead(contactId: string): Promise<{ success: boolean }> {
+    if (!ObjectId.isValid(contactId)) return { success: false };
+    try {
+        const { db } = await connectToDatabase();
+        const contactObjectId = new ObjectId(contactId);
+
+        await db.collection('incoming_messages').updateMany(
+            { contactId: contactObjectId, isRead: false },
+            { $set: { isRead: true } }
+        );
+        await db.collection('contacts').updateOne(
+            { _id: contactObjectId },
+            { $set: { unreadCount: 0 } }
+        );
+        revalidatePath('/dashboard/chat');
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to mark conversation as read:", error);
+        return { success: false };
+    }
+}
+
+
+export async function handleSendMessage(
+    prevState: { message: string | null; error: string | null },
+    formData: FormData
+): Promise<{ message: string | null; error: string | null }> {
+    const contactId = formData.get('contactId') as string;
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    const waId = formData.get('waId') as string; // The recipient's ID
+    const messageText = formData.get('messageText') as string;
+    const mediaFile = formData.get('mediaFile') as File;
+
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
+        if (!project) throw new Error('Project not found.');
+
+        const { accessToken } = project;
+        let messagePayload: any = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: waId,
+        };
+
+        let wamid: string | null = null;
+        let outgoingMessageDoc: Omit<OutgoingMessage, '_id'>;
+        const now = new Date();
+
+        if (mediaFile && mediaFile.size > 0) {
+            // Step 1: Upload media to get an ID
+            const mediaFormData = new FormData();
+            mediaFormData.append('messaging_product', 'whatsapp');
+            mediaFormData.append('file', new Blob([await mediaFile.arrayBuffer()]), mediaFile.name);
+
+            const uploadResponse = await axios.post(
+                `https://graph.facebook.com/v22.0/${phoneNumberId}/media`,
+                mediaFormData,
+                { headers: { 
+                    'Authorization': `Bearer ${accessToken}`,
+                    ...mediaFormData.getHeaders(),
+                }}
+            );
+
+            const mediaId = uploadResponse.data.id;
+            if (!mediaId) throw new Error("Failed to get media ID from Meta.");
+
+            // Step 2: Send message with media ID
+            const type = mediaFile.type.split('/')[0]; // 'image', 'video', 'application' -> 'document'
+            const messageType = type === 'application' ? 'document' : type;
+
+            messagePayload.type = messageType;
+            messagePayload[messageType] = { id: mediaId, caption: messageText };
+
+        } else if (messageText) {
+            messagePayload.type = 'text';
+            messagePayload.text = { preview_url: true, body: messageText };
+        } else {
+            return { message: null, error: "Message cannot be empty." };
+        }
+
+        const sendMessageResponse = await axios.post(
+            `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
+            messagePayload,
+            { headers: { 'Authorization': `Bearer ${accessToken}` } }
+        );
+        wamid = sendMessageResponse.data?.messages?.[0]?.id;
+
+        if (!wamid) throw new Error("Message sent but no WAMID was returned from Meta.");
+
+        outgoingMessageDoc = {
+            direction: 'out',
+            contactId: new ObjectId(contactId),
+            projectId: new ObjectId(projectId),
+            wamid,
+            messageTimestamp: now,
+            type: messagePayload.type,
+            content: messagePayload,
+            status: 'pending',
+            statusTimestamps: {},
+            createdAt: now,
+        };
+
+        await db.collection('outgoing_messages').insertOne(outgoingMessageDoc);
+
+        // Update last message on contact
+        const lastMessage = messageText || `[${messagePayload.type}]`;
+        await db.collection('contacts').updateOne(
+            { _id: new ObjectId(contactId) },
+            { $set: { lastMessage, lastMessageTimestamp: now } }
+        );
+
+        revalidatePath('/dashboard/chat');
+        return { message: 'Message sent successfully', error: null };
+
+    } catch (e: any) {
+        console.error("Error sending message:", e);
+        const error = getErrorMessage(e);
+        return { message: null, error };
     }
 }
