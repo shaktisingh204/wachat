@@ -58,6 +58,8 @@ const getSearchableText = (payload: any): string => {
                         
                         // Account related
                         text += ` ${value.update_type || ''}`;
+                        if (value.event && field === 'account_update') text += ` ${value.event}`;
+                        if (value.waba_info?.waba_id) text += ` ${value.waba_info.waba_id}`;
                         text += ` ${value.new_review_status || ''}`;
                         if (value.ban_info) text += ` ${value.ban_info.waba_ban_state}`;
                         if (value.alert_type) text += ` ${value.alert_type} ${value.alert_status}`;
@@ -134,18 +136,113 @@ export async function POST(request: NextRequest) {
 
       if (body.object === 'whatsapp_business_account') {
         for (const entry of body.entry) {
-          const wabaId = entry.id;
-          const project = await db.collection('projects').findOne({ wabaId: wabaId }, { projection: { _id: 1, name: 1 } });
+          const wabaId = entry.id; // Can be Solution Partner ID for some events
           
-          if (!project) {
-              console.log(`Webhook received for unknown WABA ID ${wabaId}, skipping DB updates.`);
-              continue;
-          }
-
           for (const change of entry.changes) {
-            console.log(`Processing change for field: "${change.field}" in WABA ${wabaId}`);
             const value = change.value;
             if (!value) continue;
+
+            // Handle special cases that don't rely on a pre-existing project matching the entry.id
+            if (change.field === 'account_update') {
+                console.log(`Processing special event: "account_update"`);
+                if (value.event === 'PARTNER_REMOVED' && value.waba_info?.waba_id) {
+                    const wabaIdToRemove = value.waba_info.waba_id;
+                    const projectToDelete = await db.collection('projects').findOne({ wabaId: wabaIdToRemove });
+
+                    if (projectToDelete) {
+                        await db.collection('projects').deleteOne({ _id: projectToDelete._id });
+                        
+                        await db.collection('notifications').insertOne({
+                            projectId: projectToDelete._id,
+                            wabaId: wabaIdToRemove,
+                            message: `Project '${projectToDelete.name}' was removed as it is no longer managed by this business partner.`,
+                            link: '/dashboard',
+                            isRead: false,
+                            createdAt: new Date(),
+                        });
+                        revalidatePath('/dashboard');
+                        revalidatePath('/dashboard', 'layout');
+                    }
+                } else if (value.event === 'PARTNER_ADDED' && value.waba_info?.waba_id) {
+                    const wabaIdToAdd = value.waba_info.waba_id;
+                    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
+                    const apiVersion = 'v22.0';
+
+                    if (!accessToken) {
+                        console.error("Cannot add new partner project: META_SYSTEM_USER_ACCESS_TOKEN is not set.");
+                        continue;
+                    }
+
+                    try {
+                        const wabaDetailsResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaIdToAdd}?access_token=${accessToken}&fields=name`);
+                        if (!wabaDetailsResponse.ok) {
+                           const errorText = await wabaDetailsResponse.text();
+                           throw new Error(`Failed to fetch WABA details for ${wabaIdToAdd}: ${errorText}`);
+                        }
+                        const wabaDetails = await wabaDetailsResponse.json();
+                        const projectName = wabaDetails.name;
+
+                        const phoneNumbersResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaIdToAdd}/phone_numbers?access_token=${accessToken}&fields=verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput`);
+                        if (!phoneNumbersResponse.ok) {
+                            const errorText = await phoneNumbersResponse.text();
+                            throw new Error(`Failed to fetch phone numbers for ${wabaIdToAdd}: ${errorText}`);
+                        }
+                        const phoneNumbersData = await phoneNumbersResponse.json();
+                        const phoneNumbers = phoneNumbersData.data ? phoneNumbersData.data.map((num: any) => ({
+                            id: num.id,
+                            display_phone_number: num.display_phone_number,
+                            verified_name: num.verified_name,
+                            code_verification_status: num.code_verification_status,
+                            quality_rating: num.quality_rating,
+                            platform_type: num.platform_type,
+                            throughput: num.throughput,
+                        })) : [];
+
+                        const projectDoc = {
+                            name: projectName,
+                            wabaId: wabaIdToAdd,
+                            accessToken: accessToken,
+                            phoneNumbers: phoneNumbers,
+                            messagesPerSecond: 1000,
+                            reviewStatus: 'UNKNOWN',
+                        };
+                        
+                        const updateResult = await db.collection('projects').updateOne(
+                            { wabaId: wabaIdToAdd },
+                            { $set: projectDoc, $setOnInsert: { createdAt: new Date() } },
+                            { upsert: true }
+                        );
+
+                        const newProject = await db.collection('projects').findOne({wabaId: wabaIdToAdd}, {projection: {_id: 1}});
+
+                        if (newProject) {
+                            await db.collection('notifications').insertOne({
+                                projectId: newProject._id,
+                                wabaId: wabaIdToAdd,
+                                message: `New project '${projectName}' was automatically added and synced from Meta.`,
+                                link: '/dashboard',
+                                isRead: false,
+                                createdAt: new Date(),
+                            });
+                            revalidatePath('/dashboard');
+                            revalidatePath('/dashboard', 'layout');
+                        }
+                    } catch (e: any) {
+                        console.error(`Failed to process PARTNER_ADDED event for WABA ${wabaIdToAdd}:`, e.message);
+                    }
+                }
+                continue; // This change has been handled, move to the next.
+            }
+            
+            // For all other event types, we require a project to exist for the entry.id
+            const project = await db.collection('projects').findOne({ wabaId: wabaId }, { projection: { _id: 1, name: 1 } });
+
+            if (!project) {
+                console.log(`Webhook received for field '${change.field}' on unknown WABA ID ${wabaId}, skipping DB updates.`);
+                continue;
+            }
+
+            console.log(`Processing change for field: "${change.field}" in WABA ${wabaId}`);
             
             switch (change.field) {
                 // --- PHONE NUMBER UPDATES ---
@@ -179,27 +276,30 @@ export async function POST(request: NextRequest) {
                                     link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
                                 });
                                 revalidatePath('/dashboard/numbers');
-                                revalidatePath('/dashboard/layout');
+                                revalidatePath('/dashboard', 'layout');
                             }
                         }
                     }
                     break;
                 
                 case 'phone_number_name_update':
-                    if (value.display_phone_number && value.requested_verified_name && value.decision === 'APPROVED') {
-                        const result = await db.collection('projects').updateOne(
-                            { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
-                            { $set: { 'phoneNumbers.$.verified_name': value.requested_verified_name } }
-                        );
+                    if (value.display_phone_number && value.decision === 'APPROVED') {
+                        const newVerifiedName = value.new_verified_name || value.requested_verified_name;
+                         if (newVerifiedName) {
+                            const result = await db.collection('projects').updateOne(
+                                { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                                { $set: { 'phoneNumbers.$.verified_name': newVerifiedName } }
+                            );
 
-                        if (result.modifiedCount > 0) {
-                             await db.collection('notifications').insertOne({
-                                projectId: project._id, wabaId,
-                                message: `For '${project.name}', display name for ${value.display_phone_number} was approved as "${value.requested_verified_name}".`,
-                                link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
-                            });
-                            revalidatePath('/dashboard/numbers');
-                            revalidatePath('/dashboard/layout');
+                            if (result.modifiedCount > 0) {
+                                 await db.collection('notifications').insertOne({
+                                    projectId: project._id, wabaId,
+                                    message: `For '${project.name}', display name for ${value.display_phone_number} was approved as "${newVerifiedName}".`,
+                                    link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
+                                });
+                                revalidatePath('/dashboard/numbers');
+                                revalidatePath('/dashboard', 'layout');
+                            }
                         }
                     }
                     break;
@@ -217,7 +317,7 @@ export async function POST(request: NextRequest) {
                                 link: '/dashboard/numbers', isRead: false, createdAt: new Date(),
                             });
                             revalidatePath('/dashboard/numbers');
-                            revalidatePath('/dashboard/layout');
+                            revalidatePath('/dashboard', 'layout');
                         }
                     }
                     break;
@@ -237,7 +337,7 @@ export async function POST(request: NextRequest) {
                                link: '/dashboard/templates', isRead: false, createdAt: new Date(),
                            });
                            revalidatePath('/dashboard/templates');
-                           revalidatePath('/dashboard/layout');
+                           revalidatePath('/dashboard', 'layout');
                         }
                     }
                     break;
@@ -255,7 +355,7 @@ export async function POST(request: NextRequest) {
                                 link: '/dashboard/templates', isRead: false, createdAt: new Date(),
                             });
                             revalidatePath('/dashboard/templates');
-                            revalidatePath('/dashboard/layout');
+                            revalidatePath('/dashboard', 'layout');
                         }
                     }
                     break;
@@ -273,7 +373,7 @@ export async function POST(request: NextRequest) {
                                link: '/dashboard/templates', isRead: false, createdAt: new Date(),
                            });
                            revalidatePath('/dashboard/templates');
-                           revalidatePath('/dashboard/layout');
+                           revalidatePath('/dashboard', 'layout');
                         }
                     }
                     break;
@@ -292,7 +392,7 @@ export async function POST(request: NextRequest) {
                                 link: '/dashboard/information', isRead: false, createdAt: new Date(),
                             });
                             revalidatePath('/dashboard');
-                            revalidatePath('/dashboard/layout');
+                            revalidatePath('/dashboard', 'layout');
                         }
                     }
                     break;
@@ -319,7 +419,7 @@ export async function POST(request: NextRequest) {
                                 link: '/dashboard/information', isRead: false, createdAt: new Date(),
                             });
                             revalidatePath('/dashboard/information');
-                            revalidatePath('/dashboard/layout');
+                            revalidatePath('/dashboard', 'layout');
                         }
                     }
                     break;
@@ -348,7 +448,7 @@ export async function POST(request: NextRequest) {
                                 link: '/dashboard/information', isRead: false, createdAt: new Date(),
                             });
                             revalidatePath('/dashboard/information');
-                            revalidatePath('/dashboard/layout');
+                            revalidatePath('/dashboard', 'layout');
                         }
                     }
                     break;
@@ -361,7 +461,6 @@ export async function POST(request: NextRequest) {
                 case 'message_echoes':
                 case 'smb_message_echoes':
                 case 'status':
-                case 'account_update':
                 case 'account_alerts':
                 case 'message_template_edit_update':
                 case 'message_template_limit_update':
