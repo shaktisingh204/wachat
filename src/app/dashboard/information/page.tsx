@@ -86,7 +86,7 @@ export default function ProjectInformationPage() {
     const getReviewStatusVariant = (status?: string) => {
         if (!status) return 'outline';
         const lowerStatus = status.toLowerCase();
-        if (lowerStatus === 'approved') return 'default';
+        if (lowerStatus === 'approved' || lowerStatus === 'verified') return 'default';
         if (lowerStatus.includes('pending') || lowerStatus.includes('unknown')) return 'secondary';
         return 'destructive';
     };

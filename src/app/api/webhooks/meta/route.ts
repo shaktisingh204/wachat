@@ -144,7 +144,7 @@ export async function POST(request: NextRequest) {
 
             // Handle special cases that don't rely on a pre-existing project matching the entry.id
             if (change.field === 'account_update') {
-                console.log(`Processing special event: "account_update"`);
+                console.log(`Processing account_update event: ${value.event}`);
                 if (value.event === 'PARTNER_REMOVED' && value.waba_info?.waba_id) {
                     const wabaIdToRemove = value.waba_info.waba_id;
                     const projectToDelete = await db.collection('projects').findOne({ wabaId: wabaIdToRemove });
@@ -164,6 +164,7 @@ export async function POST(request: NextRequest) {
                         revalidatePath('/dashboard');
                         revalidatePath('/dashboard', 'layout');
                     }
+                    continue; // This change has been handled, move to the next.
                 } else if (value.event === 'PARTNER_ADDED' && value.waba_info?.waba_id) {
                     const wabaIdToAdd = value.waba_info.waba_id;
                     const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
@@ -232,8 +233,8 @@ export async function POST(request: NextRequest) {
                     } catch (e: any) {
                         console.error(`Failed to process PARTNER_ADDED event for WABA ${wabaIdToAdd}:`, e.message);
                     }
+                    continue; // This change has been handled, move to the next.
                 }
-                continue; // This change has been handled, move to the next.
             }
             
             // For all other event types, we require a project to exist that is associated with the webhook event.
@@ -247,6 +248,8 @@ export async function POST(request: NextRequest) {
                         { 'phoneNumbers.id': value.metadata?.phone_number_id },
                         // Match by display phone number, from various phone-related events
                         { 'phoneNumbers.display_phone_number': value.display_phone_number }, 
+                        // Match by display phone number from 'account_update' events
+                        { 'phoneNumbers.display_phone_number': value.phone_number },
                         // Match by display phone number from 'messages' events where it's nested
                         { 'phoneNumbers.display_phone_number': value.metadata?.display_phone_number }
                     ]
@@ -255,7 +258,7 @@ export async function POST(request: NextRequest) {
             );
 
             if (!project) {
-                const identifiers = `WABA ID: ${wabaId}, Phone Number ID: ${value.metadata?.phone_number_id}, Display Phone: ${value.display_phone_number || value.metadata?.display_phone_number}`;
+                const identifiers = `WABA ID: ${wabaId}, Phone Number ID: ${value.metadata?.phone_number_id}, Display Phone: ${value.display_phone_number || value.metadata?.display_phone_number || value.phone_number}`;
                 console.log(`Webhook received for field '${change.field}' with no matching project found for identifiers (${identifiers}). Skipping DB updates.`);
                 continue;
             }
@@ -465,6 +468,26 @@ export async function POST(request: NextRequest) {
                     }
                     break;
                 
+                case 'account_update':
+                    if (value.event === 'VERIFIED_ACCOUNT') {
+                        const result = await db.collection('projects').updateOne(
+                            { _id: project._id },
+                            { $set: { reviewStatus: 'VERIFIED' } }
+                        );
+                        if (result.modifiedCount > 0) {
+                            await db.collection('notifications').insertOne({
+                                projectId: project._id, wabaId: project.wabaId,
+                                message: `Account for project '${project.name}' has been verified.`,
+                                link: '/dashboard/information', isRead: false, createdAt: new Date(),
+                                eventType: change.field,
+                            });
+                            revalidatePath('/dashboard');
+                            revalidatePath('/dashboard/information');
+                            revalidatePath('/dashboard', 'layout');
+                        }
+                    }
+                    break;
+
                 case 'business_capability_update':
                     const updatePayload: any = {};
                     if (value.max_daily_conversation_per_phone !== undefined) {

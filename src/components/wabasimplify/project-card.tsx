@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -23,7 +24,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
     const getReviewStatusVariant = (status?: string) => {
         if (!status) return 'outline';
         const lowerStatus = status.toLowerCase();
-        if (lowerStatus === 'approved') return 'default';
+        if (lowerStatus === 'approved' || lowerStatus === 'verified') return 'default';
         if (lowerStatus.includes('pending') || lowerStatus.includes('unknown')) return 'secondary';
         return 'destructive';
     };
