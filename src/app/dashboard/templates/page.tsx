@@ -1,10 +1,9 @@
 
-
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { TemplateCard } from '@/components/wabasimplify/template-card';
-import { PlusCircle, RefreshCw } from 'lucide-react';
+import { PlusCircle, RefreshCw, Search, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { getTemplates, handleSyncTemplates } from '@/app/actions';
 import { WithId } from 'mongodb';
@@ -12,6 +11,7 @@ import { useEffect, useState, useTransition, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Template } from '@/app/dashboard/page';
+import { Input } from '@/components/ui/input';
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
@@ -19,6 +19,7 @@ export default function TemplatesPage() {
   const [isSyncing, startSyncTransition] = useTransition();
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     setIsClient(true);
@@ -71,15 +72,19 @@ export default function TemplatesPage() {
     });
   };
 
+  const filteredTemplates = templates.filter(template =>
+    template.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+  
   if (!isClient || loading) {
     return (
         <div className="flex flex-col gap-8">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline">Message Templates</h1>
                     <p className="text-muted-foreground">Manage and sync your WhatsApp message templates.</p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
                     <Button variant="outline" disabled>
                         <RefreshCw className="mr-2 h-4 w-4" />
                         Sync with Meta
@@ -101,12 +106,12 @@ export default function TemplatesPage() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline">Message Templates</h1>
           <p className="text-muted-foreground">Manage and sync your WhatsApp message templates.</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
             <Button onClick={onSync} disabled={isSyncing} variant="outline">
               <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
               Sync with Meta
@@ -120,9 +125,19 @@ export default function TemplatesPage() {
         </div>
       </div>
       
-      {templates.length > 0 ? (
+      <div className="relative w-full max-w-sm">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+            placeholder="Search templates by name..."
+            className="pl-8"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {filteredTemplates.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {templates.map((template) => (
+          {filteredTemplates.map((template) => (
             <TemplateCard
               key={template._id.toString()}
               template={template}
@@ -132,9 +147,12 @@ export default function TemplatesPage() {
       ) : (
         <div className="col-span-full">
           <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 py-20 text-center">
-            <h3 className="text-xl font-semibold">No Templates Found</h3>
+            <FileText className="h-12 w-12 text-muted-foreground" />
+            <h3 className="text-xl font-semibold mt-4">{searchQuery && templates.length > 0 ? 'No Matching Templates' : 'No Templates Found'}</h3>
             <p className="text-muted-foreground mt-2">
-              Click "Sync with Meta" to fetch your templates, or create a new one.
+              {searchQuery && templates.length > 0
+                ? `Your search for "${searchQuery}" did not return any results.`
+                : 'Click "Sync with Meta" to fetch your templates, or create a new one.'}
             </p>
           </div>
         </div>
