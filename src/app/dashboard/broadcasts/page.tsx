@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -198,11 +197,9 @@ function ISTClock() {
 }
 
 export default function BroadcastPage() {
-  const [isClient, setIsClient] = useState(false);
   const [project, setProject] = useState<Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null>(null);
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isSyncingTemplates, startTemplatesSyncTransition] = useTransition();
   const [isRunningCron, startCronRunTransition] = useTransition();
@@ -211,25 +208,35 @@ export default function BroadcastPage() {
   
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  
+  // State management for client-side dependencies
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+  const [initialLoad, setInitialLoad] = useState(true);
 
-  const fetchHistory = useCallback(async (projectId: string, page: number, showToast = false) => {
-    if (!projectId) {
-      setHistory([]);
-      setTotalPages(0);
-      return;
-    };
-    
+  // This effect runs once on mount to get the project ID from localStorage.
+  useEffect(() => {
+    setActiveProjectId(localStorage.getItem('activeProjectId'));
+    setInitialLoad(false);
+  }, []);
+
+  const fetchData = useCallback(async (projectId: string, page: number, showToast = false) => {
     startRefreshTransition(async () => {
         try {
-            const { broadcasts: newHistoryData, total } = await getBroadcasts(projectId, page, BROADCASTS_PER_PAGE);
-            setHistory(newHistoryData || []);
-            setTotalPages(Math.ceil(total / BROADCASTS_PER_PAGE));
-            
+            const [projectData, templatesData, historyData] = await Promise.all([
+                getProjectForBroadcast(projectId),
+                getTemplates(projectId),
+                getBroadcasts(projectId, page, BROADCASTS_PER_PAGE),
+            ]);
+
+            setProject(projectData as Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null);
+            setTemplates(templatesData || []);
+            setHistory(historyData.broadcasts || []);
+            setTotalPages(Math.ceil(historyData.total / BROADCASTS_PER_PAGE));
+
             const now = Date.now();
             setSendRateData(prevData => {
                 const newData = { ...prevData };
-                (newHistoryData || []).forEach(item => {
+                (historyData.broadcasts || []).forEach(item => {
                     const id = item._id.toString();
                     const totalProcessed = (item.successCount ?? 0) + (item.errorCount ?? 0);
 
@@ -249,26 +256,40 @@ export default function BroadcastPage() {
                 });
                 return newData;
             });
-
             if (showToast) {
-                toast({ title: 'Refreshed', description: 'Broadcast history has been updated.' });
+              toast({ title: 'Refreshed', description: 'Broadcast history has been updated.' });
             }
         } catch (error) {
-            console.error("Failed to fetch broadcast history:", error);
+            console.error("Failed to fetch broadcast page data:", error);
             toast({
                 title: "Error",
-                description: "Could not fetch history. Please try again.",
+                description: "Failed to load page data. Please try again later.",
                 variant: "destructive",
             });
         }
     });
   }, [toast]);
-  
+
+  // This effect fetches data when the project ID or page changes.
   useEffect(() => {
-    setIsClient(true);
-    const storedProjectId = localStorage.getItem('activeProjectId');
-    setActiveProjectId(storedProjectId);
-  }, []);
+    if (!initialLoad && activeProjectId) {
+      fetchData(activeProjectId, currentPage);
+    }
+  }, [activeProjectId, currentPage, initialLoad, fetchData]);
+
+  // Polling for active broadcasts
+  useEffect(() => {
+    if (initialLoad || !activeProjectId) return;
+
+    const hasActiveBroadcasts = history.some(b => b.status === 'QUEUED' || b.status === 'PROCESSING');
+    if (!hasActiveBroadcasts) return;
+
+    const interval = setInterval(() => {
+      fetchData(activeProjectId, currentPage);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [history, activeProjectId, currentPage, initialLoad, fetchData]);
 
   const onSyncTemplates = useCallback(async () => {
     if (!activeProjectId) {
@@ -285,7 +306,7 @@ export default function BroadcastPage() {
         setTemplates(templatesData || []);
       }
     });
-  }, [toast, startTemplatesSyncTransition, activeProjectId]);
+  }, [toast, activeProjectId]);
 
   const onRunCron = useCallback(async () => {
     startCronRunTransition(async () => {
@@ -296,63 +317,11 @@ export default function BroadcastPage() {
       } else {
         toast({ title: "Cron Run Complete", description: result.message });
       }
-      // After cron runs, we should refresh the history to see the changes.
       if (activeProjectId) {
-        fetchHistory(activeProjectId, currentPage, false);
+        fetchData(activeProjectId, currentPage, false);
       }
     });
-  }, [toast, fetchHistory, activeProjectId, currentPage]);
-
-  useEffect(() => {
-    if (activeProjectId) {
-        setLoading(true);
-        const fetchPageData = async () => {
-            try {
-                const [projectData, templatesData] = await Promise.all([
-                    getProjectForBroadcast(activeProjectId),
-                    getTemplates(activeProjectId),
-                ]);
-                setProject(projectData as Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null);
-                setTemplates(templatesData || []);
-                await fetchHistory(activeProjectId, currentPage);
-            } catch (error) {
-                console.error("Failed to fetch broadcast page data:", error);
-                toast({
-                    title: "Error",
-                    description: "Failed to load page data. Please try again later.",
-                    variant: "destructive",
-                });
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchPageData();
-    } else {
-        setLoading(false);
-        setHistory([]);
-        setTotalPages(0);
-    }
-  }, [activeProjectId, currentPage, fetchHistory, toast]);
-
-
-  useEffect(() => {
-    if (!isClient || !activeProjectId) return;
-
-    const hasActiveBroadcasts = history.some(
-      (b) => b.status === 'QUEUED' || b.status === 'PROCESSING'
-    );
-
-    if (!hasActiveBroadcasts || loading) {
-      return;
-    }
-
-    const interval = setInterval(() => {
-      fetchHistory(activeProjectId, currentPage);
-    }, 5000); // Poll every 5 seconds
-
-    return () => clearInterval(interval);
-  }, [isClient, history, loading, fetchHistory, activeProjectId, currentPage]);
-
+  }, [toast, activeProjectId, currentPage, fetchData]);
 
   const getTemplateStatusVariant = (status?: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
     if (!status) return 'secondary';
@@ -362,7 +331,7 @@ export default function BroadcastPage() {
     return 'destructive';
   };
 
-  if (!isClient || loading) {
+  if (initialLoad) {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-2">
@@ -426,7 +395,7 @@ export default function BroadcastPage() {
                   <RefreshCw className={`mr-2 h-4 w-4 ${isSyncingTemplates ? 'animate-spin' : ''}`} />
                   Sync Templates
                 </Button>
-                <Button onClick={() => activeProjectId && fetchHistory(activeProjectId, currentPage, true)} disabled={isRefreshing || isRunningCron} variant="outline" size="sm">
+                <Button onClick={() => activeProjectId && fetchData(activeProjectId, currentPage, true)} disabled={isRefreshing || isRunningCron} variant="outline" size="sm">
                   <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
@@ -449,7 +418,13 @@ export default function BroadcastPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {!activeProjectId ? (
+                {isRefreshing && history.length === 0 ? (
+                    <TableRow>
+                        <TableCell colSpan={9} className="h-24 text-center">
+                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                        </TableCell>
+                    </TableRow>
+                ) : !activeProjectId ? (
                     <TableRow>
                         <TableCell colSpan={9} className="h-24 text-center">
                             <Alert variant="destructive" className="max-w-md mx-auto">
