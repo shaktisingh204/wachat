@@ -1,4 +1,5 @@
 
+
 import type { Metadata } from "next";
 import { getProjects } from "@/app/actions";
 import { CreateProjectDialog } from "@/components/wabasimplify/project-dialog";
@@ -84,6 +85,30 @@ export type Template = {
   metaId: string;
   headerSampleUrl?: string;
   qualityScore?: string;
+};
+
+export type FlowNode = {
+    id: string;
+    type: string;
+    data: any;
+    position: { x: number; y: number };
+};
+
+export type FlowEdge = {
+    id: string;
+    source: string;
+    target: string;
+    sourceHandle?: string;
+    targetHandle?: string;
+};
+
+export type Flow = {
+    name: string;
+    projectId: any;
+    nodes: FlowNode[];
+    edges: FlowEdge[];
+    createdAt: Date;
+    updatedAt: Date;
 };
 
 export default async function SelectProjectPage({

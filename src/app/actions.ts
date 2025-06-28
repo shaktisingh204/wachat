@@ -8,7 +8,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
-import type { PhoneNumber, Project, Template, AutoReplySettings } from '@/app/dashboard/page';
+import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge } from '@/app/dashboard/page';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
@@ -176,7 +176,7 @@ export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 
 
 // Re-export types for client components
-export type { Project, Template, PhoneNumber, AutoReplySettings };
+export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge };
 
 const getErrorMessage = (error: any): string => {
     if (axios.isAxiosError(error) && error.response?.data?.error) {
@@ -248,29 +248,28 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
     }
 }
 
-export async function getProjectForBroadcast(projectId: string): Promise<Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null> {
+export async function getProjectForBroadcast(projectId: string): Promise<{ _id: WithId<Project>['_id'], name: string, phoneNumbers: PhoneNumber[], templates: Template[] } | null> {
     try {
         if (!ObjectId.isValid(projectId)) {
-            console.error("Invalid Project ID in getProjectForBroadcast:", projectId);
             return null;
         }
         const { db } = await connectToDatabase();
-        const project = await db.collection('projects').findOne(
-            { _id: new ObjectId(projectId) },
-            { 
-                projection: { 
-                    'phoneNumbers.id': 1, 
-                    'phoneNumbers.display_phone_number': 1 
-                } 
-            }
-        );
+        const projectObjectId = new ObjectId(projectId);
+        const [project, templates] = await Promise.all([
+             db.collection('projects').findOne(
+                { _id: projectObjectId },
+                { projection: { name: 1, 'phoneNumbers.id': 1, 'phoneNumbers.display_phone_number': 1 } }
+            ),
+             db.collection('templates').find({ projectId: projectObjectId }).toArray()
+        ]);
+
 
         if (!project) {
             console.error("Project not found for ID:", projectId);
             return null;
         }
         
-        return JSON.parse(JSON.stringify(project));
+        return JSON.parse(JSON.stringify({ ...project, templates }));
     } catch (error: any) {
         console.error("Exception in getProjectForBroadcast:", error);
         return null;
@@ -355,24 +354,9 @@ export async function getBroadcasts(
                         { $skip: skip },
                         { $limit: limit },
                         {
-                            $lookup: {
-                                from: 'templates',
-                                localField: 'templateId',
-                                foreignField: '_id',
-                                as: 'templateInfo'
-                            }
-                        },
-                        {
-                            $unwind: {
-                                path: '$templateInfo',
-                                preserveNullAndEmptyArrays: true
-                            }
-                        },
-                        {
                             $project: {
                                 templateId: 1,
                                 templateName: 1,
-                                templateStatus: '$templateInfo.status',
                                 fileName: 1,
                                 contactCount: 1,
                                 successCount: 1,
@@ -1303,6 +1287,7 @@ export async function handleCleanDatabase(
           await db.collection('contacts').deleteMany({});
           await db.collection('incoming_messages').deleteMany({});
           await db.collection('outgoing_messages').deleteMany({});
+          await db.collection('flows').deleteMany({});
 
           revalidatePath('/dashboard');
   
@@ -2427,5 +2412,114 @@ export async function handleUpdateAutoReplySettings(
     } catch (e: any) {
         console.error('Failed to update auto-reply settings:', e);
         return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+
+// --- Flow Builder Actions ---
+
+export async function getFlowsForProject(projectId: string): Promise<WithId<Flow>[]> {
+    if (!ObjectId.isValid(projectId)) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const flows = await db.collection('flows')
+            .find({ projectId: new ObjectId(projectId) })
+            .project({ name: 1, updatedAt: 1 })
+            .sort({ updatedAt: -1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(flows));
+    } catch (e: any) {
+        console.error("Failed to fetch flows:", e);
+        return [];
+    }
+}
+
+export async function getFlowById(flowId: string): Promise<WithId<Flow> | null> {
+    if (!ObjectId.isValid(flowId)) return null;
+    try {
+        const { db } = await connectToDatabase();
+        const flow = await db.collection('flows').findOne({ _id: new ObjectId(flowId) });
+        return JSON.parse(JSON.stringify(flow));
+    } catch (e: any) {
+        console.error("Failed to fetch flow:", e);
+        return null;
+    }
+}
+
+type SaveFlowResult = {
+  flowId?: string;
+  message?: string;
+  error?: string;
+};
+
+export async function saveFlow(flowData: {
+  flowId?: string;
+  projectId: string;
+  name: string;
+  nodes: FlowNode[];
+  edges: FlowEdge[];
+}): Promise<SaveFlowResult> {
+  const { flowId, projectId, name, nodes, edges } = flowData;
+
+  if (!projectId || !name || !nodes) {
+    return { error: "Project ID, name, and nodes are required." };
+  }
+  if (!ObjectId.isValid(projectId)) {
+    return { error: "Invalid Project ID." };
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const now = new Date();
+    const flowDocument = {
+      projectId: new ObjectId(projectId),
+      name,
+      nodes,
+      edges,
+      updatedAt: now,
+    };
+
+    let savedFlowId: ObjectId;
+
+    if (flowId && ObjectId.isValid(flowId)) {
+      const result = await db.collection('flows').updateOne(
+        { _id: new ObjectId(flowId) },
+        { $set: flowDocument }
+      );
+       if (result.matchedCount === 0) {
+        return { error: "Flow not found for update." };
+      }
+      savedFlowId = new ObjectId(flowId);
+    } else {
+      const result = await db.collection('flows').insertOne({
+        ...flowDocument,
+        createdAt: now,
+      });
+      savedFlowId = result.insertedId;
+    }
+
+    revalidatePath('/dashboard/flow-builder');
+    return { message: `Flow "${name}" saved successfully.`, flowId: savedFlowId.toString() };
+  } catch (e: any) {
+    console.error("Failed to save flow:", e);
+    return { error: e.message || "An unexpected error occurred while saving the flow." };
+  }
+}
+
+export async function deleteFlow(flowId: string): Promise<{ message?: string; error?: string; }> {
+    if (!ObjectId.isValid(flowId)) {
+        return { error: 'Invalid Flow ID.' };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('flows').deleteOne({ _id: new ObjectId(flowId) });
+        if (result.deletedCount === 0) {
+            return { error: 'Flow not found.' };
+        }
+        revalidatePath('/dashboard/flow-builder');
+        return { message: 'Flow deleted successfully.' };
+    } catch (e: any) {
+         console.error("Failed to delete flow:", e);
+        return { error: e.message || "An unexpected error occurred while deleting the flow." };
     }
 }
