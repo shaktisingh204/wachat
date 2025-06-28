@@ -29,7 +29,7 @@ import {
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send, Briefcase, Rss, Info, Bell, MessageCircle, Users } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Notifications } from '@/components/wabasimplify/notifications';
+import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
 
 const menuItems = [
   { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutDashboard },
@@ -117,7 +117,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 )}
             </div>
             <div className="flex-1" />
-            <Notifications />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2">
@@ -145,6 +144,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <main className="p-4 md:p-6 lg:p-8 flex-1">{children}</main>
         </SidebarInset>
       </div>
+      <LiveNotificationFeed />
     </SidebarProvider>
   );
 }

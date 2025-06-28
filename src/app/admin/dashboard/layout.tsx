@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/sidebar';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown } from 'lucide-react';
-import { Notifications } from '@/components/wabasimplify/notifications';
+import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -86,7 +86,6 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
             <SidebarTrigger className="md:hidden" />
             <div className="text-sm font-semibold text-primary">Admin Panel</div>
             <div className="flex items-center gap-2">
-              <Notifications />
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="flex items-center gap-2">
@@ -114,6 +113,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
           <main className="p-4 md:p-6 lg:p-8 flex-1">{children}</main>
         </SidebarInset>
       </div>
+       <LiveNotificationFeed />
     </SidebarProvider>
   );
 }
