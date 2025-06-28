@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { getWebhookLogs, handleClearWebhookLogs, handleReprocessWebhook } from '@/app/actions';
+import { getWebhookLogs, handleClearWebhookLogs, handleReprocessWebhook, handleRequeueAllWebhookLogs } from '@/app/actions';
 import type { WebhookLog } from '@/app/actions';
 import type { WithId } from 'mongodb';
 
@@ -20,7 +20,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, LoaderCircle, Eye, Search, RefreshCw, Copy, RotateCw } from "lucide-react";
+import { Trash2, LoaderCircle, Eye, Search, RefreshCw, Copy, RotateCw, ServerCog } from "lucide-react";
 
 const LOGS_PER_PAGE = 15;
 
@@ -53,6 +53,7 @@ export function WebhookLogs() {
     const [loading, setLoading] = useState(true);
     const [isRefreshing, startRefreshTransition] = useTransition();
     const [isClearing, startClearingTransition] = useTransition();
+    const [isRequeueingAll, startRequeueingAllTransition] = useTransition();
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
@@ -93,6 +94,18 @@ export function WebhookLogs() {
                 toast({ title: "Success", description: result.message });
                 fetchLogs(1, searchQuery, false);
                 setCurrentPage(1);
+            }
+        });
+    };
+    
+    const handleRequeueAll = () => {
+        startRequeueingAllTransition(async () => {
+            toast({ title: 'Queueing All Logs...', description: 'This may take a moment. The cron job will process them in the background.' });
+            const result = await handleRequeueAllWebhookLogs();
+            if (result.error) {
+                toast({ title: "Error", description: result.error, variant: "destructive" });
+            } else {
+                toast({ title: "Success", description: result.message });
             }
         });
     };
@@ -238,7 +251,11 @@ export function WebhookLogs() {
                             <Copy className="mr-2 h-4 w-4" />
                             Copy Page Logs
                         </Button>
-                        <Button onClick={handleClearLogs} disabled={isClearing} variant="outline" size="sm">
+                        <Button onClick={handleRequeueAll} disabled={isRequeueingAll || isRefreshing} variant="outline" size="sm">
+                            {isRequeueingAll ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <ServerCog className="mr-2 h-4 w-4" />}
+                            Re-process All
+                        </Button>
+                        <Button onClick={handleClearLogs} disabled={isClearing || isRefreshing} variant="outline" size="sm">
                             {isClearing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
                             Clear Old Logs
                         </Button>
