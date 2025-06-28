@@ -11,6 +11,7 @@ import type { PhoneNumber, Project, Template } from '@/app/dashboard/page';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
+import { translateText } from '@/ai/flows/translate-text';
 
 type MetaPhoneNumber = {
     id: string;
@@ -2094,4 +2095,18 @@ export async function handleSubscribeAllProjects(): Promise<{
     }
   }
 
+export async function handleTranslateMessage(text: string): Promise<{ translatedText?: string; error?: string }> {
+    if (!text) {
+        return { error: 'Text to translate cannot be empty.' };
+    }
+    try {
+        const result = await translateText({ text, targetLanguage: 'English' });
+        return { translatedText: result.translatedText };
+    } catch (e: any) {
+        console.error('Translation failed:', e);
+        return { error: e.message || 'Failed to translate message. Please try again.' };
+    }
+}
     
+
+```

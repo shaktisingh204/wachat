@@ -1,11 +1,15 @@
 
 'use client';
 
-import { AnyMessage, OutgoingMessage } from '@/app/actions';
+import { useState } from 'react';
+import { AnyMessage, OutgoingMessage, handleTranslateMessage } from '@/app/actions';
 import { cn } from '@/lib/utils';
-import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, Video as VideoIcon, XCircle } from 'lucide-react';
+import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, Video as VideoIcon, XCircle, Languages, LoaderCircle } from 'lucide-react';
 import Image from 'next/image';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+import { Separator } from '@/components/ui/separator';
 
 interface ChatMessageProps {
     message: AnyMessage;
@@ -35,20 +39,22 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
     };
 
     return (
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <span>{getIcon()}</span>
-            </TooltipTrigger>
-            <TooltipContent side="top" align="end">
-                <div className="text-xs space-y-1 p-1">
-                    {statusTimestamps?.read && <p>Read: {formatTimestamp(statusTimestamps.read)}</p>}
-                    {statusTimestamps?.delivered && <p>Delivered: {formatTimestamp(statusTimestamps.delivered)}</p>}
-                    {statusTimestamps?.sent && <p>Sent: {formatTimestamp(statusTimestamps.sent)}</p>}
-                    {status === 'pending' && <p>Pending...</p>}
-                    {status === 'failed' && <p>Failed</p>}
-                </div>
-            </TooltipContent>
-        </Tooltip>
+        <TooltipProvider>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <span>{getIcon()}</span>
+                </TooltipTrigger>
+                <TooltipContent side="top" align="end">
+                    <div className="text-xs space-y-1 p-1">
+                        {statusTimestamps?.read && <p>Read: {formatTimestamp(statusTimestamps.read)}</p>}
+                        {statusTimestamps?.delivered && <p>Delivered: {formatTimestamp(statusTimestamps.delivered)}</p>}
+                        {statusTimestamps?.sent && <p>Sent: {formatTimestamp(statusTimestamps.sent)}</p>}
+                        {status === 'pending' && <p>Pending...</p>}
+                        {status === 'failed' && <p>Failed</p>}
+                    </div>
+                </TooltipContent>
+            </Tooltip>
+        </TooltipProvider>
     );
 }
 
@@ -104,9 +110,47 @@ function MediaContent({ message }: { message: AnyMessage }) {
 export function ChatMessage({ message }: ChatMessageProps) {
     const isOutgoing = message.direction === 'out';
     const timestamp = message.messageTimestamp || message.createdAt;
+    
+    const [translatedText, setTranslatedText] = useState<string | null>(null);
+    const [isTranslating, setIsTranslating] = useState(false);
+    const { toast } = useToast();
 
+    const onTranslate = async () => {
+        const originalText = message.content.text?.body;
+        if (!originalText) return;
+
+        setIsTranslating(true);
+        const result = await handleTranslateMessage(originalText);
+        setIsTranslating(false);
+
+        if (result.error) {
+            toast({ title: 'Translation Error', description: result.error, variant: 'destructive' });
+        } else if (result.translatedText) {
+            setTranslatedText(result.translatedText);
+        }
+    };
+    
     return (
-        <div className={cn("flex items-end gap-2", isOutgoing ? "justify-end" : "justify-start")}>
+        <div className={cn("flex items-end gap-2 group/message", isOutgoing ? "justify-end" : "justify-start")}>
+            
+            {!isOutgoing && (
+                <div className="self-center opacity-0 group-hover/message:opacity-100 transition-opacity">
+                    {message.type === 'text' && (
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onTranslate} disabled={isTranslating}>
+                                        {isTranslating ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Languages className="h-4 w-4" />}
+                                        <span className="sr-only">Translate</span>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Translate to English</TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
+                    )}
+                </div>
+            )}
+
             <div
                 className={cn(
                     "max-w-md rounded-lg p-3 text-sm flex flex-col",
@@ -120,6 +164,14 @@ export function ChatMessage({ message }: ChatMessageProps) {
                 ) : (
                     <MediaContent message={message} />
                 )}
+
+                {translatedText && (
+                    <>
+                        <Separator className={cn("my-2", isOutgoing ? "bg-primary-foreground/20" : "bg-muted-foreground/20")} />
+                        <p className={cn("whitespace-pre-wrap italic", isOutgoing ? "text-primary-foreground/90" : "text-muted-foreground")}>{translatedText}</p>
+                    </>
+                )}
+
 
                 {isOutgoing && message.status === 'failed' && (
                     <p className="text-xs mt-1 pt-1 border-t border-primary-foreground/20 text-red-300">
