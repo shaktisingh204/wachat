@@ -2,7 +2,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { revalidatePath } from 'next/cache';
-import type { Db, WithId } from 'mongodb';
+import { Db, ObjectId, WithId } from 'mongodb';
 
 // --- Types ---
 type WebhookQueueItem = {
@@ -23,6 +23,13 @@ async function processStatuses(db: Db, statuses: any[]) {
 
     const outgoingMessagesOps: any[] = [];
     const broadcastContactsOps: any[] = [];
+    
+    // New logic to efficiently update broadcast counters
+    const wamids = statuses.map(s => s.id);
+    const updateCounters: Record<string, { delivered: number; read: number }> = {};
+    const contacts = await db.collection('broadcast_contacts').find({ messageId: { $in: wamids } }, { projection: { broadcastId: 1, messageId: 1 } }).toArray();
+    const wamidToBroadcastIdMap = new Map(contacts.map(c => [c.messageId, c.broadcastId.toString()]));
+
 
     statuses.forEach((status: any) => {
         const statusUpper = status.status.toUpperCase();
@@ -62,6 +69,33 @@ async function processStatuses(db: Db, statuses: any[]) {
                 update: { $set: broadcastUpdatePayload }
             }
         });
+
+        // New logic to increment counters for broadcasts
+        const broadcastId = wamidToBroadcastIdMap.get(status.id);
+        if (broadcastId) {
+            if (!updateCounters[broadcastId]) {
+                updateCounters[broadcastId] = { delivered: 0, read: 0 };
+            }
+            if (status.status === 'delivered') {
+                updateCounters[broadcastId].delivered++;
+            } else if (status.status === 'read') {
+                updateCounters[broadcastId].read++;
+            }
+        }
+    });
+    
+    const broadcastUpdateOps = Object.entries(updateCounters).map(([broadcastId, counts]) => {
+        return {
+            updateOne: {
+                filter: { _id: new ObjectId(broadcastId) },
+                update: {
+                    $inc: {
+                        deliveredCount: counts.delivered,
+                        readCount: counts.read
+                    }
+                }
+            }
+        };
     });
 
     const promises = [];
@@ -75,6 +109,11 @@ async function processStatuses(db: Db, statuses: any[]) {
         promises.push(
             db.collection('broadcast_contacts').bulkWrite(broadcastContactsOps, { ordered: false })
             .then(() => revalidatePath('/dashboard/broadcasts/[broadcastId]', 'page'))
+        );
+    }
+    if (broadcastUpdateOps.length > 0) {
+        promises.push(
+            db.collection('broadcasts').bulkWrite(broadcastUpdateOps, { ordered: false })
         );
     }
     

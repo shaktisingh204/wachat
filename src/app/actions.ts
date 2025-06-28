@@ -334,6 +334,8 @@ export async function getBroadcasts(): Promise<WithId<any>[]> {
           contactCount: 1,
           successCount: 1,
           errorCount: 1,
+          deliveredCount: 1,
+          readCount: 1,
           status: 1,
           createdAt: 1,
           startedAt: 1,
@@ -2117,31 +2119,6 @@ export async function handleTranslateMessage(text: string): Promise<{ translated
     } catch (e: any) {
         console.error('Translation failed:', e);
         return { error: e.message || 'Failed to translate message. Please try again.' };
-    }
-}
-
-export async function getBroadcastStatusCounts(broadcastId: string): Promise<Record<string, number>> {
-    if (!ObjectId.isValid(broadcastId)) {
-        return {};
-    }
-    try {
-        const { db } = await connectToDatabase();
-        const results = await db.collection('broadcast_contacts').aggregate([
-            { $match: { broadcastId: new ObjectId(broadcastId) } },
-            { $group: { _id: '$status', count: { $sum: 1 } } }
-        ]).toArray();
-
-        const counts = results.reduce((acc, item) => {
-            if (item._id) {
-                 acc[item._id] = item.count;
-            }
-            return acc;
-        }, {} as Record<string, number>);
-
-        return counts;
-    } catch (error) {
-        console.error('Failed to fetch broadcast status counts:', error);
-        return {};
     }
 }
 

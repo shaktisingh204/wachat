@@ -5,7 +5,7 @@ import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { WithId } from 'mongodb';
-import { getBroadcastById, getBroadcastAttempts, getBroadcastStatusCounts, getBroadcastAttemptsForExport, type BroadcastAttempt } from '@/app/actions';
+import { getBroadcastById, getBroadcastAttempts, getBroadcastAttemptsForExport, type BroadcastAttempt } from '@/app/actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -25,6 +25,8 @@ type Broadcast = {
   contactCount: number;
   successCount?: number;
   errorCount?: number;
+  deliveredCount?: number;
+  readCount?: number;
   status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure' | 'Cancelled';
   createdAt: string;
   startedAt?: string;
@@ -38,7 +40,6 @@ const ATTEMPTS_PER_PAGE = 50;
 export default function BroadcastReportPage() {
   const [broadcast, setBroadcast] = useState<WithId<Broadcast> | null>(null);
   const [attempts, setAttempts] = useState<BroadcastAttempt[]>([]);
-  const [statusCounts, setStatusCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isExporting, startExportTransition] = useTransition();
@@ -59,17 +60,15 @@ export default function BroadcastReportPage() {
     
     startRefreshTransition(async () => {
         try {
-            const [broadcastData, attemptsData, countsData] = await Promise.all([
+            const [broadcastData, attemptsData] = await Promise.all([
                 getBroadcastById(broadcastId),
                 getBroadcastAttempts(broadcastId, page, ATTEMPTS_PER_PAGE, filterValue),
-                getBroadcastStatusCounts(broadcastId),
             ]);
 
             if (broadcastData) {
                 setBroadcast(broadcastData);
                 setAttempts(attemptsData.attempts);
                 setTotalPages(Math.ceil(attemptsData.total / ATTEMPTS_PER_PAGE));
-                setStatusCounts(countsData);
             } else {
                 toast({ title: "Error", description: "Broadcast not found.", variant: "destructive" });
                 router.push('/dashboard/broadcasts');
@@ -251,7 +250,7 @@ export default function BroadcastReportPage() {
                     <CheckCheck className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{statusCounts['DELIVERED'] ?? 0}</div>
+                    <div className="text-2xl font-bold">{broadcast.deliveredCount ?? 0}</div>
                 </CardContent>
             </Card>
             <Card>
@@ -260,7 +259,7 @@ export default function BroadcastReportPage() {
                     <Eye className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold">{statusCounts['READ'] ?? 0}</div>
+                    <div className="text-2xl font-bold">{broadcast.readCount ?? 0}</div>
                 </CardContent>
             </Card>
             <Card>
