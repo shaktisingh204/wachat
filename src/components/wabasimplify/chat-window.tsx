@@ -17,15 +17,10 @@ interface ChatWindowProps {
 }
 
 export function ChatWindow({ contact, conversation, isLoading }: ChatWindowProps) {
-    const scrollAreaRef = useRef<HTMLDivElement>(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (scrollAreaRef.current) {
-            scrollAreaRef.current.scrollTo({
-                top: scrollAreaRef.current.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
+        messagesEndRef.current?.scrollIntoView();
     }, [conversation]);
 
     const MessageListSkeleton = () => (
@@ -36,7 +31,6 @@ export function ChatWindow({ contact, conversation, isLoading }: ChatWindowProps
             </div>
             <div className="flex items-end gap-2 justify-end">
                 <Skeleton className="h-16 w-64 rounded-lg" />
-                <Skeleton className="h-8 w-8 rounded-full" />
             </div>
             <div className="flex items-end gap-2">
                 <Skeleton className="h-8 w-8 rounded-full" />
@@ -57,16 +51,19 @@ export function ChatWindow({ contact, conversation, isLoading }: ChatWindowProps
                 </div>
             </div>
             
-            <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-                {isLoading ? (
-                    <MessageListSkeleton />
-                ) : (
-                    <div className="space-y-4">
-                        {conversation.map((msg) => (
-                            <ChatMessage key={msg._id.toString()} message={msg} />
-                        ))}
-                    </div>
-                )}
+            <ScrollArea className="flex-1">
+                <div className="p-4 space-y-4">
+                    {isLoading ? (
+                        <MessageListSkeleton />
+                    ) : (
+                        <>
+                            {conversation.map((msg) => (
+                                <ChatMessage key={msg._id.toString()} message={msg} />
+                            ))}
+                            <div ref={messagesEndRef} />
+                        </>
+                    )}
+                </div>
             </ScrollArea>
             
             <div className="p-4 border-t bg-background/80">

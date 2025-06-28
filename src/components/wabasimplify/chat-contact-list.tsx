@@ -9,7 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { MessageSquarePlus } from 'lucide-react';
+import { LoaderCircle, MessageSquarePlus } from 'lucide-react';
+import React from 'react';
 
 interface ChatContactListProps {
     contacts: WithId<Contact>[];
@@ -17,9 +18,11 @@ interface ChatContactListProps {
     onSelectContact: (contact: WithId<Contact>) => void;
     onNewChat: () => void;
     isLoading: boolean;
+    hasMoreContacts: boolean;
+    loadMoreRef: React.Ref<HTMLDivElement>;
 }
 
-export function ChatContactList({ contacts, selectedContactId, onSelectContact, onNewChat, isLoading }: ChatContactListProps) {
+export function ChatContactList({ contacts, selectedContactId, onSelectContact, onNewChat, isLoading, hasMoreContacts, loadMoreRef }: ChatContactListProps) {
 
     const ContactSkeleton = () => (
         <div className="flex items-center gap-3 p-3">
@@ -46,34 +49,41 @@ export function ChatContactList({ contacts, selectedContactId, onSelectContact, 
                         {[...Array(8)].map((_, i) => <ContactSkeleton key={i} />)}
                     </div>
                 ) : contacts.length > 0 ? (
-                    contacts.map(contact => (
-                        <button
-                            key={contact._id.toString()}
-                            onClick={() => onSelectContact(contact)}
-                            className={cn(
-                                "flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-muted",
-                                selectedContactId === contact._id.toString() && "bg-muted"
-                            )}
-                        >
-                            <Avatar>
-                                <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 overflow-hidden">
-                                <p className="font-semibold truncate">{contact.name}</p>
-                                <p className="text-sm text-muted-foreground truncate">{contact.lastMessage}</p>
-                            </div>
-                            {contact.lastMessageTimestamp && (
-                                <div className="flex flex-col items-end gap-1 self-start">
-                                    <p className="text-xs text-muted-foreground whitespace-nowrap">
-                                        {new Date(contact.lastMessageTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                    </p>
-                                    {contact.unreadCount && contact.unreadCount > 0 && (
-                                        <Badge variant="default" className="h-5 w-5 flex items-center justify-center p-0">{contact.unreadCount}</Badge>
-                                    )}
+                    <>
+                        {contacts.map(contact => (
+                            <button
+                                key={contact._id.toString()}
+                                onClick={() => onSelectContact(contact)}
+                                className={cn(
+                                    "flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-muted",
+                                    selectedContactId === contact._id.toString() && "bg-muted"
+                                )}
+                            >
+                                <Avatar>
+                                    <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex-1 overflow-hidden">
+                                    <p className="font-semibold truncate">{contact.name}</p>
+                                    <p className="text-sm text-muted-foreground truncate">{contact.lastMessage}</p>
                                 </div>
-                            )}
-                        </button>
-                    ))
+                                {contact.lastMessageTimestamp && (
+                                    <div className="flex flex-col items-end gap-1 self-start">
+                                        <p className="text-xs text-muted-foreground whitespace-nowrap">
+                                            {new Date(contact.lastMessageTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                        </p>
+                                        {contact.unreadCount && contact.unreadCount > 0 && (
+                                            <Badge variant="default" className="h-5 w-5 flex items-center justify-center p-0">{contact.unreadCount}</Badge>
+                                        )}
+                                    </div>
+                                )}
+                            </button>
+                        ))}
+                        {hasMoreContacts && (
+                            <div ref={loadMoreRef} className="flex justify-center items-center p-4">
+                                <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
+                            </div>
+                        )}
+                    </>
                 ) : (
                     <div className="p-8 text-center text-sm text-muted-foreground">
                         No contacts found for this number.

@@ -178,7 +178,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {children}
           </main>
           {!hideNotificationFeed && (
-           <aside className="w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0">
+           <aside className="w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0 flex flex-col">
               <LiveNotificationFeed />
           </aside>
           )}
