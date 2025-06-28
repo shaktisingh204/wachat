@@ -209,15 +209,8 @@ export default function BroadcastPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   
-  // State management for client-side dependencies
+  const [isClient, setIsClient] = useState(false);
   const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-  const [initialLoad, setInitialLoad] = useState(true);
-
-  // This effect runs once on mount to get the project ID from localStorage.
-  useEffect(() => {
-    setActiveProjectId(localStorage.getItem('activeProjectId'));
-    setInitialLoad(false);
-  }, []);
 
   const fetchData = useCallback(async (projectId: string, page: number, showToast = false) => {
     startRefreshTransition(async () => {
@@ -270,26 +263,34 @@ export default function BroadcastPage() {
     });
   }, [toast]);
 
-  // This effect fetches data when the project ID or page changes.
   useEffect(() => {
-    if (!initialLoad && activeProjectId) {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      setActiveProjectId(localStorage.getItem('activeProjectId'));
+    }
+  }, [isClient]);
+
+  useEffect(() => {
+    if (activeProjectId) {
       fetchData(activeProjectId, currentPage);
     }
-  }, [activeProjectId, currentPage, initialLoad, fetchData]);
-
-  // Polling for active broadcasts
+  }, [activeProjectId, currentPage, fetchData]);
+  
   useEffect(() => {
-    if (initialLoad || !activeProjectId) return;
+    if (!isClient || !activeProjectId) return;
 
     const hasActiveBroadcasts = history.some(b => b.status === 'QUEUED' || b.status === 'PROCESSING');
     if (!hasActiveBroadcasts) return;
 
     const interval = setInterval(() => {
-      fetchData(activeProjectId, currentPage);
+      fetchData(activeProjectId, currentPage, false);
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [history, activeProjectId, currentPage, initialLoad, fetchData]);
+  }, [history, activeProjectId, currentPage, isClient, fetchData]);
 
   const onSyncTemplates = useCallback(async () => {
     if (!activeProjectId) {
@@ -331,7 +332,7 @@ export default function BroadcastPage() {
     return 'destructive';
   };
 
-  if (initialLoad) {
+  if (!isClient) {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-2">
