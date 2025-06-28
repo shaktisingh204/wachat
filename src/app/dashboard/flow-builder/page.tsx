@@ -616,9 +616,12 @@ export default function FlowBuilderPage() {
     const [isSaving, startSaveTransition] = useTransition();
     const [isLoadingFlows, startFlowsLoadingTransition] = useTransition();
     const [isTestFlowOpen, setIsTestFlowOpen] = useState(false);
-    const canvasRef = useRef<HTMLDivElement>(null);
-
-    const [draggingNode, setDraggingNode] = useState<{ id: string; offset: { x: number; y: number } } | null>(null);
+    
+    const [pan, setPan] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [isPanning, setIsPanning] = useState(false);
+    const viewportRef = useRef<HTMLDivElement>(null);
+    const [draggingNode, setDraggingNode] = useState<string | null>(null);
     const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
     const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
@@ -663,6 +666,8 @@ export default function FlowBuilderPage() {
         setNodes([startNode]);
         setEdges([]);
         setSelectedNodeId(startNode.id);
+        setPan({x: 0, y: 0});
+        setZoom(1);
     };
     
     const handleDeleteFlow = async (flowId: string) => {
@@ -676,15 +681,18 @@ export default function FlowBuilderPage() {
     };
 
     const addNode = (type: NodeType) => {
+        const centerOfViewX = viewportRef.current ? (viewportRef.current.clientWidth / 2 - pan.x) / zoom : 300;
+        const centerOfViewY = viewportRef.current ? (viewportRef.current.clientHeight / 2 - pan.y) / zoom : 150;
+    
         const newNode: FlowNode = {
             id: `node-${type}-${Date.now()}`,
             type,
             data: { 
                 label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
                 apiRequest: { method: 'GET', url: '', headers: '', body: '', responseMappings: [] },
-                mode: 'automatic', // Default for language node
+                mode: 'automatic',
             },
-            position: { x: Math.random() * 400 + 200, y: Math.random() * 200 + 50 },
+            position: { x: centerOfViewX, y: centerOfViewY },
         };
         setNodes(prev => [...prev, newNode]);
         setSelectedNodeId(newNode.id);
@@ -737,42 +745,47 @@ export default function FlowBuilderPage() {
     const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
         e.preventDefault();
         e.stopPropagation();
-        const node = nodes.find(n => n.id === nodeId);
-        if (node && canvasRef.current) {
-            const canvasRect = canvasRef.current.getBoundingClientRect();
-            const offsetX = e.clientX - canvasRect.left - node.position.x;
-            const offsetY = e.clientY - canvasRect.top - node.position.y;
-            setDraggingNode({ id: nodeId, offset: { x: offsetX, y: offsetY } });
-        }
+        setDraggingNode(nodeId);
     };
     
-    const handleMouseMove = (e: React.MouseEvent) => {
-        if (canvasRef.current) {
-            const canvasRect = canvasRef.current.getBoundingClientRect();
-            const currentMousePos = { x: e.clientX - canvasRect.left, y: e.clientY - canvasRect.top };
-            setMousePosition(currentMousePos);
-
-            if (draggingNode) {
-                e.preventDefault();
-                e.stopPropagation();
-                const newX = currentMousePos.x - draggingNode.offset.x;
-                const newY = currentMousePos.y - draggingNode.offset.y;
-                setNodes(prevNodes => prevNodes.map(n => 
-                    n.id === draggingNode.id ? { ...n, position: { x: newX, y: newY } } : n
-                ));
-            }
+    const handleCanvasMouseDown = (e: React.MouseEvent) => {
+        if (e.target === e.currentTarget) {
+            e.preventDefault();
+            setIsPanning(true);
         }
     };
 
-    const handleMouseUp = (e: React.MouseEvent) => {
+    const handleCanvasMouseMove = (e: React.MouseEvent) => {
+        if (isPanning) {
+            setPan(prev => ({ x: prev.x + e.movementX, y: prev.y + e.movementY }));
+        } else if (draggingNode) {
+            setNodes(prev => prev.map(n => 
+                n.id === draggingNode
+                    ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } 
+                    : n
+            ));
+        }
+        
+        if (connecting && viewportRef.current) {
+            const rect = viewportRef.current.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            setMousePosition({ x: (mouseX - pan.x) / zoom, y: (mouseY - pan.y) / zoom });
+        }
+    };
+
+    const handleCanvasMouseUp = () => {
+        setIsPanning(false);
         setDraggingNode(null);
     };
 
-    const handleCanvasClick = () => {
-        if (connecting) {
-            setConnecting(null);
-        } else {
-            setSelectedNodeId(null);
+    const handleCanvasClick = (e: React.MouseEvent) => {
+        if (e.target === e.currentTarget) {
+            if (connecting) {
+                setConnecting(null);
+            } else {
+                setSelectedNodeId(null);
+            }
         }
     }
 
@@ -780,20 +793,17 @@ export default function FlowBuilderPage() {
         e.preventDefault();
         e.stopPropagation();
 
-        if (!canvasRef.current) return;
+        if (!viewportRef.current) return;
         
         const isOutputHandle = handleId.includes('output') || handleId.includes('-btn-');
 
         if (isOutputHandle) {
-            const handleElement = document.getElementById(handleId);
-            if(handleElement){
-                const handleRect = handleElement.getBoundingClientRect();
-                const canvasRect = canvasRef.current.getBoundingClientRect();
-                const startPos = {
-                    x: handleRect.left - canvasRect.left + handleRect.width / 2,
-                    y: handleRect.top - canvasRect.top + handleRect.height / 2,
-                };
-                setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos });
+            const sourceNode = nodes.find(n => n.id === nodeId);
+            if(sourceNode){
+                const handlePos = getNodeHandlePosition(sourceNode, handleId);
+                if (handlePos) {
+                    setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });
+                }
             }
         } else if (connecting && !isOutputHandle) {
             if (connecting.sourceNodeId === nodeId) {
@@ -814,6 +824,27 @@ export default function FlowBuilderPage() {
             setEdges([...edgesWithoutExistingTarget, newEdge]);
             setConnecting(null);
         }
+    };
+
+    const handleWheel = (e: React.WheelEvent) => {
+        e.preventDefault();
+        if (!viewportRef.current) return;
+    
+        const rect = viewportRef.current.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+    
+        const zoomFactor = -0.001;
+        const newZoom = Math.max(0.2, Math.min(2, zoom + e.deltaY * zoomFactor));
+        
+        const worldX = (mouseX - pan.x) / zoom;
+        const worldY = (mouseY - pan.y) / zoom;
+        
+        const newPanX = mouseX - worldX * newZoom;
+        const newPanY = mouseY - worldY * newZoom;
+    
+        setZoom(newZoom);
+        setPan({ x: newPanX, y: newPanY });
     };
 
     const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
@@ -900,43 +931,58 @@ export default function FlowBuilderPage() {
                         </Card>
                     </div>
                     <div className="md:col-span-6 lg:col-span-7">
-                        <Card className="h-full">
-                            <ScrollArea className="h-full">
-                                <div 
-                                    ref={canvasRef}
-                                    className="relative h-[80vh] w-full overflow-hidden"
-                                    onMouseMove={handleMouseMove}
-                                    onMouseUp={handleMouseUp}
-                                    onClick={handleCanvasClick}
+                        <Card
+                            ref={viewportRef}
+                            className="h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing"
+                            onMouseDown={handleCanvasMouseDown}
+                            onMouseMove={handleCanvasMouseMove}
+                            onMouseUp={handleCanvasMouseUp}
+                            onMouseLeave={handleCanvasMouseUp}
+                            onWheel={handleWheel}
+                            onClick={handleCanvasClick}
+                        >
+                             <div
+                                className="absolute inset-0"
+                                style={{
+                                    backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)',
+                                    backgroundSize: '20px 20px',
+                                    backgroundPosition: `${pan.x}px ${pan.y}px`,
+                                }}
+                            />
+                            <div 
+                                className="relative w-full h-full"
+                                style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}
+                            >
+                                {nodes.map(node => (
+                                    <NodeComponent 
+                                        key={node.id} 
+                                        node={node}
+                                        onSelectNode={setSelectedNodeId}
+                                        isSelected={selectedNodeId === node.id}
+                                        onNodeMouseDown={handleNodeMouseDown}
+                                        onHandleClick={handleHandleClick}
+                                    />
+                                ))}
+                                <svg 
+                                    className="absolute top-0 left-0 pointer-events-none"
+                                    style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}
                                 >
-                                    {nodes.map(node => (
-                                        <NodeComponent 
-                                            key={node.id} 
-                                            node={node}
-                                            onSelectNode={setSelectedNodeId}
-                                            isSelected={selectedNodeId === node.id}
-                                            onNodeMouseDown={handleNodeMouseDown}
-                                            onHandleClick={handleHandleClick}
-                                        />
-                                    ))}
-                                    <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                                        {edges.map(edge => {
-                                            const sourceNode = nodes.find(n => n.id === edge.source);
-                                            const targetNode = nodes.find(n => n.id === edge.target);
-                                            if(!sourceNode || !targetNode) return null;
-                                            
-                                            const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle);
-                                            const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle);
-                                            if (!sourcePos || !targetPos) return null;
+                                    {edges.map(edge => {
+                                        const sourceNode = nodes.find(n => n.id === edge.source);
+                                        const targetNode = nodes.find(n => n.id === edge.target);
+                                        if(!sourceNode || !targetNode) return null;
+                                        
+                                        const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle);
+                                        const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle);
+                                        if (!sourcePos || !targetPos) return null;
 
-                                            return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
-                                        })}
-                                        {connecting && (
-                                            <ConnectionLine from={connecting.startPos} to={mousePosition} />
-                                        )}
-                                    </svg>
-                                </div>
-                            </ScrollArea>
+                                        return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
+                                    })}
+                                    {connecting && (
+                                        <ConnectionLine from={connecting.startPos} to={mousePosition} />
+                                    )}
+                                </svg>
+                            </div>
                         </Card>
                     </div>
                     <div className="md:col-span-3 lg:col-span-3">
