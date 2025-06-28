@@ -340,7 +340,7 @@ export async function processBroadcastJob() {
 
         let lockResult;
         try {
-            lockResult = await db.collection('broadcasts').findOneAndUpdate(
+            lockResult = await db.collection('locks').findOneAndUpdate(
                 { 
                     _id: lockId,
                     $or: [
@@ -445,7 +445,7 @@ export async function processBroadcastJob() {
             try {
                 const conn = await connectToDatabase();
                 db = conn.db;
-                await db.collection('broadcasts').updateOne(
+                await db.collection('locks').updateOne(
                     { _id: lockId },
                     { $set: { lockHeldUntil: new Date(0) } } // Release lock
                 );
