@@ -2371,15 +2371,19 @@ export async function handleUpdateAutoReplySettings(
 
     try {
         const { db } = await connectToDatabase();
-        let updatePayload = {};
+        
+        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
+        if (!project) {
+            return { error: 'Project not found.' };
+        }
+
+        const autoReplySettings = project.autoReplySettings || {};
 
         switch (replyType) {
             case 'general':
-                updatePayload = {
-                    'autoReplySettings.general': {
-                        enabled: formData.get('enabled') === 'on',
-                        message: formData.get('message') as string,
-                    }
+                autoReplySettings.general = {
+                    enabled: formData.get('enabled') === 'on',
+                    message: formData.get('message') as string,
                 };
                 break;
             case 'inactiveHours':
@@ -2389,23 +2393,19 @@ export async function handleUpdateAutoReplySettings(
                         days.push(i);
                     }
                 }
-                updatePayload = {
-                    'autoReplySettings.inactiveHours': {
-                        enabled: formData.get('enabled') === 'on',
-                        startTime: formData.get('startTime') as string,
-                        endTime: formData.get('endTime') as string,
-                        timezone: formData.get('timezone') as string,
-                        days: days,
-                        message: formData.get('message') as string,
-                    }
+                autoReplySettings.inactiveHours = {
+                    enabled: formData.get('enabled') === 'on',
+                    startTime: formData.get('startTime') as string,
+                    endTime: formData.get('endTime') as string,
+                    timezone: formData.get('timezone') as string,
+                    days: days,
+                    message: formData.get('message') as string,
                 };
                 break;
             case 'aiAssistant':
-                updatePayload = {
-                    'autoReplySettings.aiAssistant': {
-                        enabled: formData.get('enabled') === 'on',
-                        context: formData.get('context') as string,
-                    }
+                 autoReplySettings.aiAssistant = {
+                    enabled: formData.get('enabled') === 'on',
+                    context: formData.get('context') as string,
                 };
                 break;
             default:
@@ -2414,11 +2414,11 @@ export async function handleUpdateAutoReplySettings(
 
         const result = await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
-            { $set: updatePayload }
+            { $set: { autoReplySettings } }
         );
 
         if (result.matchedCount === 0) {
-            return { error: 'Project not found.' };
+             return { error: 'Project not found during update.' };
         }
 
         revalidatePath('/dashboard/auto-reply');

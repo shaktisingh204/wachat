@@ -126,7 +126,7 @@ function InactiveHoursForm({ project }: { project: WithId<Project> }) {
                     <div className="flex flex-wrap gap-4">
                         {dayLabels.map((day, index) => (
                             <div key={index} className="flex items-center gap-2">
-                                <Checkbox id={`day_${index}`} name={`day_${index}`} defaultChecked={settings?.days.includes(index)} />
+                                <Checkbox id={`day_${index}`} name={`day_${index}`} defaultChecked={settings?.days?.includes(index)} />
                                 <Label htmlFor={`day_${index}`} className="font-normal">{day}</Label>
                             </div>
                         ))}
