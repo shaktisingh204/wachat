@@ -212,7 +212,8 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
         try {
             const result = await generateAutoReply({
                 incomingMessage: message.text.body,
-                businessContext: settings.aiAssistant.context
+                businessContext: settings.aiAssistant.context,
+                userWaId: contact.waId,
             });
             replyMessage = result.replyMessage;
         } catch (e: any) {
@@ -397,7 +398,7 @@ async function findOrCreateProjectByWabaId(db: Db, wabaId: string): Promise<With
         };
         const result = await db.collection('projects').findOneAndUpdate(
             { wabaId: wabaId },
-            { $set: { name: projectDoc.name, accessToken: projectDoc.accessToken, phoneNumbers: phoneNumbers, reviewStatus: projectDoc.reviewStatus, },
+            { $set: { name: projectDoc.name, accessToken: projectDoc.accessToken, phoneNumbers: projectDoc.phoneNumbers, reviewStatus: projectDoc.reviewStatus, },
               $setOnInsert: { createdAt: new Date(), messagesPerSecond: projectDoc.messagesPerSecond, } },
             { upsert: true, returnDocument: 'after' }
         );
