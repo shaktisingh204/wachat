@@ -141,11 +141,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </DropdownMenuContent>
             </DropdownMenu>
           </header>
-          <div className="flex flex-1 overflow-hidden">
+          <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
             <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
                 {children}
             </main>
-             <aside className="hidden md:block w-80 xl:w-96 border-l bg-background shrink-0">
+             <aside className="w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0 h-96 md:h-auto">
                 <LiveNotificationFeed />
             </aside>
           </div>
