@@ -128,62 +128,76 @@ async function findAndExecuteFlow(db: Db, project: WithId<Project>, contact: Wit
     const messageText = message.text?.body?.toLowerCase().trim();
     if (!messageText) return false;
 
-    // TODO: Handle if user is already in a flow (contact.activeFlow)
+    try {
+        const flows = await db.collection<Flow>('flows').find({
+            projectId: project._id,
+            triggerKeywords: { $exists: true, $ne: [] }
+        }).toArray();
 
-    const flows = await db.collection<Flow>('flows').find({
-        projectId: project._id,
-        triggerKeywords: { $exists: true, $ne: [] }
-    }).toArray();
+        const triggeredFlow = flows.find(flow =>
+            flow.triggerKeywords.some(keyword => messageText.includes(keyword.toLowerCase().trim()))
+        );
 
-    const triggeredFlow = flows.find(flow => 
-        flow.triggerKeywords.some(keyword => messageText.includes(keyword.toLowerCase()))
-    );
-
-    if (triggeredFlow) {
-        console.log(`Triggering flow '${triggeredFlow.name}' for contact ${contact.waId}`);
-        
-        let currentNode = triggeredFlow.nodes.find(n => n.type === 'start');
-        if (!currentNode) return false;
-
-        // Simple linear execution for now
-        while(currentNode) {
-            const edge = triggeredFlow.edges.find(e => e.source === currentNode.id);
-            const nextNodeId = edge?.target;
-            
-            if (!nextNodeId) {
-                currentNode = null;
-                continue;
-            }
-
-            const nextNode = triggeredFlow.nodes.find(n => n.id === nextNodeId);
-
-            if (nextNode) {
-                 switch (nextNode.type) {
-                    case 'text':
-                         if (nextNode.data.text) {
-                            await sendFlowMessage(db, project, contact, phoneNumberId, nextNode.data.text);
-                         }
-                         break;
-                    case 'image':
-                         if (nextNode.data.imageUrl) {
-                            await sendFlowImage(db, project, contact, phoneNumberId, nextNode.data.imageUrl, nextNode.data.caption);
-                         }
-                         break;
-                    case 'delay':
-                        if (nextNode.data.delaySeconds > 0) {
-                            await new Promise(resolve => setTimeout(resolve, nextNode.data.delaySeconds * 1000));
-                        }
-                        break;
-                    // Other non-pausing nodes can be added here.
-                 }
-            }
-            currentNode = nextNode;
+        if (!triggeredFlow) {
+            return false; // No flow triggered
         }
-        
-        return true; // A flow was triggered
+
+        console.log(`Triggering flow '${triggeredFlow.name}' for contact ${contact.waId}`);
+
+        let currentNodeId: string | null | undefined = triggeredFlow.nodes.find(n => n.type === 'start')?.id;
+
+        // This loop executes the flow sequentially. It does not yet support branching or user input pauses.
+        while (currentNodeId) {
+            // Find the next node in the sequence. Assumes a simple 'output-main' handle for linear flows.
+            const currentEdge = triggeredFlow.edges.find(e => e.source === currentNodeId);
+            const nextNode = currentEdge ? triggeredFlow.nodes.find(n => n.id === currentEdge.target) : null;
+
+            if (!nextNode) {
+                console.log('End of flow path reached.');
+                break; // Exit loop if no next node
+            }
+
+            console.log(`Executing node: ${nextNode.id} (type: ${nextNode.type})`);
+            switch (nextNode.type) {
+                case 'text':
+                    if (nextNode.data.text) {
+                        await sendFlowMessage(db, project, contact, phoneNumberId, nextNode.data.text);
+                    }
+                    break;
+                case 'image':
+                    if (nextNode.data.imageUrl) {
+                        await sendFlowImage(db, project, contact, phoneNumberId, nextNode.data.imageUrl, nextNode.data.caption);
+                    }
+                    break;
+                case 'delay':
+                    if (nextNode.data.delaySeconds > 0) {
+                        await new Promise(resolve => setTimeout(resolve, nextNode.data.delaySeconds * 1000));
+                    }
+                    break;
+                case 'buttons':
+                case 'condition':
+                case 'input':
+                case 'webhook':
+                case 'api':
+                case 'carousel':
+                case 'addToCart':
+                    console.log(`Flow node type '${nextNode.type}' is not yet implemented for backend execution. Skipping.`);
+                    break;
+                default:
+                    console.log(`Unknown flow node type: ${nextNode.type}`);
+                    break;
+            }
+
+            // Move to the next node for the next iteration.
+            currentNodeId = nextNode.id;
+        }
+
+        console.log(`Flow '${triggeredFlow.name}' execution finished for contact ${contact.waId}.`);
+        return true; // A flow was triggered and completed.
+    } catch (error: any) {
+        console.error(`Error during flow execution for contact ${contact.waId}: ${error.message}`, error.stack);
+        return true; // Still return true because a flow was attempted, to prevent auto-reply from firing.
     }
-    
-    return false; // No flow was triggered
 }
 
 
