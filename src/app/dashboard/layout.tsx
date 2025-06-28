@@ -77,94 +77,55 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
-        <Sidebar>
-          <SidebarHeader className="p-4">
-             <div className="flex items-center gap-2">
-                <WachatBrandLogo className="size-8 shrink-0" />
-                <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Wachat</span>
-            </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              {menuItems.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                    <Link href={item.href}>
-                      <item.icon />
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarContent>
-          <SidebarFooter>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                 <SidebarMenuButton asChild isActive={pathname === '/dashboard'} tooltip="All Projects">
-                  <Link href="/dashboard">
-                    <Briefcase />
-                    <span>All Projects</span>
+      <Sidebar>
+        <SidebarHeader className="p-4">
+           <div className="flex items-center gap-2">
+              <WachatBrandLogo className="size-8 shrink-0" />
+              <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Wachat</span>
+          </div>
+        </SidebarHeader>
+        <SidebarContent>
+          <SidebarMenu>
+            {menuItems.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                  <Link href={item.href}>
+                    <item.icon />
+                    <span>{item.label}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-               <SidebarMenuItem>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <SidebarMenuButton asChild tooltip="My Account">
-                      <button>
-                        <Avatar className="size-7">
-                          <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                          <AvatarFallback>U</AvatarFallback>
-                        </Avatar>
-                        <span className="sr-only">User Account</span>
-                      </button>
-                    </SidebarMenuButton>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent side="right" align="start">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>Profile</DropdownMenuItem>
-                    <DropdownMenuItem>Billing</DropdownMenuItem>
-                    <DropdownMenuItem>Settings</DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/">Logout</Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarFooter>
-        </Sidebar>
-        <SidebarInset className="flex flex-col">
-          <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
-            <SidebarTrigger className="md:hidden" />
-            <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
-                <Briefcase className="h-4 w-4" />
-                {!isClient ? (
-                    <Skeleton className="h-4 w-32" />
-                ) : (
-                    <span>{activeProjectName}</span>
-                )}
-            </div>
-            <div className="flex items-center gap-2">
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+               <SidebarMenuButton asChild isActive={pathname === '/dashboard'} tooltip="All Projects">
+                <Link href="/dashboard">
+                  <Briefcase />
+                  <span>All Projects</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+             <SidebarMenuItem>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center gap-2">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                      <AvatarFallback>U</AvatarFallback>
-                    </Avatar>
-                    <span className="hidden md:inline">User Name</span>
-                    <ChevronDown className="h-4 w-4" />
-                  </Button>
+                  <SidebarMenuButton asChild tooltip="My Account">
+                    <button>
+                      <Avatar className="size-7">
+                        <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
+                        <AvatarFallback>U</AvatarFallback>
+                      </Avatar>
+                      <span className="sr-only">User Account</span>
+                    </button>
+                  </SidebarMenuButton>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent side="right" align="start">
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem>Billing</DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
@@ -172,20 +133,57 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
-          </header>
-          <div className="grid md:grid-cols-[1fr_auto] flex-1 min-h-0">
-            <main className="p-4 md:p-6 lg:p-8 overflow-y-auto">
-                {children}
-            </main>
-            {!hideNotificationFeed && (
-             <aside className="w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0">
-                <LiveNotificationFeed />
-            </aside>
-            )}
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <SidebarInset className="flex flex-col">
+        <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
+          <SidebarTrigger className="md:hidden" />
+          <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
+              <Briefcase className="h-4 w-4" />
+              {!isClient ? (
+                  <Skeleton className="h-4 w-32" />
+              ) : (
+                  <span>{activeProjectName}</span>
+              )}
           </div>
-        </SidebarInset>
-      </div>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
+                    <AvatarFallback>U</AvatarFallback>
+                  </Avatar>
+                  <span className="hidden md:inline">User Name</span>
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Profile</DropdownMenuItem>
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/">Logout</Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </header>
+        <div className="grid md:grid-cols-[1fr_auto] flex-1 min-h-0">
+          <main className="p-4 md:p-6 lg:p-8 overflow-y-auto">
+              {children}
+          </main>
+          {!hideNotificationFeed && (
+           <aside className="w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0">
+              <LiveNotificationFeed />
+          </aside>
+          )}
+        </div>
+      </SidebarInset>
     </SidebarProvider>
   );
 }
