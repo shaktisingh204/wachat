@@ -426,7 +426,14 @@ export async function POST(request: NextRequest) {
                         );
 
                         // Always create a notification
-                        const notificationMessage = `For project '${projectForUpdate.name}', quality for ${value.display_phone_number} is now ${newQuality}. Throughput limit is ${value.current_limit || 'unchanged'}.`;
+                        let notificationMessage = `For project '${projectForUpdate.name}', quality for ${value.display_phone_number} is now ${newQuality}.`;
+                        if (value.current_limit) {
+                            const oldLimit = value.old_limit?.replace(/_/g, ' ').toLowerCase() || 'N/A';
+                            const newLimit = value.current_limit.replace(/_/g, ' ').toLowerCase();
+                            notificationMessage += ` Throughput changed from ${oldLimit} to ${newLimit}.`;
+                        } else {
+                            notificationMessage += ` The event was '${value.event}'.`;
+                        }
                         
                         await db.collection('notifications').insertOne({
                             projectId: projectForUpdate._id, wabaId: projectForUpdate.wabaId, message: notificationMessage,
