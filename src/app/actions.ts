@@ -103,7 +103,7 @@ type BroadcastJob = {
 export type BroadcastAttempt = {
     _id: string;
     phone: string;
-    status: 'PENDING' | 'SENT' | 'FAILED';
+    status: 'PENDING' | 'SENT' | 'FAILED' | 'DELIVERED' | 'READ';
     sentAt?: Date;
     messageId?: string; // a successful send from Meta
     error?: string; // a failed send reason
@@ -368,7 +368,7 @@ export async function getBroadcastAttempts(
     broadcastId: string, 
     page: number = 1, 
     limit: number = 50, 
-    filter: 'ALL' | 'SENT' | 'FAILED' | 'PENDING' = 'ALL'
+    filter: 'ALL' | 'SENT' | 'FAILED' | 'PENDING' | 'DELIVERED' | 'READ' = 'ALL'
 ): Promise<{ attempts: BroadcastAttempt[], total: number }> {
     if (!ObjectId.isValid(broadcastId)) {
         console.error("Invalid Broadcast ID in getBroadcastAttempts:", broadcastId);
@@ -1689,8 +1689,8 @@ export async function getConversation(contactId: string): Promise<AnyMessage[]> 
         const { db } = await connectToDatabase();
         const contactObjectId = new ObjectId(contactId);
 
-        const incomingPromise = db.collection<IncomingMessage>('incoming_messages').find({ contactId: contactObjectId }).toArray();
-        const outgoingPromise = db.collection<OutgoingMessage>('outgoing_messages').find({ contactId: contactObjectId }).toArray();
+        const incomingPromise = db.collection('incoming_messages').find({ contactId: contactObjectId }).toArray();
+        const outgoingPromise = db.collection('outgoing_messages').find({ contactId: contactObjectId }).toArray();
         
         const [incoming, outgoing] = await Promise.all([incomingPromise, outgoingPromise]);
 
@@ -2044,6 +2044,7 @@ export async function handleSubscribeAllProjects(): Promise<{
   
       const subscriptionPromises = projects.map(async (project) => {
         try {
+          // No need to specify fields, API subscribes to all relevant by default
           const response = await fetch(
             `https://graph.facebook.com/v22.0/${project.wabaId}/subscribed_apps`,
             {
@@ -2092,3 +2093,5 @@ export async function handleSubscribeAllProjects(): Promise<{
       return { error: e.message || 'An unexpected error occurred during the subscription process.' };
     }
   }
+
+    

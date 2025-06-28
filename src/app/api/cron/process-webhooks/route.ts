@@ -20,27 +20,67 @@ async function processStatuses(db: Db, statuses: any[]) {
     if (!statuses || !Array.isArray(statuses) || statuses.length === 0) {
         return;
     }
-    const bulkOps = statuses.map((status: any) => {
-        const updatePayload: any = {
+
+    const outgoingMessagesOps: any[] = [];
+    const broadcastContactsOps: any[] = [];
+
+    statuses.forEach((status: any) => {
+        const statusUpper = status.status.toUpperCase();
+        let errorMsg;
+        if (status.status === 'failed' && status.errors && status.errors.length > 0) {
+            const error = status.errors[0];
+            errorMsg = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
+        }
+
+        // Operation for live chat messages
+        const outgoingUpdatePayload: any = {
             status: status.status,
             [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000)
         };
-        if (status.status === 'failed' && status.errors && status.errors.length > 0) {
-            const error = status.errors[0];
-            updatePayload.error = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
-        }
-        return {
+        if (errorMsg) outgoingUpdatePayload.error = errorMsg;
+        
+        outgoingMessagesOps.push({
             updateOne: {
                 filter: { wamid: status.id },
-                update: { $set: updatePayload }
+                update: { $set: outgoingUpdatePayload }
             }
+        });
+        
+        // Operation for broadcast contacts
+        const broadcastUpdatePayload: any = {
+            status: statusUpper
         };
+        if (errorMsg) {
+             broadcastUpdatePayload.error = errorMsg;
+             // Also ensure the status is FAILED for broadcasts if it's a failure event
+             broadcastUpdatePayload.status = 'FAILED';
+        }
+
+        broadcastContactsOps.push({
+            updateOne: {
+                filter: { messageId: status.id },
+                update: { $set: broadcastUpdatePayload }
+            }
+        });
     });
-    if (bulkOps.length > 0) {
-        await db.collection('outgoing_messages').bulkWrite(bulkOps, { ordered: false });
-        revalidatePath('/dashboard/chat');
+
+    const promises = [];
+    if (outgoingMessagesOps.length > 0) {
+        promises.push(
+            db.collection('outgoing_messages').bulkWrite(outgoingMessagesOps, { ordered: false })
+            .then(() => revalidatePath('/dashboard/chat'))
+        );
     }
+    if (broadcastContactsOps.length > 0) {
+        promises.push(
+            db.collection('broadcast_contacts').bulkWrite(broadcastContactsOps, { ordered: false })
+            .then(() => revalidatePath('/dashboard/broadcasts/[broadcastId]', 'page'))
+        );
+    }
+    
+    await Promise.all(promises);
 }
+
 
 async function findOrCreateProjectByWabaId(db: Db, wabaId: string): Promise<WithId<any> | null> {
     const existingProject = await db.collection('projects').findOne({ wabaId });
@@ -107,12 +147,16 @@ async function processSingleWebhook(db: Db, payload: any) {
         for (const change of entry.changes) {
             const value = change.value;
             if (!value) continue;
+
             if (value.statuses) {
                 await processStatuses(db, value.statuses);
             }
-            if (change.field === 'message_status' || (change.field === 'messages' && !value.messages)) {
+
+            const isStatusOnlyEvent = change.field === 'messages' && value.statuses;
+            if (isStatusOnlyEvent) {
                 continue;
             }
+
             if (change.field === 'account_update') {
                 const wabaIdToHandle = value.waba_info?.waba_id;
                 if (!wabaIdToHandle) continue;
@@ -136,8 +180,7 @@ async function processSingleWebhook(db: Db, payload: any) {
                 { $or: [ { wabaId: wabaId }, { 'phoneNumbers.id': value.metadata?.phone_number_id } ] },
                 { projection: { _id: 1, name: 1, wabaId: 1, businessCapabilities: 1 } }
             );
-
-            // Logic to find or create project for specific events
+            
             if (!project) {
                 const canAutoCreate = ['messages', 'phone_number_quality_update', 'phone_number_name_update'].includes(change.field);
                 if (canAutoCreate) {
@@ -173,14 +216,14 @@ async function processSingleWebhook(db: Db, payload: any) {
                         let contentToStore;
                         const messageType = message.type as string;
                         if (message[messageType]) {
-                           contentToStore = { [messageType]: message[messageType] };
+                           contentToStore = message[messageType];
                         } else {
                            contentToStore = { unknown: {} };
                         }
                         await db.collection('incoming_messages').insertOne({
                             direction: 'in', projectId: project._id, contactId: updatedContact._id,
                             wamid: message.id, messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
-                            type: message.type, content: contentToStore, isRead: false, createdAt: new Date(),
+                            type: message.type, content: { [messageType]: contentToStore }, isRead: false, createdAt: new Date(),
                         });
                         await db.collection('notifications').insertOne({
                             projectId: project._id, wabaId: project.wabaId,
@@ -394,3 +437,5 @@ export async function GET(request: NextRequest) {
 export async function POST(request: Request) {
     return GET(request as NextRequest);
 }
+
+    

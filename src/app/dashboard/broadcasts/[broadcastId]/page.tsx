@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, RefreshCw, CheckCircle, XCircle, FileText, Clock, Users, Send, AlertTriangle, CalendarCheck, CircleDashed, Play } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Check, CheckCheck, XCircle, FileText, Clock, Users, Send, AlertTriangle, CalendarCheck, CircleDashed, Play } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -29,7 +29,7 @@ type Broadcast = {
   completedAt?: string;
 };
 
-type FilterStatus = 'ALL' | 'SENT' | 'FAILED' | 'PENDING';
+type FilterStatus = 'ALL' | 'SENT' | 'FAILED' | 'PENDING' | 'DELIVERED' | 'READ';
 
 const ATTEMPTS_PER_PAGE = 50;
 
@@ -154,7 +154,9 @@ export default function BroadcastReportPage() {
 
   const getAttemptStatusBadge = (status: BroadcastAttempt['status']) => {
     switch(status) {
-        case 'SENT': return <Badge variant="default"><CheckCircle className="mr-2 h-4 w-4" />Sent</Badge>;
+        case 'READ': return <Badge variant="default"><CheckCheck className="mr-2 h-4 w-4" />Read</Badge>;
+        case 'DELIVERED': return <Badge variant="secondary"><CheckCheck className="mr-2 h-4 w-4" />Delivered</Badge>;
+        case 'SENT': return <Badge variant="outline"><Check className="mr-2 h-4 w-4" />Sent</Badge>;
         case 'FAILED': return <Badge variant="destructive"><XCircle className="mr-2 h-4 w-4" />Failed</Badge>;
         case 'PENDING':
         default:
@@ -178,7 +180,7 @@ export default function BroadcastReportPage() {
 
   const allAttempts = attempts.map((attempt) => {
     let detail = '';
-    if (attempt.status === 'SENT') {
+    if (attempt.status === 'SENT' || attempt.status === 'DELIVERED' || attempt.status === 'READ') {
         detail = attempt.messageId || 'Sent successfully';
     } else if (attempt.status === 'FAILED') {
         detail = attempt.error || 'Failed with unknown error';
@@ -293,6 +295,8 @@ export default function BroadcastReportPage() {
                     <TabsList>
                         <TabsTrigger value="ALL">All</TabsTrigger>
                         <TabsTrigger value="SENT">Sent</TabsTrigger>
+                        <TabsTrigger value="DELIVERED">Delivered</TabsTrigger>
+                        <TabsTrigger value="READ">Read</TabsTrigger>
                         <TabsTrigger value="FAILED">Failed</TabsTrigger>
                         <TabsTrigger value="PENDING">Pending</TabsTrigger>
                     </TabsList>
@@ -361,3 +365,5 @@ export default function BroadcastReportPage() {
   );
 }
 
+
+    
