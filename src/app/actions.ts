@@ -593,6 +593,7 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
         Papa.parse(inputStream, {
             header: true,
             skipEmptyLines: true,
+            dynamicTyping: false,
             step: async (results, parser) => {
                 const row = results.data as Record<string, string>;
                 if (!phoneColumnHeader) {
@@ -603,13 +604,13 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
                     }
                 }
                 
-                const phone = row[phoneColumnHeader!];
-                if (!phone || String(phone).trim() === '') return;
+                const phone = String(row[phoneColumnHeader!] || '').trim();
+                if (phone === '') return;
 
                 const {[phoneColumnHeader!]: _, ...variables} = row;
                 const contactDoc = {
                     broadcastId,
-                    phone: String(phone).trim(),
+                    phone: phone,
                     variables,
                     status: 'PENDING' as const,
                     createdAt: new Date(),
