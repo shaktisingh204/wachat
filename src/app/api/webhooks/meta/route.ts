@@ -1,6 +1,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
+import { processSingleWebhook } from '@/lib/webhook-processor';
 
 const getSearchableText = (payload: any): string => {
     let text = '';
@@ -52,21 +53,15 @@ export async function GET(request: NextRequest) {
 
 /**
  * Handles incoming webhook event notifications from Meta.
- * This endpoint only queues the webhook for processing and returns immediately.
+ * It processes most webhooks immediately, but queues 'messages' webhooks
+ * for background processing by a cron job.
  */
 export async function POST(request: NextRequest) {
   try {
     const payload = await request.json();
     const { db } = await connectToDatabase();
 
-    // 1. Queue the webhook for the background processor
-    await db.collection('webhook_queue').insertOne({
-        payload: payload,
-        status: 'PENDING',
-        createdAt: new Date(),
-    });
-
-    // 2. Also write to the immediate log for visibility in the UI
+    // 1. Log every webhook for visibility and manual reprocessing
     const searchableText = getSearchableText(payload);
     await db.collection('webhook_logs').insertOne({
         payload: payload,
@@ -74,14 +69,35 @@ export async function POST(request: NextRequest) {
         createdAt: new Date(),
     });
     
-    // We don't need to revalidate here as the cron job will handle it.
+    // 2. Decide on processing strategy based on the event type
+    const field = payload?.entry?.[0]?.changes?.[0]?.field;
 
-    // 3. Respond immediately to Meta
-    return NextResponse.json({ status: 'queued' }, { status: 202 }); // 202 Accepted
+    if (field === 'messages') {
+        // For 'messages' (which includes incoming messages and status updates),
+        // queue them for the background cron job to process.
+        await db.collection('webhook_queue').insertOne({
+            payload: payload,
+            status: 'PENDING',
+            createdAt: new Date(),
+        });
+        
+        // Respond immediately to Meta to acknowledge receipt.
+        return NextResponse.json({ status: 'queued' }, { status: 202 });
+
+    } else {
+        // For all other event types (template updates, account status, etc.),
+        // process them immediately. We don't await this to avoid Meta timeouts.
+        processSingleWebhook(db, payload).catch(err => {
+            console.error(`Immediate webhook processing failed for field '${field}':`, err);
+        });
+        
+        // Respond immediately to Meta to acknowledge receipt.
+        return NextResponse.json({ status: 'processing_initiated' }, { status: 200 });
+    }
 
   } catch (error) {
     console.error('Error in webhook ingestion:', error);
-    // Return a server error but don't block
+    // In case of error, return a server error but don't block Meta.
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
