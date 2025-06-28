@@ -1,213 +1,329 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { Db, ObjectId, WithId } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
-import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode } from '@/app/dashboard/page';
+import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge } from '@/app/dashboard/page';
 
-async function sendFlowMessage(
-    db: Db,
-    project: WithId<Project>,
-    contact: WithId<Contact>,
-    phoneNumberId: string,
-    messageText: string
-) {
-     try {
+// --- Flow Engine Utilities ---
+
+/**
+ * Interpolates variables in a string. e.g., "Hello {{name}}" -> "Hello John"
+ */
+function interpolate(text: string, variables: Record<string, any>): string {
+    if (!text) return '';
+    // This regex looks for {{variable_name}} or {{object.key}}
+    return text.replace(/{{\s*([\w\d._]+)\s*}}/g, (match, key) => {
+        // Basic property accessor for nested objects, e.g., {{user.name}}
+        const value = key.split('.').reduce((o: any, i: string) => o?.[i], variables);
+        return value !== undefined ? String(value) : match;
+    });
+}
+
+
+// --- Flow Action Functions ---
+
+async function sendFlowMessage(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, text: string, variables: Record<string, any>) {
+    try {
+        const interpolatedText = interpolate(text, variables);
         const messagePayload = {
             messaging_product: 'whatsapp',
             recipient_type: 'individual',
             to: contact.waId,
             type: 'text',
-            text: { preview_url: false, body: messageText },
+            text: { preview_url: false, body: interpolatedText },
         };
-
-        const response = await axios.post(
-            `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
-            messagePayload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-
+        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
-        if (!wamid) {
-            throw new Error('Message sent but no WAMID was returned from Meta.');
-        }
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
         const now = new Date();
-        const outgoingMessageDoc: Omit<OutgoingMessage, '_id'> = {
-            direction: 'out',
-            contactId: contact._id,
-            projectId: project._id,
-            wamid,
-            messageTimestamp: now,
-            type: 'text',
-            content: messagePayload,
-            status: 'sent',
-            statusTimestamps: { sent: now },
-            createdAt: now,
-        };
-        await db.collection('outgoing_messages').insertOne(outgoingMessageDoc);
-
-        await db.collection('contacts').updateOne(
-            { _id: contact._id },
-            { $set: { lastMessage: `[Flow]: ${messageText.substring(0, 50)}`, lastMessageTimestamp: now } }
-        );
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'text',
+            content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${interpolatedText.substring(0, 50)}`, lastMessageTimestamp: now } });
         revalidatePath('/dashboard/chat');
     } catch (e: any) {
-        console.error(`Failed to send flow message to ${contact.waId} for project ${project._id}:`, e.message);
+        console.error(`Flow: Failed to send text message to ${contact.waId} for project ${project._id}:`, e.message);
     }
 }
 
-async function sendFlowImage(
-    db: Db,
-    project: WithId<Project>,
-    contact: WithId<Contact>,
-    phoneNumberId: string,
-    imageUrl: string,
-    caption?: string
-) {
+async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>) {
+    const imageUrl = interpolate(node.data.imageUrl, variables);
+    const caption = interpolate(node.data.caption, variables);
     if (!imageUrl) {
-        console.error(`Flow execution skipped: Image URL is missing for project ${project._id}`);
+        console.error(`Flow: Image URL is missing or invalid after interpolation for node ${node.id}.`);
+        return;
+    }
+    try {
+        const messagePayload: any = {
+            messaging_product: 'whatsapp', to: contact.waId, type: 'image',
+            image: { link: imageUrl },
+        };
+        if (caption) messagePayload.image.caption = caption;
+        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID was returned from Meta.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'image',
+            content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: caption || '[Flow]: Sent an image', lastMessageTimestamp: now } });
+        revalidatePath('/dashboard/chat');
+    } catch (e: any) {
+        console.error(`Flow: Failed to send image message to ${contact.waId} for project ${project._id}:`, e.message);
+    }
+}
+
+async function sendFlowButtons(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>) {
+    const text = interpolate(node.data.text, variables);
+    const buttons = node.data.buttons || [];
+    if (!text || buttons.length === 0) return;
+
+    try {
+        const messagePayload = {
+            messaging_product: 'whatsapp',
+            to: contact.waId,
+            type: 'interactive',
+            interactive: {
+                type: 'button',
+                body: { text },
+                action: {
+                    buttons: buttons.map((btn: any, index: number) => ({
+                        type: 'reply',
+                        reply: {
+                            id: `${node.id}-btn-${index}`, // Unique ID for the button reply
+                            title: interpolate(btn.text, variables).substring(0, 20),
+                        }
+                    }))
+                }
+            }
+        };
+
+        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'text', // Logged as text for simplicity
+            content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${text.substring(0, 50)}`, lastMessageTimestamp: now } });
+        revalidatePath('/dashboard/chat');
+    } catch (e: any) {
+        console.error(`Flow: Failed to send buttons message to ${contact.waId} for project ${project._id}:`, e.message);
+    }
+}
+
+
+// --- Main Flow Engine ---
+
+async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Contact> & { activeFlow?: any }, flow: WithId<Flow>, nodeId: string) {
+    const node = flow.nodes.find(n => n.id === nodeId);
+    if (!node) {
+        console.log(`Flow ended for contact ${contact.waId}: node ${nodeId} not found.`);
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
         return;
     }
 
-    try {
-        const messagePayload: any = {
-            messaging_product: 'whatsapp',
-            recipient_type: 'individual',
-            to: contact.waId,
-            type: 'image',
-            image: {
-                link: imageUrl,
-            },
-        };
+    console.log(`Flow: Executing node ${node.id} (${node.type}) for contact ${contact.waId}`);
+    
+    // Update contact's state to current node
+    await db.collection('contacts').updateOne(
+        { _id: contact._id },
+        { $set: { "activeFlow.currentNodeId": nodeId, "activeFlow.variables": contact.activeFlow.variables } }
+    );
+    
+    let nextNodeId: string | null = null;
+    let edge: FlowEdge | undefined;
 
-        if (caption) {
-            messagePayload.image.caption = caption;
-        }
+    switch (node.type) {
+        case 'start':
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
 
-        const response = await axios.post(
-            `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
-            messagePayload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
+        case 'text':
+            await sendFlowMessage(db, project, contact, contact.phoneNumberId, node.data.text, contact.activeFlow.variables);
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
+            
+        case 'image':
+            await sendFlowImage(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables);
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
 
-        const wamid = response.data?.messages?.[0]?.id;
-        if (!wamid) {
-            throw new Error('Message sent but no WAMID was returned from Meta.');
-        }
+        case 'buttons':
+            await sendFlowButtons(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables);
+            // This node waits for user reply, so we don't proceed automatically.
+            return;
+            
+        case 'delay':
+            if (node.data.delaySeconds > 0) {
+                await new Promise(resolve => setTimeout(resolve, node.data.delaySeconds * 1000));
+            }
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
 
-        const now = new Date();
-        const outgoingMessageDoc: Omit<OutgoingMessage, '_id'> = {
-            direction: 'out',
-            contactId: contact._id,
-            projectId: project._id,
-            wamid,
-            messageTimestamp: now,
-            type: 'image',
-            content: messagePayload,
-            status: 'sent',
-            statusTimestamps: { sent: now },
-            createdAt: now,
-        };
-        await db.collection('outgoing_messages').insertOne(outgoingMessageDoc);
+        case 'input':
+            await sendFlowMessage(db, project, contact, contact.phoneNumberId, node.data.text, contact.activeFlow.variables);
+            // We are now waiting for user input. The flow will be resumed by the next webhook event.
+            return; 
 
-        await db.collection('contacts').updateOne(
-            { _id: contact._id },
-            { $set: { lastMessage: caption || '[Flow]: Sent an image', lastMessageTimestamp: now } }
-        );
-        revalidatePath('/dashboard/chat');
-    } catch (e: any) {
-        console.error(`Failed to send flow image to ${contact.waId} for project ${project._id}:`, e.message);
+        case 'condition':
+            const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
+            const variableValue = contact.activeFlow.variables[variableName] || '';
+            const checkValue = node.data.value;
+            const operator = node.data.operator;
+            let conditionMet = false;
+            switch(operator) {
+                case 'equals': conditionMet = String(variableValue) === checkValue; break;
+                case 'not_equals': conditionMet = String(variableValue) !== checkValue; break;
+                case 'contains': conditionMet = String(variableValue).includes(checkValue); break;
+                case 'greater_than': conditionMet = !isNaN(Number(variableValue)) && !isNaN(Number(checkValue)) && Number(variableValue) > Number(checkValue); break;
+                case 'less_than': conditionMet = !isNaN(Number(variableValue)) && !isNaN(Number(checkValue)) && Number(variableValue) < Number(checkValue); break;
+            }
+            const handle = conditionMet ? `${nodeId}-output-yes` : `${nodeId}-output-no`;
+            edge = flow.edges.find(e => e.sourceHandle === handle);
+            if (edge) nextNodeId = edge.target;
+            break;
+        
+        case 'api':
+        case 'webhook':
+            const url = interpolate(node.data.apiRequest?.url, contact.activeFlow.variables);
+            try {
+                const response = await axios({
+                    method: node.data.apiRequest?.method || 'GET',
+                    url: url,
+                    data: node.data.apiRequest?.body ? JSON.parse(interpolate(node.data.apiRequest.body, contact.activeFlow.variables)) : undefined,
+                    headers: node.data.apiRequest?.headers ? JSON.parse(interpolate(node.data.apiRequest.headers, contact.activeFlow.variables)) : undefined,
+                });
+                if (node.data.apiRequest?.responseVariable) {
+                    contact.activeFlow.variables[node.data.apiRequest.responseVariable] = response.data;
+                }
+            } catch (e: any) {
+                console.error(`Flow: API call failed for node ${node.id}:`, e.message);
+            }
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
+
+        case 'carousel':
+        case 'addToCart':
+            console.log(`Flow: Placeholder for future node type '${node.type}'. Continuing flow.`);
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
+
+        default:
+            console.log(`Flow: Unknown node type ${node.type}. Ending flow.`);
+            nextNodeId = null;
+            break;
+    }
+
+    if (nextNodeId) {
+        await executeNode(db, project, contact, flow, nextNodeId);
+    } else {
+        console.log(`Flow ended for contact ${contact.waId}. No further nodes.`);
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
     }
 }
 
-
-async function findAndExecuteFlow(db: Db, project: WithId<Project>, contact: WithId<Contact>, message: any, phoneNumberId: string): Promise<boolean> {
+async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId<Contact> & { activeFlow?: any }, message: any, phoneNumberId: string): Promise<boolean> {
     const messageText = message.text?.body?.toLowerCase().trim();
-    if (!messageText) return false;
+    const interactiveReplyId = message.interactive?.button_reply?.id;
 
-    try {
-        const flows = await db.collection<Flow>('flows').find({
-            projectId: project._id,
-            triggerKeywords: { $exists: true, $ne: [] }
-        }).toArray();
-
-        const triggeredFlow = flows.find(flow =>
-            flow.triggerKeywords.some(keyword => messageText.includes(keyword.toLowerCase().trim()))
-        );
-
-        if (!triggeredFlow) {
-            return false; // No flow triggered
+    // 1. Check if resuming a flow
+    if (contact.activeFlow?.flowId) {
+        const flow = await db.collection<Flow>('flows').findOne({ _id: new ObjectId(contact.activeFlow.flowId) });
+        if (!flow) {
+            await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+            return false;
         }
 
-        console.log(`Triggering flow '${triggeredFlow.name}' for contact ${contact.waId}`);
-
-        let currentNodeId: string | null | undefined = triggeredFlow.nodes.find(n => n.type === 'start')?.id;
-
-        // This loop executes the flow sequentially. It does not yet support branching or user input pauses.
-        while (currentNodeId) {
-            // Find the next node in the sequence. Assumes a simple 'output-main' handle for linear flows.
-            const currentEdge = triggeredFlow.edges.find(e => e.source === currentNodeId);
-            const nextNode = currentEdge ? triggeredFlow.nodes.find(n => n.id === currentEdge.target) : null;
-
-            if (!nextNode) {
-                console.log('End of flow path reached.');
-                break; // Exit loop if no next node
-            }
-
-            console.log(`Executing node: ${nextNode.id} (type: ${nextNode.type})`);
-            switch (nextNode.type) {
-                case 'text':
-                    if (nextNode.data.text) {
-                        await sendFlowMessage(db, project, contact, phoneNumberId, nextNode.data.text);
-                    }
-                    break;
-                case 'image':
-                    if (nextNode.data.imageUrl) {
-                        await sendFlowImage(db, project, contact, phoneNumberId, nextNode.data.imageUrl, nextNode.data.caption);
-                    }
-                    break;
-                case 'delay':
-                    if (nextNode.data.delaySeconds > 0) {
-                        await new Promise(resolve => setTimeout(resolve, nextNode.data.delaySeconds * 1000));
-                    }
-                    break;
-                case 'buttons':
-                case 'condition':
-                case 'input':
-                case 'webhook':
-                case 'api':
-                case 'carousel':
-                case 'addToCart':
-                    console.log(`Flow node type '${nextNode.type}' is not yet implemented for backend execution. Skipping.`);
-                    break;
-                default:
-                    console.log(`Unknown flow node type: ${nextNode.type}`);
-                    break;
-            }
-
-            // Move to the next node for the next iteration.
-            currentNodeId = nextNode.id;
+        const currentNode = flow.nodes.find(n => n.id === contact.activeFlow.currentNodeId);
+        if (!currentNode) {
+             await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+            return false;
         }
 
-        console.log(`Flow '${triggeredFlow.name}' execution finished for contact ${contact.waId}.`);
-        return true; // A flow was triggered and completed.
-    } catch (error: any) {
-        console.error(`Error during flow execution for contact ${contact.waId}: ${error.message}`, error.stack);
-        return true; // Still return true because a flow was attempted, to prevent auto-reply from firing.
+        let nextNodeId: string | null = null;
+        
+        // Handle reply to an 'input' node
+        if (currentNode.type === 'input' && messageText) {
+            if (currentNode.data.variableToSave) {
+                contact.activeFlow.variables[currentNode.data.variableToSave] = messageText;
+            }
+            const edge = flow.edges.find(e => e.source === currentNode.id);
+            if (edge) nextNodeId = edge.target;
+        }
+        
+        // Handle reply to a 'buttons' node
+        if (currentNode.type === 'buttons' && interactiveReplyId) {
+            const edge = flow.edges.find(e => e.sourceHandle === interactiveReplyId);
+            if (edge) nextNodeId = edge.target;
+        }
+
+        if (nextNodeId) {
+            await executeNode(db, project, contact, flow, nextNodeId);
+        } else {
+            // Unexpected reply, or end of branch, end flow.
+            await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+        }
+        return true; // Flow was handled.
     }
+
+    // 2. Check if starting a new flow
+    if (!messageText) return false;
+    
+    const flows = await db.collection<Flow>('flows').find({
+        projectId: project._id,
+        triggerKeywords: { $exists: true, $ne: [] }
+    }).toArray();
+
+    const triggeredFlow = flows.find(flow =>
+        flow.triggerKeywords.some(keyword => messageText.includes(keyword.toLowerCase().trim()))
+    );
+
+    if (triggeredFlow) {
+        console.log(`Flow: Starting new flow '${triggeredFlow.name}' for contact ${contact.waId}`);
+        const startNode = triggeredFlow.nodes.find(n => n.type === 'start');
+        if (!startNode) return false;
+
+        const initialVariables = {
+            ...(contact.variables || {}),
+            name: contact.name,
+            waId: contact.waId,
+        };
+
+        contact.activeFlow = {
+            flowId: triggeredFlow._id.toString(),
+            currentNodeId: startNode.id,
+            variables: initialVariables
+        };
+        
+        await executeNode(db, project, contact, triggeredFlow, startNode.id);
+        return true; // Flow was started.
+    }
+
+    return false; // No flow logic was applied.
 }
 
 
-async function sendAutoReplyMessage(
-    db: Db,
-    project: WithId<Project>,
-    contact: WithId<Contact>,
-    phoneNumberId: string,
-    messageText: string
-) {
+// --- Auto Reply Logic ---
+
+async function sendAutoReplyMessage(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, messageText: string) {
+    // ... (This function remains unchanged)
     try {
         const messagePayload = {
             messaging_product: 'whatsapp',
@@ -243,7 +359,6 @@ async function sendAutoReplyMessage(
         };
         await db.collection('outgoing_messages').insertOne(outgoingMessageDoc);
 
-        // Update last message on contact, but don't increment unread count for auto-replies
         await db.collection('contacts').updateOne(
             { _id: contact._id },
             { $set: { lastMessage: `[Auto]: ${messageText.substring(0, 50)}`, lastMessageTimestamp: now } }
@@ -253,7 +368,6 @@ async function sendAutoReplyMessage(
         console.error(`Failed to send auto-reply to ${contact.waId} for project ${project._id}:`, e.message);
     }
 }
-
 
 async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithId<Contact>, message: any, phoneNumberId: string) {
     const settings = project.autoReplySettings;
@@ -291,12 +405,11 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
             const isDayMatch = days.includes(currentDay);
             let isTimeMatch = false;
 
-            // Handle overnight case (e.g., 18:00 - 09:00)
             if (startTimeInMinutes > endTimeInMinutes) {
                 if (currentTime >= startTimeInMinutes || currentTime < endTimeInMinutes) {
                     isTimeMatch = true;
                 }
-            } else { // Handle same-day case (e.g., 09:00 - 18:00)
+            } else {
                 if (currentTime >= startTimeInMinutes && currentTime < endTimeInMinutes) {
                     isTimeMatch = true;
                 }
@@ -329,12 +442,13 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
         replyMessage = settings.general.message;
     }
 
-    // 4. Send the determined reply
     if (replyMessage) {
         await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
     }
 }
 
+
+// --- Main Webhook Processing Logic ---
 
 export async function processStatuses(db: Db, statuses: any[]) {
     if (!statuses || !Array.isArray(statuses) || statuses.length === 0) {
@@ -565,6 +679,8 @@ export async function processSingleWebhook(db: Db, payload: any) {
                         let lastMessageText = `[${message.type}]`;
                         if (message.type === 'text') {
                             lastMessageText = message.text.body;
+                        } else if (message.type === 'interactive') {
+                            lastMessageText = message.interactive?.button_reply?.title || '[Interactive Reply]';
                         }
                         const contactUpdateResult = await db.collection('contacts').findOneAndUpdate(
                             { waId: senderWaId, projectId: project._id },
@@ -578,9 +694,9 @@ export async function processSingleWebhook(db: Db, payload: any) {
                             let contentToStore;
                             const messageType = message.type as string;
                             if (message[messageType]) {
-                            contentToStore = message[messageType];
+                                contentToStore = message[messageType];
                             } else {
-                            contentToStore = { unknown: {} };
+                                contentToStore = { unknown: {} };
                             }
                             await db.collection('incoming_messages').insertOne({
                                 direction: 'in', projectId: project._id, contactId: updatedContact._id,
@@ -596,9 +712,9 @@ export async function processSingleWebhook(db: Db, payload: any) {
                             revalidatePath('/dashboard/chat'); revalidatePath('/dashboard/contacts');
                             revalidatePath('/dashboard/notifications'); revalidatePath('/dashboard', 'layout');
                             
-                            const flowWasTriggered = await findAndExecuteFlow(db, project, updatedContact, message, businessPhoneNumberId);
+                            const flowHandled = await handleFlowLogic(db, project, updatedContact, message, businessPhoneNumberId);
 
-                            if (!flowWasTriggered) {
+                            if (!flowHandled) {
                                 await triggerAutoReply(db, project, updatedContact, message, businessPhoneNumberId);
                             }
                         }
