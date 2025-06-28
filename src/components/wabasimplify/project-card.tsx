@@ -2,9 +2,10 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Phone, Calendar } from 'lucide-react';
 
 interface ProjectCardProps {
     project: any;
@@ -48,26 +49,38 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
     return (
         <Card className="flex flex-col justify-between hover:shadow-lg hover:border-primary transition-all">
-            <CardHeader>
+            <CardHeader className="flex-grow">
                 <div className="flex justify-between items-start gap-2">
-                    <CardTitle>{project.name}</CardTitle>
-                    <div className="flex flex-col items-end gap-2 flex-shrink-0">
+                    <CardTitle className="text-base leading-tight">{project.name}</CardTitle>
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
                         {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
-                            <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize">
+                            <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-xs">
                                 {project.reviewStatus.replace(/_/g, ' ').toLowerCase()}
                             </Badge>
                         )}
                         {throughputLevel && (
-                             <Badge variant="outline" className="capitalize">
+                             <Badge variant="outline" className="capitalize text-xs">
                                 {formatThroughput(throughputLevel)}
                             </Badge>
                         )}
                     </div>
                 </div>
-                <CardDescription>WABA ID: {project.wabaId}</CardDescription>
+                <div className="space-y-2 pt-2 text-xs text-muted-foreground">
+                    <p className="font-mono break-all leading-tight">
+                       <span className="font-sans font-medium">WABA ID:</span> {project.wabaId}
+                    </p>
+                    <div className="flex items-center gap-2 pt-1">
+                        <Phone className="h-3 w-3" />
+                        <span>{project.phoneNumbers?.length || 0} Phone Number(s)</span>
+                    </div>
+                     <div className="flex items-center gap-2">
+                        <Calendar className="h-3 w-3" />
+                        <span>Created: {new Date(project.createdAt).toLocaleDateString()}</span>
+                    </div>
+                </div>
             </CardHeader>
-            <CardContent>
-                <Button className="w-full" onClick={handleSelectProject}>
+            <CardContent className="pt-0">
+                <Button className="w-full" size="sm" onClick={handleSelectProject}>
                     Select Project
                 </Button>
             </CardContent>
