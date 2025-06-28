@@ -181,97 +181,92 @@ async function processSingleWebhook(db: Db, payload: any) {
     if (payload.object !== 'whatsapp_business_account') {
         return;
     }
+
     for (const entry of payload.entry) {
         const wabaId = entry.id;
         for (const change of entry.changes) {
             const value = change.value;
             if (!value) continue;
 
-            if (value.statuses) {
-                await processStatuses(db, value.statuses);
-            }
-
-            const isStatusOnlyEvent = change.field === 'messages' && value.statuses;
-            if (isStatusOnlyEvent) {
-                continue;
-            }
-
-            if (change.field === 'account_update') {
-                const wabaIdToHandle = value.waba_info?.waba_id;
-                if (!wabaIdToHandle) continue;
-                if (value.event === 'PARTNER_REMOVED') {
-                    const projectToDelete = await db.collection('projects').findOne({ wabaId: wabaIdToHandle });
-                    if (projectToDelete) {
-                        await db.collection('projects').deleteOne({ _id: projectToDelete._id });
-                        await db.collection('notifications').insertOne({
-                            projectId: projectToDelete._id, wabaId: wabaIdToHandle,
-                            message: `Project '${projectToDelete.name}' was removed.`,
-                            link: '/dashboard', isRead: false, createdAt: new Date(), eventType: change.field,
-                        });
-                        revalidatePath('/dashboard'); revalidatePath('/dashboard', 'layout');
-                    }
-                } else if (value.event === 'PARTNER_ADDED') {
-                    await findOrCreateProjectByWabaId(db, wabaIdToHandle);
-                }
-                continue;
-            }
             let project = await db.collection('projects').findOne(
                 { $or: [ { wabaId: wabaId }, { 'phoneNumbers.id': value.metadata?.phone_number_id } ] },
                 { projection: { _id: 1, name: 1, wabaId: 1, businessCapabilities: 1 } }
             );
-            
+
             if (!project) {
-                const canAutoCreate = ['messages', 'phone_number_quality_update', 'phone_number_name_update'].includes(change.field);
-                if (canAutoCreate) {
+                const canAutoCreate = [
+                    'messages', 'phone_number_quality_update', 'phone_number_name_update',
+                    'message_template_quality_update', 'message_template_status_update', 'template_status_update'
+                ];
+                if (canAutoCreate.includes(change.field)) {
                     project = await findOrCreateProjectByWabaId(db, wabaId);
                 }
             }
 
-            if (!project && !['message_template_quality_update', 'message_template_status_update', 'template_status_update'].includes(change.field)) {
-                continue;
-            }
-
             switch (change.field) {
                 case 'messages': {
-                    if (!project || !value.messages || !value.contacts || !value.metadata) break;
-                    const message = value.messages[0];
-                    const contactProfile = value.contacts[0];
-                    const senderWaId = message.from;
-                    const senderName = contactProfile.profile?.name || 'Unknown User';
-                    const businessPhoneNumberId = value.metadata.phone_number_id;
-                    let lastMessageText = `[${message.type}]`;
-                    if (message.type === 'text') {
-                        lastMessageText = message.text.body;
-                    }
-                    const contactUpdateResult = await db.collection('contacts').findOneAndUpdate(
-                        { waId: senderWaId, projectId: project._id },
-                        { $set: { name: senderName, phoneNumberId: businessPhoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
-                          $inc: { unreadCount: 1 },
-                          $setOnInsert: { waId: senderWaId, projectId: project._id, createdAt: new Date() } },
-                        { upsert: true, returnDocument: 'after' }
-                    );
-                    const updatedContact = contactUpdateResult;
-                    if (updatedContact) {
-                        let contentToStore;
-                        const messageType = message.type as string;
-                        if (message[messageType]) {
-                           contentToStore = message[messageType];
-                        } else {
-                           contentToStore = { unknown: {} };
+                    // Differentiate between incoming messages and status updates
+                    if (value.statuses) {
+                        await processStatuses(db, value.statuses);
+                    } else if (value.messages && project) {
+                        const message = value.messages[0];
+                        const contactProfile = value.contacts[0];
+                        const senderWaId = message.from;
+                        const senderName = contactProfile.profile?.name || 'Unknown User';
+                        const businessPhoneNumberId = value.metadata.phone_number_id;
+                        let lastMessageText = `[${message.type}]`;
+                        if (message.type === 'text') {
+                            lastMessageText = message.text.body;
                         }
-                        await db.collection('incoming_messages').insertOne({
-                            direction: 'in', projectId: project._id, contactId: updatedContact._id,
-                            wamid: message.id, messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
-                            type: message.type, content: { [messageType]: contentToStore }, isRead: false, createdAt: new Date(),
-                        });
-                        await db.collection('notifications').insertOne({
-                            projectId: project._id, wabaId: project.wabaId,
-                            message: `New message from ${senderName} for project '${project.name}'.`,
-                            link: `/dashboard/chat?contactId=${updatedContact._id.toString()}&phoneId=${businessPhoneNumberId}`,
-                            isRead: false, createdAt: new Date(), eventType: change.field,
-                        });
-                        revalidatePath('/dashboard/chat'); revalidatePath('/dashboard/contacts');
-                        revalidatePath('/dashboard/notifications'); revalidatePath('/dashboard', 'layout');
+                        const contactUpdateResult = await db.collection('contacts').findOneAndUpdate(
+                            { waId: senderWaId, projectId: project._id },
+                            { $set: { name: senderName, phoneNumberId: businessPhoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
+                            $inc: { unreadCount: 1 },
+                            $setOnInsert: { waId: senderWaId, projectId: project._id, createdAt: new Date() } },
+                            { upsert: true, returnDocument: 'after' }
+                        );
+                        const updatedContact = contactUpdateResult;
+                        if (updatedContact) {
+                            let contentToStore;
+                            const messageType = message.type as string;
+                            if (message[messageType]) {
+                            contentToStore = message[messageType];
+                            } else {
+                            contentToStore = { unknown: {} };
+                            }
+                            await db.collection('incoming_messages').insertOne({
+                                direction: 'in', projectId: project._id, contactId: updatedContact._id,
+                                wamid: message.id, messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
+                                type: message.type, content: { [messageType]: contentToStore }, isRead: false, createdAt: new Date(),
+                            });
+                            await db.collection('notifications').insertOne({
+                                projectId: project._id, wabaId: project.wabaId,
+                                message: `New message from ${senderName} for project '${project.name}'.`,
+                                link: `/dashboard/chat?contactId=${updatedContact._id.toString()}&phoneId=${businessPhoneNumberId}`,
+                                isRead: false, createdAt: new Date(), eventType: change.field,
+                            });
+                            revalidatePath('/dashboard/chat'); revalidatePath('/dashboard/contacts');
+                            revalidatePath('/dashboard/notifications'); revalidatePath('/dashboard', 'layout');
+                        }
+                    }
+                    break;
+                }
+                case 'account_update': {
+                    const wabaIdToHandle = value.waba_info?.waba_id;
+                    if (!wabaIdToHandle) continue;
+                    if (value.event === 'PARTNER_REMOVED') {
+                        const projectToDelete = await db.collection('projects').findOne({ wabaId: wabaIdToHandle });
+                        if (projectToDelete) {
+                            await db.collection('projects').deleteOne({ _id: projectToDelete._id });
+                            await db.collection('notifications').insertOne({
+                                projectId: projectToDelete._id, wabaId: wabaIdToHandle,
+                                message: `Project '${projectToDelete.name}' was removed.`,
+                                link: '/dashboard', isRead: false, createdAt: new Date(), eventType: change.field,
+                            });
+                            revalidatePath('/dashboard'); revalidatePath('/dashboard', 'layout');
+                        }
+                    } else if (value.event === 'PARTNER_ADDED') {
+                        await findOrCreateProjectByWabaId(db, wabaIdToHandle);
                     }
                     break;
                 }
@@ -476,5 +471,3 @@ export async function GET(request: NextRequest) {
 export async function POST(request: Request) {
     return GET(request as NextRequest);
 }
-
-    

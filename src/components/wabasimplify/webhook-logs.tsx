@@ -83,26 +83,34 @@ export function WebhookLogs() {
     
     const getEventSummary = (log: WithId<WebhookLog>): string => {
         try {
-            const value = log.payload.entry?.[0]?.changes?.[0]?.value;
-            const field = log.payload.entry?.[0]?.changes?.[0]?.field;
-            if (!value) return 'No details';
+            const change = log.payload.entry?.[0]?.changes?.[0];
+            if (!change) return 'No changes found';
+
+            const value = change.value;
+            const field = change.field;
+
+            if (!value) return 'No value details';
 
             switch(field) {
                 case 'messages':
-                    const message = value.messages[0];
-                    if (message.type === 'text') {
-                        const bodyPreview = message.text.body.substring(0, 30);
-                        return `Message from ${message.from}: "${bodyPreview}${message.text.body.length > 30 ? '...' : ''}"`;
+                    if (value.statuses && value.statuses.length > 0) {
+                        const status = value.statuses[0];
+                        return `Status: ${status.status} for message to ${status.recipient_id}.`;
                     }
-                    return `Message from ${message.from} (${message.type})`;
-                case 'status':
-                case 'message_deliveries':
-                case 'message_reads':
-                    return `Status: ${value.statuses[0].status} for ${value.statuses[0].recipient_id}`;
-                case 'message_reactions': return `Reaction to message ${value.reactions[0].message_id}`;
-                case 'smb_message_echoes':
-                case 'message_echoes':
-                    return `Echo of message to ${value.message_echoes[0].to}`;
+                    if (value.messages && value.messages.length > 0) {
+                        const message = value.messages[0];
+                        const from = message.from || 'unknown';
+                        const type = message.type || 'unknown';
+                        if (type === 'text') {
+                            const body = message.text?.body || '';
+                            const bodyPreview = body.substring(0, 30);
+                            return `Message from ${from}: "${bodyPreview}${body.length > 30 ? '...' : ''}"`;
+                        }
+                        return `Message from ${from} (${type})`;
+                    }
+                    return 'Message event with unknown structure';
+                case 'account_review_update':
+                    return `Account review decision: ${value.decision}`;
                 case 'message_template_status_update':
                 case 'template_status_update':
                     return `Template '${value.message_template_name}' update: ${value.event}`;
@@ -110,24 +118,13 @@ export function WebhookLogs() {
                     return `Phone number quality update: ${value.event} (Limit: ${value.current_limit})`;
                 case 'phone_number_name_update':
                     return `Name update for ${value.display_phone_number}: ${value.decision}`;
-                case 'phone_number_verification_update':
-                     return `Verification status for ${value.display_phone_number}: ${value.new_code_verification_status}`;
-                case 'template_category_update':
-                    return `Template '${value.message_template_name}' category changed to ${value.new_category}`;
-                case 'account_review_update':
-                    return `Account review decision: ${value.decision}`;
-                case 'account_alerts':
-                    return `Account Alert: ${value.alert_type} (${value.alert_severity})`;
-                case 'account_update':
-                    return `Account details updated. Type: ${value.update_type || 'N/A'}`;
-                case 'security':
-                    return `Security event: ${value.event} for ${value.display_phone_number}`;
                 default:
                     if (value.event) return `Event: ${value.event}`;
                     return `General Update for ${field}`;
             }
-        } catch {
-            return 'Could not parse summary details';
+        } catch(e: any) {
+             console.error("Error parsing summary:", e, log);
+             return 'Could not parse summary details';
         }
     }
 
