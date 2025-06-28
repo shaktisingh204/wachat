@@ -2107,6 +2107,3 @@ export async function handleTranslateMessage(text: string): Promise<{ translated
         return { error: e.message || 'Failed to translate message. Please try again.' };
     }
 }
-    
-
-```
