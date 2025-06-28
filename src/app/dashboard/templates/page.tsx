@@ -7,11 +7,12 @@ import { PlusCircle, RefreshCw, Search, FileText } from 'lucide-react';
 import Link from 'next/link';
 import { getTemplates, handleSyncTemplates } from '@/app/actions';
 import { WithId } from 'mongodb';
-import { useEffect, useState, useTransition, useCallback } from 'react';
+import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Template } from '@/app/dashboard/page';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
@@ -20,6 +21,8 @@ export default function TemplatesPage() {
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
+  const [statusFilter, setStatusFilter] = useState('ALL');
 
   useEffect(() => {
     setIsClient(true);
@@ -72,9 +75,15 @@ export default function TemplatesPage() {
     });
   };
 
-  const filteredTemplates = templates.filter(template =>
-    template.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTemplates = useMemo(() => templates.filter(template => {
+    const nameMatch = template.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const categoryMatch = categoryFilter === 'ALL' || template.category === categoryFilter;
+    const statusMatch = statusFilter === 'ALL' || template.status === statusFilter;
+    return nameMatch && categoryMatch && statusMatch;
+  }), [templates, searchQuery, categoryFilter, statusFilter]);
+
+  const categories = useMemo(() => ['ALL', ...Array.from(new Set(templates.map(t => t.category).filter(Boolean)))], [templates]);
+  const statuses = useMemo(() => ['ALL', ...Array.from(new Set(templates.map(t => t.status).filter(Boolean)))], [templates]);
   
   if (!isClient || loading) {
     return (
@@ -125,15 +134,42 @@ export default function TemplatesPage() {
         </div>
       </div>
       
-      <div className="relative w-full max-w-sm">
-        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-            placeholder="Search templates by name..."
-            className="pl-8"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-        />
+      <div className="flex flex-wrap items-center gap-4">
+        <div className="relative flex-grow w-full md:flex-grow-0 md:max-w-sm">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+                placeholder="Search templates by name..."
+                className="pl-8"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+            />
+        </div>
+        <div className="w-full sm:w-auto">
+            <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Filter by category..." />
+                </SelectTrigger>
+                <SelectContent>
+                    {categories.map(category => (
+                        <SelectItem key={category} value={category} className="capitalize">{category.replace(/_/g, ' ')}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
+        <div className="w-full sm:w-auto">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-[180px]">
+                    <SelectValue placeholder="Filter by status..." />
+                </SelectTrigger>
+                <SelectContent>
+                    {statuses.map(status => (
+                        <SelectItem key={status} value={status} className="capitalize">{status.replace(/_/g, ' ')}</SelectItem>
+                    ))}
+                </SelectContent>
+            </Select>
+        </div>
       </div>
+
 
       {filteredTemplates.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -148,10 +184,12 @@ export default function TemplatesPage() {
         <div className="col-span-full">
           <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 py-20 text-center">
             <FileText className="h-12 w-12 text-muted-foreground" />
-            <h3 className="text-xl font-semibold mt-4">{searchQuery && templates.length > 0 ? 'No Matching Templates' : 'No Templates Found'}</h3>
+            <h3 className="text-xl font-semibold mt-4">
+                {templates.length > 0 ? 'No Matching Templates' : 'No Templates Found'}
+            </h3>
             <p className="text-muted-foreground mt-2">
-              {searchQuery && templates.length > 0
-                ? `Your search for "${searchQuery}" did not return any results.`
+              {templates.length > 0
+                ? "Your filters did not match any templates. Try adjusting your search."
                 : 'Click "Sync with Meta" to fetch your templates, or create a new one.'}
             </p>
           </div>
