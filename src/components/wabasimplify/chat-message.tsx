@@ -116,7 +116,11 @@ export function ChatMessage({ message }: ChatMessageProps) {
     const { toast } = useToast();
 
     const onTranslate = async () => {
-        const originalText = message.content.text?.body;
+        let originalText = message.content.text?.body;
+        if (!originalText && message.type === 'interactive') {
+            originalText = message.content.interactive?.button_reply?.title;
+        }
+
         if (!originalText) return;
 
         setIsTranslating(true);
@@ -135,7 +139,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
             
             {!isOutgoing && (
                 <div className="self-center opacity-0 group-hover/message:opacity-100 transition-opacity">
-                    {message.type === 'text' && (
+                    {(message.type === 'text' || message.type === 'interactive') && (
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -161,6 +165,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
             >
                 {message.type === 'text' && message.content.text ? (
                      <p className="whitespace-pre-wrap">{message.content.text.body}</p>
+                ) : message.type === 'interactive' && message.content.interactive?.button_reply?.title ? (
+                     <p className="whitespace-pre-wrap">{message.content.interactive.button_reply.title}</p>
                 ) : (
                     <MediaContent message={message} />
                 )}
