@@ -385,11 +385,20 @@ export async function GET(request: NextRequest) {
         const now = new Date();
         const lockHeldUntil = new Date(now.getTime() + LOCK_DURATION_MS);
         
-        const lockResult = await db.collection('locks').findOneAndUpdate(
-            { _id: LOCK_ID, $or: [{ lockHeldUntil: { $exists: false } }, { lockHeldUntil: { $lt: now } }] },
-            { $set: { lockHeldUntil } },
-            { upsert: true, returnDocument: 'after' }
-        );
+        let lockResult;
+        try {
+            lockResult = await db.collection('locks').findOneAndUpdate(
+                { _id: LOCK_ID, $or: [{ lockHeldUntil: { $exists: false } }, { lockHeldUntil: { $lt: now } }] },
+                { $set: { lockHeldUntil } },
+                { upsert: true, returnDocument: 'after' }
+            );
+        } catch (e: any) {
+            if (e.code === 11000) { // Duplicate key error, means we lost the race
+                lockResult = null;
+            } else {
+                throw e; // Re-throw other errors
+            }
+        }
 
         if (!lockResult) {
             return NextResponse.json({ message: "Webhook processor is already running." }, { status: 200 });

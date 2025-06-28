@@ -45,10 +45,27 @@ export function ProjectCard({ project }: ProjectCardProps) {
         return level.replace(/_/g, ' ').toLowerCase();
     };
 
+    const getThroughputVariant = (level?: string) => {
+      if (!level) return 'outline';
+      const lowerLevel = level.toLowerCase();
+      
+      if (lowerLevel.includes('unlimited') || lowerLevel.includes('100k') || lowerLevel.includes('high')) {
+          return 'default'; // Green
+      }
+      if (lowerLevel.includes('10k') || lowerLevel.includes('medium')) {
+          return 'secondary'; // Yellow-ish/Grey
+      }
+      if (lowerLevel.includes('1k') || lowerLevel.includes('low')) {
+          return 'destructive'; // Red
+      }
+      
+      return 'outline'; // Default for unknown tiers
+    };
+
     const throughputLevel = project.phoneNumbers?.[0]?.throughput?.level;
 
     return (
-        <Card className="flex flex-col justify-between hover:shadow-lg hover:border-primary transition-all">
+        <Card className="flex flex-col hover:shadow-lg hover:border-primary transition-all">
             <CardHeader className="flex-grow">
                 <div className="flex justify-between items-start gap-2">
                     <CardTitle className="text-base leading-tight">{project.name}</CardTitle>
@@ -56,11 +73,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
                         {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
                             <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-xs">
                                 {project.reviewStatus.replace(/_/g, ' ').toLowerCase()}
-                            </Badge>
-                        )}
-                        {throughputLevel && (
-                             <Badge variant="outline" className="capitalize text-xs">
-                                {formatThroughput(throughputLevel)}
                             </Badge>
                         )}
                     </div>
@@ -79,7 +91,14 @@ export function ProjectCard({ project }: ProjectCardProps) {
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="pt-0">
+            <CardContent className="pt-0 flex flex-col justify-end">
+                <div className="flex justify-center mb-4 mt-2">
+                    {throughputLevel && (
+                         <Badge variant={getThroughputVariant(throughputLevel)} className="capitalize">
+                            {formatThroughput(throughputLevel)}
+                        </Badge>
+                    )}
+                </div>
                 <Button className="w-full" size="sm" onClick={handleSelectProject}>
                     Select Project
                 </Button>
