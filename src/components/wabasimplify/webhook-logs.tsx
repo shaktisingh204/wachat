@@ -3,9 +3,8 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { getWebhookLogs, handleClearWebhookLogs, handleReprocessWebhook, handleRequeueAllWebhookLogs } from '@/app/actions';
-import type { WebhookLog } from '@/app/actions';
-import type { WithId } from 'mongodb';
+import { getWebhookLogs, handleClearWebhookLogs, handleReprocessWebhook, handleRequeueAllWebhookLogs, getWebhookLogPayload } from '@/app/actions';
+import type { WebhookLogListItem } from '@/app/actions';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -49,7 +48,7 @@ function ReprocessButton({ logId }: { logId: string }) {
 }
 
 export function WebhookLogs() {
-    const [logs, setLogs] = useState<WithId<WebhookLog>[]>([]);
+    const [logs, setLogs] = useState<WebhookLogListItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [isRefreshing, startRefreshTransition] = useTransition();
     const [isClearing, startClearingTransition] = useTransition();
@@ -58,7 +57,9 @@ export function WebhookLogs() {
     const [totalPages, setTotalPages] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
     const { toast } = useToast();
-    const [selectedLog, setSelectedLog] = useState<WithId<WebhookLog> | null>(null);
+    const [selectedLog, setSelectedLog] = useState<WebhookLogListItem | null>(null);
+    const [selectedLogPayload, setSelectedLogPayload] = useState<any | null>(null);
+    const [loadingPayload, setLoadingPayload] = useState(false);
 
     const fetchLogs = useCallback(async (page: number, query: string, showToast = false) => {
         startRefreshTransition(async () => {
@@ -110,60 +111,14 @@ export function WebhookLogs() {
         });
     };
 
-    const getEventField = (log: WithId<WebhookLog>): string => {
-        try {
-            return log.payload?.entry?.[0]?.changes?.[0]?.field || 'N/A';
-        } catch {
-            return 'N/A';
-        }
+    const handleViewLog = async (log: WebhookLogListItem) => {
+        setSelectedLog(log);
+        setSelectedLogPayload(null);
+        setLoadingPayload(true);
+        const payload = await getWebhookLogPayload(log._id);
+        setSelectedLogPayload(payload);
+        setLoadingPayload(false);
     };
-    
-    const getEventSummary = (log: WithId<WebhookLog>): string => {
-        try {
-            const change = log?.payload?.entry?.[0]?.changes?.[0];
-            if (!change) return 'No changes found';
-
-            const value = change.value;
-            const field = change.field;
-
-            if (!value) return `Event: ${field} (no value)`;
-
-            switch(field) {
-                case 'messages':
-                    if (value.statuses && Array.isArray(value.statuses) && value.statuses.length > 0) {
-                        const status = value.statuses[0];
-                        return `Status: ${status.status} to ${status.recipient_id}`;
-                    }
-                    if (value.messages && Array.isArray(value.messages) && value.messages.length > 0) {
-                        const message = value.messages[0];
-                        const from = message.from || 'unknown';
-                        const type = message.type || 'unknown';
-                        if (type === 'text') {
-                            const body = message.text?.body || '';
-                            const bodyPreview = body.substring(0, 30);
-                            return `Message from ${from}: "${bodyPreview}${body.length > 30 ? '...' : ''}"`;
-                        }
-                        return `Message from ${from} (${type})`;
-                    }
-                    return 'Message event with unknown content';
-                case 'account_review_update':
-                    return `Account review decision: ${value.decision}`;
-                case 'message_template_status_update':
-                case 'template_status_update':
-                    return `Template '${value.message_template_name}' update: ${value.event}`;
-                case 'phone_number_quality_update':
-                    return `Phone number quality update: ${value.event} (Limit: ${value.current_limit})`;
-                case 'phone_number_name_update':
-                    return `Name update for ${value.display_phone_number}: ${value.decision}`;
-                default:
-                    if (value.event) return `Event: ${value.event}`;
-                    return `General Update for ${field}`;
-            }
-        } catch(e: any) {
-             console.error("Error parsing summary:", e, log);
-             return 'Could not parse summary details';
-        }
-    }
 
     const handleCopyPayload = (payload: any) => {
         const payloadString = JSON.stringify(payload, null, 2);
@@ -191,45 +146,6 @@ export function WebhookLogs() {
         });
     };
 
-    const handleCopyAllLogs = () => {
-        if (logs.length === 0) {
-            toast({ title: "Nothing to Copy", description: "There are no logs on the current page." });
-            return;
-        }
-
-        const allLogsText = logs.map(log => {
-            const timestamp = new Date(log.createdAt).toLocaleString();
-            const eventField = getEventField(log);
-            const payloadString = JSON.stringify(log.payload, null, 2);
-            
-            return `--- Log Timestamp: ${timestamp} | Event: ${eventField} ---\n${payloadString}`;
-        }).join('\n\n');
-
-        if (!navigator.clipboard) {
-          toast({
-            title: 'Failed to copy',
-            description: 'Clipboard API is not available. Please use a secure (HTTPS) connection.',
-            variant: 'destructive',
-          });
-          return;
-        }
-
-        navigator.clipboard.writeText(allLogsText).then(() => {
-            toast({
-                title: 'Logs Copied!',
-                description: `All ${logs.length} logs from this page have been copied to your clipboard.`,
-            });
-        }, (err) => {
-            console.error('Could not copy logs: ', err);
-            toast({
-                title: 'Failed to copy',
-                description: 'Could not copy logs to clipboard. Check browser permissions.',
-                variant: 'destructive',
-            });
-        });
-    };
-
-
     return (
         <Card>
             <CardHeader>
@@ -247,10 +163,6 @@ export function WebhookLogs() {
                                 onChange={(e) => handleSearch(e.target.value)}
                             />
                         </div>
-                        <Button onClick={handleCopyAllLogs} disabled={logs.length === 0 || isRefreshing} variant="outline" size="sm">
-                            <Copy className="mr-2 h-4 w-4" />
-                            Copy Page Logs
-                        </Button>
                         <Button onClick={handleRequeueAll} disabled={isRequeueingAll || isRefreshing} variant="outline" size="sm">
                             {isRequeueingAll ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <ServerCog className="mr-2 h-4 w-4" />}
                             Re-process All
@@ -288,12 +200,12 @@ export function WebhookLogs() {
                                 logs.map((log) => (
                                 <TableRow key={log._id.toString()}>
                                     <TableCell>{new Date(log.createdAt).toLocaleString()}</TableCell>
-                                    <TableCell className="font-mono">{getEventField(log)}</TableCell>
-                                    <TableCell>{getEventSummary(log)}</TableCell>
+                                    <TableCell className="font-mono">{log.eventField}</TableCell>
+                                    <TableCell>{log.eventSummary}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <ReprocessButton logId={log._id.toString()} />
-                                            <Button variant="ghost" size="icon" onClick={() => setSelectedLog(log)} className="h-7 w-7">
+                                            <Button variant="ghost" size="icon" onClick={() => handleViewLog(log)} className="h-7 w-7">
                                                 <Eye className="h-4 w-4" />
                                                 <span className="sr-only">View Payload</span>
                                             </Button>
@@ -334,7 +246,7 @@ export function WebhookLogs() {
                 </div>
             </CardContent>
 
-             <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
+            <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>
                 <DialogContent className="max-w-3xl">
                     <DialogHeader>
                         <div className="flex justify-between items-start gap-4">
@@ -342,21 +254,27 @@ export function WebhookLogs() {
                                 <DialogTitle>Webhook Payload</DialogTitle>
                                 <DialogDescription>Full JSON payload received from Meta at {selectedLog ? new Date(selectedLog.createdAt).toLocaleString() : ''}</DialogDescription>
                             </div>
-                            {selectedLog && (
-                                <Button variant="outline" size="icon" onClick={() => handleCopyPayload(selectedLog.payload)}>
+                            {selectedLogPayload && (
+                                <Button variant="outline" size="icon" onClick={() => handleCopyPayload(selectedLogPayload)}>
                                     <Copy className="h-4 w-4" />
                                     <span className="sr-only">Copy Payload</span>
                                 </Button>
                             )}
                         </div>
                     </DialogHeader>
-                    {selectedLog && (
-                        <div className="mt-2 text-sm max-h-[60vh] overflow-y-auto">
+                    <div className="mt-2 text-sm max-h-[60vh] overflow-y-auto">
+                        {loadingPayload ? (
+                            <div className="flex items-center justify-center p-8">
+                                <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+                            </div>
+                        ) : selectedLogPayload ? (
                             <pre className="p-4 bg-muted rounded-md whitespace-pre-wrap font-mono text-xs">
-                                {JSON.stringify(selectedLog.payload, null, 2)}
+                                {JSON.stringify(selectedLogPayload, null, 2)}
                             </pre>
-                        </div>
-                    )}
+                        ) : (
+                            <div className="text-center text-muted-foreground p-8">Could not load payload.</div>
+                        )}
+                    </div>
                 </DialogContent>
             </Dialog>
         </Card>

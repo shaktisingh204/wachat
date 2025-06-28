@@ -1534,30 +1534,112 @@ export type WebhookLog = {
     createdAt: Date;
 };
 
+const getEventFieldForLog = (log: WithId<WebhookLog>): string => {
+    try {
+        return log.payload?.entry?.[0]?.changes?.[0]?.field || 'N/A';
+    } catch {
+        return 'N/A';
+    }
+};
+
+const getEventSummaryForLog = (log: WithId<WebhookLog>): string => {
+    try {
+        const change = log?.payload?.entry?.[0]?.changes?.[0];
+        if (!change) return 'No changes found';
+
+        const value = change.value;
+        const field = change.field;
+
+        if (!value) return `Event: ${field} (no value)`;
+
+        switch(field) {
+            case 'messages':
+                if (value.statuses && Array.isArray(value.statuses) && value.statuses.length > 0) {
+                    const status = value.statuses[0];
+                    return `Status: ${status.status} to ${status.recipient_id}`;
+                }
+                if (value.messages && Array.isArray(value.messages) && value.messages.length > 0) {
+                    const message = value.messages[0];
+                    const from = message.from || 'unknown';
+                    const type = message.type || 'unknown';
+                    if (type === 'text') {
+                        const body = message.text?.body || '';
+                        const bodyPreview = body.substring(0, 30);
+                        return `Message from ${from}: "${bodyPreview}${body.length > 30 ? '...' : ''}"`;
+                    }
+                    return `Message from ${from} (${type})`;
+                }
+                return 'Message event with unknown content';
+            case 'account_review_update':
+                return `Account review decision: ${value.decision}`;
+            case 'message_template_status_update':
+            case 'template_status_update':
+                return `Template '${value.message_template_name}' update: ${value.event}`;
+            case 'phone_number_quality_update':
+                return `Phone number quality update: ${value.event} (Limit: ${value.current_limit})`;
+            case 'phone_number_name_update':
+                return `Name update for ${value.display_phone_number}: ${value.decision}`;
+            default:
+                if (value.event) return `Event: ${value.event}`;
+                return `General Update for ${field}`;
+        }
+    } catch(e: any) {
+         console.error("Error parsing summary:", e, log);
+         return 'Could not parse summary details';
+    }
+}
+
+export type WebhookLogListItem = {
+    _id: string;
+    createdAt: string;
+    eventField: string;
+    eventSummary: string;
+};
+
 export async function getWebhookLogs(
     page: number = 1, 
     limit: number = 20, 
     query?: string
-): Promise<{ logs: WithId<WebhookLog>[], total: number }> {
+): Promise<{ logs: WebhookLogListItem[], total: number }> {
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<WebhookLog> = {};
         if (query) {
-            // A text index on 'searchableText' would be ideal for performance
             filter.searchableText = { $regex: query, $options: 'i' };
         }
 
         const skip = (page - 1) * limit;
 
-        const [logs, total] = await Promise.all([
-            db.collection('webhook_logs').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+        const [fullLogs, total] = await Promise.all([
+            db.collection<WithId<WebhookLog>>('webhook_logs').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
             db.collection('webhook_logs').countDocuments(filter)
         ]);
+
+        const logsForClient = fullLogs.map(log => ({
+            _id: log._id.toString(),
+            createdAt: log.createdAt.toISOString(),
+            eventField: getEventFieldForLog(log),
+            eventSummary: getEventSummaryForLog(log)
+        }));
         
-        return { logs: JSON.parse(JSON.stringify(logs)), total };
+        return { logs: JSON.parse(JSON.stringify(logsForClient)), total };
     } catch (error) {
         console.error('Failed to fetch webhook logs:', error);
         return { logs: [], total: 0 };
+    }
+}
+
+export async function getWebhookLogPayload(logId: string): Promise<any | null> {
+    if (!ObjectId.isValid(logId)) {
+        return null;
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const log = await db.collection('webhook_logs').findOne({ _id: new ObjectId(logId) }, { projection: { payload: 1 } });
+        return log ? JSON.parse(JSON.stringify(log.payload)) : null;
+    } catch (error) {
+        console.error('Failed to fetch webhook log payload:', error);
+        return null;
     }
 }
 
