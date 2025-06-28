@@ -5,25 +5,51 @@ import { AnyMessage, OutgoingMessage } from '@/app/actions';
 import { cn } from '@/lib/utils';
 import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, Video as VideoIcon, XCircle } from 'lucide-react';
 import Image from 'next/image';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ChatMessageProps {
     message: AnyMessage;
 }
 
-function StatusTicks({ status }: { status: OutgoingMessage['status'] }) {
-    if (status === 'failed') {
-        return <XCircle className="h-4 w-4 text-red-400" />;
-    }
-    if (status === 'read') {
-        return <CheckCheck className="h-4 w-4 text-blue-400" />;
-    }
-    if (status === 'delivered') {
-        return <CheckCheck className="h-4 w-4" />;
-    }
-    if (status === 'sent') {
-        return <Check className="h-4 w-4" />;
-    }
-    return <Clock className="h-4 w-4" />; // for 'pending'
+function StatusTicks({ message }: { message: OutgoingMessage }) {
+    const { status, statusTimestamps } = message;
+
+    const getIcon = () => {
+        switch (status) {
+            case 'failed':
+                return <XCircle className="h-4 w-4 text-red-400" />;
+            case 'read':
+                return <CheckCheck className="h-4 w-4 text-blue-400" />;
+            case 'delivered':
+                return <CheckCheck className="h-4 w-4" />;
+            case 'sent':
+                return <Check className="h-4 w-4" />;
+            default:
+                return <Clock className="h-4 w-4" />; // for 'pending'
+        }
+    };
+
+    const formatTimestamp = (date: Date | string | undefined) => {
+        if (!date) return '';
+        return new Date(date).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' });
+    };
+
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <span>{getIcon()}</span>
+            </TooltipTrigger>
+            <TooltipContent side="top" align="end">
+                <div className="text-xs space-y-1 p-1">
+                    {statusTimestamps?.read && <p>Read: {formatTimestamp(statusTimestamps.read)}</p>}
+                    {statusTimestamps?.delivered && <p>Delivered: {formatTimestamp(statusTimestamps.delivered)}</p>}
+                    {statusTimestamps?.sent && <p>Sent: {formatTimestamp(statusTimestamps.sent)}</p>}
+                    {status === 'pending' && <p>Pending...</p>}
+                    {status === 'failed' && <p>Failed</p>}
+                </div>
+            </TooltipContent>
+        </Tooltip>
+    );
 }
 
 function MediaContent({ message }: { message: AnyMessage }) {
@@ -105,7 +131,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
                     <p className="text-xs">
                         {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
-                    {isOutgoing && <StatusTicks status={(message as OutgoingMessage).status} />}
+                    {isOutgoing && <StatusTicks message={message as OutgoingMessage} />}
                 </div>
             </div>
         </div>
