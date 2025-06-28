@@ -281,7 +281,7 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
 
 const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
     const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
-    return `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${to.x} ${to.y}`;
+    return `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
 };
 
 export default function FlowBuilderPage() {
