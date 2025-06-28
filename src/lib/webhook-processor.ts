@@ -10,114 +10,126 @@ async function processStatuses(db: Db, statuses: any[]) {
         return;
     }
 
-    const wamids = statuses.map(s => s.id).filter(Boolean);
-    if (wamids.length === 0) return;
+    const liveChatOps: any[] = [];
+    const broadcastContactOps: any[] = [];
+    const broadcastCounterUpdates: Record<string, { delivered: number; read: number; failed: number; success: number }> = {};
 
-    // --- Handle Live Chat Statuses ---
-    const outgoingMessagesOps: any[] = [];
-    statuses.forEach((status: any) => {
-        if (!status || !status.id) return;
-        const outgoingUpdatePayload: any = {
+    for (const status of statuses) {
+        if (!status || !status.id) continue;
+
+        const wamid = status.id;
+        const newStatus = (status.status || 'unknown').toUpperCase();
+        const timestamp = new Date(parseInt(status.timestamp, 10) * 1000);
+
+        // --- Prepare Live Chat Update ---
+        const liveChatUpdatePayload: any = {
             status: status.status,
-            [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000)
+            [`statusTimestamps.${status.status}`]: timestamp
         };
-        if (status.status === 'failed' && status.errors && status.errors.length > 0) {
+        if (newStatus === 'FAILED' && status.errors && status.errors.length > 0) {
             const error = status.errors[0];
-            outgoingUpdatePayload.error = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
+            liveChatUpdatePayload.error = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
         }
-        outgoingMessagesOps.push({
+        liveChatOps.push({
             updateOne: {
-                filter: { wamid: status.id },
-                update: { $set: outgoingUpdatePayload }
+                filter: { wamid },
+                update: { $set: liveChatUpdatePayload }
             }
         });
-    });
 
-    // --- Handle Broadcast Statuses ---
-    const affectedBroadcastContacts = await db.collection('broadcast_contacts').find({ messageId: { $in: wamids } }).toArray();
-    if (affectedBroadcastContacts.length === 0) {
-        // No contacts found for these wamids, so we only need to process the live chat updates.
-        if (outgoingMessagesOps.length > 0) {
-            await db.collection('outgoing_messages').bulkWrite(outgoingMessagesOps, { ordered: false });
-            revalidatePath('/dashboard/chat');
+        // --- Find corresponding broadcast contact ---
+        const contact = await db.collection('broadcast_contacts').findOne({ messageId: wamid });
+        if (!contact) {
+            continue; // Not a broadcast message, skip to next status
         }
-        return;
-    }
-    
-    const broadcastContactsOps: any[] = [];
-    const broadcastCounters: Record<string, { delivered: number; read: number }> = {};
-    const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, DELIVERED: 2, READ: 3 };
+        
+        const broadcastIdStr = contact.broadcastId.toString();
+        if (!broadcastCounterUpdates[broadcastIdStr]) {
+            broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0, failed: 0, success: 0 };
+        }
 
-    statuses.forEach((status: any) => {
-        if (!status || !status.id) return;
+        const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, DELIVERED: 2, READ: 3 };
+        const currentStatus = (contact.status || 'PENDING').toUpperCase();
 
-        const contactToUpdate = affectedBroadcastContacts.find(c => c.messageId === status.id);
-        if (contactToUpdate) {
-            const currentStatus = (contactToUpdate.status || 'PENDING').toUpperCase();
-            if (currentStatus === 'FAILED') return; // Don't update a failed message
+        if (currentStatus === 'FAILED') {
+            continue; // Do not update a message that has already terminally failed.
+        }
 
-            const newStatus = status.status.toUpperCase();
-
-            // Handle terminal failure state
-            if (newStatus === 'FAILED') {
-                const error = status.errors?.[0] || { title: 'Unknown Failure', code: 'N/A' };
-                const errorString = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
-                broadcastContactsOps.push({
-                    updateOne: {
-                        filter: { _id: contactToUpdate._id },
-                        update: { $set: { status: 'FAILED', error: errorString } }
-                    }
-                });
-            } else if (statusHierarchy[newStatus] !== undefined && (statusHierarchy[currentStatus] === undefined || statusHierarchy[newStatus] > statusHierarchy[currentStatus])) {
-                // Only update if the new status is an advancement
-                broadcastContactsOps.push({
-                    updateOne: {
-                        filter: { _id: contactToUpdate._id },
-                        update: { $set: { status: newStatus } }
-                    }
-                });
-            }
+        // --- Prepare Broadcast Contact Update ---
+        if (newStatus === 'FAILED') {
+            const error = status.errors?.[0] || { title: 'Unknown Failure', code: 'N/A' };
+            const errorString = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
             
-            // Always update counters for delivered/read regardless of status overwrite
-            const broadcastIdStr = contactToUpdate.broadcastId.toString();
-            if (!broadcastCounters[broadcastIdStr]) {
-                broadcastCounters[broadcastIdStr] = { delivered: 0, read: 0 };
+            broadcastContactOps.push({
+                updateOne: {
+                    filter: { _id: contact._id },
+                    update: { $set: { status: 'FAILED', error: errorString } }
+                }
+            });
+            // A message that failed was previously marked as SENT (successful send *from us*).
+            // So we decrement success and increment failed.
+            if (currentStatus === 'SENT') {
+                broadcastCounterUpdates[broadcastIdStr].success -= 1;
             }
+            broadcastCounterUpdates[broadcastIdStr].failed += 1;
 
-            if (status.status === 'delivered') broadcastCounters[broadcastIdStr].delivered++;
-            if (status.status === 'read') broadcastCounters[broadcastIdStr].read++;
+        } else if (statusHierarchy[newStatus] !== undefined && statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
+            // Only update if it's a forward progression in status
+            broadcastContactOps.push({
+                updateOne: {
+                    filter: { _id: contact._id },
+                    update: { $set: { status: newStatus } }
+                }
+            });
+
+            if (newStatus === 'DELIVERED') {
+                 broadcastCounterUpdates[broadcastIdStr].delivered += 1;
+            }
+            if (newStatus === 'READ') {
+                broadcastCounterUpdates[broadcastIdStr].read += 1;
+            }
         }
-    });
-
-    const broadcastUpdateOps = Object.entries(broadcastCounters).map(([broadcastId, counts]) => ({
-        updateOne: {
-            filter: { _id: new ObjectId(broadcastId) },
-            update: { $inc: { deliveredCount: counts.delivered || 0, readCount: counts.read || 0 } }
-        }
-    }));
-
+    }
 
     // --- Execute DB Updates ---
     const promises = [];
-    if (outgoingMessagesOps.length > 0) {
-        promises.push(
-            db.collection('outgoing_messages').bulkWrite(outgoingMessagesOps, { ordered: false })
-            .then(() => revalidatePath('/dashboard/chat'))
-        );
+
+    if (liveChatOps.length > 0) {
+        promises.push(db.collection('outgoing_messages').bulkWrite(liveChatOps, { ordered: false }));
     }
-    if (broadcastContactsOps.length > 0) {
-        promises.push(
-            db.collection('broadcast_contacts').bulkWrite(broadcastContactsOps, { ordered: false })
-            .then(() => revalidatePath('/dashboard/broadcasts/[broadcastId]', 'page'))
-        );
+
+    if (broadcastContactOps.length > 0) {
+        promises.push(db.collection('broadcast_contacts').bulkWrite(broadcastContactOps, { ordered: false }));
     }
-    if (broadcastUpdateOps.length > 0) {
-        promises.push(
-            db.collection('broadcasts').bulkWrite(broadcastUpdateOps, { ordered: false })
-        );
+
+    const broadcastCounterOps = Object.entries(broadcastCounterUpdates)
+        .filter(([_, counts]) => counts.delivered > 0 || counts.read > 0 || counts.failed > 0 || counts.success !== 0)
+        .map(([broadcastId, counts]) => ({
+            updateOne: {
+                filter: { _id: new ObjectId(broadcastId) },
+                update: { $inc: { 
+                    deliveredCount: counts.delivered, 
+                    readCount: counts.read,
+                    errorCount: counts.failed,
+                    successCount: counts.success,
+                 } }
+            }
+        }));
+
+    if (broadcastCounterOps.length > 0) {
+        promises.push(db.collection('broadcasts').bulkWrite(broadcastCounterOps, { ordered: false }));
+    }
+
+    if (promises.length > 0) {
+        await Promise.all(promises);
     }
     
-    await Promise.all(promises);
+    // Revalidate paths if any relevant operations were performed
+    if (liveChatOps.length > 0) revalidatePath('/dashboard/chat');
+    if (broadcastContactOps.length > 0) {
+        revalidatePath('/dashboard/broadcasts/[broadcastId]', 'page');
+        revalidatePath('/dashboard/broadcasts');
+    }
 }
 
 
@@ -366,3 +378,5 @@ export async function processSingleWebhook(db: Db, payload: any) {
         }
     }
 }
+
+    
