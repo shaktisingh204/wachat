@@ -93,11 +93,11 @@ export function WebhookLogs() {
 
             switch(field) {
                 case 'messages':
-                    if (value.statuses?.length > 0) {
+                    if (value.statuses && Array.isArray(value.statuses) && value.statuses.length > 0) {
                         const status = value.statuses[0];
                         return `Status: ${status.status} to ${status.recipient_id}`;
                     }
-                    if (value.messages?.length > 0) {
+                    if (value.messages && Array.isArray(value.messages) && value.messages.length > 0) {
                         const message = value.messages[0];
                         const from = message.from || 'unknown';
                         const type = message.type || 'unknown';

@@ -112,7 +112,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
           </header>
           <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
             <main className="p-4 md:p-6 lg:p-8 flex-1 overflow-y-auto">{children}</main>
-            <aside className="w-full lg:w-80 xl:w-96 border-t lg:border-t-0 lg:border-l bg-background shrink-0 h-96 lg:h-auto">
+            <aside className="w-full lg:w-80 xl:w-96 border-t lg:border-t-0 lg:border-l bg-background shrink-0">
                 <LiveNotificationFeed />
             </aside>
           </div>

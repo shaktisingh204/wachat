@@ -145,7 +145,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
                 {children}
             </main>
-             <aside className="w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0 h-96 md:h-auto">
+             <aside className="w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0">
                 <LiveNotificationFeed />
             </aside>
           </div>
