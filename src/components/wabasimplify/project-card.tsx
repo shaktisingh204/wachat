@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Phone, Calendar } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 interface ProjectCardProps {
     project: any;
@@ -13,6 +14,12 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
     const router = useRouter();
+    const [createdDate, setCreatedDate] = useState<string | null>(null);
+
+    useEffect(() => {
+        // This runs only on the client, after hydration, preventing a mismatch
+        setCreatedDate(new Date(project.createdAt).toLocaleDateString());
+    }, [project.createdAt]);
 
     const handleSelectProject = () => {
         if (typeof window !== 'undefined') {
@@ -87,7 +94,11 @@ export function ProjectCard({ project }: ProjectCardProps) {
                     </div>
                      <div className="flex items-center gap-2">
                         <Calendar className="h-3 w-3" />
-                        <span>Created: {new Date(project.createdAt).toLocaleDateString()}</span>
+                        {createdDate ? (
+                            <span>Created: {createdDate}</span>
+                        ) : (
+                            <span className="h-4 w-24 bg-muted rounded animate-pulse" />
+                        )}
                     </div>
                 </div>
             </CardHeader>
