@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -8,6 +7,18 @@ import { Db, ObjectId, WithId } from 'mongodb';
 async function processStatuses(db: Db, statuses: any[]) {
     if (!statuses || !Array.isArray(statuses) || statuses.length === 0) {
         return;
+    }
+
+    const wamids = statuses.map(s => s.id).filter(Boolean);
+    if (wamids.length === 0) {
+        return;
+    }
+
+    // Fetch all contacts related to these status updates in a single query
+    const contactsMap = new Map<string, WithId<any>>();
+    const contactsCursor = db.collection('broadcast_contacts').find({ messageId: { $in: wamids } });
+    for await (const contact of contactsCursor) {
+        contactsMap.set(contact.messageId, contact);
     }
 
     const liveChatOps: any[] = [];
@@ -21,8 +32,6 @@ async function processStatuses(db: Db, statuses: any[]) {
         const newStatus = (status.status || 'unknown').toUpperCase();
         const timestamp = new Date(parseInt(status.timestamp, 10) * 1000);
         
-        console.log(`Processing status update for WAMID: ${wamid}. New status: ${newStatus}`);
-
         // --- Prepare Live Chat Update ---
         const liveChatUpdatePayload: any = {
             status: status.status,
@@ -39,8 +48,8 @@ async function processStatuses(db: Db, statuses: any[]) {
             }
         });
 
-        // --- Find corresponding broadcast contact ---
-        const contact = await db.collection('broadcast_contacts').findOne({ messageId: wamid });
+        // --- Find corresponding broadcast contact from our pre-fetched map ---
+        const contact = contactsMap.get(wamid);
         if (!contact) {
             continue; // Not a broadcast message, skip to next status
         }
@@ -64,16 +73,18 @@ async function processStatuses(db: Db, statuses: any[]) {
             
             broadcastContactOps.push({
                 updateOne: {
-                    filter: { _id: contact._id },
+                    filter: { _id: contact._id, status: { $ne: 'FAILED' } }, // Prevent multiple failure updates
                     update: { $set: { status: 'FAILED', error: errorString } }
                 }
             });
             // A message that failed was previously marked as SENT (successful send *from us*).
             // So we decrement success and increment failed.
-            if (currentStatus === 'SENT') {
-                broadcastCounterUpdates[broadcastIdStr].success -= 1;
+            if (currentStatus !== 'FAILED') { // Only count failure once
+                if (currentStatus === 'SENT') {
+                    broadcastCounterUpdates[broadcastIdStr].success -= 1;
+                }
+                broadcastCounterUpdates[broadcastIdStr].failed += 1;
             }
-            broadcastCounterUpdates[broadcastIdStr].failed += 1;
 
         } else if (statusHierarchy[newStatus] !== undefined && statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
             // Only update if it's a forward progression in status
@@ -398,5 +409,3 @@ export async function processSingleWebhook(db: Db, payload: any) {
         }
     }
 }
-
-    

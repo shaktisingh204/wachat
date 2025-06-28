@@ -15,7 +15,7 @@ type WebhookQueueItem = {
 
 // --- Cron Endpoint ---
 
-const BATCH_SIZE = 50; // Number of webhooks to process per run
+const BATCH_SIZE = 100; // Number of webhooks to process per run
 const LOCK_ID = 'webhook_processor_lock';
 const LOCK_DURATION_MS = 2 * 60 * 1000; // Lock for 2 minutes
 

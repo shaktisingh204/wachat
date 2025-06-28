@@ -41,7 +41,8 @@ type Broadcast = {
   _id: any;
   templateId: any;
   templateName: string;
-  templateStatus?: string;
+  deliveredCount?: number;
+  readCount?: number;
   fileName: string;
   contactCount: number;
   successCount?: number;
@@ -324,14 +325,6 @@ export default function BroadcastPage() {
     });
   }, [toast, activeProjectId, currentPage, fetchData]);
 
-  const getTemplateStatusVariant = (status?: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
-    if (!status) return 'secondary';
-    const lowerStatus = status.toLowerCase();
-    if (lowerStatus === 'approved') return 'default';
-    if (lowerStatus.includes('review') || lowerStatus.includes('pending')) return 'secondary';
-    return 'destructive';
-  };
-
   if (!isClient) {
     return (
       <div className="flex flex-col gap-8">
@@ -410,7 +403,7 @@ export default function BroadcastPage() {
                   <TableHead>Queued</TableHead>
                   <TableHead>Duration</TableHead>
                   <TableHead>Template</TableHead>
-                  <TableHead>Template Status</TableHead>
+                  <TableHead>Delivery Stats</TableHead>
                   <TableHead>File Name</TableHead>
                   <TableHead>Contacts</TableHead>
                   <TableHead>Progress</TableHead>
@@ -452,12 +445,10 @@ export default function BroadcastPage() {
                       </TableCell>
                       <TableCell>{item.templateName}</TableCell>
                       <TableCell>
-                        <Badge
-                          variant={getTemplateStatusVariant(item.templateStatus)}
-                          className="capitalize"
-                        >
-                          {item.templateStatus?.replace(/_/g, ' ') || 'Unknown'}
-                        </Badge>
+                        <div className="font-mono text-xs">
+                            <div>DELIVERED: {item.deliveredCount ?? 0}</div>
+                            <div>READ: {item.readCount ?? 0}</div>
+                        </div>
                       </TableCell>
                       <TableCell>{item.fileName}</TableCell>
                       <TableCell>{item.contactCount}</TableCell>
