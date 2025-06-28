@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -18,12 +18,21 @@ import {
     Play,
     Trash2,
     Save,
-    Plus
+    Plus,
+    Clock,
+    Type,
+    ArrowRightLeft,
+    ShoppingCart,
+    View,
+    Server,
+    Variable
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { Switch } from '@/components/ui/switch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image';
+type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart';
 
 type NodeData = {
     label?: string;
@@ -32,6 +41,21 @@ type NodeData = {
     condition?: string;
     url?: string;
     imageUrl?: string;
+    // New properties for advanced blocks
+    variableToSave?: string;
+    inputType?: 'text' | 'number' | 'email';
+    delaySeconds?: number;
+    showTyping?: boolean;
+    apiRequest?: {
+        method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+        url: string;
+        headers: { key: string; value: string }[];
+        body: string;
+        responseVariable: string;
+    };
+    carouselItems?: { title: string, description: string, imageUrl: string }[];
+    productId?: string;
+    quantity?: number;
 };
 
 type Node = {
@@ -43,26 +67,38 @@ type Node = {
 
 const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
-    { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
+    { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
+    { type: 'carousel', label: 'Product Carousel', icon: View },
+    { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
+    { type: 'delay', label: 'Add Delay', icon: Clock },
     { type: 'webhook', label: 'Call Webhook', icon: Webhook },
+    { type: 'api', label: 'Call API', icon: ArrowRightLeft },
+    { type: 'addToCart', label: 'Add to Cart', icon: ShoppingCart },
 ];
 
 const NodeComponent = ({ node, onSelectNode, isSelected }: { node: Node; onSelectNode: (id: string) => void; isSelected: boolean }) => {
-    const BlockIcon = blockTypes.find(b => b.type === node.type)?.icon || MessageSquare;
+    const BlockIcon = [...blockTypes, {type: 'start', label: 'Start', icon: Play}].find(b => b.type === node.type)?.icon || MessageSquare;
+
+    const Handle = ({ position }: { position: 'left' | 'right' | 'top' | 'bottom' }) => (
+        <div className={cn(
+            "absolute w-3 h-3 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors",
+            position === 'left' && "-left-1.5 top-1/2 -translate-y-1/2",
+            position === 'right' && "-right-1.5 top-1/2 -translate-y-1/2",
+            position === 'top' && "-top-1.5 left-1/2 -translate-x-1/2",
+            position === 'bottom' && "-bottom-1.5 left-1/2 -translate-x-1/2",
+        )} />
+    );
 
     return (
         <div 
-            className={cn(
-                "absolute cursor-pointer transition-all",
-                isSelected ? "z-10" : "z-0"
-            )}
+            className="absolute cursor-pointer transition-all"
             style={{ top: node.position.y, left: node.position.x }}
             onClick={() => onSelectNode(node.id)}
         >
             <Card className={cn(
-                "w-64 hover:shadow-xl hover:-translate-y-1",
+                "w-64 hover:shadow-xl hover:-translate-y-1 bg-card",
                 isSelected && "ring-2 ring-primary shadow-2xl"
             )}>
                 <CardHeader className="flex flex-row items-center gap-3 p-3">
@@ -70,6 +106,14 @@ const NodeComponent = ({ node, onSelectNode, isSelected }: { node: Node; onSelec
                     <CardTitle className="text-sm font-medium">{node.data.label}</CardTitle>
                 </CardHeader>
             </Card>
+            {node.type !== 'start' && <Handle position="left" />}
+            <Handle position="right" />
+            {node.type === 'condition' && (
+                <>
+                    <Handle position="top" />
+                    <Handle position="bottom" />
+                </>
+            )}
         </div>
     );
 };
@@ -78,7 +122,7 @@ const BlockPalette = ({ onAddNode }: { onAddNode: (type: NodeType) => void }) =>
     <Card>
         <CardHeader>
             <CardTitle>Blocks</CardTitle>
-            <CardDescription>Drag or click to add blocks to the canvas.</CardDescription>
+            <CardDescription>Click to add blocks to the canvas.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
             {blockTypes.map(({ type, label, icon: Icon }) => (
@@ -107,111 +151,59 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
         updateNodeData(selectedNode.id, { [field]: value });
     };
 
-    const handleButtonChange = (index: number, value: string) => {
-        const newButtons = [...(selectedNode.data.buttons || [])];
-        newButtons[index] = { text: value };
-        handleDataChange('buttons', newButtons);
-    };
-    
-    const addEmptyButton = () => {
-        const newButtons = [...(selectedNode.data.buttons || []), { text: '' }];
-        handleDataChange('buttons', newButtons);
-    };
-
-    const removeButton = (index: number) => {
-        const newButtons = (selectedNode.data.buttons || []).filter((_, i) => i !== index);
-        handleDataChange('buttons', newButtons);
-    };
-
     const renderProperties = () => {
         switch (selectedNode.type) {
             case 'start':
-                return <p className="text-sm text-muted-foreground">This is the starting point of your flow.</p>;
+                return <p className="text-sm text-muted-foreground">This is the starting point of your flow. Configure keywords or other triggers here.</p>;
             case 'text':
+                return <Textarea id="text-content" placeholder="Enter your message here..." value={selectedNode.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} className="h-32" />;
+            case 'image':
+                return <Input id="image-url" placeholder="https://example.com/image.png" value={selectedNode.data.imageUrl || ''} onChange={(e) => handleDataChange('imageUrl', e.target.value)} />;
+            case 'delay':
                 return (
-                    <div className="space-y-2">
-                        <Label htmlFor="text-content">Message Text</Label>
-                        <Textarea 
-                            id="text-content" 
-                            placeholder="Enter your message here..." 
-                            value={selectedNode.data.text || ''}
-                            onChange={(e) => handleDataChange('text', e.target.value)}
-                            className="h-32"
-                        />
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                             <Label htmlFor="delay-seconds">Delay (seconds)</Label>
+                             <Input id="delay-seconds" type="number" value={selectedNode.data.delaySeconds || 1} onChange={(e) => handleDataChange('delaySeconds', parseFloat(e.target.value))} />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Switch id="typing-indicator" checked={selectedNode.data.showTyping} onCheckedChange={(checked) => handleDataChange('showTyping', checked)} />
+                            <Label htmlFor="typing-indicator">Show typing indicator</Label>
+                        </div>
                     </div>
                 );
-            case 'buttons':
+            case 'input':
                  return (
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="buttons-text">Message Text</Label>
-                            <Textarea 
-                                id="buttons-text" 
-                                placeholder="What would you like to do?"
-                                value={selectedNode.data.text || ''}
-                                onChange={(e) => handleDataChange('text', e.target.value)}
-                                className="h-24"
-                            />
+                            <Label htmlFor="input-text">Question to Ask</Label>
+                            <Textarea id="input-text" placeholder="e.g., What is your name?" value={selectedNode.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} />
                         </div>
-                        <div className="space-y-2">
-                            <Label>Buttons</Label>
-                            {(selectedNode.data.buttons || []).map((btn, index) => (
-                                <div key={index} className="flex items-center gap-2">
-                                    <Input 
-                                        placeholder={`Button ${index + 1}`} 
-                                        value={btn.text}
-                                        onChange={(e) => handleButtonChange(index, e.target.value)}
-                                    />
-                                    <Button variant="ghost" size="icon" onClick={() => removeButton(index)}>
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                </div>
-                            ))}
-                            <Button variant="outline" size="sm" onClick={addEmptyButton}>
-                                <Plus className="mr-2 h-4 w-4" /> Add Button
-                            </Button>
+                         <div className="space-y-2">
+                             <Label htmlFor="input-variable">Save Answer to Variable</Label>
+                             <Input id="input-variable" placeholder="e.g., user_name" value={selectedNode.data.variableToSave || ''} onChange={(e) => handleDataChange('variableToSave', e.target.value)} />
                         </div>
                     </div>
-                );
-            case 'image':
-                 return (
-                    <div className="space-y-2">
-                        <Label htmlFor="image-url">Image URL</Label>
-                        <Input 
-                            id="image-url" 
-                            placeholder="https://example.com/image.png"
-                            value={selectedNode.data.imageUrl || ''}
-                            onChange={(e) => handleDataChange('imageUrl', e.target.value)}
-                        />
-                    </div>
-                );
-            case 'condition':
+                 );
+             case 'api':
                 return (
-                    <div className="space-y-2">
-                        <Label htmlFor="condition-logic">Condition</Label>
-                        <Textarea 
-                            id="condition-logic"
-                            placeholder="e.g., last_user_message CONTAINS 'price'"
-                            value={selectedNode.data.condition || ''}
-                            onChange={(e) => handleDataChange('condition', e.target.value)}
-                            className="h-24"
-                        />
-                    </div>
-                );
-            case 'webhook':
-                 return (
-                    <div className="space-y-2">
-                        <Label htmlFor="webhook-url">Webhook URL</Label>
-                        <Input 
-                            id="webhook-url" 
-                            placeholder="https://api.example.com/data"
-                            value={selectedNode.data.url || ''}
-                            onChange={(e) => handleDataChange('url', e.target.value)}
-                        />
-                    </div>
-                );
+                    <Tabs defaultValue="request">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="request">Request</TabsTrigger>
+                            <TabsTrigger value="response">Response</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="request" className="space-y-4 pt-2">
+                             <Input placeholder="https://api.example.com" value={selectedNode.data.apiRequest?.url || ''} />
+                             <Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={selectedNode.data.apiRequest?.body || ''} />
+                        </TabsContent>
+                        <TabsContent value="response" className="space-y-4 pt-2">
+                            <Label htmlFor="api-variable">Save Response to Variable</Label>
+                            <Input id="api-variable" placeholder="e.g., api_response" value={selectedNode.data.apiRequest?.responseVariable || ''} />
+                        </TabsContent>
+                    </Tabs>
+                )
             default:
-                return null;
+                return <p className="text-sm text-muted-foreground italic">No properties to configure for this block type yet.</p>;
         }
     };
 
@@ -224,11 +216,7 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
             <CardContent className="space-y-4 flex-1 overflow-y-auto">
                 <div className="space-y-2">
                     <Label htmlFor="node-label">Block Label</Label>
-                    <Input 
-                        id="node-label" 
-                        value={selectedNode.data.label || ''}
-                        onChange={(e) => handleDataChange('label', e.target.value)}
-                    />
+                    <Input id="node-label" value={selectedNode.data.label || ''} onChange={(e) => handleDataChange('label', e.target.value)} />
                 </div>
                 <Separator />
                 {renderProperties()}
@@ -261,7 +249,10 @@ export default function FlowBuilderPage() {
         const newNode: Node = {
             id: `node-${type}-${Date.now()}`,
             type,
-            data: { label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}` },
+            data: { 
+                label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+                apiRequest: { method: 'GET', url: '', headers: [], body: '', responseVariable: '' }
+            },
             position: { x: Math.random() * 400 + 200, y: Math.random() * 200 + 50 },
         };
         setNodes(prev => [...prev, newNode]);
@@ -290,7 +281,7 @@ export default function FlowBuilderPage() {
     const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
 
     return (
-        <div className="flex flex-col h-[calc(100vh-150px)] gap-4">
+        <div className="flex flex-col h-[calc(100vh-120px)] gap-4">
             <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline">Flow Builder</h1>
@@ -301,18 +292,21 @@ export default function FlowBuilderPage() {
                     />
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline">Test Flow</Button>
+                    <Button variant="outline">
+                        <Play className="mr-2 h-4 w-4" />
+                        Test Flow
+                    </Button>
                     <Button onClick={saveFlow}>
                         <Save className="mr-2 h-4 w-4" />
-                        Save Flow
+                        Save & Publish
                     </Button>
                 </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 min-h-0">
-                <div className="md:col-span-2">
+                <div className="md:col-span-2 lg:col-span-2">
                     <BlockPalette onAddNode={addNode} />
                 </div>
-                <div className="md:col-span-7">
+                <div className="md:col-span-7 lg:col-span-7">
                     <Card className="h-full">
                         <ScrollArea className="h-full">
                             <div className="relative h-[80vh]">
@@ -328,7 +322,7 @@ export default function FlowBuilderPage() {
                         </ScrollArea>
                     </Card>
                 </div>
-                <div className="md:col-span-3">
+                <div className="md:col-span-3 lg:col-span-3">
                     <PropertiesPanel 
                         selectedNode={selectedNode}
                         updateNodeData={updateNodeData}
