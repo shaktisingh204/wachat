@@ -4,7 +4,7 @@
 import { revalidatePath } from 'next/cache';
 import { Db, ObjectId, WithId } from 'mongodb';
 
-async function processStatuses(db: Db, statuses: any[]) {
+export async function processStatuses(db: Db, statuses: any[]) {
     if (!statuses || !Array.isArray(statuses) || statuses.length === 0) {
         return;
     }
