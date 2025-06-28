@@ -139,14 +139,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </Sidebar>
       <SidebarInset className="flex flex-col">
         <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
-          <SidebarTrigger className="md:hidden" />
-          <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
-              <Briefcase className="h-4 w-4" />
-              {!isClient ? (
-                  <Skeleton className="h-4 w-32" />
-              ) : (
-                  <span>{activeProjectName}</span>
-              )}
+          <div className="flex items-center gap-4">
+            <SidebarTrigger />
+            <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
+                <Briefcase className="h-4 w-4" />
+                {!isClient ? (
+                    <Skeleton className="h-4 w-32" />
+                ) : (
+                    <span>{activeProjectName}</span>
+                )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <DropdownMenu>

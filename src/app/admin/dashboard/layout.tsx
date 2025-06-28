@@ -50,7 +50,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
           <SidebarMenu>
             {menuItems.map((item) => (
               <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)}>
+                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                   <Link href={item.href}>
                     <item.icon className="h-4 w-4" />
                     <span>{item.label}</span>
@@ -63,7 +63,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={pathname === '/admin/dashboard/settings'}>
+              <SidebarMenuButton asChild isActive={pathname === '/admin/dashboard/settings'} tooltip="Settings">
                 <Link href="/admin/dashboard/settings">
                   <Settings className="h-4 w-4" />
                   <span>Settings</span>
@@ -71,7 +71,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
+              <SidebarMenuButton asChild tooltip="Logout">
                 <Link href="/">
                   <LogOut className="h-4 w-4" />
                   <span>Logout</span>
@@ -83,8 +83,10 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
       </Sidebar>
       <SidebarInset className="flex flex-col">
         <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
-          <SidebarTrigger className="md:hidden" />
-          <div className="text-sm font-semibold text-primary">Admin Panel</div>
+          <div className="flex items-center gap-4">
+            <SidebarTrigger />
+            <div className="text-sm font-semibold text-primary">Admin Panel</div>
+          </div>
           <div className="flex items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
