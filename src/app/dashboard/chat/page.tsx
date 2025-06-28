@@ -17,7 +17,7 @@ function ChatPageSkeleton() {
 // This is a server component that uses Suspense to handle client-side parameter reading
 export default function ChatPage() {
     return (
-        <div className="h-full flex flex-col">
+        <div className="h-full flex flex-col flex-1 min-h-0">
             <Suspense fallback={<ChatPageSkeleton />}>
                 <ChatClient />
             </Suspense>

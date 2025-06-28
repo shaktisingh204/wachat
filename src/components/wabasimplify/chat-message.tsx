@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { AnyMessage, OutgoingMessage, handleTranslateMessage } from '@/app/actions';
 import { cn } from '@/lib/utils';
-import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, Video as VideoIcon, XCircle, Languages, LoaderCircle } from 'lucide-react';
+import { Check, CheckCheck, Clock, Download, File as FileIcon, Video as VideoIcon, XCircle, Languages, LoaderCircle } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -62,7 +62,7 @@ function MediaContent({ message }: { message: AnyMessage }) {
     const type = message.type;
     const media = message.content[type as keyof typeof message.content] as any;
 
-    if (!media) return <div className="text-sm text-muted-foreground italic">[Unsupported media]</div>;
+    if (!media && type !== 'unsupported') return <div className="text-sm text-muted-foreground italic">[Unsupported message content]</div>;
     
     // For outgoing media, the link isn't immediately available, so we use a placeholder logic.
     // For incoming, the link needs to be requested from Meta via another API call not implemented here.
@@ -102,9 +102,49 @@ function MediaContent({ message }: { message: AnyMessage }) {
             </a>
         );
     }
+
+    if (type === 'audio') {
+        return <div className="text-sm text-muted-foreground italic">[Audio message]</div>;
+    }
+
+    if (type === 'sticker') {
+        return <div className="text-sm text-muted-foreground italic">[Sticker]</div>;
+    }
     
-    return <div className="text-sm text-muted-foreground italic">[{type} media]</div>;
+    return <div className="text-sm text-muted-foreground italic">[{type} message]</div>;
 }
+
+const MessageBody = ({ message, isOutgoing }: { message: AnyMessage; isOutgoing: boolean }) => {
+    // Outgoing message from bot with buttons
+    if (isOutgoing && message.type === 'interactive' && message.content.interactive?.type === 'button') {
+        const interactive = message.content.interactive;
+        return (
+            <div>
+                <p className="whitespace-pre-wrap">{interactive.body.text}</p>
+                <div className="mt-2 pt-2 border-t border-primary-foreground/20 space-y-1">
+                    {interactive.action.buttons.map((btn: any, index: number) => (
+                        <div key={index} className="text-center bg-primary-foreground/10 rounded-md py-1.5 text-sm font-medium">
+                            {btn.reply.title}
+                        </div>
+                    ))}
+                </div>
+            </div>
+        );
+    }
+    
+    // Incoming interactive reply
+    if (!isOutgoing && message.type === 'interactive' && message.content.interactive?.button_reply?.title) {
+        return <p className="whitespace-pre-wrap">{message.content.interactive.button_reply.title}</p>;
+    }
+    
+    // Standard text message
+    if (message.type === 'text' && message.content.text?.body) {
+        return <p className="whitespace-pre-wrap">{message.content.text.body}</p>;
+    }
+
+    // Media and other types
+    return <MediaContent message={message} />;
+};
 
 
 export function ChatMessage({ message }: ChatMessageProps) {
@@ -163,13 +203,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
                         : "bg-muted"
                 )}
             >
-                {message.type === 'text' && message.content.text ? (
-                     <p className="whitespace-pre-wrap">{message.content.text.body}</p>
-                ) : message.type === 'interactive' && message.content.interactive?.button_reply?.title ? (
-                     <p className="whitespace-pre-wrap">{message.content.interactive.button_reply.title}</p>
-                ) : (
-                    <MediaContent message={message} />
-                )}
+                <MessageBody message={message} isOutgoing={isOutgoing} />
 
                 {translatedText && (
                     <>
