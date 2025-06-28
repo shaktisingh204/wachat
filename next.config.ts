@@ -16,6 +16,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'wawachat.s3.us-east-1.amazonaws.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
