@@ -21,82 +21,73 @@ async function processStatuses(db: Db, statuses: any[]) {
         return;
     }
 
-    const outgoingMessagesOps: any[] = [];
-    const broadcastContactsOps: any[] = [];
-    
     const wamids = statuses.map(s => s.id).filter(Boolean);
     if (wamids.length === 0) return;
-    
-    const updateCounters: Record<string, { delivered: number; read: number }> = {};
-    const contacts = await db.collection('broadcast_contacts').find({ messageId: { $in: wamids } }, { projection: { broadcastId: 1, messageId: 1 } }).toArray();
-    const wamidToBroadcastIdMap = new Map(contacts.map(c => [c.messageId, c.broadcastId.toString()]));
 
-
+    // --- Handle Live Chat Statuses ---
+    const outgoingMessagesOps: any[] = [];
     statuses.forEach((status: any) => {
         if (!status || !status.id) return;
-
-        const statusUpper = status.status.toUpperCase();
-        let errorMsg;
-        if (status.status === 'failed' && status.errors && status.errors.length > 0) {
-            const error = status.errors[0];
-            errorMsg = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
-        }
-
         const outgoingUpdatePayload: any = {
             status: status.status,
             [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000)
         };
-        if (errorMsg) outgoingUpdatePayload.error = errorMsg;
-        
+        if (status.status === 'failed' && status.errors && status.errors.length > 0) {
+            const error = status.errors[0];
+            outgoingUpdatePayload.error = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
+        }
         outgoingMessagesOps.push({
             updateOne: {
                 filter: { wamid: status.id },
                 update: { $set: outgoingUpdatePayload }
             }
         });
-        
-        const broadcastUpdatePayload: any = {
-            status: statusUpper
-        };
-        if (errorMsg) {
-             broadcastUpdatePayload.error = errorMsg;
-             broadcastUpdatePayload.status = 'FAILED';
-        }
-
-        broadcastContactsOps.push({
-            updateOne: {
-                filter: { messageId: status.id },
-                update: { $set: broadcastUpdatePayload }
-            }
-        });
-
-        const broadcastId = wamidToBroadcastIdMap.get(status.id);
-        if (broadcastId) {
-            if (!updateCounters[broadcastId]) {
-                updateCounters[broadcastId] = { delivered: 0, read: 0 };
-            }
-            if (status.status === 'delivered') {
-                updateCounters[broadcastId].delivered++;
-            } else if (status.status === 'read') {
-                updateCounters[broadcastId].read++;
-            }
-        }
     });
-    
-    const broadcastUpdateOps = Object.entries(updateCounters).map(([broadcastId, counts]) => {
-        return {
-            updateOne: {
-                filter: { _id: new ObjectId(broadcastId) },
-                update: {
-                    $inc: {
-                        deliveredCount: counts.delivered,
-                        readCount: counts.read
-                    }
+
+    // --- Handle Broadcast Statuses ---
+    const affectedBroadcastContacts = await db.collection('broadcast_contacts').find({ messageId: { $in: wamids } }).toArray();
+    const broadcastContactsOps: any[] = [];
+    const broadcastCounters: Record<string, { delivered: number; read: number }> = {};
+
+    statuses.forEach((status: any) => {
+        if (!status || !status.id) return;
+
+        const contactToUpdate = affectedBroadcastContacts.find(c => c.messageId === status.id);
+        if (contactToUpdate) {
+            const statusUpper = status.status.toUpperCase();
+            const broadcastUpdatePayload: any = { status: statusUpper };
+
+            if (statusUpper === 'FAILED' && status.errors && status.errors.length > 0) {
+                const error = status.errors[0];
+                broadcastUpdatePayload.error = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
+            }
+
+            broadcastContactsOps.push({
+                updateOne: {
+                    filter: { _id: contactToUpdate._id },
+                    update: { $set: broadcastUpdatePayload }
                 }
+            });
+
+            const broadcastIdStr = contactToUpdate.broadcastId.toString();
+            if (!broadcastCounters[broadcastIdStr]) {
+                broadcastCounters[broadcastIdStr] = { delivered: 0, read: 0 };
             }
-        };
+
+            if (status.status === 'delivered') broadcastCounters[broadcastIdStr].delivered++;
+            if (status.status === 'read') broadcastCounters[broadcastIdStr].read++;
+        }
     });
 
+    const broadcastUpdateOps = Object.entries(broadcastCounters).map(([broadcastId, counts]) => ({
+        updateOne: {
+            filter: { _id: new ObjectId(broadcastId) },
+            update: { $inc: { deliveredCount: counts.delivered, readCount: counts.read } }
+        }
+    }));
+
+
+    // --- Execute DB Updates ---
     const promises = [];
     if (outgoingMessagesOps.length > 0) {
         promises.push(
