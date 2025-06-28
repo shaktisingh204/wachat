@@ -27,8 +27,10 @@ import {
     Server,
     Variable,
     File,
-    LoaderCircle
+    LoaderCircle,
+    BookOpen,
 } from 'lucide-react';
+import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
@@ -79,19 +81,21 @@ const NodeComponent = ({
 }) => {
     const BlockIcon = [...blockTypes, {type: 'start', label: 'Start', icon: Play}].find(b => b.type === node.type)?.icon || MessageSquare;
 
-    const Handle = ({ position, id, style }: { position: 'left' | 'right' | 'top' | 'bottom', id: string, style?: React.CSSProperties }) => (
+    const Handle = ({ position, id, style, children }: { position: 'left' | 'right' | 'top' | 'bottom', id: string, style?: React.CSSProperties, children?: React.ReactNode }) => (
         <div 
             id={id}
             style={style}
             data-handle-pos={position}
             className={cn(
-                "absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10",
+                "absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 flex items-center justify-center",
                 position === 'left' && "-left-2 top-1/2 -translate-y-1/2",
                 position === 'right' && "-right-2 top-1/2 -translate-y-1/2",
             )} 
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); onHandleClick(e, node.id, id); }}
-        />
+        >
+            {children}
+        </div>
     );
 
     return (
@@ -117,6 +121,15 @@ const NodeComponent = ({
                         <div className="flex justify-between items-center"><span>No</span></div>
                     </CardContent>
                 )}
+                 {node.type === 'buttons' && (
+                    <CardContent className="p-3 pt-0 text-xs text-muted-foreground space-y-1">
+                        {(node.data.buttons || []).map((btn: ButtonConfig, index: number) => (
+                           <div key={btn.id || index} className="flex justify-between items-center">
+                               <span>{btn.text || `Button ${index + 1}`}</span>
+                           </div>
+                        ))}
+                    </CardContent>
+                )}
             </Card>
 
             {node.type !== 'start' && <Handle position="left" id={`${node.id}-input`} />}
@@ -126,6 +139,12 @@ const NodeComponent = ({
                     <Handle position="right" id={`${node.id}-output-yes`} style={{ top: '33.33%' }} />
                     <Handle position="right" id={`${node.id}-output-no`} style={{ top: '66.67%' }} />
                 </>
+            ) : node.type === 'buttons' ? (
+                (node.data.buttons || []).map((btn: ButtonConfig, index: number) => {
+                    const totalButtons = node.data.buttons.length;
+                    const topPosition = totalButtons > 1 ? `${(100 / (totalButtons + 1)) * (index + 1)}%` : '50%';
+                    return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition }} />;
+                })
             ) : (
                 node.type !== 'addToCart' && <Handle position="right" id={`${node.id}-output-main`} />
             )}
@@ -355,13 +374,21 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
     const x = node.position.x;
     const y = node.position.y;
     
-    const nodeHeight = node.type === 'condition' ? 80 : 48; // A bit more consistent height
+    // Consistent height for simple nodes
+    let nodeHeight = 60; 
+    
+    if (node.type === 'condition') nodeHeight = 80;
+    if (node.type === 'buttons') {
+        const buttonCount = node.data.buttons?.length || 1;
+        nodeHeight = 60 + (buttonCount * 20); // Base height + height per button
+    }
+
 
     if (handleId.endsWith('-input')) {
-        return { x: x, y: y + nodeHeight / 2 };
+        return { x: x, y: y + 30 }; // Consistent input position
     }
     if (handleId.endsWith('-output-main')) {
-        return { x: x + NODE_WIDTH, y: y + nodeHeight / 2 };
+        return { x: x + NODE_WIDTH, y: y + 30 };
     }
     if (handleId.endsWith('-output-yes')) {
         return { x: x + NODE_WIDTH, y: y + nodeHeight * (1/3) };
@@ -369,10 +396,16 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
     if (handleId.endsWith('-output-no')) {
         return { x: x + NODE_WIDTH, y: y + nodeHeight * (2/3) };
     }
+    if (handleId.includes('-btn-')) {
+        const buttonIndex = parseInt(handleId.split('-btn-')[1], 10);
+        const totalButtons = node.data.buttons.length;
+        const topPosition = totalButtons > 1 ? (60 + (nodeHeight - 60) / (totalButtons + 1) * (buttonIndex + 1)) : 60 + (nodeHeight - 60) / 2;
+        return { x: x + NODE_WIDTH, y: y + topPosition };
+    }
     
     // Fallback for generic output handles from older data structures
     if (handleId.includes('output')) {
-        return { x: x + NODE_WIDTH, y: y + nodeHeight / 2 };
+        return { x: x + NODE_WIDTH, y: y + 30 };
     }
     
     return null;
@@ -560,7 +593,7 @@ export default function FlowBuilderPage() {
 
         if (!canvasRef.current) return;
         
-        const isOutputHandle = handleId.includes('output');
+        const isOutputHandle = handleId.includes('output') || handleId.includes('-btn-');
 
         if (isOutputHandle) {
             const handleElement = document.getElementById(handleId);
@@ -622,6 +655,12 @@ export default function FlowBuilderPage() {
                         />
                     </div>
                     <div className="flex items-center gap-2">
+                        <Button asChild variant="outline">
+                            <Link href="/dashboard/flow-builder/docs">
+                                <BookOpen className="mr-2 h-4 w-4" />
+                                View Docs
+                            </Link>
+                        </Button>
                         <Button variant="outline" onClick={() => setIsTestFlowOpen(true)}>
                             <Play className="mr-2 h-4 w-4" />
                             Test Flow

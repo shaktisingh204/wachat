@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -67,7 +66,7 @@ async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<C
         if (caption) messagePayload.image.caption = caption;
         const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
-        if (!wamid) throw new Error('Message sent but no WAMID was returned from Meta.');
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
         const now = new Date();
         await db.collection('outgoing_messages').insertOne({
@@ -182,20 +181,30 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
 
         case 'condition':
             const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
+            const rawCheckValue = node.data.value || '';
+            const interpolatedCheckValue = interpolate(rawCheckValue, contact.activeFlow.variables);
+
             const variableValue = contact.activeFlow.variables[variableName] || '';
-            const checkValue = node.data.value;
             const operator = node.data.operator;
             let conditionMet = false;
+
             switch(operator) {
-                case 'equals': conditionMet = String(variableValue) === checkValue; break;
-                case 'not_equals': conditionMet = String(variableValue) !== checkValue; break;
-                case 'contains': conditionMet = String(variableValue).includes(checkValue); break;
-                case 'greater_than': conditionMet = !isNaN(Number(variableValue)) && !isNaN(Number(checkValue)) && Number(variableValue) > Number(checkValue); break;
-                case 'less_than': conditionMet = !isNaN(Number(variableValue)) && !isNaN(Number(checkValue)) && Number(variableValue) < Number(checkValue); break;
+                case 'equals': conditionMet = String(variableValue) === String(interpolatedCheckValue); break;
+                case 'not_equals': conditionMet = String(variableValue) !== String(interpolatedCheckValue); break;
+                case 'contains': conditionMet = String(variableValue).includes(String(interpolatedCheckValue)); break;
+                case 'greater_than': conditionMet = !isNaN(Number(variableValue)) && !isNaN(Number(interpolatedCheckValue)) && Number(variableValue) > Number(interpolatedCheckValue); break;
+                case 'less_than': conditionMet = !isNaN(Number(variableValue)) && !isNaN(Number(interpolatedCheckValue)) && Number(variableValue) < Number(interpolatedCheckValue); break;
             }
-            const handle = conditionMet ? `${nodeId}-output-yes` : `${nodeId}-output-no`;
+
+            console.log(`Flow Condition Check: Var='${variableName}' ('${variableValue}') | Op='${operator}' | Val='${interpolatedCheckValue}' | Result=${conditionMet}`);
+
+            const handle = conditionMet ? `${node.id}-output-yes` : `${node.id}-output-no`;
             edge = flow.edges.find(e => e.sourceHandle === handle);
-            if (edge) nextNodeId = edge.target;
+            if (edge) {
+                 nextNodeId = edge.target;
+            } else {
+                console.log(`Flow: No edge found for condition result '${conditionMet ? 'yes' : 'no'}' from node ${node.id}`);
+            }
             break;
         
         case 'api':
