@@ -75,7 +75,7 @@ export function WebhookLogs() {
 
     const getEventField = (log: WithId<WebhookLog>): string => {
         try {
-            return log.payload.entry?.[0]?.changes?.[0]?.field || 'N/A';
+            return log.payload?.entry?.[0]?.changes?.[0]?.field || 'N/A';
         } catch {
             return 'N/A';
         }
@@ -83,21 +83,21 @@ export function WebhookLogs() {
     
     const getEventSummary = (log: WithId<WebhookLog>): string => {
         try {
-            const change = log.payload.entry?.[0]?.changes?.[0];
+            const change = log?.payload?.entry?.[0]?.changes?.[0];
             if (!change) return 'No changes found';
 
             const value = change.value;
             const field = change.field;
 
-            if (!value) return 'No value details';
+            if (!value) return `Event: ${field} (no value)`;
 
             switch(field) {
                 case 'messages':
-                    if (value.statuses && value.statuses.length > 0) {
+                    if (value.statuses?.length > 0) {
                         const status = value.statuses[0];
-                        return `Status: ${status.status} for message to ${status.recipient_id}.`;
+                        return `Status: ${status.status} to ${status.recipient_id}`;
                     }
-                    if (value.messages && value.messages.length > 0) {
+                    if (value.messages?.length > 0) {
                         const message = value.messages[0];
                         const from = message.from || 'unknown';
                         const type = message.type || 'unknown';
@@ -108,7 +108,7 @@ export function WebhookLogs() {
                         }
                         return `Message from ${from} (${type})`;
                     }
-                    return 'Message event with unknown structure';
+                    return 'Message event with unknown content';
                 case 'account_review_update':
                     return `Account review decision: ${value.decision}`;
                 case 'message_template_status_update':

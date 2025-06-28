@@ -24,14 +24,17 @@ async function processStatuses(db: Db, statuses: any[]) {
     const outgoingMessagesOps: any[] = [];
     const broadcastContactsOps: any[] = [];
     
-    // New logic to efficiently update broadcast counters
-    const wamids = statuses.map(s => s.id);
+    const wamids = statuses.map(s => s.id).filter(Boolean);
+    if (wamids.length === 0) return;
+    
     const updateCounters: Record<string, { delivered: number; read: number }> = {};
     const contacts = await db.collection('broadcast_contacts').find({ messageId: { $in: wamids } }, { projection: { broadcastId: 1, messageId: 1 } }).toArray();
     const wamidToBroadcastIdMap = new Map(contacts.map(c => [c.messageId, c.broadcastId.toString()]));
 
 
     statuses.forEach((status: any) => {
+        if (!status || !status.id) return;
+
         const statusUpper = status.status.toUpperCase();
         let errorMsg;
         if (status.status === 'failed' && status.errors && status.errors.length > 0) {
@@ -39,7 +42,6 @@ async function processStatuses(db: Db, statuses: any[]) {
             errorMsg = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
         }
 
-        // Operation for live chat messages
         const outgoingUpdatePayload: any = {
             status: status.status,
             [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000)
@@ -53,13 +55,11 @@ async function processStatuses(db: Db, statuses: any[]) {
             }
         });
         
-        // Operation for broadcast contacts
         const broadcastUpdatePayload: any = {
             status: statusUpper
         };
         if (errorMsg) {
              broadcastUpdatePayload.error = errorMsg;
-             // Also ensure the status is FAILED for broadcasts if it's a failure event
              broadcastUpdatePayload.status = 'FAILED';
         }
 
@@ -70,7 +70,6 @@ async function processStatuses(db: Db, statuses: any[]) {
             }
         });
 
-        // New logic to increment counters for broadcasts
         const broadcastId = wamidToBroadcastIdMap.get(status.id);
         if (broadcastId) {
             if (!updateCounters[broadcastId]) {
@@ -182,9 +181,9 @@ async function processSingleWebhook(db: Db, payload: any) {
         return;
     }
 
-    for (const entry of payload.entry) {
+    for (const entry of payload.entry || []) {
         const wabaId = entry.id;
-        for (const change of entry.changes) {
+        for (const change of entry.changes || []) {
             const value = change.value;
             if (!value) continue;
 
@@ -205,10 +204,9 @@ async function processSingleWebhook(db: Db, payload: any) {
 
             switch (change.field) {
                 case 'messages': {
-                    // Differentiate between incoming messages and status updates
-                    if (value.statuses) {
+                    if (value.statuses && Array.isArray(value.statuses) && value.statuses.length > 0) {
                         await processStatuses(db, value.statuses);
-                    } else if (value.messages && project) {
+                    } else if (value.messages && Array.isArray(value.messages) && value.messages.length > 0 && project) {
                         const message = value.messages[0];
                         const contactProfile = value.contacts[0];
                         const senderWaId = message.from;
