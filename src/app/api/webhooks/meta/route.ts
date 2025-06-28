@@ -300,7 +300,11 @@ export async function POST(request: NextRequest) {
             );
 
             if (!project && !['message_template_quality_update', 'phone_number_name_update', 'message_template_status_update', 'template_status_update'].includes(change.field)) {
-                continue;
+                // For most events, if we can't find a project, we can't process it.
+                // The 'messages' case below has special handling for auto-creation.
+                if (change.field !== 'messages') {
+                    continue;
+                }
             }
             
             switch (change.field) {
@@ -309,12 +313,19 @@ export async function POST(request: NextRequest) {
                         break;
                     }
 
-                    const projectForMessage = await db.collection('projects').findOne(
+                    let projectForMessage = await db.collection('projects').findOne(
                         { 'phoneNumbers.id': value.metadata.phone_number_id },
                         { projection: { _id: 1, name: 1, wabaId: 1 } }
                     );
 
                     if (!projectForMessage) {
+                        // Project not found by phone number ID. Let's try to find or create it using the WABA ID.
+                        projectForMessage = await findOrCreateProjectByWabaId(db, wabaId);
+                    }
+
+                    if (!projectForMessage) {
+                        // If it's still not found (e.g. Meta API call failed), log and break.
+                        console.error(`Webhook for 'messages': Could not find or create a project for WABA ID ${wabaId}.`);
                         break;
                     }
                     
