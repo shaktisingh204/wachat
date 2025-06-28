@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -56,6 +55,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setActiveProjectName(name || 'No Project Selected');
   }, []);
 
+  const hideNotificationFeed =
+    pathname.startsWith('/dashboard/flow-builder') ||
+    pathname.startsWith('/dashboard/auto-reply');
 
   return (
     <SidebarProvider>
@@ -147,9 +149,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
                 {children}
             </main>
+            {!hideNotificationFeed && (
              <aside className="w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0">
                 <LiveNotificationFeed />
             </aside>
+            )}
           </div>
         </SidebarInset>
       </div>
