@@ -23,6 +23,16 @@ function interpolate(text: string, variables: Record<string, any>): string {
     });
 }
 
+/**
+ * Safely gets a value from a nested object using a dot-notation path.
+ * Supports array access with bracket notation, e.g., 'items[0].name'.
+ */
+function getValueFromPath(obj: any, path: string): any {
+    if (!path) return undefined;
+    const keys = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+    return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
+}
+
 
 // --- Flow Action Functions ---
 
@@ -218,9 +228,22 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                     data: node.data.apiRequest?.body ? JSON.parse(interpolate(node.data.apiRequest.body, contact.activeFlow.variables)) : undefined,
                     headers: node.data.apiRequest?.headers ? JSON.parse(interpolate(node.data.apiRequest.headers, contact.activeFlow.variables)) : undefined,
                 });
-                if (node.data.apiRequest?.responseVariable) {
-                    contact.activeFlow.variables[node.data.apiRequest.responseVariable] = response.data;
+                
+                const mappings = node.data.apiRequest?.responseMappings;
+                if (Array.isArray(mappings)) {
+                    for (const mapping of mappings) {
+                        if (mapping.variable && mapping.path) {
+                            const value = getValueFromPath(response.data, mapping.path);
+                            if (value !== undefined) {
+                                contact.activeFlow.variables[mapping.variable] = value;
+                                console.log(`Flow: API Response - Set variable '${mapping.variable}' to '${JSON.stringify(value)}'`);
+                            } else {
+                                console.log(`Flow: API Response - Path '${mapping.path}' not found in response for variable '${mapping.variable}'.`);
+                            }
+                        }
+                    }
                 }
+
             } catch (e: any) {
                 console.error(`Flow: API call failed for node ${node.id}:`, e.message);
             }

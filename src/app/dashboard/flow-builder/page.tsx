@@ -197,6 +197,22 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
         handleDataChange('buttons', newButtons);
     };
 
+    const handleMappingChange = (index: number, field: 'variable' | 'path', value: string) => {
+        const mappings = [...(selectedNode.data.apiRequest?.responseMappings || [])];
+        mappings[index] = { ...mappings[index], [field]: value };
+        handleApiChange('responseMappings', mappings);
+    };
+
+    const addMapping = () => {
+        const mappings = [...(selectedNode.data.apiRequest?.responseMappings || []), { variable: '', path: '' }];
+        handleApiChange('responseMappings', mappings);
+    };
+
+    const removeMapping = (index: number) => {
+        const mappings = (selectedNode.data.apiRequest?.responseMappings || []).filter((_: any, i: number) => i !== index);
+        handleApiChange('responseMappings', mappings);
+    };
+
 
     const renderProperties = () => {
         switch (selectedNode.type) {
@@ -324,9 +340,35 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                              <Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={selectedNode.data.apiRequest?.body || ''} onChange={(e) => handleApiChange('body', e.target.value)} />
                         </TabsContent>
                         <TabsContent value="response" className="space-y-4 pt-2">
-                            <Label htmlFor="api-variable">Save Response to Variable</Label>
-                            <Input id="api-variable" placeholder="e.g., api_response" value={selectedNode.data.apiRequest?.responseVariable || ''} onChange={(e) => handleApiChange('responseVariable', e.target.value)} />
-                            <p className="text-xs text-muted-foreground">e.g., to access a field, use {'{{api_response.data.name}}'}</p>
+                            <Label>Save Response to Variables</Label>
+                             <div className="space-y-3">
+                                {(selectedNode.data.apiRequest?.responseMappings || []).map((mapping: any, index: number) => (
+                                    <div key={index} className="p-2 border rounded-md space-y-2 relative">
+                                        <Button
+                                            type="button" variant="ghost" size="icon"
+                                            className="absolute top-1 right-1 h-6 w-6"
+                                            onClick={() => removeMapping(index)}
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                        <Input
+                                            placeholder="Variable Name (e.g. user_email)"
+                                            value={mapping.variable || ''}
+                                            onChange={(e) => handleMappingChange(index, 'variable', e.target.value)}
+                                        />
+                                        <Input
+                                            placeholder="Response Path (e.g. data.email)"
+                                            value={mapping.path || ''}
+                                            onChange={(e) => handleMappingChange(index, 'path', e.target.value)}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                            <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addMapping}>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Add Mapping
+                            </Button>
+                            <p className="text-xs text-muted-foreground">e.g., to access a field, use {'{{variable_name}}'}</p>
                         </TabsContent>
                     </Tabs>
                 );
@@ -493,7 +535,7 @@ export default function FlowBuilderPage() {
             type,
             data: { 
                 label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
-                apiRequest: { method: 'GET', url: '', headers: '', body: '', responseVariable: '' }
+                apiRequest: { method: 'GET', url: '', headers: '', body: '', responseMappings: [] }
             },
             position: { x: Math.random() * 400 + 200, y: Math.random() * 200 + 50 },
         };
