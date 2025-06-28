@@ -299,7 +299,7 @@ export async function POST(request: NextRequest) {
                 { projection: { _id: 1, name: 1, wabaId: 1, businessCapabilities: 1 } }
             );
 
-            if (!project && !['message_template_quality_update', 'phone_number_name_update', 'message_template_status_update', 'template_status_update'].includes(change.field)) {
+            if (!project && !['message_template_quality_update', 'phone_number_name_update', 'message_template_status_update', 'template_status_update', 'phone_number_quality_update'].includes(change.field)) {
                 // For most events, if we can't find a project, we can't process it.
                 // The 'messages' case below has special handling for auto-creation.
                 if (change.field !== 'messages') {
@@ -400,25 +400,44 @@ export async function POST(request: NextRequest) {
                     break;
                 }
                 
-                case 'phone_number_quality_update':
-                    if (!project) break;
+                case 'phone_number_quality_update': {
+                    let projectForUpdate = project;
+                    if (!projectForUpdate) {
+                        projectForUpdate = await findOrCreateProjectByWabaId(db, wabaId);
+                    }
+                    if (!projectForUpdate) break; // If still no project, then we can't proceed.
+
                     if (value.display_phone_number && value.event) {
                         const updatePayload: any = {};
                         if (value.current_limit) updatePayload['phoneNumbers.$.throughput.level'] = value.current_limit;
-                        const newQuality = value.event === 'FLAGGED' ? 'RED' : value.event === 'WARNED' ? 'YELLOW' : 'GREEN';
-                        updatePayload['phoneNumbers.$.quality_rating'] = newQuality;
-                        const notificationMessage = `For project '${project.name}', quality for ${value.display_phone_number} is now ${newQuality}. Throughput limit is ${value.current_limit || 'unchanged'}.`;
                         
-                        const result = await db.collection('projects').updateOne({ _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number }, { $set: updatePayload });
-                        if (result.modifiedCount > 0) {
-                            await db.collection('notifications').insertOne({
-                                projectId: project._id, wabaId: project.wabaId, message: notificationMessage,
-                                link: '/dashboard/numbers', isRead: false, createdAt: new Date(), eventType: change.field,
-                            });
-                            revalidatePath('/dashboard/numbers'); revalidatePath('/dashboard', 'layout');
-                        }
+                        let newQuality = 'UNKNOWN';
+                        const eventUpper = value.event.toUpperCase();
+                        if (eventUpper.includes('FLAGGED')) newQuality = 'RED';
+                        else if (eventUpper.includes('WARNED')) newQuality = 'YELLOW';
+                        else if (eventUpper.includes('GREEN') || eventUpper === 'ONBOARDING') newQuality = 'GREEN';
+                        
+                        updatePayload['phoneNumbers.$.quality_rating'] = newQuality;
+                        
+                        // Attempt to update the phone number if it exists in our records
+                        await db.collection('projects').updateOne(
+                            { _id: projectForUpdate._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                            { $set: updatePayload }
+                        );
+
+                        // Always create a notification
+                        const notificationMessage = `For project '${projectForUpdate.name}', quality for ${value.display_phone_number} is now ${newQuality}. Throughput limit is ${value.current_limit || 'unchanged'}.`;
+                        
+                        await db.collection('notifications').insertOne({
+                            projectId: projectForUpdate._id, wabaId: projectForUpdate.wabaId, message: notificationMessage,
+                            link: '/dashboard/numbers', isRead: false, createdAt: new Date(), eventType: change.field,
+                        });
+                        
+                        revalidatePath('/dashboard/numbers'); 
+                        revalidatePath('/dashboard', 'layout');
                     }
                     break;
+                }
                 
                 case 'phone_number_name_update': {
                     let projectForUpdate = project;
