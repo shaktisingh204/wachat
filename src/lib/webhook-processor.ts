@@ -14,7 +14,6 @@ async function processStatuses(db: Db, statuses: any[]) {
         return;
     }
 
-    // Fetch all contacts related to these status updates in a single query
     const contactsMap = new Map<string, WithId<any>>();
     const contactsCursor = db.collection('broadcast_contacts').find({ messageId: { $in: wamids } });
     for await (const contact of contactsCursor) {
@@ -32,7 +31,6 @@ async function processStatuses(db: Db, statuses: any[]) {
         const newStatus = (status.status || 'unknown').toUpperCase();
         const timestamp = new Date(parseInt(status.timestamp, 10) * 1000);
         
-        // --- Prepare Live Chat Update ---
         const liveChatUpdatePayload: any = {
             status: status.status,
             [`statusTimestamps.${status.status}`]: timestamp
@@ -48,10 +46,9 @@ async function processStatuses(db: Db, statuses: any[]) {
             }
         });
 
-        // --- Find corresponding broadcast contact from our pre-fetched map ---
         const contact = contactsMap.get(wamid);
         if (!contact) {
-            continue; // Not a broadcast message, skip to next status
+            continue; 
         }
         
         const broadcastIdStr = contact.broadcastId.toString();
@@ -59,52 +56,45 @@ async function processStatuses(db: Db, statuses: any[]) {
             broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0, failed: 0, success: 0 };
         }
 
-        const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, DELIVERED: 2, READ: 3 };
         const currentStatus = (contact.status || 'PENDING').toUpperCase();
 
         if (currentStatus === 'FAILED') {
-            continue; // Do not update a message that has already terminally failed.
+            continue; 
         }
 
-        // --- Prepare Broadcast Contact Update ---
         if (newStatus === 'FAILED') {
             const error = status.errors?.[0] || { title: 'Unknown Failure', code: 'N/A' };
             const errorString = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
             
             broadcastContactOps.push({
                 updateOne: {
-                    filter: { _id: contact._id, status: { $ne: 'FAILED' } }, // Prevent multiple failure updates
+                    filter: { _id: contact._id },
                     update: { $set: { status: 'FAILED', error: errorString } }
                 }
             });
-            // A message that failed was previously marked as SENT (successful send *from us*).
-            // So we decrement success and increment failed.
-            if (currentStatus !== 'FAILED') { // Only count failure once
-                if (currentStatus === 'SENT') {
-                    broadcastCounterUpdates[broadcastIdStr].success -= 1;
-                }
-                broadcastCounterUpdates[broadcastIdStr].failed += 1;
-            }
+            broadcastCounterUpdates[broadcastIdStr].success -= 1;
+            broadcastCounterUpdates[broadcastIdStr].failed += 1;
 
-        } else if (statusHierarchy[newStatus] !== undefined && statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
-            // Only update if it's a forward progression in status
-            broadcastContactOps.push({
-                updateOne: {
-                    filter: { _id: contact._id },
-                    update: { $set: { status: newStatus } }
-                }
-            });
+        } else {
+            const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, DELIVERED: 2, READ: 3 };
+            if (statusHierarchy[newStatus] !== undefined && statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
+                broadcastContactOps.push({
+                    updateOne: {
+                        filter: { _id: contact._id },
+                        update: { $set: { status: newStatus } }
+                    }
+                });
 
-            if (newStatus === 'DELIVERED') {
-                 broadcastCounterUpdates[broadcastIdStr].delivered += 1;
-            }
-            if (newStatus === 'READ') {
-                broadcastCounterUpdates[broadcastIdStr].read += 1;
+                if (newStatus === 'DELIVERED') {
+                     broadcastCounterUpdates[broadcastIdStr].delivered += 1;
+                }
+                if (newStatus === 'READ') {
+                    broadcastCounterUpdates[broadcastIdStr].read += 1;
+                }
             }
         }
     }
 
-    // --- Execute DB Updates ---
     const promises = [];
 
     if (liveChatOps.length > 0) {
@@ -137,7 +127,6 @@ async function processStatuses(db: Db, statuses: any[]) {
         await Promise.all(promises);
     }
     
-    // Revalidate paths if any relevant operations were performed
     if (liveChatOps.length > 0) revalidatePath('/dashboard/chat');
     if (broadcastContactOps.length > 0) {
         revalidatePath('/dashboard/broadcasts/[broadcastId]', 'page');
@@ -230,6 +219,7 @@ export async function processSingleWebhook(db: Db, payload: any) {
             switch (change.field) {
                 case 'messages': {
                     if (value.statuses && Array.isArray(value.statuses) && value.statuses.length > 0) {
+                        // This case is handled by the batch processor now, but we keep this for single re-processing.
                         await processStatuses(db, value.statuses);
                     } else if (value.messages && Array.isArray(value.messages) && value.messages.length > 0 && project) {
                         const message = value.messages[0];
