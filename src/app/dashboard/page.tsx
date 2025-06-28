@@ -8,6 +8,7 @@ import type { WithId } from "mongodb";
 import { CleanDatabaseButton } from "@/components/wabasimplify/clean-database-button";
 import { SyncProjectsButton } from "@/components/wabasimplify/sync-projects-button";
 import { ProjectSearch } from "@/components/wabasimplify/project-search";
+import { SubscribeAllButton } from "@/components/wabasimplify/subscribe-all-button";
 
 export const dynamic = 'force-dynamic';
 
@@ -85,6 +86,7 @@ export default async function SelectProjectPage({
                     </p>
                 </div>
                 <div className="flex items-center gap-2">
+                    <SubscribeAllButton />
                     <SyncProjectsButton />
                     <CleanDatabaseButton />
                 </div>

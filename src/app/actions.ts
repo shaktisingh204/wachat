@@ -2020,3 +2020,75 @@ export async function handleImportContacts(
         return { message: null, error: error.message || 'An unexpected error occurred.' };
     }
 }
+
+export async function handleSubscribeAllProjects(): Promise<{
+    message?: string;
+    error?: string;
+    details?: {
+      success: number;
+      failed: number;
+      errors: { projectName: string; error: string }[];
+    };
+  }> {
+    try {
+      const { db } = await connectToDatabase();
+      const projects = await db.collection('projects').find({}).toArray();
+  
+      if (projects.length === 0) {
+        return { message: 'No projects found in the database to subscribe.' };
+      }
+  
+      let successCount = 0;
+      let failedCount = 0;
+      const errorDetails: { projectName: string; error: string }[] = [];
+  
+      const subscriptionPromises = projects.map(async (project) => {
+        try {
+          const response = await fetch(
+            `https://graph.facebook.com/v22.0/${project.wabaId}/subscribed_apps`,
+            {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${project.accessToken}`,
+              },
+            }
+          );
+  
+          const responseData = await response.json();
+  
+          if (!response.ok || !responseData.success) {
+            throw new Error(responseData?.error?.message || `Failed to subscribe. Status: ${response.status}`);
+          }
+  
+          successCount++;
+        } catch (e: any) {
+          failedCount++;
+          errorDetails.push({
+            projectName: project.name,
+            error: e.message || 'An unknown error occurred.',
+          });
+        }
+      });
+  
+      await Promise.all(subscriptionPromises);
+  
+      let message = `Subscription process completed. Successfully subscribed ${successCount} project(s).`;
+      if (failedCount > 0) {
+        message += ` Failed to subscribe ${failedCount} project(s). Check server logs for details.`;
+        console.error("Webhook Subscription Failures:", errorDetails);
+      }
+  
+      return {
+        message,
+        details: {
+          success: successCount,
+          failed: failedCount,
+          errors: errorDetails,
+        },
+      };
+  
+    } catch (e: any) {
+      console.error('Failed to subscribe projects to webhooks:', e);
+      return { error: e.message || 'An unexpected error occurred during the subscription process.' };
+    }
+  }
