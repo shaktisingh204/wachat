@@ -31,6 +31,7 @@ import {
     LoaderCircle,
     BookOpen,
     Languages,
+    BrainCircuit,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -59,7 +60,7 @@ const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
-    { type: 'language', label: 'Translate Text', icon: Languages },
+    { type: 'language', label: 'AI Translate', icon: BrainCircuit },
     { type: 'carousel', label: 'Product Carousel', icon: View },
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
