@@ -1522,10 +1522,21 @@ export async function handleClearWebhookLogs(): Promise<{ message?: string; erro
     }
 }
 
-export async function getNotifications(): Promise<WithId<NotificationWithProject>[]> {
+export async function getNotifications(activeProjectId?: string | null): Promise<WithId<NotificationWithProject>[]> {
     try {
         const { db } = await connectToDatabase();
+        
+        const filter: Filter<Notification> = {};
+
+        if (activeProjectId && ObjectId.isValid(activeProjectId)) {
+            filter.projectId = new ObjectId(activeProjectId);
+        } else {
+            // On the project selection page, don't show user-specific messages.
+            filter.eventType = { $ne: 'messages' };
+        }
+        
         const notifications = await db.collection('notifications').aggregate([
+            { $match: filter },
             { $sort: { createdAt: -1 } },
             { $limit: 50 },
             {

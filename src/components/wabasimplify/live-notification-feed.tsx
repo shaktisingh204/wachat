@@ -22,7 +22,8 @@ export function LiveNotificationFeed() {
 
   const fetchNotifs = useCallback(() => {
     startTransition(async () => {
-      const fetchedNotifications = await getNotifications();
+      const activeProjectId = localStorage.getItem('activeProjectId');
+      const fetchedNotifications = await getNotifications(activeProjectId);
       setNotifications(fetchedNotifications);
     });
   }, []);
