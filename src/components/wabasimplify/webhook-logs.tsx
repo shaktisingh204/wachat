@@ -41,7 +41,7 @@ function ReprocessButton({ logId }: { logId: string }) {
     }
 
     return (
-        <Button variant="ghost" size="icon" onClick={onReprocess} disabled={isProcessing}>
+        <Button variant="ghost" size="icon" onClick={onReprocess} disabled={isProcessing} className="h-7 w-7">
             {isProcessing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RotateCw className="h-4 w-4" />}
             <span className="sr-only">Re-process Webhook</span>
         </Button>
@@ -257,7 +257,7 @@ export function WebhookLogs() {
                                 <TableHead>Timestamp</TableHead>
                                 <TableHead>Event Field</TableHead>
                                 <TableHead>Details</TableHead>
-                                <TableHead className="text-right">Action</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -276,8 +276,9 @@ export function WebhookLogs() {
                                     <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
                                             <ReprocessButton logId={log._id.toString()} />
-                                            <Button variant="ghost" size="icon" onClick={() => setSelectedLog(log)}>
+                                            <Button variant="ghost" size="icon" onClick={() => setSelectedLog(log)} className="h-7 w-7">
                                                 <Eye className="h-4 w-4" />
+                                                <span className="sr-only">View Payload</span>
                                             </Button>
                                         </div>
                                     </TableCell>
