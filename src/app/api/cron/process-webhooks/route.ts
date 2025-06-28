@@ -369,7 +369,7 @@ async function processSingleWebhook(db: Db, payload: any) {
 
 // --- Cron Endpoint ---
 
-const BATCH_SIZE = 100; // Number of webhooks to process per run
+const BATCH_SIZE = 50; // Number of webhooks to process per run
 const LOCK_ID = 'webhook_processor_lock';
 const LOCK_DURATION_MS = 2 * 60 * 1000; // Lock for 2 minutes
 
@@ -422,32 +422,47 @@ export async function GET(request: NextRequest) {
             { $set: { status: 'PROCESSING' } }
         );
 
-        let successCount = 0;
-        let failureCount = 0;
-        const failedIds = [];
-
-        for (const webhookDoc of webhooksToProcess) {
+        const processingPromises = webhooksToProcess.map(async (webhookDoc) => {
             try {
                 await processSingleWebhook(db, webhookDoc.payload);
-                successCount++;
+                return { status: 'fulfilled', id: webhookDoc._id };
             } catch (e: any) {
                 console.error(`Failed to process webhook ${webhookDoc._id}:`, e);
-                failureCount++;
-                failedIds.push({ id: webhookDoc._id, error: e.message });
+                return { status: 'rejected', id: webhookDoc._id, error: e.message };
             }
-        }
+        });
+
+        const results = await Promise.allSettled(processingPromises);
+
+        let successCount = 0;
+        const failedItems: {id: any, error?: string}[] = [];
+
+        results.forEach(result => {
+            if(result.status === 'fulfilled' && result.value.status === 'fulfilled') {
+                successCount++;
+            } else if (result.status === 'fulfilled' && result.value.status === 'rejected') {
+                 failedItems.push({ id: result.value.id, error: result.value.error });
+            } else if (result.status === 'rejected') {
+                // This case should ideally not happen often as errors are caught inside the map
+                // but good to handle it. We don't have the webhook ID here, unfortunately.
+                console.error('A promise in webhook processing was rejected:', result.reason);
+            }
+        });
         
         // --- Update Processed Webhooks ---
-        const bulkWriteOps: any[] = webhooksToProcess.map(doc => ({
-            updateOne: {
-                filter: { _id: doc._id },
-                update: { $set: {
-                    status: failedIds.some(f => f.id === doc._id) ? 'FAILED' : 'COMPLETED',
-                    processedAt: new Date(),
-                    error: failedIds.find(f => f.id === doc._id)?.error
-                }}
+        const bulkWriteOps: any[] = webhooksToProcess.map(doc => {
+            const failedItem = failedItems.find(f => f.id === doc._id);
+            return {
+                updateOne: {
+                    filter: { _id: doc._id },
+                    update: { $set: {
+                        status: failedItem ? 'FAILED' : 'COMPLETED',
+                        processedAt: new Date(),
+                        error: failedItem?.error
+                    }}
+                }
             }
-        }));
+        });
         
         if (bulkWriteOps.length > 0) {
             await db.collection('webhook_queue').bulkWrite(bulkWriteOps);
@@ -456,7 +471,7 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({
             message: `Processed ${webhooksToProcess.length} webhooks.`,
             success: successCount,
-            failed: failureCount,
+            failed: failedItems.length,
         });
 
     } catch (error: any) {
