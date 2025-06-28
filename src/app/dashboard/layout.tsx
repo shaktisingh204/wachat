@@ -105,8 +105,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset>
-          <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10">
+        <SidebarInset className="flex flex-col">
+          <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
             <SidebarTrigger className="md:hidden" />
             <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
                 <Briefcase className="h-4 w-4" />
@@ -141,10 +141,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </DropdownMenuContent>
             </DropdownMenu>
           </header>
-          <main className="p-4 md:p-6 lg:p-8 flex-1">{children}</main>
+          <div className="flex flex-1 overflow-hidden">
+            <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
+                {children}
+            </main>
+             <aside className="hidden lg:block w-80 xl:w-96 border-l bg-background shrink-0">
+                <LiveNotificationFeed />
+            </aside>
+          </div>
         </SidebarInset>
       </div>
-      <LiveNotificationFeed />
     </SidebarProvider>
   );
 }

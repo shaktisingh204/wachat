@@ -81,8 +81,8 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset>
-          <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10">
+        <SidebarInset className="flex flex-col">
+          <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
             <SidebarTrigger className="md:hidden" />
             <div className="text-sm font-semibold text-primary">Admin Panel</div>
             <div className="flex items-center gap-2">
@@ -110,10 +110,14 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
               </DropdownMenu>
             </div>
           </header>
-          <main className="p-4 md:p-6 lg:p-8 flex-1">{children}</main>
+          <div className="flex flex-1 overflow-hidden">
+            <main className="p-4 md:p-6 lg:p-8 flex-1 overflow-y-auto">{children}</main>
+            <aside className="hidden lg:block w-80 xl:w-96 border-l bg-background shrink-0">
+                <LiveNotificationFeed />
+            </aside>
+          </div>
         </SidebarInset>
       </div>
-       <LiveNotificationFeed />
     </SidebarProvider>
   );
 }
