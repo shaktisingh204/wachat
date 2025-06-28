@@ -50,7 +50,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
         <Card className="flex flex-col justify-between hover:shadow-lg hover:border-primary transition-all">
             <CardHeader>
                 <div className="flex justify-between items-start gap-2">
-                    <CardTitle className="break-all">{project.name}</CardTitle>
+                    <CardTitle>{project.name}</CardTitle>
                     <div className="flex flex-col items-end gap-2 flex-shrink-0">
                         {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
                             <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize">
