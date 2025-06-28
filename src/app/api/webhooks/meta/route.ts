@@ -2,7 +2,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { revalidatePath } from 'next/cache';
-import type { Db } from 'mongodb';
+import type { Db, WithId } from 'mongodb';
 
 const getSearchableText = (payload: any): string => {
     let text = '';
@@ -120,6 +120,96 @@ async function processStatuses(db: Db, statuses: any[]) {
     }
 }
 
+async function findOrCreateProjectByWabaId(db: Db, wabaId: string): Promise<WithId<any> | null> {
+    const existingProject = await db.collection('projects').findOne({ wabaId });
+    if (existingProject) {
+        return existingProject;
+    }
+
+    // Project not found, try to create it
+    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
+    const apiVersion = 'v22.0';
+
+    if (!accessToken) {
+        console.error("META_SYSTEM_USER_ACCESS_TOKEN is not set. Cannot create new project automatically for WABA:", wabaId);
+        return null;
+    }
+
+    try {
+        const wabaDetailsResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaId}?access_token=${accessToken}&fields=name`);
+        const wabaDetails = await wabaDetailsResponse.json();
+
+        if (wabaDetails.error) {
+            throw new Error(`Meta API error getting WABA details: ${wabaDetails.error.message}`);
+        }
+
+        const phoneNumbersResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaId}/phone_numbers?access_token=${accessToken}&fields=verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput`);
+        const phoneNumbersData = await phoneNumbersResponse.json();
+
+        if (phoneNumbersData.error) {
+            throw new Error(`Meta API error getting phone numbers: ${phoneNumbersData.error.message}`);
+        }
+
+        const phoneNumbers = phoneNumbersData.data ? phoneNumbersData.data.map((num: any) => ({
+            id: num.id,
+            display_phone_number: num.display_phone_number,
+            verified_name: num.verified_name,
+            code_verification_status: num.code_verification_status,
+            quality_rating: num.quality_rating,
+            platform_type: num.platform_type,
+            throughput: num.throughput,
+        })) : [];
+
+        const projectDoc = {
+            name: wabaDetails.name,
+            wabaId: wabaId,
+            accessToken: accessToken,
+            phoneNumbers: phoneNumbers,
+            messagesPerSecond: 1000,
+            reviewStatus: 'UNKNOWN',
+        };
+        
+        const result = await db.collection('projects').findOneAndUpdate(
+            { wabaId: wabaId },
+            { 
+                $set: {
+                    name: projectDoc.name,
+                    accessToken: projectDoc.accessToken,
+                    phoneNumbers: projectDoc.phoneNumbers,
+                    reviewStatus: projectDoc.reviewStatus,
+                },
+                $setOnInsert: {
+                     createdAt: new Date(),
+                     messagesPerSecond: projectDoc.messagesPerSecond,
+                }
+            },
+            { upsert: true, returnDocument: 'after' }
+        );
+
+        const newProject = result;
+
+        if (newProject) {
+            await db.collection('notifications').insertOne({
+                projectId: newProject._id,
+                wabaId: wabaId,
+                message: `New project '${wabaDetails.name}' was automatically created from a webhook event.`,
+                link: '/dashboard',
+                isRead: false,
+                createdAt: new Date(),
+                eventType: 'project_auto_created',
+            });
+            revalidatePath('/dashboard');
+            revalidatePath('/dashboard', 'layout');
+        }
+
+        return newProject;
+
+    } catch (e: any) {
+        console.error(`Failed to automatically create project for WABA ${wabaId}:`, e.message);
+        return null;
+    }
+}
+
 
 /**
  * Handles webhook verification requests from Meta.
@@ -199,47 +289,7 @@ export async function POST(request: NextRequest) {
                     }
                     continue; 
                 } else if (value.event === 'PARTNER_ADDED' && value.waba_info?.waba_id) {
-                    const wabaIdToAdd = value.waba_info.waba_id;
-                    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
-                    const apiVersion = 'v22.0';
-
-                    if (accessToken) {
-                        try {
-                            const wabaDetailsResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaIdToAdd}?access_token=${accessToken}&fields=name`);
-                            const wabaDetails = await wabaDetailsResponse.json();
-                            const phoneNumbersResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaIdToAdd}/phone_numbers?access_token=${accessToken}&fields=verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput`);
-                            const phoneNumbersData = await phoneNumbersResponse.json();
-                            
-                            const phoneNumbers = phoneNumbersData.data ? phoneNumbersData.data.map((num: any) => ({
-                                id: num.id, display_phone_number: num.display_phone_number, verified_name: num.verified_name,
-                                code_verification_status: num.code_verification_status, quality_rating: num.quality_rating,
-                                platform_type: num.platform_type, throughput: num.throughput,
-                            })) : [];
-
-                            const projectDoc = {
-                                name: wabaDetails.name, wabaId: wabaIdToAdd, accessToken: accessToken,
-                                phoneNumbers: phoneNumbers, messagesPerSecond: 1000, reviewStatus: 'UNKNOWN',
-                            };
-                            
-                            await db.collection('projects').updateOne(
-                                { wabaId: wabaIdToAdd },
-                                { $set: projectDoc, $setOnInsert: { createdAt: new Date() } },
-                                { upsert: true }
-                            );
-                            
-                            const newProject = await db.collection('projects').findOne({wabaId: wabaIdToAdd}, {projection: {_id: 1}});
-                            if (newProject) {
-                                await db.collection('notifications').insertOne({
-                                    projectId: newProject._id, wabaId: wabaIdToAdd,
-                                    message: `New project '${wabaDetails.name}' was automatically added and synced from Meta.`,
-                                    link: '/dashboard', isRead: false, createdAt: new Date(), eventType: change.field,
-                                });
-                                revalidatePath('/dashboard'); revalidatePath('/dashboard', 'layout');
-                            }
-                        } catch (e: any) {
-                            console.error(`Failed to process PARTNER_ADDED event for WABA ${wabaIdToAdd}:`, e.message);
-                        }
-                    }
+                    await findOrCreateProjectByWabaId(db, value.waba_info.waba_id);
                     continue; 
                 }
             }
@@ -249,7 +299,7 @@ export async function POST(request: NextRequest) {
                 { projection: { _id: 1, name: 1, wabaId: 1, businessCapabilities: 1 } }
             );
 
-            if (!project && change.field !== 'message_template_quality_update') {
+            if (!project && !['message_template_quality_update', 'phone_number_name_update'].includes(change.field)) {
                 continue;
             }
             
@@ -298,7 +348,7 @@ export async function POST(request: NextRequest) {
                         { upsert: true, returnDocument: 'after' }
                     );
                     
-                    const updatedContact = contactUpdateResult.value;
+                    const updatedContact = contactUpdateResult;
 
                     if (updatedContact) {
                          let contentToStore;
@@ -360,7 +410,12 @@ export async function POST(request: NextRequest) {
                     break;
                 
                 case 'phone_number_name_update': {
-                    if (!project) break;
+                    let projectForUpdate = project;
+                    if (!projectForUpdate) {
+                        projectForUpdate = await findOrCreateProjectByWabaId(db, wabaId);
+                    }
+                    if (!projectForUpdate) break;
+
                     if (!value.display_phone_number || !value.decision) break;
 
                     let notificationMessage = '';
@@ -370,28 +425,33 @@ export async function POST(request: NextRequest) {
                         const newVerifiedName = value.new_verified_name || value.requested_verified_name;
                         if (newVerifiedName) {
                             const result = await db.collection('projects').updateOne(
-                                { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                                { _id: projectForUpdate._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
                                 { $set: { 'phoneNumbers.$.verified_name': newVerifiedName } }
                             );
                             if (result.modifiedCount > 0) {
                                 shouldNotify = true;
-                                notificationMessage = `For project '${project.name}', display name for ${value.display_phone_number} was approved as "${newVerifiedName}".`;
+                                notificationMessage = `For project '${projectForUpdate.name}', display name for ${value.display_phone_number} was approved as "${newVerifiedName}".`;
+                            } else {
+                                // This can happen if the number isn't in our DB yet.
+                                // We still want to create the notification.
+                                shouldNotify = true;
+                                notificationMessage = `For project '${projectForUpdate.name}', a display name update for ${value.display_phone_number} was approved as "${newVerifiedName}". The project's numbers might need syncing.`;
                             }
                         }
                     } else { // Handle DEFERRED, REJECTED, etc.
                         const requestedName = value.requested_verified_name;
                         const decision = value.decision.toLowerCase().replace(/_/g, ' ');
-                        notificationMessage = `For project '${project.name}', the name update for ${value.display_phone_number} to "${requestedName}" has been ${decision}.`;
+                        notificationMessage = `For project '${projectForUpdate.name}', the name update for ${value.display_phone_number} to "${requestedName}" has been ${decision}.`;
                         if (value.rejection_reason && value.rejection_reason !== 'NONE') {
                             notificationMessage += ` Reason: ${value.rejection_reason}.`;
                         }
-                        shouldNotify = true; // We always want to notify for these statuses
+                        shouldNotify = true;
                     }
 
                     if (shouldNotify && notificationMessage) {
                         await db.collection('notifications').insertOne({
-                            projectId: project._id,
-                            wabaId: project.wabaId,
+                            projectId: projectForUpdate._id,
+                            wabaId: projectForUpdate.wabaId,
                             message: notificationMessage,
                             link: '/dashboard/numbers',
                             isRead: false,
