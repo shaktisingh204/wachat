@@ -218,13 +218,39 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             // This node waits for user reply, so we don't proceed automatically.
             return;
             
-        case 'delay':
-            if (node.data.delaySeconds > 0) {
-                await new Promise(resolve => setTimeout(resolve, node.data.delaySeconds * 1000));
+        case 'delay': {
+            const showTyping = node.data.showTyping === true;
+            const delayMs = (node.data.delaySeconds || 1) * 1000;
+
+            if (showTyping) {
+                try {
+                    const payload = {
+                        messaging_product: 'whatsapp',
+                        recipient_type: 'individual',
+                        to: contact.waId,
+                        typing: true,
+                    };
+                    axios.post(
+                        `https://graph.facebook.com/v22.0/${contact.phoneNumberId}/messages`, 
+                        payload, 
+                        { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+                    ).catch(e => console.error(`Flow: Failed to send typing indicator to ${contact.waId}:`, e.message));
+                } catch (e: any) {
+                    console.error(`Flow: Error constructing typing indicator request for ${contact.waId}:`, e.message);
+                }
             }
+            
+            if (delayMs > 0) {
+                await new Promise(resolve => setTimeout(resolve, delayMs));
+            }
+            
+            // Per Meta docs, the indicator automatically disappears after a few seconds or when a message is sent.
+            // No need to explicitly stop it.
+
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
+        }
 
         case 'input':
             await sendFlowMessage(db, project, contact, contact.phoneNumberId, node.data.text, contact.activeFlow.variables);
