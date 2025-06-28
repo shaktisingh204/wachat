@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { getDashboardStats } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MessagesSquare, CheckCircle, XCircle, Send, AlertCircle } from 'lucide-react';
+import { MessagesSquare, CheckCircle, XCircle, Send, AlertCircle, CheckCheck, Eye } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AnalyticsChart } from '@/components/wabasimplify/analytics-chart';
 
@@ -12,6 +12,8 @@ type DashboardStats = {
   totalMessages: number;
   totalSent: number;
   totalFailed: number;
+  totalDelivered: number;
+  totalRead: number;
   totalCampaigns: number;
 };
 
@@ -65,7 +67,9 @@ export default function DashboardOverviewPage() {
             <h1 className="text-3xl font-bold font-headline">Project Overview</h1>
             <p className="text-muted-foreground">Your message analytics for the selected project.</p>
           </div>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                <StatCardSkeleton />
+                <StatCardSkeleton />
                 <StatCardSkeleton />
                 <StatCardSkeleton />
                 <StatCardSkeleton />
@@ -113,15 +117,17 @@ export default function DashboardOverviewPage() {
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>No Broadcast Data Yet</AlertTitle>
                 <AlertDescription>
-                    This project doesn't have any broadcast history. Send a broadcast from the 'Broadcasts' page to see analytics here.
+                    This project doesn't have any broadcast history. Send a broadcast from the 'Campaigns' page to see analytics here.
                 </AlertDescription>
             </Alert>
         </div>
       )
   }
 
-  const deliveredPercentage = stats.totalMessages > 0 ? ((stats.totalSent / stats.totalMessages) * 100).toFixed(1) : '0.0';
-  const failedPercentage = stats.totalMessages > 0 ? ((stats.totalFailed / stats.totalMessages) * 100).toFixed(1) : '0.0';
+  const sentPercentage = stats.totalMessages > 0 ? ((stats.totalSent / stats.totalMessages) * 100).toFixed(1) : '0.0';
+  const deliveredPercentage = stats.totalSent > 0 ? ((stats.totalDelivered / stats.totalSent) * 100).toFixed(1) : '0.0';
+  const readPercentage = stats.totalDelivered > 0 ? ((stats.totalRead / stats.totalDelivered) * 100).toFixed(1) : '0.0';
+
 
   return (
     <div className="flex flex-col gap-8">
@@ -130,15 +136,25 @@ export default function DashboardOverviewPage() {
         <p className="text-muted-foreground">Your message analytics for the selected project.</p>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Messages</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Campaigns</CardTitle>
+             <Send className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalCampaigns.toLocaleString()}</div>
+             <p className="text-xs text-muted-foreground">All-time broadcasts initiated.</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Queued</CardTitle>
             <MessagesSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalMessages.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">All-time messages queued.</p>
+            <p className="text-xs text-muted-foreground">All-time messages queued for sending.</p>
           </CardContent>
         </Card>
         <Card>
@@ -148,7 +164,27 @@ export default function DashboardOverviewPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalSent.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">{deliveredPercentage}% of all messages sent.</p>
+            <p className="text-xs text-muted-foreground">{sentPercentage}% of queued messages sent.</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Delivered</CardTitle>
+            <CheckCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalDelivered.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">{deliveredPercentage}% of sent messages delivered.</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Read</CardTitle>
+            <Eye className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalRead.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">{readPercentage}% of delivered messages read.</p>
           </CardContent>
         </Card>
         <Card>
@@ -158,17 +194,7 @@ export default function DashboardOverviewPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalFailed.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">{failedPercentage}% of all messages failed.</p>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Campaigns</CardTitle>
-             <Send className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalCampaigns.toLocaleString()}</div>
-             <p className="text-xs text-muted-foreground">All-time broadcasts initiated.</p>
+            <p className="text-xs text-muted-foreground">Messages that failed to send.</p>
           </CardContent>
         </Card>
       </div>
@@ -188,7 +214,7 @@ export default function DashboardOverviewPage() {
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>No Broadcast Data Yet</AlertTitle>
             <AlertDescription>
-                This project doesn't have any broadcast history. Send a broadcast from the 'Broadcasts' page to see analytics here.
+                This project doesn't have any broadcast history. Send a broadcast from the 'Campaigns' page to see analytics here.
             </AlertDescription>
         </Alert>
       )}

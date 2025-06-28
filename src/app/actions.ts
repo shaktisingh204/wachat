@@ -446,9 +446,11 @@ export async function getDashboardStats(projectId: string): Promise<{
     totalMessages: number;
     totalSent: number;
     totalFailed: number;
+    totalDelivered: number;
+    totalRead: number;
     totalCampaigns: number;
 } | null> {
-    const defaultStats = { totalMessages: 0, totalSent: 0, totalFailed: 0, totalCampaigns: 0 };
+    const defaultStats = { totalMessages: 0, totalSent: 0, totalFailed: 0, totalDelivered: 0, totalRead: 0, totalCampaigns: 0 };
     if (!ObjectId.isValid(projectId)) {
         return defaultStats;
     }
@@ -462,6 +464,8 @@ export async function getDashboardStats(projectId: string): Promise<{
                     totalMessages: { $sum: '$contactCount' },
                     totalSent: { $sum: '$successCount' },
                     totalFailed: { $sum: '$errorCount' },
+                    totalDelivered: { $sum: { $ifNull: [ '$deliveredCount', 0 ] } },
+                    totalRead: { $sum: { $ifNull: [ '$readCount', 0 ] } },
                     totalCampaigns: { $sum: 1 }
                 }
             }
@@ -472,6 +476,8 @@ export async function getDashboardStats(projectId: string): Promise<{
                 totalMessages: stats[0].totalMessages || 0,
                 totalSent: stats[0].totalSent || 0,
                 totalFailed: stats[0].totalFailed || 0,
+                totalDelivered: stats[0].totalDelivered || 0,
+                totalRead: stats[0].totalRead || 0,
                 totalCampaigns: stats[0].totalCampaigns || 0,
             };
         }
