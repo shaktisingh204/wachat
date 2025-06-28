@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import { useState } from 'react';
 import { AnyMessage, OutgoingMessage, handleTranslateMessage } from '@/app/actions';
 import { cn } from '@/lib/utils';
-import { Check, CheckCheck, Clock, Download, File as FileIcon, Video as VideoIcon, XCircle, Languages, LoaderCircle } from 'lucide-react';
+import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, XCircle, Languages, LoaderCircle } from 'lucide-react';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
@@ -64,43 +65,44 @@ function MediaContent({ message }: { message: AnyMessage }) {
 
     if (!media && type !== 'unsupported') return <div className="text-sm text-muted-foreground italic">[Unsupported message content]</div>;
     
-    // For outgoing media, the link isn't immediately available, so we use a placeholder logic.
-    // For incoming, the link needs to be requested from Meta via another API call not implemented here.
-    const url = media.link || `https://placehold.co/300x200.png`; 
+    const url = media.link;
     const caption = media.caption || '';
     const fileName = media.filename || 'download';
     
+    const isDataUri = url && url.startsWith('data:');
+
     if (type === 'image') {
-        return (
-            <div className="space-y-2">
-                <a href={url} target="_blank" rel="noopener noreferrer" className="block relative aspect-video w-64 bg-muted rounded-lg overflow-hidden">
-                    <Image src={url} alt={caption || 'Sent image'} layout="fill" objectFit="cover" data-ai-hint="chat image" />
-                </a>
-                {caption && <p className="text-sm">{caption}</p>}
-            </div>
-        );
+        if (isDataUri) {
+            return (
+                <div className="space-y-2">
+                    <a href={url} target="_blank" rel="noopener noreferrer" className="block relative aspect-video w-64 bg-muted rounded-lg overflow-hidden">
+                        <Image src={url} alt={caption || 'Sent image'} layout="fill" objectFit="cover" data-ai-hint="chat image" />
+                    </a>
+                    {caption && <p className="text-sm">{caption}</p>}
+                </div>
+            );
+        }
+        return <div className="text-sm text-muted-foreground italic">[Image received - preview unavailable]</div>;
     }
 
     if (type === 'video') {
-         return (
-            <div className="space-y-2 w-64">
-                <video controls src={url} className="rounded-lg aspect-video w-full bg-black" />
-                {caption && <p className="text-sm">{caption}</p>}
-            </div>
-        );
+         return <div className="text-sm text-muted-foreground italic">[Video received]</div>;
     }
 
     if (type === 'document') {
-        return (
-            <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg bg-background/50 hover:bg-background transition-colors max-w-xs">
-                <FileIcon className="h-8 w-8 text-primary flex-shrink-0" />
-                <div className="flex-1 overflow-hidden">
-                    <p className="font-semibold truncate">{fileName}</p>
-                    {caption && <p className="text-xs text-muted-foreground truncate">{caption}</p>}
-                </div>
-                <Download className="h-5 w-5 text-muted-foreground" />
-            </a>
-        );
+        if (isDataUri) {
+            return (
+                <a href={url} target="_blank" rel="noopener noreferrer" download={fileName} className="flex items-center gap-3 p-3 rounded-lg bg-background/50 hover:bg-background transition-colors max-w-xs">
+                    <FileIcon className="h-8 w-8 text-primary flex-shrink-0" />
+                    <div className="flex-1 overflow-hidden">
+                        <p className="font-semibold truncate">{fileName}</p>
+                        {caption && <p className="text-xs text-muted-foreground truncate">{caption}</p>}
+                    </div>
+                    <Download className="h-5 w-5 text-muted-foreground" />
+                </a>
+            );
+        }
+        return <div className="text-sm text-muted-foreground italic">[Document received: {fileName}]</div>;
     }
 
     if (type === 'audio') {

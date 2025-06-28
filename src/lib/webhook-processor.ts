@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -511,6 +512,24 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
 
 // --- Main Webhook Processing Logic ---
 
+const getAxiosErrorMessage = (error: any): string => {
+    if (axios.isAxiosError(error)) {
+        if (error.response) {
+            const apiError = error.response.data?.error;
+            if (apiError) {
+                return `${apiError.message || 'API Error'} (Code: ${apiError.code}, Type: ${apiError.type})`;
+            }
+            return `Request failed with status code ${error.response.status}`;
+        } else if (error.request) {
+            return 'No response received from server. Check network connectivity.';
+        } else {
+            return error.message;
+        }
+    }
+    return error.message || 'An unknown error occurred';
+};
+
+
 export async function processStatuses(db: Db, statuses: any[]) {
     if (!statuses || !Array.isArray(statuses) || statuses.length === 0) {
         return;
@@ -701,6 +720,7 @@ export async function processSingleWebhook(db: Db, payload: any) {
     if (payload.object !== 'whatsapp_business_account') {
         return;
     }
+    const MAX_BASE64_SIZE = 5 * 1024 * 1024; // 5MB limit
 
     for (const entry of payload.entry || []) {
         const wabaId = entry.id;
@@ -739,9 +759,24 @@ export async function processSingleWebhook(db: Db, payload: any) {
                                     `https://graph.facebook.com/v22.0/${mediaId}`,
                                     { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
                                 );
-                                message[message.type].link = mediaDetailsResponse.data.url;
+                                const mediaUrl = mediaDetailsResponse.data.url;
+                                const mimeType = mediaDetailsResponse.data.mime_type;
+                                const fileSize = mediaDetailsResponse.data.file_size;
+
+                                if (mediaUrl && fileSize < MAX_BASE64_SIZE && (mimeType.startsWith('image/') || mimeType === 'application/pdf')) {
+                                    const mediaDataResponse = await axios.get(mediaUrl, {
+                                        headers: { 'Authorization': `Bearer ${project.accessToken}` },
+                                        responseType: 'arraybuffer'
+                                    });
+                                    const mediaBase64 = Buffer.from(mediaDataResponse.data, 'binary').toString('base64');
+                                    const dataUri = `data:${mimeType};base64,${mediaBase64}`;
+                                    message[message.type].link = dataUri;
+                                } else if (mediaUrl) {
+                                    message[message.type].link = mediaUrl;
+                                    console.log(`Media ${mediaId} (${mimeType}, ${fileSize} bytes) is too large or unsupported for data URI embedding. Storing original URL.`);
+                                }
                             } catch (e: any) {
-                                console.error(`Failed to fetch media URL for ID ${mediaId}:`, e.message);
+                                console.error(`Failed to fetch media data for ID ${mediaId}:`, getAxiosErrorMessage(e));
                             }
                         }
 
