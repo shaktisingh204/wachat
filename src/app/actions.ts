@@ -2199,25 +2199,42 @@ export async function handleReprocessWebhook(logId: string): Promise<{ message?:
 export async function handleRequeueAllWebhookLogs(): Promise<{ message?: string; error?: string; count?: number }> {
     try {
         const { db } = await connectToDatabase();
-        // Only fetch payload to keep memory usage lower
-        const logs = await db.collection('webhook_logs').find({}, { projection: { payload: 1 } }).toArray();
+        const logsCursor = db.collection('webhook_logs').find({}, { projection: { payload: 1 } });
 
-        if (logs.length === 0) {
-            return { message: 'No logs found to requeue.' };
+        let totalQueuedCount = 0;
+        const batchSize = 1000;
+        let batch: any[] = [];
+
+        for await (const log of logsCursor) {
+            batch.push({
+                payload: log.payload,
+                status: 'PENDING' as const,
+                createdAt: new Date(),
+            });
+
+            if (batch.length >= batchSize) {
+                const result = await db.collection('webhook_queue').insertMany(batch, { ordered: false }).catch(e => {
+                    if (e.code === 11000) return { insertedCount: 0 }; // Ignore duplicates
+                    throw e;
+                });
+                totalQueuedCount += result.insertedCount;
+                batch = [];
+            }
+        }
+        
+        if (batch.length > 0) {
+            const result = await db.collection('webhook_queue').insertMany(batch, { ordered: false }).catch(e => {
+                if (e.code === 11000) return { insertedCount: 0 }; // Ignore duplicates
+                throw e;
+            });
+            totalQueuedCount += result.insertedCount;
         }
 
-        const queueItems = logs.map(log => ({
-            payload: log.payload,
-            status: 'PENDING' as const,
-            createdAt: new Date(),
-        }));
+        if (totalQueuedCount === 0) {
+            return { message: 'No new logs found to requeue.' };
+        }
 
-        // This is not a foolproof way to avoid duplicates if the same webhook is logged multiple times,
-        // but it's a safe way to requeue everything for processing by the existing cron worker.
-        // The worker logic should ideally be idempotent.
-        const result = await db.collection('webhook_queue').insertMany(queueItems, { ordered: false });
-
-        return { message: `Successfully queued ${result.insertedCount} events for re-processing. The cron job will handle them shortly.`, count: result.insertedCount };
+        return { message: `Successfully queued ${totalQueuedCount} events for re-processing. The cron job will handle them shortly.`, count: totalQueuedCount };
     } catch (e: any) {
         console.error("Failed to requeue all webhook logs:", e);
         return { error: e.message || "An unexpected error occurred during requeueing." };
