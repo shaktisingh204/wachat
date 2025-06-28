@@ -299,7 +299,7 @@ export async function POST(request: NextRequest) {
                 { projection: { _id: 1, name: 1, wabaId: 1, businessCapabilities: 1 } }
             );
 
-            if (!project && !['message_template_quality_update', 'phone_number_name_update'].includes(change.field)) {
+            if (!project && !['message_template_quality_update', 'phone_number_name_update', 'message_template_status_update', 'template_status_update'].includes(change.field)) {
                 continue;
             }
             
@@ -479,33 +479,25 @@ export async function POST(request: NextRequest) {
                     break;
 
                 case 'message_template_status_update': 
-                case 'template_status_update': 
-                    if (!project) break;
+                case 'template_status_update': {
                     if (value.event && value.message_template_id) {
-                        const result = await db.collection('templates').updateOne({ metaId: value.message_template_id, projectId: project._id }, { $set: { status: value.event.toUpperCase() } });
-                        if (result.modifiedCount > 0) {
-                            await db.collection('notifications').insertOne({
-                               projectId: project._id, wabaId: project.wabaId, message: `For project '${project.name}', template '${value.message_template_name}' status updated to ${value.event}. Reason: ${value.reason || 'None'}.`,
-                               link: '/dashboard/templates', isRead: false, createdAt: new Date(), eventType: change.field,
-                           });
-                           revalidatePath('/dashboard/templates'); revalidatePath('/dashboard', 'layout');
+                        const template = await db.collection('templates').findOne({ metaId: value.message_template_id });
+                        if (template) {
+                             const projectForTemplate = await db.collection('projects').findOne({ _id: template.projectId }, { projection: { _id: 1, name: 1, wabaId: 1 } });
+                             if (projectForTemplate) {
+                                const result = await db.collection('templates').updateOne({ _id: template._id }, { $set: { status: value.event.toUpperCase() } });
+                                if (result.modifiedCount > 0) {
+                                    await db.collection('notifications').insertOne({
+                                       projectId: projectForTemplate._id, wabaId: projectForTemplate.wabaId, message: `For project '${projectForTemplate.name}', template '${value.message_template_name}' status updated to ${value.event}. Reason: ${value.reason || 'None'}.`,
+                                       link: '/dashboard/templates', isRead: false, createdAt: new Date(), eventType: change.field,
+                                   });
+                                   revalidatePath('/dashboard/templates'); revalidatePath('/dashboard', 'layout');
+                                }
+                             }
                         }
                     }
                     break;
-                
-                case 'template_category_update':
-                    if (!project) break;
-                    if (value.message_template_id && value.new_category) {
-                        const result = await db.collection('templates').updateOne({ metaId: value.message_template_id, projectId: project._id }, { $set: { category: value.new_category.toUpperCase() } });
-                        if (result.modifiedCount > 0) {
-                             await db.collection('notifications').insertOne({
-                                projectId: project._id, wabaId: project.wabaId, message: `For project '${project.name}', category for template '${value.message_template_name}' was changed to ${value.new_category}.`,
-                                link: '/dashboard/templates', isRead: false, createdAt: new Date(), eventType: change.field,
-                            });
-                            revalidatePath('/dashboard/templates'); revalidatePath('/dashboard', 'layout');
-                        }
-                    }
-                    break;
+                }
                 
                 case 'message_template_quality_update': {
                     if (value.message_template_id && value.new_quality_score) {
