@@ -15,6 +15,7 @@ import { AlertCircle, MessageSquare } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { NewChatDialog } from './new-chat-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const CONTACTS_PER_PAGE = 30;
 
@@ -208,6 +209,8 @@ export function ChatClient() {
             </Alert>
         );
     }
+    
+    const showChatOnMobile = isClient && selectedContact;
 
     return (
         <>
@@ -217,7 +220,7 @@ export function ChatClient() {
                 onStartChat={handleNewChat}
             />
             <div className="flex flex-col h-full border rounded-lg bg-card">
-                <div className="p-4 border-b">
+                <div className="p-4 border-b flex-shrink-0">
                     <div className="max-w-sm">
                         <Select value={selectedPhoneNumberId} onValueChange={setSelectedPhoneNumberId}>
                             <SelectTrigger id="phoneNumberId">
@@ -233,18 +236,26 @@ export function ChatClient() {
                         </Select>
                     </div>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 flex-1 overflow-hidden">
-                    <ChatContactList
-                        contacts={contacts}
-                        selectedContactId={selectedContact?._id.toString()}
-                        onSelectContact={handleSelectContact}
-                        onNewChat={() => setIsNewChatDialogOpen(true)}
-                        isLoading={loadingContacts && contactPage === 1}
-                        hasMoreContacts={hasMoreContacts}
-                        loadMoreRef={loadMoreContactsRef}
-                    />
+                <div className="flex flex-1 overflow-hidden">
+                     <div className={cn(
+                        "w-full flex-col border-r md:w-1/3 lg:w-1/4",
+                        showChatOnMobile ? 'hidden md:flex' : 'flex'
+                     )}>
+                        <ChatContactList
+                            contacts={contacts}
+                            selectedContactId={selectedContact?._id.toString()}
+                            onSelectContact={handleSelectContact}
+                            onNewChat={() => setIsNewChatDialogOpen(true)}
+                            isLoading={loadingContacts && contactPage === 1}
+                            hasMoreContacts={hasMoreContacts}
+                            loadMoreRef={loadMoreContactsRef}
+                        />
+                    </div>
 
-                    <div className="md:col-span-2 lg:col-span-3 border-l h-full flex flex-col">
+                    <div className={cn(
+                        "w-full flex-col flex-1",
+                        showChatOnMobile ? 'flex' : 'hidden md:flex'
+                    )}>
                         {selectedContact ? (
                             <ChatWindow
                                 key={selectedContact._id.toString()}
