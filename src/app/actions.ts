@@ -13,6 +13,7 @@ import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
 import { translateText } from '@/ai/flows/translate-text';
+import { processSingleWebhook } from '@/lib/webhook-processor';
 
 type MetaPhoneNumber = {
     id: string;
@@ -1778,7 +1779,9 @@ export async function handleSendMessage(
             // Step 1: Upload media to get an ID
             const mediaFormData = new FormData();
             mediaFormData.append('messaging_product', 'whatsapp');
-            mediaFormData.append('file', new Blob([await mediaFile.arrayBuffer()]), mediaFile.name);
+            // Use Buffer for server-side file handling with axios and form-data
+            const fileBuffer = Buffer.from(await mediaFile.arrayBuffer());
+            mediaFormData.append('file', fileBuffer, mediaFile.name);
 
             const uploadResponse = await axios.post(
                 `https://graph.facebook.com/v22.0/${phoneNumberId}/media`,
@@ -2142,5 +2145,27 @@ export async function getBroadcastAttemptsForExport(
     } catch (error) {
         console.error('Failed to fetch broadcast attempts for export:', error);
         return [];
+    }
+}
+
+
+export async function handleReprocessWebhook(logId: string): Promise<{ message?: string; error?: string }> {
+    if (!ObjectId.isValid(logId)) {
+        return { error: 'Invalid Log ID.' };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const log = await db.collection('webhook_logs').findOne({ _id: new ObjectId(logId) });
+
+        if (!log) {
+            return { error: 'Webhook log not found.' };
+        }
+
+        await processSingleWebhook(db, log.payload);
+
+        return { message: `Successfully reprocessed webhook event for field: ${log.payload?.entry?.[0]?.changes?.[0]?.field || 'unknown'}` };
+    } catch (e: any) {
+        console.error("Failed to re-process webhook:", e);
+        return { error: e.message || "An unexpected error occurred during re-processing." };
     }
 }

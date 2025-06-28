@@ -39,9 +39,9 @@ export function NewChatDialog({ open, onOpenChange, onStartChat }: NewChatDialog
       <DialogContent className="sm:max-w-[425px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Start New Chat</DialogTitle>
+            <DialogTitle>Start New Conversation</DialogTitle>
             <DialogDescription>
-              Enter the recipient's WhatsApp ID (phone number with country code) to start a new conversation.
+              Enter the WhatsApp ID (phone number with country code) to start a new chat or reply to a number not in your contact list.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">

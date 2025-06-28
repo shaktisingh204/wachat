@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { getWebhookLogs, handleClearWebhookLogs } from '@/app/actions';
+import { getWebhookLogs, handleClearWebhookLogs, handleReprocessWebhook } from '@/app/actions';
 import type { WebhookLog } from '@/app/actions';
 import type { WithId } from 'mongodb';
 
@@ -20,9 +20,33 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, LoaderCircle, Eye, Search, RefreshCw, Copy } from "lucide-react";
+import { Trash2, LoaderCircle, Eye, Search, RefreshCw, Copy, RotateCw } from "lucide-react";
 
 const LOGS_PER_PAGE = 15;
+
+
+function ReprocessButton({ logId }: { logId: string }) {
+    const [isProcessing, startTransition] = useTransition();
+    const { toast } = useToast();
+
+    const onReprocess = () => {
+        startTransition(async () => {
+            const result = await handleReprocessWebhook(logId);
+            if (result.error) {
+                toast({ title: 'Error Re-processing', description: result.error, variant: 'destructive' });
+            } else {
+                toast({ title: 'Success', description: result.message });
+            }
+        });
+    }
+
+    return (
+        <Button variant="ghost" size="icon" onClick={onReprocess} disabled={isProcessing}>
+            {isProcessing ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RotateCw className="h-4 w-4" />}
+            <span className="sr-only">Re-process Webhook</span>
+        </Button>
+    )
+}
 
 export function WebhookLogs() {
     const [logs, setLogs] = useState<WithId<WebhookLog>[]>([]);
@@ -250,9 +274,12 @@ export function WebhookLogs() {
                                     <TableCell className="font-mono">{getEventField(log)}</TableCell>
                                     <TableCell>{getEventSummary(log)}</TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => setSelectedLog(log)}>
-                                            <Eye className="h-4 w-4" />
-                                        </Button>
+                                        <div className="flex items-center justify-end gap-1">
+                                            <ReprocessButton logId={log._id.toString()} />
+                                            <Button variant="ghost" size="icon" onClick={() => setSelectedLog(log)}>
+                                                <Eye className="h-4 w-4" />
+                                            </Button>
+                                        </div>
                                     </TableCell>
                                 </TableRow>
                                 ))
