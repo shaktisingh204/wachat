@@ -107,6 +107,7 @@ export type Flow = {
     projectId: any;
     nodes: FlowNode[];
     edges: FlowEdge[];
+    triggerKeywords: string[];
     createdAt: Date;
     updatedAt: Date;
 };

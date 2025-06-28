@@ -13,9 +13,13 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Users, MessageSquare } from 'lucide-react';
+import { AlertCircle, Users, MessageSquare, Search } from 'lucide-react';
 import { AddContactDialog } from '@/components/wabasimplify/add-contact-dialog';
 import { ImportContactsDialog } from '@/components/wabasimplify/import-contacts-dialog';
+import { useDebouncedCallback } from 'use-debounce';
+import { Input } from '@/components/ui/input';
+
+const CONTACTS_PER_PAGE = 20;
 
 export default function ContactsPage() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
@@ -25,6 +29,10 @@ export default function ContactsPage() {
     const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState<string>('');
     const [isClient, setIsClient] = useState(false);
     const router = useRouter();
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+    const [searchQuery, setSearchQuery] = useState('');
     
     const fetchProject = useCallback(async () => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -38,11 +46,12 @@ export default function ContactsPage() {
         setLoadingProject(false);
     }, []);
 
-    const fetchContacts = useCallback(async (phoneId: string) => {
+    const fetchContacts = useCallback(async (phoneId: string, page: number, query: string) => {
         if (!project || !phoneId) return;
         setLoadingContacts(true);
-        const contactsData = await getContactsForProject(project._id.toString(), phoneId);
+        const { contacts: contactsData, total } = await getContactsForProject(project._id.toString(), phoneId, page, CONTACTS_PER_PAGE, query);
         setContacts(contactsData);
+        setTotalPages(Math.ceil(total / CONTACTS_PER_PAGE));
         setLoadingContacts(false);
     }, [project]);
 
@@ -54,9 +63,14 @@ export default function ContactsPage() {
 
     useEffect(() => {
         if (selectedPhoneNumberId) {
-            fetchContacts(selectedPhoneNumberId);
+            fetchContacts(selectedPhoneNumberId, currentPage, searchQuery);
         }
-    }, [selectedPhoneNumberId, fetchContacts]);
+    }, [selectedPhoneNumberId, fetchContacts, currentPage, searchQuery]);
+
+    const handleSearch = useDebouncedCallback((term: string) => {
+        setSearchQuery(term);
+        setCurrentPage(1);
+    }, 300);
     
     const handleMessageContact = (contact: WithId<Contact>) => {
         router.push(`/dashboard/chat?contactId=${contact._id.toString()}&phoneId=${contact.phoneNumberId}`);
@@ -121,9 +135,9 @@ export default function ContactsPage() {
                     </div>
                 </CardHeader>
                 <CardContent>
-                     <div className="mb-4 max-w-sm">
+                     <div className="mb-4 flex flex-wrap gap-4 items-center">
                         <Select value={selectedPhoneNumberId} onValueChange={setSelectedPhoneNumberId} disabled={!project.phoneNumbers || project.phoneNumbers.length === 0}>
-                            <SelectTrigger id="phoneNumberId">
+                            <SelectTrigger id="phoneNumberId" className="w-full sm:w-auto sm:min-w-[250px]">
                                 <SelectValue placeholder="Select a phone number..." />
                             </SelectTrigger>
                             <SelectContent>
@@ -134,6 +148,14 @@ export default function ContactsPage() {
                                 ))}
                             </SelectContent>
                         </Select>
+                         <div className="relative flex-grow">
+                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                placeholder="Search by name or ID..."
+                                className="pl-8"
+                                onChange={(e) => handleSearch(e.target.value)}
+                            />
+                        </div>
                     </div>
 
                     <div className="border rounded-md">
@@ -179,6 +201,30 @@ export default function ContactsPage() {
                             </TableBody>
                         </Table>
                     </div>
+
+                    {totalPages > 1 && (
+                        <div className="flex items-center justify-end space-x-2 py-4">
+                            <span className="text-sm text-muted-foreground">
+                                Page {currentPage} of {totalPages > 0 ? totalPages : 1}
+                            </span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(p => p - 1)}
+                                disabled={currentPage <= 1 || loadingContacts}
+                            >
+                                Previous
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(p => p + 1)}
+                                disabled={currentPage >= totalPages || loadingContacts}
+                            >
+                                Next
+                            </Button>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>

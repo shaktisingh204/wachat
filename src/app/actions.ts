@@ -138,6 +138,11 @@ export type Contact = {
     unreadCount?: number;
     createdAt: Date;
     variables?: Record<string, string>;
+    activeFlow?: {
+        flowId: string;
+        currentNodeId: string;
+        variables: Record<string, any>;
+    };
 }
 
 export type IncomingMessage = {
@@ -1805,18 +1810,44 @@ export async function markAllNotificationsAsRead(): Promise<{ success: boolean, 
 
 // --- Live Chat & Contacts Actions ---
 
-export async function getContactsForProject(projectId: string, phoneNumberId: string): Promise<WithId<Contact>[]> {
-    if (!ObjectId.isValid(projectId)) return [];
+export async function getContactsForProject(
+    projectId: string, 
+    phoneNumberId: string,
+    page: number = 1,
+    limit: number = 20,
+    query?: string
+): Promise<{ contacts: WithId<Contact>[], total: number }> {
+    if (!ObjectId.isValid(projectId)) return { contacts: [], total: 0 };
     try {
         const { db } = await connectToDatabase();
-        const contacts = await db.collection('contacts')
-            .find({ projectId: new ObjectId(projectId), phoneNumberId })
-            .sort({ lastMessageTimestamp: -1 })
-            .toArray();
-        return JSON.parse(JSON.stringify(contacts));
+
+        const filter: Filter<Contact> = {
+            projectId: new ObjectId(projectId),
+            phoneNumberId
+        };
+        if (query) {
+            filter.$or = [
+                { name: { $regex: query, $options: 'i' } },
+                { waId: { $regex: query, $options: 'i' } }
+            ];
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [contacts, total] = await Promise.all([
+            db.collection('contacts')
+                .find(filter)
+                .sort({ lastMessageTimestamp: -1 })
+                .skip(skip)
+                .limit(limit)
+                .toArray(),
+            db.collection('contacts').countDocuments(filter)
+        ]);
+        
+        return { contacts: JSON.parse(JSON.stringify(contacts)), total };
     } catch (error) {
         console.error("Failed to fetch contacts:", error);
-        return [];
+        return { contacts: [], total: 0 };
     }
 }
 
@@ -2040,7 +2071,7 @@ export async function handleAddNewContact(
             return { error: 'A contact with this WhatsApp ID already exists for this project.' };
         }
 
-        const newContact: Omit<Contact, '_id' | 'lastMessage' | 'lastMessageTimestamp' | 'unreadCount'> = {
+        const newContact: Omit<Contact, '_id' | 'lastMessage' | 'lastMessageTimestamp' | 'unreadCount' | 'activeFlow'> = {
             projectId: new ObjectId(projectId),
             phoneNumberId,
             name,
@@ -2424,7 +2455,7 @@ export async function getFlowsForProject(projectId: string): Promise<WithId<Flow
         const { db } = await connectToDatabase();
         const flows = await db.collection('flows')
             .find({ projectId: new ObjectId(projectId) })
-            .project({ name: 1, updatedAt: 1 })
+            .project({ name: 1, updatedAt: 1, triggerKeywords: 1 })
             .sort({ updatedAt: -1 })
             .toArray();
         return JSON.parse(JSON.stringify(flows));
@@ -2458,8 +2489,9 @@ export async function saveFlow(flowData: {
   name: string;
   nodes: FlowNode[];
   edges: FlowEdge[];
+  triggerKeywords: string[];
 }): Promise<SaveFlowResult> {
-  const { flowId, projectId, name, nodes, edges } = flowData;
+  const { flowId, projectId, name, nodes, edges, triggerKeywords } = flowData;
 
   if (!projectId || !name || !nodes) {
     return { error: "Project ID, name, and nodes are required." };
@@ -2476,6 +2508,7 @@ export async function saveFlow(flowData: {
       name,
       nodes,
       edges,
+      triggerKeywords,
       updatedAt: now,
     };
 

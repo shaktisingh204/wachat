@@ -158,7 +158,18 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
     const renderProperties = () => {
         switch (selectedNode.type) {
             case 'start':
-                return <p className="text-sm text-muted-foreground">This is the starting point of your flow. Configure keywords or other triggers here.</p>;
+                return (
+                    <div className="space-y-2">
+                        <Label htmlFor="triggerKeywords">Trigger Keywords</Label>
+                        <Input 
+                            id="triggerKeywords"
+                            placeholder="e.g., help, support, contact" 
+                            value={selectedNode.data.triggerKeywords || ''} 
+                            onChange={(e) => handleDataChange('triggerKeywords', e.target.value)}
+                        />
+                         <p className="text-xs text-muted-foreground">Comma-separated keywords to start this flow.</p>
+                    </div>
+                );
             case 'text':
                 return <Textarea id="text-content" placeholder="Enter your message here..." value={selectedNode.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} className="h-32" />;
             case 'image':
@@ -270,7 +281,7 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
 
 const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
     const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
-    return `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    return `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${to.x} ${to.y}`;
 };
 
 export default function FlowBuilderPage() {
@@ -371,17 +382,23 @@ export default function FlowBuilderPage() {
     };
 
     const handleSaveFlow = () => {
-        if (!projectId || !currentFlow?.name) {
+        const flowName = (document.getElementById('flow-name-input') as HTMLInputElement)?.value;
+        if (!projectId || !flowName) {
             toast({ title: "Cannot Save", description: "Flow name and project are required.", variant: 'destructive' });
             return;
         }
+
+        const startNode = nodes.find(n => n.type === 'start');
+        const triggerKeywords = startNode?.data.triggerKeywords?.split(',').map((k: string) => k.trim()).filter(Boolean) || [];
+        
         startSaveTransition(async () => {
             const result = await saveFlow({
                 flowId: currentFlow?._id.toString(),
                 projectId,
-                name: currentFlow.name,
+                name: flowName,
                 nodes,
-                edges
+                edges,
+                triggerKeywords
             });
             if (result.error) {
                 toast({ title: "Error Saving Flow", description: result.error, variant: 'destructive' });
@@ -497,10 +514,10 @@ export default function FlowBuilderPage() {
                 <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-4">
                     <div>
                          <Input 
-                            value={currentFlow?.name || 'New Flow'} 
-                            onChange={e => setCurrentFlow(prev => prev ? {...prev, name: e.target.value} : { name: e.target.value } as any)} 
+                            id="flow-name-input"
+                            defaultValue={currentFlow?.name || 'New Flow'} 
                             className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-3xl font-bold font-headline"
-                            disabled={!currentFlow && flows.length > 0}
+                            disabled={!isClient}
                             onMouseDown={(e) => e.stopPropagation()}
                             onClick={(e) => e.stopPropagation()}
                         />
@@ -510,7 +527,7 @@ export default function FlowBuilderPage() {
                             <Play className="mr-2 h-4 w-4" />
                             Test Flow
                         </Button>
-                        <Button onClick={handleSaveFlow} disabled={isSaving || !currentFlow?.name}>
+                        <Button onClick={handleSaveFlow} disabled={isSaving}>
                             {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4" />}
                             Save & Publish
                         </Button>

@@ -5,7 +5,98 @@ import { revalidatePath } from 'next/cache';
 import { Db, ObjectId, WithId } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
-import type { Project, Contact, OutgoingMessage, AutoReplySettings } from '@/app/dashboard/page';
+import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode } from '@/app/dashboard/page';
+
+async function sendFlowMessage(
+    db: Db,
+    project: WithId<Project>,
+    contact: WithId<Contact>,
+    phoneNumberId: string,
+    messageText: string
+) {
+     try {
+        const messagePayload = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: contact.waId,
+            type: 'text',
+            text: { preview_url: false, body: messageText },
+        };
+
+        const response = await axios.post(
+            `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
+            messagePayload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) {
+            throw new Error('Message sent but no WAMID was returned from Meta.');
+        }
+
+        const now = new Date();
+        const outgoingMessageDoc: Omit<OutgoingMessage, '_id'> = {
+            direction: 'out',
+            contactId: contact._id,
+            projectId: project._id,
+            wamid,
+            messageTimestamp: now,
+            type: 'text',
+            content: messagePayload,
+            status: 'sent',
+            statusTimestamps: { sent: now },
+            createdAt: now,
+        };
+        await db.collection('outgoing_messages').insertOne(outgoingMessageDoc);
+
+        await db.collection('contacts').updateOne(
+            { _id: contact._id },
+            { $set: { lastMessage: `[Flow]: ${messageText.substring(0, 50)}`, lastMessageTimestamp: now } }
+        );
+        revalidatePath('/dashboard/chat');
+    } catch (e: any) {
+        console.error(`Failed to send flow message to ${contact.waId} for project ${project._id}:`, e.message);
+    }
+}
+
+async function findAndExecuteFlow(db: Db, project: WithId<Project>, contact: WithId<Contact>, message: any, phoneNumberId: string): Promise<boolean> {
+    const messageText = message.text?.body?.toLowerCase().trim();
+    if (!messageText) return false;
+
+    // TODO: Handle if user is already in a flow (contact.activeFlow)
+
+    const flows = await db.collection<Flow>('flows').find({
+        projectId: project._id,
+        triggerKeywords: { $exists: true, $ne: [] }
+    }).toArray();
+
+    const triggeredFlow = flows.find(flow => 
+        flow.triggerKeywords.some(keyword => messageText.includes(keyword.toLowerCase()))
+    );
+
+    if (triggeredFlow) {
+        console.log(`Triggering flow '${triggeredFlow.name}' for contact ${contact.waId}`);
+        const startNode = triggeredFlow.nodes.find(n => n.type === 'start');
+        if (!startNode) return false;
+
+        const firstEdge = triggeredFlow.edges.find(e => e.source === startNode.id);
+        if (!firstEdge) return false;
+
+        const firstNode = triggeredFlow.nodes.find(n => n.id === firstEdge.target);
+        if (!firstNode) return false;
+
+        // Basic execution: only handles a 'text' node after start.
+        if (firstNode.type === 'text' && firstNode.data.text) {
+            await sendFlowMessage(db, project, contact, phoneNumberId, firstNode.data.text);
+        }
+        // In the future, this will set contact.activeFlow and execute the node.
+        
+        return true; // A flow was triggered
+    }
+    
+    return false; // No flow was triggered
+}
+
 
 async function sendAutoReplyMessage(
     db: Db,
@@ -306,7 +397,7 @@ async function findOrCreateProjectByWabaId(db: Db, wabaId: string): Promise<With
         };
         const result = await db.collection('projects').findOneAndUpdate(
             { wabaId: wabaId },
-            { $set: { name: projectDoc.name, accessToken: projectDoc.accessToken, phoneNumbers: projectDoc.phoneNumbers, reviewStatus: projectDoc.reviewStatus, },
+            { $set: { name: projectDoc.name, accessToken: projectDoc.accessToken, phoneNumbers: phoneNumbers, reviewStatus: projectDoc.reviewStatus, },
               $setOnInsert: { createdAt: new Date(), messagesPerSecond: projectDoc.messagesPerSecond, } },
             { upsert: true, returnDocument: 'after' }
         );
@@ -357,7 +448,6 @@ export async function processSingleWebhook(db: Db, payload: any) {
             switch (change.field) {
                 case 'messages': {
                     if (value.statuses && Array.isArray(value.statuses) && value.statuses.length > 0) {
-                        console.log(`Processing status update for WAMID ${value.statuses[0].id}`);
                         await processStatuses(db, value.statuses);
                     } else if (value.messages && Array.isArray(value.messages) && value.messages.length > 0 && project) {
                         const message = value.messages[0];
@@ -402,8 +492,11 @@ export async function processSingleWebhook(db: Db, payload: any) {
                             revalidatePath('/dashboard/chat'); revalidatePath('/dashboard/contacts');
                             revalidatePath('/dashboard/notifications'); revalidatePath('/dashboard', 'layout');
                             
-                            // Trigger auto-reply logic
-                            await triggerAutoReply(db, project, updatedContact, message, businessPhoneNumberId);
+                            const flowWasTriggered = await findAndExecuteFlow(db, project, updatedContact, message, businessPhoneNumberId);
+
+                            if (!flowWasTriggered) {
+                                await triggerAutoReply(db, project, updatedContact, message, businessPhoneNumberId);
+                            }
                         }
                     }
                     break;
