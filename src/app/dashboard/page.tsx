@@ -42,6 +42,25 @@ export type PhoneNumber = {
     };
 };
 
+export type AutoReplySettings = {
+  general?: {
+    enabled: boolean;
+    message: string;
+  };
+  inactiveHours?: {
+    enabled: boolean;
+    startTime: string;
+    endTime: string;
+    timezone: string;
+    days: number[]; // 0 = Sunday, 1 = Monday, etc.
+    message: string;
+  };
+  aiAssistant?: {
+    enabled: boolean;
+    context: string;
+  };
+};
+
 export type Project = {
     name: string;
     wabaId: string;
@@ -52,6 +71,7 @@ export type Project = {
     reviewStatus?: string;
     paymentConfiguration?: PaymentConfiguration;
     businessCapabilities?: BusinessCapabilities;
+    autoReplySettings?: AutoReplySettings;
 };
 
 export type Template = {

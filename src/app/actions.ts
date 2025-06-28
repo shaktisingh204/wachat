@@ -8,7 +8,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
-import type { PhoneNumber, Project, Template } from '@/app/dashboard/page';
+import type { PhoneNumber, Project, Template, AutoReplySettings } from '@/app/dashboard/page';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
@@ -176,7 +176,7 @@ export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 
 
 // Re-export types for client components
-export type { Project, Template, PhoneNumber };
+export type { Project, Template, PhoneNumber, AutoReplySettings };
 
 const getErrorMessage = (error: any): string => {
     if (axios.isAxiosError(error) && error.response?.data?.error) {
@@ -2347,5 +2347,85 @@ export async function handleRequeueAllWebhookLogs(): Promise<{ message?: string;
     } catch (e: any) {
         console.error("Failed to requeue all webhook logs:", e);
         return { error: e.message || "An unexpected error occurred during requeueing." };
+    }
+}
+
+type AutoReplyState = {
+    message?: string;
+    error?: string;
+};
+
+export async function handleUpdateAutoReplySettings(
+    prevState: AutoReplyState,
+    formData: FormData
+): Promise<AutoReplyState> {
+    const projectId = formData.get('projectId') as string;
+    const replyType = formData.get('replyType') as 'general' | 'inactiveHours' | 'aiAssistant';
+
+    if (!projectId || !ObjectId.isValid(projectId)) {
+        return { error: 'Invalid Project ID.' };
+    }
+    if (!replyType) {
+        return { error: 'Invalid reply type specified.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        let updatePayload = {};
+
+        switch (replyType) {
+            case 'general':
+                updatePayload = {
+                    'autoReplySettings.general': {
+                        enabled: formData.get('enabled') === 'on',
+                        message: formData.get('message') as string,
+                    }
+                };
+                break;
+            case 'inactiveHours':
+                const days: number[] = [];
+                for (let i = 0; i < 7; i++) {
+                    if (formData.get(`day_${i}`) === 'on') {
+                        days.push(i);
+                    }
+                }
+                updatePayload = {
+                    'autoReplySettings.inactiveHours': {
+                        enabled: formData.get('enabled') === 'on',
+                        startTime: formData.get('startTime') as string,
+                        endTime: formData.get('endTime') as string,
+                        timezone: formData.get('timezone') as string,
+                        days: days,
+                        message: formData.get('message') as string,
+                    }
+                };
+                break;
+            case 'aiAssistant':
+                updatePayload = {
+                    'autoReplySettings.aiAssistant': {
+                        enabled: formData.get('enabled') === 'on',
+                        context: formData.get('context') as string,
+                    }
+                };
+                break;
+            default:
+                return { error: 'Unknown reply type.' };
+        }
+
+        const result = await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: updatePayload }
+        );
+
+        if (result.matchedCount === 0) {
+            return { error: 'Project not found.' };
+        }
+
+        revalidatePath('/dashboard/auto-reply');
+        return { message: 'Auto-reply settings saved successfully!' };
+
+    } catch (e: any) {
+        console.error('Failed to update auto-reply settings:', e);
+        return { error: e.message || 'An unexpected error occurred.' };
     }
 }

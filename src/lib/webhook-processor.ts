@@ -3,6 +3,143 @@
 
 import { revalidatePath } from 'next/cache';
 import { Db, ObjectId, WithId } from 'mongodb';
+import axios from 'axios';
+import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
+import type { Project, Contact, OutgoingMessage, AutoReplySettings } from '@/app/dashboard/page';
+
+async function sendAutoReplyMessage(
+    db: Db,
+    project: WithId<Project>,
+    contact: WithId<Contact>,
+    phoneNumberId: string,
+    messageText: string
+) {
+    try {
+        const messagePayload = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: contact.waId,
+            type: 'text',
+            text: { preview_url: false, body: messageText },
+        };
+
+        const response = await axios.post(
+            `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
+            messagePayload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) {
+            throw new Error('Message sent but no WAMID was returned from Meta.');
+        }
+
+        const now = new Date();
+        const outgoingMessageDoc: Omit<OutgoingMessage, '_id'> = {
+            direction: 'out',
+            contactId: contact._id,
+            projectId: project._id,
+            wamid,
+            messageTimestamp: now,
+            type: 'text',
+            content: messagePayload,
+            status: 'sent',
+            statusTimestamps: { sent: now },
+            createdAt: now,
+        };
+        await db.collection('outgoing_messages').insertOne(outgoingMessageDoc);
+
+        // Update last message on contact, but don't increment unread count for auto-replies
+        await db.collection('contacts').updateOne(
+            { _id: contact._id },
+            { $set: { lastMessage: `[Auto]: ${messageText.substring(0, 50)}`, lastMessageTimestamp: now } }
+        );
+        revalidatePath('/dashboard/chat');
+    } catch (e: any) {
+        console.error(`Failed to send auto-reply to ${contact.waId} for project ${project._id}:`, e.message);
+    }
+}
+
+
+async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithId<Contact>, message: any, phoneNumberId: string) {
+    const settings = project.autoReplySettings;
+    if (!settings) return;
+
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const recentOutgoingMessage = await db.collection('outgoing_messages').findOne({
+        contactId: contact._id,
+        createdAt: { $gte: fiveMinutesAgo },
+    });
+
+    if (recentOutgoingMessage) {
+        console.log(`Auto-reply skipped for contact ${contact.waId} due to recent outgoing message.`);
+        return;
+    }
+
+    let replyMessage: string | null = null;
+    
+    // 1. Check Inactive Hours
+    if (settings.inactiveHours?.enabled && settings.inactiveHours.message) {
+        const { startTime, endTime, timezone, days, message } = settings.inactiveHours;
+        try {
+            const now = new Date();
+            const nowInTZ = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
+            
+            const currentDay = nowInTZ.getDay(); // 0 = Sunday
+            const currentTime = nowInTZ.getHours() * 60 + nowInTZ.getMinutes();
+            
+            const [startHour, startMinute] = startTime.split(':').map(Number);
+            const startTimeInMinutes = startHour * 60 + startMinute;
+
+            const [endHour, endMinute] = endTime.split(':').map(Number);
+            const endTimeInMinutes = endHour * 60 + endMinute;
+
+            const isDayMatch = days.includes(currentDay);
+            let isTimeMatch = false;
+
+            // Handle overnight case (e.g., 18:00 - 09:00)
+            if (startTimeInMinutes > endTimeInMinutes) {
+                if (currentTime >= startTimeInMinutes || currentTime < endTimeInMinutes) {
+                    isTimeMatch = true;
+                }
+            } else { // Handle same-day case (e.g., 09:00 - 18:00)
+                if (currentTime >= startTimeInMinutes && currentTime < endTimeInMinutes) {
+                    isTimeMatch = true;
+                }
+            }
+
+            if (isDayMatch && isTimeMatch) {
+                replyMessage = message;
+            }
+        } catch (e) {
+            console.error("Error processing inactive hours:", e);
+        }
+    }
+
+    // 2. Check AI Assistant (if no inactive reply was triggered)
+    if (!replyMessage && settings.aiAssistant?.enabled && settings.aiAssistant.context && message.type === 'text') {
+        try {
+            const result = await generateAutoReply({
+                incomingMessage: message.text.body,
+                businessContext: settings.aiAssistant.context
+            });
+            replyMessage = result.replyMessage;
+        } catch (e: any) {
+            console.error("Error generating AI reply:", e.message);
+        }
+    }
+    
+    // 3. Check General Reply (if no other reply was triggered)
+    if (!replyMessage && settings.general?.enabled && settings.general.message) {
+        replyMessage = settings.general.message;
+    }
+
+    // 4. Send the determined reply
+    if (replyMessage) {
+        await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
+    }
+}
+
 
 export async function processStatuses(db: Db, statuses: any[]) {
     if (!statuses || !Array.isArray(statuses) || statuses.length === 0) {
@@ -201,9 +338,10 @@ export async function processSingleWebhook(db: Db, payload: any) {
             const value = change.value;
             if (!value) continue;
 
-            let project = await db.collection('projects').findOne(
-                { $or: [ { wabaId: wabaId }, { 'phoneNumbers.id': value.metadata?.phone_number_id } ] },
-                { projection: { _id: 1, name: 1, wabaId: 1, businessCapabilities: 1 } }
+            const phone_number_id = value.metadata?.phone_number_id;
+
+            let project = await db.collection<Project>('projects').findOne(
+                 { $or: [ { wabaId: wabaId }, ...(phone_number_id ? [{ 'phoneNumbers.id': phone_number_id }] : [])] }
             );
 
             if (!project) {
@@ -219,7 +357,7 @@ export async function processSingleWebhook(db: Db, payload: any) {
             switch (change.field) {
                 case 'messages': {
                     if (value.statuses && Array.isArray(value.statuses) && value.statuses.length > 0) {
-                        // This case is handled by the batch processor now, but we keep this for single re-processing.
+                        console.log(`Processing status update for WAMID ${value.statuses[0].id}`);
                         await processStatuses(db, value.statuses);
                     } else if (value.messages && Array.isArray(value.messages) && value.messages.length > 0 && project) {
                         const message = value.messages[0];
@@ -257,12 +395,15 @@ export async function processSingleWebhook(db: Db, payload: any) {
                             });
                             await db.collection('notifications').insertOne({
                                 projectId: project._id, wabaId: project.wabaId,
-                                message: `New message from ${senderName} for project '${project.name}'.`,
+                                message: `New message from ${senderName}.`,
                                 link: `/dashboard/chat?contactId=${updatedContact._id.toString()}&phoneId=${businessPhoneNumberId}`,
                                 isRead: false, createdAt: new Date(), eventType: change.field,
                             });
                             revalidatePath('/dashboard/chat'); revalidatePath('/dashboard/contacts');
                             revalidatePath('/dashboard/notifications'); revalidatePath('/dashboard', 'layout');
+                            
+                            // Trigger auto-reply logic
+                            await triggerAutoReply(db, project, updatedContact, message, businessPhoneNumberId);
                         }
                     }
                     break;

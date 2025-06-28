@@ -27,7 +27,7 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { WachatLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send, Briefcase, Rss, Info, Bell, MessageCircle, Users } from 'lucide-react';
+import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send, Briefcase, Rss, Info, Bell, MessageCircle, Users, Bot } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
 
@@ -40,6 +40,7 @@ const menuItems = [
   { href: '/dashboard/numbers', label: 'Phone Numbers', icon: Phone },
   { href: '/dashboard/templates', label: 'Message Templates', icon: FileText },
   { href: '/dashboard/broadcasts', label: 'Broadcasts', icon: Send },
+  { href: '/dashboard/auto-reply', label: 'Auto Reply', icon: Bot },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Rss },
 ];
 
