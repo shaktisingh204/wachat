@@ -14,6 +14,7 @@ import FormData from 'form-data';
 import axios from 'axios';
 import { translateText } from '@/ai/flows/translate-text';
 import { processSingleWebhook } from '@/lib/webhook-processor';
+import { processBroadcastJob } from '@/lib/cron-scheduler';
 
 type MetaPhoneNumber = {
     id: string;
