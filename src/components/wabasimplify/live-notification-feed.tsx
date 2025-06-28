@@ -48,7 +48,7 @@ export function LiveNotificationFeed() {
       startTransition(async () => {
         const result = await markNotificationAsRead(notification._id.toString());
         if (result.success) {
-          setNotifications(prev => prev.map(n => n._id.toString() === notification._id.toString() ? { ...n, isRead: true } : n));
+          setNotifications(prev => prev.map(n => n._id.toString() === notification._id.toString() ? {...n, isRead: true} : n));
         } else {
           toast({ title: "Error", description: "Failed to mark notification as read.", variant: "destructive" });
         }
@@ -70,8 +70,8 @@ export function LiveNotificationFeed() {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 w-full max-w-sm">
-      <Card className="shadow-2xl bg-background/80 backdrop-blur-sm">
+    <div className="fixed inset-y-0 right-0 z-50 w-full max-w-sm p-4 pointer-events-none">
+      <Card className="shadow-2xl bg-background/80 backdrop-blur-sm h-full flex flex-col pointer-events-auto">
         <CardHeader className="flex flex-row items-center justify-between p-4">
           <div className="space-y-1">
              <CardTitle className="text-base">Live Notifications</CardTitle>
@@ -82,8 +82,8 @@ export function LiveNotificationFeed() {
             <span className="sr-only">Close notifications</span>
           </button>
         </CardHeader>
-        <CardContent className="p-0">
-          <ScrollArea className="h-96">
+        <CardContent className="p-0 flex-1 overflow-hidden">
+          <ScrollArea className="h-full">
             <div className="p-2 space-y-2">
               {isPending && notifications.length === 0 ? (
                 <div className="h-full flex items-center justify-center p-4 text-sm text-muted-foreground">
