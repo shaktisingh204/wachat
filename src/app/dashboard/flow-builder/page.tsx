@@ -135,6 +135,13 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
         updateNodeData(selectedNode.id, { [field]: value });
     };
 
+    const handleApiChange = (field: keyof any, value: any) => {
+        if (!selectedNode) return;
+        const currentApiRequest = selectedNode.data.apiRequest || {};
+        const newApiRequest = { ...currentApiRequest, [field]: value };
+        updateNodeData(selectedNode.id, { apiRequest: newApiRequest });
+    };
+
     const renderProperties = () => {
         switch (selectedNode.type) {
             case 'start':
@@ -177,12 +184,12 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                             <TabsTrigger value="response">Response</TabsTrigger>
                         </TabsList>
                         <TabsContent value="request" className="space-y-4 pt-2">
-                             <Input placeholder="https://api.example.com" value={selectedNode.data.apiRequest?.url || ''} />
-                             <Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={selectedNode.data.apiRequest?.body || ''} />
+                             <Input placeholder="https://api.example.com" value={selectedNode.data.apiRequest?.url || ''} onChange={(e) => handleApiChange('url', e.target.value)} />
+                             <Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={selectedNode.data.apiRequest?.body || ''} onChange={(e) => handleApiChange('body', e.target.value)} />
                         </TabsContent>
                         <TabsContent value="response" className="space-y-4 pt-2">
                             <Label htmlFor="api-variable">Save Response to Variable</Label>
-                            <Input id="api-variable" placeholder="e.g., api_response" value={selectedNode.data.apiRequest?.responseVariable || ''} />
+                            <Input id="api-variable" placeholder="e.g., api_response" value={selectedNode.data.apiRequest?.responseVariable || ''} onChange={(e) => handleApiChange('responseVariable', e.target.value)} />
                         </TabsContent>
                     </Tabs>
                 )
