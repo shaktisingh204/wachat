@@ -1,5 +1,4 @@
 
-
 import type { Metadata } from "next";
 import { getProjects } from "@/app/actions";
 import { CreateProjectDialog } from "@/components/wabasimplify/project-dialog";
@@ -126,7 +125,7 @@ export default async function SelectProjectPage({
         <div className="flex flex-col gap-8">
             <div className="flex flex-wrap justify-between items-start gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">Select a Project</h1>
+                    <h1 className="text-3xl font-bold font-headline">Select a Project ({projects.length})</h1>
                     <p className="text-muted-foreground">
                         Choose an existing project or create a new one to get started.
                     </p>
