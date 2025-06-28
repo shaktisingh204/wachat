@@ -340,30 +340,8 @@ export async function getBroadcasts(
         const { db } = await connectToDatabase();
         const projectObjectId = new ObjectId(projectId);
 
-        const project = await db.collection('projects').findOne({ _id: projectObjectId }, { projection: { phoneNumbers: 1 } });
-        
-        if (!project) {
-            console.warn(`getBroadcasts: Project with ID ${projectId} not found.`);
-            return { broadcasts: [], total: 0 };
-        }
-
-        const projectPhoneNumberIds = project.phoneNumbers?.map(p => p.id) || [];
-        
-        const projectTemplateIds = await db.collection('templates')
-            .find({ projectId: projectObjectId }, { projection: { _id: 1 } })
-            .map(t => t._id)
-            .toArray();
-            
-        const matchConditions: Filter<any>[] = [{ projectId: projectObjectId }];
-        if (projectTemplateIds.length > 0) {
-            matchConditions.push({ templateId: { $in: projectTemplateIds } });
-        }
-        if (projectPhoneNumberIds.length > 0) {
-            matchConditions.push({ phoneNumberId: { $in: projectPhoneNumberIds } });
-        }
-
         const matchCriteria: Filter<any> = {
-            $or: matchConditions
+            projectId: projectObjectId
         };
 
         const skip = (page - 1) * limit;
