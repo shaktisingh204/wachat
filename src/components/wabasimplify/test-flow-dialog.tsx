@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { ImageIcon } from 'lucide-react';
 
 interface TestFlowDialogProps {
   open: boolean;
@@ -63,6 +64,25 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
       case 'text':
         addMessage('bot', node.data.text || '[No text content]');
         findAndExecuteNextNode(nodeId, 'output-main');
+        break;
+
+      case 'image':
+        addMessage('bot', (
+            <div className="space-y-2">
+                <div className="block relative aspect-video w-full bg-muted rounded-lg overflow-hidden flex items-center justify-center">
+                    <ImageIcon className="h-10 w-10 text-muted-foreground"/>
+                </div>
+                {node.data.caption && <p className="text-sm">{node.data.caption}</p>}
+            </div>
+        ));
+        findAndExecuteNextNode(nodeId, 'output-main');
+        break;
+
+      case 'delay':
+        addMessage('bot', `(Waiting for ${node.data.delaySeconds || 1} seconds...)`);
+        setTimeout(() => {
+            findAndExecuteNextNode(nodeId, 'output-main');
+        }, (node.data.delaySeconds || 1) * 1000);
         break;
       
       case 'input':

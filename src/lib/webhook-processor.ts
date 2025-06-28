@@ -59,6 +59,71 @@ async function sendFlowMessage(
     }
 }
 
+async function sendFlowImage(
+    db: Db,
+    project: WithId<Project>,
+    contact: WithId<Contact>,
+    phoneNumberId: string,
+    imageUrl: string,
+    caption?: string
+) {
+    if (!imageUrl) {
+        console.error(`Flow execution skipped: Image URL is missing for project ${project._id}`);
+        return;
+    }
+
+    try {
+        const messagePayload: any = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: contact.waId,
+            type: 'image',
+            image: {
+                link: imageUrl,
+            },
+        };
+
+        if (caption) {
+            messagePayload.image.caption = caption;
+        }
+
+        const response = await axios.post(
+            `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
+            messagePayload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) {
+            throw new Error('Message sent but no WAMID was returned from Meta.');
+        }
+
+        const now = new Date();
+        const outgoingMessageDoc: Omit<OutgoingMessage, '_id'> = {
+            direction: 'out',
+            contactId: contact._id,
+            projectId: project._id,
+            wamid,
+            messageTimestamp: now,
+            type: 'image',
+            content: messagePayload,
+            status: 'sent',
+            statusTimestamps: { sent: now },
+            createdAt: now,
+        };
+        await db.collection('outgoing_messages').insertOne(outgoingMessageDoc);
+
+        await db.collection('contacts').updateOne(
+            { _id: contact._id },
+            { $set: { lastMessage: caption || '[Flow]: Sent an image', lastMessageTimestamp: now } }
+        );
+        revalidatePath('/dashboard/chat');
+    } catch (e: any) {
+        console.error(`Failed to send flow image to ${contact.waId} for project ${project._id}:`, e.message);
+    }
+}
+
+
 async function findAndExecuteFlow(db: Db, project: WithId<Project>, contact: WithId<Contact>, message: any, phoneNumberId: string): Promise<boolean> {
     const messageText = message.text?.body?.toLowerCase().trim();
     if (!messageText) return false;
@@ -76,20 +141,44 @@ async function findAndExecuteFlow(db: Db, project: WithId<Project>, contact: Wit
 
     if (triggeredFlow) {
         console.log(`Triggering flow '${triggeredFlow.name}' for contact ${contact.waId}`);
-        const startNode = triggeredFlow.nodes.find(n => n.type === 'start');
-        if (!startNode) return false;
+        
+        let currentNode = triggeredFlow.nodes.find(n => n.type === 'start');
+        if (!currentNode) return false;
 
-        const firstEdge = triggeredFlow.edges.find(e => e.source === startNode.id);
-        if (!firstEdge) return false;
+        // Simple linear execution for now
+        while(currentNode) {
+            const edge = triggeredFlow.edges.find(e => e.source === currentNode.id);
+            const nextNodeId = edge?.target;
+            
+            if (!nextNodeId) {
+                currentNode = null;
+                continue;
+            }
 
-        const firstNode = triggeredFlow.nodes.find(n => n.id === firstEdge.target);
-        if (!firstNode) return false;
+            const nextNode = triggeredFlow.nodes.find(n => n.id === nextNodeId);
 
-        // Basic execution: only handles a 'text' node after start.
-        if (firstNode.type === 'text' && firstNode.data.text) {
-            await sendFlowMessage(db, project, contact, phoneNumberId, firstNode.data.text);
+            if (nextNode) {
+                 switch (nextNode.type) {
+                    case 'text':
+                         if (nextNode.data.text) {
+                            await sendFlowMessage(db, project, contact, phoneNumberId, nextNode.data.text);
+                         }
+                         break;
+                    case 'image':
+                         if (nextNode.data.imageUrl) {
+                            await sendFlowImage(db, project, contact, phoneNumberId, nextNode.data.imageUrl, nextNode.data.caption);
+                         }
+                         break;
+                    case 'delay':
+                        if (nextNode.data.delaySeconds > 0) {
+                            await new Promise(resolve => setTimeout(resolve, nextNode.data.delaySeconds * 1000));
+                        }
+                        break;
+                    // Other non-pausing nodes can be added here.
+                 }
+            }
+            currentNode = nextNode;
         }
-        // In the future, this will set contact.activeFlow and execute the node.
         
         return true; // A flow was triggered
     }

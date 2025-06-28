@@ -40,8 +40,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart';
+
+type ButtonConfig = {
+    id: string;
+    type: 'QUICK_REPLY' | 'URL';
+    text: string;
+    url?: string;
+};
 
 const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
@@ -119,7 +127,7 @@ const NodeComponent = ({
                     <Handle position="right" id={`${node.id}-output-no`} style={{ top: '66.67%' }} />
                 </>
             ) : (
-                <Handle position="right" id={`${node.id}-output-main`} />
+                node.type !== 'addToCart' && <Handle position="right" id={`${node.id}-output-main`} />
             )}
         </div>
     );
@@ -149,11 +157,27 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
     };
 
     const handleApiChange = (field: keyof any, value: any) => {
-        if (!selectedNode) return;
         const currentApiRequest = selectedNode.data.apiRequest || {};
         const newApiRequest = { ...currentApiRequest, [field]: value };
         updateNodeData(selectedNode.id, { apiRequest: newApiRequest });
     };
+
+     const handleButtonChange = (index: number, field: keyof ButtonConfig, value: string) => {
+        const newButtons = [...(selectedNode.data.buttons || [])];
+        newButtons[index] = { ...newButtons[index], [field]: value };
+        handleDataChange('buttons', newButtons);
+    };
+
+    const addFlowButton = () => {
+        const newButtons: ButtonConfig[] = [...(selectedNode.data.buttons || []), { id: `btn-${Date.now()}`, type: 'QUICK_REPLY', text: '' }];
+        handleDataChange('buttons', newButtons);
+    };
+
+    const removeFlowButton = (index: number) => {
+        const newButtons = (selectedNode.data.buttons || []).filter((_: any, i: number) => i !== index);
+        handleDataChange('buttons', newButtons);
+    };
+
 
     const renderProperties = () => {
         switch (selectedNode.type) {
@@ -173,13 +197,73 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
             case 'text':
                 return <Textarea id="text-content" placeholder="Enter your message here..." value={selectedNode.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} className="h-32" />;
             case 'image':
-                return <Input id="image-url" placeholder="https://example.com/image.png" value={selectedNode.data.imageUrl || ''} onChange={(e) => handleDataChange('imageUrl', e.target.value)} />;
+                 return (
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="image-url">Image URL</Label>
+                            <Input id="image-url" placeholder="https://example.com/image.png" value={selectedNode.data.imageUrl || ''} onChange={(e) => handleDataChange('imageUrl', e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="image-caption">Caption (Optional)</Label>
+                            <Textarea id="image-caption" placeholder="A caption for your image..." value={selectedNode.data.caption || ''} onChange={(e) => handleDataChange('caption', e.target.value)} />
+                        </div>
+                    </div>
+                );
+            case 'buttons':
+                return (
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="buttons-text">Message Text</Label>
+                            <Textarea id="buttons-text" placeholder="Choose an option:" value={selectedNode.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} />
+                        </div>
+                        <Separator/>
+                        <div className="space-y-2">
+                            <Label>Buttons</Label>
+                            <div className="space-y-3">
+                                {(selectedNode.data.buttons || []).map((btn: ButtonConfig, index: number) => (
+                                    <div key={btn.id || index} className="p-2 border rounded-md space-y-2">
+                                        <div className="flex items-center justify-end">
+                                             <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFlowButton(index)}><Trash2 className="h-3 w-3"/></Button>
+                                        </div>
+                                        <Select value={btn.type} onValueChange={(val) => handleButtonChange(index, 'type', val)}>
+                                            <SelectTrigger><SelectValue/></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="QUICK_REPLY">Quick Reply</SelectItem>
+                                                <SelectItem value="URL">URL</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <Input placeholder="Button Text" value={btn.text} onChange={(e) => handleButtonChange(index, 'text', e.target.value)} />
+                                        {btn.type === 'URL' && <Input placeholder="https://..." value={btn.url} onChange={(e) => handleButtonChange(index, 'url', e.target.value)} />}
+                                    </div>
+                                ))}
+                            </div>
+                            <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addFlowButton}><Plus className="mr-2 h-4 w-4"/>Add Button</Button>
+                        </div>
+                    </div>
+                );
+            case 'condition':
+                return (
+                    <div className="space-y-4">
+                        <Input placeholder="Variable (e.g., {{user_name}})" value={selectedNode.data.variable || ''} onChange={(e) => handleDataChange('variable', e.target.value)} />
+                        <Select value={selectedNode.data.operator || 'equals'} onValueChange={(val) => handleDataChange('operator', val)}>
+                             <SelectTrigger><SelectValue/></SelectTrigger>
+                             <SelectContent>
+                                 <SelectItem value="equals">Equals</SelectItem>
+                                 <SelectItem value="not_equals">Does not equal</SelectItem>
+                                 <SelectItem value="contains">Contains</SelectItem>
+                                 <SelectItem value="greater_than">Greater than</SelectItem>
+                                 <SelectItem value="less_than">Less than</SelectItem>
+                             </SelectContent>
+                        </Select>
+                        <Input placeholder="Value to check against" value={selectedNode.data.value || ''} onChange={(e) => handleDataChange('value', e.target.value)} />
+                    </div>
+                );
             case 'delay':
                 return (
                     <div className="space-y-4">
                         <div className="space-y-2">
                              <Label htmlFor="delay-seconds">Delay (seconds)</Label>
-                             <Input id="delay-seconds" type="number" value={selectedNode.data.delaySeconds || 1} onChange={(e) => handleDataChange('delaySeconds', parseFloat(e.target.value))} />
+                             <Input id="delay-seconds" type="number" min="1" value={selectedNode.data.delaySeconds || 1} onChange={(e) => handleDataChange('delaySeconds', parseFloat(e.target.value))} />
                         </div>
                         <div className="flex items-center space-x-2">
                             <Switch id="typing-indicator" checked={selectedNode.data.showTyping} onCheckedChange={(checked) => handleDataChange('showTyping', checked)} />
@@ -208,17 +292,30 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                             <TabsTrigger value="response">Response</TabsTrigger>
                         </TabsList>
                         <TabsContent value="request" className="space-y-4 pt-2">
+                             <Select value={selectedNode.data.apiRequest?.method || 'GET'} onValueChange={(val) => handleApiChange('method', val)}>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="GET">GET</SelectItem>
+                                    <SelectItem value="POST">POST</SelectItem>
+                                    <SelectItem value="PUT">PUT</SelectItem>
+                                </SelectContent>
+                             </Select>
                              <Input placeholder="https://api.example.com" value={selectedNode.data.apiRequest?.url || ''} onChange={(e) => handleApiChange('url', e.target.value)} />
+                             <Textarea placeholder='Headers (JSON format)\n{\n  "Authorization": "Bearer ..."\n}' className="font-mono text-xs h-24" value={selectedNode.data.apiRequest?.headers || ''} onChange={(e) => handleApiChange('headers', e.target.value)} />
                              <Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={selectedNode.data.apiRequest?.body || ''} onChange={(e) => handleApiChange('body', e.target.value)} />
                         </TabsContent>
                         <TabsContent value="response" className="space-y-4 pt-2">
                             <Label htmlFor="api-variable">Save Response to Variable</Label>
                             <Input id="api-variable" placeholder="e.g., api_response" value={selectedNode.data.apiRequest?.responseVariable || ''} onChange={(e) => handleApiChange('responseVariable', e.target.value)} />
+                            <p className="text-xs text-muted-foreground">e.g., to access a field, use {'{{api_response.data.name}}'}</p>
                         </TabsContent>
                     </Tabs>
-                )
+                );
+            case 'carousel':
+            case 'addToCart':
+                 return <p className="text-sm text-muted-foreground italic">Configuration for this block is coming soon.</p>;
             default:
-                return <p className="text-sm text-muted-foreground italic">No properties to configure for this block type yet.</p>;
+                return <p className="text-sm text-muted-foreground italic">No properties to configure for this block type.</p>;
         }
     };
 
@@ -228,14 +325,16 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                 <CardTitle>Properties</CardTitle>
                 <CardDescription>Configure the '{selectedNode.data.label}' block.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4 flex-1 overflow-y-auto">
-                <div className="space-y-2">
-                    <Label htmlFor="node-label">Block Label</Label>
-                    <Input id="node-label" value={selectedNode.data.label || ''} onChange={(e) => handleDataChange('label', e.target.value)} />
-                </div>
-                <Separator />
-                {renderProperties()}
-            </CardContent>
+            <ScrollArea className="flex-1">
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="node-label">Block Label</Label>
+                        <Input id="node-label" value={selectedNode.data.label || ''} onChange={(e) => handleDataChange('label', e.target.value)} />
+                    </div>
+                    <Separator />
+                    {renderProperties()}
+                </CardContent>
+            </ScrollArea>
             {selectedNode.type !== 'start' && (
                 <CardFooter className="border-t pt-4">
                      <Button variant="destructive" className="w-full" onClick={() => deleteNode(selectedNode.id)}>
@@ -361,7 +460,7 @@ export default function FlowBuilderPage() {
             type,
             data: { 
                 label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
-                apiRequest: { method: 'GET', url: '', headers: [], body: '', responseVariable: '' }
+                apiRequest: { method: 'GET', url: '', headers: '', body: '', responseVariable: '' }
             },
             position: { x: Math.random() * 400 + 200, y: Math.random() * 200 + 50 },
         };

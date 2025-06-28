@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 function ChatPageSkeleton() {
-    return <div className="flex h-[calc(100vh-150px)]"><Skeleton className="h-full w-full" /></div>;
+    return <div className="flex h-full"><Skeleton className="h-full w-full" /></div>;
 }
 
 // This is a server component that uses Suspense to handle client-side parameter reading

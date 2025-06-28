@@ -194,7 +194,7 @@ export function ChatClient() {
 
 
     if (!isClient || loadingProject) {
-        return <div className="flex h-[calc(100vh-150px)]"><Skeleton className="h-full w-full" /></div>;
+        return <div className="flex h-full"><Skeleton className="h-full w-full" /></div>;
     }
 
     if (!project) {
@@ -216,7 +216,7 @@ export function ChatClient() {
                 onOpenChange={setIsNewChatDialogOpen}
                 onStartChat={handleNewChat}
             />
-            <div className="flex flex-col h-[calc(100vh-150px)] border rounded-lg bg-card">
+            <div className="flex flex-col h-full border rounded-lg bg-card">
                 <div className="p-4 border-b">
                     <div className="max-w-sm">
                         <Select value={selectedPhoneNumberId} onValueChange={setSelectedPhoneNumberId}>
