@@ -32,8 +32,8 @@ export function ChatContactList({ contacts, selectedContactId, onSelectContact, 
     );
     
     return (
-        <div className="h-full flex flex-col">
-            <div className="p-4 border-b flex items-center justify-between">
+        <div className="h-full flex flex-col overflow-hidden">
+            <div className="p-4 border-b flex items-center justify-between flex-shrink-0">
                 <h2 className="text-lg font-semibold tracking-tight">Contacts</h2>
                 <Button variant="ghost" size="icon" onClick={onNewChat} className="h-8 w-8">
                     <MessageSquarePlus className="h-5 w-5" />
