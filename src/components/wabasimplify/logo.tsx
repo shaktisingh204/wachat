@@ -1,3 +1,4 @@
+// This component is no longer used in the main layout but is kept for potential other uses.
 import * as React from 'react';
 
 export const WachatLogo = (props: React.SVGProps<SVGSVGElement>) => (

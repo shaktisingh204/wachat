@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   SidebarProvider,
   Sidebar,
@@ -25,23 +25,23 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { WachatLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, Phone, FileText, Settings, LogOut, ChevronDown, Send, Briefcase, Rss, Info, Bell, MessageCircle, Users, Bot, GitBranch } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
+import { LayoutDashboard, MessageSquare, History, Users, Send, GitBranch, Settings, LayoutGrid, Tag, Briefcase, LogOut, ChevronDown } from 'lucide-react';
+import { FacebookIcon, WaPayIcon, WachatSidebarTopLogo, WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 
 const menuItems = [
   { href: '/dashboard/overview', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },
-  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageCircle },
+  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare },
+  { href: '/dashboard/notifications', label: 'History', icon: History },
   { href: '/dashboard/contacts', label: 'Contacts', icon: Users },
-  { href: '/dashboard/information', label: 'Project Information', icon: Info },
-  { href: '/dashboard/numbers', label: 'Phone Numbers', icon: Phone },
-  { href: '/dashboard/templates', label: 'Message Templates', icon: FileText },
-  { href: '/dashboard/broadcasts', label: 'Broadcasts', icon: Send },
-  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitBranch },
-  { href: '/dashboard/auto-reply', label: 'Auto Reply', icon: Bot },
-  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Rss },
+  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send },
+  { href: '/dashboard/ads', label: 'Ads Manager', icon: FacebookIcon },
+  { href: '/dashboard/flow-builder', label: 'Flows', icon: GitBranch },
+  { href: '/dashboard/payments', label: 'WA Pay', icon: WaPayIcon },
+  { href: '/dashboard/settings', label: 'Manage', icon: Settings },
+  { href: '/dashboard/integrations', label: 'Integrations', icon: LayoutGrid },
+  { href: '/dashboard/ecommerce', label: 'EComm+', icon: Tag },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -63,17 +63,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <SidebarProvider>
       <div className="flex min-h-screen">
         <Sidebar>
-          <SidebarHeader>
-            <WachatLogo className="w-32 h-auto" />
+          <SidebarHeader className="items-center justify-center p-4">
+            <WachatSidebarTopLogo className="w-10 h-10" />
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)}>
+                  <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} className="h-20">
                     <Link href={item.href}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.label}</span>
+                      <item.icon className="h-6 w-6 mb-1" />
+                      <span className="text-xs">{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -83,28 +83,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <SidebarFooter>
             <SidebarMenu>
               <SidebarMenuItem>
-                 <SidebarMenuButton asChild isActive={pathname === '/dashboard'}>
+                 <SidebarMenuButton asChild isActive={pathname === '/dashboard'} className="h-20">
                   <Link href="/dashboard">
-                    <Briefcase className="h-4 w-4" />
-                    <span>Change Project</span>
+                    <Briefcase className="h-6 w-6 mb-1" />
+                    <span className="text-xs">All Projects</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={pathname.startsWith('/dashboard/settings')}>
-                  <Link href="/dashboard/settings">
-                    <Settings className="h-4 w-4" />
-                    <span>Settings</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <Link href="/">
-                    <LogOut className="h-4 w-4" />
-                    <span>Logout</span>
-                  </Link>
-                </SidebarMenuButton>
+                <div className="flex justify-center p-2">
+                    <Avatar className="h-10 w-10">
+                        <WachatBrandLogo />
+                    </Avatar>
+                </div>
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarFooter>
@@ -137,7 +128,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Billing</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard/settings">Settings</Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                   <Link href="/">Logout</Link>
