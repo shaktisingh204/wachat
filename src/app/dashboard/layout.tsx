@@ -71,13 +71,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setActiveProjectName(name || 'No Project Selected');
   }, []);
 
+  const isChatPage = pathname.startsWith('/dashboard/chat');
+  
   const hideNotificationFeed =
     pathname === '/dashboard' ||
     pathname.startsWith('/dashboard/flow-builder') ||
-    pathname.startsWith('/dashboard/auto-reply') ||
-    pathname.startsWith('/dashboard/chat');
+    isChatPage;
 
-  const isChatPage = pathname.startsWith('/dashboard/chat');
 
   return (
     <SidebarProvider>
@@ -181,9 +181,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </header>
         <div className="grid md:grid-cols-[1fr_auto] flex-1 min-h-0">
            <main className={cn(
-            isChatPage 
-              ? 'p-4 md:p-6 lg:p-8 flex flex-col' 
-              : 'p-4 md:p-6 lg:p-8 overflow-y-auto'
+            "flex flex-col",
+            isChatPage ? 'p-4' : 'p-4 md:p-6 lg:p-8 overflow-y-auto'
             )}>
               {children}
           </main>

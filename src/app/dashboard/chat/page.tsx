@@ -1,4 +1,5 @@
 
+
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { ChatClient } from '@/components/wabasimplify/chat-client';
@@ -11,13 +12,13 @@ export const metadata: Metadata = {
 };
 
 function ChatPageSkeleton() {
-    return <div className="flex h-full"><Skeleton className="h-full w-full" /></div>;
+    return <div className="flex-1 min-h-0"><Skeleton className="h-full w-full" /></div>;
 }
 
 // This is a server component that uses Suspense to handle client-side parameter reading
 export default function ChatPage() {
     return (
-        <div className="h-full flex flex-col flex-1 min-h-0">
+        <div className="flex-1 min-h-0">
             <Suspense fallback={<ChatPageSkeleton />}>
                 <ChatClient />
             </Suspense>

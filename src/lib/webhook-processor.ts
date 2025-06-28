@@ -142,7 +142,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
         return;
     }
 
-    console.log(`Flow: Executing node ${node.id} (${node.type}) for contact ${contact.waId}`);
+    console.log(`Flow: Executing node ${node.id} (${node.type}) for contact ${contact.waId} with input: "${userInput || ''}"`);
     
     // Update contact's state to current node
     await db.collection('contacts').updateOne(
@@ -223,6 +223,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                     break;
                 case 'greater_than': conditionMet = !isNaN(Number(valueToCheck)) && !isNaN(Number(interpolatedCheckValue)) && Number(valueToCheck) > Number(interpolatedCheckValue); break;
                 case 'less_than': conditionMet = !isNaN(Number(valueToCheck)) && !isNaN(Number(interpolatedCheckValue)) && Number(valueToCheck) < Number(interpolatedCheckValue); break;
+                default: conditionMet = false; break;
             }
 
             console.log(`Flow Condition Check: Type='${conditionType}' | Check='${valueToCheck}' | Op='${operator}' | Val='${interpolatedCheckValue}' | Result=${conditionMet}`);
@@ -283,10 +284,10 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
     }
 
     if (nextNodeId) {
+        // Only pass userInput to an immediately following condition node. Otherwise, it should be undefined.
         const nextNode = flow.nodes.find(n => n.id === nextNodeId);
-        // Only pass userInput to an immediately following condition node.
-        const passInput = (nextNode?.type === 'condition' && nextNode.data.conditionType === 'user_response');
-        await executeNode(db, project, contact, flow, nextNodeId, passInput ? userInput : undefined);
+        const passInputToNext = (nextNode?.type === 'condition' && nextNode.data.conditionType === 'user_response');
+        await executeNode(db, project, contact, flow, nextNodeId, passInputToNext ? userInput : undefined);
     } else {
         console.log(`Flow ended for contact ${contact.waId}. No further nodes.`);
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
@@ -300,7 +301,7 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
 
     const userResponse = buttonReplyText || messageText;
 
-    // 1. Check if resuming a flow
+    // 1. Check if user is currently in a flow
     if (contact.activeFlow?.flowId) {
         const flow = await db.collection<Flow>('flows').findOne({ _id: new ObjectId(contact.activeFlow.flowId) });
         if (!flow) {
@@ -310,48 +311,50 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
 
         const currentNode = flow.nodes.find(n => n.id === contact.activeFlow.currentNodeId);
         if (!currentNode) {
-             await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+            await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
             return false;
         }
         
-        // A. Resuming from a 'buttons' node via a direct edge connection
+        // --- RESUME FLOW LOGIC ---
+        // A. Resuming from a 'buttons' node via a direct button click
         if (currentNode.type === 'buttons' && interactiveReplyId) {
             const edge = flow.edges.find(e => e.sourceHandle === interactiveReplyId);
             if (edge) {
-                // Execute the next node, passing the button's text as potential input
+                // Execute the next node, passing the button's text as the user input
                 await executeNode(db, project, contact, flow, edge.target, buttonReplyText);
                 return true;
             }
         }
         
-        // B. Resuming from a node that was waiting for text input ('input' or 'condition')
+        // B. Resuming from a node that was waiting for a text-based reply
         if (userResponse) {
              if (currentNode.type === 'input') {
                 if (currentNode.data.variableToSave) {
+                    // Save the user's response to the specified variable
                     contact.activeFlow.variables[currentNode.data.variableToSave] = userResponse;
                 }
                 const edge = flow.edges.find(e => e.source === currentNode.id);
                 if (edge) {
                      await executeNode(db, project, contact, flow, edge.target, userResponse);
-                } else {
+                } else { // No next step, end the flow
                     await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
                 }
                 return true;
             }
             if (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response') {
-                // The condition node was waiting. Now execute it with the user's input.
+                // The condition node was waiting. Re-execute it, passing the user's new message as the input to check.
                 await executeNode(db, project, contact, flow, currentNode.id, userResponse);
                 return true;
             }
         }
 
         // If we reach here, the user sent a message but the flow wasn't in a state to receive it.
-        // Let the logic fall through to see if it triggers a *new* flow, after ending the current one.
-        console.log(`Flow: User sent a message but the flow wasn't waiting for input. Ending flow for contact ${contact.waId}.`);
+        // We will end the current flow and then check if this new message triggers a *new* flow.
+        console.log(`Flow: User sent a message but the flow wasn't waiting for input. Ending active flow for contact ${contact.waId}.`);
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
     }
 
-    // 2. Check if starting a new flow
+    // 2. Check if starting a new flow (this runs if no active flow or if the active flow was just ended)
     const triggerText = userResponse?.toLowerCase();
     if (!triggerText) return false;
     
@@ -361,28 +364,27 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
     }).toArray();
 
     const triggeredFlow = flows.find(flow =>
-        flow.triggerKeywords.some(keyword => triggerText.includes(keyword.toLowerCase().trim()))
+        (flow.triggerKeywords || []).some(keyword => triggerText.includes(keyword.toLowerCase().trim()))
     );
 
     if (triggeredFlow) {
-        console.log(`Flow: Starting new flow '${triggeredFlow.name}' for contact ${contact.waId}`);
+        console.log(`Flow: Starting new flow '${triggeredFlow.name}' for contact ${contact.waId} based on trigger: "${triggerText}"`);
         const startNode = triggeredFlow.nodes.find(n => n.type === 'start');
         if (!startNode) return false;
 
-        const initialVariables = {
-            ...(contact.variables || {}),
-            name: contact.name,
-            waId: contact.waId,
-        };
-
+        // Set up initial state for the new flow
         contact.activeFlow = {
             flowId: triggeredFlow._id.toString(),
             currentNodeId: startNode.id,
-            variables: initialVariables
+            variables: {
+                ...(contact.variables || {}),
+                name: contact.name,
+                waId: contact.waId,
+            }
         };
         
         await executeNode(db, project, contact, triggeredFlow, startNode.id, userResponse);
-        return true; // Flow was started.
+        return true; // A new flow was successfully started.
     }
 
     return false; // No flow logic was applied.
