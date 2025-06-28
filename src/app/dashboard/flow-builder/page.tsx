@@ -30,6 +30,7 @@ import {
     File,
     LoaderCircle,
     BookOpen,
+    Languages,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -46,7 +47,7 @@ import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
-type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart';
+type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language';
 
 type ButtonConfig = {
     id: string;
@@ -58,6 +59,7 @@ const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
+    { type: 'language', label: 'Translate Text', icon: Languages },
     { type: 'carousel', label: 'Product Carousel', icon: View },
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
@@ -394,6 +396,48 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                         </div>
                     </div>
                 );
+            case 'language':
+                return (
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>Translation Mode</Label>
+                            <RadioGroup
+                                value={selectedNode.data.mode || 'automatic'}
+                                onValueChange={(val) => handleDataChange('mode', val)}
+                                className="flex gap-4 pt-1"
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="automatic" id="mode-auto" />
+                                    <Label htmlFor="mode-auto" className="font-normal">Automatic</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="manual" id="mode-manual" />
+                                    <Label htmlFor="mode-manual" className="font-normal">Manual</Label>
+                                </div>
+                            </RadioGroup>
+                        </div>
+                        {selectedNode.data.mode === 'manual' && (
+                            <div className="space-y-4 p-3 border rounded-md bg-muted/50">
+                                <div className="space-y-2">
+                                    <Label htmlFor="lang-prompt">Prompt Message</Label>
+                                    <Textarea id="lang-prompt" placeholder="Please select your language:" value={selectedNode.data.promptMessage || ''} onChange={(e) => handleDataChange('promptMessage', e.target.value)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="lang-list">Languages (comma-separated)</Label>
+                                    <Input id="lang-list" placeholder="English, Spanish, French" value={selectedNode.data.languages || ''} onChange={(e) => handleDataChange('languages', e.target.value)} />
+                                </div>
+                            </div>
+                        )}
+                         <div className="space-y-2">
+                            <Label htmlFor="lang-text-translate">Text to Translate</Label>
+                            <Textarea id="lang-text-translate" placeholder="Enter text or {{variable}}..." value={selectedNode.data.textToTranslate || ''} onChange={(e) => handleDataChange('textToTranslate', e.target.value)} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="lang-save-var">Save Result to Variable</Label>
+                            <Input id="lang-save-var" placeholder="e.g., translated_greeting" value={selectedNode.data.saveToVariable || ''} onChange={(e) => handleDataChange('saveToVariable', e.target.value)} />
+                        </div>
+                    </div>
+                );
             case 'delay':
                 return (
                     <div className="space-y-4">
@@ -636,7 +680,8 @@ export default function FlowBuilderPage() {
             type,
             data: { 
                 label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
-                apiRequest: { method: 'GET', url: '', headers: '', body: '', responseMappings: [] }
+                apiRequest: { method: 'GET', url: '', headers: '', body: '', responseMappings: [] },
+                mode: 'automatic', // Default for language node
             },
             position: { x: Math.random() * 400 + 200, y: Math.random() * 200 + 50 },
         };

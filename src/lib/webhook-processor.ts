@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { Db, ObjectId, WithId } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
+import { intelligentTranslate } from '@/ai/flows/intelligent-translate-flow';
 import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge } from '@/app/dashboard/page';
 
 // --- Flow Engine Utilities ---
@@ -132,6 +133,46 @@ async function sendFlowButtons(db: Db, project: WithId<Project>, contact: WithId
     }
 }
 
+async function sendLanguageSelectionButtons(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>) {
+    const text = interpolate(node.data.promptMessage, variables);
+    const languages = (node.data.languages || '').split(',').map((l: string) => l.trim()).filter(Boolean);
+    if (!text || languages.length === 0) return;
+
+    try {
+        const messagePayload = {
+            messaging_product: 'whatsapp',
+            to: contact.waId,
+            type: 'interactive',
+            interactive: {
+                type: 'button',
+                body: { text },
+                action: {
+                    buttons: languages.map((lang: string) => ({
+                        type: 'reply',
+                        reply: {
+                            id: `${node.id}-lang-${lang}`, // Special ID format for language selection
+                            title: lang.substring(0, 20),
+                        }
+                    }))
+                }
+            }
+        };
+
+        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'interactive',
+            content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${text.substring(0, 50)}`, lastMessageTimestamp: now } });
+        revalidatePath('/dashboard/chat');
+    } catch (e: any) {
+        console.error(`Flow: Failed to send language selection message to ${contact.waId} for project ${project._id}:`, e.message);
+    }
+}
+
 
 // --- Main Flow Engine ---
 
@@ -243,6 +284,37 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             }
             break;
         }
+
+        case 'language': {
+            const mode = node.data.mode || 'automatic';
+            if (mode === 'automatic') {
+                const textToTranslate = interpolate(node.data.textToTranslate || '', contact.activeFlow.variables);
+                const saveToVariable = node.data.saveToVariable;
+
+                if (textToTranslate && saveToVariable) {
+                    try {
+                        const result = await intelligentTranslate({
+                            text: textToTranslate,
+                            waId: contact.waId,
+                        });
+                        contact.activeFlow.variables[saveToVariable] = result.translatedText;
+                        console.log(`[Flow Engine] Auto-translation successful. Saved to '${saveToVariable}'.`);
+                    } catch (e: any) {
+                        console.error(`[Flow Engine] Auto-translation failed for node ${node.id}:`, e.message);
+                        contact.activeFlow.variables[saveToVariable] = textToTranslate; // Save original text on failure
+                    }
+                }
+                
+                edge = flow.edges.find(e => e.source === nodeId);
+                if (edge) nextNodeId = edge.target;
+
+            } else { // Manual mode
+                await sendLanguageSelectionButtons(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables);
+                // Pause and wait for user's language selection
+                return;
+            }
+            break;
+        }
         
         case 'api':
         case 'webhook': {
@@ -319,6 +391,36 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
         if (!currentNode) {
             await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
             return false;
+        }
+
+        // --- Special handling for our new language node ---
+        if (currentNode.type === 'language' && currentNode.data.mode === 'manual' && interactiveReplyId?.startsWith(`${currentNode.id}-lang-`)) {
+            const selectedLanguage = interactiveReplyId.replace(`${currentNode.id}-lang-`, '');
+            const textToTranslate = interpolate(currentNode.data.textToTranslate || '', contact.activeFlow.variables);
+            const saveToVariable = currentNode.data.saveToVariable;
+
+            if (textToTranslate && saveToVariable && selectedLanguage) {
+                try {
+                    const result = await intelligentTranslate({
+                        text: textToTranslate,
+                        targetLanguage: selectedLanguage,
+                    });
+                    contact.activeFlow.variables[saveToVariable] = result.translatedText;
+                    console.log(`[Flow Engine] Manual translation to '${selectedLanguage}' successful. Saved to '${saveToVariable}'.`);
+                } catch (e: any) {
+                    console.error(`[Flow Engine] Manual translation failed for node ${currentNode.id}:`, e.message);
+                    contact.activeFlow.variables[saveToVariable] = textToTranslate; // Save original text on failure
+                }
+            }
+            
+            // After translation, proceed to the main output
+            const edge = flow.edges.find(e => e.source === currentNode.id);
+            if (edge) {
+                await executeNode(db, project, contact, flow, edge.target, undefined);
+            } else {
+                await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+            }
+            return true; // Flow was handled
         }
         
         // --- RESUME FLOW LOGIC ---
