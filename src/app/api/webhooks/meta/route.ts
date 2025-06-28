@@ -359,22 +359,50 @@ export async function POST(request: NextRequest) {
                     }
                     break;
                 
-                case 'phone_number_name_update':
+                case 'phone_number_name_update': {
                     if (!project) break;
-                    if (value.display_phone_number && value.decision === 'APPROVED') {
+                    if (!value.display_phone_number || !value.decision) break;
+
+                    let notificationMessage = '';
+                    let shouldNotify = false;
+
+                    if (value.decision === 'APPROVED') {
                         const newVerifiedName = value.new_verified_name || value.requested_verified_name;
-                         if (newVerifiedName) {
-                            const result = await db.collection('projects').updateOne({ _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number }, { $set: { 'phoneNumbers.$.verified_name': newVerifiedName } });
+                        if (newVerifiedName) {
+                            const result = await db.collection('projects').updateOne(
+                                { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                                { $set: { 'phoneNumbers.$.verified_name': newVerifiedName } }
+                            );
                             if (result.modifiedCount > 0) {
-                                 await db.collection('notifications').insertOne({
-                                    projectId: project._id, wabaId: project.wabaId, message: `For project '${project.name}', display name for ${value.display_phone_number} was approved as "${newVerifiedName}".`,
-                                    link: '/dashboard/numbers', isRead: false, createdAt: new Date(), eventType: change.field,
-                                });
-                                revalidatePath('/dashboard/numbers'); revalidatePath('/dashboard', 'layout');
+                                shouldNotify = true;
+                                notificationMessage = `For project '${project.name}', display name for ${value.display_phone_number} was approved as "${newVerifiedName}".`;
                             }
                         }
+                    } else { // Handle DEFERRED, REJECTED, etc.
+                        const requestedName = value.requested_verified_name;
+                        const decision = value.decision.toLowerCase().replace(/_/g, ' ');
+                        notificationMessage = `For project '${project.name}', the name update for ${value.display_phone_number} to "${requestedName}" has been ${decision}.`;
+                        if (value.rejection_reason && value.rejection_reason !== 'NONE') {
+                            notificationMessage += ` Reason: ${value.rejection_reason}.`;
+                        }
+                        shouldNotify = true; // We always want to notify for these statuses
+                    }
+
+                    if (shouldNotify && notificationMessage) {
+                        await db.collection('notifications').insertOne({
+                            projectId: project._id,
+                            wabaId: project.wabaId,
+                            message: notificationMessage,
+                            link: '/dashboard/numbers',
+                            isRead: false,
+                            createdAt: new Date(),
+                            eventType: change.field,
+                        });
+                        revalidatePath('/dashboard/numbers');
+                        revalidatePath('/dashboard', 'layout');
                     }
                     break;
+                }
                     
                 case 'phone_number_verification_update':
                     if (!project) break;
