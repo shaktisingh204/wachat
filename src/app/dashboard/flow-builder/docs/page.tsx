@@ -65,7 +65,7 @@ const blockDocs = [
             { name: 'Value', desc: 'The value to compare against. This can be a fixed value (e.g., "yes") or another variable (e.g., {{expected_answer}}).' }
         ],
         outputs: ['Yes: If the condition is true.', 'No: If the condition is false.'],
-        notes: 'Using "User Response" is a powerful way to create simple menus without needing a separate "Get User Input" block. For example, you can send a message "Reply YES to confirm" and then use a Condition block set to "User Response" equals "yes".'
+        notes: 'If you connect a button to this block, it will automatically use the button\'s text for the condition check, regardless of the "Condition Type" setting. This makes building menus very easy.'
     },
     {
         title: 'Add Delay',
@@ -134,23 +134,32 @@ export default function FlowBuilderDocsPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="text-sm space-y-4">
-                    <p>Here's how to build a 'Show Balance' flow:</p>
+                    <p>Here's how to build a 'Show Balance' flow that checks the user's input:</p>
                     <ol className="list-decimal list-inside space-y-2">
                         <li>
-                            <strong>Add Buttons Block</strong>: Create a button with the text 'Show Balance'.
+                            <strong>Add Buttons Block</strong>: Create a button with the text 'Show Balance' and another with 'Speak to Agent'.
                         </li>
                         <li>
-                            <strong>Call API Block</strong>: Add a 'Call API' block to fetch the balance from your server. In the "Response" tab, map the API result to a variable named `balance`.
+                            <strong>Add Condition Block</strong>: Add a 'Condition' block. Configure it to check if the input `Equals` the value `Show Balance`.
                         </li>
                          <li>
-                            <strong>Send Message Block</strong>: Add a 'Send Message' block with the text 'Your balance is {{balance}}'.
+                            <strong>Add API Call Block</strong>: Add a 'Call API' block to fetch the balance from your server. Map the result to a variable named `balance`.
+                        </li>
+                         <li>
+                            <strong>Add Message Blocks</strong>: Add two 'Send Message' blocks. One saying 'Your balance is {{balance}}', and another saying 'Connecting you to an agent...'.
                         </li>
                         <li>
-                            <strong>Connect them</strong>: Drag a connection from the 'Show Balance' button's output handle on the 'Add Buttons' block directly to the input handle of the 'Call API' block. Then connect the output of the API block to the message block.
+                            <strong>Connect them</strong>:
+                            <ul className="list-disc list-inside ml-4 mt-1">
+                                <li>Drag a connection from the 'Show Balance' button's output handle to the input of the **Condition** block.</li>
+                                <li>Connect the **Yes** output of the Condition block to your **API Call** block.</li>
+                                <li>Connect the output of the API Call block to the "Your balance is..." message block.</li>
+                                <li>Connect the **No** output of the Condition block to the "Connecting you..." message block.</li>
+                            </ul>
                         </li>
                     </ol>
                      <div className="p-3 bg-muted/50 rounded-md text-sm border">
-                        <p><strong>Note:</strong> You don't need a 'Condition' block to check what the user clicked. The branching logic is handled by connecting the specific button's output to the next desired action.</p>
+                        <p><strong>Key Insight:</strong> When you connect a button to a Condition block, the block automatically uses the **button's text** as the input to check. You don't need a separate "Get User Input" block. This makes building menus fast and intuitive.</p>
                     </div>
                 </CardContent>
             </Card>

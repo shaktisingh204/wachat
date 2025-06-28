@@ -143,7 +143,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
         return;
     }
 
-    console.log(`Flow: Executing node ${node.id} (${node.type}) for contact ${contact.waId} with input: "${userInput || ''}"`);
+    console.log(`[Flow Engine] Executing node ${node.id} (${node.type}) for contact ${contact.waId}. Input: "${userInput || 'N/A'}"`);
     
     // Update contact's state to current node
     await db.collection('contacts').updateOne(
@@ -190,21 +190,26 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             // We are now waiting for user input. The flow will be resumed by the next webhook event.
             return; 
 
-        case 'condition':
-            const conditionType = node.data.conditionType || 'variable';
+        case 'condition': {
             let valueToCheck: string;
 
-            if (conditionType === 'user_response') {
-                if (userInput === undefined) {
-                    console.log(`Flow: Paused at condition node ${node.id}, waiting for user response.`);
-                    return;
-                }
+            if (userInput !== undefined) {
+                // If input is piped from a previous node (like a button), use it directly.
                 valueToCheck = userInput;
-            } else { // 'variable'
-                const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
-                valueToCheck = contact.activeFlow.variables[variableName] || '';
+                console.log(`[Flow Engine] Condition node received direct input: "${valueToCheck}"`);
+            } else {
+                const conditionType = node.data.conditionType || 'variable';
+                if (conditionType === 'user_response') {
+                    // No direct input, so pause and wait for the user to type something.
+                    console.log(`[Flow Engine] Pausing at condition node ${node.id}, waiting for user response.`);
+                    return; // Pause the flow.
+                } else { // conditionType is 'variable'
+                    const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
+                    valueToCheck = contact.activeFlow.variables[variableName] || '';
+                    console.log(`[Flow Engine] Condition node checking variable "${variableName}": "${valueToCheck}"`);
+                }
             }
-
+            
             const rawCheckValue = node.data.value || '';
             const interpolatedCheckValue = interpolate(rawCheckValue, contact.activeFlow.variables);
             const operator = node.data.operator;
@@ -227,19 +232,20 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                 default: conditionMet = false; break;
             }
 
-            console.log(`Flow Condition Check: Type='${conditionType}' | Check='${valueToCheck}' | Op='${operator}' | Val='${interpolatedCheckValue}' | Result=${conditionMet}`);
+            console.log(`[Flow Engine] Condition Check: '${valueToCheck}' ${operator} '${interpolatedCheckValue}' -> ${conditionMet ? 'Yes' : 'No'}`);
 
             const handle = conditionMet ? `${node.id}-output-yes` : `${node.id}-output-no`;
             edge = flow.edges.find(e => e.sourceHandle === handle);
             if (edge) {
                  nextNodeId = edge.target;
             } else {
-                console.log(`Flow: No edge found for condition result '${conditionMet ? 'yes' : 'no'}' from node ${node.id}`);
+                console.log(`[Flow Engine] No edge found for condition result '${conditionMet ? 'yes' : 'no'}' from node ${node.id}`);
             }
             break;
+        }
         
         case 'api':
-        case 'webhook':
+        case 'webhook': {
             const url = interpolate(node.data.apiRequest?.url, contact.activeFlow.variables);
             try {
                 const response = await axios({
@@ -256,41 +262,40 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                             const value = getValueFromPath(response.data, mapping.path);
                             if (value !== undefined) {
                                 contact.activeFlow.variables[mapping.variable] = value;
-                                console.log(`Flow: API Response - Set variable '${mapping.variable}' to '${JSON.stringify(value)}'`);
+                                console.log(`[Flow Engine] API Response - Set variable '${mapping.variable}' to '${JSON.stringify(value)}'`);
                             } else {
-                                console.log(`Flow: API Response - Path '${mapping.path}' not found in response for variable '${mapping.variable}'.`);
+                                console.log(`[Flow Engine] API Response - Path '${mapping.path}' not found for variable '${mapping.variable}'.`);
                             }
                         }
                     }
                 }
 
             } catch (e: any) {
-                console.error(`Flow: API call failed for node ${node.id}:`, e.message);
+                console.error(`[Flow Engine] API call failed for node ${node.id}:`, e.message);
             }
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
-
+        }
         case 'carousel':
         case 'addToCart':
-            console.log(`Flow: Placeholder for future node type '${node.type}'. Continuing flow.`);
+            console.log(`[Flow Engine] Placeholder for future node type '${node.type}'. Continuing flow.`);
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
 
         default:
-            console.log(`Flow: Unknown node type ${node.type}. Ending flow.`);
+            console.log(`[Flow Engine] Unknown node type ${node.type}. Ending flow.`);
             nextNodeId = null;
             break;
     }
 
     if (nextNodeId) {
-        // Only pass userInput to an immediately following condition node. Otherwise, it should be undefined.
-        const nextNode = flow.nodes.find(n => n.id === nextNodeId);
-        const passInputToNext = (nextNode?.type === 'condition' && nextNode.data.conditionType === 'user_response');
-        await executeNode(db, project, contact, flow, nextNodeId, passInputToNext ? userInput : undefined);
+        // A user's input (from a button or text) is "consumed" by the node that uses it.
+        // It is NOT passed along to subsequent nodes automatically.
+        await executeNode(db, project, contact, flow, nextNodeId, undefined);
     } else {
-        console.log(`Flow ended for contact ${contact.waId}. No further nodes.`);
+        console.log(`[Flow Engine] Flow ended for contact ${contact.waId}. No further nodes.`);
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
     }
 }
@@ -321,7 +326,6 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
         if (currentNode.type === 'buttons' && interactiveReplyId) {
             const edge = flow.edges.find(e => e.sourceHandle === interactiveReplyId);
             if (edge) {
-                // Execute the next node, passing the button's text as the user input
                 await executeNode(db, project, contact, flow, edge.target, buttonReplyText);
                 return true;
             }
@@ -331,27 +335,23 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
         if (userResponse) {
              if (currentNode.type === 'input') {
                 if (currentNode.data.variableToSave) {
-                    // Save the user's response to the specified variable
                     contact.activeFlow.variables[currentNode.data.variableToSave] = userResponse;
                 }
                 const edge = flow.edges.find(e => e.source === currentNode.id);
                 if (edge) {
-                     await executeNode(db, project, contact, flow, edge.target, userResponse);
-                } else { // No next step, end the flow
+                     await executeNode(db, project, contact, flow, edge.target, undefined);
+                } else {
                     await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
                 }
                 return true;
             }
             if (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response') {
-                // The condition node was waiting. Re-execute it, passing the user's new message as the input to check.
                 await executeNode(db, project, contact, flow, currentNode.id, userResponse);
                 return true;
             }
         }
 
-        // If we reach here, the user sent a message but the flow wasn't in a state to receive it.
-        // We will end the current flow and then check if this new message triggers a *new* flow.
-        console.log(`Flow: User sent a message but the flow wasn't waiting for input. Ending active flow for contact ${contact.waId}.`);
+        console.log(`[Flow Engine] User sent unexpected message. Ending active flow for contact ${contact.waId}.`);
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
     }
 
@@ -369,7 +369,7 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
     );
 
     if (triggeredFlow) {
-        console.log(`Flow: Starting new flow '${triggeredFlow.name}' for contact ${contact.waId} based on trigger: "${triggerText}"`);
+        console.log(`[Flow Engine] Starting new flow '${triggeredFlow.name}' for contact ${contact.waId} based on trigger: "${triggerText}"`);
         const startNode = triggeredFlow.nodes.find(n => n.type === 'start');
         if (!startNode) return false;
 
@@ -385,10 +385,10 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
         };
         
         await executeNode(db, project, contact, triggeredFlow, startNode.id, userResponse);
-        return true; // A new flow was successfully started.
+        return true;
     }
 
-    return false; // No flow logic was applied.
+    return false;
 }
 
 
