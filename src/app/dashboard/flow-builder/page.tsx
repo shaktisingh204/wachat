@@ -81,6 +81,7 @@ const NodeComponent = ({
                 position === 'top' && "-top-1.5 left-1/2 -translate-x-1/2",
                 position === 'bottom' && "-bottom-1.5 left-1/2 -translate-x-1/2",
             )} 
+            onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); onHandleClick(e, node.id, id); }}
         />
     );
