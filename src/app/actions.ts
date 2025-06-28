@@ -2107,3 +2107,51 @@ export async function handleTranslateMessage(text: string): Promise<{ translated
         return { error: e.message || 'Failed to translate message. Please try again.' };
     }
 }
+
+export async function getBroadcastStatusCounts(broadcastId: string): Promise<Record<string, number>> {
+    if (!ObjectId.isValid(broadcastId)) {
+        return {};
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const results = await db.collection('broadcast_contacts').aggregate([
+            { $match: { broadcastId: new ObjectId(broadcastId) } },
+            { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]).toArray();
+
+        const counts = results.reduce((acc, item) => {
+            if (item._id) {
+                 acc[item._id] = item.count;
+            }
+            return acc;
+        }, {} as Record<string, number>);
+
+        return counts;
+    } catch (error) {
+        console.error('Failed to fetch broadcast status counts:', error);
+        return {};
+    }
+}
+
+export async function getBroadcastAttemptsForExport(
+    broadcastId: string, 
+    filter: 'ALL' | 'SENT' | 'FAILED' | 'PENDING' | 'DELIVERED' | 'READ'
+): Promise<WithId<BroadcastAttempt>[]> {
+    if (!ObjectId.isValid(broadcastId)) {
+        return [];
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const query: any = { broadcastId: new ObjectId(broadcastId) };
+        if (filter !== 'ALL') {
+            query.status = filter;
+        }
+
+        const attempts = await db.collection('broadcast_contacts').find(query).sort({createdAt: -1}).toArray();
+        
+        return JSON.parse(JSON.stringify(attempts));
+    } catch (error) {
+        console.error('Failed to fetch broadcast attempts for export:', error);
+        return [];
+    }
+}

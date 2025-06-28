@@ -5,16 +5,18 @@ import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { WithId } from 'mongodb';
-import { getBroadcastById, getBroadcastAttempts, type BroadcastAttempt } from '@/app/actions';
+import { getBroadcastById, getBroadcastAttempts, getBroadcastStatusCounts, getBroadcastAttemptsForExport, type BroadcastAttempt } from '@/app/actions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, RefreshCw, Check, CheckCheck, XCircle, FileText, Clock, Users, Send, AlertTriangle, CalendarCheck, CircleDashed, Play } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Check, CheckCheck, XCircle, FileText, Clock, Users, Send, AlertTriangle, Eye, Download, LoaderCircle, CircleDashed } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import Papa from 'papaparse';
+
 
 type Broadcast = {
   _id: any;
@@ -33,48 +35,13 @@ type FilterStatus = 'ALL' | 'SENT' | 'FAILED' | 'PENDING' | 'DELIVERED' | 'READ'
 
 const ATTEMPTS_PER_PAGE = 50;
 
-function LiveTimer({ startTime }: { startTime: string }) {
-  const [elapsedTime, setElapsedTime] = useState('00:00:00');
-
-  useEffect(() => {
-    if (!startTime) return;
-    const start = new Date(startTime).getTime();
-    if (isNaN(start)) return;
-
-    const intervalId = setInterval(() => {
-      const now = Date.now();
-      const difference = now - start;
-      if (difference < 0) return;
-
-      const hours = Math.floor((difference / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((difference / (1000 * 60)) % 60);
-      const seconds = Math.floor((difference / 1000) % 60);
-
-      const formattedTime = [
-        String(hours).padStart(2, '0'),
-        String(minutes).padStart(2, '0'),
-        String(seconds).padStart(2, '0')
-      ].join(':');
-      
-      setElapsedTime(formattedTime);
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, [startTime]);
-
-  return (
-    <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground font-mono bg-muted px-3 py-1.5 rounded-md">
-      <Clock className="h-4 w-4" />
-      <span>{elapsedTime}</span>
-    </div>
-  );
-}
-
 export default function BroadcastReportPage() {
   const [broadcast, setBroadcast] = useState<WithId<Broadcast> | null>(null);
   const [attempts, setAttempts] = useState<BroadcastAttempt[]>([]);
+  const [statusCounts, setStatusCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
+  const [isExporting, startExportTransition] = useTransition();
   const params = useParams();
   const router = useRouter();
   const { toast } = useToast();
@@ -92,15 +59,17 @@ export default function BroadcastReportPage() {
     
     startRefreshTransition(async () => {
         try {
-            const [broadcastData, attemptsData] = await Promise.all([
+            const [broadcastData, attemptsData, countsData] = await Promise.all([
                 getBroadcastById(broadcastId),
                 getBroadcastAttempts(broadcastId, page, ATTEMPTS_PER_PAGE, filterValue),
+                getBroadcastStatusCounts(broadcastId),
             ]);
 
             if (broadcastData) {
                 setBroadcast(broadcastData);
                 setAttempts(attemptsData.attempts);
                 setTotalPages(Math.ceil(attemptsData.total / ATTEMPTS_PER_PAGE));
+                setStatusCounts(countsData);
             } else {
                 toast({ title: "Error", description: "Broadcast not found.", variant: "destructive" });
                 router.push('/dashboard/broadcasts');
@@ -145,6 +114,47 @@ export default function BroadcastReportPage() {
     setFilter(value as FilterStatus);
   };
   
+  const onExport = () => {
+    startExportTransition(async () => {
+      try {
+        toast({ title: "Preparing Export", description: "Fetching all attempt data, this may take a moment..." });
+        const attemptsToExport = await getBroadcastAttemptsForExport(broadcastId, filter);
+
+        if (attemptsToExport.length === 0) {
+            toast({ title: "Nothing to Export", description: "No contacts found for the current filter.", variant: "destructive" });
+            return;
+        }
+
+        const dataForCsv = attemptsToExport.map(attempt => ({
+            'Phone Number': attempt.phone,
+            'Status': attempt.status,
+            'Message ID': attempt.messageId,
+            'Details / Error': attempt.error,
+            'Timestamp': attempt.sentAt ? new Date(attempt.sentAt).toLocaleString() : '',
+        }));
+
+        const csv = Papa.unparse(dataForCsv);
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        if (link.href) {
+            URL.revokeObjectURL(link.href);
+        }
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.setAttribute('download', `broadcast_${broadcastId}_${filter}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        toast({ title: "Export Started", description: `Your download of ${attemptsToExport.length} records should begin shortly.` });
+
+      } catch (error) {
+        console.error("Failed to export data:", error);
+        toast({ title: "Export Error", description: "Could not export the data.", variant: "destructive" });
+      }
+    });
+  };
+
   const getStatusVariant = (status: string) => {
     status = status.toLowerCase();
     if (status === 'completed') return 'default';
@@ -154,7 +164,7 @@ export default function BroadcastReportPage() {
 
   const getAttemptStatusBadge = (status: BroadcastAttempt['status']) => {
     switch(status) {
-        case 'READ': return <Badge variant="default"><CheckCheck className="mr-2 h-4 w-4" />Read</Badge>;
+        case 'READ': return <Badge variant="default"><Eye className="mr-2 h-4 w-4" />Read</Badge>;
         case 'DELIVERED': return <Badge variant="secondary"><CheckCheck className="mr-2 h-4 w-4" />Delivered</Badge>;
         case 'SENT': return <Badge variant="outline"><Check className="mr-2 h-4 w-4" />Sent</Badge>;
         case 'FAILED': return <Badge variant="destructive"><XCircle className="mr-2 h-4 w-4" />Failed</Badge>;
@@ -168,7 +178,7 @@ export default function BroadcastReportPage() {
     return (
       <div className="space-y-6">
         <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-36 w-full" />
+        <Skeleton className="h-24 w-full" />
         <Skeleton className="h-64 w-full" />
       </div>
     );
@@ -202,88 +212,74 @@ export default function BroadcastReportPage() {
               <Link href="/dashboard/broadcasts"><ArrowLeft className="mr-2 h-4 w-4" />Back to Broadcasts</Link>
             </Button>
             <h1 className="text-3xl font-bold font-headline">Broadcast Report</h1>
-            <p className="text-muted-foreground">Detailed results for your campaign.</p>
+            <p className="text-muted-foreground">Detailed results for your campaign: <span className="font-semibold">{broadcast.templateName}</span></p>
           </div>
           <div className="flex items-center gap-4">
-            {broadcast.status === 'PROCESSING' && broadcast.startedAt && (
-                <LiveTimer startTime={broadcast.startedAt} />
-            )}
+            <Button onClick={onExport} disabled={isExporting}>
+              {isExporting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+              Export CSV
+            </Button>
             <Button onClick={onRefresh} disabled={isRefreshing}>
               <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-              Refresh Status
+              Refresh
             </Button>
           </div>
         </div>
 
-        <Card>
-            <CardHeader>
-                <CardTitle>Campaign Summary</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6 text-sm">
-                    <div className="flex items-start gap-3">
-                        <FileText className="h-8 w-8 text-primary" />
-                        <div>
-                            <p className="text-muted-foreground">Template</p>
-                            <p className="font-semibold">{broadcast.templateName}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                        <Clock className="h-8 w-8 text-primary" />
-                        <div>
-                            <p className="text-muted-foreground">Queued At</p>
-                            <p className="font-semibold">{new Date(broadcast.createdAt).toLocaleString()}</p>
-                        </div>
-                    </div>
-                    {broadcast.startedAt && (
-                        <div className="flex items-start gap-3">
-                            <Play className="h-8 w-8 text-primary" />
-                            <div>
-                                <p className="text-muted-foreground">Started At</p>
-                                <p className="font-semibold">{new Date(broadcast.startedAt).toLocaleString()}</p>
-                            </div>
-                        </div>
-                    )}
-                    {broadcast.completedAt && (
-                        <div className="flex items-start gap-3">
-                            <CalendarCheck className="h-8 w-8 text-primary" />
-                            <div>
-                                <p className="text-muted-foreground">Completed At</p>
-                                <p className="font-semibold">{new Date(broadcast.completedAt).toLocaleString()}</p>
-                            </div>
-                        </div>
-                    )}
-                    <div className="flex items-start gap-3">
-                        <Users className="h-8 w-8 text-primary" />
-                         <div>
-                            <p className="text-muted-foreground">Total Contacts</p>
-                            <p className="font-semibold">{broadcast.contactCount}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                        <Send className="h-8 w-8 text-green-500" />
-                         <div>
-                            <p className="text-muted-foreground">Sent Successfully</p>
-                            <p className="font-semibold">{broadcast.successCount ?? 0}</p>
-                        </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                        <AlertTriangle className="h-8 w-8 text-destructive" />
-                         <div>
-                            <p className="text-muted-foreground">Failed to Send</p>
-                            <p className="font-semibold">{broadcast.errorCount ?? 0}</p>
-                        </div>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Total Contacts</CardTitle>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{broadcast.contactCount}</div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Sent</CardTitle>
+                    <Send className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{broadcast.successCount ?? 0}</div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Delivered</CardTitle>
+                    <CheckCheck className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{statusCounts['DELIVERED'] ?? 0}</div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Read</CardTitle>
+                    <Eye className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{statusCounts['READ'] ?? 0}</div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">Failed</CardTitle>
+                    <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                    <div className="text-2xl font-bold">{broadcast.errorCount ?? 0}</div>
+                </CardContent>
+            </Card>
+        </div>
 
         <Card>
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle>Delivery Results</CardTitle>
-                        <CardDescription>Live status for each contact. This report updates automatically for active campaigns.</CardDescription>
+                        <p className="text-sm text-muted-foreground">Live status for each contact. This report updates automatically for active campaigns.</p>
                     </div>
                      <Badge variant={getStatusVariant(broadcast.status)} className="capitalize text-base px-4 py-2">
                         {broadcast.status}
@@ -364,6 +360,3 @@ export default function BroadcastReportPage() {
     </>
   );
 }
-
-
-    
