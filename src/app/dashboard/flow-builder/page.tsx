@@ -49,9 +49,8 @@ type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image'
 
 type ButtonConfig = {
     id: string;
-    type: 'QUICK_REPLY' | 'URL';
+    type: 'QUICK_REPLY';
     text: string;
-    url?: string;
 };
 
 const blockTypes = [
@@ -62,7 +61,6 @@ const blockTypes = [
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
     { type: 'delay', label: 'Add Delay', icon: Clock },
-    { type: 'webhook', label: 'Call Webhook', icon: Webhook },
     { type: 'api', label: 'Call API', icon: ArrowRightLeft },
     { type: 'addToCart', label: 'Add to Cart', icon: ShoppingCart },
 ];
@@ -214,7 +212,8 @@ const ConnectionLine = ({ from, to }: { from: {x: number, y: number}, to: {x: nu
 };
 
 const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selectedNode: FlowNode | null; updateNodeData: (id: string, data: Partial<any>) => void, deleteNode: (id: string) => void }) => {
-    
+    const { toast } = useToast();
+
     if (!selectedNode) {
         return (
             <Card className="h-full">
@@ -235,14 +234,19 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
         updateNodeData(selectedNode.id, { apiRequest: newApiRequest });
     };
 
-     const handleButtonChange = (index: number, field: keyof ButtonConfig, value: string) => {
-        const newButtons = [...(selectedNode.data.buttons || [])];
+     const handleButtonChange = (index: number, field: 'text', value: string) => {
+        const newButtons: ButtonConfig[] = [...(selectedNode.data.buttons || [])];
         newButtons[index] = { ...newButtons[index], [field]: value };
         handleDataChange('buttons', newButtons);
     };
 
     const addFlowButton = () => {
-        const newButtons: ButtonConfig[] = [...(selectedNode.data.buttons || []), { id: `btn-${Date.now()}`, type: 'QUICK_REPLY', text: '' }];
+        const currentButtons = selectedNode.data.buttons || [];
+        if (currentButtons.length >= 3) {
+            toast({ title: "Limit Reached", description: "You can add a maximum of 3 Quick Reply buttons.", variant: "destructive" });
+            return;
+        }
+        const newButtons: ButtonConfig[] = [...currentButtons, { id: `btn-${Date.now()}`, type: 'QUICK_REPLY', text: '' }];
         handleDataChange('buttons', newButtons);
     };
 
@@ -307,26 +311,22 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                         </div>
                         <Separator/>
                         <div className="space-y-2">
-                            <Label>Buttons</Label>
+                            <Label>Buttons (Quick Reply)</Label>
                             <div className="space-y-3">
                                 {(selectedNode.data.buttons || []).map((btn: ButtonConfig, index: number) => (
-                                    <div key={btn.id || index} className="p-2 border rounded-md space-y-2">
-                                        <div className="flex items-center justify-end">
-                                             <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeFlowButton(index)}><Trash2 className="h-3 w-3"/></Button>
-                                        </div>
-                                        <Select value={btn.type} onValueChange={(val) => handleButtonChange(index, 'type', val)}>
-                                            <SelectTrigger><SelectValue/></SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="QUICK_REPLY">Quick Reply</SelectItem>
-                                                <SelectItem value="URL">URL</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                        <Input placeholder="Button Text" value={btn.text} onChange={(e) => handleButtonChange(index, 'text', e.target.value)} />
-                                        {btn.type === 'URL' && <Input placeholder="https://..." value={btn.url} onChange={(e) => handleButtonChange(index, 'url', e.target.value)} />}
+                                    <div key={btn.id || index} className="p-2 border rounded-md space-y-2 relative">
+                                        <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeFlowButton(index)}><Trash2 className="h-3 w-3"/></Button>
+                                        <Input 
+                                            placeholder="Button Text" 
+                                            value={btn.text} 
+                                            onChange={(e) => handleButtonChange(index, 'text', e.target.value)} 
+                                            maxLength={20}
+                                        />
                                     </div>
                                 ))}
                             </div>
                             <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addFlowButton}><Plus className="mr-2 h-4 w-4"/>Add Button</Button>
+                            <p className="text-xs text-muted-foreground mt-2">Note: Buttons in flows are Quick Replies only. For URL/Call buttons, you must use a pre-approved template.</p>
                         </div>
                     </div>
                 );
@@ -340,8 +340,10 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                                  <SelectItem value="equals">Equals</SelectItem>
                                  <SelectItem value="not_equals">Does not equal</SelectItem>
                                  <SelectItem value="contains">Contains</SelectItem>
-                                 <SelectItem value="greater_than">Greater than</SelectItem>
-                                 <SelectItem value="less_than">Less than</SelectItem>
+                                 <SelectItem value="is_one_of">Is one of (comma-sep)</SelectItem>
+                                 <SelectItem value="is_not_one_of">Is not one of (comma-sep)</SelectItem>
+                                 <SelectItem value="greater_than">Greater than (number)</SelectItem>
+                                 <SelectItem value="less_than">Less than (number)</SelectItem>
                              </SelectContent>
                         </Select>
                         <Input placeholder="Value to check against" value={selectedNode.data.value || ''} onChange={(e) => handleDataChange('value', e.target.value)} />

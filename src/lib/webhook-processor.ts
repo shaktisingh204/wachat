@@ -93,7 +93,7 @@ async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<C
 
 async function sendFlowButtons(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>) {
     const text = interpolate(node.data.text, variables);
-    const buttons = node.data.buttons || [];
+    const buttons = (node.data.buttons || []).filter((btn: any) => btn.text);
     if (!text || buttons.length === 0) return;
 
     try {
@@ -203,6 +203,14 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                 case 'equals': conditionMet = String(variableValue) === String(interpolatedCheckValue); break;
                 case 'not_equals': conditionMet = String(variableValue) !== String(interpolatedCheckValue); break;
                 case 'contains': conditionMet = String(variableValue).includes(String(interpolatedCheckValue)); break;
+                case 'is_one_of':
+                    const list = interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase());
+                    conditionMet = list.includes(String(variableValue).toLowerCase());
+                    break;
+                case 'is_not_one_of':
+                    const notList = interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase());
+                    conditionMet = !notList.includes(String(variableValue).toLowerCase());
+                    break;
                 case 'greater_than': conditionMet = !isNaN(Number(variableValue)) && !isNaN(Number(interpolatedCheckValue)) && Number(variableValue) > Number(interpolatedCheckValue); break;
                 case 'less_than': conditionMet = !isNaN(Number(variableValue)) && !isNaN(Number(interpolatedCheckValue)) && Number(variableValue) < Number(interpolatedCheckValue); break;
             }

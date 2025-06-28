@@ -37,13 +37,13 @@ const blockDocs = [
     },
     {
         title: 'Add Buttons',
-        description: 'Sends a message with interactive quick reply buttons.',
+        description: 'Sends a message with interactive Quick Reply buttons. The user\'s choice can be used to branch the flow.',
         properties: [
             { name: 'Message Text', desc: 'The text that appears above the buttons.' },
-            { name: 'Buttons', desc: 'You can add up to 10 Quick Reply buttons. Each button press can lead to a different path in your flow.' },
+            { name: 'Buttons', desc: 'You can add up to 3 Quick Reply buttons. Each button press can lead to a different path in your flow.' },
         ],
         outputs: ['Each button acts as its own output path. Connect each button to a different block to create branching logic.'],
-        notes: 'This block waits for the user to press a button before continuing.'
+        notes: 'This block waits for the user to press a button before continuing. Due to WhatsApp API limitations, dynamic URL or Call buttons are not supported here. For those, you must use a pre-approved template message.'
     },
     {
         title: 'Get User Input',
@@ -60,11 +60,11 @@ const blockDocs = [
         description: 'Create branches in your flow based on rules and variables.',
         properties: [
             { name: 'Variable', desc: 'The variable to check, e.g., {{user_input}} or {{age}}.' },
-            { name: 'Operator', desc: 'The comparison to perform: Equals, Contains, Greater than, etc.' },
+            { name: 'Operator', desc: 'The comparison to perform: Equals, Contains, Is one of, etc.' },
             { name: 'Value', desc: 'The value to compare against. This can be a fixed value (e.g., "yes") or another variable (e.g., {{expected_answer}}).' }
         ],
         outputs: ['Yes: If the condition is true.', 'No: If the condition is false.'],
-        notes: 'Conditions are case-sensitive for text comparisons. For numerical comparisons, ensure the variable contains only numbers.'
+        notes: 'The "Is one of" and "Is not one of" operators are case-insensitive and check against a comma-separated list of values. All other text comparisons are case-sensitive.'
     },
     {
         title: 'Add Delay',
@@ -120,8 +120,37 @@ export default function FlowBuilderDocsPage() {
                         The "Get User Input" block is the primary way to create custom variables. When you configure it to save an answer to a variable named <Badge variant="outline">color</Badge>, you can later use the user's answer by writing <Badge variant="outline" className="font-mono">{{'{{color}}'}}</Badge> in a "Send Message" block.
                     </p>
                     <p>
-                        There are also pre-defined variables you can use: <Badge variant="outline" className="font-mono">{{'{{name}}'}}</Badge> (the user's WhatsApp profile name) and <Badge variant="outline" className="font-mono">{{'{{waId}}'}}</Badge> (the user's phone number).
+                        There are also pre-defined variables you can use: <Badge variant="outline" className="font-mono">{{'{{name}}'}}</Badge> (the user's WhatsApp profile name) and <Badge variant="outline" className="font-mono">{{'{{waId}}'}}</Badge> (the user's phone number). Variables you save from an API call can also be used this way.
                     </p>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Common Pattern: Button-based Menu</CardTitle>
+                    <CardDescription>
+                       A common use case is to present a menu to the user and perform an action based on their choice.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="text-sm space-y-4">
+                    <p>Here's how to build a 'Show Balance' flow:</p>
+                    <ol className="list-decimal list-inside space-y-2">
+                        <li>
+                            <strong>Add Buttons Block</strong>: Create a button with the text 'Show Balance'.
+                        </li>
+                        <li>
+                            <strong>Call API Block</strong>: Add a 'Call API' block to fetch the balance from your server. In the "Response" tab, map the API result to a variable named `balance`.
+                        </li>
+                         <li>
+                            <strong>Send Message Block</strong>: Add a 'Send Message' block with the text 'Your balance is {{balance}}'.
+                        </li>
+                        <li>
+                            <strong>Connect them</strong>: Drag a connection from the 'Show Balance' button's output handle on the 'Add Buttons' block directly to the input handle of the 'Call API' block. Then connect the output of the API block to the message block.
+                        </li>
+                    </ol>
+                     <div className="p-3 bg-muted/50 rounded-md text-sm border">
+                        <p><strong>Note:</strong> You don't need a 'Condition' block to check what the user clicked. The branching logic is handled by connecting the specific button's output to the next desired action.</p>
+                    </div>
                 </CardContent>
             </Card>
 
