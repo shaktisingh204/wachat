@@ -179,9 +179,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </DropdownMenu>
           </div>
         </header>
-        <div className="grid md:grid-cols-[1fr_auto] flex-1 min-h-0">
+        <div className="flex flex-1 min-h-0">
            <main className={cn(
-            "flex flex-col",
+            "flex flex-1 flex-col",
             isChatPage ? 'overflow-hidden' : 'p-4 md:p-6 lg:p-8 overflow-y-auto'
             )}>
               {children}
