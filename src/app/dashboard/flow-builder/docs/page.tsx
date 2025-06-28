@@ -43,7 +43,7 @@ const blockDocs = [
             { name: 'Buttons', desc: 'You can add up to 3 Quick Reply buttons. Each button press can lead to a different path in your flow.' },
         ],
         outputs: ['Each button acts as its own output path. Connect each button to a different block to create branching logic.'],
-        notes: 'This block waits for the user to press a button before continuing. Due to WhatsApp API limitations, dynamic URL or Call buttons are not supported here. For those, you must use a pre-approved template message.'
+        notes: 'This block waits for the user to press a button before continuing. Due to WhatsApp API limitations, only Quick Reply buttons are supported in flows.'
     },
     {
         title: 'Get User Input',
@@ -57,14 +57,15 @@ const blockDocs = [
     },
     {
         title: 'Add Condition',
-        description: 'Create branches in your flow based on rules and variables.',
+        description: 'Create branches in your flow based on rules and variables. This block can either check a pre-existing variable or pause the flow to wait for the user\'s next message.',
         properties: [
-            { name: 'Variable', desc: 'The variable to check, e.g., {{user_input}} or {{age}}.' },
+            { name: 'Condition Type', desc: 'Choose what to check. "Variable" checks data already saved in a variable. "User Response" pauses the flow and checks the next message the user sends.' },
+            { name: 'Variable (if type is Variable)', desc: 'The variable to check, e.g., {{user_input}} or {{age}}.' },
             { name: 'Operator', desc: 'The comparison to perform: Equals, Contains, Is one of, etc.' },
             { name: 'Value', desc: 'The value to compare against. This can be a fixed value (e.g., "yes") or another variable (e.g., {{expected_answer}}).' }
         ],
         outputs: ['Yes: If the condition is true.', 'No: If the condition is false.'],
-        notes: 'The "Is one of" and "Is not one of" operators are case-insensitive and check against a comma-separated list of values. All other text comparisons are case-sensitive.'
+        notes: 'Using "User Response" is a powerful way to create simple menus without needing a separate "Get User Input" block. For example, you can send a message "Reply YES to confirm" and then use a Condition block set to "User Response" equals "yes".'
     },
     {
         title: 'Add Delay',

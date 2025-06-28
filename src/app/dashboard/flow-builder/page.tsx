@@ -44,6 +44,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart';
 
@@ -333,20 +334,64 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
             case 'condition':
                 return (
                     <div className="space-y-4">
-                        <Input placeholder="Variable (e.g., {{user_name}})" value={selectedNode.data.variable || ''} onChange={(e) => handleDataChange('variable', e.target.value)} />
-                        <Select value={selectedNode.data.operator || 'equals'} onValueChange={(val) => handleDataChange('operator', val)}>
-                             <SelectTrigger><SelectValue/></SelectTrigger>
-                             <SelectContent>
-                                 <SelectItem value="equals">Equals</SelectItem>
-                                 <SelectItem value="not_equals">Does not equal</SelectItem>
-                                 <SelectItem value="contains">Contains</SelectItem>
-                                 <SelectItem value="is_one_of">Is one of (comma-sep)</SelectItem>
-                                 <SelectItem value="is_not_one_of">Is not one of (comma-sep)</SelectItem>
-                                 <SelectItem value="greater_than">Greater than (number)</SelectItem>
-                                 <SelectItem value="less_than">Less than (number)</SelectItem>
-                             </SelectContent>
-                        </Select>
-                        <Input placeholder="Value to check against" value={selectedNode.data.value || ''} onChange={(e) => handleDataChange('value', e.target.value)} />
+                        <div className="space-y-2">
+                            <Label>Condition Type</Label>
+                            <RadioGroup
+                                value={selectedNode.data.conditionType || 'variable'}
+                                onValueChange={(val) => handleDataChange('conditionType', val)}
+                                className="flex gap-4 pt-1"
+                            >
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="variable" id="type-variable" />
+                                    <Label htmlFor="type-variable" className="font-normal">Variable</Label>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                    <RadioGroupItem value="user_response" id="type-user-response" />
+                                    <Label htmlFor="type-user-response" className="font-normal">User Response</Label>
+                                </div>
+                            </RadioGroup>
+                            <p className="text-xs text-muted-foreground">"User Response" will pause the flow and wait for the user's next message.</p>
+                        </div>
+
+                        {(selectedNode.data.conditionType === 'variable' || !selectedNode.data.conditionType) && (
+                            <div className="space-y-2">
+                                <Label htmlFor="condition-variable">Variable to Check</Label>
+                                <Input
+                                    id="condition-variable"
+                                    placeholder="e.g., {{user_name}} or {{order_status}}"
+                                    value={selectedNode.data.variable || ''}
+                                    onChange={(e) => handleDataChange('variable', e.target.value)}
+                                />
+                            </div>
+                        )}
+
+                        <div className="space-y-2">
+                            <Label htmlFor="condition-operator">Operator</Label>
+                            <Select
+                                value={selectedNode.data.operator || 'equals'}
+                                onValueChange={(val) => handleDataChange('operator', val)}
+                            >
+                                <SelectTrigger id="condition-operator"><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="equals">Equals</SelectItem>
+                                    <SelectItem value="not_equals">Does not equal</SelectItem>
+                                    <SelectItem value="contains">Contains</SelectItem>
+                                    <SelectItem value="is_one_of">Is one of (comma-sep)</SelectItem>
+                                    <SelectItem value="is_not_one_of">Is not one of (comma-sep)</SelectItem>
+                                    <SelectItem value="greater_than">Greater than (number)</SelectItem>
+                                    <SelectItem value="less_than">Less than (number)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="condition-value">Value to Compare Against</Label>
+                            <Input
+                                id="condition-value"
+                                placeholder="e.g., confirmed"
+                                value={selectedNode.data.value || ''}
+                                onChange={(e) => handleDataChange('value', e.target.value)}
+                            />
+                        </div>
                     </div>
                 );
             case 'delay':

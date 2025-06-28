@@ -93,7 +93,7 @@ async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<C
 
 async function sendFlowButtons(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>) {
     const text = interpolate(node.data.text, variables);
-    const buttons = (node.data.buttons || []).filter((btn: any) => btn.text);
+    const buttons = (node.data.buttons || []).filter((btn: any) => btn.text && btn.type === 'QUICK_REPLY');
     if (!text || buttons.length === 0) return;
 
     try {
@@ -191,18 +191,27 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             return; 
 
         case 'condition':
+            const conditionType = node.data.conditionType || 'variable';
+
+            if (conditionType === 'user_response') {
+                // Stop and wait for the user's next message.
+                // The flow state is already updated to this node.
+                console.log(`Flow: Paused at condition node ${node.id}, waiting for user response.`);
+                return; // End execution for now
+            }
+            
+            // If conditionType is 'variable', process immediately.
             const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
             const rawCheckValue = node.data.value || '';
             const interpolatedCheckValue = interpolate(rawCheckValue, contact.activeFlow.variables);
-
             const variableValue = contact.activeFlow.variables[variableName] || '';
             const operator = node.data.operator;
             let conditionMet = false;
 
             switch(operator) {
-                case 'equals': conditionMet = String(variableValue) === String(interpolatedCheckValue); break;
-                case 'not_equals': conditionMet = String(variableValue) !== String(interpolatedCheckValue); break;
-                case 'contains': conditionMet = String(variableValue).includes(String(interpolatedCheckValue)); break;
+                case 'equals': conditionMet = String(variableValue).toLowerCase() === String(interpolatedCheckValue).toLowerCase(); break;
+                case 'not_equals': conditionMet = String(variableValue).toLowerCase() !== String(interpolatedCheckValue).toLowerCase(); break;
+                case 'contains': conditionMet = String(variableValue).toLowerCase().includes(String(interpolatedCheckValue).toLowerCase()); break;
                 case 'is_one_of':
                     const list = interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase());
                     conditionMet = list.includes(String(variableValue).toLowerCase());
@@ -215,7 +224,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                 case 'less_than': conditionMet = !isNaN(Number(variableValue)) && !isNaN(Number(interpolatedCheckValue)) && Number(variableValue) < Number(interpolatedCheckValue); break;
             }
 
-            console.log(`Flow Condition Check: Var='${variableName}' ('${variableValue}') | Op='${operator}' | Val='${interpolatedCheckValue}' | Result=${conditionMet}`);
+            console.log(`Flow Condition Check (variable): Var='${variableName}' ('${variableValue}') | Op='${operator}' | Val='${interpolatedCheckValue}' | Result=${conditionMet}`);
 
             const handle = conditionMet ? `${node.id}-output-yes` : `${node.id}-output-no`;
             edge = flow.edges.find(e => e.sourceHandle === handle);
@@ -281,8 +290,9 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
 }
 
 async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId<Contact> & { activeFlow?: any }, message: any, phoneNumberId: string): Promise<boolean> {
-    const messageText = message.text?.body?.toLowerCase().trim();
+    const messageText = message.text?.body?.trim(); // Keep case for sensitive comparisons
     const interactiveReplyId = message.interactive?.button_reply?.id;
+    const buttonReplyText = message.interactive?.button_reply?.title?.trim();
 
     // 1. Check if resuming a flow
     if (contact.activeFlow?.flowId) {
@@ -299,33 +309,81 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
         }
 
         let nextNodeId: string | null = null;
-        
-        // Handle reply to an 'input' node
-        if (currentNode.type === 'input' && messageText) {
-            if (currentNode.data.variableToSave) {
-                contact.activeFlow.variables[currentNode.data.variableToSave] = messageText;
+        let flowResumed = false;
+
+        // User replied with text
+        const userResponseText = buttonReplyText || messageText;
+
+        if (userResponseText) {
+            // Handle reply to a 'Get User Input' node
+            if (currentNode.type === 'input') {
+                if (currentNode.data.variableToSave) {
+                    contact.activeFlow.variables[currentNode.data.variableToSave] = userResponseText;
+                }
+                const edge = flow.edges.find(e => e.source === currentNode.id);
+                if (edge) nextNodeId = edge.target;
+                flowResumed = true;
             }
-            const edge = flow.edges.find(e => e.source === currentNode.id);
-            if (edge) nextNodeId = edge.target;
+            // Handle reply when waiting at a 'Condition' node of type 'User Response'
+            else if (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response') {
+                const valueToCheck = userResponseText;
+                const rawCheckValue = currentNode.data.value || '';
+                const interpolatedCheckValue = interpolate(rawCheckValue, contact.activeFlow.variables);
+                const operator = currentNode.data.operator;
+                let conditionMet = false;
+
+                switch(operator) {
+                    case 'equals': conditionMet = valueToCheck.toLowerCase() === interpolatedCheckValue.toLowerCase(); break;
+                    case 'not_equals': conditionMet = valueToCheck.toLowerCase() !== interpolatedCheckValue.toLowerCase(); break;
+                    case 'contains': conditionMet = valueToCheck.toLowerCase().includes(interpolatedCheckValue.toLowerCase()); break;
+                    case 'is_one_of':
+                        const list = interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase());
+                        conditionMet = list.includes(valueToCheck.toLowerCase());
+                        break;
+                    case 'is_not_one_of':
+                        const notList = interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase());
+                        conditionMet = !notList.includes(valueToCheck.toLowerCase());
+                        break;
+                    case 'greater_than': conditionMet = !isNaN(Number(valueToCheck)) && !isNaN(Number(interpolatedCheckValue)) && Number(valueToCheck) > Number(interpolatedCheckValue); break;
+                    case 'less_than': conditionMet = !isNaN(Number(valueToCheck)) && !isNaN(Number(interpolatedCheckValue)) && Number(valueToCheck) < Number(interpolatedCheckValue); break;
+                }
+
+                console.log(`Flow Condition Check (User Response): Input='${valueToCheck}' | Op='${operator}' | Val='${interpolatedCheckValue}' | Result=${conditionMet}`);
+                
+                const handle = conditionMet ? `${currentNode.id}-output-yes` : `${currentNode.id}-output-no`;
+                const edge = flow.edges.find(e => e.sourceHandle === handle);
+                if (edge) {
+                    nextNodeId = edge.target;
+                } else {
+                    console.log(`Flow: No edge found for condition result '${conditionMet ? 'yes' : 'no'}' from node ${currentNode.id}`);
+                }
+                flowResumed = true;
+            }
         }
-        
-        // Handle reply to a 'buttons' node
-        if (currentNode.type === 'buttons' && interactiveReplyId) {
+        // Handle reply to a 'buttons' node via interactive ID
+        else if (currentNode.type === 'buttons' && interactiveReplyId) {
             const edge = flow.edges.find(e => e.sourceHandle === interactiveReplyId);
             if (edge) nextNodeId = edge.target;
+            flowResumed = true;
         }
 
-        if (nextNodeId) {
-            await executeNode(db, project, contact, flow, nextNodeId);
+        if (flowResumed) {
+            if (nextNodeId) {
+                await executeNode(db, project, contact, flow, nextNodeId);
+            } else {
+                console.log(`Flow ended for contact ${contact.waId}. No valid next step from node ${currentNode.id}.`);
+                await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+            }
         } else {
-            // Unexpected reply, or end of branch, end flow.
+            console.log(`Flow: User sent a message but the flow wasn't waiting for input. Ending flow for contact ${contact.waId}.`);
             await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
         }
-        return true; // Flow was handled.
+        return true; // Flow was active, so we consider it handled.
     }
 
     // 2. Check if starting a new flow
-    if (!messageText) return false;
+    const triggerText = (message.text?.body || message.interactive?.button_reply?.title)?.toLowerCase().trim();
+    if (!triggerText) return false;
     
     const flows = await db.collection<Flow>('flows').find({
         projectId: project._id,
@@ -333,7 +391,7 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
     }).toArray();
 
     const triggeredFlow = flows.find(flow =>
-        flow.triggerKeywords.some(keyword => messageText.includes(keyword.toLowerCase().trim()))
+        flow.triggerKeywords.some(keyword => triggerText.includes(keyword.toLowerCase().trim()))
     );
 
     if (triggeredFlow) {
