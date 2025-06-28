@@ -111,8 +111,8 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
               </DropdownMenu>
             </div>
           </header>
-          <div className="flex flex-1 overflow-hidden flex-col md:flex-row">
-            <main className="p-4 md:p-6 lg:p-8 flex-1 overflow-y-auto">{children}</main>
+          <div className="grid md:grid-cols-[1fr_auto] flex-1 min-h-0">
+            <main className="p-4 md:p-6 lg:p-8 overflow-y-auto">{children}</main>
             <aside className="w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0">
                 <LiveNotificationFeed />
             </aside>
