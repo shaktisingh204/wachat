@@ -39,6 +39,7 @@ import type { WithId } from 'mongodb';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
 
 type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart';
 
@@ -283,6 +284,7 @@ export default function FlowBuilderPage() {
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [isSaving, startSaveTransition] = useTransition();
     const [isLoadingFlows, startFlowsLoadingTransition] = useTransition();
+    const [isTestFlowOpen, setIsTestFlowOpen] = useState(false);
     const canvasRef = useRef<HTMLDivElement>(null);
 
     const [draggingNode, setDraggingNode] = useState<{ id: string; offset: { x: number; y: number } } | null>(null);
@@ -484,116 +486,124 @@ export default function FlowBuilderPage() {
     }
 
     return (
-        <div className="flex flex-col h-[calc(100vh-120px)] gap-4">
-            <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-4">
-                <div>
-                     <Input 
-                        value={currentFlow?.name || 'New Flow'} 
-                        onChange={e => setCurrentFlow(prev => prev ? {...prev, name: e.target.value} : { name: e.target.value } as any)} 
-                        className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-3xl font-bold font-headline"
-                        disabled={!currentFlow && flows.length > 0}
-                        onMouseDown={(e) => e.stopPropagation()}
-                        onClick={(e) => e.stopPropagation()}
-                    />
+        <>
+            <TestFlowDialog
+                open={isTestFlowOpen}
+                onOpenChange={setIsTestFlowOpen}
+                nodes={nodes}
+                edges={edges}
+            />
+            <div className="flex flex-col h-[calc(100vh-120px)] gap-4">
+                <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                         <Input 
+                            value={currentFlow?.name || 'New Flow'} 
+                            onChange={e => setCurrentFlow(prev => prev ? {...prev, name: e.target.value} : { name: e.target.value } as any)} 
+                            className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-3xl font-bold font-headline"
+                            disabled={!currentFlow && flows.length > 0}
+                            onMouseDown={(e) => e.stopPropagation()}
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline" onClick={() => setIsTestFlowOpen(true)}>
+                            <Play className="mr-2 h-4 w-4" />
+                            Test Flow
+                        </Button>
+                        <Button onClick={handleSaveFlow} disabled={isSaving || !currentFlow?.name}>
+                            {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4" />}
+                            Save & Publish
+                        </Button>
+                    </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline">
-                        <Play className="mr-2 h-4 w-4" />
-                        Test Flow
-                    </Button>
-                    <Button onClick={handleSaveFlow} disabled={isSaving || !currentFlow?.name}>
-                        {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4" />}
-                        Save & Publish
-                    </Button>
-                </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 min-h-0">
-                <div className="md:col-span-3 lg:col-span-2 flex flex-col gap-4">
-                    <Card>
-                        <CardHeader className="flex-row items-center justify-between p-3">
-                            <CardTitle className="text-base">Flows</CardTitle>
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCreateNewFlow}><Plus/></Button>
-                        </CardHeader>
-                        <CardContent className="p-2 pt-0">
-                            <ScrollArea className="h-32">
-                                {isLoadingFlows ? <Skeleton className="h-full w-full"/> : 
-                                    flows.map(flow => (
-                                        <div key={flow._id.toString()} className="flex items-center group">
-                                            <Button 
-                                                variant="ghost" 
-                                                className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && "bg-muted font-semibold")}
-                                                onClick={() => handleSelectFlow(flow._id.toString())}
-                                            >
-                                                <File className="mr-2 h-4 w-4"/>
-                                                {flow.name}
-                                            </Button>
-                                            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteFlow(flow._id.toString())}><Trash2 className="h-4 w-4"/></Button>
-                                        </div>
-                                    ))
-                                }
-                            </ScrollArea>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="p-3"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
-                        <CardContent className="space-y-2 p-2 pt-0">
-                            {blockTypes.map(({ type, label, icon: Icon }) => (
-                                <Button key={type} variant="outline" className="w-full justify-start" onClick={() => addNode(type as NodeType)}>
-                                    <Icon className="mr-2 h-4 w-4" />
-                                    {label}
-                                </Button>
-                            ))}
-                        </CardContent>
-                    </Card>
-                </div>
-                <div className="md:col-span-6 lg:col-span-7">
-                    <Card className="h-full">
-                        <ScrollArea className="h-full">
-                            <div 
-                                ref={canvasRef}
-                                className="relative h-[80vh] w-full overflow-hidden"
-                                onMouseMove={handleMouseMove}
-                                onMouseUp={handleMouseUp}
-                                onClick={handleCanvasClick}
-                            >
-                                {nodes.map(node => (
-                                    <NodeComponent 
-                                        key={node.id} 
-                                        node={node}
-                                        onSelectNode={setSelectedNodeId}
-                                        isSelected={selectedNodeId === node.id}
-                                        onNodeMouseDown={handleNodeMouseDown}
-                                        onHandleClick={handleHandleClick}
-                                    />
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 min-h-0">
+                    <div className="md:col-span-3 lg:col-span-2 flex flex-col gap-4">
+                        <Card>
+                            <CardHeader className="flex-row items-center justify-between p-3">
+                                <CardTitle className="text-base">Flows</CardTitle>
+                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCreateNewFlow}><Plus/></Button>
+                            </CardHeader>
+                            <CardContent className="p-2 pt-0">
+                                <ScrollArea className="h-32">
+                                    {isLoadingFlows ? <Skeleton className="h-full w-full"/> : 
+                                        flows.map(flow => (
+                                            <div key={flow._id.toString()} className="flex items-center group">
+                                                <Button 
+                                                    variant="ghost" 
+                                                    className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && "bg-muted font-semibold")}
+                                                    onClick={() => handleSelectFlow(flow._id.toString())}
+                                                >
+                                                    <File className="mr-2 h-4 w-4"/>
+                                                    {flow.name}
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteFlow(flow._id.toString())}><Trash2 className="h-4 w-4"/></Button>
+                                            </div>
+                                        ))
+                                    }
+                                </ScrollArea>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader className="p-3"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
+                            <CardContent className="space-y-2 p-2 pt-0">
+                                {blockTypes.map(({ type, label, icon: Icon }) => (
+                                    <Button key={type} variant="outline" className="w-full justify-start" onClick={() => addNode(type as NodeType)}>
+                                        <Icon className="mr-2 h-4 w-4" />
+                                        {label}
+                                    </Button>
                                 ))}
-                                <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
-                                    {edges.map(edge => {
-                                        const sourceNode = nodes.find(n => n.id === edge.source);
-                                        const targetNode = nodes.find(n => n.id === edge.target);
-                                        if(!sourceNode || !targetNode) return null;
-                                        
-                                        const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle);
-                                        const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle);
-                                        if (!sourcePos || !targetPos) return null;
+                            </CardContent>
+                        </Card>
+                    </div>
+                    <div className="md:col-span-6 lg:col-span-7">
+                        <Card className="h-full">
+                            <ScrollArea className="h-full">
+                                <div 
+                                    ref={canvasRef}
+                                    className="relative h-[80vh] w-full overflow-hidden"
+                                    onMouseMove={handleMouseMove}
+                                    onMouseUp={handleMouseUp}
+                                    onClick={handleCanvasClick}
+                                >
+                                    {nodes.map(node => (
+                                        <NodeComponent 
+                                            key={node.id} 
+                                            node={node}
+                                            onSelectNode={setSelectedNodeId}
+                                            isSelected={selectedNodeId === node.id}
+                                            onNodeMouseDown={handleNodeMouseDown}
+                                            onHandleClick={handleHandleClick}
+                                        />
+                                    ))}
+                                    <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                                        {edges.map(edge => {
+                                            const sourceNode = nodes.find(n => n.id === edge.source);
+                                            const targetNode = nodes.find(n => n.id === edge.target);
+                                            if(!sourceNode || !targetNode) return null;
+                                            
+                                            const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle);
+                                            const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle);
+                                            if (!sourcePos || !targetPos) return null;
 
-                                        return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
-                                    })}
-                                    {connecting && (
-                                        <ConnectionLine from={connecting.startPos} to={mousePosition} />
-                                    )}
-                                </svg>
-                            </div>
-                        </ScrollArea>
-                    </Card>
-                </div>
-                <div className="md:col-span-3 lg:col-span-3">
-                    <PropertiesPanel 
-                        selectedNode={selectedNode}
-                        updateNodeData={updateNodeData}
-                        deleteNode={deleteNode}
-                    />
+                                            return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
+                                        })}
+                                        {connecting && (
+                                            <ConnectionLine from={connecting.startPos} to={mousePosition} />
+                                        )}
+                                    </svg>
+                                </div>
+                            </ScrollArea>
+                        </Card>
+                    </div>
+                    <div className="md:col-span-3 lg:col-span-3">
+                        <PropertiesPanel 
+                            selectedNode={selectedNode}
+                            updateNodeData={updateNodeData}
+                            deleteNode={deleteNode}
+                        />
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }
