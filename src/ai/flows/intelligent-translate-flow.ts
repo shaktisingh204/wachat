@@ -1,8 +1,10 @@
+
 'use server';
 /**
  * @fileOverview A flow that translates text, either to a specified language or by detecting it from the user's WA ID.
  *
  * - intelligentTranslate - The main function for translation.
+ * - detectLanguageFromWaId - A helper to get a language from a WhatsApp ID.
  * - IntelligentTranslateInput - The input type for the function.
  * - IntelligentTranslateOutput - The return type for the function.
  */
@@ -28,7 +30,7 @@ const countryCodeToLanguage: Record<string, string> = {
     '44': 'English', // UK
 };
 
-function detectLanguageFromWaId(waId: string): string {
+export function detectLanguageFromWaId(waId: string): string {
     for (const code in countryCodeToLanguage) {
         if (waId.startsWith(code)) {
             return countryCodeToLanguage[code];
@@ -67,7 +69,7 @@ const prompt = ai.definePrompt({
 
 "{{{text}}}"
 
-Only return the translated text, with no additional commentary or explanations.`,
+Only return the translated text, with no additional commentary or explanations. Preserve any variables that look like {{...}}.`,
 });
 
 const intelligentTranslateFlow = ai.defineFlow(

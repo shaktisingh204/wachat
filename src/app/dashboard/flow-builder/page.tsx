@@ -30,7 +30,6 @@ import {
     LoaderCircle,
     BookOpen,
     Languages,
-    BrainCircuit,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -59,7 +58,7 @@ const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
-    { type: 'language', label: 'AI Translate', icon: BrainCircuit },
+    { type: 'language', label: 'Set Language', icon: Languages },
     { type: 'carousel', label: 'Product Carousel', icon: View },
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
@@ -400,7 +399,7 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                 return (
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <Label>Translation Mode</Label>
+                            <Label>Language Mode</Label>
                             <RadioGroup
                                 value={selectedNode.data.mode || 'automatic'}
                                 onValueChange={(val) => handleDataChange('mode', val)}
@@ -415,6 +414,7 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                                     <Label htmlFor="mode-manual" className="font-normal">Manual</Label>
                                 </div>
                             </RadioGroup>
+                            <p className="text-xs text-muted-foreground">"Automatic" uses the contact's country code. "Manual" asks the user.</p>
                         </div>
                         {selectedNode.data.mode === 'manual' && (
                             <div className="space-y-4 p-3 border rounded-md bg-muted/50">
@@ -428,14 +428,6 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                                 </div>
                             </div>
                         )}
-                         <div className="space-y-2">
-                            <Label htmlFor="lang-text-translate">Text to Translate</Label>
-                            <Textarea id="lang-text-translate" placeholder="Enter text or {{variable}}..." value={selectedNode.data.textToTranslate || ''} onChange={(e) => handleDataChange('textToTranslate', e.target.value)} />
-                        </div>
-                         <div className="space-y-2">
-                            <Label htmlFor="lang-save-var">Save Result to Variable</Label>
-                            <Input id="lang-save-var" placeholder="e.g., translated_greeting" value={selectedNode.data.saveToVariable || ''} onChange={(e) => handleDataChange('saveToVariable', e.target.value)} />
-                        </div>
                     </div>
                 );
             case 'delay':

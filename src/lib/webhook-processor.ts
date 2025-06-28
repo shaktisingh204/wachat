@@ -1,12 +1,11 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { Db, ObjectId, WithId } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
-import { intelligentTranslate } from '@/ai/flows/intelligent-translate-flow';
+import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelligent-translate-flow';
 import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge } from '@/app/dashboard/page';
 
 // --- Flow Engine Utilities ---
@@ -34,12 +33,32 @@ function getValueFromPath(obj: any, path: string): any {
     return keys.reduce((o, key) => (o && typeof o === 'object' && o[key] !== undefined ? o[key] : undefined), obj);
 }
 
+/**
+ * If a target language is set in the flow variables, translates the text.
+ * Otherwise, returns the original text.
+ */
+async function maybeTranslate(text: string, variables: Record<string, any>): Promise<string> {
+    const targetLanguage = variables.flowTargetLanguage;
+    if (!targetLanguage || targetLanguage.toLowerCase().includes('english') || !text) {
+        return text;
+    }
+    try {
+        const result = await intelligentTranslate({ text, targetLanguage });
+        return result.translatedText;
+    } catch (e: any) {
+        console.error(`Flow translation to '${targetLanguage}' failed:`, e.message);
+        return text; // Return original text on failure
+    }
+}
+
 
 // --- Flow Action Functions ---
 
 async function sendFlowMessage(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, text: string, variables: Record<string, any>) {
     try {
-        const interpolatedText = interpolate(text, variables);
+        const translatedText = await maybeTranslate(text, variables);
+        const interpolatedText = interpolate(translatedText, variables);
+
         const messagePayload = {
             messaging_product: 'whatsapp',
             recipient_type: 'individual',
@@ -65,17 +84,20 @@ async function sendFlowMessage(db: Db, project: WithId<Project>, contact: WithId
 
 async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>) {
     const imageUrl = interpolate(node.data.imageUrl, variables);
-    const caption = interpolate(node.data.caption, variables);
+    const caption = node.data.caption || '';
     if (!imageUrl) {
         console.error(`Flow: Image URL is missing or invalid after interpolation for node ${node.id}.`);
         return;
     }
     try {
+        const translatedCaption = await maybeTranslate(caption, variables);
+        const interpolatedCaption = interpolate(translatedCaption, variables);
+
         const messagePayload: any = {
             messaging_product: 'whatsapp', to: contact.waId, type: 'image',
             image: { link: imageUrl },
         };
-        if (caption) messagePayload.image.caption = caption;
+        if (interpolatedCaption) messagePayload.image.caption = interpolatedCaption;
         const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
@@ -85,7 +107,7 @@ async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<C
             direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'image',
             content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
         });
-        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: caption || '[Flow]: Sent an image', lastMessageTimestamp: now } });
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: interpolatedCaption || '[Flow]: Sent an image', lastMessageTimestamp: now } });
         revalidatePath('/dashboard/chat');
     } catch (e: any) {
         console.error(`Flow: Failed to send image message to ${contact.waId} for project ${project._id}:`, e.message);
@@ -93,26 +115,34 @@ async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<C
 }
 
 async function sendFlowButtons(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>) {
-    const text = interpolate(node.data.text, variables);
+    const text = node.data.text || '';
     const buttons = (node.data.buttons || []).filter((btn: any) => btn.text && btn.type === 'QUICK_REPLY');
     if (!text || buttons.length === 0) return;
 
     try {
+        const translatedText = await maybeTranslate(text, variables);
+        const interpolatedText = interpolate(translatedText, variables);
+
+        const finalButtons = await Promise.all(buttons.map(async (btn: any) => {
+            const translatedBtnText = await maybeTranslate(btn.text, variables);
+            return {
+                type: 'reply',
+                reply: {
+                    id: `${node.id}-btn-${buttons.indexOf(btn)}`, // Unique ID for the button reply
+                    title: interpolate(translatedBtnText, variables).substring(0, 20),
+                }
+            };
+        }));
+        
         const messagePayload = {
             messaging_product: 'whatsapp',
             to: contact.waId,
             type: 'interactive',
             interactive: {
                 type: 'button',
-                body: { text },
+                body: { text: interpolatedText },
                 action: {
-                    buttons: buttons.map((btn: any, index: number) => ({
-                        type: 'reply',
-                        reply: {
-                            id: `${node.id}-btn-${index}`, // Unique ID for the button reply
-                            title: interpolate(btn.text, variables).substring(0, 20),
-                        }
-                    }))
+                    buttons: finalButtons
                 }
             }
         };
@@ -126,7 +156,7 @@ async function sendFlowButtons(db: Db, project: WithId<Project>, contact: WithId
             direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'interactive',
             content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
         });
-        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${text.substring(0, 50)}`, lastMessageTimestamp: now } });
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${interpolatedText.substring(0, 50)}`, lastMessageTimestamp: now } });
         revalidatePath('/dashboard/chat');
     } catch (e: any) {
         console.error(`Flow: Failed to send buttons message to ${contact.waId} for project ${project._id}:`, e.message);
@@ -314,26 +344,12 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
         case 'language': {
             const mode = node.data.mode || 'automatic';
             if (mode === 'automatic') {
-                const textToTranslate = interpolate(node.data.textToTranslate || '', contact.activeFlow.variables);
-                const saveToVariable = node.data.saveToVariable;
-
-                if (textToTranslate && saveToVariable) {
-                    try {
-                        const result = await intelligentTranslate({
-                            text: textToTranslate,
-                            waId: contact.waId,
-                        });
-                        contact.activeFlow.variables[saveToVariable] = result.translatedText;
-                        console.log(`[Flow Engine] Auto-translation successful. Saved to '${saveToVariable}'.`);
-                    } catch (e: any) {
-                        console.error(`[Flow Engine] Auto-translation failed for node ${node.id}:`, e.message);
-                        contact.activeFlow.variables[saveToVariable] = textToTranslate; // Save original text on failure
-                    }
-                }
+                const detectedLanguage = detectLanguageFromWaId(contact.waId);
+                contact.activeFlow.variables.flowTargetLanguage = detectedLanguage;
+                console.log(`[Flow Engine] Auto language set to '${detectedLanguage}' for contact ${contact.waId}.`);
                 
                 edge = flow.edges.find(e => e.source === nodeId);
                 if (edge) nextNodeId = edge.target;
-
             } else { // Manual mode
                 await sendLanguageSelectionButtons(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables);
                 // Pause and wait for user's language selection
@@ -419,27 +435,19 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
             return false;
         }
 
-        // --- Special handling for our new language node ---
+        // --- Special handling for our "Set Language" node ---
         if (currentNode.type === 'language' && currentNode.data.mode === 'manual' && interactiveReplyId?.startsWith(`${currentNode.id}-lang-`)) {
-            const selectedLanguage = interactiveReplyId.replace(`${currentNode.id}-lang-`, '');
-            const textToTranslate = interpolate(currentNode.data.textToTranslate || '', contact.activeFlow.variables);
-            const saveToVariable = currentNode.data.saveToVariable;
-
-            if (textToTranslate && saveToVariable && selectedLanguage) {
-                try {
-                    const result = await intelligentTranslate({
-                        text: textToTranslate,
-                        targetLanguage: selectedLanguage,
-                    });
-                    contact.activeFlow.variables[saveToVariable] = result.translatedText;
-                    console.log(`[Flow Engine] Manual translation to '${selectedLanguage}' successful. Saved to '${saveToVariable}'.`);
-                } catch (e: any) {
-                    console.error(`[Flow Engine] Manual translation failed for node ${currentNode.id}:`, e.message);
-                    contact.activeFlow.variables[saveToVariable] = textToTranslate; // Save original text on failure
-                }
+            const selectedLanguage = buttonReplyText || '';
+            if(selectedLanguage) {
+                contact.activeFlow.variables.flowTargetLanguage = selectedLanguage;
+                await db.collection('contacts').updateOne(
+                    { _id: contact._id },
+                    { $set: { "activeFlow.variables.flowTargetLanguage": selectedLanguage } }
+                );
+                console.log(`[Flow Engine] Manual language set to '${selectedLanguage}' for contact ${contact.waId}.`);
             }
             
-            // After translation, proceed to the main output
+            // After setting language, proceed to the main output
             const edge = flow.edges.find(e => e.source === currentNode.id);
             if (edge) {
                 await executeNode(db, project, contact, flow, edge.target, undefined);
