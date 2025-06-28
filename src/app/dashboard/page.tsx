@@ -1,4 +1,5 @@
 
+
 import type { Metadata } from "next";
 import { getProjects } from "@/app/actions";
 import { CreateProjectDialog } from "@/components/wabasimplify/project-dialog";
@@ -43,6 +44,7 @@ export type PhoneNumber = {
 };
 
 export type AutoReplySettings = {
+  masterEnabled?: boolean;
   general?: {
     enabled: boolean;
     message: string;

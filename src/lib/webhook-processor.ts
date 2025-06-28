@@ -154,7 +154,7 @@ async function sendAutoReplyMessage(
 
 async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithId<Contact>, message: any, phoneNumberId: string) {
     const settings = project.autoReplySettings;
-    if (!settings) return;
+    if (!settings || settings.masterEnabled === false) return;
 
     const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
     const recentOutgoingMessage = await db.collection('outgoing_messages').findOne({

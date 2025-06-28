@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useEffect, useState, useActionState } from 'react';
+import { useEffect, useState, useActionState, useRef, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getProjectById, handleUpdateAutoReplySettings, type Project } from '@/app/actions';
+import { getProjectById, handleUpdateAutoReplySettings, type Project, handleUpdateMasterSwitch } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -40,6 +40,55 @@ function SaveButton({ children }: { children: React.ReactNode }) {
 }
 
 const updateSettingsInitialState = { message: null, error: null };
+
+function MasterSwitch({ project }: { project: WithId<Project> }) {
+    const { toast } = useToast();
+    const [isSubmitting, startTransition] = useTransition();
+
+    const [isChecked, setIsChecked] = useState(project.autoReplySettings?.masterEnabled !== false);
+    
+    useEffect(() => {
+        setIsChecked(project.autoReplySettings?.masterEnabled !== false);
+    }, [project.autoReplySettings?.masterEnabled]);
+
+    const onCheckedChange = (checked: boolean) => {
+        setIsChecked(checked); // Optimistic UI update
+
+        startTransition(async () => {
+            const result = await handleUpdateMasterSwitch(project._id.toString(), checked);
+
+            if (result.message) {
+                toast({ title: 'Success!', description: result.message });
+            }
+            if (result.error) {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+                // Revert optimistic update on error
+                setIsChecked(prev => !prev);
+            }
+        });
+    };
+
+    return (
+        <Card>
+            <CardHeader>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <CardTitle>Master Auto-Reply Switch</CardTitle>
+                        <CardDescription>Enable or disable all auto-replies for this project.</CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        {isSubmitting && <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" />}
+                        <Switch 
+                            checked={isChecked}
+                            onCheckedChange={onCheckedChange}
+                            disabled={isSubmitting}
+                        />
+                    </div>
+                </div>
+            </CardHeader>
+        </Card>
+    );
+}
 
 function GeneralReplyForm({ project }: { project: WithId<Project> }) {
     const [state, formAction] = useActionState(handleUpdateAutoReplySettings, updateSettingsInitialState);
@@ -230,9 +279,11 @@ export default function AutoReplyPage() {
         <div className="flex flex-col gap-8">
             <div>
                 <h1 className="text-3xl font-bold font-headline">Auto Reply Settings</h1>
-                <p className="text-muted-foreground">Configure automated responses for project "{project.name}". Replies are sent only once per conversation.</p>
+                <p className="text-muted-foreground">Configure automated responses for project "{project.name}".</p>
             </div>
             
+            <MasterSwitch project={project} />
+
             <Tabs defaultValue="general" className="w-full">
                 <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="general"><Bot className="mr-2 h-4 w-4" />General</TabsTrigger>

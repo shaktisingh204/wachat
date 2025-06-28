@@ -2446,6 +2446,31 @@ export async function handleUpdateAutoReplySettings(
     }
 }
 
+export async function handleUpdateMasterSwitch(projectId: string, enabled: boolean): Promise<{ message?: string; error?: string; }> {
+    if (!projectId || !ObjectId.isValid(projectId)) {
+        return { error: 'Invalid Project ID.' };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
+        if (!project) {
+            return { error: 'Project not found.' };
+        }
+        const autoReplySettings = project.autoReplySettings || {};
+        autoReplySettings.masterEnabled = enabled;
+
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { autoReplySettings } }
+        );
+
+        revalidatePath('/dashboard/auto-reply');
+        return { message: 'Auto-reply settings updated.' };
+    } catch (e: any) {
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
 
 // --- Flow Builder Actions ---
 
