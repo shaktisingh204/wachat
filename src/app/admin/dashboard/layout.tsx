@@ -27,13 +27,14 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { WachatLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown } from 'lucide-react';
+import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown, History } from 'lucide-react';
 import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/dashboard/users', label: 'User Management', icon: Users },
   { href: '/admin/dashboard/system', label: 'System Health', icon: ShieldCheck },
+  { href: '/admin/dashboard/broadcast-log', label: 'Broadcast Log', icon: History },
 ];
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {

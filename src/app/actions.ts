@@ -307,6 +307,26 @@ export async function getTemplates(projectId: string): Promise<WithId<Template>[
     }
 }
 
+export async function getAllBroadcasts(
+    page: number = 1,
+    limit: number = 20,
+): Promise<{ broadcasts: WithId<any>[], total: number }> {
+    try {
+        const { db } = await connectToDatabase();
+        const skip = (page - 1) * limit;
+
+        const [broadcasts, total] = await Promise.all([
+            db.collection('broadcasts').find({}).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+            db.collection('broadcasts').countDocuments({})
+        ]);
+        
+        return { broadcasts: JSON.parse(JSON.stringify(broadcasts)), total };
+    } catch (error) {
+        console.error('Failed to fetch all broadcasts:', error);
+        return { broadcasts: [], total: 0 };
+    }
+}
+
 export async function getBroadcasts(
     projectId: string,
     page: number = 1,
