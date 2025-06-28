@@ -73,7 +73,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const hideNotificationFeed =
     pathname === '/dashboard' ||
     pathname.startsWith('/dashboard/flow-builder') ||
-    pathname.startsWith('/dashboard/auto-reply');
+    pathname.startsWith('/dashboard/auto-reply') ||
+    pathname.startsWith('/dashboard/chat');
 
   return (
     <SidebarProvider>
