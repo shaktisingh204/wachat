@@ -20,6 +20,8 @@ async function processStatuses(db: Db, statuses: any[]) {
         const wamid = status.id;
         const newStatus = (status.status || 'unknown').toUpperCase();
         const timestamp = new Date(parseInt(status.timestamp, 10) * 1000);
+        
+        console.log(`Processing status update for WAMID: ${wamid}. New status: ${newStatus}`);
 
         // --- Prepare Live Chat Update ---
         const liveChatUpdatePayload: any = {
@@ -224,6 +226,9 @@ export async function processSingleWebhook(db: Db, payload: any) {
                         const senderWaId = message.from;
                         const senderName = contactProfile.profile?.name || 'Unknown User';
                         const businessPhoneNumberId = value.metadata.phone_number_id;
+
+                        console.log(`Processing incoming message from ${senderWaId} for project '${project.name}'.`);
+
                         let lastMessageText = `[${message.type}]`;
                         if (message.type === 'text') {
                             lastMessageText = message.text.body;
@@ -264,6 +269,9 @@ export async function processSingleWebhook(db: Db, payload: any) {
                 case 'account_update': {
                     const wabaIdToHandle = value.waba_info?.waba_id;
                     if (!wabaIdToHandle) continue;
+
+                    console.log(`Processing account update event: ${value.event} for WABA ${wabaIdToHandle}`);
+
                     if (value.event === 'PARTNER_REMOVED') {
                         const projectToDelete = await db.collection('projects').findOne({ wabaId: wabaIdToHandle });
                         if (projectToDelete) {
@@ -289,6 +297,9 @@ export async function processSingleWebhook(db: Db, payload: any) {
                         const eventUpper = value.event.toUpperCase();
                         if (eventUpper.includes('FLAGGED')) newQuality = 'RED'; else if (eventUpper.includes('WARNED')) newQuality = 'YELLOW'; else if (eventUpper.includes('GREEN') || eventUpper === 'ONBOARDING') newQuality = 'GREEN';
                         updatePayload['phoneNumbers.$.quality_rating'] = newQuality;
+                        
+                        console.log(`Processing phone quality update for ${value.display_phone_number}. New quality: ${newQuality}`);
+
                         await db.collection('projects').updateOne({ _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number }, { $set: updatePayload });
                         let notificationMessage = `For project '${project.name}', quality for ${value.display_phone_number} is now ${newQuality}.`;
                         if (value.current_limit) {
@@ -308,6 +319,9 @@ export async function processSingleWebhook(db: Db, payload: any) {
                 }
                 case 'phone_number_name_update': {
                     if (!project || !value.display_phone_number || !value.decision) break;
+
+                    console.log(`Processing phone name update for ${value.display_phone_number}. Decision: ${value.decision}`);
+                    
                     let notificationMessage = '';
                     let shouldNotify = false;
                     if (value.decision === 'APPROVED') {
@@ -345,6 +359,9 @@ export async function processSingleWebhook(db: Db, payload: any) {
                     if (!template) break;
                     const projectForTemplate = await db.collection('projects').findOne({ _id: template.projectId }, { projection: { _id: 1, name: 1, wabaId: 1 } });
                     if (!projectForTemplate) break;
+
+                    console.log(`Processing template status update for '${value.message_template_name}'. New status: ${value.event.toUpperCase()}`);
+
                     const result = await db.collection('templates').updateOne({ _id: template._id }, { $set: { status: value.event.toUpperCase() } });
                     if (result.modifiedCount > 0) {
                         await db.collection('notifications').insertOne({
@@ -361,6 +378,9 @@ export async function processSingleWebhook(db: Db, payload: any) {
                     if (!template) break;
                     const projectForTemplate = await db.collection('projects').findOne({ _id: template.projectId }, { projection: { _id: 1, name: 1, wabaId: 1 } });
                     if (!projectForTemplate) break;
+
+                    console.log(`Processing template quality update for '${value.message_template_name}'. New score: ${value.new_quality_score.toUpperCase()}`);
+
                     const result = await db.collection('templates').updateOne({ _id: template._id }, { $set: { qualityScore: value.new_quality_score.toUpperCase() } });
                     if (result.modifiedCount > 0) {
                         await db.collection('notifications').insertOne({
