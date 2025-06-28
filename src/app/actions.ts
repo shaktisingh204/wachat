@@ -152,7 +152,7 @@ export type IncomingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive';
     content: any; // The raw message object from Meta
     isRead: boolean;
     createdAt: Date;
@@ -165,7 +165,7 @@ export type OutgoingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive';
     content: any; // The payload sent to Meta
     status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
     statusTimestamps: {
@@ -1959,6 +1959,15 @@ export async function handleSendMessage(
 
             messagePayload.type = messageType;
             messagePayload[messageType] = { id: mediaId, caption: messageText };
+
+            if (messageType === 'document') {
+                messagePayload[messageType].filename = mediaFile.name;
+            }
+
+            // Create a local data URI for instant UI display, but only for smaller files
+            if (messageType !== 'video' && mediaFile.size < 10 * 1024 * 1024) { // 10MB limit
+                messagePayload[messageType].link = `data:${mediaFile.type};base64,${fileBuffer.toString('base64')}`;
+            }
 
         } else if (messageText) {
             messagePayload.type = 'text';

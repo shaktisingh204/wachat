@@ -121,7 +121,7 @@ async function sendFlowButtons(db: Db, project: WithId<Project>, contact: WithId
 
         const now = new Date();
         await db.collection('outgoing_messages').insertOne({
-            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'text', // Logged as text for simplicity
+            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'interactive',
             content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
         });
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${text.substring(0, 50)}`, lastMessageTimestamp: now } });
@@ -728,6 +728,21 @@ export async function processSingleWebhook(db: Db, payload: any) {
                         await processStatuses(db, value.statuses);
                     } else if (value.messages && Array.isArray(value.messages) && value.messages.length > 0 && project) {
                         const message = value.messages[0];
+                        
+                        const mediaTypes = ['image', 'video', 'document', 'audio'];
+                        if (mediaTypes.includes(message.type) && message[message.type]?.id) {
+                            const mediaId = message[message.type].id;
+                            try {
+                                const mediaDetailsResponse = await axios.get(
+                                    `https://graph.facebook.com/v22.0/${mediaId}`,
+                                    { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+                                );
+                                message[message.type].link = mediaDetailsResponse.data.url;
+                            } catch (e: any) {
+                                console.error(`Failed to fetch media URL for ID ${mediaId}:`, e.message);
+                            }
+                        }
+
                         const contactProfile = value.contacts[0];
                         const senderWaId = message.from;
                         const senderName = contactProfile.profile?.name || 'Unknown User';
@@ -750,17 +765,10 @@ export async function processSingleWebhook(db: Db, payload: any) {
                         );
                         const updatedContact = contactUpdateResult;
                         if (updatedContact) {
-                            let contentToStore;
-                            const messageType = message.type as string;
-                            if (message[messageType]) {
-                                contentToStore = message[messageType];
-                            } else {
-                                contentToStore = { unknown: {} };
-                            }
                             await db.collection('incoming_messages').insertOne({
                                 direction: 'in', projectId: project._id, contactId: updatedContact._id,
                                 wamid: message.id, messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
-                                type: message.type, content: { [messageType]: contentToStore }, isRead: false, createdAt: new Date(),
+                                type: message.type, content: message, isRead: false, createdAt: new Date(),
                             });
                             await db.collection('notifications').insertOne({
                                 projectId: project._id, wabaId: project.wabaId,
