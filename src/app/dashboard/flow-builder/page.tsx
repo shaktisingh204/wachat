@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -66,6 +67,66 @@ const blockTypes = [
     { type: 'addToCart', label: 'Add to Cart', icon: ShoppingCart },
 ];
 
+const NodePreview = ({ node }: { node: FlowNode }) => {
+    // Helper to render text with variable highlighting
+    const renderTextWithVariables = (text: string) => {
+        if (!text) return null;
+        const parts = text.split(/({{\s*[\w\d._]+\s*}})/g);
+        return parts.map((part, i) =>
+            part.match(/^{{.*}}$/) ? (
+                <span key={i} className="font-semibold text-primary/90 bg-primary/10 rounded-sm px-1">
+                    {part}
+                </span>
+            ) : (
+                part
+            )
+        );
+    };
+
+    const previewContent = () => {
+        switch (node.type) {
+            case 'text':
+                return <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text) || <span className="italic opacity-50">Enter message...</span>}</p>;
+            case 'image':
+                return (
+                    <div className="space-y-1">
+                        <div className="aspect-video bg-background/50 rounded-md flex items-center justify-center">
+                            <ImageIcon className="h-8 w-8 text-foreground/20" />
+                        </div>
+                        {node.data.caption && <p className="whitespace-pre-wrap text-xs">{renderTextWithVariables(node.data.caption)}</p>}
+                    </div>
+                );
+            case 'buttons':
+                return (
+                    <div className="space-y-2">
+                        <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text) || <span className="italic opacity-50">Enter message...</span>}</p>
+                        <div className="space-y-1 mt-2 border-t border-muted-foreground/20 pt-2">
+                            {(node.data.buttons || []).map((btn: any, index: number) => (
+                                <div key={btn.id || index} className="text-center text-primary font-medium bg-background/50 py-1.5 rounded-md text-xs">
+                                    {btn.text || `Button ${index + 1}`}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
+    const content = previewContent();
+    if (!content) return null;
+
+    return (
+        <CardContent className="p-2 pt-0">
+            <div className="bg-muted p-2 rounded-lg text-sm text-card-foreground/80">
+                {content}
+            </div>
+        </CardContent>
+    );
+};
+
+
 const NodeComponent = ({ 
     node, 
     onSelectNode, 
@@ -107,27 +168,20 @@ const NodeComponent = ({
         >
             <Card className={cn(
                 "w-64 hover:shadow-xl hover:-translate-y-1 bg-card",
-                isSelected && "ring-2 ring-primary shadow-2xl",
-                node.type === 'condition' && "min-h-[80px] flex flex-col justify-center"
+                isSelected && "ring-2 ring-primary shadow-2xl"
             )}>
                 <CardHeader className="flex flex-row items-center gap-3 p-3">
                     <BlockIcon className="h-5 w-5 text-muted-foreground" />
                     <CardTitle className="text-sm font-medium">{node.data.label}</CardTitle>
                 </CardHeader>
+                 
+                <NodePreview node={node} />
+
                  {node.type === 'condition' && (
                     <CardContent className="p-3 pt-0 text-xs text-muted-foreground">
                         <div className="flex justify-between items-center"><span>Yes</span></div>
                         <Separator className="my-1"/>
                         <div className="flex justify-between items-center"><span>No</span></div>
-                    </CardContent>
-                )}
-                 {node.type === 'buttons' && (
-                    <CardContent className="p-3 pt-0 text-xs text-muted-foreground space-y-1">
-                        {(node.data.buttons || []).map((btn: ButtonConfig, index: number) => (
-                           <div key={btn.id || index} className="flex justify-between items-center">
-                               <span>{btn.text || `Button ${index + 1}`}</span>
-                           </div>
-                        ))}
                     </CardContent>
                 )}
             </Card>
