@@ -182,7 +182,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="grid md:grid-cols-[1fr_auto] flex-1 min-h-0">
            <main className={cn(
             "flex flex-col",
-            isChatPage ? 'p-4' : 'p-4 md:p-6 lg:p-8 overflow-y-auto'
+            isChatPage ? '' : 'p-4 md:p-6 lg:p-8 overflow-y-auto'
             )}>
               {children}
           </main>
