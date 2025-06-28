@@ -306,52 +306,78 @@ export async function getTemplates(projectId: string): Promise<WithId<Template>[
     }
 }
 
-export async function getBroadcasts(): Promise<WithId<any>[]> {
-  try {
-    const { db } = await connectToDatabase();
-    const broadcasts = await db.collection('broadcasts').aggregate([
-      { $sort: { createdAt: -1 } },
-      { $limit: 10 },
-      {
-        $lookup: {
-          from: 'templates',
-          localField: 'templateId',
-          foreignField: '_id',
-          as: 'templateInfo'
-        }
-      },
-      {
-        $unwind: {
-          path: '$templateInfo',
-          preserveNullAndEmptyArrays: true // Keep broadcasts even if template is deleted
-        }
-      },
-      {
-        $project: {
-          templateId: 1,
-          templateName: 1,
-          templateStatus: '$templateInfo.status', // Get live status from joined collection
-          fileName: 1,
-          contactCount: 1,
-          successCount: 1,
-          errorCount: 1,
-          deliveredCount: 1,
-          readCount: 1,
-          status: 1,
-          createdAt: 1,
-          startedAt: 1,
-          completedAt: 1,
-          messagesPerSecond: 1,
-          projectMessagesPerSecond: 1,
-        }
-      }
-    ]).toArray();
+export async function getBroadcasts(
+    projectId: string,
+    page: number = 1,
+    limit: number = 10
+): Promise<{ broadcasts: WithId<any>[], total: number }> {
+    if (!ObjectId.isValid(projectId)) {
+        return { broadcasts: [], total: 0 };
+    }
 
-    return JSON.parse(JSON.stringify(broadcasts));
-  } catch (error) {
-    console.error('Failed to fetch broadcast history:', error);
-    return [];
-  }
+    try {
+        const { db } = await connectToDatabase();
+        const skip = (page - 1) * limit;
+
+        const pipeline = [
+            { $match: { projectId: new ObjectId(projectId) } },
+            {
+                $facet: {
+                    paginatedResults: [
+                        { $sort: { createdAt: -1 } },
+                        { $skip: skip },
+                        { $limit: limit },
+                        {
+                            $lookup: {
+                                from: 'templates',
+                                localField: 'templateId',
+                                foreignField: '_id',
+                                as: 'templateInfo'
+                            }
+                        },
+                        {
+                            $unwind: {
+                                path: '$templateInfo',
+                                preserveNullAndEmptyArrays: true
+                            }
+                        },
+                        {
+                            $project: {
+                                templateId: 1,
+                                templateName: 1,
+                                templateStatus: '$templateInfo.status',
+                                fileName: 1,
+                                contactCount: 1,
+                                successCount: 1,
+                                errorCount: 1,
+                                deliveredCount: 1,
+                                readCount: 1,
+                                status: 1,
+                                createdAt: 1,
+                                startedAt: 1,
+                                completedAt: 1,
+                                messagesPerSecond: 1,
+                                projectMessagesPerSecond: 1,
+                            }
+                        }
+                    ],
+                    totalCount: [
+                        { $count: 'count' }
+                    ]
+                }
+            }
+        ];
+
+        const results = await db.collection('broadcasts').aggregate(pipeline).toArray();
+
+        const broadcasts = results[0].paginatedResults || [];
+        const total = results[0].totalCount[0]?.count || 0;
+
+        return { broadcasts: JSON.parse(JSON.stringify(broadcasts)), total };
+    } catch (error) {
+        console.error('Failed to fetch broadcast history:', error);
+        return { broadcasts: [], total: 0 };
+    }
 }
 
 export async function getBroadcastById(broadcastId: string) {

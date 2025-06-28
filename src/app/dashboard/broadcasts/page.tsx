@@ -21,7 +21,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock, Play } from 'lucide-react';
+import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock, Play, AlertCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { RequeueBroadcastDialog } from '@/components/wabasimplify/requeue-broadcast-dialog';
 import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 
 type Broadcast = {
@@ -59,6 +60,8 @@ type RateData = {
     lastFetchTime: number;
     rate: number;
 };
+
+const BROADCASTS_PER_PAGE = 10;
 
 function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
   const [open, setOpen] = useState(false);
@@ -205,13 +208,23 @@ export default function BroadcastPage() {
   const [isRunningCron, startCronRunTransition] = useTransition();
   const { toast } = useToast();
   const [sendRateData, setSendRateData] = useState<Record<string, RateData>>({});
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
 
-
-  const fetchHistory = useCallback(async (showToast = false) => {
+  const fetchHistory = useCallback(async (projectId: string, page: number, showToast = false) => {
+    if (!projectId) {
+      setHistory([]);
+      setTotalPages(0);
+      return;
+    };
+    
     startRefreshTransition(async () => {
         try {
-            const newHistoryData = await getBroadcasts();
+            const { broadcasts: newHistoryData, total } = await getBroadcasts(projectId, page, BROADCASTS_PER_PAGE);
             setHistory(newHistoryData || []);
+            setTotalPages(Math.ceil(total / BROADCASTS_PER_PAGE));
             
             const now = Date.now();
             setSendRateData(prevData => {
@@ -253,25 +266,26 @@ export default function BroadcastPage() {
   
   useEffect(() => {
     setIsClient(true);
+    const storedProjectId = localStorage.getItem('activeProjectId');
+    setActiveProjectId(storedProjectId);
   }, []);
 
   const onSyncTemplates = useCallback(async () => {
+    if (!activeProjectId) {
+      toast({ title: "Error", description: "No active project selected.", variant: "destructive" });
+      return;
+    }
     startTemplatesSyncTransition(async () => {
-      const projectId = localStorage.getItem('activeProjectId');
-      if (!projectId) {
-        toast({ title: "Error", description: "No active project selected.", variant: "destructive" });
-        return;
-      }
-      const result = await handleSyncTemplates(projectId);
+      const result = await handleSyncTemplates(activeProjectId);
       if (result.error) {
         toast({ title: "Sync Failed", description: result.error, variant: "destructive" });
       } else {
         toast({ title: "Sync Successful", description: result.message });
-        const templatesData = await getTemplates(projectId);
+        const templatesData = await getTemplates(activeProjectId);
         setTemplates(templatesData || []);
       }
     });
-  }, [toast, startTemplatesSyncTransition]);
+  }, [toast, startTemplatesSyncTransition, activeProjectId]);
 
   const onRunCron = useCallback(async () => {
     startCronRunTransition(async () => {
@@ -283,45 +297,46 @@ export default function BroadcastPage() {
         toast({ title: "Cron Run Complete", description: result.message });
       }
       // After cron runs, we should refresh the history to see the changes.
-      fetchHistory(false); // Refresh without a toast, as we already gave one for the cron status.
-    });
-  }, [toast, fetchHistory]);
-
-  useEffect(() => {
-    if (isClient) {
-      const storedProjectId = localStorage.getItem('activeProjectId');
-      
-      const fetchInitialData = async () => {
-        try {
-          if (storedProjectId) {
-            const [projectData, templatesData] = await Promise.all([
-              getProjectForBroadcast(storedProjectId),
-              getTemplates(storedProjectId),
-              fetchHistory()
-            ]);
-            setProject(projectData as Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null);
-            setTemplates(templatesData || []);
-          } else {
-             await fetchHistory();
-          }
-        } catch (error) {
-          console.error("Failed to fetch broadcast data:", error);
-          toast({
-            title: "Error",
-            description: "Failed to load page data. Please try again later.",
-            variant: "destructive",
-          });
-        } finally {
-          setLoading(false);
-        }
+      if (activeProjectId) {
+        fetchHistory(activeProjectId, currentPage, false);
       }
-
-      fetchInitialData();
-    }
-  }, [isClient, fetchHistory, toast]);
+    });
+  }, [toast, fetchHistory, activeProjectId, currentPage]);
 
   useEffect(() => {
-    if (!isClient) return;
+    if (activeProjectId) {
+        setLoading(true);
+        const fetchPageData = async () => {
+            try {
+                const [projectData, templatesData] = await Promise.all([
+                    getProjectForBroadcast(activeProjectId),
+                    getTemplates(activeProjectId),
+                ]);
+                setProject(projectData as Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null);
+                setTemplates(templatesData || []);
+                await fetchHistory(activeProjectId, currentPage);
+            } catch (error) {
+                console.error("Failed to fetch broadcast page data:", error);
+                toast({
+                    title: "Error",
+                    description: "Failed to load page data. Please try again later.",
+                    variant: "destructive",
+                });
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPageData();
+    } else {
+        setLoading(false);
+        setHistory([]);
+        setTotalPages(0);
+    }
+  }, [activeProjectId, currentPage, fetchHistory, toast]);
+
+
+  useEffect(() => {
+    if (!isClient || !activeProjectId) return;
 
     const hasActiveBroadcasts = history.some(
       (b) => b.status === 'QUEUED' || b.status === 'PROCESSING'
@@ -332,11 +347,11 @@ export default function BroadcastPage() {
     }
 
     const interval = setInterval(() => {
-      fetchHistory();
+      fetchHistory(activeProjectId, currentPage);
     }, 5000); // Poll every 5 seconds
 
     return () => clearInterval(interval);
-  }, [isClient, history, loading, fetchHistory]);
+  }, [isClient, history, loading, fetchHistory, activeProjectId, currentPage]);
 
 
   const getTemplateStatusVariant = (status?: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
@@ -395,7 +410,7 @@ export default function BroadcastPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
                 <CardTitle>Broadcast History</CardTitle>
-                <CardDescription>A log of your 10 most recent broadcast campaigns.</CardDescription>
+                <CardDescription>A log of all broadcast campaigns for the selected project.</CardDescription>
               </div>
               <div className="flex items-center gap-2">
                 <ISTClock />
@@ -411,7 +426,7 @@ export default function BroadcastPage() {
                   <RefreshCw className={`mr-2 h-4 w-4 ${isSyncingTemplates ? 'animate-spin' : ''}`} />
                   Sync Templates
                 </Button>
-                <Button onClick={() => fetchHistory(true)} disabled={isRefreshing || isRunningCron} variant="outline" size="sm">
+                <Button onClick={() => activeProjectId && fetchHistory(activeProjectId, currentPage, true)} disabled={isRefreshing || isRunningCron} variant="outline" size="sm">
                   <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
                   Refresh
                 </Button>
@@ -434,7 +449,19 @@ export default function BroadcastPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {history.length > 0 ? (
+                {!activeProjectId ? (
+                    <TableRow>
+                        <TableCell colSpan={9} className="h-24 text-center">
+                            <Alert variant="destructive" className="max-w-md mx-auto">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertTitle>No Project Selected</AlertTitle>
+                                <AlertDescription>
+                                    Please select a project from the main dashboard to view its broadcast history.
+                                </AlertDescription>
+                            </Alert>
+                        </TableCell>
+                    </TableRow>
+                ) : history.length > 0 ? (
                   history.map((item) => (
                     <TableRow key={item._id.toString()}>
                       <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
@@ -517,12 +544,35 @@ export default function BroadcastPage() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={9} className="h-24 text-center">
-                      No broadcast history found.
+                      No broadcast history found for this project.
                     </TableCell>
                   </TableRow>
                 )}
               </TableBody>
             </Table>
+            {totalPages > 1 && (
+                <div className="flex items-center justify-end space-x-2 py-4">
+                    <span className="text-sm text-muted-foreground">
+                        Page {currentPage} of {totalPages > 0 ? totalPages : 1}
+                    </span>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => p - 1)}
+                        disabled={currentPage <= 1 || isRefreshing}
+                    >
+                        Previous
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setCurrentPage(p => p + 1)}
+                        disabled={currentPage >= totalPages || isRefreshing}
+                    >
+                        Next
+                    </Button>
+                </div>
+            )}
           </CardContent>
         </Card>
       </div>
