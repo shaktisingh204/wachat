@@ -50,7 +50,7 @@ export default function BroadcastReportPage() {
   const [totalPages, setTotalPages] = useState(0);
   const [filter, setFilter] = useState<FilterStatus>('ALL');
 
-  const broadcastId = Array.isArray(params.broadcastId) ? params.broadcastId[0] : params.broadcastId;
+  const broadcastId = params.broadcastId as string;
 
   const fetchPageData = useCallback(async (page: number, filterValue: FilterStatus, showToast = false) => {
     if (!broadcastId) {
