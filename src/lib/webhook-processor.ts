@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -332,7 +333,6 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
 // --- Auto Reply Logic ---
 
 async function sendAutoReplyMessage(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, messageText: string) {
-    // ... (This function remains unchanged)
     try {
         const messagePayload = {
             messaging_product: 'whatsapp',
@@ -350,7 +350,7 @@ async function sendAutoReplyMessage(db: Db, project: WithId<Project>, contact: W
 
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) {
-            throw new Error('Message sent but no WAMID was returned from Meta.');
+            throw new Error('Message sent but no WAMID returned from Meta.');
         }
 
         const now = new Date();
@@ -382,17 +382,6 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
     const settings = project.autoReplySettings;
     if (!settings || settings.masterEnabled === false) return;
 
-    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-    const recentOutgoingMessage = await db.collection('outgoing_messages').findOne({
-        contactId: contact._id,
-        createdAt: { $gte: fiveMinutesAgo },
-    });
-
-    if (recentOutgoingMessage) {
-        console.log(`Auto-reply skipped for contact ${contact.waId} due to recent outgoing message.`);
-        return;
-    }
-
     let replyMessage: string | null = null;
     
     // 1. Check Inactive Hours
@@ -415,10 +404,12 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
             let isTimeMatch = false;
 
             if (startTimeInMinutes > endTimeInMinutes) {
+                // Overnight case (e.g., 18:00 to 09:00)
                 if (currentTime >= startTimeInMinutes || currentTime < endTimeInMinutes) {
                     isTimeMatch = true;
                 }
             } else {
+                // Same day case (e.g., 09:00 to 18:00)
                 if (currentTime >= startTimeInMinutes && currentTime < endTimeInMinutes) {
                     isTimeMatch = true;
                 }
