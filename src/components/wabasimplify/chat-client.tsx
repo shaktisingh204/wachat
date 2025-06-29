@@ -104,22 +104,34 @@ export function ChatClient() {
         if (!project || !selectedPhoneNumberId || isFetchingMore || !hasMoreContacts) return;
         
         setIsFetchingMore(true);
-        const nextPage = contactPage + 1;
-        const { contacts: newContacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, nextPage, CONTACTS_PER_PAGE);
-        
-        if (newContacts.length > 0) {
-            setContacts(prev => [...prev, ...newContacts]);
-            setContactPage(nextPage);
+        try {
+            const nextPage = contactPage + 1;
+            const { contacts: newContacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, nextPage, CONTACTS_PER_PAGE);
+            
+            if (newContacts.length > 0) {
+                setContacts(prev => [...prev, ...newContacts]);
+                setContactPage(nextPage);
+            }
+            setHasMoreContacts(contacts.length + newContacts.length < total);
+        } catch (error) {
+            console.error("Failed to fetch more contacts:", error);
+            toast({
+                title: "Error",
+                description: "Failed to load more contacts.",
+                variant: "destructive",
+            });
+            // Stop trying to load more if an error occurs
+            setHasMoreContacts(false);
+        } finally {
+            setIsFetchingMore(false);
         }
-        setHasMoreContacts(contacts.length + newContacts.length < total);
-        setIsFetchingMore(false);
-    }, [project, selectedPhoneNumberId, isFetchingMore, hasMoreContacts, contactPage, contacts.length]);
+    }, [project, selectedPhoneNumberId, isFetchingMore, hasMoreContacts, contactPage, contacts.length, toast]);
 
     // Intersection Observer for infinite scroll
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
-                if (entries[0]?.isIntersecting) {
+                if (entries[0]?.isIntersecting && !isFetchingMore) {
                     loadMoreContacts();
                 }
             },
@@ -136,7 +148,7 @@ export function ChatClient() {
                 observer.unobserve(currentRef);
             }
         };
-    }, [loadMoreContacts]);
+    }, [loadMoreContacts, isFetchingMore]);
     
     // Polling for real-time updates
     useEffect(() => {
