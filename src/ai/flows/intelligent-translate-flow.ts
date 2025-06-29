@@ -65,10 +65,11 @@ const prompt = ai.definePrompt({
   name: 'intelligentTranslatePrompt',
   input: {schema: TranslatePromptInputSchema},
   output: {schema: IntelligentTranslateOutputSchema},
-  prompt: `Translate the following text to {{{language}}}:
+  prompt: `Detect the language of the following text, and then translate it into {{{language}}}.
 
 "{{{text}}}"
 
+If the text is already in {{{language}}}, simply return the original text.
 Only return the translated text, with no additional commentary or explanations. Preserve any variables that look like {{...}}.`,
 });
 
