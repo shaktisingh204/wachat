@@ -55,16 +55,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string } | null>(null);
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
-  const [activeProjectId, setActiveProjectId] = React.useState<string | null>(null);
   const [isClient, setIsClient] = React.useState(false);
   const [isVerifying, setIsVerifying] = React.useState(true);
 
   React.useEffect(() => {
     setIsClient(true);
-    const id = localStorage.getItem('activeProjectId');
-    const name = localStorage.getItem('activeProjectName');
-    setActiveProjectId(id);
-    setActiveProjectName(name || (id ? 'Loading project...' : 'No Project Selected'));
+    const isDashboardHome = pathname === '/dashboard';
+
+    if (isDashboardHome) {
+      localStorage.removeItem('activeProjectId');
+      localStorage.removeItem('activeProjectName');
+      setActiveProjectName('All Projects');
+    } else {
+      const name = localStorage.getItem('activeProjectName');
+      const id = localStorage.getItem('activeProjectId');
+      setActiveProjectName(name || (id ? 'Loading project...' : 'No Project Selected'));
+    }
 
     getSession().then(session => {
         if(session?.user) {
@@ -75,7 +81,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setIsVerifying(false);
     })
 
-  }, [router]);
+  }, [pathname, router]);
 
   const isChatPage = pathname.startsWith('/dashboard/chat');
   
@@ -110,9 +116,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   asChild
                   isActive={pathname.startsWith(item.href)}
                   tooltip={item.label}
-                  disabled={!activeProjectId}
                 >
-                  <Link href={!activeProjectId ? '#' : item.href} aria-disabled={!activeProjectId}>
+                  <Link href={item.href}>
                     <item.icon />
                     <span>{item.label}</span>
                   </Link>
