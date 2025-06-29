@@ -1,7 +1,9 @@
 
+'use server';
+
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import { processSingleWebhook } from '@/lib/webhook-processor';
+import { processIncomingMessageBatch, processStatusUpdateBatch } from '@/lib/webhook-processor';
 import type { Db, ObjectId } from 'mongodb';
 
 type WebhookQueueItem = {
@@ -14,55 +16,19 @@ type WebhookQueueItem = {
     error?: string;
 };
 
-const BATCH_SIZE = 5000; // Number of webhooks to fetch from the queue per DB roundtrip
+const BATCH_SIZE = 5000;
 const LOCK_ID = 'webhook_processor_lock';
-const LOCK_DURATION_MS = 10 * 60 * 1000; // Lock for 10 minutes to allow for large queue processing
-
-async function processBatch(db: Db, batch: WebhookQueueItem[]): Promise<{ success: number; failed: number }> {
-    let successCount = 0;
-    let failedCount = 0;
-
-    const processingPromises = batch.map(async (webhookDoc) => {
-        try {
-            await processSingleWebhook(db, webhookDoc.payload, webhookDoc.logId);
-            // If processSingleWebhook doesn't throw, we consider it a success.
-            // The log will be marked as `processed: true` inside that function.
-            return 'success';
-        } catch (e: any) {
-            console.error(`Failed to process webhook from queue (logId: ${webhookDoc.logId}):`, e.message);
-            // Mark the queue item itself as failed
-            await db.collection('webhook_queue').updateOne({ _id: webhookDoc._id }, { $set: { status: 'FAILED', error: e.message } });
-            // The log itself is marked as failed inside processSingleWebhook's catch block.
-            return 'failed';
-        }
-    });
-
-    const results = await Promise.all(processingPromises);
-    successCount = results.filter(r => r === 'success').length;
-    failedCount = results.filter(r => r === 'failed').length;
-
-    // Mark all successfully handled items as COMPLETED
-    const successfulIds = batch.filter((_, i) => results[i] === 'success').map(doc => doc._id);
-    if (successfulIds.length > 0) {
-        await db.collection('webhook_queue').updateMany(
-            { _id: { $in: successfulIds }, status: 'PROCESSING' },
-            { $set: { status: 'COMPLETED' } }
-        );
-    }
-
-    return { success: successCount, failed: failedCount };
-}
-
+const LOCK_DURATION_MS = 10 * 60 * 1000;
 
 export async function GET(request: NextRequest) {
-    let db;
+    let db: Db;
     let lockAcquired = false;
 
     try {
         const conn = await connectToDatabase();
         db = conn.db;
 
-        // --- Acquire Lock ---
+        // Acquire Lock
         const now = new Date();
         const lockHeldUntil = new Date(now.getTime() + LOCK_DURATION_MS);
         
@@ -79,7 +45,6 @@ export async function GET(request: NextRequest) {
             return NextResponse.json({ message: "Webhook processor is already running." }, { status: 200 });
         }
         lockAcquired = true;
-        // --- End Acquire Lock ---
         
         let totalProcessed = 0;
         let totalSuccess = 0;
@@ -92,20 +57,80 @@ export async function GET(request: NextRequest) {
                 .limit(BATCH_SIZE)
                 .toArray();
 
-            if (batch.length === 0) {
-                break; // No more items to process
-            }
+            if (batch.length === 0) break;
             
             const processingIds = batch.map(w => w._id);
+            const logIds = batch.map(w => w.logId).filter(Boolean) as ObjectId[];
+
             await db.collection('webhook_queue').updateMany(
                 { _id: { $in: processingIds } },
                 { $set: { status: 'PROCESSING', processedAt: new Date() } }
             );
 
-            const batchResult = await processBatch(db, batch);
+            // Separate batch into event types
+            const statusUpdates: any[] = [];
+            const incomingMessages: any[] = [];
+
+            for (const item of batch) {
+                const change = item.payload?.entry?.[0]?.changes?.[0];
+                if (!change || !change.value) continue;
+
+                if (change.field === 'messages') {
+                    if (change.value.statuses) {
+                        statusUpdates.push(...change.value.statuses);
+                    }
+                    if (change.value.messages) {
+                        incomingMessages.push({
+                            messages: change.value.messages,
+                            contacts: change.value.contacts,
+                            metadata: change.value.metadata,
+                        });
+                    }
+                }
+            }
+            
+            let batchSuccess = 0;
+            let batchFailed = 0;
+
+            try {
+                // Process batches
+                const [statusResult, messageResult] = await Promise.all([
+                    processStatusUpdateBatch(db, statusUpdates),
+                    processIncomingMessageBatch(db, incomingMessages)
+                ]);
+
+                batchSuccess = statusResult.success + messageResult.success;
+                batchFailed = statusResult.failed + messageResult.failed;
+                
+                // Mark successful items as completed
+                await db.collection('webhook_queue').updateMany(
+                    { _id: { $in: processingIds } },
+                    { $set: { status: 'COMPLETED' } }
+                );
+                if (logIds.length > 0) {
+                    await db.collection('webhook_logs').updateMany(
+                        { _id: { $in: logIds } },
+                        { $set: { processed: true } }
+                    );
+                }
+            } catch (processingError: any) {
+                console.error("Error during batch processing:", processingError);
+                batchFailed = batch.length;
+                await db.collection('webhook_queue').updateMany(
+                    { _id: { $in: processingIds } },
+                    { $set: { status: 'FAILED', error: processingError.message } }
+                );
+                 if (logIds.length > 0) {
+                    await db.collection('webhook_logs').updateMany(
+                        { _id: { $in: logIds } },
+                        { $set: { processed: true, error: processingError.message } }
+                    );
+                }
+            }
+
             totalProcessed += batch.length;
-            totalSuccess += batchResult.success;
-            totalFailed += batchResult.failed;
+            totalSuccess += batchSuccess;
+            totalFailed += batchFailed;
         }
 
 
@@ -125,7 +150,7 @@ export async function GET(request: NextRequest) {
     } finally {
         if (lockAcquired && db) {
             try {
-                await db.collection('locks').updateOne({ _id: LOCK_ID }, { $set: { lockHeldUntil: new Date(0) } }); // Release lock
+                await db.collection('locks').updateOne({ _id: LOCK_ID }, { $set: { lockHeldUntil: new Date(0) } });
             } catch (e) {
                 console.error("Failed to release webhook processor lock:", e);
             }
@@ -133,6 +158,6 @@ export async function GET(request: NextRequest) {
     }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
     return GET(request as NextRequest);
 }
