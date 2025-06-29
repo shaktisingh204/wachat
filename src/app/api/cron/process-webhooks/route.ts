@@ -3,7 +3,7 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import { processIncomingMessageBatch, processStatusUpdateBatch } from '@/lib/webhook-processor';
+import { processIncomingMessageBatch, processStatusUpdateBatch, processSingleWebhook } from '@/lib/webhook-processor';
 import type { Db, ObjectId } from 'mongodb';
 
 type WebhookQueueItem = {
@@ -32,14 +32,21 @@ export async function GET(request: NextRequest) {
         const now = new Date();
         const lockHeldUntil = new Date(now.getTime() + LOCK_DURATION_MS);
         
-        const lockResult = await db.collection('locks').findOneAndUpdate(
-            { _id: LOCK_ID, $or: [{ lockHeldUntil: { $exists: false } }, { lockHeldUntil: { $lt: now } }] },
-            { $set: { lockHeldUntil } },
-            { upsert: true, returnDocument: 'after' }
-        ).catch(e => {
-            if (e.code === 11000) return null; // Race condition lost
-            throw e;
-        });
+        let lockResult;
+        try {
+            lockResult = await db.collection('locks').findOneAndUpdate(
+                { _id: LOCK_ID, $or: [{ lockHeldUntil: { $exists: false } }, { lockHeldUntil: { $lt: now } }] },
+                { $set: { lockHeldUntil } },
+                { upsert: true, returnDocument: 'after' }
+            );
+        } catch (e: any) {
+            if (e.code === 11000) { // Duplicate key error from a race condition
+                lockResult = null; // We lost the race
+            } else {
+                throw e; // Re-throw other unexpected errors
+            }
+        }
+
 
         if (!lockResult) {
             return NextResponse.json({ message: "Webhook processor is already running." }, { status: 200 });
@@ -49,92 +56,89 @@ export async function GET(request: NextRequest) {
         let totalProcessed = 0;
         let totalSuccess = 0;
         let totalFailed = 0;
+        let hasMore = true;
 
-        while(true) {
+        while(hasMore) {
             const batch = await db.collection<WebhookQueueItem>('webhook_queue')
                 .find({ status: 'PENDING' })
                 .sort({ createdAt: 1 })
                 .limit(BATCH_SIZE)
                 .toArray();
 
-            if (batch.length === 0) break;
+            if (batch.length === 0) {
+                hasMore = false;
+                break;
+            }
             
             const processingIds = batch.map(w => w._id);
-            const logIds = batch.map(w => w.logId).filter(Boolean) as ObjectId[];
-
             await db.collection('webhook_queue').updateMany(
                 { _id: { $in: processingIds } },
                 { $set: { status: 'PROCESSING', processedAt: new Date() } }
             );
 
-            // Separate batch into event types
             const statusUpdates: any[] = [];
             const incomingMessages: any[] = [];
+            const otherEvents: WebhookQueueItem[] = [];
 
             for (const item of batch) {
-                const change = item.payload?.entry?.[0]?.changes?.[0];
-                const wabaId = item.payload?.entry?.[0]?.id;
-                if (!change || !change.value) continue;
-
-                if (change.field === 'messages') {
-                    if (change.value.statuses) {
-                        statusUpdates.push(...change.value.statuses);
-                    }
-                    if (change.value.messages) {
-                        incomingMessages.push({
-                            wabaId: wabaId,
-                            messages: change.value.messages,
-                            contacts: change.value.contacts,
-                            metadata: change.value.metadata,
+                const field = item.payload?.entry?.[0]?.changes?.[0]?.field;
+                if (field === 'messages') {
+                    const value = item.payload?.entry?.[0]?.changes?.[0]?.value;
+                    if (value?.statuses) statusUpdates.push(...value.statuses);
+                    if (value?.messages) {
+                         incomingMessages.push({
+                            wabaId: item.payload?.entry?.[0]?.id,
+                            messages: value.messages,
+                            contacts: value.contacts,
+                            metadata: value.metadata,
                         });
                     }
+                } else {
+                    otherEvents.push(item);
                 }
+            }
+
+            // Process message batches
+            let messageBatchSuccess = true;
+            try {
+                if (incomingMessages.length > 0 || statusUpdates.length > 0) {
+                    const [statusResult, messageResult] = await Promise.all([
+                        processStatusUpdateBatch(db, statusUpdates),
+                        processIncomingMessageBatch(db, incomingMessages)
+                    ]);
+                    if (statusResult.failed > 0 || messageResult.failed > 0) {
+                        messageBatchSuccess = false;
+                    }
+                    totalSuccess += statusResult.success + messageResult.success;
+                    totalFailed += statusResult.failed + messageResult.failed;
+                }
+            } catch (e: any) {
+                console.error("Error during batch message processing:", e);
+                messageBatchSuccess = false;
             }
             
-            let batchSuccess = 0;
-            let batchFailed = 0;
-
-            try {
-                // Process batches
-                const [statusResult, messageResult] = await Promise.all([
-                    processStatusUpdateBatch(db, statusUpdates),
-                    processIncomingMessageBatch(db, incomingMessages)
-                ]);
-
-                batchSuccess = statusResult.success + messageResult.success;
-                batchFailed = statusResult.failed + messageResult.failed;
-                
-                // Mark successful items as completed
+            const messageEventIds = batch.filter(item => item.payload?.entry?.[0]?.changes?.[0]?.field === 'messages').map(i => i._id);
+            if (messageEventIds.length > 0) {
                 await db.collection('webhook_queue').updateMany(
-                    { _id: { $in: processingIds } },
-                    { $set: { status: 'COMPLETED' } }
+                    { _id: { $in: messageEventIds } },
+                    { $set: { status: messageBatchSuccess ? 'COMPLETED' : 'FAILED', error: messageBatchSuccess ? undefined : 'Batch processing failed.' } }
                 );
-                if (logIds.length > 0) {
-                    await db.collection('webhook_logs').updateMany(
-                        { _id: { $in: logIds } },
-                        { $set: { processed: true } }
-                    );
-                }
-            } catch (processingError: any) {
-                console.error("Error during batch processing:", processingError);
-                batchFailed = batch.length;
-                await db.collection('webhook_queue').updateMany(
-                    { _id: { $in: processingIds } },
-                    { $set: { status: 'FAILED', error: processingError.message } }
-                );
-                 if (logIds.length > 0) {
-                    await db.collection('webhook_logs').updateMany(
-                        { _id: { $in: logIds } },
-                        { $set: { processed: true, error: processingError.message } }
-                    );
-                }
             }
 
+            // Process other events individually
+            for (const event of otherEvents) {
+                try {
+                    await processSingleWebhook(db, event.payload, event.logId);
+                    await db.collection('webhook_queue').updateOne({ _id: event._id }, { $set: { status: 'COMPLETED' } });
+                    totalSuccess++;
+                } catch (e: any) {
+                    console.error(`Cron: Failed to process individual event from logId ${event.logId}:`, e);
+                    await db.collection('webhook_queue').updateOne({ _id: event._id }, { $set: { status: 'FAILED', error: (e as Error).message } });
+                    totalFailed++;
+                }
+            }
             totalProcessed += batch.length;
-            totalSuccess += batchSuccess;
-            totalFailed += batchFailed;
         }
-
 
         if (totalProcessed === 0) {
             return NextResponse.json({ message: 'No pending webhooks to process.' });
@@ -159,6 +163,7 @@ export async function GET(request: NextRequest) {
         }
     }
 }
+
 
 export async function POST(request: NextRequest) {
     return GET(request as NextRequest);

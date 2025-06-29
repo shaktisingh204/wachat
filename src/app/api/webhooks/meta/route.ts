@@ -1,7 +1,6 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import { processSingleWebhook } from '@/lib/webhook-processor';
 import type { ObjectId } from 'mongodb';
 
 const getSearchableText = (payload: any): string => {
@@ -59,13 +58,18 @@ export async function GET(request: NextRequest) {
 
 /**
  * Handles incoming webhook event notifications from Meta.
- * It queues high-volume message events for batch processing and
- * handles low-volume events immediately.
+ * It queues all events for reliable background processing by a cron job.
  */
 export async function POST(request: NextRequest) {
   let logId: ObjectId | null = null;
   try {
-    const payload = await request.json();
+    const payloadText = await request.text();
+    if (!payloadText) {
+        console.log("Webhook received an empty POST request. This is likely a test or verification. Ignoring.");
+        return NextResponse.json({ status: "ignored_empty_body" }, { status: 200 });
+    }
+
+    const payload = JSON.parse(payloadText);
     const { db } = await connectToDatabase();
 
     // 1. Log every webhook for visibility and manual reprocessing
@@ -78,32 +82,17 @@ export async function POST(request: NextRequest) {
     });
     logId = logResult.insertedId;
     
-    // 2. Decide on processing strategy based on the event type
-    const change = payload?.entry?.[0]?.changes?.[0];
-    const field = change?.field;
-
-    // For high-volume 'messages' events (incoming & statuses), always queue them.
-    if (field === 'messages') {
-        await db.collection('webhook_queue').insertOne({
-            payload: payload,
-            logId: logId, // Pass the logId to the queue item
-            status: 'PENDING',
-            createdAt: new Date(),
-        });
-        
-        // Respond to Meta to acknowledge receipt. Use 202 Accepted as we're processing async.
-        return NextResponse.json({ status: 'queued' }, { status: 202 });
-
-    } else {
-        // For all other low-volume event types (template updates, account status, etc.),
-        // process them immediately. This is safe and provides faster feedback.
-        processSingleWebhook(db, payload, logId).catch(err => {
-            console.error(`Immediate webhook processing failed for field '${field}':`, err);
-        });
-        
-        // Respond immediately to Meta to acknowledge receipt.
-        return NextResponse.json({ status: 'processing_initiated' }, { status: 200 });
-    }
+    // 2. Always queue the event for the cron job to process reliably.
+    await db.collection('webhook_queue').insertOne({
+        payload: payload,
+        logId: logId,
+        status: 'PENDING',
+        createdAt: new Date(),
+    });
+    
+    // 3. Respond to Meta immediately to acknowledge receipt.
+    // Use 200 OK as per Meta's recommendation for reliability.
+    return NextResponse.json({ status: 'queued' }, { status: 200 });
 
   } catch (error: any) {
     if (error instanceof SyntaxError) {
