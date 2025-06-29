@@ -206,6 +206,13 @@ export function ChatClient() {
             setIsNewChatDialogOpen(false);
         }
     };
+    
+    const handleContactUpdate = (updatedContact: WithId<Contact>) => {
+        setSelectedContact(updatedContact);
+        setContacts(prev => prev.map(c => 
+            c._id.toString() === updatedContact._id.toString() ? updatedContact : c
+        ));
+    };
 
 
     if (!isClient || loading) {
@@ -268,13 +275,15 @@ export function ChatClient() {
                         "w-full flex-col flex-1",
                         selectedContact ? 'flex' : 'hidden md:flex'
                     )}>
-                        {selectedContact ? (
+                        {selectedContact && project ? (
                             <ChatWindow
                                 key={selectedContact._id.toString()}
+                                project={project}
                                 contact={selectedContact}
                                 conversation={conversation}
                                 isLoading={loadingConversation}
                                 onBack={() => setSelectedContact(null)}
+                                onContactUpdate={handleContactUpdate}
                             />
                         ) : (
                             <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center">

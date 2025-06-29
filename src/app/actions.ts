@@ -3270,3 +3270,45 @@ export async function handleSaveUserAttributes(
     return { error: e.message || 'An unexpected error occurred.' };
   }
 }
+
+export async function handleUpdateContactVariables(
+  contactId: string,
+  variables: Record<string, string>
+): Promise<{ success: boolean; error?: string }> {
+  if (!ObjectId.isValid(contactId)) {
+    return { success: false, error: "Invalid contact ID." };
+  }
+
+  try {
+    const { db } = await connectToDatabase();
+    const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
+    if (!contact) {
+      return { success: false, error: "Contact not found." };
+    }
+
+    // Security check: ensure the current user has access to this contact's project
+    const hasAccess = await getProjectById(contact.projectId.toString());
+    if (!hasAccess) {
+      return { success: false, error: "Access denied." };
+    }
+
+    const result = await db.collection('contacts').updateOne(
+      { _id: new ObjectId(contactId) },
+      { $set: { variables } }
+    );
+    
+    if (result.modifiedCount === 0) {
+        // This could mean the variables were the same, so not necessarily an error.
+        return { success: true };
+    }
+    
+    revalidatePath('/dashboard/chat');
+    revalidatePath('/dashboard/contacts');
+
+    return { success: true };
+
+  } catch (e: any) {
+    console.error('Failed to update contact variables:', e);
+    return { success: false, error: e.message || 'An unexpected error occurred.' };
+  }
+}
