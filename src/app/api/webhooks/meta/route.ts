@@ -106,6 +106,12 @@ export async function POST(request: NextRequest) {
     }
 
   } catch (error: any) {
+    if (error instanceof SyntaxError) {
+        console.warn("Webhook ingestion failed due to invalid JSON. This might be a verification request or an empty POST. Ignoring.");
+        // Acknowledge the request to prevent Meta from retrying a bad request.
+        return NextResponse.json({ status: "ignored_invalid_json" }, { status: 200 });
+    }
+      
     console.error('Error in webhook ingestion:', error);
     // If an error occurs during ingestion and we have a log ID, mark the log as failed.
     if (logId) {
