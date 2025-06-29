@@ -37,7 +37,9 @@ export default async function BillingPage() {
                         <CardHeader className="flex-grow">
                             <CardTitle>{plan.name}</CardTitle>
                             <div className="text-4xl font-bold pt-4">${plan.price} <span className="text-sm font-normal text-muted-foreground">/ month</span></div>
-                            <CardDescription>+ ${plan.broadcastMessageCost}/message for campaigns</CardDescription>
+                            <CardDescription>
+                                + Mkt: ${plan.messageCosts.marketing} | Util: ${plan.messageCosts.utility} | Auth: ${plan.messageCosts.authentication}
+                            </CardDescription>
                         </CardHeader>
                         <Separator />
                         <CardContent className="pt-6 space-y-4">

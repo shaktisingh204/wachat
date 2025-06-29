@@ -3,7 +3,7 @@
 import { useEffect, useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { getPlanById, savePlan, type PlanFeaturePermissions, type Plan } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
@@ -38,25 +38,27 @@ const features: { id: keyof PlanFeaturePermissions, name: string }[] = [
     { id: 'apiAccess', name: 'API Access' },
 ];
 
-export default function PlanEditorPage({ params }: { params: { planId: string } }) {
+export default function PlanEditorPage() {
+    const params = useParams();
+    const planId = params.planId as string;
     const router = useRouter();
     const { toast } = useToast();
     const [state, formAction] = useActionState(savePlan, initialState);
     const [plan, setPlan] = useState<WithId<Plan> | null>(null);
     const [loading, setLoading] = useState(true);
     
-    const isNew = params.planId === 'new';
+    const isNew = planId === 'new';
 
     useEffect(() => {
         if (!isNew) {
-            getPlanById(params.planId).then(data => {
+            getPlanById(planId).then(data => {
                 setPlan(data);
                 setLoading(false);
             });
         } else {
             setLoading(false);
         }
-    }, [params.planId, isNew]);
+    }, [planId, isNew]);
 
     useEffect(() => {
         if (state.message) {
@@ -93,18 +95,33 @@ export default function PlanEditorPage({ params }: { params: { planId: string } 
                 <CardHeader>
                     <CardTitle>Basic Details</CardTitle>
                 </CardHeader>
-                <CardContent className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="name">Plan Name</Label>
-                        <Input id="name" name="name" defaultValue={plan?.name} required placeholder="e.g., Pro Tier" />
+                <CardContent className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Plan Name</Label>
+                            <Input id="name" name="name" defaultValue={plan?.name} required placeholder="e.g., Pro Tier" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="price">Price (per month, in USD)</Label>
+                            <Input id="price" name="price" type="number" defaultValue={plan?.price ?? 49} required min="0" step="1" />
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="price">Price (per month, in USD)</Label>
-                        <Input id="price" name="price" type="number" defaultValue={plan?.price ?? 49} required min="0" step="1" />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="broadcastMessageCost">Broadcast Cost (per message)</Label>
-                        <Input id="broadcastMessageCost" name="broadcastMessageCost" type="number" defaultValue={plan?.broadcastMessageCost ?? 0.01} required min="0" step="0.001" />
+                    <div>
+                        <Label className="text-base font-medium">Per-Message Costs</Label>
+                        <div className="grid md:grid-cols-3 gap-6 mt-2 border p-4 rounded-lg">
+                            <div className="space-y-2">
+                                <Label htmlFor="cost_marketing" className="text-sm">Marketing</Label>
+                                <Input id="cost_marketing" name="cost_marketing" type="number" defaultValue={plan?.messageCosts?.marketing ?? 0.05} required min="0" step="0.001" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="cost_utility" className="text-sm">Utility</Label>
+                                <Input id="cost_utility" name="cost_utility" type="number" defaultValue={plan?.messageCosts?.utility ?? 0.02} required min="0" step="0.001" />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="cost_authentication" className="text-sm">Authentication</Label>
+                                <Input id="cost_authentication" name="cost_authentication" type="number" defaultValue={plan?.messageCosts?.authentication ?? 0.02} required min="0" step="0.001" />
+                            </div>
+                        </div>
                     </div>
                 </CardContent>
                 <CardFooter className="flex flex-wrap gap-x-8 gap-y-4">

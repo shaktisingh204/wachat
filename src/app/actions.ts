@@ -28,6 +28,12 @@ export type PlanFeaturePermissions = {
     apiAccess: boolean;
 };
 
+export type PlanMessageCosts = {
+    marketing: number;
+    utility: number;
+    authentication: number;
+};
+
 export type Plan = {
     _id: ObjectId;
     name: string;
@@ -37,10 +43,11 @@ export type Plan = {
     projectLimit: number;
     agentLimit: number;
     attributeLimit: number;
-    broadcastMessageCost: number;
+    messageCosts: PlanMessageCosts;
     features: PlanFeaturePermissions;
     createdAt: Date;
 };
+
 
 // --- User Management Types ---
 export type User = {
@@ -3576,10 +3583,16 @@ export async function savePlan(prevState: { message: string | null; error: strin
         apiAccess: formData.get('apiAccess') === 'on',
     };
 
+    const messageCosts: PlanMessageCosts = {
+        marketing: Number(formData.get('cost_marketing')),
+        utility: Number(formData.get('cost_utility')),
+        authentication: Number(formData.get('cost_authentication')),
+    };
+
     const planData: Omit<Plan, '_id' | 'createdAt'> = {
         name: formData.get('name') as string,
         price: Number(formData.get('price')),
-        broadcastMessageCost: Number(formData.get('broadcastMessageCost')),
+        messageCosts,
         isPublic: formData.get('isPublic') === 'on',
         isDefault: formData.get('isDefault') === 'on',
         projectLimit: Number(formData.get('projectLimit')),
