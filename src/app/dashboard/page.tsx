@@ -143,7 +143,7 @@ export default async function SelectProjectPage({
                 <ProjectSearch placeholder="Search projects by name..." />
             </div>
 
-            <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6">
+            <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
                 <CreateProjectDialog />
                 {projects.map((project) => (
                     <ProjectCard key={project._id.toString()} project={project} />
