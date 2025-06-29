@@ -188,7 +188,7 @@ export function ChatClient() {
 
 
     if (!isClient || loading) {
-        return <div className="flex flex-1 min-h-0"><Skeleton className="h-full w-full" /></div>;
+        return <div className="flex-1 min-h-0"><Skeleton className="h-full w-full" /></div>;
     }
 
     if (!project) {
@@ -210,7 +210,7 @@ export function ChatClient() {
                 onOpenChange={setIsNewChatDialogOpen}
                 onStartChat={handleNewChat}
             />
-            <div className="flex flex-col h-full border rounded-lg bg-card">
+            <div className="flex flex-col flex-1 min-h-0 border rounded-lg bg-card">
                 <div className="p-4 border-b flex-shrink-0">
                     <div className="max-w-sm">
                         <Select value={selectedPhoneNumberId} onValueChange={handlePhoneNumberChange}>
