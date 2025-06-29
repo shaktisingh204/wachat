@@ -163,9 +163,9 @@ export default async function HomePage() {
                 Everything you need to scale your customer communication on WhatsApp.
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="flex flex-wrap justify-center gap-8">
               {features.map((feature, index) => (
-                <Card key={index} className="text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 w-full flex flex-col">
+                <Card key={index} className="text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 w-full max-w-sm flex flex-col">
                   <CardHeader className="items-center">
                     <div className="p-4 bg-primary/10 rounded-full">
                         {feature.icon}
@@ -213,9 +213,9 @@ export default async function HomePage() {
                         Don't just take our word for it. Here's what our customers have to say.
                     </p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="flex flex-wrap justify-center gap-8">
                     {testimonials.map((testimonial, index) => (
-                        <Card key={index} className="flex flex-col">
+                        <Card key={index} className="w-full max-w-sm flex flex-col">
                             <CardHeader>
                                 <Quote className="h-8 w-8 text-primary/30"/>
                             </CardHeader>
