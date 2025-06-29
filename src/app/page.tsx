@@ -124,15 +124,15 @@ export default async function HomePage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-20 md:py-32">
-          <div className="container grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 text-center md:text-left">
+          <div className="container flex flex-col items-center text-center gap-12">
+            <div className="space-y-6 max-w-3xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tighter">
                 Streamline Your WhatsApp Business API Experience
               </h1>
-              <p className="max-w-xl mx-auto md:mx-0 text-lg text-muted-foreground">
+              <p className="mx-auto text-lg text-muted-foreground">
                 Manage campaigns, automate conversations, and engage customers effortlessly with Wachat. The all-in-one platform for your WhatsApp marketing and support needs.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button size="lg" asChild>
                   <Link href="/signup">Get Started for Free <ArrowRight className="ml-2 h-5 w-5" /></Link>
                 </Button>
@@ -141,13 +141,13 @@ export default async function HomePage() {
                 </Button>
               </div>
             </div>
-            <div className="relative p-8 bg-muted rounded-xl">
+            <div className="relative p-8 bg-muted rounded-xl w-full max-w-4xl">
               <Image
                 src="https://placehold.co/600x400.png"
                 alt="Wachat dashboard preview"
                 width={600}
                 height={400}
-                className="rounded-xl shadow-2xl ring-1 ring-border"
+                className="rounded-xl shadow-2xl ring-1 ring-border w-full h-auto"
                 data-ai-hint="app dashboard"
               />
             </div>
