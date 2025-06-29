@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -1555,15 +1556,35 @@ export type WebhookLogListItem = {
 };
 
 export async function getWebhookLogs(
-    page: number = 1, 
-    limit: number = 20, 
+    projectId: string | null,
+    page: number = 1,
+    limit: number = 20,
     query?: string
 ): Promise<{ logs: WebhookLogListItem[], total: number }> {
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<WebhookLog> = {};
+
+        if (projectId && ObjectId.isValid(projectId)) {
+            const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) }, { projection: { wabaId: 1 } });
+            if (project?.wabaId) {
+                filter.searchableText = { $regex: project.wabaId, $options: 'i' };
+            } else {
+                return { logs: [], total: 0 };
+            }
+        }
+
         if (query) {
-            filter.searchableText = { $regex: query, $options: 'i' };
+            const queryRegex = { $regex: query, $options: 'i' };
+            if (filter.searchableText) {
+                filter.$and = [
+                    { searchableText: filter.searchableText },
+                    { searchableText: queryRegex }
+                ];
+                delete filter.searchableText;
+            } else {
+                filter.searchableText = queryRegex;
+            }
         }
 
         const skip = (page - 1) * limit;
@@ -2909,7 +2930,8 @@ export async function handleFacebookSetup(shortLivedToken: string, wabaIds: stri
                     $set: {
                         name: wabaName,
                         accessToken: longLivedToken,
-                        phoneNumbers: phoneNumbers
+                        phoneNumbers: phoneNumbers,
+                        appId: appId, // Save the App ID
                     },
                     $setOnInsert: {
                         userId: new ObjectId(session.user._id),

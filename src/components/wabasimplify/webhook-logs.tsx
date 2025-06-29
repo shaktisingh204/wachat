@@ -20,7 +20,8 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, LoaderCircle, Eye, Search, RefreshCw, Copy, RotateCw, ServerCog } from "lucide-react";
+import { Trash2, LoaderCircle, Eye, Search, RefreshCw, Copy, RotateCw, ServerCog, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 const LOGS_PER_PAGE = 15;
 
@@ -62,11 +63,24 @@ export function WebhookLogs() {
     const [selectedLog, setSelectedLog] = useState<WebhookLogListItem | null>(null);
     const [selectedLogPayload, setSelectedLogPayload] = useState<any | null>(null);
     const [loadingPayload, setLoadingPayload] = useState(false);
+    
+    const [projectId, setProjectId] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
 
     const fetchLogs = useCallback(async (page: number, query: string, showToast = false) => {
+        if (!isClient) return;
+
         startRefreshTransition(async () => {
+            const currentProjectId = localStorage.getItem('activeProjectId');
+            setProjectId(currentProjectId);
+
+            if (!currentProjectId) {
+                setLogs([]);
+                setTotalPages(0);
+                return;
+            }
             try {
-                const { logs: newLogs, total } = await getWebhookLogs(page, LOGS_PER_PAGE, query);
+                const { logs: newLogs, total } = await getWebhookLogs(currentProjectId, page, LOGS_PER_PAGE, query);
                 setLogs(newLogs);
                 setTotalPages(Math.ceil(total / LOGS_PER_PAGE));
                 if (showToast) {
@@ -76,12 +90,19 @@ export function WebhookLogs() {
                 toast({ title: "Error", description: "Failed to fetch webhook logs.", variant: "destructive" });
             }
         });
-    }, [toast]);
+    }, [toast, isClient]);
 
     useEffect(() => {
-        setLoading(true);
-        fetchLogs(currentPage, searchQuery).finally(() => setLoading(false));
-    }, [currentPage, searchQuery, fetchLogs]);
+        setIsClient(true);
+    }, []);
+
+    useEffect(() => {
+        if (isClient) {
+            setLoading(true);
+            fetchLogs(currentPage, searchQuery).finally(() => setLoading(false));
+        }
+    }, [currentPage, searchQuery, fetchLogs, isClient]);
+
 
     const handleSearch = useDebouncedCallback((term: string) => {
         setSearchQuery(term);
@@ -158,6 +179,26 @@ export function WebhookLogs() {
             });
         });
     };
+    
+    if (isClient && !loading && !projectId) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Webhook Event Logs</CardTitle>
+                    <CardDescription>A real-time log of events received from Meta for your project.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>No Project Selected</AlertTitle>
+                        <AlertDescription>
+                            Please select a project from the main dashboard page to view its webhook logs.
+                        </AlertDescription>
+                    </Alert>
+                </CardContent>
+            </Card>
+        );
+    }
 
     return (
         <Card>
@@ -233,7 +274,7 @@ export function WebhookLogs() {
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={4} className="h-24 text-center">
-                                    No webhook logs found.
+                                    No webhook logs found for this project.
                                     </TableCell>
                                 </TableRow>
                             )}
