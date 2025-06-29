@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useActionState, useRef, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch } from '@/app/actions';
+import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project } from '@/app/dashboard/page';
 import { useToast } from '@/hooks/use-toast';
@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,6 +25,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 
 const updateSettingsInitialState = { message: null, error: null };
 const updateAutoReplyInitialState = { message: null, error: null };
+const updateOptInOutInitialState = { message: null, error: null };
 
 function SaveButton({ children }: { children: React.ReactNode }) {
   const { pending } = useFormStatus();
@@ -190,6 +191,61 @@ function AiAssistantForm({ project }: { project: WithId<Project> }) {
     );
 }
 
+function OptInOutForm({ project }: { project: WithId<Project> }) {
+    const [state, formAction] = useActionState(handleUpdateOptInOutSettings, updateOptInOutInitialState);
+    const { toast } = useToast();
+    const optSettings = project.optInOutSettings;
+
+    useEffect(() => {
+        if (state?.message) toast({ title: 'Success!', description: state.message });
+        if (state?.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    }, [state, toast]);
+    
+    return (
+        <form action={formAction}>
+            <input type="hidden" name="projectId" value={project._id.toString()} />
+            <CardHeader>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <CardTitle>Campaign Opt-out</CardTitle>
+                        <CardDescription>Enable this if you don't wish to send API campaigns to opted-out contacts.</CardDescription>
+                    </div>
+                    <Switch name="enabled" defaultChecked={optSettings?.enabled} />
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="space-y-4">
+                    <h3 className="font-medium text-lg">Opt-out Settings</h3>
+                    <div className="space-y-2">
+                        <Label htmlFor="optOutKeywords">Opt-out Keywords</Label>
+                        <Input id="optOutKeywords" name="optOutKeywords" placeholder="stop, unsubscribe" defaultValue={optSettings?.optOutKeywords?.join(', ')} />
+                        <p className="text-xs text-muted-foreground">Comma-separated keywords. If a user sends any of these, they will be opted out.</p>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="optOutResponse">Opt-out Response Message</Label>
+                        <Textarea id="optOutResponse" name="optOutResponse" placeholder="You have been opted-out of our future communications." defaultValue={optSettings?.optOutResponse} />
+                    </div>
+                </div>
+                <Separator/>
+                <div className="space-y-4">
+                    <h3 className="font-medium text-lg">Opt-in Settings</h3>
+                    <div className="space-y-2">
+                        <Label htmlFor="optInKeywords">Opt-in Keywords</Label>
+                        <Input id="optInKeywords" name="optInKeywords" placeholder="start, allow, subscribe" defaultValue={optSettings?.optInKeywords?.join(', ')} />
+                        <p className="text-xs text-muted-foreground">Comma-separated keywords for users to opt back in.</p>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="optInResponse">Opt-in Response Message</Label>
+                        <Textarea id="optInResponse" name="optInResponse" placeholder="Thanks! You have been opted-in for our future communications." defaultValue={optSettings?.optInResponse} />
+                    </div>
+                </div>
+            </CardContent>
+            <CardFooter>
+                <SaveButton>Save Opt-in/Opt-out Settings</SaveButton>
+            </CardFooter>
+        </form>
+    )
+}
 
 export default function SettingsPage() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
@@ -283,14 +339,16 @@ export default function SettingsPage() {
       <div className="space-y-6">
         <MasterSwitch project={project} />
         <Tabs defaultValue="general" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="general"><Bot className="mr-2 h-4 w-4" />General</TabsTrigger>
               <TabsTrigger value="inactive"><Clock className="mr-2 h-4 w-4" />Inactive Hours</TabsTrigger>
               <TabsTrigger value="ai"><BrainCircuit className="mr-2 h-4 w-4" />AI Assistant</TabsTrigger>
+              <TabsTrigger value="opt-in-out"><Users className="mr-2 h-4 w-4" />Opt-in/Out</TabsTrigger>
           </TabsList>
           <TabsContent value="general"><Card><GeneralReplyForm project={project} /></Card></TabsContent>
           <TabsContent value="inactive"><Card><InactiveHoursForm project={project} /></Card></TabsContent>
           <TabsContent value="ai"><Card><AiAssistantForm project={project} /></Card></TabsContent>
+          <TabsContent value="opt-in-out"><Card><OptInOutForm project={project} /></Card></TabsContent>
         </Tabs>
       </div>
 

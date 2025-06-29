@@ -544,7 +544,7 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
 }
 
 
-// --- Auto Reply Logic ---
+// --- Auto Reply & Opt-out Logic ---
 
 async function sendAutoReplyMessage(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, messageText: string) {
     try {
@@ -590,6 +590,36 @@ async function sendAutoReplyMessage(db: Db, project: WithId<Project>, contact: W
     } catch (e: any) {
         console.error(`Failed to send auto-reply to ${contact.waId} for project ${project._id}:`, e.message);
     }
+}
+
+async function handleOptInOut(db: Db, project: WithId<Project>, contact: WithId<Contact>, message: any, phoneNumberId: string): Promise<boolean> {
+    const settings = project.optInOutSettings;
+    if (!settings) return false;
+
+    const messageText = message.text?.body?.trim().toLowerCase();
+    if (!messageText) return false;
+
+    // Check for opt-out
+    if (settings.optOutKeywords && settings.optOutKeywords.includes(messageText)) {
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { isOptedOut: true } });
+        if (settings.optOutResponse) {
+            await sendAutoReplyMessage(db, project, contact, phoneNumberId, settings.optOutResponse);
+        }
+        console.log(`Contact ${contact.waId} opted out.`);
+        return true; // Handled
+    }
+
+    // Check for opt-in
+    if (settings.optInKeywords && settings.optInKeywords.includes(messageText)) {
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { isOptedOut: false } });
+         if (settings.optInResponse) {
+            await sendAutoReplyMessage(db, project, contact, phoneNumberId, settings.optInResponse);
+        }
+        console.log(`Contact ${contact.waId} opted in.`);
+        return true; // Handled
+    }
+
+    return false; // Not handled
 }
 
 async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithId<Contact>, message: any, phoneNumberId: string) {
@@ -682,7 +712,7 @@ export async function processSingleWebhook(db: Db, payload: any, logId?: ObjectI
 
                 let project: WithId<Project> | null = null;
 
-                if (wabaId) {
+                if (wabaId && wabaId !== "0") {
                     project = await db.collection<Project>('projects').findOne({ wabaId: wabaId });
                 }
 
@@ -799,17 +829,19 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
         if (broadcastContactOps.length > 0) promises.push(db.collection('broadcast_contacts').bulkWrite(broadcastContactOps, { ordered: false }));
         const broadcastCounterOps = Object.entries(broadcastCounterUpdates)
             .filter(([_, counts]) => counts.delivered > 0 || counts.read > 0 || counts.failed > 0 || counts.success !== 0)
-            .map(([broadcastId, counts]) => ({
-                updateOne: {
-                    filter: { _id: new ObjectId(broadcastId) },
-                    update: { $inc: { 
-                        deliveredCount: counts.delivered,
-                        readCount: counts.read,
-                        errorCount: counts.failed,
-                        successCount: counts.success
-                    } }
+            .map(([broadcastId, counts]) => {
+                return {
+                    updateOne: {
+                        filter: { _id: new ObjectId(broadcastId) },
+                        update: { $inc: { 
+                            deliveredCount: counts.delivered,
+                            readCount: counts.read,
+                            errorCount: counts.failed,
+                            successCount: counts.success 
+                        } }
+                    }
                 }
-            }));
+            });
         if (broadcastCounterOps.length > 0) promises.push(db.collection('broadcasts').bulkWrite(broadcastCounterOps, { ordered: false }));
         
         if (promises.length > 0) await Promise.all(promises);
@@ -843,7 +875,7 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
             let project = wabaId ? projectsCache.get(wabaId) : null;
 
             if (!project) {
-                if (wabaId) {
+                 if (wabaId && wabaId !== "0") {
                     project = await db.collection<Project>('projects').findOne({ wabaId: wabaId });
                 }
                 if (!project && businessPhoneNumberId) {
@@ -924,12 +956,16 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
                 isRead: false, createdAt: new Date(), eventType: 'messages',
             }}});
             
-            flowLogicTasks.push(async () => {
-                const flowHandled = await handleFlowLogic(db, project, contact, message, businessPhoneNumberId);
-                if (!flowHandled) {
-                    await triggerAutoReply(db, project, contact, message, businessPhoneNumberId);
-                }
-            });
+            const wasOptInOut = await handleOptInOut(db, project, contact, message, businessPhoneNumberId);
+            
+            if (!wasOptInOut) {
+                flowLogicTasks.push(async () => {
+                    const flowHandled = await handleFlowLogic(db, project, contact, message, businessPhoneNumberId);
+                    if (!flowHandled) {
+                        await triggerAutoReply(db, project, contact, message, businessPhoneNumberId);
+                    }
+                });
+            }
         }
         
         const bulkWritePromises = [];

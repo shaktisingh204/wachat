@@ -8,7 +8,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
-import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge } from '@/app/dashboard/page';
+import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings } from '@/app/dashboard/page';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
@@ -157,6 +157,7 @@ export type Contact = {
         currentNodeId: string;
         variables: Record<string, any>;
     };
+    isOptedOut?: boolean;
 }
 
 export type IncomingMessage = {
@@ -195,7 +196,7 @@ export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 
 
 // Re-export types for client components
-export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge };
+export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings };
 
 const getErrorMessage = (error: any): string => {
     if (axios.isAxiosError(error) && error.response?.data?.error) {
@@ -565,67 +566,61 @@ type BroadcastState = {
   error?: string | null;
 };
 
-const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId): Promise<number> => {
+const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId, project: WithId<Project>): Promise<number> => {
     return new Promise<number>((resolve, reject) => {
-        let localContactCount = 0;
-        let contactBatch: any[] = [];
-        const batchSize = 1000;
-        let phoneColumnHeader: string | null = null;
+        const allParsedContacts: any[] = [];
         
         Papa.parse(inputStream, {
             header: true,
             skipEmptyLines: true,
             dynamicTyping: false,
-            step: async (results, parser) => {
-                const row = results.data as Record<string, string>;
-                if (!phoneColumnHeader) {
-                    phoneColumnHeader = Object.keys(row)[0];
-                    if (!phoneColumnHeader) {
-                        parser.abort();
-                        return reject(new Error("File appears to have no columns or is empty."));
-                    }
-                }
-                
-                const phone = String(row[phoneColumnHeader!] || '').trim();
-                if (phone === '') return;
-
-                const {[phoneColumnHeader!]: _, ...variables} = row;
-                const contactDoc = {
-                    broadcastId,
-                    phone: phone,
-                    variables,
-                    status: 'PENDING' as const,
-                    createdAt: new Date(),
-                };
-                contactBatch.push(contactDoc);
-                localContactCount++;
-                
-                if (contactBatch.length >= batchSize) {
-                    parser.pause();
-                    try {
-                        await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
-                        contactBatch = [];
-                    } catch (dbError) {
-                        console.warn('Batch insert failed, some contacts may be duplicates:', dbError);
-                    } finally {
-                        parser.resume();
-                    }
-                }
+            step: (results) => {
+                allParsedContacts.push(results.data as Record<string, string>);
             },
             complete: async () => {
-                try {
-                    if (contactBatch.length > 0) {
-                        await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
-                    }
-                    resolve(localContactCount);
-                } catch (dbError) {
-                    console.warn('Final batch insert failed:', dbError);
-                    resolve(localContactCount);
+                if (allParsedContacts.length === 0) {
+                    return resolve(0);
                 }
+
+                const phoneColumnHeader = Object.keys(allParsedContacts[0])[0];
+                if (!phoneColumnHeader) {
+                    return reject(new Error("File has no columns."));
+                }
+                
+                let contactsToInsert = allParsedContacts.map(row => {
+                    const phone = String(row[phoneColumnHeader] || '').trim();
+                    if (!phone) return null;
+                    const {[phoneColumnHeader]: _, ...variables} = row;
+                    return {
+                        broadcastId,
+                        phone,
+                        variables,
+                        status: 'PENDING' as const,
+                        createdAt: new Date(),
+                    };
+                }).filter(Boolean);
+
+                if (project.optInOutSettings?.enabled === true) {
+                    const allPhoneNumbers = contactsToInsert.map(c => c!.phone);
+                    const optedOutContacts = await db.collection('contacts').find({
+                        projectId: project._id,
+                        waId: { $in: allPhoneNumbers },
+                        isOptedOut: true
+                    }, { projection: { waId: 1 } }).toArray();
+                    const optedOutNumbersSet = new Set(optedOutContacts.map(c => c.waId));
+
+                    contactsToInsert = contactsToInsert.filter(c => !optedOutNumbersSet.has(c!.phone));
+                }
+
+                if (contactsToInsert.length > 0) {
+                    await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false }).catch(err => {
+                        console.warn("Bulk insert for broadcast contacts failed. Some may be duplicates.", err.code);
+                    });
+                }
+                
+                resolve(contactsToInsert.length);
             },
-            error: (error) => {
-                reject(error);
-            }
+            error: (error) => reject(error)
         });
     });
 };
@@ -702,7 +697,7 @@ export async function handleStartBroadcast(
 
     if (contactFile.name.endsWith('.csv')) {
         const nodeStream = Readable.fromWeb(contactFile.stream() as any);
-        contactCount = await processStreamedContacts(nodeStream, db, broadcastId);
+        contactCount = await processStreamedContacts(nodeStream, db, broadcastId, project);
     } else if (contactFile.name.endsWith('.xlsx')) {
         const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
         const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
@@ -713,7 +708,7 @@ export async function handleStartBroadcast(
         const worksheet = workbook.Sheets[sheetName];
         const csvData = XLSX.utils.sheet_to_csv(worksheet);
         
-        contactCount = await processStreamedContacts(csvData, db, broadcastId);
+        contactCount = await processStreamedContacts(csvData, db, broadcastId, project);
     } else {
         await db.collection('broadcasts').deleteOne({ _id: broadcastId });
         return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
@@ -2496,7 +2491,7 @@ export async function handleUpdateAutoReplySettings(
              return { error: 'Project not found during update.' };
         }
 
-        revalidatePath('/dashboard/auto-reply');
+        revalidatePath('/dashboard/settings');
         return { message: 'Auto-reply settings saved successfully!' };
 
     } catch (e: any) {
@@ -2520,7 +2515,7 @@ export async function handleUpdateMasterSwitch(projectId: string, enabled: boole
             { $set: { autoReplySettings } }
         );
 
-        revalidatePath('/dashboard/auto-reply');
+        revalidatePath('/dashboard/settings');
         return { message: 'Auto-reply settings updated.' };
     } catch (e: any) {
         return { error: e.message || 'An unexpected error occurred.' };
@@ -3178,5 +3173,53 @@ export async function handleDeleteProject(
     } catch (e: any) {
         console.error('Failed to delete project:', e);
         return { error: e.message || 'An unexpected error occurred while deleting the project.' };
+    }
+}
+
+type OptInOutState = {
+    message?: string;
+    error?: string;
+};
+
+export async function handleUpdateOptInOutSettings(
+    prevState: OptInOutState,
+    formData: FormData
+): Promise<OptInOutState> {
+    const projectId = formData.get('projectId') as string;
+    const project = await getProjectById(projectId);
+    if (!project) {
+        return { error: 'Project not found or you do not have access.' };
+    }
+
+    const formatKeywords = (keywords: string | null): string[] => {
+        if (!keywords) return [];
+        return keywords.split(',').map(k => k.trim().toLowerCase()).filter(Boolean);
+    };
+
+    try {
+        const settings: OptInOutSettings = {
+            enabled: formData.get('enabled') === 'on',
+            optOutKeywords: formatKeywords(formData.get('optOutKeywords') as string),
+            optOutResponse: formData.get('optOutResponse') as string,
+            optInKeywords: formatKeywords(formData.get('optInKeywords') as string),
+            optInResponse: formData.get('optInResponse') as string,
+        };
+        
+        const { db } = await connectToDatabase();
+        const result = await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { optInOutSettings: settings } }
+        );
+
+        if (result.matchedCount === 0) {
+            return { error: 'Project not found during update.' };
+        }
+
+        revalidatePath('/dashboard/settings');
+        return { message: 'Opt-in/Opt-out settings saved successfully!' };
+
+    } catch (e: any) {
+        console.error('Failed to update opt-in/out settings:', e);
+        return { error: e.message || 'An unexpected error occurred.' };
     }
 }
