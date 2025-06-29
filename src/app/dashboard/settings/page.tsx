@@ -2,8 +2,9 @@
 
 'use client';
 
-import { useEffect, useState, useActionState, useRef, useTransition } from 'react';
+import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
 import { useFormStatus } from 'react-dom';
+import { useSearchParams } from 'next/navigation';
 import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, UserAttribute } from '@/app/dashboard/page';
@@ -14,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -22,6 +23,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { CannedMessagesSettingsTab } from '@/components/wabasimplify/canned-messages-settings-tab';
 
 
 const updateSettingsInitialState = { message: null, error: null };
@@ -371,13 +373,17 @@ function UserAttributesForm({ project }: { project: WithId<Project> }) {
   );
 }
 
-export default function SettingsPage() {
+
+function SettingsPageContent() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
   const [messagesPerSecond, setMessagesPerSecond] = useState(1000);
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleUpdateProjectSettings, updateSettingsInitialState);
+
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get('tab') || 'broadcast';
 
   useEffect(() => {
     setIsClient(true);
@@ -440,13 +446,14 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
+     <div className="flex flex-col gap-8">
       <div><h1 className="text-3xl font-bold font-headline">Project Settings</h1><p className="text-muted-foreground">Manage settings for project "{project.name}".</p></div>
 
-      <Tabs defaultValue="broadcast" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+      <Tabs defaultValue={initialTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="broadcast"><Save className="mr-2 h-4 w-4" />Broadcast</TabsTrigger>
               <TabsTrigger value="auto-reply"><Bot className="mr-2 h-4 w-4" />Auto-Replies</TabsTrigger>
+              <TabsTrigger value="canned-messages"><ClipboardList className="mr-2 h-4 w-4" />Canned Messages</TabsTrigger>
               <TabsTrigger value="opt-in-out"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
               <TabsTrigger value="attributes"><Users className="mr-2 h-4 w-4" />User Attributes</TabsTrigger>
           </TabsList>
@@ -482,6 +489,10 @@ export default function SettingsPage() {
             </Tabs>
           </TabsContent>
           
+          <TabsContent value="canned-messages" className="mt-6">
+            <CannedMessagesSettingsTab project={project} />
+          </TabsContent>
+
           <TabsContent value="opt-in-out" className="mt-6">
               <Card><OptInOutForm project={project} /></Card>
           </TabsContent>
@@ -491,21 +502,15 @@ export default function SettingsPage() {
           </TabsContent>
 
         </Tabs>
-
-      <Separator />
-
-      <Card>
-        <CardHeader><CardTitle>Setting up Webhooks</CardTitle><CardDescription>Follow these steps in your Meta for Developers dashboard to receive real-time updates.</CardDescription></CardHeader>
-        <CardContent className="space-y-2 text-sm text-foreground/90">
-           <ol className="list-decimal list-inside space-y-2">
-                <li>Go to your Meta App, select the **Webhooks** product, and find the "WhatsApp Business Account" object.</li>
-                <li>Click **Edit subscription** and paste your webhook URL and verify token. You can find these on the <Link href="/dashboard/webhooks" className="text-primary underline">Webhooks page</Link>.</li>
-                <li>Click **Verify and save**.</li>
-                <li>**Crucial Step:** After verifying, find the "Webhook Fields" for `whatsapp_business_account` and click **Edit**.</li>
-                <li>Subscribe to all available events. This is required for the application to automatically update statuses for templates, phone numbers, and accounts.</li>
-          </ol>
-        </CardContent>
-      </Card>
     </div>
-  );
+  )
+}
+
+export default function SettingsPage() {
+    return (
+        // Suspense is needed because we read the searchParams in the child component
+        <Suspense fallback={<Skeleton className="h-full w-full"/>}>
+            <SettingsPageContent />
+        </Suspense>
+    );
 }
