@@ -663,85 +663,6 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
 
 // --- Main Webhook Processing Logic ---
 
-async function findOrCreateProjectByWabaId(db: Db, wabaId: string): Promise<WithId<Project> | null> {
-    const existingProject = await db.collection<Project>('projects').findOne({ wabaId });
-    if (existingProject) {
-        return existingProject;
-    }
-
-    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
-    const appId = process.env.NEXT_PUBLIC_META_APP_ID;
-    const apiVersion = 'v22.0';
-
-    if (!accessToken) {
-        console.error("META_SYSTEM_USER_ACCESS_TOKEN is not set. Cannot create new project automatically for WABA:", wabaId);
-        return null;
-    }
-
-    try {
-        const wabaDetailsResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaId}?access_token=${accessToken}&fields=name`);
-        const wabaDetails = await wabaDetailsResponse.json();
-        if (wabaDetails.error) {
-            throw new Error(`Meta API error getting WABA details: ${wabaDetails.error.message}`);
-        }
-
-        const phoneNumbersResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaId}/phone_numbers?access_token=${accessToken}&fields=verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput`);
-        const phoneNumbersData = await phoneNumbersResponse.json();
-        if (phoneNumbersData.error) {
-            throw new Error(`Meta API error getting phone numbers: ${phoneNumbersData.error.message}`);
-        }
-
-        const phoneNumbers: PhoneNumber[] = phoneNumbersData.data ? phoneNumbersData.data.map((num: any) => ({
-            id: num.id, display_phone_number: num.display_phone_number, verified_name: num.verified_name,
-            code_verification_status: num.code_verification_status, quality_rating: num.quality_rating,
-            platform_type: num.platform_type, throughput: num.throughput,
-        })) : [];
-
-        const projectDoc = {
-            name: wabaDetails.name,
-            wabaId: wabaId,
-            accessToken: accessToken,
-            phoneNumbers: phoneNumbers,
-            messagesPerSecond: 1000,
-            reviewStatus: 'UNKNOWN',
-            appId: appId,
-        };
-
-        const result = await db.collection('projects').findOneAndUpdate(
-            { wabaId: wabaId },
-            { 
-                $set: {
-                    name: projectDoc.name,
-                    accessToken: projectDoc.accessToken,
-                    phoneNumbers: projectDoc.phoneNumbers,
-                    reviewStatus: projectDoc.reviewStatus,
-                    appId: projectDoc.appId,
-                },
-                $setOnInsert: {
-                    createdAt: new Date(),
-                    messagesPerSecond: projectDoc.messagesPerSecond
-                }
-            },
-            { upsert: true, returnDocument: 'after' }
-        );
-
-        const newProject = result;
-        if (newProject) {
-            await db.collection('notifications').insertOne({
-                projectId: newProject._id, wabaId: wabaId,
-                message: `New project '${wabaDetails.name}' was automatically created from a webhook event.`,
-                link: '/dashboard', isRead: false, createdAt: new Date(), eventType: 'project_auto_created',
-            });
-            revalidatePath('/dashboard'); revalidatePath('/dashboard', 'layout');
-        }
-        return newProject;
-    } catch (e: any) {
-        console.error(`Failed to automatically create project for WABA ${wabaId}:`, e.message);
-        return null;
-    }
-}
-
-
 export async function processSingleWebhook(db: Db, payload: any, logId?: ObjectId) {
     try {
         if (payload.object !== 'whatsapp_business_account') {
@@ -764,8 +685,8 @@ export async function processSingleWebhook(db: Db, payload: any, logId?: ObjectI
                 );
 
                 if (!project) {
-                     project = await findOrCreateProjectByWabaId(db, wabaId);
-                     if (!project) continue;
+                    console.log(`Webhook processor: Project not found for WABA ID ${wabaId} or phone ID ${phone_number_id}. Skipping event.`);
+                    continue;
                 }
 
                 switch (change.field) {
@@ -872,7 +793,19 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
         if (broadcastContactOps.length > 0) promises.push(db.collection('broadcast_contacts').bulkWrite(broadcastContactOps, { ordered: false }));
         const broadcastCounterOps = Object.entries(broadcastCounterUpdates)
             .filter(([_, counts]) => counts.delivered > 0 || counts.read > 0 || counts.failed > 0 || counts.success !== 0)
-            .map(([broadcastId, counts]) => ({ updateOne: { filter: { _id: new ObjectId(broadcastId) }, update: { $inc: { deliveredCount: counts.delivered, readCount: counts.read, errorCount: counts.failed, successCount: counts.success, } } } }));
+            .map(([broadcastId, counts]) => {
+                return {
+                    updateOne: {
+                        filter: { _id: new ObjectId(broadcastId) },
+                        update: { $inc: { 
+                            deliveredCount: counts.delivered,
+                            readCount: counts.read,
+                            errorCount: counts.failed,
+                            successCount: counts.success
+                        } }
+                    }
+                };
+            });
         if (broadcastCounterOps.length > 0) promises.push(db.collection('broadcasts').bulkWrite(broadcastCounterOps, { ordered: false }));
         
         if (promises.length > 0) await Promise.all(promises);
@@ -905,16 +838,11 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
 
             let project = projectsCache.get(businessPhoneNumberId);
             if (!project) {
-                 const projectFilter: Filter<Project> = { $or: [{ 'phoneNumbers.id': businessPhoneNumberId }] };
-                 if (wabaId) {
+                const projectFilter: Filter<Project> = { $or: [{ 'phoneNumbers.id': businessPhoneNumberId }] };
+                if (wabaId) {
                     projectFilter.$or.push({ wabaId: wabaId });
-                 }
-                 project = await db.collection<Project>('projects').findOne(projectFilter);
-
-                if (!project && wabaId) {
-                    console.log(`Project not found, attempting to auto-create for WABA ID: ${wabaId}`);
-                    project = await findOrCreateProjectByWabaId(db, wabaId);
                 }
+                project = await db.collection<Project>('projects').findOne(projectFilter);
 
                 if (project) {
                     projectsCache.set(businessPhoneNumberId, project);
@@ -922,7 +850,7 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
             }
 
             if (!project) {
-                console.error(`No project found for phone number ID ${businessPhoneNumberId} or WABA ID ${wabaId}`);
+                console.error(`No project found for phone number ID ${businessPhoneNumberId} or WABA ID ${wabaId}. Skipping message.`);
                 continue;
             }
 
