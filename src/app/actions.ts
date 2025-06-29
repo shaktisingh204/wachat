@@ -2596,3 +2596,103 @@ export async function deleteFlow(flowId: string): Promise<{ message?: string; er
         return { error: e.message || "An unexpected error occurred while deleting the flow." };
     }
 }
+
+
+// --- AGGREGATOR ACTIONS FOR OPTIMIZED LOADING ---
+
+export async function getInitialChatData(
+    projectId: string,
+    initialPhoneId?: string | null,
+    initialContactId?: string | null
+): Promise<{
+    project: WithId<Project> | null;
+    contacts: WithId<Contact>[];
+    totalContacts: number;
+    selectedContact: WithId<Contact> | null;
+    conversation: AnyMessage[];
+    selectedPhoneNumberId: string;
+}> {
+    const project = await getProjectById(projectId);
+    if (!project) {
+        return { project: null, contacts: [], totalContacts: 0, selectedContact: null, conversation: [], selectedPhoneNumberId: '' };
+    }
+
+    const phoneIdToUse = initialPhoneId || project.phoneNumbers?.[0]?.id || '';
+    if (!phoneIdToUse) {
+        return { project, contacts: [], totalContacts: 0, selectedContact: null, conversation: [], selectedPhoneNumberId: '' };
+    }
+    
+    const { contacts, total } = await getContactsForProject(projectId, phoneIdToUse, 1, 30);
+    
+    let conversation: AnyMessage[] = [];
+    let selectedContact: WithId<Contact> | null = null;
+    
+    if (initialContactId) {
+        const contactToSelect = contacts.find(c => c._id.toString() === initialContactId);
+        if (contactToSelect) {
+            selectedContact = contactToSelect;
+            conversation = await getConversation(initialContactId);
+            if (contactToSelect.unreadCount && contactToSelect.unreadCount > 0) {
+                await markConversationAsRead(initialContactId);
+                // The contact in the list will still have the old unreadCount, we should update it
+                const updatedContact = { ...contactToSelect, unreadCount: 0 };
+                const contactIndex = contacts.findIndex(c => c._id.toString() === initialContactId);
+                if (contactIndex > -1) {
+                    contacts[contactIndex] = updatedContact;
+                }
+            }
+        }
+    }
+
+    return {
+        project,
+        contacts,
+        totalContacts: total,
+        selectedContact,
+        conversation,
+        selectedPhoneNumberId: phoneIdToUse
+    };
+}
+
+export async function getContactsPageData(
+    projectId: string,
+    phoneId?: string | null,
+    page: number = 1,
+    query: string = ''
+): Promise<{
+    project: WithId<Project> | null;
+    contacts: WithId<Contact>[];
+    total: number;
+    selectedPhoneNumberId: string;
+}> {
+    const project = await getProjectById(projectId);
+    if (!project) {
+        return { project: null, contacts: [], total: 0, selectedPhoneNumberId: '' };
+    }
+    
+    const phoneIdToUse = phoneId || project.phoneNumbers?.[0]?.id || '';
+    if (!phoneIdToUse) {
+        return { project, contacts: [], total: 0, selectedPhoneNumberId: phoneIdToUse };
+    }
+
+    const { contacts, total } = await getContactsForProject(projectId, phoneIdToUse, page, 20, query);
+
+    return { project, contacts, total, selectedPhoneNumberId: phoneIdToUse };
+}
+
+export async function getFlowBuilderPageData(
+    projectId: string
+): Promise<{
+    flows: WithId<Flow>[];
+    initialFlow: WithId<Flow> | null;
+}> {
+    const flows = await getFlowsForProject(projectId);
+    let initialFlow: WithId<Flow> | null = null;
+
+    if (flows.length > 0) {
+        // Fetch the full data for the first flow
+        initialFlow = await getFlowById(flows[0]._id.toString());
+    }
+
+    return { flows, initialFlow };
+}

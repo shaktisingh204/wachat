@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { getProjectById, getContactsForProject, getConversation, markConversationAsRead, findOrCreateContact } from '@/app/actions';
+import { getContactsForProject, getConversation, markConversationAsRead, findOrCreateContact, getInitialChatData } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, AnyMessage } from '@/app/actions';
 
@@ -29,8 +30,7 @@ export function ChatClient() {
     const [selectedContact, setSelectedContact] = useState<WithId<Contact> | null>(null);
     const [conversation, setConversation] = useState<AnyMessage[]>([]);
 
-    const [loadingProject, setLoadingProject] = useState(true);
-    const [loadingContacts, setLoadingContacts] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [loadingConversation, setLoadingConversation] = useState(false);
     
     const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState<string>('');
@@ -46,18 +46,59 @@ export function ChatClient() {
     const loadMoreContactsRef = useRef<HTMLDivElement>(null);
 
 
-    const fetchInitialContacts = useCallback(async (phoneId: string) => {
-        if (!project || !phoneId) return null;
-        setLoadingContacts(true);
-        setContacts([]);
-        setContactPage(1);
-        setHasMoreContacts(true);
-        const { contacts: contactsData, total } = await getContactsForProject(project._id.toString(), phoneId, 1, CONTACTS_PER_PAGE);
-        setContacts(contactsData);
-        setHasMoreContacts(contactsData.length < total);
-        setLoadingContacts(false);
-        return contactsData;
-    }, [project]);
+    // Initial data load - much simpler now
+    const fetchInitialData = useCallback(async (phoneId?: string | null) => {
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        if (!storedProjectId) {
+            setLoading(false);
+            return;
+        }
+
+        setLoading(true);
+        // Use the initial params only on the very first load
+        const useInitialParams = !project;
+        const data = await getInitialChatData(
+            storedProjectId, 
+            phoneId || (useInitialParams ? initialPhoneId : null),
+            useInitialParams ? initialContactId : null
+        );
+
+        setProject(data.project);
+        setContacts(data.contacts);
+        setHasMoreContacts(data.contacts.length < data.totalContacts);
+        setSelectedContact(data.selectedContact);
+        setConversation(data.conversation);
+        setSelectedPhoneNumberId(data.selectedPhoneNumberId);
+        setContactPage(1); // Reset page number on new phone number selection
+
+        setLoading(false);
+    }, [initialContactId, initialPhoneId, project]);
+
+    useEffect(() => {
+        setIsClient(true);
+        fetchInitialData();
+    }, []); // Only runs once on mount
+
+    const handlePhoneNumberChange = (phoneId: string) => {
+        setSelectedContact(null); // Clear selected contact when number changes
+        setConversation([]);
+        fetchInitialData(phoneId);
+    };
+
+    const handleSelectContact = useCallback(async (contact: WithId<Contact>) => {
+        setSelectedContact(contact);
+        setLoadingConversation(true);
+        const conversationData = await getConversation(contact._id.toString());
+        setConversation(conversationData);
+        setLoadingConversation(false);
+
+        if (contact.unreadCount && contact.unreadCount > 0) {
+            await markConversationAsRead(contact._id.toString());
+            // Optimistically update UI
+            setContacts(prev => prev.map(c => c._id.toString() === contact._id.toString() ? { ...c, unreadCount: 0 } : c));
+        }
+    }, []);
+
 
     const loadMoreContacts = useCallback(async () => {
         if (!project || !selectedPhoneNumberId || isFetchingMore || !hasMoreContacts) return;
@@ -78,7 +119,7 @@ export function ChatClient() {
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
-                if (entries[0].isIntersecting) {
+                if (entries[0]?.isIntersecting) {
                     loadMoreContacts();
                 }
             },
@@ -96,86 +137,33 @@ export function ChatClient() {
             }
         };
     }, [loadMoreContacts]);
-
-    const fetchProject = useCallback(async () => {
-        setLoadingProject(true);
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (storedProjectId) {
-            const projectData = await getProjectById(storedProjectId);
-            setProject(projectData);
-            if (initialPhoneId) {
-                setSelectedPhoneNumberId(initialPhoneId);
-            } else if (projectData?.phoneNumbers && projectData.phoneNumbers.length > 0) {
-                setSelectedPhoneNumberId(projectData.phoneNumbers[0].id);
-            }
-        }
-        setLoadingProject(false);
-    }, [initialPhoneId]);
-
-    const fetchConversation = useCallback(async (contactId: string) => {
-        setLoadingConversation(true);
-        const conversationData = await getConversation(contactId);
-        setConversation(conversationData);
-        setLoadingConversation(false);
-    }, []);
-
-    useEffect(() => {
-        setIsClient(true);
-        fetchProject();
-    }, [fetchProject]);
-
-    const handleSelectContact = useCallback(async (contact: WithId<Contact>) => {
-        setSelectedContact(contact);
-        await fetchConversation(contact._id.toString());
-        if (contact.unreadCount && contact.unreadCount > 0) {
-            await markConversationAsRead(contact._id.toString());
-            // Optimistically update UI
-            setContacts(prev => prev.map(c => c._id.toString() === contact._id.toString() ? { ...c, unreadCount: 0 } : c));
-        }
-    }, [fetchConversation]);
-
-    useEffect(() => {
-        if (selectedPhoneNumberId) {
-            fetchInitialContacts(selectedPhoneNumberId).then(fetchedContacts => {
-                if (initialContactId && fetchedContacts) {
-                    const contactToSelect = fetchedContacts.find(c => c._id.toString() === initialContactId);
-                    if (contactToSelect) {
-                        handleSelectContact(contactToSelect);
-                    }
-                }
-            });
-        }
-    }, [selectedPhoneNumberId, fetchInitialContacts, initialContactId, handleSelectContact]);
     
     // Polling for real-time updates
     useEffect(() => {
-        if (!isClient) return;
+        if (!isClient || loading) return;
 
         const interval = setInterval(() => {
             startPollingTransition(async () => {
                 if (project && selectedPhoneNumberId) {
-                    // Refresh first page of contacts to get updates
-                    const { contacts: updatedContacts } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, 1, CONTACTS_PER_PAGE);
-                    // Merge updates without changing order or removing loaded contacts
+                     const { contacts: updatedContacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, 1, CONTACTS_PER_PAGE);
                     setContacts(prev => {
-                        const updatedContactsMap = new Map(updatedContacts.map(c => [c._id.toString(), c]));
-                        const newContacts = prev.map(oldC => updatedContactsMap.get(oldC._id.toString()) || oldC);
-                        return newContacts;
+                        const updatedMap = new Map(updatedContacts.map(c => [c._id.toString(), c]));
+                        const mergedContacts = prev.map(old => updatedMap.get(old._id.toString()) || old);
+                        const existingIds = new Set(mergedContacts.map(c => c._id.toString()));
+                        const brandNewContacts = updatedContacts.filter(c => !existingIds.has(c._id.toString()));
+                        const final = [...brandNewContacts, ...mergedContacts];
+                        return final.sort((a, b) => new Date(b.lastMessageTimestamp || 0).getTime() - new Date(a.lastMessageTimestamp || 0).getTime());
                     });
                 }
                 if (selectedContact) {
                     const conversationData = await getConversation(selectedContact._id.toString());
                     setConversation(conversationData);
-                    const currentContactState = contacts.find(c => c._id.toString() === selectedContact._id.toString());
-                    if (currentContactState?.unreadCount && currentContactState.unreadCount > 0) {
-                        await markConversationAsRead(selectedContact._id.toString());
-                    }
                 }
             });
-        }, 5000); // Poll every 5 seconds
+        }, 7000); // Poll every 7 seconds
 
         return () => clearInterval(interval);
-    }, [isClient, selectedContact, contacts, project, selectedPhoneNumberId]);
+    }, [isClient, selectedContact, project, selectedPhoneNumberId, loading]);
 
     const handleNewChat = async (waId: string) => {
         if (!project || !selectedPhoneNumberId) {
@@ -187,14 +175,19 @@ export function ChatClient() {
             toast({ title: 'Error', description: result.error, variant: 'destructive'});
         }
         if (result.contact) {
-            await fetchInitialContacts(selectedPhoneNumberId);
+            // Refetch contacts for the current phone number
+            const { contacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, 1, CONTACTS_PER_PAGE);
+            setContacts(contacts);
+            setHasMoreContacts(contacts.length < total);
+            setContactPage(1);
+
             handleSelectContact(result.contact);
             setIsNewChatDialogOpen(false);
         }
     };
 
 
-    if (!isClient || loadingProject) {
+    if (!isClient || loading) {
         return <div className="flex flex-1 min-h-0"><Skeleton className="h-full w-full" /></div>;
     }
 
@@ -222,7 +215,7 @@ export function ChatClient() {
             <div className="flex flex-col h-full border rounded-lg bg-card">
                 <div className="p-4 border-b flex-shrink-0">
                     <div className="max-w-sm">
-                        <Select value={selectedPhoneNumberId} onValueChange={setSelectedPhoneNumberId}>
+                        <Select value={selectedPhoneNumberId} onValueChange={handlePhoneNumberChange}>
                             <SelectTrigger id="phoneNumberId">
                                 <SelectValue placeholder="Select a phone number..." />
                             </SelectTrigger>
@@ -246,7 +239,7 @@ export function ChatClient() {
                             selectedContactId={selectedContact?._id.toString()}
                             onSelectContact={handleSelectContact}
                             onNewChat={() => setIsNewChatDialogOpen(true)}
-                            isLoading={loadingContacts && contactPage === 1}
+                            isLoading={loading && contacts.length === 0}
                             hasMoreContacts={hasMoreContacts}
                             loadMoreRef={loadMoreContactsRef}
                         />

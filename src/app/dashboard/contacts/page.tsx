@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import { useEffect, useState, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getProjectById, getContactsForProject } from '@/app/actions';
+import { getContactsPageData } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact } from '@/app/actions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -24,8 +25,7 @@ const CONTACTS_PER_PAGE = 20;
 export default function ContactsPage() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
     const [contacts, setContacts] = useState<WithId<Contact>[]>([]);
-    const [loadingProject, setLoadingProject] = useState(true);
-    const [loadingContacts, setLoadingContacts] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState<string>('');
     const [isClient, setIsClient] = useState(false);
     const router = useRouter();
@@ -34,49 +34,52 @@ export default function ContactsPage() {
     const [totalPages, setTotalPages] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
     
-    const fetchProject = useCallback(async () => {
+    const fetchData = useCallback(async (phoneId: string, page: number, query: string) => {
         const storedProjectId = localStorage.getItem('activeProjectId');
-        if (storedProjectId) {
-            const projectData = await getProjectById(storedProjectId);
-            setProject(projectData);
-            if (projectData?.phoneNumbers && projectData.phoneNumbers.length > 0) {
-                setSelectedPhoneNumberId(projectData.phoneNumbers[0].id);
-            }
+        if (!storedProjectId) {
+            setLoading(false);
+            return;
         }
-        setLoadingProject(false);
-    }, []);
 
-    const fetchContacts = useCallback(async (phoneId: string, page: number, query: string) => {
-        if (!project || !phoneId) return;
-        setLoadingContacts(true);
-        const { contacts: contactsData, total } = await getContactsForProject(project._id.toString(), phoneId, page, CONTACTS_PER_PAGE, query);
-        setContacts(contactsData);
-        setTotalPages(Math.ceil(total / CONTACTS_PER_PAGE));
-        setLoadingContacts(false);
-    }, [project]);
+        setLoading(true);
+        const data = await getContactsPageData(storedProjectId, phoneId, page, query);
+        
+        setProject(data.project);
+        setContacts(data.contacts);
+        setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
+        setSelectedPhoneNumberId(data.selectedPhoneNumberId);
+
+        setLoading(false);
+    }, []);
 
     useEffect(() => {
         setIsClient(true);
         document.title = 'Contacts | Wachat';
-        fetchProject();
-    }, [fetchProject]);
-
+    }, []);
+    
     useEffect(() => {
-        if (selectedPhoneNumberId) {
-            fetchContacts(selectedPhoneNumberId, currentPage, searchQuery);
+        if(isClient) {
+            fetchData(selectedPhoneNumberId, currentPage, searchQuery);
         }
-    }, [selectedPhoneNumberId, fetchContacts, currentPage, searchQuery]);
+    }, [isClient, fetchData, selectedPhoneNumberId, currentPage, searchQuery]);
+
 
     const handleSearch = useDebouncedCallback((term: string) => {
         setSearchQuery(term);
         setCurrentPage(1);
     }, 300);
     
+    const handlePhoneChange = (phoneId: string) => {
+        setSelectedPhoneNumberId(phoneId);
+        setCurrentPage(1);
+        setSearchQuery('');
+    }
+
     const handleMessageContact = (contact: WithId<Contact>) => {
         router.push(`/dashboard/chat?contactId=${contact._id.toString()}&phoneId=${contact.phoneNumberId}`);
     };
 
-    if (!isClient || loadingProject) {
+    if (!isClient || loading) {
         return (
             <div className="flex flex-col gap-8">
                 <div>
@@ -136,7 +139,7 @@ export default function ContactsPage() {
                 </CardHeader>
                 <CardContent>
                      <div className="mb-4 flex flex-wrap gap-4 items-center">
-                        <Select value={selectedPhoneNumberId} onValueChange={setSelectedPhoneNumberId} disabled={!project.phoneNumbers || project.phoneNumbers.length === 0}>
+                        <Select value={selectedPhoneNumberId} onValueChange={handlePhoneChange} disabled={!project.phoneNumbers || project.phoneNumbers.length === 0}>
                             <SelectTrigger id="phoneNumberId" className="w-full sm:w-auto sm:min-w-[250px]">
                                 <SelectValue placeholder="Select a phone number..." />
                             </SelectTrigger>
@@ -169,13 +172,7 @@ export default function ContactsPage() {
                                 </TableRow>
                             </TableHeader>
                              <TableBody>
-                                {loadingContacts ? (
-                                    [...Array(5)].map((_, i) => (
-                                    <TableRow key={i}>
-                                        <TableCell colSpan={4}><Skeleton className="h-5 w-full" /></TableCell>
-                                    </TableRow>
-                                    ))
-                                ) : contacts.length > 0 ? (
+                                {contacts.length > 0 ? (
                                     contacts.map((contact) => (
                                     <TableRow key={contact._id.toString()}>
                                         <TableCell className="font-medium">{contact.name}</TableCell>
@@ -211,7 +208,7 @@ export default function ContactsPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setCurrentPage(p => p - 1)}
-                                disabled={currentPage <= 1 || loadingContacts}
+                                disabled={currentPage <= 1 || loading}
                             >
                                 Previous
                             </Button>
@@ -219,7 +216,7 @@ export default function ContactsPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setCurrentPage(p => p + 1)}
-                                disabled={currentPage >= totalPages || loadingContacts}
+                                disabled={currentPage >= totalPages || loading}
                             >
                                 Next
                             </Button>

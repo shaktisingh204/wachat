@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -21,6 +22,7 @@ import {
     Plus,
     Clock,
     Type,
+    BrainCircuit,
     ArrowRightLeft,
     ShoppingCart,
     View,
@@ -29,14 +31,13 @@ import {
     File,
     LoaderCircle,
     BookOpen,
-    Languages,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getFlowsForProject, saveFlow, deleteFlow, getFlowById } from '@/app/actions';
+import { getFlowsForProject, saveFlow, deleteFlow, getFlowById, getFlowBuilderPageData } from '@/app/actions';
 import type { Flow, FlowNode, FlowEdge } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -58,7 +59,7 @@ const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
-    { type: 'language', label: 'Set Language', icon: Languages },
+    { type: 'language', label: 'Set Language', icon: BrainCircuit },
     { type: 'carousel', label: 'Product Carousel', icon: View },
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
@@ -592,7 +593,7 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
 
 const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
     const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
-    return `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    return `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${toPos.y}, ${toPos.x} ${toPos.y}`;
 };
 
 export default function FlowBuilderPage() {
@@ -605,7 +606,7 @@ export default function FlowBuilderPage() {
     const [edges, setEdges] = useState<FlowEdge[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [isSaving, startSaveTransition] = useTransition();
-    const [isLoadingFlows, startFlowsLoadingTransition] = useTransition();
+    const [isLoading, startLoadingTransition] = useTransition();
     const [isTestFlowOpen, setIsTestFlowOpen] = useState(false);
     
     const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -623,34 +624,6 @@ export default function FlowBuilderPage() {
         setProjectId(storedProjectId);
     }, []);
 
-    const loadFlows = useCallback(async () => {
-        if (projectId) {
-            startFlowsLoadingTransition(async () => {
-                const fetchedFlows = await getFlowsForProject(projectId);
-                setFlows(fetchedFlows);
-                if (fetchedFlows.length > 0 && !currentFlow) {
-                    handleSelectFlow(fetchedFlows[0]._id.toString());
-                } else if (fetchedFlows.length === 0) {
-                    handleCreateNewFlow();
-                }
-            });
-        }
-    }, [projectId, currentFlow]);
-
-    useEffect(() => {
-        loadFlows();
-    }, [projectId]);
-
-    const handleSelectFlow = useCallback(async (flowId: string) => {
-        const fullFlow = await getFlowById(flowId);
-        if (fullFlow) {
-            setCurrentFlow(fullFlow);
-            setNodes(fullFlow.nodes || []);
-            setEdges(fullFlow.edges || []);
-            setSelectedNodeId(null);
-        }
-    }, []);
-    
     const handleCreateNewFlow = () => {
         const startNode = { id: 'node-start', type: 'start' as NodeType, data: { label: 'Start Flow' }, position: { x: 50, y: 150 } };
         setCurrentFlow(null);
@@ -660,6 +633,48 @@ export default function FlowBuilderPage() {
         setPan({x: 0, y: 0});
         setZoom(1);
     };
+
+    const loadInitialData = useCallback(async () => {
+        if (projectId) {
+            startLoadingTransition(async () => {
+                const data = await getFlowBuilderPageData(projectId);
+                setFlows(data.flows);
+                if (data.initialFlow) {
+                    setCurrentFlow(data.initialFlow);
+                    setNodes(data.initialFlow.nodes || []);
+                    setEdges(data.initialFlow.edges || []);
+                    setSelectedNodeId(null);
+                } else {
+                    handleCreateNewFlow();
+                }
+            });
+        }
+    }, [projectId]);
+
+    useEffect(() => {
+        if (isClient && projectId) {
+            loadInitialData();
+        }
+    }, [isClient, projectId, loadInitialData]);
+
+    const loadFlowsList = useCallback(async () => {
+        if (projectId) {
+           const fetchedFlows = await getFlowsForProject(projectId);
+           setFlows(fetchedFlows);
+        }
+   }, [projectId]);
+
+    const handleSelectFlow = useCallback(async (flowId: string) => {
+        startLoadingTransition(async () => {
+            const fullFlow = await getFlowById(flowId);
+            if (fullFlow) {
+                setCurrentFlow(fullFlow);
+                setNodes(fullFlow.nodes || []);
+                setEdges(fullFlow.edges || []);
+                setSelectedNodeId(null);
+            }
+        });
+    }, []);
     
     const handleDeleteFlow = async (flowId: string) => {
         const result = await deleteFlow(flowId);
@@ -667,7 +682,7 @@ export default function FlowBuilderPage() {
             toast({ title: 'Error', description: result.error, variant: 'destructive' });
         } else {
             toast({ title: 'Success', description: result.message });
-            loadFlows();
+            loadInitialData();
         }
     };
 
@@ -725,10 +740,9 @@ export default function FlowBuilderPage() {
             } else {
                 toast({ title: "Flow Saved!", description: result.message });
                 if (result.flowId && !currentFlow?._id) {
-                    const newFlow = await getFlowById(result.flowId);
-                    if(newFlow) setCurrentFlow(newFlow);
+                    await handleSelectFlow(result.flowId);
                 }
-                loadFlows();
+                loadFlowsList();
             }
         });
     };
@@ -858,6 +872,7 @@ export default function FlowBuilderPage() {
                     <div>
                          <Input 
                             id="flow-name-input"
+                            key={currentFlow?._id.toString() || 'new-flow'}
                             defaultValue={currentFlow?.name || 'New Flow'} 
                             className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-3xl font-bold font-headline"
                             disabled={!isClient}
@@ -891,7 +906,7 @@ export default function FlowBuilderPage() {
                             </CardHeader>
                             <CardContent className="p-2 pt-0">
                                 <ScrollArea className="h-32">
-                                    {isLoadingFlows ? <Skeleton className="h-full w-full"/> : 
+                                    {isLoading && flows.length === 0 ? <Skeleton className="h-full w-full"/> : 
                                         flows.map(flow => (
                                             <div key={flow._id.toString()} className="flex items-center group">
                                                 <Button 
@@ -944,35 +959,43 @@ export default function FlowBuilderPage() {
                                 className="relative w-full h-full"
                                 style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}
                             >
-                                {nodes.map(node => (
-                                    <NodeComponent 
-                                        key={node.id} 
-                                        node={node}
-                                        onSelectNode={setSelectedNodeId}
-                                        isSelected={selectedNodeId === node.id}
-                                        onNodeMouseDown={handleNodeMouseDown}
-                                        onHandleClick={handleHandleClick}
-                                    />
-                                ))}
-                                <svg 
-                                    className="absolute top-0 left-0 pointer-events-none"
-                                    style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}
-                                >
-                                    {edges.map(edge => {
-                                        const sourceNode = nodes.find(n => n.id === edge.source);
-                                        const targetNode = nodes.find(n => n.id === edge.target);
-                                        if(!sourceNode || !targetNode) return null;
-                                        
-                                        const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle);
-                                        const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle);
-                                        if (!sourcePos || !targetPos) return null;
+                                {isLoading ? (
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
+                                    </div>
+                                ) : (
+                                    <>
+                                        {nodes.map(node => (
+                                            <NodeComponent 
+                                                key={node.id} 
+                                                node={node}
+                                                onSelectNode={setSelectedNodeId}
+                                                isSelected={selectedNodeId === node.id}
+                                                onNodeMouseDown={handleNodeMouseDown}
+                                                onHandleClick={handleHandleClick}
+                                            />
+                                        ))}
+                                        <svg 
+                                            className="absolute top-0 left-0 pointer-events-none"
+                                            style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}
+                                        >
+                                            {edges.map(edge => {
+                                                const sourceNode = nodes.find(n => n.id === edge.source);
+                                                const targetNode = nodes.find(n => n.id === edge.target);
+                                                if(!sourceNode || !targetNode) return null;
+                                                
+                                                const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle);
+                                                const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle);
+                                                if (!sourcePos || !targetPos) return null;
 
-                                        return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
-                                    })}
-                                    {connecting && (
-                                        <ConnectionLine from={connecting.startPos} to={mousePosition} />
-                                    )}
-                                </svg>
+                                                return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
+                                            })}
+                                            {connecting && (
+                                                <ConnectionLine from={connecting.startPos} to={mousePosition} />
+                                            )}
+                                        </svg>
+                                    </>
+                                )}
                             </div>
                         </Card>
                     </div>
