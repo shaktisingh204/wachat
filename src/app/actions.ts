@@ -1,5 +1,6 @@
 
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -16,6 +17,19 @@ import { translateText } from '@/ai/flows/translate-text';
 import { processSingleWebhook } from '@/lib/webhook-processor';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { intelligentTranslate } from '@/ai/flows/intelligent-translate-flow';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { hashPassword, comparePassword, createSessionToken, verifySessionToken } from '@/lib/auth';
+
+// --- User Management Types ---
+export type User = {
+    _id: ObjectId;
+    name: string;
+    email: string;
+    password?: string;
+    createdAt: Date;
+};
+
 
 type MetaPhoneNumber = {
     id: string;
@@ -2716,4 +2730,129 @@ export async function getFlowBuilderPageData(
     }
 
     return { flows, initialFlow };
+}
+
+
+// --- USER AUTHENTICATION ACTIONS ---
+type AuthState = {
+  message?: string | null;
+  error?: string | null;
+};
+
+export async function handleLogin(prevState: AuthState, formData: FormData): Promise<AuthState> {
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    if (!email || !password) {
+        return { error: 'Email and password are required.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection<User>('users').findOne({ email });
+
+        if (!user || !user.password) {
+            return { error: 'Invalid email or password.' };
+        }
+
+        const isValidPassword = await comparePassword(password, user.password);
+
+        if (!isValidPassword) {
+            return { error: 'Invalid email or password.' };
+        }
+
+        const token = createSessionToken({ userId: user._id.toString(), email: user.email });
+
+        cookies().set('session', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        });
+
+    } catch (e: any) {
+        console.error("Login failed:", e);
+        return { error: 'An unexpected error occurred.' };
+    }
+    
+    redirect('/dashboard');
+}
+
+export async function handleSignup(prevState: AuthState, formData: FormData): Promise<AuthState> {
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    if (!name || !email || !password) {
+        return { error: 'All fields are required.' };
+    }
+    if (password.length < 6) {
+        return { error: 'Password must be at least 6 characters long.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const existingUser = await db.collection('users').findOne({ email });
+
+        if (existingUser) {
+            return { error: 'A user with this email already exists.' };
+        }
+
+        const hashedPassword = await hashPassword(password);
+
+        const newUser: Omit<User, '_id'> = {
+            name,
+            email,
+            password: hashedPassword,
+            createdAt: new Date(),
+        };
+
+        const result = await db.collection('users').insertOne(newUser);
+        const userId = result.insertedId;
+
+        const token = createSessionToken({ userId: userId.toString(), email });
+
+        cookies().set('session', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax',
+            path: '/',
+            expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
+        });
+
+    } catch (e: any) {
+        console.error("Signup failed:", e);
+        return { error: 'An unexpected error occurred during signup.' };
+    }
+
+    redirect('/dashboard');
+}
+
+export async function getSession(): Promise<{ user: Omit<User, 'password'> } | null> {
+  const sessionCookie = cookies().get('session')?.value;
+  if (!sessionCookie) return null;
+
+  const session = verifySessionToken(sessionCookie);
+  if (!session) return null;
+
+  try {
+    const { db } = await connectToDatabase();
+    const user = await db.collection<User>('users').findOne(
+      { _id: new ObjectId(session.userId) },
+      { projection: { password: 0 } } // Exclude password hash from result
+    );
+
+    if (!user) return null;
+
+    return { user: JSON.parse(JSON.stringify(user)) };
+  } catch (e) {
+    console.error("Failed to fetch session user from DB:", e);
+    return null;
+  }
+}
+
+export async function handleLogout() {
+  cookies().set('session', '', { expires: new Date(0), path: '/' });
+  redirect('/login');
 }

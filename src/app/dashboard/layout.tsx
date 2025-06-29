@@ -43,27 +43,16 @@ import {
   Webhook,
   History,
   Bell,
+  LogOut,
 } from 'lucide-react';
 import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-
-const menuItems = [
-  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
-  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare },
-  { href: '/dashboard/contacts', label: 'Contacts', icon: Users },
-  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send },
-  { href: '/dashboard/templates', label: 'Templates', icon: FileText },
-  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitBranch },
-  { href: '/dashboard/auto-reply', label: 'Auto-Reply', icon: Bot },
-  { href: '/dashboard/numbers', label: 'Numbers', icon: Phone },
-  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
-  { href: '/dashboard/notifications', label: 'Notifications', icon: History },
-];
+import { getSession, handleLogout } from '@/app/actions';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string } | null>(null);
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
   const [isClient, setIsClient] = React.useState(false);
 
@@ -71,6 +60,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     setIsClient(true);
     const name = localStorage.getItem('activeProjectName');
     setActiveProjectName(name || 'No Project Selected');
+
+    getSession().then(session => {
+        if(session?.user) {
+            setSessionUser(session.user);
+        }
+    })
+
   }, []);
 
   const isChatPage = pathname.startsWith('/dashboard/chat');
@@ -121,21 +117,26 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <button>
                       <Avatar className="size-7">
                         <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                        <AvatarFallback>U</AvatarFallback>
+                        <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                       </Avatar>
                       <span className="sr-only">User Account</span>
                     </button>
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent side="right" align="start">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>Profile</DropdownMenuItem>
                   <DropdownMenuItem>Billing</DropdownMenuItem>
                   <DropdownMenuItem>Settings</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/">Logout</Link>
+                    <form action={handleLogout} className="w-full">
+                        <button type="submit" className="flex items-center w-full">
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span>Logout</span>
+                        </button>
+                    </form>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -162,20 +163,25 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <Button variant="ghost" className="flex items-center gap-2">
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                    <AvatarFallback>U</AvatarFallback>
+                    <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                   </Avatar>
-                  <span className="hidden md:inline">User Name</span>
+                  <span className="hidden md:inline">{sessionUser?.name || 'User'}</span>
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Profile</DropdownMenuItem>
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Link href="/">Logout</Link>
+                    <form action={handleLogout} className="w-full">
+                        <button type="submit" className="flex items-center w-full">
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span>Logout</span>
+                        </button>
+                    </form>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -209,3 +215,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </SidebarProvider>
   );
 }
+
+const menuItems = [
+  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
+  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare },
+  { href: '/dashboard/contacts', label: 'Contacts', icon: Users },
+  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send },
+  { href: '/dashboard/templates', label: 'Templates', icon: FileText },
+  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitBranch },
+  { href: '/dashboard/auto-reply', label: 'Auto-Reply', icon: Bot },
+  { href: '/dashboard/numbers', label: 'Numbers', icon: Phone },
+  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
+  { href: '/dashboard/notifications', label: 'Notifications', icon: History },
+];
