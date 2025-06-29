@@ -258,7 +258,8 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                         messaging_product: 'whatsapp',
                         recipient_type: 'individual',
                         to: contact.waId,
-                        typing: true,
+                        type: 'typing',
+                        status: 'start'
                     };
                     axios.post(
                         `https://graph.facebook.com/v22.0/${contact.phoneNumberId}/messages`, 
@@ -273,19 +274,33 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             if (delayMs > 0) {
                 await new Promise(resolve => setTimeout(resolve, delayMs));
             }
-            
-            // Per Meta docs, the indicator automatically disappears after a few seconds or when a message is sent.
-            // No need to explicitly stop it.
 
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
         }
 
-        case 'input':
-            await sendFlowMessage(db, project, contact, contact.phoneNumberId, node.data.text, contact.activeFlow.variables);
-            // We are now waiting for user input. The flow will be resumed by the next webhook event.
-            return; 
+        case 'input': {
+            if (userInput !== undefined) {
+                // Input was provided directly (e.g., from a button click).
+                // Save it and move on without asking the question again.
+                console.log(`[Flow Engine] Input node ${node.id} received direct input: "${userInput}". Saving to variable.`);
+                if (node.data.variableToSave) {
+                    contact.activeFlow.variables[node.data.variableToSave] = userInput;
+                }
+                edge = flow.edges.find(e => e.source === nodeId);
+                if (edge) {
+                    nextNodeId = edge.target;
+                }
+            } else {
+                // No direct input, so ask the question and wait.
+                console.log(`[Flow Engine] Input node ${node.id} is asking question and waiting for user response.`);
+                await sendFlowMessage(db, project, contact, contact.phoneNumberId, node.data.text, contact.activeFlow.variables);
+                // We are now waiting for user input. The flow will be resumed by the next webhook event.
+                return; 
+            }
+            break;
+        }
 
         case 'condition': {
             let valueToCheck: string;
@@ -598,22 +613,21 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
             const [endHour, endMinute] = endTime.split(':').map(Number);
             const endTimeInMinutes = endHour * 60 + endMinute;
 
-            const isDayMatch = days.includes(currentDay);
-            let isTimeMatch = false;
+            let isInactive = false;
 
             if (startTimeInMinutes > endTimeInMinutes) {
                 // Overnight case (e.g., 18:00 to 09:00)
                 if (currentTime >= startTimeInMinutes || currentTime < endTimeInMinutes) {
-                    isTimeMatch = true;
+                    isInactive = true;
                 }
             } else {
                 // Same day case (e.g., 09:00 to 18:00)
-                if (currentTime >= startTimeInMinutes && currentTime < endTimeInMinutes) {
-                    isTimeMatch = true;
+                if (currentTime < startTimeInMinutes || currentTime >= endTimeInMinutes) {
+                    isInactive = true;
                 }
             }
 
-            if (isDayMatch && !isTimeMatch) { // NOTE: The logic is inverted to reply when *inactive*
+            if (days.includes(currentDay) && isInactive) {
                 replyMessage = message;
             }
         } catch (e) {
