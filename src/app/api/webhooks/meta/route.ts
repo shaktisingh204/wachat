@@ -53,8 +53,8 @@ export async function GET(request: NextRequest) {
 
 /**
  * Handles incoming webhook event notifications from Meta.
- * It processes incoming messages instantly, queues status updates, and
- * processes all other events instantly.
+ * It queues high-volume message events for batch processing and
+ * handles low-volume events immediately.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -73,31 +73,20 @@ export async function POST(request: NextRequest) {
     const change = payload?.entry?.[0]?.changes?.[0];
     const field = change?.field;
 
-    // For 'messages' events, we must be selective.
+    // For high-volume 'messages' events (incoming & statuses), always queue them.
     if (field === 'messages') {
-        // Incoming messages from users are processed immediately for real-time chat.
-        if (change.value?.messages) {
-            processSingleWebhook(db, payload).catch(err => {
-                console.error(`Immediate incoming message processing failed:`, err);
-            });
-            // Respond immediately to Meta to acknowledge receipt.
-            return NextResponse.json({ status: 'processing_initiated' }, { status: 200 });
-        }
-        
-        // High-volume status updates are queued for background processing.
-        // This also catches any other 'messages' field types we don't process instantly.
         await db.collection('webhook_queue').insertOne({
             payload: payload,
             status: 'PENDING',
             createdAt: new Date(),
         });
         
-        // Respond to Meta to acknowledge receipt.
+        // Respond to Meta to acknowledge receipt. Use 202 Accepted as we're processing async.
         return NextResponse.json({ status: 'queued' }, { status: 202 });
 
     } else {
-        // For all other event types (template updates, account status, etc.),
-        // process them immediately. This is safe for low-volume events.
+        // For all other low-volume event types (template updates, account status, etc.),
+        // process them immediately. This is safe and provides faster feedback.
         processSingleWebhook(db, payload).catch(err => {
             console.error(`Immediate webhook processing failed for field '${field}':`, err);
         });
