@@ -5,7 +5,7 @@
 import { useEffect, useState, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { getContactsPageData } from '@/app/actions';
+import { getContactsPageData, getProjects } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact } from '@/app/actions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -38,6 +38,13 @@ export default function ContactsPage() {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (!storedProjectId) {
             setLoading(false);
+            getProjects().then(projects => {
+                if (projects && projects.length > 0) {
+                    router.push('/dashboard');
+                } else {
+                    router.push('/dashboard/setup');
+                }
+            });
             return;
         }
 
@@ -50,7 +57,7 @@ export default function ContactsPage() {
         setSelectedPhoneNumberId(data.selectedPhoneNumberId);
 
         setLoading(false);
-    }, []);
+    }, [router]);
 
     useEffect(() => {
         setIsClient(true);
@@ -79,7 +86,7 @@ export default function ContactsPage() {
         router.push(`/dashboard/chat?contactId=${contact._id.toString()}&phoneId=${contact.phoneNumberId}`);
     };
 
-    if (!isClient || loading) {
+    if (!isClient || (loading && !project)) {
         return (
             <div className="flex flex-col gap-8">
                 <div>

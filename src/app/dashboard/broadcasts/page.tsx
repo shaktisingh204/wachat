@@ -3,7 +3,8 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, getProjectForBroadcast, getBroadcasts, handleStopBroadcast, handleSyncTemplates, handleRunCron } from '@/app/actions';
+import { getTemplates, getProjectForBroadcast, getBroadcasts, handleStopBroadcast, handleSyncTemplates, handleRunCron, getProjects } from '@/app/actions';
+import { useRouter } from 'next/navigation';
 import type { Project, Template } from '@/app/dashboard/page';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -205,6 +206,7 @@ export default function BroadcastPage() {
   const [isSyncingTemplates, startTemplatesSyncTransition] = useTransition();
   const [isRunningCron, startCronRunTransition] = useTransition();
   const { toast } = useToast();
+  const router = useRouter();
   const [sendRateData, setSendRateData] = useState<Record<string, RateData>>({});
   
   const [currentPage, setCurrentPage] = useState(1);
@@ -270,9 +272,20 @@ export default function BroadcastPage() {
 
   useEffect(() => {
     if (isClient) {
-      setActiveProjectId(localStorage.getItem('activeProjectId'));
+      const storedProjectId = localStorage.getItem('activeProjectId');
+      if (storedProjectId) {
+        setActiveProjectId(storedProjectId);
+      } else {
+        getProjects().then(projects => {
+          if (projects && projects.length > 0) {
+            router.push('/dashboard');
+          } else {
+            router.push('/dashboard/setup');
+          }
+        });
+      }
     }
-  }, [isClient]);
+  }, [isClient, router]);
 
   useEffect(() => {
     if (activeProjectId) {
@@ -325,7 +338,7 @@ export default function BroadcastPage() {
     });
   }, [toast, activeProjectId, currentPage, fetchData]);
 
-  if (!isClient) {
+  if (!isClient || !activeProjectId) {
     return (
       <div className="flex flex-col gap-8">
         <div className="space-y-2">

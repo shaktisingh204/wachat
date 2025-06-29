@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getDashboardStats } from '@/app/actions';
+import { getDashboardStats, getProjects } from '@/app/actions';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessagesSquare, CheckCircle, XCircle, Send, AlertCircle, CheckCheck, Eye } from 'lucide-react';
@@ -37,6 +38,7 @@ export default function DashboardOverviewPage() {
   const [projectId, setProjectId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsClient(true);
@@ -46,21 +48,27 @@ export default function DashboardOverviewPage() {
     if (isClient) {
       document.title = "Dashboard Overview | Wachat";
       const storedProjectId = localStorage.getItem('activeProjectId');
-      setProjectId(storedProjectId);
-
+      
       if (storedProjectId) {
+        setProjectId(storedProjectId);
         getDashboardStats(storedProjectId).then(data => {
           setStats(data);
         }).finally(() => {
           setLoading(false);
         });
       } else {
-        setLoading(false);
+        getProjects().then(projects => {
+          if (projects && projects.length > 0) {
+            router.push('/dashboard');
+          } else {
+            router.push('/dashboard/setup');
+          }
+        });
       }
     }
-  }, [isClient]);
+  }, [isClient, router]);
 
-  if (!isClient || loading) {
+  if (loading || !projectId) {
     return (
         <div className="flex flex-col gap-8">
           <div>
@@ -84,24 +92,6 @@ export default function DashboardOverviewPage() {
                    <Skeleton className="min-h-[300px] w-full" />
                 </CardContent>
             </Card>
-        </div>
-    );
-  }
-
-  if (!projectId) {
-    return (
-        <div className="flex flex-col gap-8">
-             <div>
-                <h1 className="text-3xl font-bold font-headline">Project Overview</h1>
-                <p className="text-muted-foreground">Your message analytics for the selected project.</p>
-            </div>
-             <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>
-                    Please select a project from the main dashboard page to see its analytics.
-                </AlertDescription>
-            </Alert>
         </div>
     );
   }

@@ -55,13 +55,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const router = useRouter();
   const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string } | null>(null);
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
+  const [activeProjectId, setActiveProjectId] = React.useState<string | null>(null);
   const [isClient, setIsClient] = React.useState(false);
   const [isVerifying, setIsVerifying] = React.useState(true);
 
   React.useEffect(() => {
     setIsClient(true);
+    const id = localStorage.getItem('activeProjectId');
     const name = localStorage.getItem('activeProjectName');
-    setActiveProjectName(name || 'No Project Selected');
+    setActiveProjectId(id);
+    setActiveProjectName(name || (id ? 'Loading project...' : 'No Project Selected'));
 
     getSession().then(session => {
         if(session?.user) {
@@ -103,8 +106,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <SidebarMenu>
             {menuItems.map((item) => (
               <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                  <Link href={item.href}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname.startsWith(item.href)}
+                  tooltip={item.label}
+                  disabled={!activeProjectId}
+                >
+                  <Link href={!activeProjectId ? '#' : item.href} aria-disabled={!activeProjectId}>
                     <item.icon />
                     <span>{item.label}</span>
                   </Link>

@@ -3,8 +3,8 @@
 'use client';
 
 import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { getContactsForProject, getConversation, markConversationAsRead, findOrCreateContact, getInitialChatData } from '@/app/actions';
+import { useSearchParams, useRouter } from 'next/navigation';
+import { getContactsForProject, getConversation, markConversationAsRead, findOrCreateContact, getInitialChatData, getProjects } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, AnyMessage } from '@/app/actions';
 
@@ -22,6 +22,7 @@ const CONTACTS_PER_PAGE = 30;
 
 export function ChatClient() {
     const searchParams = useSearchParams();
+    const router = useRouter();
     const initialContactId = useMemo(() => searchParams.get('contactId'), [searchParams]);
     const initialPhoneId = useMemo(() => searchParams.get('phoneId'), [searchParams]);
     
@@ -51,6 +52,13 @@ export function ChatClient() {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (!storedProjectId) {
             setLoading(false);
+             getProjects().then(projects => {
+                if (projects && projects.length > 0) {
+                    router.push('/dashboard');
+                } else {
+                    router.push('/dashboard/setup');
+                }
+            });
             return;
         }
 
@@ -72,11 +80,12 @@ export function ChatClient() {
         setContactPage(1); // Reset page number on new phone number selection
 
         setLoading(false);
-    }, [initialContactId, initialPhoneId, project]);
+    }, [initialContactId, initialPhoneId, project, router]);
 
     useEffect(() => {
         setIsClient(true);
         fetchInitialData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // Only runs once on mount
 
     const handlePhoneNumberChange = (phoneId: string) => {
