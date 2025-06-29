@@ -79,7 +79,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             getProjects().then(projects => {
               const count = projects.length;
               setProjectCount(count);
-              if (count === 0 && pathname !== '/dashboard' && pathname !== '/dashboard/setup') {
+              if (count === 0 && pathname !== '/dashboard' && pathname !== '/dashboard/setup' && pathname !== '/dashboard/profile') {
                   router.push('/dashboard/setup');
               }
             });
@@ -163,9 +163,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <DropdownMenuContent side="right" align="start">
                   <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Profile</DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
                   <DropdownMenuItem>Billing</DropdownMenuItem>
-                  <DropdownMenuItem>Settings</DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/dashboard/settings">Settings</Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <form action={handleLogout} className="w-full">
@@ -209,8 +209,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/dashboard/settings">Settings</Link></DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                     <form action={handleLogout} className="w-full">

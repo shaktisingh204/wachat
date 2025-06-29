@@ -5,6 +5,7 @@
 
 
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -2814,10 +2815,10 @@ export async function getSession(): Promise<{ user: Omit<User, 'password'> } | n
   const sessionCookie = cookies().get('session')?.value;
   if (!sessionCookie) return null;
 
-  const session = verifySessionToken(sessionCookie);
-  if (!session) return null;
-
   try {
+    const session = verifySessionToken(sessionCookie);
+    if (!session) return null;
+    
     const { db } = await connectToDatabase();
     const user = await db.collection<User>('users').findOne(
       { _id: new ObjectId(session.userId) },
@@ -2933,5 +2934,88 @@ export async function handleFacebookSetup(shortLivedToken: string, wabaIds: stri
     } catch (e: any) {
         console.error('Facebook Setup Failed:', e);
         return { error: getErrorMessage(e) };
+    }
+}
+
+type UpdateProfileState = {
+  message?: string | null;
+  error?: string | null;
+};
+
+export async function handleUpdateUserProfile(prevState: UpdateProfileState, formData: FormData): Promise<UpdateProfileState> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'You must be logged in to update your profile.' };
+    }
+
+    const name = formData.get('name') as string;
+    if (!name || name.trim().length < 2) {
+        return { error: 'Name must be at least 2 characters long.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $set: { name: name.trim() } }
+        );
+
+        if (result.matchedCount === 0) {
+            return { error: 'User not found.' };
+        }
+        
+        revalidatePath('/dashboard/profile');
+        revalidatePath('/dashboard', 'layout'); // Revalidate layout to update name in header
+
+        return { message: 'Profile updated successfully!' };
+    } catch (e: any) {
+        return { error: 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleChangePassword(prevState: UpdateProfileState, formData: FormData): Promise<UpdateProfileState> {
+     const session = await getSession();
+    if (!session?.user) {
+        return { error: 'You must be logged in to change your password.' };
+    }
+
+    const currentPassword = formData.get('currentPassword') as string;
+    const newPassword = formData.get('newPassword') as string;
+    const confirmPassword = formData.get('confirmPassword') as string;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        return { error: 'All fields are required.' };
+    }
+    if (newPassword !== confirmPassword) {
+        return { error: 'New passwords do not match.' };
+    }
+    if (newPassword.length < 6) {
+        return { error: 'New password must be at least 6 characters long.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
+
+        if (!user || !user.password) {
+            return { error: 'User not found or password not set.' };
+        }
+
+        const isMatch = await comparePassword(currentPassword, user.password);
+        if (!isMatch) {
+            return { error: 'Incorrect current password.' };
+        }
+
+        const hashedNewPassword = await hashPassword(newPassword);
+
+        await db.collection('users').updateOne(
+            { _id: user._id },
+            { $set: { password: hashedNewPassword } }
+        );
+
+        return { message: 'Password changed successfully!' };
+
+    } catch (e: any) {
+        return { error: 'An unexpected error occurred.' };
     }
 }
