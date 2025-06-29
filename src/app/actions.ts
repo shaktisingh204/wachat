@@ -1658,6 +1658,26 @@ export async function handleClearProcessedLogs(): Promise<{ message?: string; er
     }
 }
 
+export async function handleClearOldQueueItems(): Promise<{ message?: string; error?: string; deletedCount?: number }> {
+    try {
+        const { db } = await connectToDatabase();
+        
+        const sixHoursAgo = new Date();
+        sixHoursAgo.setHours(sixHoursAgo.getHours() - 6);
+
+        const result = await db.collection('webhook_queue').deleteMany({
+            status: { $in: ['COMPLETED', 'FAILED'] },
+            createdAt: { $lt: sixHoursAgo }
+        });
+
+        return { message: `Successfully cleared ${result.deletedCount} old queue item(s) (older than 6 hours).`, deletedCount: result.deletedCount };
+    } catch (e: any) {
+        console.error('Failed to clear old queue items:', e);
+        return { error: e.message || 'An unexpected error occurred while clearing the queue.' };
+    }
+}
+
+
 export async function getNotifications(activeProjectId?: string | null): Promise<WithId<NotificationWithProject>[]> {
     try {
         const { db } = await connectToDatabase();

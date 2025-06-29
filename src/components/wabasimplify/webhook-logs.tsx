@@ -4,7 +4,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { getWebhookLogs, handleClearProcessedLogs, handleReprocessWebhook, handleRequeueAllWebhookLogs, getWebhookLogPayload } from '@/app/actions';
+import { getWebhookLogs, handleClearProcessedLogs, handleReprocessWebhook, handleRequeueAllWebhookLogs, getWebhookLogPayload, handleClearOldQueueItems } from '@/app/actions';
 import type { WebhookLogListItem } from '@/app/actions';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -53,6 +53,7 @@ export function WebhookLogs() {
     const [loading, setLoading] = useState(true);
     const [isRefreshing, startRefreshTransition] = useTransition();
     const [isClearing, startClearingTransition] = useTransition();
+    const [isClearingOld, startClearingOldTransition] = useTransition();
     const [isRequeueingAll, startRequeueingAllTransition] = useTransition();
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
@@ -100,6 +101,17 @@ export function WebhookLogs() {
         });
     };
     
+    const handleClearOldQueue = () => {
+        startClearingOldTransition(async () => {
+            const result = await handleClearOldQueueItems();
+            if (result.error) {
+                toast({ title: "Error", description: result.error, variant: "destructive" });
+            } else {
+                toast({ title: "Success", description: result.message });
+            }
+        });
+    };
+
     const handleRequeueAll = () => {
         startRequeueingAllTransition(async () => {
             toast({ title: 'Queueing All Logs...', description: 'This may take a moment. The cron job will process them in the background.' });
@@ -167,6 +179,10 @@ export function WebhookLogs() {
                         <Button onClick={handleRequeueAll} disabled={isRequeueingAll || isRefreshing} variant="outline" size="sm">
                             {isRequeueingAll ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <ServerCog className="mr-2 h-4 w-4" />}
                             Re-process All
+                        </Button>
+                         <Button onClick={handleClearOldQueue} disabled={isClearingOld || isRefreshing} variant="outline" size="sm">
+                            {isClearingOld ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                            Clear Old Queue
                         </Button>
                         <Button onClick={handleClearLogs} disabled={isClearing || isRefreshing} variant="outline" size="sm">
                             {isClearing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
