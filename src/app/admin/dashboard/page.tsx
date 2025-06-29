@@ -1,6 +1,6 @@
 
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Briefcase, CheckSquare, Server, AlertTriangle } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getAllProjectsForAdmin } from '@/app/actions';
@@ -15,13 +15,29 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { ProjectSearch } from '@/components/wabasimplify/project-search';
+import { AdminDeleteProjectButton } from '@/components/wabasimplify/admin-delete-project-button';
 
 export const metadata: Metadata = {
   title: 'Admin Dashboard | Wachat',
 };
 
-export default async function AdminDashboardPage() {
-  const projects: WithId<Project>[] = await getAllProjectsForAdmin();
+const PROJECTS_PER_PAGE = 10;
+
+export default async function AdminDashboardPage({
+    searchParams,
+}: {
+    searchParams?: {
+        query?: string;
+        page?: string;
+    };
+}) {
+  const query = searchParams?.query || '';
+  const currentPage = Number(searchParams?.page) || 1;
+  const { projects, total } = await getAllProjectsForAdmin(query, currentPage, PROJECTS_PER_PAGE);
+  const totalPages = Math.ceil(total / PROJECTS_PER_PAGE);
 
   return (
     <div className="flex flex-col gap-8">
@@ -37,7 +53,7 @@ export default async function AdminDashboardPage() {
             <Briefcase className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{projects.length}</div>
+            <div className="text-2xl font-bold">{total.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">Total projects created on the platform.</p>
           </CardContent>
         </Card>
@@ -76,38 +92,69 @@ export default async function AdminDashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle>All Projects</CardTitle>
+          <CardDescription>Total projects found: {total.toLocaleString()}</CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Project Name</TableHead>
-                <TableHead>WABA ID</TableHead>
-                <TableHead>Phone Numbers</TableHead>
-                <TableHead>Created At</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {projects.length > 0 ? (
-                projects.map((project) => (
-                  <TableRow key={project._id.toString()}>
-                    <TableCell className="font-medium">{project.name}</TableCell>
-                    <TableCell>{project.wabaId}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{project.phoneNumbers?.length || 0}</Badge>
-                    </TableCell>
-                    <TableCell>{new Date(project.createdAt).toLocaleDateString()}</TableCell>
-                  </TableRow>
-                ))
-              ) : (
+          <div className="mb-4">
+            <ProjectSearch placeholder="Search projects..." />
+          </div>
+          <div className="border rounded-md">
+            <Table>
+                <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={4} className="h-24 text-center">
-                    No projects found.
-                  </TableCell>
+                    <TableHead>Project Name</TableHead>
+                    <TableHead>WABA ID</TableHead>
+                    <TableHead>Phone Numbers</TableHead>
+                    <TableHead>Created At</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                </TableHeader>
+                <TableBody>
+                {projects.length > 0 ? (
+                    projects.map((project) => (
+                    <TableRow key={project._id.toString()}>
+                        <TableCell className="font-medium">{project.name}</TableCell>
+                        <TableCell>{project.wabaId}</TableCell>
+                        <TableCell>
+                        <Badge variant="outline">{project.phoneNumbers?.length || 0}</Badge>
+                        </TableCell>
+                        <TableCell>{new Date(project.createdAt).toLocaleDateString()}</TableCell>
+                        <TableCell className="text-right">
+                           <AdminDeleteProjectButton projectId={project._id.toString()} projectName={project.name} />
+                        </TableCell>
+                    </TableRow>
+                    ))
+                ) : (
+                    <TableRow>
+                    <TableCell colSpan={5} className="h-24 text-center">
+                        No projects found.
+                    </TableCell>
+                    </TableRow>
+                )}
+                </TableBody>
+            </Table>
+          </div>
+           <div className="flex items-center justify-end space-x-2 py-4">
+              <span className="text-sm text-muted-foreground">
+                  Page {currentPage} of {totalPages > 0 ? totalPages : 1}
+              </span>
+              <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  disabled={currentPage <= 1}
+              >
+                  <Link href={`/admin/dashboard?page=${currentPage - 1}${query ? `&query=${query}` : ''}`}>Previous</Link>
+              </Button>
+              <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  disabled={currentPage >= totalPages}
+              >
+                  <Link href={`/admin/dashboard?page=${currentPage + 1}${query ? `&query=${query}` : ''}`}>Next</Link>
+              </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

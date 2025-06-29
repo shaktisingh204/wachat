@@ -8,6 +8,7 @@
 
 
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -260,20 +261,28 @@ export async function getProjects(query?: string): Promise<WithId<Project>[]> {
     }
 }
 
-export async function getAllProjectsForAdmin(query?: string): Promise<WithId<Project>[]> {
-    // This is an admin-level function and should be protected by route middleware.
-    // It fetches all projects regardless of user ID.
+export async function getAllProjectsForAdmin(
+    query?: string,
+    page: number = 1,
+    limit: number = 10
+): Promise<{ projects: WithId<Project>[], total: number }> {
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<Project> = {};
         if (query) {
             filter.name = { $regex: query, $options: 'i' };
         }
-        const projects = await db.collection('projects').find(filter).sort({ name: 1 }).toArray();
-        return JSON.parse(JSON.stringify(projects));
+        const skip = (page - 1) * limit;
+
+        const [projects, total] = await Promise.all([
+            db.collection('projects').find(filter).sort({ name: 1 }).skip(skip).limit(limit).toArray(),
+            db.collection('projects').countDocuments(filter)
+        ]);
+        
+        return { projects: JSON.parse(JSON.stringify(projects)), total };
     } catch (error) {
         console.error("Failed to fetch all projects for admin:", error);
-        return [];
+        return { projects: [], total: 0 };
     }
 }
 
@@ -3101,5 +3110,44 @@ export async function handleCreateProject(
     } catch (e: any) {
         console.error('Manual project creation failed:', e);
         return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleDeleteProject(
+  prevState: { message?: string | null; error?: string | null; },
+  formData: FormData
+): Promise<{ message?: string | null; error?: string | null; }> {
+    const projectId = formData.get('projectId') as string;
+
+    if (!projectId || !ObjectId.isValid(projectId)) {
+        return { error: 'Invalid Project ID provided.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const projectObjectId = new ObjectId(projectId);
+
+        const broadcastsToDelete = await db.collection('broadcasts').find({ projectId: projectObjectId }, { projection: { _id: 1 } }).toArray();
+        const broadcastIdsToDelete = broadcastsToDelete.map(b => b._id);
+        
+        await Promise.all([
+            db.collection('broadcast_contacts').deleteMany({ broadcastId: { $in: broadcastIdsToDelete } }),
+            db.collection('broadcasts').deleteMany({ projectId: projectObjectId }),
+            db.collection('templates').deleteMany({ projectId: projectObjectId }),
+            db.collection('notifications').deleteMany({ projectId: projectObjectId }),
+            db.collection('contacts').deleteMany({ projectId: projectObjectId }),
+            db.collection('incoming_messages').deleteMany({ projectId: projectObjectId }),
+            db.collection('outgoing_messages').deleteMany({ projectId: projectObjectId }),
+            db.collection('flows').deleteMany({ projectId: projectObjectId }),
+        ]);
+
+        await db.collection('projects').deleteOne({ _id: projectObjectId });
+
+        revalidatePath('/admin/dashboard');
+
+        return { message: 'Project and all associated data have been successfully deleted.' };
+    } catch (e: any) {
+        console.error('Failed to delete project:', e);
+        return { error: e.message || 'An unexpected error occurred while deleting the project.' };
     }
 }
