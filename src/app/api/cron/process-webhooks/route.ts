@@ -73,6 +73,7 @@ export async function GET(request: NextRequest) {
 
             for (const item of batch) {
                 const change = item.payload?.entry?.[0]?.changes?.[0];
+                const wabaId = item.payload?.entry?.[0]?.id;
                 if (!change || !change.value) continue;
 
                 if (change.field === 'messages') {
@@ -81,6 +82,7 @@ export async function GET(request: NextRequest) {
                     }
                     if (change.value.messages) {
                         incomingMessages.push({
+                            wabaId: wabaId,
                             messages: change.value.messages,
                             contacts: change.value.contacts,
                             metadata: change.value.metadata,

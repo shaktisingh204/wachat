@@ -2,7 +2,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { Db, ObjectId, WithId } from 'mongodb';
+import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
 import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelligent-translate-flow';
@@ -876,14 +876,28 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
 
         for (const group of messageGroups) {
             const businessPhoneNumberId = group.metadata.phone_number_id;
+            const wabaId = group.wabaId;
+
             let project = projectsCache.get(businessPhoneNumberId);
             if (!project) {
-                project = await db.collection<Project>('projects').findOne({ 'phoneNumbers.id': businessPhoneNumberId });
-                if (project) projectsCache.set(businessPhoneNumberId, project);
+                 const projectFilter: Filter<Project> = { $or: [{ 'phoneNumbers.id': businessPhoneNumberId }] };
+                 if (wabaId) {
+                    projectFilter.$or.push({ wabaId: wabaId });
+                 }
+                 project = await db.collection<Project>('projects').findOne(projectFilter);
+
+                if (!project && wabaId) {
+                    console.log(`Project not found, attempting to auto-create for WABA ID: ${wabaId}`);
+                    project = await findOrCreateProjectByWabaId(db, wabaId);
+                }
+
+                if (project) {
+                    projectsCache.set(businessPhoneNumberId, project);
+                }
             }
 
             if (!project) {
-                console.error(`No project found for phone number ID ${businessPhoneNumberId}`);
+                console.error(`No project found for phone number ID ${businessPhoneNumberId} or WABA ID ${wabaId}`);
                 continue;
             }
 
