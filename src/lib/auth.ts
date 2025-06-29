@@ -2,9 +2,13 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-    throw new Error('JWT_SECRET is not defined in the environment variables.');
+function getJwtSecret(): string {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+        console.error("CRITICAL: JWT_SECRET environment variable is not set.");
+        throw new Error('JWT_SECRET is not defined in the environment variables.');
+    }
+    return secret;
 }
 
 const SALT_ROUNDS = 10;
@@ -26,14 +30,17 @@ export interface SessionPayload {
 export function createSessionToken(payload: Omit<SessionPayload, 'expires'>): string {
     const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
     const sessionPayload: SessionPayload = { ...payload, expires };
-    return jwt.sign(sessionPayload, JWT_SECRET, { expiresIn: '7d' });
+    return jwt.sign(sessionPayload, getJwtSecret(), { expiresIn: '7d' });
 }
 
 export function verifySessionToken(token: string): SessionPayload | null {
     try {
-        const decoded = jwt.verify(token, JWT_SECRET);
+        const secret = getJwtSecret();
+        const decoded = jwt.verify(token, secret);
         return decoded as SessionPayload;
     } catch (error) {
+        // Log the error for debugging but don't expose details
+        console.error("JWT verification failed:", (error as Error).message);
         return null;
     }
 }
