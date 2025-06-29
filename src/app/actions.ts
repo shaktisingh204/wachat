@@ -1,3 +1,4 @@
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -1531,7 +1532,7 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
                         $setOnInsert: {
                              createdAt: projectDoc.createdAt,
                              messagesPerSecond: projectDoc.messagesPerSecond,
-                             reviewStatus: 'UNKNOWN',
+                             reviewStatus: projectDoc.reviewStatus,
                         }
                     },
                     upsert: true,
@@ -3059,8 +3060,10 @@ export async function getSession(): Promise<{ user: (Omit<User, 'password' | 'pl
             },
             {
                 $project: {
-                    password: 0,
-                    planId: 0,
+                    _id: 1,
+                    name: 1,
+                    email: 1,
+                    createdAt: 1,
                     plan: '$planDetails'
                 }
             }
