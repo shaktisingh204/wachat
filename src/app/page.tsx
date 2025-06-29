@@ -1,5 +1,4 @@
 
-
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
@@ -125,7 +124,7 @@ export default async function HomePage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-20 md:py-32">
-          <div className="container flex flex-col items-center text-center gap-12">
+          <div className="container grid justify-items-center text-center gap-12">
             <div className="space-y-6 max-w-3xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tighter">
                 Streamline Your WhatsApp Business API Experience
