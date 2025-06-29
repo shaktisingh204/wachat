@@ -643,6 +643,7 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
                 incomingMessage: message.text.body,
                 businessContext: settings.aiAssistant.context,
                 userWaId: contact.waId,
+                autoTranslate: settings.aiAssistant.autoTranslate,
             });
             replyMessage = result.replyMessage;
         } catch (e: any) {

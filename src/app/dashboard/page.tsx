@@ -6,6 +6,7 @@
 
 
 
+
 import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
@@ -66,6 +67,7 @@ export type AutoReplySettings = {
   aiAssistant?: {
     enabled: boolean;
     context: string;
+    autoTranslate?: boolean;
   };
 };
 

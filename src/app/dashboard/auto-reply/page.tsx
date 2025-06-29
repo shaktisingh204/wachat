@@ -197,7 +197,7 @@ function InactiveHoursForm({ project }: { project: WithId<Project> }) {
 }
 
 function AiAssistantForm({ project }: { project: WithId<Project> }) {
-     const [state, formAction] = useActionState(handleUpdateAutoReplySettings, updateSettingsInitialState);
+    const [state, formAction] = useActionState(handleUpdateAutoReplySettings, updateSettingsInitialState);
     const { toast } = useToast();
     const settings = project.autoReplySettings?.aiAssistant;
 
@@ -219,13 +219,24 @@ function AiAssistantForm({ project }: { project: WithId<Project> }) {
                     <Switch name="enabled" defaultChecked={settings?.enabled} />
                 </div>
             </CardHeader>
-            <CardContent>
-                <Label htmlFor="ai-context">Business Context / Instructions</Label>
-                <Textarea id="ai-context" name="context" className="min-h-48 mt-2 font-mono text-xs"
-                    placeholder="e.g., You are an assistant for 'My Awesome Pizza'. We are open 11am-10pm. Our specialties are pepperoni and margherita pizza. Our address is 123 Main St."
-                    defaultValue={settings?.context}
-                    required />
-                <p className="text-xs text-muted-foreground mt-2">Provide the AI with all the information it needs to answer customer questions accurately.</p>
+            <CardContent className="space-y-6">
+                <div className="flex items-center justify-between rounded-lg border p-4 shadow-sm">
+                    <div className="space-y-0.5">
+                        <Label htmlFor="auto-translate-switch" className="text-base">Enable Automatic Translation</Label>
+                        <p className="text-sm text-muted-foreground">
+                            Automatically detect the user's language from their country code and reply in their native language.
+                        </p>
+                    </div>
+                    <Switch id="auto-translate-switch" name="autoTranslate" defaultChecked={settings?.autoTranslate} />
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="ai-context">Business Context / Instructions</Label>
+                    <Textarea id="ai-context" name="context" className="min-h-48 mt-2 font-mono text-xs"
+                        placeholder="e.g., You are an assistant for 'My Awesome Pizza'. We are open 11am-10pm. Our specialties are pepperoni and margherita pizza. Our address is 123 Main St."
+                        defaultValue={settings?.context}
+                        required />
+                    <p className="text-xs text-muted-foreground mt-2">Provide the AI with all the information it needs to answer customer questions accurately.</p>
+                </div>
             </CardContent>
             <CardFooter>
                 <SaveButton>Save AI Assistant</SaveButton>

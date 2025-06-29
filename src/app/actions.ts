@@ -2480,6 +2480,7 @@ export async function handleUpdateAutoReplySettings(
                  autoReplySettings.aiAssistant = {
                     enabled: formData.get('enabled') === 'on',
                     context: formData.get('context') as string,
+                    autoTranslate: formData.get('autoTranslate') === 'on',
                 };
                 break;
             default:
