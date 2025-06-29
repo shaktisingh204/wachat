@@ -163,15 +163,15 @@ export default async function HomePage() {
                 Everything you need to scale your customer communication on WhatsApp.
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="flex flex-wrap items-stretch justify-center gap-8">
               {features.map((feature, index) => (
-                <Card key={index} className="text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300">
+                <Card key={index} className="text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 w-full max-w-xs flex flex-col">
                   <CardHeader className="items-center">
                     <div className="p-4 bg-primary/10 rounded-full">
                         {feature.icon}
                     </div>
                   </CardHeader>
-                  <CardContent className="space-y-2">
+                  <CardContent className="space-y-2 flex-grow">
                     <h3 className="text-xl font-semibold">{feature.title}</h3>
                     <p className="text-muted-foreground">{feature.description}</p>
                   </CardContent>
