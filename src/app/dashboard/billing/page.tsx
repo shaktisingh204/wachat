@@ -1,3 +1,4 @@
+
 import { Check, X } from 'lucide-react';
 import type { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
@@ -38,7 +39,7 @@ export default async function BillingPage() {
                             <CardTitle>{plan.name}</CardTitle>
                             <div className="text-4xl font-bold pt-4">${plan.price} <span className="text-sm font-normal text-muted-foreground">/ month</span></div>
                             <CardDescription>
-                                + Mkt: ${plan.messageCosts.marketing} | Util: ${plan.messageCosts.utility} | Auth: ${plan.messageCosts.authentication}
+                                + Mkt: ${plan.messageCosts?.marketing ?? 'N/A'} | Util: ${plan.messageCosts?.utility ?? 'N/A'} | Auth: ${plan.messageCosts?.authentication ?? 'N/A'}
                             </CardDescription>
                         </CardHeader>
                         <Separator />

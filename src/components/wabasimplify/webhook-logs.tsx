@@ -67,20 +67,23 @@ export function WebhookLogs() {
     const [projectId, setProjectId] = useState<string | null>(null);
     const [isClient, setIsClient] = useState(false);
 
+    useEffect(() => {
+        setIsClient(true);
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        setProjectId(storedProjectId);
+    }, []);
+
     const fetchLogs = useCallback(async (page: number, query: string, showToast = false) => {
-        if (!isClient) return;
+        if (!projectId) {
+            setLoading(false);
+            setLogs([]);
+            setTotalPages(0);
+            return;
+        };
 
         startRefreshTransition(async () => {
-            const currentProjectId = localStorage.getItem('activeProjectId');
-            setProjectId(currentProjectId);
-
-            if (!currentProjectId) {
-                setLogs([]);
-                setTotalPages(0);
-                return;
-            }
             try {
-                const { logs: newLogs, total } = await getWebhookLogs(currentProjectId, page, LOGS_PER_PAGE, query);
+                const { logs: newLogs, total } = await getWebhookLogs(projectId, page, LOGS_PER_PAGE, query);
                 setLogs(newLogs);
                 setTotalPages(Math.ceil(total / LOGS_PER_PAGE));
                 if (showToast) {
@@ -90,11 +93,7 @@ export function WebhookLogs() {
                 toast({ title: "Error", description: "Failed to fetch webhook logs.", variant: "destructive" });
             }
         });
-    }, [toast, isClient]);
-
-    useEffect(() => {
-        setIsClient(true);
-    }, []);
+    }, [projectId, toast]);
 
     useEffect(() => {
         if (isClient) {
