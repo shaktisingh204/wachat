@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
@@ -15,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -24,6 +23,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CannedMessagesSettingsTab } from '@/components/wabasimplify/canned-messages-settings-tab';
+import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-settings-tab';
 
 
 const updateSettingsInitialState = { message: null, error: null };
@@ -450,11 +450,12 @@ function SettingsPageContent() {
       <div><h1 className="text-3xl font-bold font-headline">Project Settings</h1><p className="text-muted-foreground">Manage settings for project "{project.name}".</p></div>
 
       <Tabs defaultValue={initialTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
               <TabsTrigger value="broadcast"><Save className="mr-2 h-4 w-4" />Broadcast</TabsTrigger>
               <TabsTrigger value="auto-reply"><Bot className="mr-2 h-4 w-4" />Auto-Replies</TabsTrigger>
               <TabsTrigger value="canned-messages"><ClipboardList className="mr-2 h-4 w-4" />Canned Messages</TabsTrigger>
-              <TabsTrigger value="opt-in-out"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
+              <TabsTrigger value="agents-roles"><UserCog className="mr-2 h-4 w-4" />Agents & Roles</TabsTrigger>
+              <TabsTrigger value="compliance"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
               <TabsTrigger value="attributes"><Users className="mr-2 h-4 w-4" />User Attributes</TabsTrigger>
           </TabsList>
 
@@ -493,7 +494,11 @@ function SettingsPageContent() {
             <CannedMessagesSettingsTab project={project} />
           </TabsContent>
 
-          <TabsContent value="opt-in-out" className="mt-6">
+          <TabsContent value="agents-roles" className="mt-6">
+            <AgentsRolesSettingsTab project={project} />
+          </TabsContent>
+
+          <TabsContent value="compliance" className="mt-6">
               <Card><OptInOutForm project={project} /></Card>
           </TabsContent>
 
