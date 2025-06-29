@@ -1566,9 +1566,21 @@ export async function getWebhookLogs(
         const filter: Filter<WebhookLog> = {};
 
         if (projectId && ObjectId.isValid(projectId)) {
-            const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) }, { projection: { wabaId: 1 } });
-            if (project?.wabaId) {
-                filter.searchableText = { $regex: project.wabaId, $options: 'i' };
+            const project = await db.collection('projects').findOne(
+                { _id: new ObjectId(projectId) }, 
+                { projection: { wabaId: 1, 'phoneNumbers.id': 1 } }
+            );
+            if (project) {
+                const searchIds = [project.wabaId];
+                if (project.phoneNumbers && Array.isArray(project.phoneNumbers)) {
+                    project.phoneNumbers.forEach(p => p.id && searchIds.push(p.id));
+                }
+                const searchRegexString = searchIds.filter(Boolean).join('|');
+                if (searchRegexString) {
+                     filter.searchableText = { $regex: searchRegexString, $options: 'i' };
+                } else {
+                    return { logs: [], total: 0 };
+                }
             } else {
                 return { logs: [], total: 0 };
             }

@@ -16,6 +16,11 @@ const getSearchableText = (payload: any): string => {
                         text += ` ${field}`; // The type of change
                         const value = change.value;
                         if (!value) continue;
+
+                        if (value.metadata?.phone_number_id) {
+                            text += ` ${value.metadata.phone_number_id}`;
+                        }
+
                         if (value.messages) {
                             for (const message of value.messages) {
                                 text += ` ${message.from || ''} ${message.id || ''} ${message.type || ''}`;
