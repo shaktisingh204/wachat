@@ -1,12 +1,13 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import { processSingleWebhook, processStatuses } from '@/lib/webhook-processor';
-import type { Db } from 'mongodb';
+import { processSingleWebhook } from '@/lib/webhook-processor';
+import type { Db, ObjectId } from 'mongodb';
 
 type WebhookQueueItem = {
     _id: any;
     payload: any;
+    logId?: ObjectId;
     status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
     createdAt: Date;
     processedAt?: Date;
@@ -18,69 +19,38 @@ const LOCK_ID = 'webhook_processor_lock';
 const LOCK_DURATION_MS = 10 * 60 * 1000; // Lock for 10 minutes to allow for large queue processing
 
 async function processBatch(db: Db, batch: WebhookQueueItem[]): Promise<{ success: number; failed: number }> {
-    const messageWebhooks = batch.filter(wh => wh.payload?.entry?.[0]?.changes?.[0]?.field === 'messages');
-    const otherWebhooks = batch.filter(wh => wh.payload?.entry?.[0]?.changes?.[0]?.field !== 'messages');
-    
-    let localSuccess = 0;
-    let localFailed = 0;
+    let successCount = 0;
+    let failedCount = 0;
 
-    // Process "other" webhooks individually as they are varied
-    const otherPromises = otherWebhooks.map(async (webhookDoc) => {
+    const processingPromises = batch.map(async (webhookDoc) => {
         try {
-            await processSingleWebhook(db, webhookDoc.payload);
-            localSuccess++;
+            await processSingleWebhook(db, webhookDoc.payload, webhookDoc.logId);
+            // If processSingleWebhook doesn't throw, we consider it a success.
+            // The log will be marked as `processed: true` inside that function.
+            return 'success';
         } catch (e: any) {
-            console.error(`Failed to process non-message webhook ${webhookDoc._id}:`, e);
-            localFailed++;
+            console.error(`Failed to process webhook from queue (logId: ${webhookDoc.logId}):`, e.message);
+            // Mark the queue item itself as failed
             await db.collection('webhook_queue').updateOne({ _id: webhookDoc._id }, { $set: { status: 'FAILED', error: e.message } });
+            // The log itself is marked as failed inside processSingleWebhook's catch block.
+            return 'failed';
         }
     });
 
-    // Process all message status updates in a single, highly optimized batch
-    const allStatuses = messageWebhooks
-        .map(wh => wh.payload?.entry?.[0]?.changes?.[0]?.value?.statuses)
-        .filter(Boolean)
-        .flat();
+    const results = await Promise.all(processingPromises);
+    successCount = results.filter(r => r === 'success').length;
+    failedCount = results.filter(r => r === 'failed').length;
 
-    if (allStatuses.length > 0) {
-        try {
-            await processStatuses(db, allStatuses);
-        } catch (e: any) {
-            console.error('Error batch processing webhook statuses:', e);
-            // If the whole batch fails, we can't easily mark individual items
-            // They will remain as "PROCESSING" and can be retried. A more granular error handling is in processStatuses.
-        }
+    // Mark all successfully handled items as COMPLETED
+    const successfulIds = batch.filter((_, i) => results[i] === 'success').map(doc => doc._id);
+    if (successfulIds.length > 0) {
+        await db.collection('webhook_queue').updateMany(
+            { _id: { $in: successfulIds }, status: 'PROCESSING' },
+            { $set: { status: 'COMPLETED' } }
+        );
     }
 
-    // Process incoming messages individually, as they require contact upserts
-    const incomingMessageWebhooks = messageWebhooks.filter(wh => wh.payload?.entry?.[0]?.changes?.[0]?.value?.messages);
-    const incomingMessagePromises = incomingMessageWebhooks.map(async (webhookDoc) => {
-        try {
-            await processSingleWebhook(db, webhookDoc.payload);
-        } catch (e: any) {
-            console.error(`Failed to process incoming message webhook ${webhookDoc._id}:`, e);
-            // This failure is for a single message webhook, mark it as FAILED
-            await db.collection('webhook_queue').updateOne({ _id: webhookDoc._id }, { $set: { status: 'FAILED', error: e.message } });
-            localFailed++;
-        }
-    });
-    
-    // All message webhooks that didn't have incoming messages are implicitly successful status-only webhooks
-    localSuccess += messageWebhooks.length - incomingMessageWebhooks.length;
-    // Add successes from individually processed incoming messages
-    localSuccess += incomingMessageWebhooks.length - incomingMessagePromises.filter(p => p.catch(() => {})).length;
-
-
-    await Promise.all([...otherPromises, ...incomingMessagePromises]);
-    
-    // Mark all successfully handled items in the batch as COMPLETED, except those already marked FAILED
-    const idsToComplete = batch.map(b => b._id);
-    await db.collection('webhook_queue').updateMany(
-        { _id: { $in: idsToComplete }, status: 'PROCESSING' },
-        { $set: { status: 'COMPLETED' } }
-    );
-
-    return { success: localSuccess, failed: localFailed };
+    return { success: successCount, failed: failedCount };
 }
 
 

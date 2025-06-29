@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -679,138 +680,6 @@ const getAxiosErrorMessage = (error: any): string => {
     return error.message || 'An unknown error occurred';
 };
 
-
-export async function processStatuses(db: Db, statuses: any[]) {
-    if (!statuses || !Array.isArray(statuses) || statuses.length === 0) {
-        return;
-    }
-
-    const wamids = statuses.map(s => s.id).filter(Boolean);
-    if (wamids.length === 0) {
-        return;
-    }
-
-    const contactsMap = new Map<string, WithId<any>>();
-    const contactsCursor = db.collection('broadcast_contacts').find({ messageId: { $in: wamids } });
-    for await (const contact of contactsCursor) {
-        contactsMap.set(contact.messageId, contact);
-    }
-
-    const liveChatOps: any[] = [];
-    const broadcastContactOps: any[] = [];
-    const broadcastCounterUpdates: Record<string, { delivered: number; read: number; failed: number; success: number }> = {};
-
-    for (const status of statuses) {
-        if (!status || !status.id) continue;
-
-        const wamid = status.id;
-        const newStatus = (status.status || 'unknown').toUpperCase();
-        const timestamp = new Date(parseInt(status.timestamp, 10) * 1000);
-        
-        const liveChatUpdatePayload: any = {
-            status: status.status,
-            [`statusTimestamps.${status.status}`]: timestamp
-        };
-        if (newStatus === 'FAILED' && status.errors && status.errors.length > 0) {
-            const error = status.errors[0];
-            liveChatUpdatePayload.error = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
-        }
-        liveChatOps.push({
-            updateOne: {
-                filter: { wamid },
-                update: { $set: liveChatUpdatePayload }
-            }
-        });
-
-        const contact = contactsMap.get(wamid);
-        if (!contact) {
-            continue; 
-        }
-        
-        const broadcastIdStr = contact.broadcastId.toString();
-        if (!broadcastCounterUpdates[broadcastIdStr]) {
-            broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0, failed: 0, success: 0 };
-        }
-
-        const currentStatus = (contact.status || 'PENDING').toUpperCase();
-
-        if (currentStatus === 'FAILED') {
-            continue; 
-        }
-
-        if (newStatus === 'FAILED') {
-            const error = status.errors?.[0] || { title: 'Unknown Failure', code: 'N/A' };
-            const errorString = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
-            
-            broadcastContactOps.push({
-                updateOne: {
-                    filter: { _id: contact._id },
-                    update: { $set: { status: 'FAILED', error: errorString } }
-                }
-            });
-            broadcastCounterUpdates[broadcastIdStr].success -= 1;
-            broadcastCounterUpdates[broadcastIdStr].failed += 1;
-
-        } else {
-            const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, DELIVERED: 2, READ: 3 };
-            if (statusHierarchy[newStatus] !== undefined && statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
-                broadcastContactOps.push({
-                    updateOne: {
-                        filter: { _id: contact._id },
-                        update: { $set: { status: newStatus } }
-                    }
-                });
-
-                if (newStatus === 'DELIVERED') {
-                     broadcastCounterUpdates[broadcastIdStr].delivered += 1;
-                }
-                if (newStatus === 'READ') {
-                    broadcastCounterUpdates[broadcastIdStr].read += 1;
-                }
-            }
-        }
-    }
-
-    const promises = [];
-
-    if (liveChatOps.length > 0) {
-        promises.push(db.collection('outgoing_messages').bulkWrite(liveChatOps, { ordered: false }));
-    }
-
-    if (broadcastContactOps.length > 0) {
-        promises.push(db.collection('broadcast_contacts').bulkWrite(broadcastContactOps, { ordered: false }));
-    }
-
-    const broadcastCounterOps = Object.entries(broadcastCounterUpdates)
-        .filter(([_, counts]) => counts.delivered > 0 || counts.read > 0 || counts.failed > 0 || counts.success !== 0)
-        .map(([broadcastId, counts]) => ({
-            updateOne: {
-                filter: { _id: new ObjectId(broadcastId) },
-                update: { $inc: { 
-                    deliveredCount: counts.delivered, 
-                    readCount: counts.read,
-                    errorCount: counts.failed,
-                    successCount: counts.success,
-                 } }
-            }
-        }));
-
-    if (broadcastCounterOps.length > 0) {
-        promises.push(db.collection('broadcasts').bulkWrite(broadcastCounterOps, { ordered: false }));
-    }
-
-    if (promises.length > 0) {
-        await Promise.all(promises);
-    }
-    
-    if (liveChatOps.length > 0) revalidatePath('/dashboard/chat');
-    if (broadcastContactOps.length > 0) {
-        revalidatePath('/dashboard/broadcasts/[broadcastId]', 'page');
-        revalidatePath('/dashboard/broadcasts');
-    }
-}
-
-
 async function findOrCreateProjectByWabaId(db: Db, wabaId: string): Promise<WithId<any> | null> {
     const existingProject = await db.collection('projects').findOne({ wabaId });
     if (existingProject) {
@@ -866,244 +735,319 @@ async function findOrCreateProjectByWabaId(db: Db, wabaId: string): Promise<With
 }
 
 
-export async function processSingleWebhook(db: Db, payload: any) {
-    if (payload.object !== 'whatsapp_business_account') {
-        return;
-    }
-    const MAX_BASE64_SIZE = 5 * 1024 * 1024; // 5MB limit
-
-    for (const entry of payload.entry || []) {
-        const wabaId = entry.id;
-        for (const change of entry.changes || []) {
-            const value = change.value;
-            if (!value) continue;
-
-            const phone_number_id = value.metadata?.phone_number_id;
-
-            let project = await db.collection<Project>('projects').findOne(
-                 { $or: [ { wabaId: wabaId }, ...(phone_number_id ? [{ 'phoneNumbers.id': phone_number_id }] : [])] }
-            );
-
-            if (!project) {
-                const canAutoCreate = [
-                    'messages', 'phone_number_quality_update', 'phone_number_name_update',
-                    'message_template_quality_update', 'message_template_status_update', 'template_status_update'
-                ];
-                if (canAutoCreate.includes(change.field)) {
-                    project = await findOrCreateProjectByWabaId(db, wabaId);
-                }
+export async function processSingleWebhook(db: Db, payload: any, logId?: ObjectId) {
+    try {
+        if (payload.object !== 'whatsapp_business_account') {
+            if (logId) {
+                await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: 'Not a WhatsApp business account webhook.' } });
             }
+            return;
+        }
+        const MAX_BASE64_SIZE = 5 * 1024 * 1024; // 5MB limit
 
-            switch (change.field) {
-                case 'messages': {
-                    if (value.statuses && Array.isArray(value.statuses) && value.statuses.length > 0) {
-                        await processStatuses(db, value.statuses);
-                    } else if (value.messages && Array.isArray(value.messages) && value.messages.length > 0 && project) {
-                        const message = value.messages[0];
-                        
-                        const mediaTypes = ['image', 'video', 'document', 'audio'];
-                        if (mediaTypes.includes(message.type) && message[message.type]?.id) {
-                            const mediaId = message[message.type].id;
-                            try {
-                                const mediaDetailsResponse = await axios.get(
-                                    `https://graph.facebook.com/v22.0/${mediaId}`,
-                                    { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-                                );
-                                const mediaUrl = mediaDetailsResponse.data.url;
-                                const mimeType = mediaDetailsResponse.data.mime_type;
-                                const fileSize = mediaDetailsResponse.data.file_size;
+        for (const entry of payload.entry || []) {
+            const wabaId = entry.id;
+            for (const change of entry.changes || []) {
+                const value = change.value;
+                if (!value) continue;
 
-                                if (mediaUrl && fileSize < MAX_BASE64_SIZE && (mimeType.startsWith('image/') || mimeType === 'application/pdf')) {
-                                    const mediaDataResponse = await axios.get(mediaUrl, {
-                                        headers: { 'Authorization': `Bearer ${project.accessToken}` },
-                                        responseType: 'arraybuffer'
-                                    });
-                                    const mediaBase64 = Buffer.from(mediaDataResponse.data, 'binary').toString('base64');
-                                    const dataUri = `data:${mimeType};base64,${mediaBase64}`;
-                                    message[message.type].link = dataUri;
-                                } else if (mediaUrl) {
-                                    message[message.type].link = mediaUrl;
-                                    console.log(`Media ${mediaId} (${mimeType}, ${fileSize} bytes) is too large or unsupported for data URI embedding. Storing original URL.`);
+                const phone_number_id = value.metadata?.phone_number_id;
+
+                let project = await db.collection<Project>('projects').findOne(
+                     { $or: [ { wabaId: wabaId }, ...(phone_number_id ? [{ 'phoneNumbers.id': phone_number_id }] : [])] }
+                );
+
+                if (!project) {
+                    const canAutoCreate = [
+                        'messages', 'phone_number_quality_update', 'phone_number_name_update',
+                        'message_template_quality_update', 'message_template_status_update', 'template_status_update'
+                    ];
+                    if (canAutoCreate.includes(change.field)) {
+                        project = await findOrCreateProjectByWabaId(db, wabaId);
+                    }
+                }
+
+                switch (change.field) {
+                    case 'messages': {
+                        if (value.statuses && Array.isArray(value.statuses) && value.statuses.length > 0) {
+                            const statuses = value.statuses;
+                            const wamids = statuses.map(s => s.id).filter(Boolean);
+                            if (wamids.length > 0) {
+                                const contactsMap = new Map<string, WithId<any>>();
+                                const contactsCursor = db.collection('broadcast_contacts').find({ messageId: { $in: wamids } });
+                                for await (const contact of contactsCursor) {
+                                    contactsMap.set(contact.messageId, contact);
                                 }
-                            } catch (e: any) {
-                                console.error(`Failed to fetch media data for ID ${mediaId}:`, getAxiosErrorMessage(e));
+                                const liveChatOps: any[] = [];
+                                const broadcastContactOps: any[] = [];
+                                const broadcastCounterUpdates: Record<string, { delivered: number; read: number; failed: number; success: number }> = {};
+                                for (const status of statuses) {
+                                    if (!status || !status.id) continue;
+                                    const wamid = status.id;
+                                    const newStatus = (status.status || 'unknown').toUpperCase();
+                                    const timestamp = new Date(parseInt(status.timestamp, 10) * 1000);
+                                    const liveChatUpdatePayload: any = { status: status.status, [`statusTimestamps.${status.status}`]: timestamp };
+                                    if (newStatus === 'FAILED' && status.errors && status.errors.length > 0) {
+                                        const error = status.errors[0];
+                                        liveChatUpdatePayload.error = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
+                                    }
+                                    liveChatOps.push({ updateOne: { filter: { wamid }, update: { $set: liveChatUpdatePayload } } });
+                                    const contact = contactsMap.get(wamid);
+                                    if (!contact) continue;
+                                    const broadcastIdStr = contact.broadcastId.toString();
+                                    if (!broadcastCounterUpdates[broadcastIdStr]) {
+                                        broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0, failed: 0, success: 0 };
+                                    }
+                                    const currentStatus = (contact.status || 'PENDING').toUpperCase();
+                                    if (currentStatus === 'FAILED') continue;
+                                    if (newStatus === 'FAILED') {
+                                        const error = status.errors?.[0] || { title: 'Unknown Failure', code: 'N/A' };
+                                        const errorString = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
+                                        broadcastContactOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: 'FAILED', error: errorString } } } });
+                                        broadcastCounterUpdates[broadcastIdStr].success -= 1;
+                                        broadcastCounterUpdates[broadcastIdStr].failed += 1;
+                                    } else {
+                                        const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, DELIVERED: 2, READ: 3 };
+                                        if (statusHierarchy[newStatus] !== undefined && statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
+                                            broadcastContactOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: newStatus } } } });
+                                            if (newStatus === 'DELIVERED') broadcastCounterUpdates[broadcastIdStr].delivered += 1;
+                                            if (newStatus === 'READ') broadcastCounterUpdates[broadcastIdStr].read += 1;
+                                        }
+                                    }
+                                }
+                                const promises = [];
+                                if (liveChatOps.length > 0) promises.push(db.collection('outgoing_messages').bulkWrite(liveChatOps, { ordered: false }));
+                                if (broadcastContactOps.length > 0) promises.push(db.collection('broadcast_contacts').bulkWrite(broadcastContactOps, { ordered: false }));
+                                const broadcastCounterOps = Object.entries(broadcastCounterUpdates)
+                                    .filter(([_, counts]) => counts.delivered > 0 || counts.read > 0 || counts.failed > 0 || counts.success !== 0)
+                                    .map(([broadcastId, counts]) => ({ updateOne: { filter: { _id: new ObjectId(broadcastId) }, update: { $inc: { deliveredCount: counts.delivered, readCount: counts.read, errorCount: counts.failed, successCount: counts.success, } } } }));
+                                if (broadcastCounterOps.length > 0) promises.push(db.collection('broadcasts').bulkWrite(broadcastCounterOps, { ordered: false }));
+                                if (promises.length > 0) await Promise.all(promises);
+                                if (liveChatOps.length > 0) revalidatePath('/dashboard/chat');
+                                if (broadcastContactOps.length > 0) {
+                                    revalidatePath('/dashboard/broadcasts/[broadcastId]', 'page');
+                                    revalidatePath('/dashboard/broadcasts');
+                                }
                             }
-                        }
-
-                        const contactProfile = value.contacts[0];
-                        const senderWaId = message.from;
-                        const senderName = contactProfile.profile?.name || 'Unknown User';
-                        const businessPhoneNumberId = value.metadata.phone_number_id;
-
-                        console.log(`Processing incoming message from ${senderWaId} for project '${project.name}'.`);
-
-                        let lastMessageText = `[${message.type}]`;
-                        if (message.type === 'text') {
-                            lastMessageText = message.text.body;
-                        } else if (message.type === 'interactive') {
-                            lastMessageText = message.interactive?.button_reply?.title || '[Interactive Reply]';
-                        }
-                        const contactUpdateResult = await db.collection('contacts').findOneAndUpdate(
-                            { waId: senderWaId, projectId: project._id },
-                            { $set: { name: senderName, phoneNumberId: businessPhoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
-                            $inc: { unreadCount: 1 },
-                            $setOnInsert: { waId: senderWaId, projectId: project._id, createdAt: new Date() } },
-                            { upsert: true, returnDocument: 'after' }
-                        );
-                        const updatedContact = contactUpdateResult;
-                        if (updatedContact) {
-                            await db.collection('incoming_messages').insertOne({
-                                direction: 'in', projectId: project._id, contactId: updatedContact._id,
-                                wamid: message.id, messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
-                                type: message.type, content: message, isRead: false, createdAt: new Date(),
-                            });
-                            await db.collection('notifications').insertOne({
-                                projectId: project._id, wabaId: project.wabaId,
-                                message: `New message from ${senderName}.`,
-                                link: `/dashboard/chat?contactId=${updatedContact._id.toString()}&phoneId=${businessPhoneNumberId}`,
-                                isRead: false, createdAt: new Date(), eventType: change.field,
-                            });
-                            revalidatePath('/dashboard/chat'); revalidatePath('/dashboard/contacts');
-                            revalidatePath('/dashboard/notifications'); revalidatePath('/dashboard', 'layout');
+                        } else if (value.messages && Array.isArray(value.messages) && value.messages.length > 0 && project) {
+                            const message = value.messages[0];
                             
-                            const flowHandled = await handleFlowLogic(db, project, updatedContact, message, businessPhoneNumberId);
+                            const mediaTypes = ['image', 'video', 'document', 'audio'];
+                            if (mediaTypes.includes(message.type) && message[message.type]?.id) {
+                                const mediaId = message[message.type].id;
+                                try {
+                                    const mediaDetailsResponse = await axios.get(
+                                        `https://graph.facebook.com/v22.0/${mediaId}`,
+                                        { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+                                    );
+                                    const mediaUrl = mediaDetailsResponse.data.url;
+                                    const mimeType = mediaDetailsResponse.data.mime_type;
+                                    const fileSize = mediaDetailsResponse.data.file_size;
 
-                            if (!flowHandled) {
-                                await triggerAutoReply(db, project, updatedContact, message, businessPhoneNumberId);
+                                    if (mediaUrl && fileSize < MAX_BASE64_SIZE && (mimeType.startsWith('image/') || mimeType === 'application/pdf')) {
+                                        const mediaDataResponse = await axios.get(mediaUrl, {
+                                            headers: { 'Authorization': `Bearer ${project.accessToken}` },
+                                            responseType: 'arraybuffer'
+                                        });
+                                        const mediaBase64 = Buffer.from(mediaDataResponse.data, 'binary').toString('base64');
+                                        const dataUri = `data:${mimeType};base64,${mediaBase64}`;
+                                        message[message.type].link = dataUri;
+                                    } else if (mediaUrl) {
+                                        message[message.type].link = mediaUrl;
+                                        console.log(`Media ${mediaId} (${mimeType}, ${fileSize} bytes) is too large or unsupported for data URI embedding. Storing original URL.`);
+                                    }
+                                } catch (e: any) {
+                                    console.error(`Failed to fetch media data for ID ${mediaId}:`, getAxiosErrorMessage(e));
+                                }
+                            }
+
+                            const contactProfile = value.contacts[0];
+                            const senderWaId = message.from;
+                            const senderName = contactProfile.profile?.name || 'Unknown User';
+                            const businessPhoneNumberId = value.metadata.phone_number_id;
+
+                            console.log(`Processing incoming message from ${senderWaId} for project '${project.name}'.`);
+
+                            let lastMessageText = `[${message.type}]`;
+                            if (message.type === 'text') {
+                                lastMessageText = message.text.body;
+                            } else if (message.type === 'interactive') {
+                                lastMessageText = message.interactive?.button_reply?.title || '[Interactive Reply]';
+                            }
+                            const contactUpdateResult = await db.collection('contacts').findOneAndUpdate(
+                                { waId: senderWaId, projectId: project._id },
+                                { $set: { name: senderName, phoneNumberId: businessPhoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
+                                $inc: { unreadCount: 1 },
+                                $setOnInsert: { waId: senderWaId, projectId: project._id, createdAt: new Date() } },
+                                { upsert: true, returnDocument: 'after' }
+                            );
+                            const updatedContact = contactUpdateResult;
+                            if (updatedContact) {
+                                await db.collection('incoming_messages').insertOne({
+                                    direction: 'in', projectId: project._id, contactId: updatedContact._id,
+                                    wamid: message.id, messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
+                                    type: message.type, content: message, isRead: false, createdAt: new Date(),
+                                });
+                                await db.collection('notifications').insertOne({
+                                    projectId: project._id, wabaId: project.wabaId,
+                                    message: `New message from ${senderName}.`,
+                                    link: `/dashboard/chat?contactId=${updatedContact._id.toString()}&phoneId=${businessPhoneNumberId}`,
+                                    isRead: false, createdAt: new Date(), eventType: change.field,
+                                });
+                                revalidatePath('/dashboard/chat'); revalidatePath('/dashboard/contacts');
+                                revalidatePath('/dashboard/notifications'); revalidatePath('/dashboard', 'layout');
+                                
+                                const flowHandled = await handleFlowLogic(db, project, updatedContact, message, businessPhoneNumberId);
+
+                                if (!flowHandled) {
+                                    await triggerAutoReply(db, project, updatedContact, message, businessPhoneNumberId);
+                                }
                             }
                         }
+                        break;
                     }
-                    break;
-                }
-                case 'account_update': {
-                    const wabaIdToHandle = value.waba_info?.waba_id;
-                    if (!wabaIdToHandle) continue;
+                    case 'account_update': {
+                        const wabaIdToHandle = value.waba_info?.waba_id;
+                        if (!wabaIdToHandle) continue;
 
-                    console.log(`Processing account update event: ${value.event} for WABA ${wabaIdToHandle}`);
+                        console.log(`Processing account update event: ${value.event} for WABA ${wabaIdToHandle}`);
 
-                    if (value.event === 'PARTNER_REMOVED') {
-                        const projectToDelete = await db.collection('projects').findOne({ wabaId: wabaIdToHandle });
-                        if (projectToDelete) {
-                            await db.collection('projects').deleteOne({ _id: projectToDelete._id });
+                        if (value.event === 'PARTNER_REMOVED') {
+                            const projectToDelete = await db.collection('projects').findOne({ wabaId: wabaIdToHandle });
+                            if (projectToDelete) {
+                                await db.collection('projects').deleteOne({ _id: projectToDelete._id });
+                                await db.collection('notifications').insertOne({
+                                    projectId: projectToDelete._id, wabaId: wabaIdToHandle,
+                                    message: `Project '${projectToDelete.name}' was removed.`,
+                                    link: '/dashboard', isRead: false, createdAt: new Date(), eventType: change.field,
+                                });
+                                revalidatePath('/dashboard'); revalidatePath('/dashboard', 'layout');
+                            }
+                        } else if (value.event === 'PARTNER_ADDED') {
+                            await findOrCreateProjectByWabaId(db, wabaIdToHandle);
+                        }
+                        break;
+                    }
+                     case 'phone_number_quality_update': {
+                        if (!project) break;
+                        if (value.display_phone_number && value.event) {
+                            const updatePayload: any = {};
+                            if (value.current_limit) updatePayload['phoneNumbers.$.throughput.level'] = value.current_limit;
+                            let newQuality = 'UNKNOWN';
+                            const eventUpper = value.event.toUpperCase();
+                            if (eventUpper.includes('FLAGGED')) newQuality = 'RED'; else if (eventUpper.includes('WARNED')) newQuality = 'YELLOW'; else if (eventUpper.includes('GREEN') || eventUpper === 'ONBOARDING') newQuality = 'GREEN';
+                            updatePayload['phoneNumbers.$.quality_rating'] = newQuality;
+                            
+                            console.log(`Processing phone quality update for ${value.display_phone_number}. New quality: ${newQuality}`);
+
+                            await db.collection('projects').updateOne({ _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number }, { $set: updatePayload });
+                            let notificationMessage = `For project '${project.name}', quality for ${value.display_phone_number} is now ${newQuality}.`;
+                            if (value.current_limit) {
+                                const oldLimit = value.old_limit?.replace(/_/g, ' ').toLowerCase() || 'N/A';
+                                const newLimit = value.current_limit.replace(/_/g, ' ').toLowerCase();
+                                notificationMessage += ` Throughput changed from ${oldLimit} to ${newLimit}.`;
+                            } else {
+                                notificationMessage += ` The event was '${value.event}'.`;
+                            }
                             await db.collection('notifications').insertOne({
-                                projectId: projectToDelete._id, wabaId: wabaIdToHandle,
-                                message: `Project '${projectToDelete.name}' was removed.`,
-                                link: '/dashboard', isRead: false, createdAt: new Date(), eventType: change.field,
+                                projectId: project._id, wabaId: project.wabaId, message: notificationMessage,
+                                link: '/dashboard/numbers', isRead: false, createdAt: new Date(), eventType: change.field,
                             });
-                            revalidatePath('/dashboard'); revalidatePath('/dashboard', 'layout');
+                            revalidatePath('/dashboard/numbers'); revalidatePath('/dashboard', 'layout');
                         }
-                    } else if (value.event === 'PARTNER_ADDED') {
-                        await findOrCreateProjectByWabaId(db, wabaIdToHandle);
+                        break;
                     }
-                    break;
-                }
-                 case 'phone_number_quality_update': {
-                    if (!project) break;
-                    if (value.display_phone_number && value.event) {
-                        const updatePayload: any = {};
-                        if (value.current_limit) updatePayload['phoneNumbers.$.throughput.level'] = value.current_limit;
-                        let newQuality = 'UNKNOWN';
-                        const eventUpper = value.event.toUpperCase();
-                        if (eventUpper.includes('FLAGGED')) newQuality = 'RED'; else if (eventUpper.includes('WARNED')) newQuality = 'YELLOW'; else if (eventUpper.includes('GREEN') || eventUpper === 'ONBOARDING') newQuality = 'GREEN';
-                        updatePayload['phoneNumbers.$.quality_rating'] = newQuality;
+                    case 'phone_number_name_update': {
+                        if (!project || !value.display_phone_number || !value.decision) break;
+
+                        console.log(`Processing phone name update for ${value.display_phone_number}. Decision: ${value.decision}`);
                         
-                        console.log(`Processing phone quality update for ${value.display_phone_number}. New quality: ${newQuality}`);
-
-                        await db.collection('projects').updateOne({ _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number }, { $set: updatePayload });
-                        let notificationMessage = `For project '${project.name}', quality for ${value.display_phone_number} is now ${newQuality}.`;
-                        if (value.current_limit) {
-                            const oldLimit = value.old_limit?.replace(/_/g, ' ').toLowerCase() || 'N/A';
-                            const newLimit = value.current_limit.replace(/_/g, ' ').toLowerCase();
-                            notificationMessage += ` Throughput changed from ${oldLimit} to ${newLimit}.`;
+                        let notificationMessage = '';
+                        let shouldNotify = false;
+                        if (value.decision === 'APPROVED') {
+                            const newVerifiedName = value.new_verified_name || value.requested_verified_name;
+                            if (newVerifiedName) {
+                                const result = await db.collection('projects').updateOne(
+                                    { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
+                                    { $set: { 'phoneNumbers.$.verified_name': newVerifiedName } }
+                                );
+                                shouldNotify = true;
+                                notificationMessage = `For project '${project.name}', display name for ${value.display_phone_number} was approved as "${newVerifiedName}".`;
+                            }
                         } else {
-                            notificationMessage += ` The event was '${value.event}'.`;
-                        }
-                        await db.collection('notifications').insertOne({
-                            projectId: project._id, wabaId: project.wabaId, message: notificationMessage,
-                            link: '/dashboard/numbers', isRead: false, createdAt: new Date(), eventType: change.field,
-                        });
-                        revalidatePath('/dashboard/numbers'); revalidatePath('/dashboard', 'layout');
-                    }
-                    break;
-                }
-                case 'phone_number_name_update': {
-                    if (!project || !value.display_phone_number || !value.decision) break;
-
-                    console.log(`Processing phone name update for ${value.display_phone_number}. Decision: ${value.decision}`);
-                    
-                    let notificationMessage = '';
-                    let shouldNotify = false;
-                    if (value.decision === 'APPROVED') {
-                        const newVerifiedName = value.new_verified_name || value.requested_verified_name;
-                        if (newVerifiedName) {
-                            const result = await db.collection('projects').updateOne(
-                                { _id: project._id, 'phoneNumbers.display_phone_number': value.display_phone_number },
-                                { $set: { 'phoneNumbers.$.verified_name': newVerifiedName } }
-                            );
+                            const requestedName = value.requested_verified_name;
+                            const decision = value.decision.toLowerCase().replace(/_/g, ' ');
+                            notificationMessage = `For project '${project.name}', the name update for ${value.display_phone_number} to "${requestedName}" has been ${decision}.`;
+                            if (value.rejection_reason && value.rejection_reason !== 'NONE') {
+                                notificationMessage += ` Reason: ${value.rejection_reason}.`;
+                            }
                             shouldNotify = true;
-                            notificationMessage = `For project '${project.name}', display name for ${value.display_phone_number} was approved as "${newVerifiedName}".`;
                         }
-                    } else {
-                        const requestedName = value.requested_verified_name;
-                        const decision = value.decision.toLowerCase().replace(/_/g, ' ');
-                        notificationMessage = `For project '${project.name}', the name update for ${value.display_phone_number} to "${requestedName}" has been ${decision}.`;
-                        if (value.rejection_reason && value.rejection_reason !== 'NONE') {
-                            notificationMessage += ` Reason: ${value.rejection_reason}.`;
+                        if (shouldNotify && notificationMessage) {
+                            await db.collection('notifications').insertOne({
+                                projectId: project._id, wabaId: project.wabaId, message: notificationMessage,
+                                link: '/dashboard/numbers', isRead: false, createdAt: new Date(), eventType: change.field,
+                            });
+                            revalidatePath('/dashboard/numbers'); revalidatePath('/dashboard', 'layout');
                         }
-                        shouldNotify = true;
+                        break;
                     }
-                    if (shouldNotify && notificationMessage) {
-                        await db.collection('notifications').insertOne({
-                            projectId: project._id, wabaId: project.wabaId, message: notificationMessage,
-                            link: '/dashboard/numbers', isRead: false, createdAt: new Date(), eventType: change.field,
-                        });
-                        revalidatePath('/dashboard/numbers'); revalidatePath('/dashboard', 'layout');
+                    case 'message_template_status_update':
+                    case 'template_status_update': {
+                        if (!value.event || !value.message_template_id) break;
+                        const template = await db.collection('templates').findOne({ metaId: value.message_template_id });
+                        if (!template) break;
+                        const projectForTemplate = await db.collection('projects').findOne({ _id: template.projectId }, { projection: { _id: 1, name: 1, wabaId: 1 } });
+                        if (!projectForTemplate) break;
+
+                        console.log(`Processing template status update for '${value.message_template_name}'. New status: ${value.event.toUpperCase()}`);
+
+                        const result = await db.collection('templates').updateOne({ _id: template._id }, { $set: { status: value.event.toUpperCase() } });
+                        if (result.modifiedCount > 0) {
+                            await db.collection('notifications').insertOne({
+                               projectId: projectForTemplate._id, wabaId: projectForTemplate.wabaId, message: `For project '${projectForTemplate.name}', template '${value.message_template_name}' status updated to ${value.event}. Reason: ${value.reason || 'None'}.`,
+                               link: '/dashboard/templates', isRead: false, createdAt: new Date(), eventType: change.field,
+                           });
+                           revalidatePath('/dashboard/templates'); revalidatePath('/dashboard', 'layout');
+                        }
+                        break;
                     }
-                    break;
+                    case 'message_template_quality_update': {
+                        if (!value.message_template_id || !value.new_quality_score) break;
+                        const template = await db.collection('templates').findOne({ metaId: value.message_template_id });
+                        if (!template) break;
+                        const projectForTemplate = await db.collection('projects').findOne({ _id: template.projectId }, { projection: { _id: 1, name: 1, wabaId: 1 } });
+                        if (!projectForTemplate) break;
+
+                        console.log(`Processing template quality update for '${value.message_template_name}'. New score: ${value.new_quality_score.toUpperCase()}`);
+
+                        const result = await db.collection('templates').updateOne({ _id: template._id }, { $set: { qualityScore: value.new_quality_score.toUpperCase() } });
+                        if (result.modifiedCount > 0) {
+                            await db.collection('notifications').insertOne({
+                                projectId: projectForTemplate._id, wabaId: projectForTemplate.wabaId, message: `For project '${projectForTemplate.name}', quality for template '${value.message_template_name}' is now ${value.new_quality_score}.`,
+                                link: '/dashboard/templates', isRead: false, createdAt: new Date(), eventType: change.field,
+                            });
+                            revalidatePath('/dashboard/templates'); revalidatePath('/dashboard', 'layout');
+                        }
+                        break;
+                    }
+                    default:
+                        console.log(`Webhook processor: Unhandled event type: "${change.field}"`);
+                        break;
                 }
-                case 'message_template_status_update':
-                case 'template_status_update': {
-                    if (!value.event || !value.message_template_id) break;
-                    const template = await db.collection('templates').findOne({ metaId: value.message_template_id });
-                    if (!template) break;
-                    const projectForTemplate = await db.collection('projects').findOne({ _id: template.projectId }, { projection: { _id: 1, name: 1, wabaId: 1 } });
-                    if (!projectForTemplate) break;
-
-                    console.log(`Processing template status update for '${value.message_template_name}'. New status: ${value.event.toUpperCase()}`);
-
-                    const result = await db.collection('templates').updateOne({ _id: template._id }, { $set: { status: value.event.toUpperCase() } });
-                    if (result.modifiedCount > 0) {
-                        await db.collection('notifications').insertOne({
-                           projectId: projectForTemplate._id, wabaId: projectForTemplate.wabaId, message: `For project '${projectForTemplate.name}', template '${value.message_template_name}' status updated to ${value.event}. Reason: ${value.reason || 'None'}.`,
-                           link: '/dashboard/templates', isRead: false, createdAt: new Date(), eventType: change.field,
-                       });
-                       revalidatePath('/dashboard/templates'); revalidatePath('/dashboard', 'layout');
-                    }
-                    break;
-                }
-                case 'message_template_quality_update': {
-                    if (!value.message_template_id || !value.new_quality_score) break;
-                    const template = await db.collection('templates').findOne({ metaId: value.message_template_id });
-                    if (!template) break;
-                    const projectForTemplate = await db.collection('projects').findOne({ _id: template.projectId }, { projection: { _id: 1, name: 1, wabaId: 1 } });
-                    if (!projectForTemplate) break;
-
-                    console.log(`Processing template quality update for '${value.message_template_name}'. New score: ${value.new_quality_score.toUpperCase()}`);
-
-                    const result = await db.collection('templates').updateOne({ _id: template._id }, { $set: { qualityScore: value.new_quality_score.toUpperCase() } });
-                    if (result.modifiedCount > 0) {
-                        await db.collection('notifications').insertOne({
-                            projectId: projectForTemplate._id, wabaId: projectForTemplate.wabaId, message: `For project '${projectForTemplate.name}', quality for template '${value.message_template_name}' is now ${value.new_quality_score}.`,
-                            link: '/dashboard/templates', isRead: false, createdAt: new Date(), eventType: change.field,
-                        });
-                        revalidatePath('/dashboard/templates'); revalidatePath('/dashboard', 'layout');
-                    }
-                    break;
-                }
-                default:
-                    console.log(`Webhook processor: Unhandled event type: "${change.field}"`);
-                    break;
             }
         }
+        
+        // Mark as processed at the end of successful execution
+        if (logId) {
+            await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true } });
+        }
+    } catch (e: any) {
+        console.error(`Error processing webhook with logId ${logId}:`, e.message);
+        if (logId) {
+            await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: e.message } });
+        }
+        // re-throw to let the caller (e.g., cron job) know it failed
+        throw e;
     }
 }

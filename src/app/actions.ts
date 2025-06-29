@@ -1528,6 +1528,7 @@ export type WebhookLog = {
     _id: ObjectId;
     payload: any;
     searchableText: string;
+    processed?: boolean;
     createdAt: Date;
 };
 
@@ -1643,16 +1644,14 @@ export async function getWebhookLogPayload(logId: string): Promise<any | null> {
 export async function handleClearProcessedLogs(): Promise<{ message?: string; error?: string, deletedCount?: number }> {
     try {
         const { db } = await connectToDatabase();
-        // A log is considered "processed" and safe to clear after 1 hour.
-        const oneHourAgo = new Date(Date.now() - 1 * 60 * 60 * 1000);
         
         const result = await db.collection('webhook_logs').deleteMany({
-            createdAt: { $lt: oneHourAgo }
+            processed: true
         });
 
         revalidatePath('/dashboard/webhooks');
 
-        return { message: `Successfully cleared ${result.deletedCount} processed webhook log(s) older than one hour.`, deletedCount: result.deletedCount };
+        return { message: `Successfully cleared ${result.deletedCount} processed webhook log(s).`, deletedCount: result.deletedCount };
     } catch (e: any) {
         console.error('Failed to clear processed webhook logs:', e);
         return { error: e.message || 'An unexpected error occurred while clearing logs.' };
@@ -1729,10 +1728,10 @@ export async function getAllNotifications(
 
         const pipeline: any[] = [
             { $match: query },
-            { $sort: { createdAt: -1 } },
             {
                 $facet: {
                     paginatedResults: [
+                        { $sort: { createdAt: -1 } },
                         { $skip: skip },
                         { $limit: limit },
                         {
@@ -2329,7 +2328,7 @@ export async function handleReprocessWebhook(logId: string): Promise<{ message?:
             return { error: 'Webhook log not found.' };
         }
 
-        await processSingleWebhook(db, log.payload);
+        await processSingleWebhook(db, log.payload, log._id);
 
         return { message: `Successfully reprocessed webhook event for field: ${log.payload?.entry?.[0]?.changes?.[0]?.field || 'unknown'}` };
     } catch (e: any) {

@@ -2,6 +2,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { processSingleWebhook } from '@/lib/webhook-processor';
+import type { ObjectId } from 'mongodb';
 
 const getSearchableText = (payload: any): string => {
     let text = '';
@@ -57,17 +58,20 @@ export async function GET(request: NextRequest) {
  * handles low-volume events immediately.
  */
 export async function POST(request: NextRequest) {
+  let logId: ObjectId | null = null;
   try {
     const payload = await request.json();
     const { db } = await connectToDatabase();
 
     // 1. Log every webhook for visibility and manual reprocessing
     const searchableText = getSearchableText(payload);
-    await db.collection('webhook_logs').insertOne({
+    const logResult = await db.collection('webhook_logs').insertOne({
         payload: payload,
         searchableText,
+        processed: false, // Initially, all logs are unprocessed
         createdAt: new Date(),
     });
+    logId = logResult.insertedId;
     
     // 2. Decide on processing strategy based on the event type
     const change = payload?.entry?.[0]?.changes?.[0];
@@ -77,6 +81,7 @@ export async function POST(request: NextRequest) {
     if (field === 'messages') {
         await db.collection('webhook_queue').insertOne({
             payload: payload,
+            logId: logId, // Pass the logId to the queue item
             status: 'PENDING',
             createdAt: new Date(),
         });
@@ -87,7 +92,7 @@ export async function POST(request: NextRequest) {
     } else {
         // For all other low-volume event types (template updates, account status, etc.),
         // process them immediately. This is safe and provides faster feedback.
-        processSingleWebhook(db, payload).catch(err => {
+        processSingleWebhook(db, payload, logId).catch(err => {
             console.error(`Immediate webhook processing failed for field '${field}':`, err);
         });
         
@@ -95,8 +100,17 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ status: 'processing_initiated' }, { status: 200 });
     }
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error in webhook ingestion:', error);
+    // If an error occurs during ingestion and we have a log ID, mark the log as failed.
+    if (logId) {
+        try {
+            const { db } = await connectToDatabase();
+            await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: `Ingestion Error: ${error.message}` }});
+        } catch (dbError) {
+             console.error('Failed to mark log as error during ingestion failure:', dbError);
+        }
+    }
     // In case of error, return a server error but don't block Meta.
     return new NextResponse('Internal Server Error', { status: 500 });
   }
