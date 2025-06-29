@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -663,43 +664,67 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
 // --- Main Webhook Processing Logic ---
 
 async function findOrCreateProjectByWabaId(db: Db, wabaId: string): Promise<WithId<Project> | null> {
-    const existingProject = await db.collection('projects').findOne({ wabaId });
+    const existingProject = await db.collection<Project>('projects').findOne({ wabaId });
     if (existingProject) {
         return existingProject;
     }
 
     const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
+    const appId = process.env.NEXT_PUBLIC_META_APP_ID;
     const apiVersion = 'v22.0';
+
     if (!accessToken) {
         console.error("META_SYSTEM_USER_ACCESS_TOKEN is not set. Cannot create new project automatically for WABA:", wabaId);
         return null;
     }
+
     try {
         const wabaDetailsResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaId}?access_token=${accessToken}&fields=name`);
         const wabaDetails = await wabaDetailsResponse.json();
         if (wabaDetails.error) {
             throw new Error(`Meta API error getting WABA details: ${wabaDetails.error.message}`);
         }
+
         const phoneNumbersResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaId}/phone_numbers?access_token=${accessToken}&fields=verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput`);
         const phoneNumbersData = await phoneNumbersResponse.json();
         if (phoneNumbersData.error) {
             throw new Error(`Meta API error getting phone numbers: ${phoneNumbersData.error.message}`);
         }
-        const phoneNumbers = phoneNumbersData.data ? phoneNumbersData.data.map((num: any) => ({
+
+        const phoneNumbers: PhoneNumber[] = phoneNumbersData.data ? phoneNumbersData.data.map((num: any) => ({
             id: num.id, display_phone_number: num.display_phone_number, verified_name: num.verified_name,
             code_verification_status: num.code_verification_status, quality_rating: num.quality_rating,
             platform_type: num.platform_type, throughput: num.throughput,
         })) : [];
+
         const projectDoc = {
-            name: wabaDetails.name, wabaId: wabaId, accessToken: accessToken, phoneNumbers: phoneNumbers,
-            messagesPerSecond: 1000, reviewStatus: 'UNKNOWN',
+            name: wabaDetails.name,
+            wabaId: wabaId,
+            accessToken: accessToken,
+            phoneNumbers: phoneNumbers,
+            messagesPerSecond: 1000,
+            reviewStatus: 'UNKNOWN',
+            appId: appId,
         };
+
         const result = await db.collection('projects').findOneAndUpdate(
             { wabaId: wabaId },
-            { $set: { name: projectDoc.name, accessToken: projectDoc.accessToken, phoneNumbers: projectDoc.phoneNumbers, reviewStatus: projectDoc.reviewStatus, },
-              $setOnInsert: { createdAt: new Date(), messagesPerSecond: projectDoc.messagesPerSecond, } },
+            { 
+                $set: {
+                    name: projectDoc.name,
+                    accessToken: projectDoc.accessToken,
+                    phoneNumbers: projectDoc.phoneNumbers,
+                    reviewStatus: projectDoc.reviewStatus,
+                    appId: projectDoc.appId,
+                },
+                $setOnInsert: {
+                    createdAt: new Date(),
+                    messagesPerSecond: projectDoc.messagesPerSecond
+                }
+            },
             { upsert: true, returnDocument: 'after' }
         );
+
         const newProject = result;
         if (newProject) {
             await db.collection('notifications').insertOne({

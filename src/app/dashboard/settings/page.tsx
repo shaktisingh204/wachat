@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, LoaderCircle, Save } from 'lucide-react';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
 
 const updateSettingsInitialState = {
   message: null,
@@ -39,6 +40,15 @@ function SubmitButton() {
       )}
     </Button>
   );
+}
+
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
+    return (
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center border-b py-3 last:border-b-0 gap-2">
+            <dt className="text-muted-foreground">{label}</dt>
+            <dd className="font-semibold text-left sm:text-right">{value}</dd>
+        </div>
+    );
 }
 
 export default function SettingsPage() {
@@ -87,6 +97,14 @@ export default function SettingsPage() {
       });
     }
   }, [state, toast]);
+  
+  const getReviewStatusVariant = (status?: string) => {
+    if (!status) return 'outline';
+    const lowerStatus = status.toLowerCase();
+    if (lowerStatus === 'approved' || lowerStatus === 'verified') return 'default';
+    if (lowerStatus.includes('pending') || lowerStatus.includes('unknown')) return 'secondary';
+    return 'destructive';
+  };
 
   if (!isClient || loading) {
     return (
@@ -160,6 +178,27 @@ export default function SettingsPage() {
           </CardFooter>
         </Card>
       </form>
+      
+      <Card>
+        <CardHeader>
+            <CardTitle>Project Information</CardTitle>
+            <CardDescription>General and technical details for this project.</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <dl className="space-y-1 text-sm">
+                <InfoRow label="Project Name" value={project.name} />
+                <InfoRow label="WABA ID" value={<span className="font-mono text-sm break-all">{project.wabaId}</span>} />
+                <InfoRow label="App ID" value={project.appId ? <span className="font-mono text-sm">{project.appId}</span> : 'N/A'} />
+                <InfoRow label="Internal Project ID" value={<span className="font-mono text-sm break-all">{project._id.toString()}</span>} />
+                <InfoRow label="Account Review" value={
+                    <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize">
+                        {project.reviewStatus?.replace(/_/g, ' ') || 'Unknown'}
+                    </Badge>
+                } />
+                <InfoRow label="Created At" value={new Date(project.createdAt).toLocaleString()} />
+            </dl>
+        </CardContent>
+      </Card>
       
       <Card>
         <CardHeader>

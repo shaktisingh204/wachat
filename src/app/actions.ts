@@ -9,6 +9,7 @@
 
 
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -3062,7 +3063,7 @@ export async function handleCreateProject(
         const wabaDetails = await wabaDetailsResponse.json();
 
         if (wabaDetails.error) {
-            return { error: `Failed to verify Business ID: ${wabaDetails.error.message}` };
+            return { error: `Failed to verify Business ID ${wabaId}: ${wabaDetails.error.message}` };
         }
         const wabaName = wabaDetails.name;
         
