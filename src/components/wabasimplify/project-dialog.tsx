@@ -83,13 +83,17 @@ export function CreateProjectDialog() {
           <DialogHeader>
             <DialogTitle>Manual Project Setup</DialogTitle>
             <DialogDescription>
-              Enter your WhatsApp Business ID and a permanent System User Token. The project will be automatically named after your verified business name.
+              Enter your WhatsApp Business ID, App ID, and a permanent System User Token. The project will be automatically named after your verified business name.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="wabaId" className="text-right">Business ID</Label>
               <Input id="wabaId" name="wabaId" placeholder="WhatsApp Business Account ID" className="col-span-3" required />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="appId" className="text-right">App ID</Label>
+              <Input id="appId" name="appId" placeholder="Your Meta App ID" className="col-span-3" required />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="accessToken" className="text-right">Access Token</Label>

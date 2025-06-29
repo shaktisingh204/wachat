@@ -7,6 +7,7 @@
 
 
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -900,11 +901,6 @@ export async function handleCreateTemplate(
     };
 
     try {
-        const appId = process.env.NEXT_PUBLIC_META_APP_ID;
-        if (!appId) {
-            return { error: 'NEXT_PUBLIC_META_APP_ID is not configured in the environment variables. Please set it in the .env file.' };
-        }
-
         const projectId = formData.get('projectId') as string;
         
         if (!projectId || !ObjectId.isValid(projectId)) {
@@ -914,6 +910,11 @@ export async function handleCreateTemplate(
         const project = await getProjectById(projectId);
         if (!project) {
             return { error: 'Project not found or you do not have access.' };
+        }
+
+        const appId = project.appId || process.env.NEXT_PUBLIC_META_APP_ID;
+        if (!appId) {
+            return { error: 'App ID is not configured for this project, and no fallback is set in environment variables. Please set NEXT_PUBLIC_META_APP_ID in the .env file or re-configure the project.' };
         }
         
         const name = cleanText(formData.get('templateName') as string);
@@ -3031,10 +3032,11 @@ export async function handleCreateProject(
     }
 
     const wabaId = formData.get('wabaId') as string;
+    const appId = formData.get('appId') as string;
     const accessToken = formData.get('accessToken') as string;
 
-    if (!wabaId || !accessToken) {
-        return { error: 'WhatsApp Business ID and Access Token are required.' };
+    if (!wabaId || !accessToken || !appId) {
+        return { error: 'WhatsApp Business ID, App ID, and Access Token are required.' };
     }
 
     try {
@@ -3080,6 +3082,7 @@ export async function handleCreateProject(
             userId: new ObjectId(session.user._id),
             name: wabaName,
             wabaId: wabaId,
+            appId: appId,
             accessToken: accessToken,
             phoneNumbers: phoneNumbers,
             messagesPerSecond: 1000,

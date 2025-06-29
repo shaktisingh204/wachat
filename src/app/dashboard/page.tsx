@@ -5,6 +5,7 @@
 
 
 
+
 import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
@@ -72,6 +73,7 @@ export type Project = {
     userId: ObjectId;
     name: string;
     wabaId: string;
+    appId?: string;
     accessToken: string;
     phoneNumbers: PhoneNumber[];
     createdAt: Date;
