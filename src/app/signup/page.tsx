@@ -84,7 +84,7 @@ export default function SignupPage() {
                 <SubmitButton />
             </CardContent>
           </form>
-          <CardFooter>
+          <CardFooter className="justify-center">
               <p className="text-sm text-muted-foreground">
                   Already have an account?{' '}
                   <Link href="/login" className="text-primary hover:underline">

@@ -78,7 +78,7 @@ export default function AdminLoginPage() {
               </Button>
             </form>
           </CardContent>
-          <CardFooter>
+          <CardFooter className="justify-center">
              <p className="text-sm text-muted-foreground">
                   Not an admin?{' '}
                   <Link href="/login" className="text-primary hover:underline">
