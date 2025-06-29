@@ -1,4 +1,5 @@
 
+
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
@@ -141,7 +142,7 @@ export default async function HomePage() {
                 </Button>
               </div>
             </div>
-            <div className="relative p-2 bg-muted rounded-xl w-full max-w-4xl shadow-2xl">
+            <div className="relative p-2 bg-muted rounded-xl w-full max-w-6xl shadow-2xl">
               <Image
                 src="https://placehold.co/1200x675.png"
                 alt="Wachat dashboard preview"

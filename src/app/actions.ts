@@ -6,6 +6,7 @@
 
 
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -3017,5 +3018,85 @@ export async function handleChangePassword(prevState: UpdateProfileState, formDa
 
     } catch (e: any) {
         return { error: 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleCreateProject(
+    prevState: { message: string | null; error: string | null },
+    formData: FormData
+): Promise<{ message: string | null; error: string | null }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'You must be logged in to create a project.' };
+    }
+
+    const wabaId = formData.get('wabaId') as string;
+    const accessToken = formData.get('accessToken') as string;
+
+    if (!wabaId || !accessToken) {
+        return { error: 'WhatsApp Business ID and Access Token are required.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        const existingClaim = await db.collection('projects').findOne({ wabaId, userId: { $ne: new ObjectId(session.user._id) } });
+        if (existingClaim) {
+            return { error: 'This WhatsApp Business Account is already linked to another user.' };
+        }
+
+        const apiVersion = 'v22.0';
+
+        const wabaDetailsResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaId}?access_token=${accessToken}&fields=name`);
+        const wabaDetails = await wabaDetailsResponse.json();
+
+        if (wabaDetails.error) {
+            return { error: `Failed to verify Business ID: ${wabaDetails.error.message}` };
+        }
+        const wabaName = wabaDetails.name;
+        
+        const phoneNumbersResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaId}/phone_numbers?access_token=${accessToken}&fields=verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput`);
+        const phoneNumbersData = await phoneNumbersResponse.json();
+        
+        if (phoneNumbersData.error) {
+            return { error: `Failed to fetch phone numbers: ${phoneNumbersData.error.message}` };
+        }
+        
+        const phoneNumbers: PhoneNumber[] = phoneNumbersData.data ? phoneNumbersData.data.map((num: any) => ({
+            id: num.id,
+            display_phone_number: num.display_phone_number,
+            verified_name: num.verified_name,
+            code_verification_status: num.code_verification_status,
+            quality_rating: num.quality_rating,
+            platform_type: num.platform_type,
+            throughput: num.throughput,
+        })) : [];
+
+        if (phoneNumbers.length === 0) {
+            return { error: 'No phone numbers found for this WhatsApp Business Account.' };
+        }
+
+        const projectDoc = {
+            userId: new ObjectId(session.user._id),
+            name: wabaName,
+            wabaId: wabaId,
+            accessToken: accessToken,
+            phoneNumbers: phoneNumbers,
+            messagesPerSecond: 1000,
+            reviewStatus: 'UNKNOWN',
+        };
+        
+        await db.collection('projects').updateOne(
+            { wabaId: wabaId, userId: new ObjectId(session.user._id) },
+            { $set: projectDoc, $setOnInsert: { createdAt: new Date() } },
+            { upsert: true }
+        );
+
+        revalidatePath('/dashboard');
+        return { message: `Project "${wabaName}" connected successfully!`, error: null };
+
+    } catch (e: any) {
+        console.error('Manual project creation failed:', e);
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
 }

@@ -1,9 +1,11 @@
 
+
 import { EmbeddedSignup } from '@/components/wabasimplify/embedded-signup';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Metadata } from 'next';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
+import { CreateProjectDialog } from '@/components/wabasimplify/project-dialog';
 
 export const metadata: Metadata = {
   title: 'Setup | Wachat',
@@ -28,21 +30,27 @@ export default function SetupPage() {
 
   return (
     <div className="flex flex-col gap-8 items-center">
-      <div className="text-center max-w-2xl">
+      <div className="text-center max-w-3xl">
         <h1 className="text-3xl font-bold font-headline">Connect Your WhatsApp Account</h1>
         <p className="text-muted-foreground mt-2">
-          To get started, click the button below to launch the secure setup process. This will allow Wachat to manage your campaigns, templates, and messages on your behalf.
+          Choose your preferred method to connect your WhatsApp Business Account. We recommend the guided setup for most users.
         </p>
       </div>
-      <Card className="w-full max-w-lg">
-        <CardContent className="p-8 flex flex-col items-center text-center gap-6">
-            <h2 className="text-xl font-semibold">Ready to connect?</h2>
-            <EmbeddedSignup appId={appId} configId={configId} />
-            <p className="text-xs text-muted-foreground">
-                You will be redirected to Facebook to authorize the connection. Wachat will not see your Facebook password.
-            </p>
-        </CardContent>
-      </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
+        <Card className="flex flex-col">
+            <CardHeader>
+                <CardTitle>Guided Setup (Recommended)</CardTitle>
+                <CardDescription>Use the secure pop-up to connect your account in a few clicks.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow flex flex-col items-center justify-center text-center gap-6">
+                <EmbeddedSignup appId={appId} configId={configId} />
+                <p className="text-xs text-muted-foreground">
+                    You will be redirected to Facebook to authorize the connection.
+                </p>
+            </CardContent>
+        </Card>
+        <CreateProjectDialog />
+      </div>
     </div>
   );
 }

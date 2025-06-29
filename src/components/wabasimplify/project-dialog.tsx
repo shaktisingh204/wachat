@@ -17,8 +17,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, LoaderCircle } from 'lucide-react';
-import { Card, CardContent } from '../ui/card';
+import { PlusCircle, LoaderCircle, Key } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 
 const initialState = {
   message: null,
@@ -67,17 +67,21 @@ export function CreateProjectDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Card className="flex flex-col items-center justify-center border-2 border-dashed hover:border-primary hover:shadow-lg transition-all cursor-pointer min-h-[240px]">
-            <CardContent className="flex flex-col items-center justify-center p-6">
-                <PlusCircle className="h-10 w-10 text-muted-foreground mb-4" />
-                <span className="font-semibold text-center">Create New Project</span>
+        <Card className="flex flex-col text-center hover:shadow-lg hover:border-primary transition-all cursor-pointer">
+            <CardHeader>
+                <CardTitle>Manual Setup</CardTitle>
+                <CardDescription>Enter your credentials directly if you are an advanced user.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow flex flex-col items-center justify-center p-6">
+                <Key className="h-10 w-10 text-muted-foreground mb-4" />
+                <Button variant="outline">Connect Manually</Button>
             </CardContent>
         </Card>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[525px]">
         <form action={formAction}>
           <DialogHeader>
-            <DialogTitle>Create New Project</DialogTitle>
+            <DialogTitle>Manual Project Setup</DialogTitle>
             <DialogDescription>
               Enter your WhatsApp Business ID and a permanent System User Token. The project will be automatically named after your verified business name.
             </DialogDescription>
