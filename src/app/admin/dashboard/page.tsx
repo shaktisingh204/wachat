@@ -1,8 +1,9 @@
 
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Briefcase, CheckSquare, Server, AlertTriangle } from 'lucide-react';
 import type { Metadata } from 'next';
-import { getProjects } from '@/app/actions';
+import { getAllProjectsForAdmin } from '@/app/actions';
 import type { Project } from '@/app/dashboard/page';
 import type { WithId } from 'mongodb';
 import {
@@ -20,7 +21,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminDashboardPage() {
-  const projects: WithId<Project>[] = await getProjects();
+  const projects: WithId<Project>[] = await getAllProjectsForAdmin();
 
   return (
     <div className="flex flex-col gap-8">

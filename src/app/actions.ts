@@ -2,6 +2,7 @@
 
 
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -249,10 +250,28 @@ export async function getProjects(query?: string): Promise<WithId<Project>[]> {
         const projects = await db.collection('projects').find(filter).sort({ name: 1 }).toArray();
         return JSON.parse(JSON.stringify(projects));
     } catch (error) {
-        console.error("Failed to fetch projects:", error);
+        console.error("Failed to fetch projects for user:", error);
         return [];
     }
 }
+
+export async function getAllProjectsForAdmin(query?: string): Promise<WithId<Project>[]> {
+    // This is an admin-level function and should be protected by route middleware.
+    // It fetches all projects regardless of user ID.
+    try {
+        const { db } = await connectToDatabase();
+        const filter: Filter<Project> = {};
+        if (query) {
+            filter.name = { $regex: query, $options: 'i' };
+        }
+        const projects = await db.collection('projects').find(filter).sort({ name: 1 }).toArray();
+        return JSON.parse(JSON.stringify(projects));
+    } catch (error) {
+        console.error("Failed to fetch all projects for admin:", error);
+        return [];
+    }
+}
+
 
 export async function getProjectById(projectId: string): Promise<WithId<Project> | null> {
     const session = await getSession();
