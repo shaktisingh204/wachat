@@ -4,7 +4,7 @@
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
-import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes } from '@/app/actions';
+import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, UserAttribute } from '@/app/dashboard/page';
 import { useToast } from '@/hooks/use-toast';
@@ -252,7 +252,7 @@ function OptInOutForm({ project }: { project: WithId<Project> }) {
     )
 }
 
-function UserAttributesForm({ project }: { project: WithId<Project> }) {
+function UserAttributesForm({ project, user }: { project: WithId<Project>, user: Omit<User, 'password'> | null }) {
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleSaveUserAttributes, saveUserAttributesInitialState);
   
@@ -262,6 +262,10 @@ function UserAttributesForm({ project }: { project: WithId<Project> }) {
   const [searchQuery, setSearchQuery] = useState('');
   
   const { pending } = useFormStatus();
+
+  const plan = user?.plan || 'free';
+  const limit = plan === 'pro' ? 20 : 5;
+  const isAtLimit = attributes.length >= limit;
 
   useEffect(() => {
     if (state?.message) toast({ title: 'Success!', description: state.message });
@@ -273,8 +277,8 @@ function UserAttributesForm({ project }: { project: WithId<Project> }) {
       toast({ title: 'Error', description: 'Attribute name cannot be empty.', variant: 'destructive' });
       return;
     }
-    if (attributes.length >= 5) {
-      toast({ title: 'Limit Reached', description: 'You can create a maximum of 5 attributes. Upgrade to Pro for more.', variant: 'destructive' });
+    if (isAtLimit) {
+      toast({ title: 'Limit Reached', description: `Your "${plan}" plan allows a maximum of ${limit} attributes. Please upgrade for more.`, variant: 'destructive' });
       return;
     }
     setAttributes(prev => [...prev, {
@@ -319,9 +323,13 @@ function UserAttributesForm({ project }: { project: WithId<Project> }) {
         <CardContent className="space-y-6">
             <div className="p-4 bg-muted/50 rounded-lg space-y-2 text-sm text-muted-foreground">
                 <h4 className="font-semibold text-card-foreground">Quick Guide</h4>
-                <p>Attributes hold contact-specific values. You can assign custom values on the contacts page.</p>
-                <p>You can create up to 5 user attributes, in addition to default attributes like $Name, $MobileNumber, etc.</p>
-                <p className="font-semibold">Take your experience to the next level — unlock 20 attributes with Pro! 🚀</p>
+                 <p>Attributes hold contact-specific values, which you can assign on the contacts page.</p>
+                <p>Your current <span className="font-semibold capitalize text-primary">{plan}</span> plan allows for <span className="font-semibold text-primary">{limit}</span> custom attributes. You have created <span className="font-semibold text-primary">{attributes.length}</span>.</p>
+                {plan === 'free' && (
+                    <p className="font-semibold">
+                        <Link href="/dashboard/billing" className="text-primary hover:underline">Upgrade to Pro</Link> to unlock up to 20 attributes! 🚀
+                    </p>
+                )}
             </div>
 
             <div className="relative">
@@ -358,7 +366,7 @@ function UserAttributesForm({ project }: { project: WithId<Project> }) {
                 <div className="grid grid-cols-[1fr,1fr,auto] items-center gap-2 p-2 border rounded-md border-dashed">
                     <Input placeholder="Enter attribute name" value={newAttrName} onChange={e => setNewAttrName(e.target.value)} />
                     <Input placeholder="Enter action name" value={newAttrAction} onChange={e => setNewAttrAction(e.target.value)} />
-                    <Button type="button" onClick={handleAddAttribute} disabled={attributes.length >= 5}><Plus className="mr-2 h-4 w-4"/>Add</Button>
+                    <Button type="button" onClick={handleAddAttribute} disabled={isAtLimit}><Plus className="mr-2 h-4 w-4"/>Add</Button>
                 </div>
             </div>
         </CardContent>
@@ -376,6 +384,7 @@ function UserAttributesForm({ project }: { project: WithId<Project> }) {
 
 function SettingsPageContent() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
+  const [user, setUser] = useState<Omit<User, 'password'> | null>(null);
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
   const [messagesPerSecond, setMessagesPerSecond] = useState(1000);
@@ -394,16 +403,20 @@ function SettingsPageContent() {
         document.title = 'Project Settings | Wachat';
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (storedProjectId) {
-        getProjectById(storedProjectId)
-            .then((data) => {
-            if (data) {
-                setProject(data);
-                setMessagesPerSecond(data.messagesPerSecond || 1000);
-            }
-            })
-            .finally(() => setLoading(false));
+            Promise.all([
+                getProjectById(storedProjectId),
+                getSession()
+            ]).then(([projectData, sessionData]) => {
+                if (projectData) {
+                    setProject(projectData);
+                    setMessagesPerSecond(projectData.messagesPerSecond || 1000);
+                }
+                if (sessionData?.user) {
+                    setUser(sessionData.user);
+                }
+            }).finally(() => setLoading(false));
         } else {
-        setLoading(false);
+            setLoading(false);
         }
     }
   }, [isClient]);
@@ -436,7 +449,7 @@ function SettingsPageContent() {
     );
   }
 
-  if (!project) {
+  if (!project || !user) {
     return (
       <div className="flex flex-col gap-8">
         <div><h1 className="text-3xl font-bold font-headline">Project Settings</h1><p className="text-muted-foreground">Manage settings for your project.</p></div>
@@ -503,7 +516,7 @@ function SettingsPageContent() {
           </TabsContent>
 
           <TabsContent value="attributes" className="mt-6">
-            <UserAttributesForm project={project} />
+            <UserAttributesForm project={project} user={user} />
           </TabsContent>
 
         </Tabs>

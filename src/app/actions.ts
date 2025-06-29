@@ -25,6 +25,7 @@ export type User = {
     email: string;
     password?: string;
     createdAt: Date;
+    plan?: 'free' | 'pro';
 };
 
 
@@ -2949,6 +2950,7 @@ export async function handleSignup(prevState: AuthState, formData: FormData): Pr
             email,
             password: hashedPassword,
             createdAt: new Date(),
+            plan: 'free',
         };
 
         const result = await db.collection('users').insertOne(newUser);
@@ -3366,10 +3368,20 @@ export async function handleSaveUserAttributes(
   const projectId = formData.get('projectId') as string;
   const attributesString = formData.get('attributes') as string;
 
+  const session = await getSession();
+    if (!session?.user) {
+        return { error: 'You must be logged in to save attributes.' };
+    }
+
   const project = await getProjectById(projectId);
   if (!project) {
     return { error: 'Project not found or you do not have access.' };
   }
+
+  const { db } = await connectToDatabase();
+  const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
+  const plan = user?.plan || 'free';
+  const limit = plan === 'pro' ? 20 : 5;
 
   try {
     const attributes: UserAttribute[] = JSON.parse(attributesString);
@@ -3378,11 +3390,10 @@ export async function handleSaveUserAttributes(
         return { error: "Attribute name cannot be empty." };
     }
     
-    if (attributes.length > 5) {
-      return { error: 'You can create a maximum of 5 user attributes. Upgrade to Pro for more.' };
+    if (attributes.length > limit) {
+      return { error: `Your "${plan}" plan allows a maximum of ${limit} user attributes. Please upgrade to create more.` };
     }
 
-    const { db } = await connectToDatabase();
     const result = await db.collection('projects').updateOne(
       { _id: new ObjectId(projectId) },
       { $set: { userAttributes: attributes } }
