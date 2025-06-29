@@ -44,6 +44,7 @@ import {
   History,
   Bell,
   LogOut,
+  ClipboardList,
 } from 'lucide-react';
 import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -256,6 +257,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 const menuItems = [
   { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
   { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare },
+  { href: '/dashboard/canned-messages', label: 'Canned Messages', icon: ClipboardList },
   { href: '/dashboard/contacts', label: 'Contacts', icon: Users },
   { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send },
   { href: '/dashboard/templates', label: 'Templates', icon: FileText },

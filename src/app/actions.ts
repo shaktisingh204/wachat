@@ -198,6 +198,22 @@ export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 // Re-export types for client components
 export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute };
 
+export type CannedMessage = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    name: string;
+    type: 'text' | 'image' | 'audio' | 'video' | 'document';
+    content: {
+        text?: string;
+        mediaUrl?: string;
+        caption?: string;
+        fileName?: string;
+    };
+    isFavourite: boolean;
+    createdBy: string;
+    createdAt: Date;
+};
+
 const getErrorMessage = (error: any): string => {
     if (axios.isAxiosError(error) && error.response?.data?.error) {
         const apiError = error.response.data.error;
@@ -295,7 +311,13 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
             userId: new ObjectId(session.user._id) 
         });
         if (!project) {
-            console.error("Project not found for user in getProjectById for ID:", projectId);
+            // Check if it exists at all, just not for this user.
+            const anyProject = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+            if (anyProject) {
+                console.error(`User ${session.user._id} attempted to access project ${projectId} but does not have permission.`);
+            } else {
+                 console.error("Project not found for getProjectById for ID:", projectId);
+            }
             return null;
         }
         return JSON.parse(JSON.stringify(project));
@@ -614,7 +636,9 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
 
                 if (contactsToInsert.length > 0) {
                     await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false }).catch(err => {
-                        console.warn("Bulk insert for broadcast contacts failed. Some may be duplicates.", err.code);
+                        if (err.code !== 11000) { // 11000 is duplicate key error, which we can ignore
+                            console.warn("Bulk insert for broadcast contacts failed.", err.code);
+                        }
                     });
                 }
                 
@@ -1260,6 +1284,7 @@ export async function handleCleanDatabase(
           await db.collection('incoming_messages').deleteMany({});
           await db.collection('outgoing_messages').deleteMany({});
           await db.collection('flows').deleteMany({});
+          await db.collection('canned_messages').deleteMany({});
 
           revalidatePath('/dashboard');
   
@@ -2644,6 +2669,113 @@ export async function deleteFlow(flowId: string): Promise<{ message?: string; er
     }
 }
 
+// --- Canned Messages Actions ---
+export async function getCannedMessages(projectId: string): Promise<WithId<CannedMessage>[]> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const messages = await db.collection('canned_messages')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ isFavourite: -1, name: 1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(messages));
+    } catch (e: any) {
+        console.error("Failed to fetch canned messages:", e);
+        return [];
+    }
+}
+
+type SaveCannedMessageResult = {
+  message?: string;
+  error?: string;
+};
+
+export async function saveCannedMessageAction(prevState: any, formData: FormData): Promise<SaveCannedMessageResult> {
+    const session = await getSession();
+    if (!session?.user) return { error: "User not authenticated." };
+
+    const cannedMessageId = formData.get('_id') as string | null;
+    const projectId = formData.get('projectId') as string;
+    
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
+
+    const data: Partial<CannedMessage> = {
+        name: formData.get('name') as string,
+        type: formData.get('type') as CannedMessage['type'],
+        isFavourite: formData.get('isFavourite') === 'on',
+        content: {
+            text: formData.get('text') as string,
+            mediaUrl: formData.get('mediaUrl') as string,
+            caption: formData.get('caption') as string,
+            fileName: formData.get('fileName') as string,
+        }
+    };
+    
+    if (!data.name || !data.type) {
+        return { error: 'Name and Type are required.' };
+    }
+    
+    // Clean up content based on type
+    if (data.type === 'text') {
+        if (!data.content?.text) return { error: 'Text content is required for text messages.' };
+        data.content = { text: data.content.text };
+    } else {
+        if (!data.content?.mediaUrl) return { error: 'Media URL is required for media messages.' };
+        data.content = { 
+            mediaUrl: data.content.mediaUrl, 
+            caption: data.content.caption, 
+            fileName: data.content.fileName 
+        };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        if (cannedMessageId && ObjectId.isValid(cannedMessageId)) {
+            await db.collection('canned_messages').updateOne(
+                { _id: new ObjectId(cannedMessageId), projectId: new ObjectId(projectId) },
+                { $set: data }
+            );
+        } else {
+            await db.collection('canned_messages').insertOne({
+                ...data,
+                projectId: new ObjectId(projectId),
+                createdAt: new Date(),
+                createdBy: session.user.name,
+            } as any);
+        }
+        revalidatePath('/dashboard/canned-messages');
+        return { message: 'Canned message saved successfully.' };
+    } catch (e: any) {
+        console.error("Failed to save canned message:", e);
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function deleteCannedMessage(cannedMessageId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(cannedMessageId)) return { success: false, error: 'Invalid ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        const cannedMessage = await db.collection('canned_messages').findOne({ _id: new ObjectId(cannedMessageId) });
+        if (!cannedMessage) return { success: false, error: 'Canned message not found.' };
+
+        const hasAccess = await getProjectById(cannedMessage.projectId.toString());
+        if (!hasAccess) return { success: false, error: 'Access denied.' };
+
+        await db.collection('canned_messages').deleteOne({ _id: new ObjectId(cannedMessageId) });
+        
+        revalidatePath('/dashboard/canned-messages');
+        return { success: true };
+    } catch (e: any) {
+        console.error("Failed to delete canned message:", e);
+        return { success: false, error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
 
 // --- AGGREGATOR ACTIONS FOR OPTIMIZED LOADING ---
 
@@ -2773,9 +2905,9 @@ export async function handleLogin(prevState: AuthState, formData: FormData): Pro
             return { error: 'Invalid email or password.' };
         }
 
+        const cookieStore = await cookies();
         const token = createSessionToken({ userId: user._id.toString(), email: user.email });
 
-        const cookieStore = await cookies();
         cookieStore.set('session', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -2824,9 +2956,9 @@ export async function handleSignup(prevState: AuthState, formData: FormData): Pr
         const result = await db.collection('users').insertOne(newUser);
         const userId = result.insertedId;
 
+        const cookieStore = await cookies();
         const token = createSessionToken({ userId: userId.toString(), email });
 
-        const cookieStore = await cookies();
         cookieStore.set('session', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
