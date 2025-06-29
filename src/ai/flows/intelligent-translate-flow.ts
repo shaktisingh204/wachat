@@ -30,7 +30,7 @@ const countryCodeToLanguage: Record<string, string> = {
     '44': 'English', // UK
 };
 
-export function detectLanguageFromWaId(waId: string): string {
+export async function detectLanguageFromWaId(waId: string): Promise<string> {
     for (const code in countryCodeToLanguage) {
         if (waId.startsWith(code)) {
             return countryCodeToLanguage[code];
@@ -84,7 +84,7 @@ const intelligentTranslateFlow = ai.defineFlow(
     if (input.targetLanguage) {
         finalLanguage = input.targetLanguage;
     } else if (input.waId) {
-        finalLanguage = detectLanguageFromWaId(input.waId);
+        finalLanguage = await detectLanguageFromWaId(input.waId);
     }
     
     const {output} = await prompt({

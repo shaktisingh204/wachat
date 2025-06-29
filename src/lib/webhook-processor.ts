@@ -344,7 +344,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
         case 'language': {
             const mode = node.data.mode || 'automatic';
             if (mode === 'automatic') {
-                const detectedLanguage = detectLanguageFromWaId(contact.waId);
+                const detectedLanguage = await detectLanguageFromWaId(contact.waId);
                 contact.activeFlow.variables.flowTargetLanguage = detectedLanguage;
                 console.log(`[Flow Engine] Auto language set to '${detectedLanguage}' for contact ${contact.waId}.`);
                 
