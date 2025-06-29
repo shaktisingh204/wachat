@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { getWebhookLogs, handleClearWebhookLogs, handleReprocessWebhook, handleRequeueAllWebhookLogs, getWebhookLogPayload } from '@/app/actions';
+import { getWebhookLogs, handleClearProcessedLogs, handleReprocessWebhook, handleRequeueAllWebhookLogs, getWebhookLogPayload } from '@/app/actions';
 import type { WebhookLogListItem } from '@/app/actions';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -88,7 +89,7 @@ export function WebhookLogs() {
 
     const handleClearLogs = () => {
         startClearingTransition(async () => {
-            const result = await handleClearWebhookLogs();
+            const result = await handleClearProcessedLogs();
             if (result.error) {
                 toast({ title: "Error", description: result.error, variant: "destructive" });
             } else {
@@ -152,7 +153,7 @@ export function WebhookLogs() {
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <CardTitle>Webhook Event Logs</CardTitle>
-                        <CardDescription>A real-time log of events received from Meta. Logs older than 24 hours are cleared automatically.</CardDescription>
+                        <CardDescription>A real-time log of events received from Meta. Processed logs are cleared out periodically.</CardDescription>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                          <div className="relative w-full sm:w-auto">
@@ -169,7 +170,7 @@ export function WebhookLogs() {
                         </Button>
                         <Button onClick={handleClearLogs} disabled={isClearing || isRefreshing} variant="outline" size="sm">
                             {isClearing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                            Clear Old Logs
+                            Clear Processed Logs
                         </Button>
                          <Button onClick={() => fetchLogs(currentPage, searchQuery, true)} disabled={isRefreshing} variant="outline" size="sm">
                             <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />

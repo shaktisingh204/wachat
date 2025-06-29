@@ -15,6 +15,7 @@ import axios from 'axios';
 import { translateText } from '@/ai/flows/translate-text';
 import { processSingleWebhook } from '@/lib/webhook-processor';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
+import { intelligentTranslate } from '@/ai/flows/intelligent-translate-flow';
 
 type MetaPhoneNumber = {
     id: string;
@@ -1639,20 +1640,21 @@ export async function getWebhookLogPayload(logId: string): Promise<any | null> {
     }
 }
 
-export async function handleClearWebhookLogs(): Promise<{ message?: string; error?: string, deletedCount?: number }> {
+export async function handleClearProcessedLogs(): Promise<{ message?: string; error?: string, deletedCount?: number }> {
     try {
         const { db } = await connectToDatabase();
-        const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+        // A log is considered "processed" and safe to clear after 1 hour.
+        const oneHourAgo = new Date(Date.now() - 1 * 60 * 60 * 1000);
         
         const result = await db.collection('webhook_logs').deleteMany({
-            createdAt: { $lt: twentyFourHoursAgo }
+            createdAt: { $lt: oneHourAgo }
         });
 
         revalidatePath('/dashboard/webhooks');
 
-        return { message: `Successfully cleared ${result.deletedCount} old webhook log(s).`, deletedCount: result.deletedCount };
+        return { message: `Successfully cleared ${result.deletedCount} processed webhook log(s) older than one hour.`, deletedCount: result.deletedCount };
     } catch (e: any) {
-        console.error('Failed to clear webhook logs:', e);
+        console.error('Failed to clear processed webhook logs:', e);
         return { error: e.message || 'An unexpected error occurred while clearing logs.' };
     }
 }
@@ -2284,7 +2286,7 @@ export async function handleTranslateMessage(text: string): Promise<{ translated
         return { error: 'Text to translate cannot be empty.' };
     }
     try {
-        const result = await translateText({ text, targetLanguage: 'English' });
+        const result = await intelligentTranslate({ text, targetLanguage: 'English' });
         return { translatedText: result.translatedText };
     } catch (e: any) {
         console.error('Translation failed:', e);
