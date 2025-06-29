@@ -18,6 +18,30 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { hashPassword, comparePassword, createSessionToken, verifySessionToken } from '@/lib/auth';
 
+// --- Plan Management Types ---
+export type PlanFeaturePermissions = {
+    campaigns: boolean;
+    liveChat: boolean;
+    contacts: boolean;
+    templates: boolean;
+    flowBuilder: boolean;
+    apiAccess: boolean;
+};
+
+export type Plan = {
+    _id: ObjectId;
+    name: string;
+    price: number;
+    isPublic: boolean;
+    isDefault: boolean;
+    projectLimit: number;
+    agentLimit: number;
+    attributeLimit: number;
+    broadcastMessageCost: number;
+    features: PlanFeaturePermissions;
+    createdAt: Date;
+};
+
 // --- User Management Types ---
 export type User = {
     _id: ObjectId;
@@ -25,7 +49,7 @@ export type User = {
     email: string;
     password?: string;
     createdAt: Date;
-    plan?: 'free' | 'pro';
+    planId?: ObjectId;
 };
 
 export type Invitation = {
@@ -2961,6 +2985,12 @@ export async function handleSignup(prevState: AuthState, formData: FormData): Pr
             return { error: 'A user with this email already exists.' };
         }
 
+        const defaultPlan = await db.collection('plans').findOne({ isDefault: true });
+        if (!defaultPlan) {
+            console.error("CRITICAL: No default plan found during signup.");
+            return { error: 'Could not create account due to a server configuration issue. Please contact support.' };
+        }
+
         const hashedPassword = await hashPassword(password);
 
         const newUser: Omit<User, '_id'> = {
@@ -2968,7 +2998,7 @@ export async function handleSignup(prevState: AuthState, formData: FormData): Pr
             email,
             password: hashedPassword,
             createdAt: new Date(),
-            plan: 'free',
+            planId: defaultPlan._id,
         };
 
         const result = await db.collection('users').insertOne(newUser);
@@ -2993,29 +3023,62 @@ export async function handleSignup(prevState: AuthState, formData: FormData): Pr
     redirect('/dashboard');
 }
 
-export async function getSession(): Promise<{ user: Omit<User, 'password'> } | null> {
-  const cookieStore = await cookies();
-  const sessionCookie = cookieStore.get('session')?.value;
-  if (!sessionCookie) return null;
+export async function getSession(): Promise<{ user: (Omit<User, 'password' | 'planId'> & { plan: WithId<Plan> | null }) } | null> {
+    const cookieStore = await cookies();
+    const sessionCookie = cookieStore.get('session')?.value;
+    if (!sessionCookie) return null;
 
-  try {
-    const session = verifySessionToken(sessionCookie);
-    if (!session) return null;
-    
-    const { db } = await connectToDatabase();
-    const user = await db.collection<User>('users').findOne(
-      { _id: new ObjectId(session.userId) },
-      { projection: { password: 0 } } // Exclude password hash from result
-    );
+    try {
+        const session = verifySessionToken(sessionCookie);
+        if (!session) return null;
 
-    if (!user) return null;
+        const { db } = await connectToDatabase();
+        
+        const aggregationResult = await db.collection<User>('users').aggregate([
+            { $match: { _id: new ObjectId(session.userId) } },
+            {
+                $lookup: {
+                    from: 'plans',
+                    localField: 'planId',
+                    foreignField: '_id',
+                    as: 'planDetails'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$planDetails',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    password: 0,
+                    planId: 0,
+                    plan: '$planDetails'
+                }
+            }
+        ]).toArray();
+        
+        if (aggregationResult.length === 0) return null;
+        
+        const userWithPlan: any = aggregationResult[0];
 
-    return { user: JSON.parse(JSON.stringify(user)) };
-  } catch (e) {
-    console.error("Failed to fetch session user from DB:", e);
-    return null;
-  }
+        const user = {
+            _id: userWithPlan._id,
+            name: userWithPlan.name,
+            email: userWithPlan.email,
+            createdAt: userWithPlan.createdAt,
+            plan: userWithPlan.plan || null
+        };
+        
+        return { user: JSON.parse(JSON.stringify(user)) };
+
+    } catch (e) {
+        console.error("Failed to fetch session user from DB:", e);
+        return null;
+    }
 }
+
 
 export async function handleLogout() {
   const cookieStore = await cookies();
@@ -3393,8 +3456,16 @@ export async function handleSaveUserAttributes(
 
   const { db } = await connectToDatabase();
   const owner = await db.collection<User>('users').findOne({ _id: project.userId });
-  const plan = owner?.plan || 'free';
-  const limit = plan === 'pro' ? 20 : 5;
+  if (!owner) return { error: "Project owner not found." };
+  
+  const plan = owner.planId ? await db.collection<Plan>('plans').findOne({ _id: owner.planId }) : null;
+  if (!plan) {
+    console.error(`User ${owner._id} has a planId ${owner.planId} which does not exist in the plans collection.`);
+    return { error: `Attribute limit cannot be determined. Please contact support.` };
+  }
+  
+  const limit = plan.attributeLimit;
+  const planName = plan.name;
 
   try {
     const attributes: UserAttribute[] = JSON.parse(attributesString);
@@ -3404,7 +3475,7 @@ export async function handleSaveUserAttributes(
     }
     
     if (attributes.length > limit) {
-      return { error: `Your "${plan}" plan allows a maximum of ${limit} user attributes. Please upgrade to create more.` };
+      return { error: `Your "${planName}" plan allows a maximum of ${limit} user attributes. Please upgrade to create more.` };
     }
 
     const result = await db.collection('projects').updateOne(
@@ -3467,6 +3538,110 @@ export async function handleUpdateContactVariables(
   }
 }
 
+// --- PLAN MANAGEMENT ACTIONS ---
+
+export async function getPlans(filter?: Filter<Plan>): Promise<WithId<Plan>[]> {
+    try {
+        const { db } = await connectToDatabase();
+        const plans = await db.collection<Plan>('plans').find(filter || {}).sort({ price: 1 }).toArray();
+        return JSON.parse(JSON.stringify(plans));
+    } catch (error) {
+        console.error('Failed to fetch plans:', error);
+        return [];
+    }
+}
+
+export async function getPlanById(planId: string): Promise<WithId<Plan> | null> {
+    if (!ObjectId.isValid(planId)) return null;
+    try {
+        const { db } = await connectToDatabase();
+        const plan = await db.collection<Plan>('plans').findOne({ _id: new ObjectId(planId) });
+        return plan ? JSON.parse(JSON.stringify(plan)) : null;
+    } catch (error) {
+        console.error('Failed to fetch plan by ID:', error);
+        return null;
+    }
+}
+
+export async function savePlan(prevState: { message: string | null; error: string | null }, formData: FormData): Promise<{ message: string | null; error: string | null }> {
+    const planId = formData.get('planId') as string;
+    const isNew = planId === 'new';
+
+    const featurePermissions: PlanFeaturePermissions = {
+        campaigns: formData.get('campaigns') === 'on',
+        liveChat: formData.get('liveChat') === 'on',
+        contacts: formData.get('contacts') === 'on',
+        templates: formData.get('templates') === 'on',
+        flowBuilder: formData.get('flowBuilder') === 'on',
+        apiAccess: formData.get('apiAccess') === 'on',
+    };
+
+    const planData: Omit<Plan, '_id' | 'createdAt'> = {
+        name: formData.get('name') as string,
+        price: Number(formData.get('price')),
+        broadcastMessageCost: Number(formData.get('broadcastMessageCost')),
+        isPublic: formData.get('isPublic') === 'on',
+        isDefault: formData.get('isDefault') === 'on',
+        projectLimit: Number(formData.get('projectLimit')),
+        agentLimit: Number(formData.get('agentLimit')),
+        attributeLimit: Number(formData.get('attributeLimit')),
+        features: featurePermissions,
+    };
+    
+    if (!planData.name || isNaN(planData.price)) {
+        return { error: 'Plan name and a valid price are required.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        if (planData.isDefault) {
+            await db.collection('plans').updateMany({ _id: { $ne: isNew ? new ObjectId() : new ObjectId(planId) } }, { $set: { isDefault: false } });
+        }
+
+        if (isNew) {
+            await db.collection('plans').insertOne({ ...planData, createdAt: new Date() } as any);
+        } else {
+            await db.collection('plans').updateOne({ _id: new ObjectId(planId) }, { $set: planData });
+        }
+
+        revalidatePath('/admin/dashboard/plans');
+        revalidatePath('/dashboard/billing');
+        return { message: 'Plan saved successfully!' };
+    } catch (e: any) {
+        console.error('Failed to save plan:', e);
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function deletePlan(prevState: { message: string | null; error: string | null }, formData: FormData): Promise<{ message: string | null; error: string | null }> {
+    const planId = formData.get('planId') as string;
+    if (!planId || !ObjectId.isValid(planId)) return { error: 'Invalid plan ID.' };
+    
+    try {
+        const { db } = await connectToDatabase();
+        const planToDelete = await db.collection('plans').findOne({ _id: new ObjectId(planId) });
+        if (planToDelete?.isDefault) {
+            return { error: 'Cannot delete the default plan. Please set another plan as default first.' };
+        }
+
+        const userCount = await db.collection('users').countDocuments({ planId: new ObjectId(planId) });
+        if (userCount > 0) {
+            return { error: `Cannot delete plan as ${userCount} user(s) are currently subscribed to it.` };
+        }
+
+        await db.collection('plans').deleteOne({ _id: new ObjectId(planId) });
+        
+        revalidatePath('/admin/dashboard/plans');
+        revalidatePath('/dashboard/billing');
+        return { message: 'Plan deleted successfully.' };
+
+    } catch (e: any) {
+        console.error('Failed to delete plan:', e);
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
 
 // --- AGENT MANAGEMENT ACTIONS ---
 
@@ -3499,11 +3674,19 @@ export async function handleInviteAgent(prevState: AgentManagementState, formDat
         }
 
         const owner = await db.collection<User>('users').findOne({ _id: project.userId });
-        const agentLimit = owner?.plan === 'pro' ? 10 : 1;
+        if (!owner) return { error: "Project owner not found." };
+        
+        const plan = owner.planId ? await db.collection<Plan>('plans').findOne({ _id: owner.planId }) : null;
+        if (!plan) {
+            console.error(`User ${owner._id} has a planId ${owner.planId} which does not exist.`);
+            return { error: `Agent limit cannot be determined. Please contact support.` };
+        }
+
+        const agentLimit = plan.agentLimit;
         const currentAgentCount = project.agents?.length || 0;
         
         if (currentAgentCount >= agentLimit) {
-            return { error: `You have reached the agent limit for your "${owner?.plan}" plan. Please upgrade to add more agents.` };
+            return { error: `You have reached the agent limit for your "${plan.name}" plan. Please upgrade to add more agents.` };
         }
         
         const isAlreadyAgent = project.agents?.some(agent => agent.email === inviteeEmail);
@@ -3524,7 +3707,7 @@ export async function handleInviteAgent(prevState: AgentManagementState, formDat
         const newInvitation: Omit<Invitation, '_id'> = {
             projectId: project._id,
             projectName: project.name,
-            inviterId: session.user._id,
+            inviterId: new ObjectId(session.user._id),
             inviterName: session.user.name,
             inviteeEmail,
             role,
@@ -3578,7 +3761,6 @@ export async function handleRespondToInvite(invitationId: string, accepted: bool
             return { success: true };
         }
 
-        // If accepting, do one final check on plan limits
         const project = await db.collection<Project>('projects').findOne({ _id: invitation.projectId });
         if (!project) {
              await db.collection('invitations').deleteOne({ _id: invitation._id });
@@ -3586,10 +3768,19 @@ export async function handleRespondToInvite(invitationId: string, accepted: bool
         }
         
         const owner = await db.collection<User>('users').findOne({ _id: project.userId });
-        const agentLimit = owner?.plan === 'pro' ? 10 : 1;
+        if (!owner) return { success: false, error: "Project owner not found." };
+        
+        const plan = owner.planId ? await db.collection<Plan>('plans').findOne({ _id: owner.planId }) : null;
+        if (!plan) {
+            await db.collection('invitations').deleteOne({ _id: invitation._id });
+            console.error(`User ${owner._id} has a planId ${owner.planId} which does not exist.`);
+            return { success: false, error: 'Could not verify project plan. Please contact support.' };
+        }
+        
+        const agentLimit = plan.agentLimit;
         if ((project.agents?.length || 0) >= agentLimit) {
             await db.collection('invitations').deleteOne({ _id: invitation._id });
-            return { success: false, error: `The project owner has reached their agent limit for the "${owner?.plan}" plan.` };
+            return { success: false, error: `The project owner has reached their agent limit for the "${plan.name}" plan.` };
         }
         
         const newAgent: Agent = {

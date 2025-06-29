@@ -251,7 +251,7 @@ function OptInOutForm({ project }: { project: WithId<Project> }) {
     )
 }
 
-function UserAttributesForm({ project, user }: { project: WithId<Project>, user: (Omit<User, 'password' | 'planId'> & { planId?: WithId<Plan> | null }) | null }) {
+function UserAttributesForm({ project, user }: { project: WithId<Project>, user: (Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null }) | null }) {
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleSaveUserAttributes, saveUserAttributesInitialState);
   
@@ -262,7 +262,7 @@ function UserAttributesForm({ project, user }: { project: WithId<Project>, user:
   
   const { pending } = useFormStatus();
 
-  const plan = user?.planId;
+  const plan = user?.plan;
   const limit = plan?.attributeLimit ?? 0;
   const isAtLimit = attributes.length >= limit;
   const planName = plan?.name || 'Unknown';
@@ -384,7 +384,7 @@ function UserAttributesForm({ project, user }: { project: WithId<Project>, user:
 
 function SettingsPageContent() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
-  const [user, setUser] = useState<(Omit<User, 'password' | 'planId'> & { planId?: WithId<Plan> | null }) | null>(null);
+  const [user, setUser] = useState<(Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [isClient, setIsClient] = useState(false);
   const [messagesPerSecond, setMessagesPerSecond] = useState(1000);

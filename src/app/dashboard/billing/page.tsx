@@ -22,7 +22,7 @@ const PlanFeature = ({ children, included }: { children: React.ReactNode, includ
 export default async function BillingPage() {
     const session = await getSession();
     const plans = await getPlans({ isPublic: true });
-    const userPlanId = session?.user?.planId;
+    const userPlanId = session?.user?.plan?._id;
 
     return (
         <div className="flex flex-col gap-8">

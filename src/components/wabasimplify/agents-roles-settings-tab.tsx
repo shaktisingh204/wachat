@@ -18,10 +18,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { MailPlus, Plus, Shield, Trash2, Users, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
+import { Badge } from '../ui/badge';
 
 interface AgentsRolesSettingsTabProps {
     project: WithId<Project>;
-    user: (Omit<User, 'password' | 'planId'> & { planId?: WithId<Plan> | null }) | null;
+    user: (Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null }) | null;
 }
 
 const inviteInitialState = { message: null, error: null };
@@ -80,7 +81,7 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
     const inviteFormRef = useRef<HTMLFormElement>(null);
     const isOwner = project.userId.toString() === user?._id.toString();
     
-    const plan = user?.planId;
+    const plan = user?.plan;
     const planName = plan?.name || 'Unknown';
     const agentLimit = plan?.agentLimit ?? 0;
     const currentAgentCount = project.agents?.length || 0;
