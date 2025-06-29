@@ -103,7 +103,7 @@ export default async function HomePage() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center">
+        <div className="container mx-auto flex h-16 items-center">
           <div className="mr-4 flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
               <WachatLogo className="h-8 w-auto" />
@@ -124,7 +124,7 @@ export default async function HomePage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-20 md:py-32">
-          <div className="container grid justify-items-center text-center gap-12">
+          <div className="container mx-auto grid justify-items-center text-center gap-12">
             <div className="space-y-6 max-w-3xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tighter">
                 Streamline Your WhatsApp Business API Experience
@@ -156,7 +156,7 @@ export default async function HomePage() {
 
         {/* Features Section */}
         <section id="features" className="py-20 bg-muted">
-          <div className="container">
+          <div className="container mx-auto">
             <div className="text-center space-y-4 mb-16">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Powerful Tools for Growth</h2>
               <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -183,7 +183,7 @@ export default async function HomePage() {
 
         {/* How It Works Section */}
         <section className="py-20">
-          <div className="container">
+          <div className="container mx-auto">
             <div className="text-center space-y-4 mb-16">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Get Started in 3 Easy Steps</h2>
               <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -206,7 +206,7 @@ export default async function HomePage() {
 
         {/* Testimonials Section */}
         <section className="py-20 bg-muted">
-            <div className="container">
+            <div className="container mx-auto">
                 <div className="text-center space-y-4 mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Loved by Businesses Worldwide</h2>
                     <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -259,7 +259,7 @@ export default async function HomePage() {
         
         {/* Final CTA Section */}
         <section className="py-20">
-            <div className="container">
+            <div className="container mx-auto">
                 <div className="relative overflow-hidden bg-primary text-primary-foreground rounded-lg p-8 md:p-16 text-center space-y-6">
                      <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-white/10 rounded-full"></div>
                      <div className="absolute -top-10 -left-10 w-32 h-32 bg-white/10 rounded-full"></div>
@@ -279,7 +279,7 @@ export default async function HomePage() {
 
       {/* Footer */}
       <footer className="border-t">
-        <div className="container py-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="container mx-auto py-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} Wachat. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/terms-and-conditions" className="text-sm text-muted-foreground hover:text-primary">
