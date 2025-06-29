@@ -375,7 +375,7 @@ export default function BroadcastPage() {
                 <CardTitle>Broadcast History</CardTitle>
                 <CardDescription>A log of all broadcast campaigns for the selected project.</CardDescription>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <ISTClock />
                  <Button onClick={onRunCron} disabled={isRunningCron || isRefreshing} variant="outline" size="sm">
                   {isRunningCron ? (

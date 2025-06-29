@@ -116,9 +116,9 @@ export default function NotificationsPage() {
                     <h1 className="text-3xl font-bold font-headline">All Notifications</h1>
                     <p className="text-muted-foreground">A complete history of all automated events and alerts.</p>
                 </div>
-                 <div className="flex items-center gap-2">
+                 <div className="flex flex-wrap items-center gap-2">
                     <Select onValueChange={handleFilterChange} defaultValue="ALL">
-                        <SelectTrigger className="w-auto gap-2">
+                        <SelectTrigger className="w-full sm:w-auto min-w-[180px] gap-2">
                             <Filter className="h-4 w-4" />
                             <SelectValue placeholder="Filter by event type..." />
                         </SelectTrigger>

@@ -213,7 +213,7 @@ export default function BroadcastReportPage() {
             <h1 className="text-3xl font-bold font-headline">Broadcast Report</h1>
             <p className="text-muted-foreground">Detailed results for your campaign: <span className="font-semibold">{broadcast.templateName}</span></p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2">
             <Button onClick={onExport} disabled={isExporting}>
               {isExporting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
               Export CSV
@@ -275,7 +275,7 @@ export default function BroadcastReportPage() {
 
         <Card>
             <CardHeader>
-                <div className="flex items-center justify-between">
+                <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <CardTitle>Delivery Results</CardTitle>
                         <p className="text-sm text-muted-foreground">Live status for each contact. This report updates automatically for active campaigns.</p>

@@ -31,6 +31,8 @@ import {
     File,
     LoaderCircle,
     BookOpen,
+    PanelLeft,
+    Settings2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -46,6 +48,7 @@ import { AlertCircle } from 'lucide-react';
 import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language';
 
@@ -69,7 +72,6 @@ const blockTypes = [
 ];
 
 const NodePreview = ({ node }: { node: FlowNode }) => {
-    // Helper to render text with variable highlighting
     const renderTextWithVariables = (text: string) => {
         if (!text) return null;
         const parts = text.split(/({{\s*[\w\d._]+\s*}})/g);
@@ -593,8 +595,68 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
 
 const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
     const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
-    return `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${toPos.y}, ${toPos.x} ${toPos.y}`;
+    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    return path;
 };
+
+const FlowsAndBlocksPanel = ({ 
+    isLoading,
+    flows,
+    currentFlow,
+    handleSelectFlow,
+    handleDeleteFlow,
+    handleCreateNewFlow,
+    addNode,
+} : {
+    isLoading: boolean;
+    flows: WithId<Flow>[];
+    currentFlow: WithId<Flow> | null;
+    handleSelectFlow: (id: string) => void;
+    handleDeleteFlow: (id: string) => void;
+    handleCreateNewFlow: () => void;
+    addNode: (type: NodeType) => void;
+}) => (
+    <>
+        <Card>
+            <CardHeader className="flex-row items-center justify-between p-3">
+                <CardTitle className="text-base">Flows</CardTitle>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCreateNewFlow}><Plus/></Button>
+            </CardHeader>
+            <CardContent className="p-2 pt-0">
+                <ScrollArea className="h-32">
+                    {isLoading && flows.length === 0 ? <Skeleton className="h-full w-full"/> : 
+                        flows.map(flow => (
+                            <div key={flow._id.toString()} className="flex items-center group">
+                                <Button 
+                                    variant="ghost" 
+                                    className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && "bg-muted font-semibold")}
+                                    onClick={() => handleSelectFlow(flow._id.toString())}
+                                >
+                                    <File className="mr-2 h-4 w-4"/>
+                                    {flow.name}
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteFlow(flow._id.toString())}><Trash2 className="h-4 w-4"/></Button>
+                            </div>
+                        ))
+                    }
+                </ScrollArea>
+            </CardContent>
+        </Card>
+        <Card className="flex-1">
+            <CardHeader className="p-3"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
+            <CardContent className="space-y-2 p-2 pt-0">
+                <ScrollArea className="h-full">
+                    {blockTypes.map(({ type, label, icon: Icon }) => (
+                        <Button key={type} variant="outline" className="w-full justify-start mb-2" onClick={() => addNode(type as NodeType)}>
+                            <Icon className="mr-2 h-4 w-4" />
+                            {label}
+                        </Button>
+                    ))}
+                </ScrollArea>
+            </CardContent>
+        </Card>
+    </>
+);
 
 export default function FlowBuilderPage() {
     const { toast } = useToast();
@@ -616,6 +678,9 @@ export default function FlowBuilderPage() {
     const [draggingNode, setDraggingNode] = useState<string | null>(null);
     const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
     const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+    const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
+    const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
@@ -672,6 +737,7 @@ export default function FlowBuilderPage() {
                 setNodes(fullFlow.nodes || []);
                 setEdges(fullFlow.edges || []);
                 setSelectedNodeId(null);
+                setIsBlocksSheetOpen(false);
             }
         });
     }, []);
@@ -702,6 +768,7 @@ export default function FlowBuilderPage() {
         };
         setNodes(prev => [...prev, newNode]);
         setSelectedNodeId(newNode.id);
+        setIsBlocksSheetOpen(false);
     };
     
     const updateNodeData = (id: string, data: Partial<any>) => {
@@ -714,6 +781,7 @@ export default function FlowBuilderPage() {
         setNodes(prev => prev.filter(node => node.id !== id));
         setEdges(prev => prev.filter(edge => edge.source !== id && edge.target !== id));
         setSelectedNodeId(null);
+        setIsPropsSheetOpen(false);
     };
 
     const handleSaveFlow = () => {
@@ -852,6 +920,12 @@ export default function FlowBuilderPage() {
         setPan({ x: newPanX, y: newPanY });
     };
 
+    useEffect(() => {
+        if (selectedNodeId) {
+            setIsPropsSheetOpen(true);
+        }
+    }, [selectedNodeId]);
+
     const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
 
     if (!isClient) return <div className="h-full w-full"><Skeleton className="h-full w-full"/></div>
@@ -867,7 +941,7 @@ export default function FlowBuilderPage() {
                 nodes={nodes}
                 edges={edges}
             />
-            <div className="flex flex-col h-[calc(100vh-120px)] gap-4">
+            <div className="flex flex-col h-full gap-4">
                 <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-4">
                     <div>
                          <Input 
@@ -881,62 +955,46 @@ export default function FlowBuilderPage() {
                         />
                     </div>
                     <div className="flex items-center gap-2">
+                        <div className="flex md:hidden items-center gap-2">
+                            <Button variant="outline" onClick={() => setIsBlocksSheetOpen(true)}>
+                                <PanelLeft className="mr-2 h-4 w-4"/>
+                                Flows & Blocks
+                            </Button>
+                            <Button variant="outline" onClick={() => setIsPropsSheetOpen(true)} disabled={!selectedNode}>
+                                <Settings2 className="mr-2 h-4 w-4"/>
+                                Properties
+                            </Button>
+                        </div>
                         <Button asChild variant="outline">
                             <Link href="/dashboard/flow-builder/docs">
                                 <BookOpen className="mr-2 h-4 w-4" />
-                                View Docs
+                                <span className="hidden sm:inline">View Docs</span>
                             </Link>
                         </Button>
                         <Button variant="outline" onClick={() => setIsTestFlowOpen(true)}>
                             <Play className="mr-2 h-4 w-4" />
-                            Test Flow
+                            <span className="hidden sm:inline">Test Flow</span>
                         </Button>
                         <Button onClick={handleSaveFlow} disabled={isSaving}>
                             {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4" />}
-                            Save & Publish
+                            <span className="hidden sm:inline">Save & Publish</span>
                         </Button>
                     </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 min-h-0">
-                    <div className="md:col-span-3 lg:col-span-2 flex flex-col gap-4">
-                        <Card>
-                            <CardHeader className="flex-row items-center justify-between p-3">
-                                <CardTitle className="text-base">Flows</CardTitle>
-                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCreateNewFlow}><Plus/></Button>
-                            </CardHeader>
-                            <CardContent className="p-2 pt-0">
-                                <ScrollArea className="h-32">
-                                    {isLoading && flows.length === 0 ? <Skeleton className="h-full w-full"/> : 
-                                        flows.map(flow => (
-                                            <div key={flow._id.toString()} className="flex items-center group">
-                                                <Button 
-                                                    variant="ghost" 
-                                                    className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && "bg-muted font-semibold")}
-                                                    onClick={() => handleSelectFlow(flow._id.toString())}
-                                                >
-                                                    <File className="mr-2 h-4 w-4"/>
-                                                    {flow.name}
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteFlow(flow._id.toString())}><Trash2 className="h-4 w-4"/></Button>
-                                            </div>
-                                        ))
-                                    }
-                                </ScrollArea>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardHeader className="p-3"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
-                            <CardContent className="space-y-2 p-2 pt-0">
-                                {blockTypes.map(({ type, label, icon: Icon }) => (
-                                    <Button key={type} variant="outline" className="w-full justify-start" onClick={() => addNode(type as NodeType)}>
-                                        <Icon className="mr-2 h-4 w-4" />
-                                        {label}
-                                    </Button>
-                                ))}
-                            </CardContent>
-                        </Card>
+                    {/* DESKTOP Left Panel */}
+                    <div className="hidden md:flex md:col-span-3 lg:col-span-2 flex-col gap-4">
+                        <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
                     </div>
-                    <div className="md:col-span-6 lg:col-span-7">
+
+                    {/* MOBILE Left Panel Sheet */}
+                    <Sheet open={isBlocksSheetOpen} onOpenChange={setIsBlocksSheetOpen}>
+                        <SheetContent side="left" className="p-2 flex flex-col gap-4 w-full max-w-xs">
+                             <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
+                        </SheetContent>
+                    </Sheet>
+
+                    <div className="md:col-span-9 lg:col-span-10">
                         <Card
                             ref={viewportRef}
                             className="h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing"
@@ -988,7 +1046,8 @@ export default function FlowBuilderPage() {
                                                 const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle);
                                                 if (!sourcePos || !targetPos) return null;
 
-                                                return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
+                                                const path = getEdgePath(sourcePos, targetPos)
+                                                return <path key={edge.id} d={path} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
                                             })}
                                             {connecting && (
                                                 <ConnectionLine from={connecting.startPos} to={mousePosition} />
@@ -999,13 +1058,17 @@ export default function FlowBuilderPage() {
                             </div>
                         </Card>
                     </div>
-                    <div className="md:col-span-3 lg:col-span-3">
-                        <PropertiesPanel 
-                            selectedNode={selectedNode}
-                            updateNodeData={updateNodeData}
-                            deleteNode={deleteNode}
-                        />
-                    </div>
+
+                    {/* Right Panel is only rendered in a sheet on mobile */}
+                    <Sheet open={isPropsSheetOpen} onOpenChange={setIsPropsSheetOpen}>
+                        <SheetContent side="right" className="p-0 flex flex-col w-full max-w-md">
+                            <PropertiesPanel 
+                                selectedNode={selectedNode}
+                                updateNodeData={updateNodeData}
+                                deleteNode={deleteNode}
+                            />
+                        </SheetContent>
+                    </Sheet>
                 </div>
             </div>
         </>

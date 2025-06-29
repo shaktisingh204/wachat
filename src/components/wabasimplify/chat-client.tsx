@@ -202,8 +202,6 @@ export function ChatClient() {
             </Alert>
         );
     }
-    
-    const showChatOnMobile = isClient && selectedContact;
 
     return (
         <>
@@ -232,7 +230,7 @@ export function ChatClient() {
                 <div className="flex flex-1 overflow-hidden">
                      <div className={cn(
                         "w-full flex-col border-r md:w-1/3 lg:w-1/4",
-                        showChatOnMobile ? 'hidden md:flex' : 'flex'
+                        selectedContact ? 'hidden md:flex' : 'flex'
                      )}>
                         <ChatContactList
                             contacts={contacts}
@@ -247,7 +245,7 @@ export function ChatClient() {
 
                     <div className={cn(
                         "w-full flex-col flex-1",
-                        showChatOnMobile ? 'flex' : 'hidden md:flex'
+                        selectedContact ? 'flex' : 'hidden md:flex'
                     )}>
                         {selectedContact ? (
                             <ChatWindow
@@ -255,9 +253,10 @@ export function ChatClient() {
                                 contact={selectedContact}
                                 conversation={conversation}
                                 isLoading={loadingConversation}
+                                onBack={() => setSelectedContact(null)}
                             />
                         ) : (
-                            <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center">
+                            <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center">
                                 <MessageSquare className="h-16 w-16" />
                                 <h2 className="text-xl font-semibold">Select a conversation</h2>
                                 <p>Choose a contact from the list or start a new chat.</p>

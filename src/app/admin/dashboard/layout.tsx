@@ -26,9 +26,11 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { WachatLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown, History } from 'lucide-react';
+import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell } from 'lucide-react';
 import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
+import { cn } from '@/lib/utils';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -110,11 +112,22 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="md:hidden">
+                        <Bell className="h-5 w-5"/>
+                        <span className="sr-only">Toggle Notifications</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="p-0">
+                    <LiveNotificationFeed />
+                </SheetContent>
+            </Sheet>
           </div>
         </header>
-        <div className="grid md:grid-cols-[1fr_auto] flex-1 min-h-0">
-          <main className="p-4 md:p-6 lg:p-8 overflow-y-auto">{children}</main>
-          <aside className="w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0">
+        <div className="flex flex-1 min-h-0">
+          <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">{children}</main>
+          <aside className="hidden md:flex w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0 flex-col">
               <LiveNotificationFeed />
           </aside>
         </div>

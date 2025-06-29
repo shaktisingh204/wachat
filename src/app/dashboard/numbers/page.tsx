@@ -32,7 +32,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, AlertCircle, RefreshCw } from 'lucide-react';
+import { MoreHorizontal, AlertCircle, RefreshCw, LoaderCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
@@ -190,13 +190,13 @@ export default function NumbersPage() {
     
   return (
     <div className="flex flex-col gap-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold font-headline">Phone Number Management</h1>
           <p className="text-muted-foreground">Your registered WhatsApp phone numbers for project "{project.name}".</p>
         </div>
         <Button onClick={onSync} disabled={isSyncing || !project} variant="outline">
-          <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+          {isSyncing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
           Sync Phone Numbers
         </Button>
       </div>
@@ -306,4 +306,3 @@ export default function NumbersPage() {
     </div>
   );
 }
-

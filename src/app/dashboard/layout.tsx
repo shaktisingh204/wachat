@@ -42,9 +42,11 @@ import {
   Phone,
   Webhook,
   History,
+  Bell,
 } from 'lucide-react';
 import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const menuItems = [
   { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
@@ -73,7 +75,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const isChatPage = pathname.startsWith('/dashboard/chat');
   
-  const hideNotificationFeed =
+  const hideNotificationFeedOnDesktop =
     pathname === '/dashboard' ||
     pathname.startsWith('/dashboard/flow-builder') ||
     isChatPage;
@@ -177,6 +179,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+             <Sheet>
+                <SheetTrigger asChild>
+                    <Button variant="ghost" size="icon" className="md:hidden">
+                        <Bell className="h-5 w-5"/>
+                        <span className="sr-only">Toggle Notifications</span>
+                    </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="p-0">
+                    <LiveNotificationFeed />
+                </SheetContent>
+            </Sheet>
           </div>
         </header>
         <div className="flex flex-1 min-h-0">
@@ -186,8 +199,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             )}>
               {children}
           </main>
-          {!hideNotificationFeed && (
-           <aside className="w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0 flex flex-col">
+          {!hideNotificationFeedOnDesktop && (
+           <aside className="hidden md:flex w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0 flex-col">
               <LiveNotificationFeed />
           </aside>
           )}

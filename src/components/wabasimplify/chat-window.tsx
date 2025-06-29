@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useRef } from 'react';
@@ -9,14 +10,17 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from './chat-message';
 import { ChatMessageInput } from './chat-message-input';
 import { Skeleton } from '../ui/skeleton';
+import { Button } from '../ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 interface ChatWindowProps {
     contact: WithId<Contact>;
     conversation: AnyMessage[];
     isLoading: boolean;
+    onBack: () => void;
 }
 
-export function ChatWindow({ contact, conversation, isLoading }: ChatWindowProps) {
+export function ChatWindow({ contact, conversation, isLoading, onBack }: ChatWindowProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -42,6 +46,9 @@ export function ChatWindow({ contact, conversation, isLoading }: ChatWindowProps
     return (
         <div className="flex flex-col h-full">
             <div className="flex items-center gap-3 p-3 border-b">
+                 <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
+                    <ArrowLeft className="h-4 w-4" />
+                </Button>
                 <Avatar>
                     <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
                 </Avatar>

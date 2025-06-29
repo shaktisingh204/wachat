@@ -132,7 +132,7 @@ export default async function SelectProjectPage({
                         Choose an existing project or create a new one to get started.
                     </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                     <SubscribeAllButton />
                     <SyncProjectsButton />
                     <CleanDatabaseButton />
