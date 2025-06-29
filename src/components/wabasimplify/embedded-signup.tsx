@@ -99,7 +99,6 @@ export function EmbeddedSignup({ appId, configId }: EmbeddedSignupProps) {
       },
       {
         config_id: configId,
-        response_type: 'code',
         scope: 'whatsapp_business_management',
         extras: {
             setup: {

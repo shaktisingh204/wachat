@@ -3,6 +3,7 @@
 
 
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -2828,8 +2829,8 @@ export async function handleFacebookSetup(shortLivedToken: string, wabaIds: stri
     const appId = process.env.NEXT_PUBLIC_META_APP_ID;
     const appSecret = process.env.META_APP_SECRET;
 
-    if (!appId || !appSecret) {
-        return { error: 'Server configuration error: App ID or Secret is missing.' };
+    if (!appId || !appSecret || appSecret === 'YOUR_META_APP_SECRET') {
+        return { error: 'Server configuration error: META_APP_SECRET is not configured in the .env file. Please add it from your Meta Developer Dashboard.' };
     }
 
     try {
