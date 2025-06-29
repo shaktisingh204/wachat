@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import type { WithId } from 'mongodb';
-import type { Project, User, Agent } from '@/app/actions';
+import type { Project, User, Agent, Plan } from '@/app/actions';
 import { handleInviteAgent, handleRemoveAgent } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,10 +17,11 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { MailPlus, Plus, Shield, Trash2, Users, LoaderCircle } from 'lucide-react';
+import Link from 'next/link';
 
 interface AgentsRolesSettingsTabProps {
     project: WithId<Project>;
-    user: Omit<User, 'password'> | null;
+    user: (Omit<User, 'password' | 'planId'> & { planId?: WithId<Plan> | null }) | null;
 }
 
 const inviteInitialState = { message: null, error: null };
@@ -78,8 +79,10 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
     const [inviteState, inviteAction] = useActionState(handleInviteAgent, inviteInitialState);
     const inviteFormRef = useRef<HTMLFormElement>(null);
     const isOwner = project.userId.toString() === user?._id.toString();
-    const plan = user?.plan || 'free';
-    const agentLimit = plan === 'pro' ? 10 : 1;
+    
+    const plan = user?.planId;
+    const planName = plan?.name || 'Unknown';
+    const agentLimit = plan?.agentLimit ?? 0;
     const currentAgentCount = project.agents?.length || 0;
 
     useEffect(() => {
@@ -122,8 +125,11 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
                     </div>
                     <CardDescription>
                         Invite, remove, and manage roles for team members. 
-                        Your <span className="font-semibold capitalize text-primary">{plan}</span> plan allows for {agentLimit} agent(s). 
-                        You have {currentAgentCount} of {agentLimit} agents.
+                        Your <span className="font-semibold capitalize text-primary">{planName}</span> plan allows for {agentLimit} agent(s). 
+                        You have {currentAgentCount} of {agentLimit} agents. 
+                        {currentAgentCount >= agentLimit && (
+                            <Link href="/dashboard/billing" className="font-semibold text-primary hover:underline ml-1">Upgrade to add more.</Link>
+                        )}
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">

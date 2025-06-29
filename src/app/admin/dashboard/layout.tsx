@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { WachatLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell } from 'lucide-react';
+import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell, CreditCard } from 'lucide-react';
 import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
 import { cn } from '@/lib/utils';
 import { handleLogout } from '@/app/actions';
@@ -35,6 +35,7 @@ import { handleLogout } from '@/app/actions';
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/dashboard/users', label: 'User Management', icon: Users },
+  { href: '/admin/dashboard/plans', label: 'Plans', icon: CreditCard },
   { href: '/admin/dashboard/system', label: 'System Health', icon: ShieldCheck },
   { href: '/admin/dashboard/broadcast-log', label: 'Broadcast Log', icon: History },
 ];

@@ -1,26 +1,28 @@
-import { Check } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import type { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { getSession } from '@/app/actions';
-import type { User } from '@/app/actions';
-import Link from 'next/link';
+import { getSession, getPlans } from '@/app/actions';
+import { Separator } from '@/components/ui/separator';
 
 export const metadata: Metadata = {
   title: 'Billing & Plans | Wachat',
 };
+export const dynamic = 'force-dynamic';
 
-const PlanFeature = ({ children }: { children: React.ReactNode }) => (
-    <li className="flex items-center gap-2">
-        <Check className="h-5 w-5 text-primary" />
-        <span className="text-muted-foreground">{children}</span>
+
+const PlanFeature = ({ children, included }: { children: React.ReactNode, included: boolean }) => (
+    <li className="flex items-center gap-3">
+        {included ? <Check className="h-5 w-5 text-primary flex-shrink-0" /> : <X className="h-5 w-5 text-muted-foreground flex-shrink-0" />}
+        <span className={cn(!included && "text-muted-foreground line-through")}>{children}</span>
     </li>
 );
 
 export default async function BillingPage() {
     const session = await getSession();
-    const userPlan = session?.user?.plan || 'free';
+    const plans = await getPlans({ isPublic: true });
+    const userPlanId = session?.user?.planId;
 
     return (
         <div className="flex flex-col gap-8">
@@ -30,72 +32,34 @@ export default async function BillingPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-                <Card className={cn(userPlan === 'free' && "border-2 border-primary")}>
-                    <CardHeader>
-                        <CardTitle>Free</CardTitle>
-                        <CardDescription>Perfect for getting started and exploring the platform's core features.</CardDescription>
-                        <div className="text-4xl font-bold pt-4">$0 <span className="text-sm font-normal text-muted-foreground">/ month</span></div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <ul className="space-y-2 text-sm">
-                            <PlanFeature>1 Project</PlanFeature>
-                            <PlanFeature>1 Agent</PlanFeature>
-                            <PlanFeature>5 Custom User Attributes</PlanFeature>
-                            <PlanFeature>Basic Campaign Analytics</PlanFeature>
-                        </ul>
-                    </CardContent>
-                    <CardFooter>
-                        <Button className="w-full" disabled={userPlan === 'free'}>
-                            Current Plan
-                        </Button>
-                    </CardFooter>
-                </Card>
-
-                <Card className={cn(userPlan === 'pro' && "border-2 border-primary")}>
-                    <CardHeader>
-                        <CardTitle>Pro</CardTitle>
-                        <CardDescription>For growing businesses that need more power and collaboration features.</CardDescription>
-                         <div className="text-4xl font-bold pt-4">$49 <span className="text-sm font-normal text-muted-foreground">/ month</span></div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <ul className="space-y-2 text-sm">
-                            <PlanFeature>5 Projects</PlanFeature>
-                            <PlanFeature>10 Agents</PlanFeature>
-                            <PlanFeature>20 Custom User Attributes</PlanFeature>
-                            <PlanFeature>Advanced Campaign Analytics</PlanFeature>
-                            <PlanFeature>Role-based Permissions</PlanFeature>
-                            <PlanFeature>Priority Support</PlanFeature>
-                        </ul>
-                    </CardContent>
-                    <CardFooter>
-                        {userPlan === 'pro' ? (
-                            <Button className="w-full" disabled>Current Plan</Button>
-                        ) : (
-                             <Button className="w-full">Upgrade to Pro</Button>
-                        )}
-                    </CardFooter>
-                </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Enterprise</CardTitle>
-                        <CardDescription>Tailored solutions for large-scale operations and unique requirements.</CardDescription>
-                         <div className="text-4xl font-bold pt-4">Custom</div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                         <ul className="space-y-2 text-sm">
-                            <PlanFeature>Unlimited Projects</PlanFeature>
-                            <PlanFeature>Unlimited Agents & Roles</PlanFeature>
-                            <PlanFeature>Unlimited User Attributes</PlanFeature>
-                            <PlanFeature>Custom Integrations</PlanFeature>
-                            <PlanFeature>Dedicated Account Manager</PlanFeature>
-                             <PlanFeature>On-premise Deployment Option</PlanFeature>
-                        </ul>
-                    </CardContent>
-                    <CardFooter>
-                        <Button variant="outline" className="w-full">Contact Sales</Button>
-                    </CardFooter>
-                </Card>
+                {plans.map(plan => (
+                    <Card key={plan._id.toString()} className={cn("flex flex-col", userPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
+                        <CardHeader className="flex-grow">
+                            <CardTitle>{plan.name}</CardTitle>
+                            <div className="text-4xl font-bold pt-4">${plan.price} <span className="text-sm font-normal text-muted-foreground">/ month</span></div>
+                            <CardDescription>+ ${plan.broadcastMessageCost}/message for campaigns</CardDescription>
+                        </CardHeader>
+                        <Separator />
+                        <CardContent className="pt-6 space-y-4">
+                            <ul className="space-y-3 text-sm">
+                                <PlanFeature included={true}>{plan.projectLimit} Project(s)</PlanFeature>
+                                <PlanFeature included={true}>{plan.agentLimit} Agent(s) per Project</PlanFeature>
+                                <PlanFeature included={true}>{plan.attributeLimit} Custom Attributes</PlanFeature>
+                                <PlanFeature included={plan.features.campaigns}>Broadcast Campaigns</PlanFeature>
+                                <PlanFeature included={plan.features.liveChat}>Live Chat</PlanFeature>
+                                <PlanFeature included={plan.features.flowBuilder}>Flow Builder</PlanFeature>
+                                <PlanFeature included={plan.features.apiAccess}>API Access</PlanFeature>
+                            </ul>
+                        </CardContent>
+                        <CardFooter className="mt-auto">
+                             {userPlanId?.toString() === plan._id.toString() ? (
+                                <Button className="w-full" disabled>Current Plan</Button>
+                            ) : (
+                                <Button className="w-full">Upgrade to {plan.name}</Button>
+                            )}
+                        </CardFooter>
+                    </Card>
+                ))}
             </div>
         </div>
     );
