@@ -1,15 +1,4 @@
 
-
-
-
-
-
-
-
-
-
-
-
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -2757,7 +2746,8 @@ export async function handleLogin(prevState: AuthState, formData: FormData): Pro
 
         const token = createSessionToken({ userId: user._id.toString(), email: user.email });
 
-        cookies().set('session', token, {
+        const cookieStore = await cookies();
+        cookieStore.set('session', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
@@ -2807,7 +2797,8 @@ export async function handleSignup(prevState: AuthState, formData: FormData): Pr
 
         const token = createSessionToken({ userId: userId.toString(), email });
 
-        cookies().set('session', token, {
+        const cookieStore = await cookies();
+        cookieStore.set('session', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'lax',
@@ -2824,7 +2815,8 @@ export async function handleSignup(prevState: AuthState, formData: FormData): Pr
 }
 
 export async function getSession(): Promise<{ user: Omit<User, 'password'> } | null> {
-  const sessionCookie = cookies().get('session')?.value;
+  const cookieStore = await cookies();
+  const sessionCookie = cookieStore.get('session')?.value;
   if (!sessionCookie) return null;
 
   try {
@@ -2847,7 +2839,8 @@ export async function getSession(): Promise<{ user: Omit<User, 'password'> } | n
 }
 
 export async function handleLogout() {
-  cookies().set('session', '', { expires: new Date(0), path: '/' });
+  const cookieStore = await cookies();
+  cookieStore.set('session', '', { expires: new Date(0), path: '/' });
   redirect('/login');
 }
 
