@@ -77,6 +77,13 @@ export type UserAttribute = {
     status: 'ACTIVE' | 'INACTIVE';
 };
 
+export type Agent = {
+    userId: ObjectId;
+    email: string;
+    name: string;
+    role: string;
+};
+
 export type Project = {
     userId: ObjectId;
     name: string;
@@ -92,6 +99,7 @@ export type Project = {
     autoReplySettings?: AutoReplySettings;
     optInOutSettings?: OptInOutSettings;
     userAttributes?: UserAttribute[];
+    agents?: Agent[];
 };
 
 export type Template = {

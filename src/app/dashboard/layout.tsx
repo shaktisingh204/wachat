@@ -108,6 +108,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   const hasNoProjects = projectCount === 0;
+  const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
 
   return (
     <SidebarProvider>
@@ -125,11 +126,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <SidebarMenuButton
                   asChild
                   isActive={pathname.startsWith(item.href)}
-                  tooltip={hasNoProjects ? `${item.label} (connect a project first)` : item.label}
-                  disabled={hasNoProjects}
-                  aria-disabled={hasNoProjects}
+                  tooltip={hasNoProjects && !isSetupPage ? `${item.label} (connect a project first)` : item.label}
+                  disabled={hasNoProjects && !isSetupPage}
+                  aria-disabled={hasNoProjects && !isSetupPage}
                 >
-                  <Link href={hasNoProjects ? '#' : item.href} className={cn(hasNoProjects && 'pointer-events-none')}>
+                  <Link href={hasNoProjects && !isSetupPage ? '#' : item.href} className={cn(hasNoProjects && !isSetupPage && 'pointer-events-none')}>
                     <item.icon />
                     <span>{item.label}</span>
                   </Link>

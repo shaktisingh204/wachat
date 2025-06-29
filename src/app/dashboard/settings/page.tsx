@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
@@ -476,7 +475,10 @@ function SettingsPageContent() {
             <form action={formAction}>
               <input type="hidden" name="projectId" value={project._id.toString()} />
               <Card>
-                <CardHeader><CardTitle>Broadcast Settings</CardTitle><CardDescription>Configure the rate at which broadcast messages are sent.</CardDescription></CardHeader>
+                <CardHeader>
+                    <CardTitle>Broadcast Settings</CardTitle>
+                    <CardDescription>Configure the rate at which broadcast messages are sent.</CardDescription>
+                </CardHeader>
                 <CardContent>
                   <div className="space-y-2 max-w-sm">
                     <Label htmlFor="messagesPerSecond">Concurrency Level (Messages in Parallel)</Label>
@@ -508,7 +510,7 @@ function SettingsPageContent() {
           </TabsContent>
 
           <TabsContent value="agents-roles" className="mt-6">
-            <AgentsRolesSettingsTab project={project} />
+            <AgentsRolesSettingsTab project={project} user={user} />
           </TabsContent>
 
           <TabsContent value="compliance" className="mt-6">

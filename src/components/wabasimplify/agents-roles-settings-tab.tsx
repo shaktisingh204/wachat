@@ -1,9 +1,12 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useActionState, useEffect, useState, useRef } from 'react';
+import { useFormStatus } from 'react-dom';
 import type { WithId } from 'mongodb';
-import type { Project } from '@/app/actions';
+import type { Project, User, Agent } from '@/app/actions';
+import { handleInviteAgent, handleRemoveAgent } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,24 +16,51 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { MailPlus, Plus, Shield, Trash2, Users } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { MailPlus, Plus, Shield, Trash2, Users, LoaderCircle } from 'lucide-react';
 
 interface AgentsRolesSettingsTabProps {
     project: WithId<Project>;
+    user: Omit<User, 'password'> | null;
 }
 
-// Mock data - replace with actual data from props/actions later
-const mockAgents = [
-    { id: '1', name: 'Alice (You)', email: 'alice@example.com', role: 'Administrator' },
-    { id: '2', name: 'Bob', email: 'bob@example.com', role: 'Marketer' },
-    { id: '3', name: 'Charlie', email: 'charlie@example.com', role: 'Agent' },
-];
+const inviteInitialState = { message: null, error: null };
+const removeInitialState = { message: null, error: null };
+
+function InviteSubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <MailPlus className="mr-2 h-4 w-4" />}
+            Invite Agent
+        </Button>
+    )
+}
+
+function RemoveAgentForm({ projectId, agentUserId }: { projectId: string, agentUserId: string }) {
+    const [state, formAction] = useActionState(handleRemoveAgent, removeInitialState);
+    const { toast } = useToast();
+    const { pending } = useFormStatus();
+
+    useEffect(() => {
+        if(state?.message) toast({ title: "Success", description: state.message });
+        if(state?.error) toast({ title: "Error", description: state.error, variant: 'destructive' });
+    }, [state, toast]);
+
+    return (
+        <form action={formAction}>
+            <input type="hidden" name="projectId" value={projectId} />
+            <input type="hidden" name="agentUserId" value={agentUserId} />
+            <Button type="submit" variant="ghost" size="icon" disabled={pending}>
+                {pending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}
+            </Button>
+        </form>
+    )
+}
 
 const mockRoles = [
-    { id: 'admin', name: 'Administrator', description: 'Full access to all features.' },
-    { id: 'marketer', name: 'Marketer', description: 'Access to campaigns and templates.' },
-    { id: 'agent', name: 'Agent', description: 'Access to live chat and contacts.' },
+    { id: 'Administrator', name: 'Administrator', description: 'Full access to all features.' },
+    { id: 'Marketer', name: 'Marketer', description: 'Access to campaigns and templates.' },
+    { id: 'Agent', name: 'Agent', description: 'Access to live chat and contacts.' },
 ];
 
 const features = [
@@ -43,16 +73,45 @@ const features = [
 ];
 
 
-export function AgentsRolesSettingsTab({ project }: AgentsRolesSettingsTabProps) {
+export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTabProps) {
     const { toast } = useToast();
+    const [inviteState, inviteAction] = useActionState(handleInviteAgent, inviteInitialState);
+    const inviteFormRef = useRef<HTMLFormElement>(null);
+    const isOwner = project.userId.toString() === user?._id.toString();
+    const plan = user?.plan || 'free';
+    const agentLimit = plan === 'pro' ? 10 : 1;
+    const currentAgentCount = project.agents?.length || 0;
 
-    const handleAction = (action: string) => {
+    useEffect(() => {
+        if (inviteState?.message) {
+            toast({ title: 'Success!', description: inviteState.message });
+            inviteFormRef.current?.reset();
+        }
+        if (inviteState?.error) {
+            toast({ title: 'Error', description: inviteState.error, variant: 'destructive' });
+        }
+    }, [inviteState, toast]);
+
+    const handleComingSoon = (action: string) => {
         toast({
             title: 'Feature in Development',
             description: `The "${action}" functionality is not yet implemented.`,
         });
     }
     
+    if (!isOwner) {
+        return (
+            <Card>
+                <CardHeader>
+                    <CardTitle>Agents & Roles</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-muted-foreground">Only the project owner can manage agents and roles.</p>
+                </CardContent>
+            </Card>
+        );
+    }
+
     return (
         <div className="space-y-6">
             <Card>
@@ -61,27 +120,31 @@ export function AgentsRolesSettingsTab({ project }: AgentsRolesSettingsTabProps)
                         <Users className="h-5 w-5"/>
                         <CardTitle>Manage Agents</CardTitle>
                     </div>
-                    <CardDescription>Invite, remove, and manage roles for team members in this project.</CardDescription>
+                    <CardDescription>
+                        Invite, remove, and manage roles for team members. 
+                        Your <span className="font-semibold capitalize text-primary">{plan}</span> plan allows for {agentLimit} agent(s). 
+                        You have {currentAgentCount} of {agentLimit} agents.
+                    </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                     <div>
-                        <Label>Invite New Agent</Label>
-                        <div className="flex flex-col sm:flex-row gap-2 mt-2">
-                            <Input type="email" placeholder="Enter agent's email" className="flex-grow" />
-                            <Select>
-                                <SelectTrigger className="w-full sm:w-[180px]">
-                                    <SelectValue placeholder="Select a role" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {mockRoles.map(role => <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>)}
-                                </SelectContent>
-                            </Select>
-                            <Button onClick={() => handleAction('Invite Agent')}>
-                                <MailPlus className="mr-2 h-4 w-4" />
-                                Invite Agent
-                            </Button>
+                    <form action={inviteAction} ref={inviteFormRef}>
+                        <input type="hidden" name="projectId" value={project._id.toString()} />
+                        <div>
+                            <Label>Invite New Agent</Label>
+                            <div className="flex flex-col sm:flex-row gap-2 mt-2">
+                                <Input type="email" name="email" placeholder="Enter agent's email" className="flex-grow" required />
+                                <Select name="role" required>
+                                    <SelectTrigger className="w-full sm:w-[180px]">
+                                        <SelectValue placeholder="Select a role" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {mockRoles.map(role => <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                <InviteSubmitButton />
+                            </div>
                         </div>
-                    </div>
+                    </form>
                     <Separator/>
                     <div className="border rounded-md">
                         <Table>
@@ -94,8 +157,14 @@ export function AgentsRolesSettingsTab({ project }: AgentsRolesSettingsTabProps)
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {mockAgents.map(agent => (
-                                    <TableRow key={agent.id}>
+                                <TableRow>
+                                    <TableCell className="font-medium">{user?.name} (Owner)</TableCell>
+                                    <TableCell>{user?.email}</TableCell>
+                                    <TableCell><Badge>Owner</Badge></TableCell>
+                                    <TableCell></TableCell>
+                                </TableRow>
+                                {project.agents && project.agents.map(agent => (
+                                    <TableRow key={agent.userId.toString()}>
                                         <TableCell className="font-medium">{agent.name}</TableCell>
                                         <TableCell>{agent.email}</TableCell>
                                         <TableCell>
@@ -109,9 +178,7 @@ export function AgentsRolesSettingsTab({ project }: AgentsRolesSettingsTabProps)
                                             </Select>
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="icon" onClick={() => handleAction('Remove Agent')}>
-                                                <Trash2 className="h-4 w-4 text-destructive"/>
-                                            </Button>
+                                            <RemoveAgentForm projectId={project._id.toString()} agentUserId={agent.userId.toString()} />
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -134,7 +201,7 @@ export function AgentsRolesSettingsTab({ project }: AgentsRolesSettingsTabProps)
                         <Label>Create New Role</Label>
                         <div className="flex gap-2 mt-2">
                            <Input placeholder="Enter role name (e.g., Support Lead)" />
-                           <Button onClick={() => handleAction('Create Role')}><Plus className="mr-2 h-4 w-4"/>Create Role</Button>
+                           <Button onClick={() => handleComingSoon('Create Role')}><Plus className="mr-2 h-4 w-4"/>Create Role</Button>
                         </div>
                     </div>
                      <Separator/>
@@ -169,8 +236,8 @@ export function AgentsRolesSettingsTab({ project }: AgentsRolesSettingsTabProps)
                                         </Table>
                                     </div>
                                     <div className="flex justify-end gap-2 mt-4">
-                                        <Button variant="destructive" size="sm" onClick={() => handleAction('Delete Role')}>Delete Role</Button>
-                                        <Button variant="default" size="sm" onClick={() => handleAction('Save Role')}>Save Role</Button>
+                                        <Button variant="destructive" size="sm" onClick={() => handleComingSoon('Delete Role')}>Delete Role</Button>
+                                        <Button variant="default" size="sm" onClick={() => handleComingSoon('Save Role')}>Save Role</Button>
                                     </div>
                                 </AccordionContent>
                             </AccordionItem>

@@ -6,7 +6,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
-import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute } from '@/app/dashboard/page';
+import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent } from '@/app/dashboard/page';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
@@ -26,6 +26,18 @@ export type User = {
     password?: string;
     createdAt: Date;
     plan?: 'free' | 'pro';
+};
+
+export type Invitation = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    projectName: string;
+    inviterId: ObjectId;
+    inviterName: string;
+    inviteeEmail: string;
+    role: string;
+    status: 'pending';
+    createdAt: Date;
 };
 
 
@@ -195,7 +207,7 @@ export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 
 
 // Re-export types for client components
-export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute };
+export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent };
 
 export type CannedMessage = {
     _id: ObjectId;
@@ -256,10 +268,19 @@ export async function getProjects(query?: string): Promise<WithId<Project>[]> {
     }
     try {
         const { db } = await connectToDatabase();
-        const filter: Filter<Project> = { userId: new ObjectId(session.user._id) };
+        const userObjectId = new ObjectId(session.user._id);
+
+        const filter: Filter<Project> = {
+            $or: [
+                { userId: userObjectId },
+                { 'agents.userId': userObjectId }
+            ]
+        };
+        
         if (query) {
             filter.name = { $regex: query, $options: 'i' }; // case-insensitive regex search
         }
+        
         const projects = await db.collection('projects').find(filter).sort({ name: 1 }).toArray();
         return JSON.parse(JSON.stringify(projects));
     } catch (error) {
@@ -305,20 +326,24 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
             return null;
         }
         const { db } = await connectToDatabase();
-        const project = await db.collection('projects').findOne({ 
-            _id: new ObjectId(projectId), 
-            userId: new ObjectId(session.user._id) 
+        const project = await db.collection<Project>('projects').findOne({ 
+            _id: new ObjectId(projectId)
         });
+
         if (!project) {
-            // Check if it exists at all, just not for this user.
-            const anyProject = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
-            if (anyProject) {
-                console.error(`User ${session.user._id} attempted to access project ${projectId} but does not have permission.`);
-            } else {
-                 console.error("Project not found for getProjectById for ID:", projectId);
-            }
+            console.error("Project not found for getProjectById for ID:", projectId);
             return null;
         }
+        
+        // Security Check: Is the user the owner OR an agent on this project?
+        const isOwner = project.userId.toString() === session.user._id.toString();
+        const isAgent = project.agents?.some(agent => agent.userId.toString() === session.user._id.toString());
+
+        if (!isOwner && !isAgent) {
+             console.error(`User ${session.user._id} attempted to access project ${projectId} but does not have permission.`);
+             return null;
+        }
+        
         return JSON.parse(JSON.stringify(project));
     } catch (error: any) {
         console.error("Exception in getProjectById:", error);
@@ -480,8 +505,6 @@ export async function getBroadcastById(broadcastId: string) {
         console.error("Invalid Broadcast ID in getBroadcastById:", broadcastId);
         return null;
     }
-    const session = await getSession();
-    if (!session?.user) return null;
 
     try {
         const { db } = await connectToDatabase();
@@ -489,12 +512,8 @@ export async function getBroadcastById(broadcastId: string) {
         if (!broadcast) return null;
         
         // Check if the user has access to the project associated with this broadcast
-        const project = await db.collection('projects').findOne({
-             _id: broadcast.projectId,
-             userId: new ObjectId(session.user._id)
-        });
-
-        if (!project) return null;
+        const hasAccess = await getProjectById(broadcast.projectId.toString());
+        if (!hasAccess) return null;
 
         return JSON.parse(JSON.stringify(broadcast));
     } catch (error) {
@@ -1699,10 +1718,9 @@ export async function getNotifications(activeProjectId?: string | null): Promise
     try {
         const { db } = await connectToDatabase();
         
-        const userProjectIds = (await db.collection('projects')
-            .find({ userId: new ObjectId(session.user._id) }, { projection: { _id: 1 } })
-            .toArray()).map(p => p._id);
-
+        const userProjects = await getProjects();
+        const userProjectIds = userProjects.map(p => p._id);
+        
         // If a user has no projects, they should not see any project-specific notifications.
         if (userProjectIds.length === 0) {
             return [];
@@ -3368,19 +3386,14 @@ export async function handleSaveUserAttributes(
   const projectId = formData.get('projectId') as string;
   const attributesString = formData.get('attributes') as string;
 
-  const session = await getSession();
-    if (!session?.user) {
-        return { error: 'You must be logged in to save attributes.' };
-    }
-
   const project = await getProjectById(projectId);
   if (!project) {
     return { error: 'Project not found or you do not have access.' };
   }
 
   const { db } = await connectToDatabase();
-  const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
-  const plan = user?.plan || 'free';
+  const owner = await db.collection<User>('users').findOne({ _id: project.userId });
+  const plan = owner?.plan || 'free';
   const limit = plan === 'pro' ? 20 : 5;
 
   try {
@@ -3452,4 +3465,184 @@ export async function handleUpdateContactVariables(
     console.error('Failed to update contact variables:', e);
     return { success: false, error: e.message || 'An unexpected error occurred.' };
   }
+}
+
+
+// --- AGENT MANAGEMENT ACTIONS ---
+
+type AgentManagementState = {
+  message?: string;
+  error?: string;
+};
+
+export async function handleInviteAgent(prevState: AgentManagementState, formData: FormData): Promise<AgentManagementState> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+    
+    const projectId = formData.get('projectId') as string;
+    const inviteeEmail = (formData.get('email') as string)?.toLowerCase();
+    const role = formData.get('role') as string;
+
+    if (!projectId || !inviteeEmail || !role) {
+        return { error: 'All fields are required.' };
+    }
+    if (inviteeEmail === session.user.email) {
+        return { error: 'You cannot invite yourself.' };
+    }
+
+    const { db } = await connectToDatabase();
+
+    try {
+        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
+        if (!project || project.userId.toString() !== session.user._id.toString()) {
+            return { error: 'You do not have permission to invite agents to this project.' };
+        }
+
+        const owner = await db.collection<User>('users').findOne({ _id: project.userId });
+        const agentLimit = owner?.plan === 'pro' ? 10 : 1;
+        const currentAgentCount = project.agents?.length || 0;
+        
+        if (currentAgentCount >= agentLimit) {
+            return { error: `You have reached the agent limit for your "${owner?.plan}" plan. Please upgrade to add more agents.` };
+        }
+        
+        const isAlreadyAgent = project.agents?.some(agent => agent.email === inviteeEmail);
+        if (isAlreadyAgent) {
+            return { error: 'This user is already an agent on this project.' };
+        }
+        
+        const existingInvitation = await db.collection<Invitation>('invitations').findOne({ projectId: project._id, inviteeEmail, status: 'pending' });
+        if (existingInvitation) {
+            return { error: 'An invitation has already been sent to this email address for this project.' };
+        }
+
+        const invitee = await db.collection<User>('users').findOne({ email: inviteeEmail });
+        if (!invitee) {
+            return { error: 'No user found with this email address. Please ask them to sign up first.' };
+        }
+
+        const newInvitation: Omit<Invitation, '_id'> = {
+            projectId: project._id,
+            projectName: project.name,
+            inviterId: session.user._id,
+            inviterName: session.user.name,
+            inviteeEmail,
+            role,
+            status: 'pending',
+            createdAt: new Date(),
+        };
+
+        await db.collection('invitations').insertOne(newInvitation);
+
+        revalidatePath('/dashboard/settings');
+        return { message: `Invitation sent to ${inviteeEmail}.` };
+        
+    } catch (e: any) {
+        console.error('Failed to invite agent:', e);
+        return { error: 'An unexpected error occurred.' };
+    }
+}
+
+export async function getInvitationsForUser(): Promise<WithId<Invitation>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const invitations = await db.collection<Invitation>('invitations')
+            .find({ inviteeEmail: session.user.email, status: 'pending' })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(invitations));
+    } catch (e) {
+        console.error('Failed to fetch invitations:', e);
+        return [];
+    }
+}
+
+export async function handleRespondToInvite(invitationId: string, accepted: boolean): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Authentication required.' };
+    
+    if (!ObjectId.isValid(invitationId)) return { success: false, error: 'Invalid invitation ID.' };
+
+    const { db } = await connectToDatabase();
+    
+    const invitation = await db.collection<Invitation>('invitations').findOne({ _id: new ObjectId(invitationId), inviteeEmail: session.user.email });
+    if (!invitation) return { success: false, error: 'Invitation not found or not intended for you.' };
+
+    try {
+        if (!accepted) {
+            await db.collection('invitations').deleteOne({ _id: invitation._id });
+            revalidatePath('/dashboard', 'layout');
+            return { success: true };
+        }
+
+        // If accepting, do one final check on plan limits
+        const project = await db.collection<Project>('projects').findOne({ _id: invitation.projectId });
+        if (!project) {
+             await db.collection('invitations').deleteOne({ _id: invitation._id });
+             return { success: false, error: 'The project this invitation was for no longer exists.' };
+        }
+        
+        const owner = await db.collection<User>('users').findOne({ _id: project.userId });
+        const agentLimit = owner?.plan === 'pro' ? 10 : 1;
+        if ((project.agents?.length || 0) >= agentLimit) {
+            await db.collection('invitations').deleteOne({ _id: invitation._id });
+            return { success: false, error: `The project owner has reached their agent limit for the "${owner?.plan}" plan.` };
+        }
+        
+        const newAgent: Agent = {
+            userId: new ObjectId(session.user._id),
+            name: session.user.name,
+            email: session.user.email,
+            role: invitation.role,
+        };
+        
+        await db.collection('projects').updateOne(
+            { _id: invitation.projectId },
+            { $push: { agents: newAgent } }
+        );
+
+        await db.collection('invitations').deleteOne({ _id: invitation._id });
+
+        revalidatePath('/dashboard', 'layout');
+        return { success: true };
+
+    } catch (e: any) {
+        console.error('Failed to respond to invite:', e);
+        return { success: false, error: 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleRemoveAgent(prevState: AgentManagementState, formData: FormData): Promise<AgentManagementState> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+
+    const projectId = formData.get('projectId') as string;
+    const agentUserId = formData.get('agentUserId') as string;
+
+    if (!projectId || !agentUserId) {
+        return { error: 'Missing required data to remove agent.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
+
+        if (!project || project.userId.toString() !== session.user._id.toString()) {
+            return { error: 'You do not have permission to remove agents from this project.' };
+        }
+        
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $pull: { agents: { userId: new ObjectId(agentUserId) } } as Filter<Project> }
+        );
+
+        revalidatePath('/dashboard/settings');
+        return { message: 'Agent removed successfully.' };
+    } catch (e: any) {
+         console.error('Failed to remove agent:', e);
+        return { error: 'An unexpected error occurred.' };
+    }
 }
