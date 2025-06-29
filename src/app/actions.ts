@@ -4,6 +4,7 @@
 
 
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -1636,16 +1637,33 @@ export async function handleClearOldQueueItems(): Promise<{ message?: string; er
 
 
 export async function getNotifications(activeProjectId?: string | null): Promise<WithId<NotificationWithProject>[]> {
+    const session = await getSession();
+    if (!session?.user) {
+        return []; // Not logged in, no notifications
+    }
+
     try {
         const { db } = await connectToDatabase();
         
+        const userProjectIds = (await db.collection('projects')
+            .find({ userId: new ObjectId(session.user._id) }, { projection: { _id: 1 } })
+            .toArray()).map(p => p._id);
+
+        // If a user has no projects, they should not see any project-specific notifications.
+        if (userProjectIds.length === 0) {
+            return [];
+        }
+        
         const filter: Filter<Notification> = {};
 
-        if (activeProjectId && ObjectId.isValid(activeProjectId)) {
+        // If an active project ID is provided, use it, but only if it belongs to the logged-in user.
+        const activeProjectIsValid = activeProjectId && ObjectId.isValid(activeProjectId) && userProjectIds.some(id => id.toString() === activeProjectId);
+
+        if (activeProjectIsValid) {
             filter.projectId = new ObjectId(activeProjectId);
         } else {
-            // On the project selection page, don't show user-specific messages.
-            filter.eventType = { $ne: 'messages' };
+            // Otherwise, show notifications for all projects owned by the user.
+            filter.projectId = { $in: userProjectIds };
         }
         
         const notifications = await db.collection('notifications').aggregate([
@@ -1663,7 +1681,7 @@ export async function getNotifications(activeProjectId?: string | null): Promise
             {
                 $unwind: {
                     path: '$projectInfo',
-                    preserveNullAndEmptyArrays: true
+                    preserveNullAndEmptyArrays: true // Keep notifications even if project is deleted
                 }
             },
             {
