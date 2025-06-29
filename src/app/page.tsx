@@ -4,7 +4,7 @@ import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
 import { getSession } from '@/app/actions';
 import { redirect } from 'next/navigation';
-import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown } from 'lucide-react';
+import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -141,13 +141,13 @@ export default async function HomePage() {
                 </Button>
               </div>
             </div>
-            <div className="relative p-8 bg-muted rounded-xl w-full max-w-4xl">
+            <div className="relative p-2 bg-muted rounded-xl w-full max-w-4xl shadow-2xl">
               <Image
-                src="https://placehold.co/600x400.png"
+                src="https://placehold.co/1200x675.png"
                 alt="Wachat dashboard preview"
-                width={600}
-                height={400}
-                className="rounded-xl shadow-2xl ring-1 ring-border w-full h-auto"
+                width={1200}
+                height={675}
+                className="rounded-lg ring-1 ring-border w-full h-auto"
                 data-ai-hint="app dashboard"
               />
             </div>
@@ -163,9 +163,9 @@ export default async function HomePage() {
                 Everything you need to scale your customer communication on WhatsApp.
               </p>
             </div>
-            <div className="flex flex-wrap items-stretch justify-center gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {features.map((feature, index) => (
-                <Card key={index} className="text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 w-full max-w-xs flex flex-col">
+                <Card key={index} className="text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 w-full flex flex-col">
                   <CardHeader className="items-center">
                     <div className="p-4 bg-primary/10 rounded-full">
                         {feature.icon}
@@ -190,10 +190,9 @@ export default async function HomePage() {
                 Connecting your business to Wachat is simple and secure.
               </p>
             </div>
-            <div className="relative grid grid-cols-1 md:grid-cols-3 gap-y-12 gap-x-8">
-              <div className="absolute top-8 left-0 w-full h-0.5 bg-border hidden md:block" />
+            <div className="relative grid grid-cols-1 md:grid-cols-3 gap-y-12 md:gap-x-8">
               {steps.map((step, index) => (
-                <div key={index} className="relative flex flex-col items-center text-center space-y-4">
+                <div key={index} className="relative flex flex-col items-center text-center space-y-4 px-4">
                    <div className="z-10 h-16 w-16 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-2xl border-8 border-background">
                     {index + 1}
                    </div>
@@ -218,12 +217,10 @@ export default async function HomePage() {
                     {testimonials.map((testimonial, index) => (
                         <Card key={index} className="flex flex-col">
                             <CardHeader>
-                                <div className="flex text-yellow-400">
-                                    {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 fill-current" />)}
-                                </div>
+                                <Quote className="h-8 w-8 text-primary/30"/>
                             </CardHeader>
                             <CardContent className="flex-grow">
-                                <p className="italic">"{testimonial.text}"</p>
+                                <p className="italic text-foreground/90">"{testimonial.text}"</p>
                             </CardContent>
                             <CardFooter className="flex items-center gap-4 mt-4">
                                 <Avatar>
@@ -263,12 +260,14 @@ export default async function HomePage() {
         {/* Final CTA Section */}
         <section className="py-20">
             <div className="container">
-                <div className="bg-muted rounded-lg p-8 md:p-12 text-center space-y-6">
-                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Ready to Supercharge Your WhatsApp?</h2>
-                     <p className="max-w-xl mx-auto text-lg text-muted-foreground">
+                <div className="relative overflow-hidden bg-primary text-primary-foreground rounded-lg p-8 md:p-16 text-center space-y-6">
+                     <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-white/10 rounded-full"></div>
+                     <div className="absolute -top-10 -left-10 w-32 h-32 bg-white/10 rounded-full"></div>
+                     <h2 className="text-3xl md:text-4xl font-bold font-headline relative z-10">Ready to Supercharge Your WhatsApp?</h2>
+                     <p className="max-w-xl mx-auto text-lg text-primary-foreground/80 relative z-10">
                         Join hundreds of businesses growing with Wachat. Create your account and launch your first campaign in minutes.
                     </p>
-                    <Button size="lg" asChild>
+                    <Button size="lg" variant="secondary" asChild className="relative z-10">
                         <Link href="/signup">Sign Up Now <ArrowRight className="ml-2 h-5 w-5" /></Link>
                     </Button>
                 </div>
