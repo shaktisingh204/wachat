@@ -1,6 +1,7 @@
 
 
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -235,9 +236,13 @@ export async function handleSuggestContent(topic: string): Promise<{ suggestions
 }
 
 export async function getProjects(query?: string): Promise<WithId<Project>[]> {
+    const session = await getSession();
+    if (!session?.user) {
+        return [];
+    }
     try {
         const { db } = await connectToDatabase();
-        const filter: Filter<Project> = {};
+        const filter: Filter<Project> = { userId: new ObjectId(session.user._id) };
         if (query) {
             filter.name = { $regex: query, $options: 'i' }; // case-insensitive regex search
         }
@@ -250,15 +255,22 @@ export async function getProjects(query?: string): Promise<WithId<Project>[]> {
 }
 
 export async function getProjectById(projectId: string): Promise<WithId<Project> | null> {
+    const session = await getSession();
+    if (!session?.user) {
+        return null;
+    }
     try {
         if (!ObjectId.isValid(projectId)) {
             console.error("Invalid Project ID in getProjectById:", projectId);
             return null;
         }
         const { db } = await connectToDatabase();
-        const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+        const project = await db.collection('projects').findOne({ 
+            _id: new ObjectId(projectId), 
+            userId: new ObjectId(session.user._id) 
+        });
         if (!project) {
-            console.error("Project not found in getProjectById for ID:", projectId);
+            console.error("Project not found for user in getProjectById for ID:", projectId);
             return null;
         }
         return JSON.parse(JSON.stringify(project));
@@ -269,10 +281,10 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
 }
 
 export async function getProjectForBroadcast(projectId: string): Promise<{ _id: WithId<Project>['_id'], name: string, phoneNumbers: PhoneNumber[], templates: Template[] } | null> {
+    const projectData = await getProjectById(projectId);
+    if (!projectData) return null;
+
     try {
-        if (!ObjectId.isValid(projectId)) {
-            return null;
-        }
         const { db } = await connectToDatabase();
         const projectObjectId = new ObjectId(projectId);
         const [project, templates] = await Promise.all([
@@ -301,6 +313,9 @@ export async function getTemplates(projectId: string): Promise<WithId<Template>[
     if (!ObjectId.isValid(projectId)) {
         return [];
     }
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return [];
+
     try {
         const { db } = await connectToDatabase();
         const projection = {
@@ -351,6 +366,9 @@ export async function getBroadcasts(
     page: number = 1,
     limit: number = 10
 ): Promise<{ broadcasts: WithId<any>[], total: number }> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { broadcasts: [], total: 0 };
+
     if (!ObjectId.isValid(projectId)) {
         return { broadcasts: [], total: 0 };
     }
@@ -416,9 +434,22 @@ export async function getBroadcastById(broadcastId: string) {
         console.error("Invalid Broadcast ID in getBroadcastById:", broadcastId);
         return null;
     }
+    const session = await getSession();
+    if (!session?.user) return null;
+
     try {
         const { db } = await connectToDatabase();
         const broadcast = await db.collection('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
+        if (!broadcast) return null;
+        
+        // Check if the user has access to the project associated with this broadcast
+        const project = await db.collection('projects').findOne({
+             _id: broadcast.projectId,
+             userId: new ObjectId(session.user._id)
+        });
+
+        if (!project) return null;
+
         return JSON.parse(JSON.stringify(broadcast));
     } catch (error) {
         console.error('Failed to fetch broadcast by ID:', error);
@@ -432,10 +463,9 @@ export async function getBroadcastAttempts(
     limit: number = 50, 
     filter: 'ALL' | 'SENT' | 'FAILED' | 'PENDING' | 'DELIVERED' | 'READ' = 'ALL'
 ): Promise<{ attempts: BroadcastAttempt[], total: number }> {
-    if (!ObjectId.isValid(broadcastId)) {
-        console.error("Invalid Broadcast ID in getBroadcastAttempts:", broadcastId);
-        return { attempts: [], total: 0 };
-    }
+    const broadcast = await getBroadcastById(broadcastId);
+    if (!broadcast) return { attempts: [], total: 0 };
+
     try {
         const { db } = await connectToDatabase();
         const query: any = { broadcastId: new ObjectId(broadcastId) };
@@ -465,6 +495,9 @@ export async function getDashboardStats(projectId: string): Promise<{
     totalRead: number;
     totalCampaigns: number;
 } | null> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return null;
+
     const defaultStats = { totalMessages: 0, totalSent: 0, totalFailed: 0, totalDelivered: 0, totalRead: 0, totalCampaigns: 0 };
     if (!ObjectId.isValid(projectId)) {
         return defaultStats;
@@ -502,91 +535,6 @@ export async function getDashboardStats(projectId: string): Promise<{
         return defaultStats;
     }
 }
-
-type CreateProjectState = {
-  message?: string | null;
-  error?: string | null;
-};
-
-export async function handleCreateProject(
-  prevState: CreateProjectState,
-  formData: FormData
-): Promise<CreateProjectState> {
-    try {
-        const wabaId = formData.get('wabaId') as string;
-        const accessToken = formData.get('accessToken') as string;
-
-        if (!wabaId || !accessToken) {
-            return { error: 'All fields are required.' };
-        }
-        
-        const response = await fetch(
-            `https://graph.facebook.com/v22.0/${wabaId}/phone_numbers?access_token=${accessToken}`,
-            { method: 'GET' }
-        );
-
-        if (!response.ok) {
-            let reason = 'Invalid credentials or API error.';
-            try {
-                const errorData = await response.json();
-                reason = errorData?.error?.message || reason;
-            } catch (e) {
-                reason = `Could not parse error response from Meta. Status: ${response.status} ${response.statusText}`;
-            }
-            return { error: `Verification failed: ${reason}` };
-        }
-        
-        const data: MetaPhoneNumbersResponse = await response.json();
-        
-        if (!data.data || data.data.length === 0) {
-            return { error: 'Verification successful, but no phone numbers are associated with this Business Account ID.' };
-        }
-
-        const name = data.data[0].verified_name;
-        if (!name) {
-            return { error: 'Could not determine the business name from the API. Please ensure your business is verified.' };
-        }
-
-        const phoneNumbers: PhoneNumber[] = data.data.map((num: MetaPhoneNumber) => ({
-            id: num.id,
-            display_phone_number: num.display_phone_number,
-            verified_name: num.verified_name,
-            code_verification_status: num.code_verification_status,
-            quality_rating: num.quality_rating,
-            platform_type: num.platform_type,
-            throughput: num.throughput,
-        }));
-
-        const { db } = await connectToDatabase();
-        
-        const existingProject = await db.collection('projects').findOne({ $or: [{ name }, { wabaId }] });
-        if (existingProject) {
-            return { error: `A project for "${name}" or with the same Business ID already exists.` };
-        }
-
-        await db.collection('projects').insertOne({
-            name,
-            wabaId,
-            accessToken,
-            phoneNumbers,
-            createdAt: new Date(),
-            messagesPerSecond: 1000,
-            reviewStatus: 'UNKNOWN',
-        });
-        
-        revalidatePath('/dashboard');
-
-        return { message: `Project "${name}" created successfully with ${phoneNumbers.length} phone number(s)!` };
-
-    } catch (e: any) {
-        console.error('Project creation failed:', e);
-        if (e.code === 11000) {
-            return { error: `A project with this name or Business ID might already exist.` };
-        }
-        return { error: e.message || 'An unexpected error occurred while saving the project.' };
-    }
-}
-
 
 type BroadcastState = {
   message?: string | null;
@@ -672,20 +620,16 @@ export async function handleStartBroadcast(
     if (!projectId) {
       return { error: 'No project selected. Please go to the dashboard and select a project first.' };
     }
-    if (!ObjectId.isValid(projectId)) {
-        return { error: 'Invalid Project ID.' };
+    
+    const project = await getProjectById(projectId);
+    if (!project) {
+      return { error: 'Project not found or you do not have access.' };
     }
     
     if (!phoneNumberId) {
       return { error: 'No phone number selected. Please select a number to send the broadcast from.' };
     }
 
-    const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
-
-    if (!project) {
-      return { error: 'Selected project not found. It may have been deleted.' };
-    }
-    
     const accessToken = project.accessToken;
 
     const templateId = formData.get('templateId') as string;
@@ -697,8 +641,8 @@ export async function handleStartBroadcast(
     }
     if (!contactFile || contactFile.size === 0) return { error: 'Please upload a contact file.' };
 
-    const template = await db.collection('templates').findOne({ _id: new ObjectId(templateId) });
-    if (!template) return { error: 'Selected template not found.' };
+    const template = await db.collection('templates').findOne({ _id: new ObjectId(templateId), projectId: project._id });
+    if (!template) return { error: 'Selected template not found for this project.' };
 
     let finalHeaderImageUrl: string | undefined = undefined;
     const templateHasMediaHeader = template.components?.some((c: any) => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
@@ -772,17 +716,11 @@ export async function handleStartBroadcast(
 }
 
 export async function handleSyncPhoneNumbers(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
-    if (!ObjectId.isValid(projectId)) {
-        return { error: 'Invalid Project ID.' };
-    }
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or you do not have access.' };
 
     try {
         const { db } = await connectToDatabase();
-        const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
-
-        if (!project) {
-            return { error: 'Project not found.' };
-        }
 
         const { wabaId, accessToken } = project;
         const fields = 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput';
@@ -842,18 +780,12 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
 }
 
 export async function handleSyncTemplates(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
-    if (!ObjectId.isValid(projectId)) {
-        return { error: 'Invalid Project ID.' };
-    }
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or you do not have access.' };
 
     try {
         const { db } = await connectToDatabase();
-        const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
-
-        if (!project) {
-            return { error: 'Project not found.' };
-        }
-
+        
         const { wabaId, accessToken } = project;
 
         const allTemplates: MetaTemplate[] = [];
@@ -945,12 +877,22 @@ export async function handleCreateTemplate(
     };
 
     try {
-        const appId = process.env.APP_ID;
+        const appId = process.env.NEXT_PUBLIC_META_APP_ID;
         if (!appId) {
-            return { error: 'APP_ID is not configured in the environment variables. Please set it in the .env file.' };
+            return { error: 'NEXT_PUBLIC_META_APP_ID is not configured in the environment variables. Please set it in the .env file.' };
         }
 
         const projectId = formData.get('projectId') as string;
+        
+        if (!projectId || !ObjectId.isValid(projectId)) {
+            return { error: 'Invalid Project ID.' };
+        }
+    
+        const project = await getProjectById(projectId);
+        if (!project) {
+            return { error: 'Project not found or you do not have access.' };
+        }
+        
         const name = cleanText(formData.get('templateName') as string);
         const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
         const bodyText = cleanText(formData.get('body') as string);
@@ -970,17 +912,10 @@ export async function handleCreateTemplate(
             example: Array.isArray(button.example) ? button.example.map((ex: string) => (ex || '').trim()) : button.example,
         }));
     
-        if (!projectId || !name || !category || !bodyText || !language) {
-            return { error: 'Project, Name, Language, Category, and Body are required.' };
+        if (!name || !category || !bodyText || !language) {
+            return { error: 'Name, Language, Category, and Body are required.' };
         }
-        if (!ObjectId.isValid(projectId)) {
-            return { error: 'Invalid Project ID.' };
-        }
-    
-        const project = await getProjectById(projectId);
-        if (!project) {
-            return { error: 'Project not found.' };
-        }
+
         const { wabaId, accessToken } = project;
 
         let uploadedMediaHandle: string | null = null;
@@ -1208,19 +1143,12 @@ export async function handleCreateTemplate(
 }
 
 export async function handleStopBroadcast(broadcastId: string): Promise<{ message?: string; error?: string }> {
-    if (!ObjectId.isValid(broadcastId)) {
-        return { error: 'Invalid Broadcast ID.' };
-    }
-
+    const broadcast = await getBroadcastById(broadcastId);
+    if (!broadcast) return { error: 'Broadcast not found or you do not have access.' };
+    
     try {
         const { db } = await connectToDatabase();
         const broadcastObjectId = new ObjectId(broadcastId);
-
-        const broadcast = await db.collection('broadcasts').findOne({ _id: broadcastObjectId });
-
-        if (!broadcast) {
-            return { error: 'Broadcast not found.' };
-        }
 
         if (broadcast.status !== 'QUEUED' && broadcast.status !== 'PROCESSING') {
             return { error: 'This broadcast cannot be stopped as it is not currently active.' };
@@ -1269,9 +1197,8 @@ export async function handleUpdateProjectSettings(
         if (!projectId || !messagesPerSecond) {
             return { error: 'Missing required fields.' };
         }
-        if (!ObjectId.isValid(projectId)) {
-            return { error: 'Invalid Project ID.' };
-        }
+        const hasAccess = await getProjectById(projectId);
+        if (!hasAccess) return { error: 'Project not found or you do not have access.' };
 
         const mps = parseInt(messagesPerSecond, 10);
         if (isNaN(mps) || mps < 1) {
@@ -1333,9 +1260,11 @@ export async function handleRequeueBroadcast(
     const requeueScope = formData.get('requeueScope') as 'ALL' | 'FAILED' | null;
     const newHeaderImageUrl = formData.get('headerImageUrl') as string | null;
 
-    if (!broadcastId || !ObjectId.isValid(broadcastId)) {
-        return { error: 'Invalid Broadcast ID.' };
+    const originalBroadcast = await getBroadcastById(broadcastId);
+    if (!originalBroadcast) {
+        return { error: 'Original broadcast not found or you do not have access.' };
     }
+    
     if (!newTemplateId || !ObjectId.isValid(newTemplateId)) {
         return { error: 'A valid template must be selected.' };
     }
@@ -1347,14 +1276,8 @@ export async function handleRequeueBroadcast(
     const originalBroadcastId = new ObjectId(broadcastId);
 
     try {
-        const [originalBroadcast, newTemplate] = await Promise.all([
-            db.collection('broadcasts').findOne({ _id: originalBroadcastId }),
-            db.collection('templates').findOne({ _id: new ObjectId(newTemplateId) })
-        ]);
+        const newTemplate = await db.collection('templates').findOne({ _id: new ObjectId(newTemplateId), projectId: originalBroadcast.projectId });
         
-        if (!originalBroadcast) {
-            return { error: 'Original broadcast not found.' };
-        }
         if (!newTemplate) {
             return { error: 'Selected template not found.' };
         }
@@ -1858,7 +1781,9 @@ export async function getContactsForProject(
     limit: number = 20,
     query?: string
 ): Promise<{ contacts: WithId<Contact>[], total: number }> {
-    if (!ObjectId.isValid(projectId)) return { contacts: [], total: 0 };
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { contacts: [], total: 0 };
+
     try {
         const { db } = await connectToDatabase();
 
@@ -1894,8 +1819,15 @@ export async function getContactsForProject(
 
 export async function getConversation(contactId: string): Promise<AnyMessage[]> {
     if (!ObjectId.isValid(contactId)) return [];
+    
     try {
         const { db } = await connectToDatabase();
+        const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
+        if (!contact) return [];
+        
+        const hasAccess = await getProjectById(contact.projectId.toString());
+        if (!hasAccess) return [];
+
         const contactObjectId = new ObjectId(contactId);
 
         const incomingPromise = db.collection('incoming_messages').find({ contactId: contactObjectId }).toArray();
@@ -1920,8 +1852,15 @@ export async function getConversation(contactId: string): Promise<AnyMessage[]> 
 
 export async function markConversationAsRead(contactId: string): Promise<{ success: boolean }> {
     if (!ObjectId.isValid(contactId)) return { success: false };
+    
     try {
         const { db } = await connectToDatabase();
+        const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
+        if (!contact) return { success: false };
+        
+        const hasAccess = await getProjectById(contact.projectId.toString());
+        if (!hasAccess) return { success: false };
+
         const contactObjectId = new ObjectId(contactId);
 
         await db.collection('incoming_messages').updateMany(
@@ -1954,8 +1893,8 @@ export async function handleSendMessage(
 
     try {
         const { db } = await connectToDatabase();
-        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
-        if (!project) throw new Error('Project not found.');
+        const project = await getProjectById(projectId);
+        if (!project) throw new Error('Project not found or you do not have access.');
 
         const { accessToken } = project;
         let messagePayload: any = {
@@ -2058,9 +1997,9 @@ export async function findOrCreateContact(
     phoneNumberId: string, 
     waId: string
 ): Promise<{ contact?: WithId<Contact>; error?: string }> {
-    if (!ObjectId.isValid(projectId) || !phoneNumberId || !waId) {
-        return { error: 'Invalid input provided.' };
-    }
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: 'Project not found or you do not have access.' };
+
     try {
         const { db } = await connectToDatabase();
         
@@ -2106,9 +2045,9 @@ export async function handleAddNewContact(
     if (!projectId || !phoneNumberId || !name || !waId) {
         return { error: 'All fields are required.' };
     }
-     if (!ObjectId.isValid(projectId)) {
-        return { error: 'Invalid Project ID.' };
-    }
+    
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: 'Project not found or you do not have access.' };
 
     try {
         const { db } = await connectToDatabase();
@@ -2151,9 +2090,8 @@ export async function handleImportContacts(
     if (!projectId || !phoneNumberId || !contactFile) {
         return { error: 'Project, phone number, and a file are required.' };
     }
-    if (!ObjectId.isValid(projectId)) {
-        return { error: 'Invalid Project ID.' };
-    }
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: 'Project not found or you do not have access.' };
 
     const { db } = await connectToDatabase();
     
@@ -2331,9 +2269,9 @@ export async function getBroadcastAttemptsForExport(
     broadcastId: string, 
     filter: 'ALL' | 'SENT' | 'FAILED' | 'PENDING' | 'DELIVERED' | 'READ'
 ): Promise<WithId<BroadcastAttempt>[]> {
-    if (!ObjectId.isValid(broadcastId)) {
-        return [];
-    }
+    const broadcast = await getBroadcastById(broadcastId);
+    if (!broadcast) return [];
+
     try {
         const { db } = await connectToDatabase();
         const query: any = { broadcastId: new ObjectId(broadcastId) };
@@ -2428,21 +2366,18 @@ export async function handleUpdateAutoReplySettings(
     const projectId = formData.get('projectId') as string;
     const replyType = formData.get('replyType') as 'general' | 'inactiveHours' | 'aiAssistant';
 
-    if (!projectId || !ObjectId.isValid(projectId)) {
-        return { error: 'Invalid Project ID.' };
-    }
     if (!replyType) {
         return { error: 'Invalid reply type specified.' };
     }
 
     try {
+        const project = await getProjectById(projectId);
+        if (!project) {
+            return { error: 'Project not found or you do not have access.' };
+        }
+        
         const { db } = await connectToDatabase();
         
-        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
-        if (!project) {
-            return { error: 'Project not found.' };
-        }
-
         const autoReplySettings = project.autoReplySettings || {};
 
         switch (replyType) {
@@ -2497,15 +2432,12 @@ export async function handleUpdateAutoReplySettings(
 }
 
 export async function handleUpdateMasterSwitch(projectId: string, enabled: boolean): Promise<{ message?: string; error?: string; }> {
-    if (!projectId || !ObjectId.isValid(projectId)) {
-        return { error: 'Invalid Project ID.' };
-    }
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or you do not have access.' };
+
     try {
         const { db } = await connectToDatabase();
-        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
-        if (!project) {
-            return { error: 'Project not found.' };
-        }
+        
         const autoReplySettings = project.autoReplySettings || {};
         autoReplySettings.masterEnabled = enabled;
 
@@ -2525,7 +2457,9 @@ export async function handleUpdateMasterSwitch(projectId: string, enabled: boole
 // --- Flow Builder Actions ---
 
 export async function getFlowsForProject(projectId: string): Promise<WithId<Flow>[]> {
-    if (!ObjectId.isValid(projectId)) return [];
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return [];
+
     try {
         const { db } = await connectToDatabase();
         const flows = await db.collection('flows')
@@ -2542,9 +2476,15 @@ export async function getFlowsForProject(projectId: string): Promise<WithId<Flow
 
 export async function getFlowById(flowId: string): Promise<WithId<Flow> | null> {
     if (!ObjectId.isValid(flowId)) return null;
+
     try {
         const { db } = await connectToDatabase();
         const flow = await db.collection('flows').findOne({ _id: new ObjectId(flowId) });
+        if (!flow) return null;
+
+        const hasAccess = await getProjectById(flow.projectId.toString());
+        if (!hasAccess) return null;
+        
         return JSON.parse(JSON.stringify(flow));
     } catch (e: any) {
         console.error("Failed to fetch flow:", e);
@@ -2568,12 +2508,12 @@ export async function saveFlow(flowData: {
 }): Promise<SaveFlowResult> {
   const { flowId, projectId, name, nodes, edges, triggerKeywords } = flowData;
 
-  if (!projectId || !name || !nodes) {
-    return { error: "Project ID, name, and nodes are required." };
+  if (!name || !nodes) {
+    return { error: "Name and nodes are required." };
   }
-  if (!ObjectId.isValid(projectId)) {
-    return { error: "Invalid Project ID." };
-  }
+  
+  const hasAccess = await getProjectById(projectId);
+  if (!hasAccess) return { error: "Project not found or you do not have access." };
 
   try {
     const { db } = await connectToDatabase();
@@ -2591,7 +2531,7 @@ export async function saveFlow(flowData: {
 
     if (flowId && ObjectId.isValid(flowId)) {
       const result = await db.collection('flows').updateOne(
-        { _id: new ObjectId(flowId) },
+        { _id: new ObjectId(flowId), projectId: new ObjectId(projectId) },
         { $set: flowDocument }
       );
        if (result.matchedCount === 0) {
@@ -2620,6 +2560,9 @@ export async function deleteFlow(flowId: string): Promise<{ message?: string; er
     }
     try {
         const { db } = await connectToDatabase();
+        const flow = await getFlowById(flowId);
+        if (!flow) return { error: 'Flow not found or you do not have access.' };
+
         const result = await db.collection('flows').deleteOne({ _id: new ObjectId(flowId) });
         if (result.deletedCount === 0) {
             return { error: 'Flow not found.' };
@@ -2855,4 +2798,102 @@ export async function getSession(): Promise<{ user: Omit<User, 'password'> } | n
 export async function handleLogout() {
   cookies().set('session', '', { expires: new Date(0), path: '/' });
   redirect('/login');
+}
+
+export async function handleFacebookSetup(shortLivedToken: string, wabaIds: string[]): Promise<{ success?: boolean; error?: string; count?: number }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'User not authenticated.' };
+    }
+    
+    const appId = process.env.NEXT_PUBLIC_META_APP_ID;
+    const appSecret = process.env.META_APP_SECRET;
+
+    if (!appId || !appSecret) {
+        return { error: 'Server configuration error: App ID or Secret is missing.' };
+    }
+
+    try {
+        const tokenResponse = await axios.get(`https://graph.facebook.com/v20.0/oauth/access_token`, {
+            params: {
+                grant_type: 'fb_exchange_token',
+                client_id: appId,
+                client_secret: appSecret,
+                fb_exchange_token: shortLivedToken,
+            }
+        });
+
+        const longLivedToken = tokenResponse.data.access_token;
+        if (!longLivedToken) {
+            return { error: 'Failed to exchange for a long-lived access token.' };
+        }
+        
+        const { db } = await connectToDatabase();
+        let connectedCount = 0;
+
+        for (const wabaId of wabaIds) {
+            const existingClaim = await db.collection('projects').findOne({ wabaId, userId: { $ne: new ObjectId(session.user._id) } });
+            if (existingClaim) {
+                console.warn(`WABA ${wabaId} is already linked to another user. Skipping.`);
+                continue;
+            }
+            
+            const wabaDetailsResponse = await axios.get(`https://graph.facebook.com/v20.0/${wabaId}`, {
+                params: { fields: 'name', access_token: longLivedToken }
+            });
+            const wabaName = wabaDetailsResponse.data.name;
+
+            const phoneNumbersResponse = await axios.get(`https://graph.facebook.com/v20.0/${wabaId}/phone_numbers`, {
+                params: { 
+                    fields: 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput',
+                    access_token: longLivedToken 
+                }
+            });
+            const phoneNumbers: PhoneNumber[] = phoneNumbersResponse.data.data ? phoneNumbersResponse.data.data.map((num: any) => ({
+                id: num.id,
+                display_phone_number: num.display_phone_number,
+                verified_name: num.verified_name,
+                code_verification_status: num.code_verification_status,
+                quality_rating: num.quality_rating,
+                platform_type: num.platform_type,
+                throughput: num.throughput,
+            })) : [];
+
+            const projectUpdateResult = await db.collection('projects').updateOne(
+                { wabaId, userId: new ObjectId(session.user._id) },
+                {
+                    $set: {
+                        name: wabaName,
+                        accessToken: longLivedToken,
+                        phoneNumbers: phoneNumbers
+                    },
+                    $setOnInsert: {
+                        userId: new ObjectId(session.user._id),
+                        wabaId: wabaId,
+                        createdAt: new Date(),
+                        messagesPerSecond: 1000,
+                        reviewStatus: 'UNKNOWN',
+                    }
+                },
+                { upsert: true }
+            );
+
+            if (projectUpdateResult.upsertedId) {
+                const newProjectId = projectUpdateResult.upsertedId;
+                 if (typeof window !== 'undefined') {
+                    localStorage.setItem('activeProjectId', newProjectId.toString());
+                    localStorage.setItem('activeProjectName', wabaName);
+                }
+            }
+            
+            connectedCount++;
+        }
+        
+        revalidatePath('/dashboard');
+        return { success: true, count: connectedCount };
+
+    } catch (e: any) {
+        console.error('Facebook Setup Failed:', e);
+        return { error: getErrorMessage(e) };
+    }
 }
