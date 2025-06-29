@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { PlusCircle, LoaderCircle, Key } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
+import Link from 'next/link';
 
 const initialState = {
   message: null,
@@ -83,7 +84,11 @@ export function CreateProjectDialog() {
           <DialogHeader>
             <DialogTitle>Manual Project Setup</DialogTitle>
             <DialogDescription>
-              Enter your WhatsApp Business ID, App ID, and a permanent System User Token. The project will be automatically named after your verified business name.
+              Enter your credentials below. For detailed instructions, please see our{' '}
+              <Link href="/dashboard/setup/docs" className="text-primary hover:underline">
+                Manual Setup Guide
+              </Link>
+              .
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
