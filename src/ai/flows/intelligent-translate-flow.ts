@@ -70,7 +70,7 @@ const prompt = ai.definePrompt({
 "{{{text}}}"
 
 If the text is already in {{{language}}}, simply return the original text.
-Only return the translated text, with no additional commentary or explanations. Preserve any variables that look like {{...}}.`,
+Only return the translated text, with no additional commentary or explanations. Preserve any variables that look like \{{...}}.`,
 });
 
 const intelligentTranslateFlow = ai.defineFlow(
