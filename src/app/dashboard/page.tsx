@@ -3,6 +3,7 @@
 
 
 
+
 import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
@@ -10,6 +11,7 @@ import { ProjectCard } from "@/components/wabasimplify/project-card";
 import { FileText, PlusCircle } from "lucide-react";
 import type { WithId, ObjectId } from "mongodb";
 import { SyncProjectsButton } from "@/components/wabasimplify/sync-projects-button";
+import { SubscribeAllButton } from "@/components/wabasimplify/subscribe-all-button";
 import { ProjectSearch } from "@/components/wabasimplify/project-search";
 import { Button } from "@/components/ui/button";
 
@@ -136,6 +138,7 @@ export default async function SelectProjectPage({
                     </p>
                 </div>
                  <div className="flex flex-wrap items-center gap-2">
+                    <SubscribeAllButton />
                     <SyncProjectsButton />
                 </div>
             </div>

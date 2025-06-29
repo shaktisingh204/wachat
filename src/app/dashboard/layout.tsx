@@ -48,7 +48,7 @@ import {
 import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { getSession, handleLogout } from '@/app/actions';
+import { getProjects, getSession, handleLogout } from '@/app/actions';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -57,6 +57,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
   const [isClient, setIsClient] = React.useState(false);
   const [isVerifying, setIsVerifying] = React.useState(true);
+  const [projectCount, setProjectCount] = React.useState<number | null>(null);
 
   React.useEffect(() => {
     setIsClient(true);
@@ -75,6 +76,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     getSession().then(session => {
         if(session?.user) {
             setSessionUser(session.user);
+            getProjects().then(projects => {
+              const count = projects.length;
+              setProjectCount(count);
+              if (count === 0 && pathname !== '/dashboard' && pathname !== '/dashboard/setup') {
+                  router.push('/dashboard/setup');
+              }
+            });
         } else {
             router.push('/login');
         }
@@ -98,6 +106,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )
   }
 
+  const hasNoProjects = projectCount === 0;
 
   return (
     <SidebarProvider>
@@ -115,9 +124,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <SidebarMenuButton
                   asChild
                   isActive={pathname.startsWith(item.href)}
-                  tooltip={item.label}
+                  tooltip={hasNoProjects ? `${item.label} (connect a project first)` : item.label}
+                  disabled={hasNoProjects}
+                  aria-disabled={hasNoProjects}
                 >
-                  <Link href={item.href}>
+                  <Link href={hasNoProjects ? '#' : item.href} className={cn(hasNoProjects && 'pointer-events-none')}>
                     <item.icon />
                     <span>{item.label}</span>
                   </Link>
