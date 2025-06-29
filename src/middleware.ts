@@ -1,37 +1,47 @@
 
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { verifySessionToken } from '@/lib/auth';
 
-export async function middleware(request: NextRequest) {
-  const sessionToken = request.cookies.get('session')?.value;
-  const session = sessionToken ? verifySessionToken(sessionToken) : null;
-  const { pathname } = request.nextUrl;
+export function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  const sessionToken = request.cookies.get('session')?.value
 
-  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/admin-login');
+  const isPublicPath =
+    pathname === '/' ||
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/signup') ||
+    pathname.startsWith('/admin-login') ||
+    pathname.startsWith('/api/webhooks') || // Allow webhooks to be public
+    pathname.startsWith('/api/cron'); // Allow cron jobs to be public
 
-  // If user is authenticated
-  if (session) {
-    // Redirect away from auth pages if logged in
-    if (isAuthPage) {
-        if (!pathname.startsWith('/admin-login')) { // Allow access to admin login even if user is logged in
-            return NextResponse.redirect(new URL('/dashboard', request.url));
-        }
+  const isAuthPath = pathname.startsWith('/login') || pathname.startsWith('/signup')
+
+  // If a user has a session token
+  if (sessionToken) {
+    // and they are trying to access an auth page, redirect them to the dashboard.
+    if (isAuthPath) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
     }
-    return NextResponse.next();
+    // Otherwise, allow them to proceed. The actual validation will happen in the layout.
+    return NextResponse.next()
   }
 
-  // If user is not authenticated
-  if (!session) {
-    // Allow access to auth pages, root, and API routes
-    if (isAuthPage || pathname === '/' || pathname.startsWith('/api') || pathname.startsWith('/admin')) {
-      return NextResponse.next();
+  // If a user does not have a session token
+  if (!sessionToken) {
+    // and they are trying to access a protected page (not public)
+    if (!isPublicPath) {
+      // but allow access to the admin area for now (it has its own login)
+      if (pathname.startsWith('/admin')) {
+        return NextResponse.next();
+      }
+      // redirect them to the login page.
+      return NextResponse.redirect(new URL('/login', request.url))
     }
-    // Redirect all other requests to the login page
-    return NextResponse.redirect(new URL('/login', request.url));
+    // Otherwise, allow access to the public page.
+    return NextResponse.next()
   }
-  
-  return NextResponse.next();
+
+  return NextResponse.next()
 }
 
 export const config = {

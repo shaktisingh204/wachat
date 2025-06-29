@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,9 +52,11 @@ import { getSession, handleLogout } from '@/app/actions';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string } | null>(null);
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
   const [isClient, setIsClient] = React.useState(false);
+  const [isVerifying, setIsVerifying] = React.useState(true);
 
   React.useEffect(() => {
     setIsClient(true);
@@ -64,10 +66,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     getSession().then(session => {
         if(session?.user) {
             setSessionUser(session.user);
+        } else {
+            router.push('/login');
         }
+        setIsVerifying(false);
     })
 
-  }, []);
+  }, [router]);
 
   const isChatPage = pathname.startsWith('/dashboard/chat');
   
@@ -75,6 +80,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     pathname === '/dashboard' ||
     pathname.startsWith('/dashboard/flow-builder') ||
     isChatPage;
+
+  if (isVerifying) {
+      return (
+          <div className="flex items-center justify-center h-screen">
+              <Skeleton className="h-full w-full" />
+          </div>
+      )
+  }
 
 
   return (
@@ -182,7 +195,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <span>Logout</span>
                         </button>
                     </form>
-                </DropdownMenuItem>
+                  </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
              <Sheet>
