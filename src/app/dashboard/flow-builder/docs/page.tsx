@@ -115,13 +115,13 @@ export default function FlowBuilderDocsPage() {
                 </CardHeader>
                 <CardContent className="text-sm space-y-4">
                     <p>
-                        Variables are placeholders for data that can change, such as a user's name or their answer to a question. In the Flow Builder, you use double curly braces to insert a variable, like this: <Badge variant="outline" className="font-mono">{{'{{name}}'}}</Badge>.
+                        Variables are placeholders for data that can change, such as a user's name or their answer to a question. In the Flow Builder, you use double curly braces to insert a variable, like this: <Badge variant="outline" className="font-mono">{"{{name}}"}</Badge>.
                     </p>
                     <p>
-                        The "Get User Input" block is the primary way to create custom variables. When you configure it to save an answer to a variable named <Badge variant="outline">color</Badge>, you can later use the user's answer by writing <Badge variant="outline" className="font-mono">{{'{{color}}'}}</Badge> in a "Send Message" block.
+                        The "Get User Input" block is the primary way to create custom variables. When you configure it to save an answer to a variable named <Badge variant="outline">color</Badge>, you can later use the user's answer by writing <Badge variant="outline" className="font-mono">{"{{color}}"}</Badge> in a "Send Message" block.
                     </p>
                     <p>
-                        There are also pre-defined variables you can use: <Badge variant="outline" className="font-mono">{{'{{name}}'}}</Badge> (the user's WhatsApp profile name) and <Badge variant="outline" className="font-mono">{{'{{waId}}'}}</Badge> (the user's phone number). Variables you save from an API call can also be used this way.
+                        There are also pre-defined variables you can use: <Badge variant="outline" className="font-mono">{"{{name}}"}</Badge> (the user's WhatsApp profile name) and <Badge variant="outline" className="font-mono">{"{{waId}}"}</Badge> (the user's phone number). Variables you save from an API call can also be used this way.
                     </p>
                 </CardContent>
             </Card>
@@ -146,7 +146,7 @@ export default function FlowBuilderDocsPage() {
                             <strong>Add API Call Block</strong>: Add a 'Call API' block to fetch the balance from your server. Map the result to a variable named `balance`.
                         </li>
                          <li>
-                            <strong>Add Message Blocks</strong>: Add two 'Send Message' blocks. One saying 'Your balance is {{balance}}', and another saying 'Connecting you to an agent...'.
+                            <strong>Add Message Blocks</strong>: Add two 'Send Message' blocks. One saying 'Your balance is {`{{balance}}`}', and another saying 'Connecting you to an agent...'.
                         </li>
                         <li>
                             <strong>Connect them</strong>:
