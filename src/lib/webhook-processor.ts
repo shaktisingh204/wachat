@@ -675,14 +675,19 @@ export async function processSingleWebhook(db: Db, payload: any, logId?: ObjectI
                 const value = change.value;
                 if (!value) continue;
 
-                // High-volume message events are handled by the cron job, so we skip them here.
                 if (change.field === 'messages') continue;
                 
                 const phone_number_id = value.metadata?.phone_number_id;
 
-                let project = await db.collection<Project>('projects').findOne(
-                     { $or: [ { wabaId: wabaId }, ...(phone_number_id ? [{ 'phoneNumbers.id': phone_number_id }] : [])] }
-                );
+                let project: WithId<Project> | null = null;
+
+                if (wabaId) {
+                    project = await db.collection<Project>('projects').findOne({ wabaId: wabaId });
+                }
+
+                if (!project && phone_number_id) {
+                    project = await db.collection<Project>('projects').findOne({ 'phoneNumbers.id': phone_number_id });
+                }
 
                 if (!project) {
                     console.log(`Webhook processor: Project not found for WABA ID ${wabaId} or phone ID ${phone_number_id}. Skipping event.`);
@@ -793,19 +798,17 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
         if (broadcastContactOps.length > 0) promises.push(db.collection('broadcast_contacts').bulkWrite(broadcastContactOps, { ordered: false }));
         const broadcastCounterOps = Object.entries(broadcastCounterUpdates)
             .filter(([_, counts]) => counts.delivered > 0 || counts.read > 0 || counts.failed > 0 || counts.success !== 0)
-            .map(([broadcastId, counts]) => {
-                return {
-                    updateOne: {
-                        filter: { _id: new ObjectId(broadcastId) },
-                        update: { $inc: { 
-                            deliveredCount: counts.delivered,
-                            readCount: counts.read,
-                            errorCount: counts.failed,
-                            successCount: counts.success
-                        } }
-                    }
-                };
-            });
+            .map(([broadcastId, counts]) => ({
+                updateOne: {
+                    filter: { _id: new ObjectId(broadcastId) },
+                    update: { $inc: { 
+                        deliveredCount: counts.delivered,
+                        readCount: counts.read,
+                        errorCount: counts.failed,
+                        successCount: counts.success
+                    } }
+                }
+            }));
         if (broadcastCounterOps.length > 0) promises.push(db.collection('broadcasts').bulkWrite(broadcastCounterOps, { ordered: false }));
         
         if (promises.length > 0) await Promise.all(promises);
@@ -836,16 +839,18 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
             const businessPhoneNumberId = group.metadata.phone_number_id;
             const wabaId = group.wabaId;
 
-            let project = projectsCache.get(businessPhoneNumberId);
-            if (!project) {
-                const projectFilter: Filter<Project> = { $or: [{ 'phoneNumbers.id': businessPhoneNumberId }] };
-                if (wabaId) {
-                    projectFilter.$or.push({ wabaId: wabaId });
-                }
-                project = await db.collection<Project>('projects').findOne(projectFilter);
+            let project = wabaId ? projectsCache.get(wabaId) : null;
 
+            if (!project) {
+                if (wabaId) {
+                    project = await db.collection<Project>('projects').findOne({ wabaId: wabaId });
+                }
+                if (!project && businessPhoneNumberId) {
+                    project = await db.collection<Project>('projects').findOne({ 'phoneNumbers.id': businessPhoneNumberId });
+                }
+        
                 if (project) {
-                    projectsCache.set(businessPhoneNumberId, project);
+                    projectsCache.set(project.wabaId, project);
                 }
             }
 
@@ -892,7 +897,9 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
 
         for (const group of messageGroups) {
             const businessPhoneNumberId = group.metadata.phone_number_id;
-            const project = projectsCache.get(businessPhoneNumberId);
+            const wabaId = group.wabaId;
+            const project = wabaId ? projectsCache.get(wabaId) : null;
+
             if (!project) continue;
 
             const message = group.messages[0];
