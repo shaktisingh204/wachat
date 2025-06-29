@@ -1,5 +1,3 @@
-
-
 import { EmbeddedSignup } from '@/components/wabasimplify/embedded-signup';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import type { Metadata } from 'next';
