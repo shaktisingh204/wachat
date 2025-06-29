@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import { useEffect, useState, useActionState, useRef, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings } from '@/app/actions';
+import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes } from '@/app/actions';
 import type { WithId } from 'mongodb';
-import type { Project } from '@/app/dashboard/page';
+import type { Project, UserAttribute } from '@/app/dashboard/page';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -13,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,6 +27,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 const updateSettingsInitialState = { message: null, error: null };
 const updateAutoReplyInitialState = { message: null, error: null };
 const updateOptInOutInitialState = { message: null, error: null };
+const saveUserAttributesInitialState = { message: null, error: null };
+
 
 function SaveButton({ children }: { children: React.ReactNode }) {
   const { pending } = useFormStatus();
@@ -247,6 +250,127 @@ function OptInOutForm({ project }: { project: WithId<Project> }) {
     )
 }
 
+function UserAttributesForm({ project }: { project: WithId<Project> }) {
+  const { toast } = useToast();
+  const [state, formAction] = useActionState(handleSaveUserAttributes, saveUserAttributesInitialState);
+  
+  const [attributes, setAttributes] = useState<UserAttribute[]>(project.userAttributes || []);
+  const [newAttrName, setNewAttrName] = useState('');
+  const [newAttrAction, setNewAttrAction] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  const { pending } = useFormStatus();
+
+  useEffect(() => {
+    if (state?.message) toast({ title: 'Success!', description: state.message });
+    if (state?.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
+  }, [state, toast]);
+
+  const handleAddAttribute = () => {
+    if (!newAttrName.trim()) {
+      toast({ title: 'Error', description: 'Attribute name cannot be empty.', variant: 'destructive' });
+      return;
+    }
+    if (attributes.length >= 5) {
+      toast({ title: 'Limit Reached', description: 'You can create a maximum of 5 attributes. Upgrade to Pro for more.', variant: 'destructive' });
+      return;
+    }
+    setAttributes(prev => [...prev, {
+      id: `attr_${Date.now()}`,
+      name: newAttrName.trim(),
+      action: newAttrAction.trim(),
+      status: 'ACTIVE',
+    }]);
+    setNewAttrName('');
+    setNewAttrAction('');
+  };
+
+  const handleUpdateAttribute = (index: number, field: keyof UserAttribute, value: string | boolean) => {
+    const newAttributes = [...attributes];
+    const attributeToUpdate = { ...newAttributes[index] };
+
+    if (field === 'status') {
+      attributeToUpdate.status = value ? 'ACTIVE' : 'INACTIVE';
+    } else if (field === 'name' || field === 'action') {
+      attributeToUpdate[field] = value as string;
+    }
+
+    newAttributes[index] = attributeToUpdate;
+    setAttributes(newAttributes);
+  };
+  
+  const handleDeleteAttribute = (id: string) => {
+    setAttributes(prev => prev.filter(attr => attr.id !== id));
+  };
+
+  const filteredAttributes = attributes.filter(attr => attr.name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  return (
+    <form action={formAction}>
+      <input type="hidden" name="projectId" value={project._id.toString()} />
+      <input type="hidden" name="attributes" value={JSON.stringify(attributes)} />
+      <Card>
+        <CardHeader>
+            <CardTitle>User Attributes</CardTitle>
+            <CardDescription>Manage custom contact attributes for personalization and flows.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            <div className="p-4 bg-muted/50 rounded-lg space-y-2 text-sm text-muted-foreground">
+                <h4 className="font-semibold text-card-foreground">Quick Guide</h4>
+                <p>Attributes hold contact-specific values. You can assign custom values on the contacts page.</p>
+                <p>You can create up to 5 user attributes, in addition to default attributes like $Name, $MobileNumber, etc.</p>
+                <p className="font-semibold">Take your experience to the next level — unlock 20 attributes with Pro! 🚀</p>
+            </div>
+
+            <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Search by attribute name..." className="pl-8" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            </div>
+            
+            <div className="border rounded-md">
+                <div className="grid grid-cols-[1fr,1fr,auto,auto] items-center p-2 border-b font-medium text-sm text-muted-foreground">
+                    <div className="px-2">Name*</div>
+                    <div className="px-2">Action (optional)</div>
+                    <div className="px-2 text-center">Status</div>
+                    <div className="px-2 w-10"></div>
+                </div>
+                 <div className="space-y-2 p-2">
+                    {filteredAttributes.map((attr, index) => {
+                        const originalIndex = attributes.findIndex(a => a.id === attr.id);
+                        return (
+                            <div key={attr.id} className="grid grid-cols-[1fr,1fr,auto,auto] items-center gap-2">
+                                <Input value={attr.name} onChange={(e) => handleUpdateAttribute(originalIndex, 'name', e.target.value)} placeholder="Attribute Name" />
+                                <Input value={attr.action || ''} onChange={(e) => handleUpdateAttribute(originalIndex, 'action', e.target.value)} placeholder="Action Name"/>
+                                <Switch className="mx-auto" checked={attr.status === 'ACTIVE'} onCheckedChange={(checked) => handleUpdateAttribute(originalIndex, 'status', checked)} />
+                                <Button type="button" variant="ghost" size="icon" onClick={() => handleDeleteAttribute(attr.id)}>
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+
+            <div className="space-y-2">
+                <h4 className="font-semibold text-sm">Add user attribute manually</h4>
+                <div className="grid grid-cols-[1fr,1fr,auto] items-center gap-2 p-2 border rounded-md border-dashed">
+                    <Input placeholder="Enter attribute name" value={newAttrName} onChange={e => setNewAttrName(e.target.value)} />
+                    <Input placeholder="Enter action name" value={newAttrAction} onChange={e => setNewAttrAction(e.target.value)} />
+                    <Button type="button" onClick={handleAddAttribute} disabled={attributes.length >= 5}><Plus className="mr-2 h-4 w-4"/>Add</Button>
+                </div>
+            </div>
+        </CardContent>
+        <CardFooter className="border-t pt-6">
+            <Button type="submit" disabled={pending}>
+                {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                Save Attributes
+            </Button>
+        </CardFooter>
+      </Card>
+    </form>
+  );
+}
+
 export default function SettingsPage() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [loading, setLoading] = useState(true);
@@ -319,38 +443,54 @@ export default function SettingsPage() {
     <div className="flex flex-col gap-8">
       <div><h1 className="text-3xl font-bold font-headline">Project Settings</h1><p className="text-muted-foreground">Manage settings for project "{project.name}".</p></div>
 
-      <form action={formAction}>
-        <input type="hidden" name="projectId" value={project._id.toString()} />
-        <Card>
-          <CardHeader><CardTitle>Broadcast Settings</CardTitle><CardDescription>Configure the rate at which broadcast messages are sent.</CardDescription></CardHeader>
-          <CardContent>
-            <div className="space-y-2 max-w-sm">
-              <Label htmlFor="messagesPerSecond">Concurrency Level (Messages in Parallel)</Label>
-              <Input id="messagesPerSecond" name="messagesPerSecond" type="number" min="1" step="1" value={messagesPerSecond} onChange={(e) => setMessagesPerSecond(Number(e.target.value))} required />
-              <p className="text-xs text-muted-foreground">The number of messages to send in parallel. Higher values increase throughput but are limited by API response times.</p>
-            </div>
-          </CardContent>
-          <CardFooter className="border-t px-6 py-4"><SaveButton>Save Broadcast Settings</SaveButton></CardFooter>
-        </Card>
-      </form>
-      
-      <Separator />
-      
-      <div className="space-y-6">
-        <MasterSwitch project={project} />
-        <Tabs defaultValue="general" className="w-full">
+      <Tabs defaultValue="broadcast" className="w-full">
           <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="general"><Bot className="mr-2 h-4 w-4" />General</TabsTrigger>
-              <TabsTrigger value="inactive"><Clock className="mr-2 h-4 w-4" />Inactive Hours</TabsTrigger>
-              <TabsTrigger value="ai"><BrainCircuit className="mr-2 h-4 w-4" />AI Assistant</TabsTrigger>
-              <TabsTrigger value="opt-in-out"><Users className="mr-2 h-4 w-4" />Opt-in/Out</TabsTrigger>
+              <TabsTrigger value="broadcast"><Save className="mr-2 h-4 w-4" />Broadcast</TabsTrigger>
+              <TabsTrigger value="auto-reply"><Bot className="mr-2 h-4 w-4" />Auto-Replies</TabsTrigger>
+              <TabsTrigger value="opt-in-out"><Users className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
+              <TabsTrigger value="attributes"><Users className="mr-2 h-4 w-4" />User Attributes</TabsTrigger>
           </TabsList>
-          <TabsContent value="general"><Card><GeneralReplyForm project={project} /></Card></TabsContent>
-          <TabsContent value="inactive"><Card><InactiveHoursForm project={project} /></Card></TabsContent>
-          <TabsContent value="ai"><Card><AiAssistantForm project={project} /></Card></TabsContent>
-          <TabsContent value="opt-in-out"><Card><OptInOutForm project={project} /></Card></TabsContent>
+
+          <TabsContent value="broadcast" className="mt-6">
+            <form action={formAction}>
+              <input type="hidden" name="projectId" value={project._id.toString()} />
+              <Card>
+                <CardHeader><CardTitle>Broadcast Settings</CardTitle><CardDescription>Configure the rate at which broadcast messages are sent.</CardDescription></CardHeader>
+                <CardContent>
+                  <div className="space-y-2 max-w-sm">
+                    <Label htmlFor="messagesPerSecond">Concurrency Level (Messages in Parallel)</Label>
+                    <Input id="messagesPerSecond" name="messagesPerSecond" type="number" min="1" step="1" value={messagesPerSecond} onChange={(e) => setMessagesPerSecond(Number(e.target.value))} required />
+                    <p className="text-xs text-muted-foreground">The number of messages to send in parallel. Higher values increase throughput but are limited by API response times.</p>
+                  </div>
+                </CardContent>
+                <CardFooter className="border-t px-6 py-4"><SaveButton>Save Broadcast Settings</SaveButton></CardFooter>
+              </Card>
+            </form>
+          </TabsContent>
+
+          <TabsContent value="auto-reply" className="mt-6 space-y-6">
+            <MasterSwitch project={project} />
+            <Tabs defaultValue="general" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="general"><Bot className="mr-2 h-4 w-4" />General</TabsTrigger>
+                  <TabsTrigger value="inactive"><Clock className="mr-2 h-4 w-4" />Inactive Hours</TabsTrigger>
+                  <TabsTrigger value="ai"><BrainCircuit className="mr-2 h-4 w-4" />AI Assistant</TabsTrigger>
+              </TabsList>
+              <TabsContent value="general"><Card><GeneralReplyForm project={project} /></Card></TabsContent>
+              <TabsContent value="inactive"><Card><InactiveHoursForm project={project} /></Card></TabsContent>
+              <TabsContent value="ai"><Card><AiAssistantForm project={project} /></Card></TabsContent>
+            </Tabs>
+          </TabsContent>
+          
+          <TabsContent value="opt-in-out" className="mt-6">
+              <Card><OptInOutForm project={project} /></Card>
+          </TabsContent>
+
+          <TabsContent value="attributes" className="mt-6">
+            <UserAttributesForm project={project} />
+          </TabsContent>
+
         </Tabs>
-      </div>
 
       <Separator />
 

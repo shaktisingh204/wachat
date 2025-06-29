@@ -8,6 +8,7 @@
 
 
 
+
 import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
@@ -80,6 +81,13 @@ export type OptInOutSettings = {
   optInResponse?: string;
 };
 
+export type UserAttribute = {
+    id: string;
+    name: string;
+    action?: string;
+    status: 'ACTIVE' | 'INACTIVE';
+};
+
 export type Project = {
     userId: ObjectId;
     name: string;
@@ -94,6 +102,7 @@ export type Project = {
     businessCapabilities?: BusinessCapabilities;
     autoReplySettings?: AutoReplySettings;
     optInOutSettings?: OptInOutSettings;
+    userAttributes?: UserAttribute[];
 };
 
 export type Template = {

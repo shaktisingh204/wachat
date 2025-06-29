@@ -8,7 +8,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
-import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings } from '@/app/dashboard/page';
+import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute } from '@/app/dashboard/page';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
@@ -196,7 +196,7 @@ export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 
 
 // Re-export types for client components
-export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings };
+export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute };
 
 const getErrorMessage = (error: any): string => {
     if (axios.isAxiosError(error) && error.response?.data?.error) {
@@ -3222,4 +3222,51 @@ export async function handleUpdateOptInOutSettings(
         console.error('Failed to update opt-in/out settings:', e);
         return { error: e.message || 'An unexpected error occurred.' };
     }
+}
+
+type UserAttributesState = {
+  message?: string;
+  error?: string;
+};
+
+export async function handleSaveUserAttributes(
+  prevState: UserAttributesState,
+  formData: FormData
+): Promise<UserAttributesState> {
+  const projectId = formData.get('projectId') as string;
+  const attributesString = formData.get('attributes') as string;
+
+  const project = await getProjectById(projectId);
+  if (!project) {
+    return { error: 'Project not found or you do not have access.' };
+  }
+
+  try {
+    const attributes: UserAttribute[] = JSON.parse(attributesString);
+
+    if (attributes.some(attr => !attr.name)) {
+        return { error: "Attribute name cannot be empty." };
+    }
+    
+    if (attributes.length > 5) {
+      return { error: 'You can create a maximum of 5 user attributes. Upgrade to Pro for more.' };
+    }
+
+    const { db } = await connectToDatabase();
+    const result = await db.collection('projects').updateOne(
+      { _id: new ObjectId(projectId) },
+      { $set: { userAttributes: attributes } }
+    );
+
+    if (result.matchedCount === 0) {
+        return { error: 'Project not found during update.' };
+    }
+
+    revalidatePath('/dashboard/settings');
+    return { message: 'User attributes saved successfully!' };
+
+  } catch (e: any) {
+    console.error('Failed to save user attributes:', e);
+    return { error: e.message || 'An unexpected error occurred.' };
+  }
 }
