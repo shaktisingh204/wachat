@@ -260,7 +260,6 @@ const menuItems = [
   { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send },
   { href: '/dashboard/templates', label: 'Templates', icon: FileText },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitBranch },
-  { href: '/dashboard/auto-reply', label: 'Auto-Reply', icon: Bot },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
