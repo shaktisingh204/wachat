@@ -703,8 +703,8 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
     if (replyMessage) await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
 }
 
-export async function handleSingleMessageEvent(db: Db, project: WithId<Project>, message: any, contactProfile: any) {
-    const businessPhoneNumberId = message.metadata.phone_number_id;
+export async function handleSingleMessageEvent(db: Db, project: WithId<Project>, message: any, contactProfile: any, metadata: any) {
+    const businessPhoneNumberId = metadata.phone_number_id;
     const senderWaId = message.from;
     const senderName = contactProfile.profile?.name || 'Unknown User';
     let lastMessageText = message.type === 'text' ? message.text.body : `[${message.type}]`;
@@ -878,7 +878,7 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
                 const project = projectsMap.get(group.projectId.toString());
                 if (!project) throw new Error(`Project ${group.projectId} not found for message batch processing`);
                 
-                await handleSingleMessageEvent(db, project, group.messages[0], group.contacts[0]);
+                await handleSingleMessageEvent(db, project, group.messages[0], group.contacts[0], group.messages[0].metadata);
                 return { success: true };
             } catch (e: any) {
                 console.error(`Error processing a message from batch for project ${group.projectId}: ${e.message}`);

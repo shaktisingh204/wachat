@@ -1,4 +1,5 @@
 
+
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Db, Filter, ObjectId } from 'mongodb';
@@ -115,7 +116,6 @@ export async function POST(request: NextRequest) {
 
     // 2. Find the project and process the event immediately
     if (!projectId) {
-        console.log(`Webhook received for an unknown project. WABA ID: ${payload?.entry?.[0]?.id}. Ignoring.`);
         return NextResponse.json({ status: 'ok_project_not_found' });
     }
 
@@ -145,7 +145,7 @@ export async function POST(request: NextRequest) {
                 // Batch of incoming messages (usually one)
                 for (const message of value.messages) {
                      const contactProfile = value.contacts?.find((c: any) => c.wa_id === message.from) || {};
-                     await handleSingleMessageEvent(db, project, message, contactProfile);
+                     await handleSingleMessageEvent(db, project, message, contactProfile, value.metadata);
                 }
             }
         } else {

@@ -1833,7 +1833,7 @@ export async function handleReprocessWebhook(logId: string): Promise<{ message?:
             if (value.messages) {
                 for (const message of value.messages) {
                      const contactProfile = value.contacts?.find((c: any) => c.wa_id === message.from) || {};
-                     await handleSingleMessageEvent(db, project, message, contactProfile);
+                     await handleSingleMessageEvent(db, project, message, contactProfile, value.metadata);
                 }
             }
         } else {
