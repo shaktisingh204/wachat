@@ -325,7 +325,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             
             const rawCheckValue = node.data.value || '';
             const interpolatedCheckValue = interpolate(rawCheckValue, contact.activeFlow.variables);
-            const operator = node.data.operator;
+            const operator = node.data.operator || 'equals';
             let conditionMet = false;
 
             switch(operator) {
