@@ -691,6 +691,80 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
     }
 }
 
+/**
+ * Encapsulates all logic for handling a single incoming message event.
+ */
+async function handleSingleMessageEvent(db: Db, wabaId: string, businessPhoneNumberId: string, message: any, contactProfile: any) {
+    // 1. Find project
+    let project: WithId<Project> | null = null;
+    if (wabaId && wabaId !== "0") {
+        project = await db.collection<Project>('projects').findOne({ wabaId: wabaId });
+    }
+    if (!project && businessPhoneNumberId) {
+        project = await db.collection<Project>('projects').findOne({ 'phoneNumbers.id': businessPhoneNumberId });
+    }
+    if (!project) {
+        console.error(`No project found for phone number ID ${businessPhoneNumberId} or WABA ID ${wabaId}. Skipping message.`);
+        return;
+    }
+
+    // 2. Find or create contact
+    const senderWaId = message.from;
+    const senderName = contactProfile.profile?.name || 'Unknown User';
+    let lastMessageText = `[${message.type}]`;
+    if (message.type === 'text') lastMessageText = message.text.body;
+    else if (message.type === 'interactive') lastMessageText = message.interactive?.button_reply?.title || '[Interactive Reply]';
+    
+    const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
+        { waId: senderWaId, projectId: project._id },
+        { 
+            $set: { name: senderName, phoneNumberId: businessPhoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
+            $inc: { unreadCount: 1 },
+            $setOnInsert: { waId: senderWaId, projectId: project._id, createdAt: new Date() }
+        },
+        { upsert: true, returnDocument: 'after' }
+    );
+
+    // The result from findOneAndUpdate might be null if the document didn't exist before the upsert.
+    // In our case, we need the full contact document for subsequent logic.
+    // So we fetch it again to ensure we have it, even if it was just created.
+    const contact = await db.collection<Contact>('contacts').findOne({ waId: senderWaId, projectId: project._id });
+
+    if (!contact) {
+        console.error(`Failed to find or create contact for WA ID ${senderWaId} on project ${project._id}`);
+        return;
+    }
+
+    // 3. Log incoming message
+     await db.collection('incoming_messages').insertOne({
+        direction: 'in', projectId: project._id, contactId: contact._id,
+        wamid: message.id, messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
+        type: message.type, content: message, isRead: false, createdAt: new Date(),
+    });
+
+    // 4. Create notification
+    await db.collection('notifications').insertOne({
+        projectId: project._id, wabaId: project.wabaId,
+        message: `New message from ${contact.name}.`,
+        link: `/dashboard/chat?contactId=${contact._id.toString()}&phoneId=${businessPhoneNumberId}`,
+        isRead: false, createdAt: new Date(), eventType: 'messages',
+    });
+
+    revalidatePath('/dashboard/chat');
+    revalidatePath('/dashboard/contacts');
+    revalidatePath('/dashboard/notifications');
+    revalidatePath('/dashboard', 'layout');
+
+    // 5. Run business logic (opt-out, flow, auto-reply)
+    const wasOptInOut = await handleOptInOut(db, project, contact, message, businessPhoneNumberId);
+    if (!wasOptInOut) {
+        const flowHandled = await handleFlowLogic(db, project, contact, message, businessPhoneNumberId);
+        if (!flowHandled) {
+            await triggerAutoReply(db, project, contact, message, businessPhoneNumberId);
+        }
+    }
+}
+
 
 // --- Main Webhook Processing Logic ---
 
@@ -705,10 +779,18 @@ export async function processSingleWebhook(db: Db, payload: any, logId?: ObjectI
             for (const change of entry.changes || []) {
                 const value = change.value;
                 if (!value) continue;
-
-                if (change.field === 'messages') continue;
                 
                 const phone_number_id = value.metadata?.phone_number_id;
+
+                if (change.field === 'messages') {
+                    // NEW: Handle messages directly
+                    const message = value.messages?.[0];
+                    const contactProfile = value.contacts?.[0];
+                    if (message && contactProfile && phone_number_id) {
+                        await handleSingleMessageEvent(db, wabaId, phone_number_id, message, contactProfile);
+                    }
+                    continue; // Done with this change
+                }
 
                 let project: WithId<Project> | null = null;
 
@@ -756,7 +838,7 @@ export async function processSingleWebhook(db: Db, payload: any, logId?: ObjectI
         
         // Mark as processed at the end of successful execution
         if (logId) {
-            await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true } });
+            await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: null } });
         }
     } catch (e: any) {
         console.error(`Error processing webhook with logId ${logId}:`, e.message);
@@ -863,130 +945,27 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
 export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) {
     if (messageGroups.length === 0) return { success: 0, failed: 0 };
     
-    let processedCount = 0;
-    try {
-        const contactOps: any[] = [];
-        const projectsCache = new Map<string, WithId<Project>>();
+    let successCount = 0;
+    let failedCount = 0;
 
-        for (const group of messageGroups) {
+    for (const group of messageGroups) {
+        try {
             const businessPhoneNumberId = group.metadata.phone_number_id;
             const wabaId = group.wabaId;
-
-            let project = wabaId ? projectsCache.get(wabaId) : null;
-
-            if (!project) {
-                 if (wabaId && wabaId !== "0") {
-                    project = await db.collection<Project>('projects').findOne({ wabaId: wabaId });
-                }
-                if (!project && businessPhoneNumberId) {
-                    project = await db.collection<Project>('projects').findOne({ 'phoneNumbers.id': businessPhoneNumberId });
-                }
-        
-                if (project) {
-                    projectsCache.set(project.wabaId, project);
-                }
-            }
-
-            if (!project) {
-                console.error(`No project found for phone number ID ${businessPhoneNumberId} or WABA ID ${wabaId}. Skipping message.`);
-                continue;
-            }
-
             const message = group.messages[0];
             const contactProfile = group.contacts[0];
-            const senderWaId = message.from;
-            const senderName = contactProfile.profile?.name || 'Unknown User';
 
-            let lastMessageText = `[${message.type}]`;
-            if (message.type === 'text') lastMessageText = message.text.body;
-            else if (message.type === 'interactive') lastMessageText = message.interactive?.button_reply?.title || '[Interactive Reply]';
-            
-            contactOps.push({
-                updateOne: {
-                    filter: { waId: senderWaId, projectId: project._id },
-                    update: { 
-                        $set: { name: senderName, phoneNumberId: businessPhoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
-                        $inc: { unreadCount: 1 },
-                        $setOnInsert: { waId: senderWaId, projectId: project._id, createdAt: new Date() }
-                    },
-                    upsert: true
-                }
-            });
-        }
-        
-        if (contactOps.length > 0) await db.collection('contacts').bulkWrite(contactOps, { ordered: false });
-
-        const incomingMessageOps: any[] = [];
-        const notificationOps: any[] = [];
-        const flowLogicTasks: (() => Promise<any>)[] = [];
-
-        // We need to fetch the contacts again to get their _ids for relations
-        const allWaIds = messageGroups.map(g => g.messages[0].from);
-        const contactsCursor = db.collection('contacts').find({ waId: { $in: allWaIds } });
-        const contactsMap = new Map<string, WithId<Contact>>();
-        for await (const contact of contactsCursor) {
-            contactsMap.set(`${contact.projectId.toString()}-${contact.waId}`, contact);
-        }
-
-        for (const group of messageGroups) {
-            const businessPhoneNumberId = group.metadata.phone_number_id;
-            const wabaId = group.wabaId;
-            const project = wabaId ? projectsCache.get(wabaId) : null;
-
-            if (!project) continue;
-
-            const message = group.messages[0];
-            const senderWaId = message.from;
-            const contact = contactsMap.get(`${project._id.toString()}-${senderWaId}`);
-
-            if (!contact) continue;
-            
-            processedCount++;
-
-            incomingMessageOps.push({ insertOne: { document: {
-                direction: 'in', projectId: project._id, contactId: contact._id,
-                wamid: message.id, messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
-                type: message.type, content: message, isRead: false, createdAt: new Date(),
-            }}});
-            
-            notificationOps.push({ insertOne: { document: {
-                projectId: project._id, wabaId: project.wabaId,
-                message: `New message from ${contact.name}.`,
-                link: `/dashboard/chat?contactId=${contact._id.toString()}&phoneId=${businessPhoneNumberId}`,
-                isRead: false, createdAt: new Date(), eventType: 'messages',
-            }}});
-            
-            const wasOptInOut = await handleOptInOut(db, project, contact, message, businessPhoneNumberId);
-            
-            if (!wasOptInOut) {
-                flowLogicTasks.push(async () => {
-                    const flowHandled = await handleFlowLogic(db, project, contact, message, businessPhoneNumberId);
-                    if (!flowHandled) {
-                        await triggerAutoReply(db, project, contact, message, businessPhoneNumberId);
-                    }
-                });
+            if (message && contactProfile && businessPhoneNumberId) {
+                await handleSingleMessageEvent(db, wabaId, businessPhoneNumberId, message, contactProfile);
+                successCount++;
+            } else {
+                failedCount++;
             }
+        } catch (e) {
+            console.error("Error processing a message from batch:", e);
+            failedCount++;
         }
-        
-        const bulkWritePromises = [];
-        if (incomingMessageOps.length > 0) bulkWritePromises.push(db.collection('incoming_messages').bulkWrite(incomingMessageOps, { ordered: false }));
-        if (notificationOps.length > 0) bulkWritePromises.push(db.collection('notifications').bulkWrite(notificationOps, { ordered: false }));
-        
-        await Promise.all(bulkWritePromises);
-
-        for (const task of flowLogicTasks) {
-            await task(); // Run sequentially to avoid race conditions within a single contact's logic
-        }
-
-        revalidatePath('/dashboard/chat');
-        revalidatePath('/dashboard/contacts');
-        revalidatePath('/dashboard/notifications');
-        revalidatePath('/dashboard', 'layout');
-        
-        return { success: processedCount, failed: messageGroups.length - processedCount };
-
-    } catch (e: any) {
-        console.error("Error in processIncomingMessageBatch:", e);
-        return { success: processedCount, failed: messageGroups.length - processedCount };
     }
+    
+    return { success: successCount, failed: failedCount };
 }
