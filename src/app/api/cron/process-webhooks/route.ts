@@ -6,38 +6,15 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { processWebhooksForProject } from '@/lib/webhook-processor';
 import type { Db, ObjectId } from 'mongodb';
 
-const LOCK_ID = 'webhook_processor_lock';
-const LOCK_DURATION_MS = 5 * 60 * 1000; // 5 minute lock
-
 /**
  * This is the master cron job for processing webhooks.
  * It identifies projects with pending webhooks and kicks off parallel processing for each one.
+ * The worker function (processWebhooksForProject) now handles its own locking, allowing
+ * for true parallel processing across multiple projects.
  */
 export async function GET(request: NextRequest) {
-    let db: Db;
-    let lockAcquired = false;
-
     try {
-        const conn = await connectToDatabase();
-        db = conn.db;
-
-        // Acquire Lock
-        const now = new Date();
-        const lockHeldUntil = new Date(now.getTime() + LOCK_DURATION_MS);
-        
-        const lockResult = await db.collection('locks').findOneAndUpdate(
-            { _id: LOCK_ID, $or: [{ lockHeldUntil: { $exists: false } }, { lockHeldUntil: { $lt: now } }] },
-            { $set: { lockHeldUntil } },
-            { upsert: true, returnDocument: 'after' }
-        ).catch(e => {
-            if (e.code === 11000) return null; // Lost race condition
-            throw e;
-        });
-
-        if (!lockResult) {
-            return NextResponse.json({ message: "Webhook processor is already running." }, { status: 200 });
-        }
-        lockAcquired = true;
+        const { db } = await connectToDatabase();
         
         // Find all distinct project IDs that have pending items in the queue
         const projectIds = await db.collection('webhook_queue').distinct('projectId', {
@@ -55,7 +32,7 @@ export async function GET(request: NextRequest) {
         const processingPromises = projectIds.map(projectId => 
             processWebhooksForProject(db, projectId as ObjectId)
                 .catch(e => {
-                    console.error(`[Master Cron] Unhandled error processing project ${projectId}:`, e);
+                    console.error(`[Master Cron] Unhandled error in worker for project ${projectId}:`, e);
                     return { projectId, error: e.message, processed: 0, success: 0, failed: 0 };
                 })
         );
@@ -67,7 +44,7 @@ export async function GET(request: NextRequest) {
         const totalFailed = results.reduce((sum, r) => sum + r.failed, 0);
 
         return NextResponse.json({
-            message: `Processed ${totalProcessed} webhooks across ${projectIds.length} project(s).`,
+            message: `Processed ${totalProcessed} webhooks across ${results.filter(r => r.processed > 0).length} project(s).`,
             success: totalSuccess,
             failed: totalFailed,
             details: results,
@@ -76,14 +53,6 @@ export async function GET(request: NextRequest) {
     } catch (error: any) {
         console.error('Error in master webhook processing cron:', error);
         return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
-    } finally {
-        if (lockAcquired && db) {
-            try {
-                await db.collection('locks').updateOne({ _id: LOCK_ID }, { $set: { lockHeldUntil: new Date(0) } });
-            } catch (e) {
-                console.error("Failed to release webhook processor lock:", e);
-            }
-        }
     }
 }
 

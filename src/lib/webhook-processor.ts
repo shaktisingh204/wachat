@@ -124,12 +124,12 @@ async function sendFlowButtons(db: Db, project: WithId<Project>, contact: WithId
         const translatedText = await maybeTranslate(text, variables);
         const interpolatedText = interpolate(translatedText, variables);
 
-        const finalButtons = await Promise.all(buttons.map(async (btn: any) => {
+        const finalButtons = await Promise.all(buttons.map(async (btn: any, index: number) => {
             const translatedBtnText = await maybeTranslate(btn.text, variables);
             return {
                 type: 'reply',
                 reply: {
-                    id: `${node.id}-btn-${buttons.indexOf(btn)}`, // Unique ID for the button reply
+                    id: `${node.id}-btn-${index}`, // Unique ID for the button reply
                     title: interpolate(translatedBtnText, variables).substring(0, 20),
                 }
             };
@@ -543,8 +543,8 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
         }
 
         // --- Specific handling for interactive (button) replies first ---
-        if (isInteractiveReply) {
-             if (interactiveReplyId?.startsWith(`${currentNode.id}-lang-`)) {
+        if (isInteractiveReply && interactiveReplyId) {
+             if (interactiveReplyId.startsWith(`${currentNode.id}-lang-`)) {
                 // Language selection node is special, handle and return
                 const selectedLanguage = buttonReplyText || '';
                 if(selectedLanguage) {
@@ -562,7 +562,7 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
                     await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
                 }
                 return true; // We handled it.
-             } else if (currentNode.type === 'buttons' && interactiveReplyId) {
+             } else if (currentNode.type === 'buttons') {
                 // If we're at a buttons node, find the specific button edge
                 const edge = flow.edges.find(e => e.sourceHandle?.trim() === interactiveReplyId.trim());
                 if (edge) {
@@ -570,7 +570,6 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
                     return true; // Handled
                 }
              }
-             // Do NOT end the flow here. Let it fall through so the userResponse (from button click) can be processed by other node types like 'condition' or 'input'.
         }
 
         // --- Handling for text-based replies OR interactive replies that fell through ---
@@ -579,6 +578,11 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
             if (currentNode.type === 'input' || (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response')) {
                 await executeNode(db, project, contact, flow, currentNode.id, userResponse);
                 return true; // Handled
+            }
+             // Handle case where a button click leads directly to a condition node
+            if (buttonReplyText && currentNode.type === 'condition') {
+                await executeNode(db, project, contact, flow, currentNode.id, buttonReplyText);
+                return true;
             }
         }
         
@@ -1086,7 +1090,11 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
 
 
 export async function processWebhooksForProject(db: Db, projectId: ObjectId) {
-    const BATCH_SIZE = 100; // Process 100 webhooks at a time for a given project
+    const BATCH_SIZE = 200; // Process more items at once
+    const lockId = `webhook_process_lock_${projectId.toString()}`;
+    const LOCK_DURATION_MS = 2 * 60 * 1000; // 2 minute lock per project
+    let lockAcquired = false;
+
     const results = {
         projectId: projectId.toString(),
         processed: 0,
@@ -1094,69 +1102,95 @@ export async function processWebhooksForProject(db: Db, projectId: ObjectId) {
         failed: 0,
         error: ''
     };
-    let queueItems: any[] = [];
-    try {
-        queueItems = await db.collection('webhook_queue').find({
-            projectId: projectId,
-            status: 'PENDING'
-        }).limit(BATCH_SIZE).toArray();
 
-        if (queueItems.length === 0) {
+    try {
+        // --- Acquire Project-Specific Lock ---
+        const now = new Date();
+        const lockHeldUntil = new Date(now.getTime() + LOCK_DURATION_MS);
+
+        const lockResult = await db.collection('locks').findOneAndUpdate(
+            { _id: lockId, $or: [{ lockHeldUntil: { $exists: false } }, { lockHeldUntil: { $lt: now } }] },
+            { $set: { lockHeldUntil } },
+            { upsert: true, returnDocument: 'after' }
+        ).catch(e => (e.code === 11000 ? null : Promise.reject(e)));
+
+        if (!lockResult) {
+            console.log(`[Worker] Lock for project ${projectId} is already held. Skipping.`);
+            results.error = 'Lock already held';
             return results;
         }
+        lockAcquired = true;
+        // --- End Acquire Lock ---
 
-        const processingIds = queueItems.map(item => item._id);
-        
-        await db.collection('webhook_queue').updateMany(
-            { _id: { $in: processingIds } },
-            { $set: { status: 'PROCESSING', processedAt: new Date() } }
-        );
+        // Process the entire queue for this project in a loop
+        while (true) {
+            const queueItems = await db.collection('webhook_queue').find({
+                projectId: projectId,
+                status: 'PENDING'
+            }).limit(BATCH_SIZE).toArray();
 
-        const statusUpdates: any[] = [];
-        const incomingMessages: any[] = [];
-        const otherEvents: any[] = [];
-
-        for (const item of queueItems) {
-            const value = item.payload.entry?.[0]?.changes?.[0]?.value;
-            const field = item.payload.entry?.[0]?.changes?.[0]?.field;
-
-            if (field === 'messages' && value) {
-                if (value.statuses) statusUpdates.push(...value.statuses);
-                if (value.messages) {
-                    incomingMessages.push({
-                        wabaId: item.payload.entry[0].id,
-                        metadata: value.metadata,
-                        messages: value.messages,
-                        contacts: value.contacts,
-                    });
-                }
-            } else {
-                otherEvents.push(item);
+            if (queueItems.length === 0) {
+                break; // No more items for this project, exit the loop.
             }
+
+            const processingIds = queueItems.map(item => item._id);
+
+            await db.collection('webhook_queue').updateMany(
+                { _id: { $in: processingIds } },
+                { $set: { status: 'PROCESSING', processedAt: new Date() } }
+            );
+
+            // Batching logic from original implementation
+            const statusUpdates: any[] = [];
+            const incomingMessages: any[] = [];
+            const otherEvents: any[] = [];
+
+            for (const item of queueItems) {
+                const value = item.payload.entry?.[0]?.changes?.[0]?.value;
+                const field = item.payload.entry?.[0]?.changes?.[0]?.field;
+
+                if (field === 'messages' && value) {
+                    if (value.statuses) statusUpdates.push(...value.statuses);
+                    if (value.messages) incomingMessages.push({ wabaId: item.payload.entry[0].id, metadata: value.metadata, messages: value.messages, contacts: value.contacts });
+                } else {
+                    otherEvents.push(item);
+                }
+            }
+
+            const batchPromises: Promise<{ success: number; failed: number } | void>[] = [];
+            if (statusUpdates.length > 0) batchPromises.push(processStatusUpdateBatch(db, statusUpdates));
+            if (incomingMessages.length > 0) batchPromises.push(processIncomingMessageBatch(db, incomingMessages));
+            otherEvents.forEach(item => batchPromises.push(
+                processSingleWebhook(db, item.payload, item.logId)
+                    .then(() => ({ success: 1, failed: 0 }))
+                    .catch(() => ({ success: 0, failed: 1 }))
+            ));
+
+            const batchResults = await Promise.all(batchPromises);
+
+            await db.collection('webhook_queue').updateMany(
+                { _id: { $in: processingIds } },
+                { $set: { status: 'COMPLETED', processedAt: new Date() } }
+            );
+
+            results.processed += queueItems.length;
+            batchResults.forEach(res => {
+                if (res) {
+                    results.success += res.success;
+                    results.failed += res.failed;
+                }
+            });
         }
-
-        const processingPromises: Promise<any>[] = [];
-        if (statusUpdates.length > 0) processingPromises.push(processStatusUpdateBatch(db, statusUpdates));
-        if (incomingMessages.length > 0) processingPromises.push(processIncomingMessageBatch(db, incomingMessages));
-        otherEvents.forEach(item => processingPromises.push(
-            processSingleWebhook(db, item.payload, item.logId)
-        ));
-
-        await Promise.all(processingPromises);
-
-        await db.collection('webhook_queue').updateMany(
-            { _id: { $in: processingIds } },
-            { $set: { status: 'COMPLETED', processedAt: new Date() } }
-        );
-
-        results.processed = queueItems.length;
-        results.success = queueItems.length; // Optimistic for now
-
     } catch (e: any) {
-        console.error(`Error during webhook batch processing for project ${projectId}:`, e);
+        console.error(`[Worker] Error during webhook processing for project ${projectId}:`, e);
         results.error = e.message;
-        results.failed = queueItems.length;
+        results.failed = results.processed; // Assume all processed items failed if an error occurs
+        results.success = 0;
+    } finally {
+        if (lockAcquired) {
+            await db.collection('locks').updateOne({ _id: lockId }, { $set: { lockHeldUntil: new Date(0) } });
+        }
     }
-    
+
     return results;
 }
