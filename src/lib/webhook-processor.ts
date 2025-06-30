@@ -38,6 +38,7 @@ class FlowLogger {
 
     async save() {
         if (this.entries.length > 0) {
+            this.log("Flow execution finished.");
             await this.db.collection('flow_logs').insertOne({
                 ...this.executionData,
                 createdAt: new Date(),
@@ -296,7 +297,6 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
     const node = flow.nodes.find(n => n.id === nodeId);
     if (!node) {
         logger.log(`Error: Node with ID ${nodeId} not found in flow ${flow.name}. Terminating flow.`);
-        logger.log("Flow execution finished.");
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
         return 'finished';
     }
@@ -497,33 +497,49 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
     if (nextNodeId) {
         return await executeNode(db, project, contact, flow, nextNodeId, undefined, logger);
     } else {
-        logger.log("No further nodes to execute. Ending flow.");
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
-        logger.log("Flow execution finished.");
         return 'finished';
     }
 }
 
 async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId<Contact> & { activeFlow?: any }, message: any, phoneNumberId: string): Promise<{ handled: boolean, logger?: FlowLogger, flowStatus?: 'finished' | 'waiting' | 'error' }> {
+    let currentContact = contact;
+
+    // 1. Check if there's an active flow and if it has timed out.
+    if (currentContact.activeFlow?.flowId && currentContact.activeFlow.waitingSince) {
+        const waitingSince = new Date(currentContact.activeFlow.waitingSince).getTime();
+        const timeoutDuration = 10 * 1000; // 10 seconds
+
+        if (Date.now() - waitingSince > timeoutDuration) {
+            const flow = await db.collection<Flow>('flows').findOne({ _id: new ObjectId(currentContact.activeFlow.flowId) });
+            if (flow) {
+                const logger = new FlowLogger(db, flow, currentContact);
+                logger.log(`Flow timed out after ${timeoutDuration / 1000}s of inactivity. Terminating.`);
+                await logger.save();
+            }
+            await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { activeFlow: "" } });
+            currentContact = { ...currentContact, activeFlow: undefined };
+        }
+    }
+    
     const messageText = message.text?.body?.trim();
     const buttonReply = message.interactive?.button_reply;
     
-    // An active flow is already running for this contact
-    if (contact.activeFlow?.flowId) {
-        const flow = await db.collection<Flow>('flows').findOne({ _id: new ObjectId(contact.activeFlow.flowId) });
+    // An active flow is still running for this contact
+    if (currentContact.activeFlow?.flowId) {
+        const flow = await db.collection<Flow>('flows').findOne({ _id: new ObjectId(currentContact.activeFlow.flowId) });
         if (!flow) {
-            await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+            await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { activeFlow: "" } });
             return { handled: false };
         }
         
-        const logger = new FlowLogger(db, flow, contact);
+        const logger = new FlowLogger(db, flow, currentContact);
         logger.log("Continuing existing flow execution.");
 
-        const currentNode = flow.nodes.find(n => n.id === contact.activeFlow.currentNodeId);
+        const currentNode = flow.nodes.find(n => n.id === currentContact.activeFlow.currentNodeId);
         if (!currentNode) {
-            logger.log(`Current node ID ${contact.activeFlow.currentNodeId} not found. Terminating flow.`);
-            logger.log("Flow execution finished.");
-            await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+            logger.log(`Current node ID ${currentContact.activeFlow.currentNodeId} not found. Terminating flow.`);
+            await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { activeFlow: "" } });
             await logger.save();
             return { handled: false, logger, flowStatus: 'finished' };
         }
@@ -537,42 +553,40 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
             const replyId = buttonReply.id?.trim();
             logger.log(`Received button reply.`, { replyId: replyId, title: buttonReply.title });
             
-            // Check for standard button edge from the current waiting node
             const edge = flow.edges.find(e => e.source === currentNode.id && e.sourceHandle?.trim() === replyId);
             if (edge) {
                 logger.log(`Found edge from current node ${currentNode.id} via handle ${replyId} to target node ${edge.target}.`);
-                const flowStatus = await executeNode(db, project, contact, flow, edge.target, buttonReply.title, logger);
+                await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { "activeFlow.waitingSince": "" } });
+                const flowStatus = await executeNode(db, project, currentContact, flow, edge.target, buttonReply.title, logger);
                 return { handled: true, logger, flowStatus };
             }
              
-            // Check for special language selection button from the current waiting node
             if (currentNode.type === 'language' && replyId && replyId.startsWith(`${currentNode.id}-lang-`)) {
                 const selectedLanguage = buttonReply.title || '';
                 if(selectedLanguage) {
-                    contact.activeFlow.variables.flowTargetLanguage = selectedLanguage;
+                    currentContact.activeFlow.variables.flowTargetLanguage = selectedLanguage;
                     logger.log(`User selected language: ${selectedLanguage}`);
-                    await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { "activeFlow.variables.flowTargetLanguage": selectedLanguage } });
+                    await db.collection('contacts').updateOne({ _id: currentContact._id }, { $set: { "activeFlow.variables.flowTargetLanguage": selectedLanguage } });
                 }
                 const langEdge = flow.edges.find(e => e.source === currentNode.id);
                 if (langEdge) {
-                    const flowStatus = await executeNode(db, project, contact, flow, langEdge.target, undefined, logger);
+                    await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { "activeFlow.waitingSince": "" } });
+                    const flowStatus = await executeNode(db, project, currentContact, flow, langEdge.target, undefined, logger);
                     return { handled: true, logger, flowStatus };
                 }
             }
         } 
         // 2. User typed text and the current node was waiting for it
-        else if (messageText) {
+        else if (messageText && (currentNode.type === 'input' || (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response'))) {
              logger.log(`Received text reply.`, { text: messageText });
-             if (currentNode.type === 'input' || (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response')) {
-                const flowStatus = await executeNode(db, project, contact, flow, currentNode.id, messageText, logger);
-                return { handled: true, logger, flowStatus };
-            }
+             await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { "activeFlow.waitingSince": "" } });
+             const flowStatus = await executeNode(db, project, currentContact, flow, currentNode.id, messageText, logger);
+             return { handled: true, logger, flowStatus };
         }
 
         // 3. The input was not a valid continuation for the waiting flow.
         logger.log("Input did not match any waiting node or path. Terminating flow.");
-        logger.log("Flow execution finished.");
-        await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+        await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { activeFlow: "" } });
         await logger.save();
         return { handled: false, logger, flowStatus: 'finished' };
     }
@@ -595,16 +609,16 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
         const startNode = triggeredFlow.nodes.find(n => n.type === 'start');
         if (!startNode) return { handled: false };
 
-        const logger = new FlowLogger(db, triggeredFlow, contact);
+        const logger = new FlowLogger(db, triggeredFlow, currentContact);
         logger.log(`Flow triggered by keyword.`, { keyword: triggerText });
         
-        contact.activeFlow = {
+        currentContact.activeFlow = {
             flowId: triggeredFlow._id.toString(),
             currentNodeId: startNode.id,
-            variables: { ...(contact.variables || {}), name: contact.name, waId: contact.waId },
+            variables: { ...(currentContact.variables || {}), name: currentContact.name, waId: currentContact.waId },
         };
         
-        const flowStatus = await executeNode(db, project, contact, triggeredFlow, startNode.id, userResponseForTrigger, logger);
+        const flowStatus = await executeNode(db, project, currentContact, triggeredFlow, startNode.id, userResponseForTrigger, logger);
         return { handled: true, logger, flowStatus };
     }
 
@@ -744,6 +758,11 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
     const wasOptInOut = await handleOptInOut(db, project, contact, message, businessPhoneNumberId);
     if (!wasOptInOut) {
         const { handled, logger, flowStatus } = await handleFlowLogic(db, project, contact, message, businessPhoneNumberId);
+        
+        if (flowStatus === 'waiting') {
+            await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { "activeFlow.waitingSince": new Date() } });
+        }
+
         if (logger && flowStatus === 'finished') {
             await logger.save();
         } else if (!handled) {
