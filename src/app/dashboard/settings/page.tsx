@@ -423,7 +423,7 @@ function UserAttributesForm({ project, user }: { project: WithId<Project>, user:
 function SettingsPageContent() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [user, setUser] = useState<(Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null }) | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, startLoadingTransition] = useTransition();
   const [isClient, setIsClient] = useState(false);
   const [messagesPerSecond, setMessagesPerSecond] = useState(1000);
   const { toast } = useToast();
@@ -439,12 +439,13 @@ function SettingsPageContent() {
   useEffect(() => {
     if (isClient) {
         document.title = 'Project Settings | Wachat';
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (storedProjectId) {
-            Promise.all([
-                getProjectById(storedProjectId),
-                getSession()
-            ]).then(([projectData, sessionData]) => {
+        startLoadingTransition(async () => {
+            const storedProjectId = localStorage.getItem('activeProjectId');
+            if (storedProjectId) {
+                const [projectData, sessionData] = await Promise.all([
+                    getProjectById(storedProjectId),
+                    getSession()
+                ]);
                 if (projectData) {
                     setProject(projectData);
                     setMessagesPerSecond(projectData.messagesPerSecond || 1000);
@@ -452,10 +453,8 @@ function SettingsPageContent() {
                 if (sessionData?.user) {
                     setUser(sessionData.user);
                 }
-            }).finally(() => setLoading(false));
-        } else {
-            setLoading(false);
-        }
+            }
+        });
     }
   }, [isClient]);
 
@@ -475,13 +474,16 @@ function SettingsPageContent() {
     }
   }, [state, toast]);
   
-  if (!isClient || loading) {
+  if (!isClient || isLoading) {
     return (
       <div className="flex flex-col gap-8">
-        <Skeleton className="h-8 w-1/3" />
+        <div>
+          <Skeleton className="h-8 w-1/3" />
+          <Skeleton className="h-4 w-2/3 mt-2" />
+        </div>
         <Card>
           <CardHeader><Skeleton className="h-6 w-1/4" /><Skeleton className="h-4 w-1/2" /></CardHeader>
-          <CardContent><Skeleton className="h-10 w-full" /></CardContent>
+          <CardContent><Skeleton className="h-48 w-full" /></CardContent>
         </Card>
       </div>
     );

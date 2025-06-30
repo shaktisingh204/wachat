@@ -16,7 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, startLoadingTransition] = useTransition();
   const [isSyncing, startSyncTransition] = useTransition();
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
@@ -25,26 +25,26 @@ export default function TemplatesPage() {
   const [statusFilter, setStatusFilter] = useState('ALL');
 
   const fetchTemplates = useCallback(async (showToast = false) => {
-    try {
-      const projectId = localStorage.getItem('activeProjectId');
-      if (projectId) {
-        const templatesData = await getTemplates(projectId);
-        setTemplates(templatesData || []);
-      }
-      if (showToast) {
-        toast({ title: "Refreshed", description: "Template list has been updated." });
-      }
-    } catch (error: any) {
-      console.error("Failed to fetch templates:", error);
-      toast({
-        title: "Error",
-        description: "Could not fetch templates. Please try again.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
+    startLoadingTransition(async () => {
+        try {
+          const projectId = localStorage.getItem('activeProjectId');
+          if (projectId) {
+            const templatesData = await getTemplates(projectId);
+            setTemplates(templatesData || []);
+          }
+          if (showToast) {
+            toast({ title: "Refreshed", description: "Template list has been updated." });
+          }
+        } catch (error: any) {
+          console.error("Failed to fetch templates:", error);
+          toast({
+            title: "Error",
+            description: "Could not fetch templates. Please try again.",
+            variant: "destructive"
+          });
+        }
+    });
+  }, [toast, startLoadingTransition]);
   
   useEffect(() => {
     setIsClient(true);
@@ -52,7 +52,6 @@ export default function TemplatesPage() {
 
   useEffect(() => {
     if (isClient) {
-      setLoading(true);
       document.title = 'Message Templates | Wachat';
       fetchTemplates();
     }
@@ -85,7 +84,7 @@ export default function TemplatesPage() {
   const categories = useMemo(() => ['ALL', ...Array.from(new Set(templates.map(t => t.category).filter(Boolean)))], [templates]);
   const statuses = useMemo(() => ['ALL', ...Array.from(new Set(templates.map(t => t.status).filter(Boolean)))], [templates]);
   
-  if (!isClient || loading) {
+  if (!isClient || (isLoading && templates.length === 0)) {
     return (
         <div className="flex flex-col gap-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
