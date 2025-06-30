@@ -5,8 +5,12 @@ import { SubscribeAllButton } from "@/components/wabasimplify/subscribe-all-butt
 import { AlertTriangle, ShieldCheck } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { RunCronJobsButton } from "@/components/wabasimplify/run-cron-jobs-button";
+import { PhonePeSettingsForm } from "@/components/wabasimplify/phonepe-settings-form";
+import { getPaymentGatewaySettings } from "@/app/actions";
 
-export default function SystemHealthPage() {
+export default async function SystemHealthPage() {
+    const phonePeSettings = await getPaymentGatewaySettings();
+
     return (
         <div className="flex flex-col gap-8">
             <div>
@@ -34,6 +38,10 @@ export default function SystemHealthPage() {
 
             <Separator />
 
+            <PhonePeSettingsForm settings={phonePeSettings} />
+
+            <Separator />
+
              <Card className="border-destructive">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-destructive">
@@ -51,3 +59,5 @@ export default function SystemHealthPage() {
         </div>
     );
 }
+
+    

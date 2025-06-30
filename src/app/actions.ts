@@ -3903,3 +3903,53 @@ export async function getFlowLogById(logId: string): Promise<WithId<FlowLog> | n
         return null;
     }
 }
+
+// --- PAYMENT GATEWAY ACTIONS ---
+export type PaymentGatewaySettings = {
+    _id: 'phonepe'; // Using a fixed ID to ensure only one document for these settings
+    merchantId: string;
+    saltKey: string;
+    saltIndex: string;
+    environment: 'staging' | 'production';
+};
+
+export async function getPaymentGatewaySettings(): Promise<WithId<PaymentGatewaySettings> | null> {
+    try {
+        const { db } = await connectToDatabase();
+        const settings = await db.collection('system_settings').findOne({ _id: 'phonepe' });
+        return settings ? JSON.parse(JSON.stringify(settings)) : null;
+    } catch (error) {
+        console.error('Failed to fetch payment gateway settings:', error);
+        return null;
+    }
+}
+
+export async function savePaymentGatewaySettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const settings: Omit<PaymentGatewaySettings, '_id'> = {
+        merchantId: formData.get('merchantId') as string,
+        saltKey: formData.get('saltKey') as string,
+        saltIndex: formData.get('saltIndex') as string,
+        environment: formData.get('environment') as 'staging' | 'production',
+    };
+
+    if (!settings.merchantId || !settings.saltKey || !settings.saltIndex) {
+        return { error: 'All PhonePe setting fields are required.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('system_settings').updateOne(
+            { _id: 'phonepe' },
+            { $set: settings },
+            { upsert: true }
+        );
+
+        revalidatePath('/admin/dashboard/system');
+        return { message: 'PhonePe settings saved successfully!' };
+    } catch (e: any) {
+        console.error('Failed to save payment gateway settings:', e);
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+    

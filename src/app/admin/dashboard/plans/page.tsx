@@ -51,7 +51,7 @@ export default async function PlansManagementPage() {
                                     plans.map((plan) => (
                                         <TableRow key={plan._id.toString()}>
                                             <TableCell className="font-medium">{plan.name}</TableCell>
-                                            <TableCell>${plan.price}/month</TableCell>
+                                            <TableCell>₹{plan.price}/month</TableCell>
                                             <TableCell className="font-mono text-xs">
                                                 {plan.messageCosts
                                                 ? `${plan.messageCosts.marketing}/${plan.messageCosts.utility}/${plan.messageCosts.authentication}`
@@ -86,3 +86,5 @@ export default async function PlansManagementPage() {
         </div>
     );
 }
+
+    

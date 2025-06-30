@@ -102,7 +102,7 @@ export default function PlanEditorPage() {
                             <Input id="name" name="name" defaultValue={plan?.name} required placeholder="e.g., Pro Tier" />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="price">Price (per month, in USD)</Label>
+                            <Label htmlFor="price">Price (per month, in INR)</Label>
                             <Input id="price" name="price" type="number" defaultValue={plan?.price ?? 49} required min="0" step="1" />
                         </div>
                     </div>
@@ -166,3 +166,5 @@ export default function PlanEditorPage() {
         </form>
     );
 }
+
+    
