@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { WachatLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell, CreditCard } from 'lucide-react';
+import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell, CreditCard, GitBranch } from 'lucide-react';
 import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
 import { cn } from '@/lib/utils';
 import { handleLogout } from '@/app/actions';
@@ -38,6 +38,7 @@ const menuItems = [
   { href: '/admin/dashboard/plans', label: 'Plans', icon: CreditCard },
   { href: '/admin/dashboard/system', label: 'System Health', icon: ShieldCheck },
   { href: '/admin/dashboard/broadcast-log', label: 'Broadcast Log', icon: History },
+  { href: '/admin/dashboard/flow-logs', label: 'Flow Logs', icon: GitBranch },
 ];
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {

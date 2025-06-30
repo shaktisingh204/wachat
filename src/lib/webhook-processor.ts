@@ -7,21 +7,54 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
 import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelligent-translate-flow';
-import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge } from '@/app/dashboard/page';
+import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog } from '@/app/dashboard/page';
 
-const BATCH_SIZE = 1000; // Increased batch size for faster queue processing
+const BATCH_SIZE = 1000;
 const LOCK_DURATION_MS = 2 * 60 * 1000; // 2 minute lock per project
 
-// --- Flow Engine Utilities ---
+class FlowLogger {
+    private entries: { timestamp: Date; message: string; data?: any }[] = [];
+    private db: Db;
+    private executionData: {
+        projectId: ObjectId;
+        flowId: ObjectId;
+        flowName: string;
+        contactId: ObjectId;
+    };
+
+    constructor(db: Db, flow: WithId<Flow>, contact: WithId<Contact>) {
+        this.db = db;
+        this.executionData = {
+            projectId: flow.projectId,
+            flowId: flow._id,
+            flowName: flow.name,
+            contactId: contact._id,
+        };
+        this.log("Flow execution started.");
+    }
+
+    log(message: string, data?: any) {
+        this.entries.push({ timestamp: new Date(), message, data });
+    }
+
+    async save() {
+        this.log("Flow execution finished.");
+        if (this.entries.length > 0) {
+            await this.db.collection('flow_logs').insertOne({
+                ...this.executionData,
+                createdAt: new Date(),
+                entries: this.entries,
+            });
+        }
+    }
+}
 
 /**
  * Interpolates variables in a string. e.g., "Hello {{name}}" -> "Hello John"
  */
 function interpolate(text: string, variables: Record<string, any>): string {
     if (!text) return '';
-    // This regex looks for {{variable_name}} or {{object.key}}
     return text.replace(/{{\s*([\w\d._]+)\s*}}/g, (match, key) => {
-        // Basic property accessor for nested objects, e.g., {{user.name}}
         const value = key.split('.').reduce((o: any, i: string) => o?.[i], variables);
         return value !== undefined ? String(value) : match;
     });
@@ -29,7 +62,6 @@ function interpolate(text: string, variables: Record<string, any>): string {
 
 /**
  * Safely gets a value from a nested object using a dot-notation path.
- * Supports array access with bracket notation, e.g., 'items[0].name'.
  */
 function getValueFromPath(obj: any, path: string): any {
     if (!path) return undefined;
@@ -39,7 +71,6 @@ function getValueFromPath(obj: any, path: string): any {
 
 /**
  * If a target language is set in the flow variables, translates the text.
- * Otherwise, returns the original text.
  */
 async function maybeTranslate(text: string, variables: Record<string, any>): Promise<string> {
     const targetLanguage = variables.flowTargetLanguage;
@@ -263,14 +294,17 @@ async function sendFlowCarousel(db: Db, project: WithId<Project>, contact: WithI
 
 // --- Main Flow Engine ---
 
-async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Contact> & { activeFlow?: any }, flow: WithId<Flow>, nodeId: string, userInput?: string) {
+async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Contact> & { activeFlow?: any }, flow: WithId<Flow>, nodeId: string, userInput: string | undefined, logger: FlowLogger) {
     const node = flow.nodes.find(n => n.id === nodeId);
     if (!node) {
+        logger.log(`Error: Node with ID ${nodeId} not found in flow ${flow.name}. Terminating flow.`);
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+        await logger.save();
         return;
     }
     
-    // Update contact's state to current node
+    logger.log(`Executing node "${node.data.label}" (ID: ${node.id}, Type: ${node.type}).`);
+    
     await db.collection('contacts').updateOne(
         { _id: contact._id },
         { $set: { "activeFlow.currentNodeId": nodeId, "activeFlow.variables": contact.activeFlow.variables } }
@@ -299,20 +333,22 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
 
         case 'buttons':
             await sendFlowButtons(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables);
+            logger.log("Sent buttons and waiting for user reply.");
             return;
             
         case 'delay': {
             const showTyping = node.data.showTyping === true;
             const delayMs = (node.data.delaySeconds || 1) * 1000;
+            logger.log(`Delaying for ${delayMs}ms.`, { showTyping });
             if (showTyping) {
                 try {
                     axios.post(
                         `https://graph.facebook.com/v22.0/${contact.phoneNumberId}/messages`, 
                         { messaging_product: 'whatsapp', to: contact.waId, recipient_type: 'individual', type: 'typing', action: 'start' }, 
                         { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-                    ).catch(e => console.error(`Flow: Failed to send typing indicator to ${contact.waId}:`, e.message));
+                    ).catch(e => logger.log("Flow: Failed to send typing indicator", { error: e.message }));
                 } catch (e: any) {
-                    console.error(`Flow: Error constructing typing indicator request for ${contact.waId}:`, e.message);
+                    logger.log("Flow: Error constructing typing indicator request.", { error: e.message });
                 }
             }
             if (delayMs > 0) await new Promise(resolve => setTimeout(resolve, delayMs));
@@ -323,11 +359,15 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
 
         case 'input':
             if (userInput !== undefined) {
-                if (node.data.variableToSave) contact.activeFlow.variables[node.data.variableToSave] = userInput;
+                if (node.data.variableToSave) {
+                    contact.activeFlow.variables[node.data.variableToSave] = userInput;
+                    logger.log(`Saved user input to variable "${node.data.variableToSave}".`, { variable: node.data.variableToSave, value: userInput });
+                }
                 edge = flow.edges.find(e => e.source === nodeId);
                 if (edge) nextNodeId = edge.target;
             } else {
                 await sendFlowMessage(db, project, contact, contact.phoneNumberId, node.data.text, contact.activeFlow.variables);
+                logger.log(`Sent prompt for input and waiting for reply.`);
                 return;
             }
             break;
@@ -336,30 +376,42 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             let valueToCheck: string = userInput || '';
             if (userInput === undefined) {
                 const conditionType = node.data.conditionType || 'variable';
-                if (conditionType === 'user_response') return;
+                if (conditionType === 'user_response') {
+                    logger.log("Condition node is waiting for user response.");
+                    return; // Wait for the next user message
+                }
                 const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
-                if (variableName) valueToCheck = contact.activeFlow.variables[variableName] || '';
+                if (variableName) {
+                    valueToCheck = contact.activeFlow.variables[variableName] || '';
+                }
             }
             
             const rawCheckValue = node.data.value || '';
             const interpolatedCheckValue = interpolate(rawCheckValue, contact.activeFlow.variables);
             const operator = node.data.operator || 'equals';
             let conditionMet = false;
-
-            switch(operator) {
-                case 'equals': conditionMet = valueToCheck.toLowerCase() === interpolatedCheckValue.toLowerCase(); break;
-                case 'not_equals': conditionMet = valueToCheck.toLowerCase() !== interpolatedCheckValue.toLowerCase(); break;
-                case 'contains': conditionMet = valueToCheck.toLowerCase().includes(interpolatedCheckValue.toLowerCase()); break;
-                case 'is_one_of':
-                    conditionMet = interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase()).includes(valueToCheck.toLowerCase());
-                    break;
-                case 'is_not_one_of':
-                    conditionMet = !interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase()).includes(valueToCheck.toLowerCase());
-                    break;
-                case 'greater_than': conditionMet = !isNaN(Number(valueToCheck)) && !isNaN(Number(interpolatedCheckValue)) && Number(valueToCheck) > Number(interpolatedCheckValue); break;
-                case 'less_than': conditionMet = !isNaN(Number(valueToCheck)) && !isNaN(Number(interpolatedCheckValue)) && Number(valueToCheck) < Number(interpolatedCheckValue); break;
-                default: conditionMet = false;
+            
+            try {
+                switch(operator) {
+                    case 'equals': conditionMet = valueToCheck.toLowerCase() === interpolatedCheckValue.toLowerCase(); break;
+                    case 'not_equals': conditionMet = valueToCheck.toLowerCase() !== interpolatedCheckValue.toLowerCase(); break;
+                    case 'contains': conditionMet = valueToCheck.toLowerCase().includes(interpolatedCheckValue.toLowerCase()); break;
+                    case 'is_one_of':
+                        conditionMet = interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase()).includes(valueToCheck.toLowerCase());
+                        break;
+                    case 'is_not_one_of':
+                        conditionMet = !interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase()).includes(valueToCheck.toLowerCase());
+                        break;
+                    case 'greater_than': conditionMet = !isNaN(Number(valueToCheck)) && !isNaN(Number(interpolatedCheckValue)) && Number(valueToCheck) > Number(interpolatedCheckValue); break;
+                    case 'less_than': conditionMet = !isNaN(Number(valueToCheck)) && !isNaN(Number(interpolatedCheckValue)) && Number(valueToCheck) < Number(interpolatedCheckValue); break;
+                    default: conditionMet = false;
+                }
+            } catch (e: any) {
+                logger.log(`Condition check failed due to an error.`, { error: e.message });
+                conditionMet = false;
             }
+
+            logger.log(`Condition check: [${valueToCheck}] ${operator} [${interpolatedCheckValue}] -> ${conditionMet ? 'Yes' : 'No'}`, { valueToCheck, operator, checkValue: interpolatedCheckValue, result: conditionMet });
 
             const handle = conditionMet ? `${node.id}-output-yes` : `${node.id}-output-no`;
             edge = flow.edges.find(e => e.sourceHandle === handle);
@@ -372,10 +424,12 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             if (mode === 'automatic') {
                 const detectedLanguage = await detectLanguageFromWaId(contact.waId);
                 contact.activeFlow.variables.flowTargetLanguage = detectedLanguage;
+                logger.log(`Automatically set language to ${detectedLanguage}.`);
                 edge = flow.edges.find(e => e.source === nodeId);
                 if (edge) nextNodeId = edge.target;
             } else { // Manual mode
                 await sendLanguageSelectionButtons(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables);
+                logger.log(`Sent language selection buttons and waiting for reply.`);
                 return;
             }
             break;
@@ -390,24 +444,37 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                     const rawHeaders = apiRequest.headers ? interpolate(apiRequest.headers, contact.activeFlow.variables) : '';
                     const rawBody = apiRequest.body ? interpolate(apiRequest.body, contact.activeFlow.variables) : '';
                     
+                    let headers, body;
+                    try { headers = rawHeaders ? JSON.parse(rawHeaders) : undefined; } catch (e) { logger.log(`Failed to parse API headers JSON.`, { rawHeaders, error: (e as Error).message }); }
+                    try { body = rawBody ? JSON.parse(rawBody) : undefined; } catch (e) { logger.log(`Failed to parse API body JSON.`, { rawBody, error: (e as Error).message }); }
+
+                    logger.log(`Making API call...`, { method: apiRequest.method, url: interpolatedUrl, headers, body });
+                    
                     const response = await axios({
                         method: apiRequest.method || 'GET',
                         url: interpolatedUrl,
-                        data: rawBody ? JSON.parse(rawBody) : undefined,
-                        headers: rawHeaders ? JSON.parse(rawHeaders) : undefined,
+                        data: body,
+                        headers: headers,
                     });
+                    
+                    logger.log(`API call successful (Status: ${response.status}).`, { response: response.data });
                     
                     const mappings = apiRequest.responseMappings;
                     if (Array.isArray(mappings)) {
                         for (const mapping of mappings) {
                             if (mapping.variable && mapping.path) {
                                 const value = getValueFromPath(response.data, mapping.path);
-                                if (value !== undefined) contact.activeFlow.variables[mapping.variable] = value;
+                                if (value !== undefined) {
+                                    contact.activeFlow.variables[mapping.variable] = value;
+                                    logger.log(`Mapped API response path "${mapping.path}" to variable "${mapping.variable}".`, { variable: mapping.variable, value: value });
+                                } else {
+                                     logger.log(`API response path "${mapping.path}" not found or value is undefined.`);
+                                }
                             }
                         }
                     }
                 } catch (e: any) {
-                    console.error(`[Flow Engine] API call failed for node ${node.id}. Error: ${e.message}`);
+                    logger.log(`API call failed for node ${node.id}.`, { error: e.message, response: e.response?.data });
                 }
             }
             edge = flow.edges.find(e => e.source === nodeId);
@@ -430,13 +497,15 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
     }
 
     if (nextNodeId) {
-        await executeNode(db, project, contact, flow, nextNodeId, undefined);
+        await executeNode(db, project, contact, flow, nextNodeId, undefined, logger);
     } else {
+        logger.log("No further nodes to execute. Ending flow.");
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+        await logger.save();
     }
 }
 
-async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId<Contact> & { activeFlow?: any }, message: any, phoneNumberId: string): Promise<boolean> {
+async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId<Contact> & { activeFlow?: any }, message: any, phoneNumberId: string): Promise<{ handled: boolean, logger?: FlowLogger }> {
     const messageText = message.text?.body?.trim();
     const buttonReply = message.interactive?.button_reply;
     const userResponse = buttonReply?.title?.trim() || messageText;
@@ -445,52 +514,64 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
         const flow = await db.collection<Flow>('flows').findOne({ _id: new ObjectId(contact.activeFlow.flowId) });
         if (!flow) {
             await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
-            return false;
+            return { handled: false };
         }
+        
+        const logger = new FlowLogger(db, flow, contact);
+        logger.log("Continuing existing flow execution.");
 
         const currentNode = flow.nodes.find(n => n.id === contact.activeFlow.currentNodeId);
         if (!currentNode) {
+            logger.log(`Current node ID ${contact.activeFlow.currentNodeId} not found. Terminating flow.`);
             await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
-            return false;
+            await logger.save();
+            return { handled: false, logger };
         }
+        
+        logger.log(`Current active node is "${currentNode.data.label}" (${currentNode.id}). Received user input.`, { userInput: userResponse });
 
         if (buttonReply) {
             const replyId = buttonReply.id?.trim();
+            logger.log(`Received button reply.`, { replyId: replyId, title: buttonReply.title });
+            
+            const edge = flow.edges.find(e => e.sourceHandle?.trim() === replyId);
+            if (edge) {
+                logger.log(`Found edge from button handle ${replyId} to target node ${edge.target}.`);
+                await executeNode(db, project, contact, flow, edge.target, buttonReply.title, logger);
+                return { handled: true, logger };
+            }
+             
             if (replyId.startsWith(`${currentNode.id}-lang-`)) {
                 const selectedLanguage = buttonReply.title || '';
                 if(selectedLanguage) {
                     contact.activeFlow.variables.flowTargetLanguage = selectedLanguage;
-                    await db.collection('contacts').updateOne(
-                        { _id: contact._id },
-                        { $set: { "activeFlow.variables.flowTargetLanguage": selectedLanguage } }
-                    );
+                    logger.log(`User selected language: ${selectedLanguage}`);
+                    await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { "activeFlow.variables.flowTargetLanguage": selectedLanguage } });
                 }
-                const edge = flow.edges.find(e => e.source === currentNode.id);
-                if (edge) await executeNode(db, project, contact, flow, edge.target, undefined);
-                else await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
-                return true;
-            }
-            if (currentNode.type === 'buttons') {
-                const edge = flow.edges.find(e => e.sourceHandle?.trim() === replyId);
-                if (edge) {
-                    await executeNode(db, project, contact, flow, edge.target, buttonReply.title);
-                    return true;
+                const langEdge = flow.edges.find(e => e.source === currentNode.id);
+                if (langEdge) await executeNode(db, project, contact, flow, langEdge.target, undefined, logger);
+                else {
+                    await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+                    await logger.save();
                 }
+                return { handled: true, logger };
             }
         }
         
         if (userResponse) {
-             if (currentNode.type === 'input' || (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response') || (buttonReply && currentNode.type === 'condition')) {
-                await executeNode(db, project, contact, flow, currentNode.id, userResponse);
-                return true;
+             if (currentNode.type === 'input' || (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response')) {
+                await executeNode(db, project, contact, flow, currentNode.id, userResponse, logger);
+                return { handled: true, logger };
             }
         }
         
+        logger.log("Input did not match any waiting node. Terminating flow.");
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+        await logger.save();
     }
 
     const triggerText = userResponse?.toLowerCase();
-    if (!triggerText) return false;
+    if (!triggerText) return { handled: false };
     
     const flows = await db.collection<Flow>('flows').find({
         projectId: project._id,
@@ -503,19 +584,22 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
 
     if (triggeredFlow) {
         const startNode = triggeredFlow.nodes.find(n => n.type === 'start');
-        if (!startNode) return false;
+        if (!startNode) return { handled: false };
 
+        const logger = new FlowLogger(db, triggeredFlow, contact);
+        logger.log(`Flow triggered by keyword.`, { keyword: triggerText });
+        
         contact.activeFlow = {
             flowId: triggeredFlow._id.toString(),
             currentNodeId: startNode.id,
             variables: { ...(contact.variables || {}), name: contact.name, waId: contact.waId },
         };
         
-        await executeNode(db, project, contact, triggeredFlow, startNode.id, userResponse);
-        return true;
+        await executeNode(db, project, contact, triggeredFlow, startNode.id, userResponse, logger);
+        return { handled: true, logger };
     }
 
-    return false;
+    return { handled: false };
 }
 
 
@@ -650,17 +734,18 @@ async function handleSingleMessageEvent(db: Db, project: WithId<Project>, messag
 
     const wasOptInOut = await handleOptInOut(db, project, contact, message, businessPhoneNumberId);
     if (!wasOptInOut) {
-        const flowHandled = await handleFlowLogic(db, project, contact, message, businessPhoneNumberId);
-        if (!flowHandled) {
+        const { handled, logger } = await handleFlowLogic(db, project, contact, message, businessPhoneNumberId);
+        if (!handled) {
             await triggerAutoReply(db, project, contact, message, businessPhoneNumberId);
         }
+        if (logger) await logger.save();
     }
 }
 
 
 // --- Main Webhook Processing Logic ---
 
-async function processSingleWebhook(db: Db, project: WithId<Project>, payload: any, logId?: ObjectId) {
+export async function processSingleWebhook(db: Db, project: WithId<Project>, payload: any, logId?: ObjectId) {
     try {
         if (payload.object !== 'whatsapp_business_account') throw new Error('Not a WhatsApp business account webhook.');
         
@@ -795,7 +880,6 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
                 const project = projectsMap.get(group.projectId.toString());
                 if (!project) throw new Error(`Project ${group.projectId} not found for message batch processing`);
                 
-                // Note: The 'wabaId' from the payload is not used here, we trust the projectId mapping from ingestion.
                 await handleSingleMessageEvent(db, project, group.messages[0], group.contacts[0]);
                 return { success: true };
             } catch (e: any) {

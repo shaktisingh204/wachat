@@ -259,6 +259,24 @@ export type CannedMessage = {
     createdAt: Date;
 };
 
+// --- Flow Log Types ---
+export type FlowLogEntry = {
+    timestamp: Date;
+    message: string;
+    data?: any;
+};
+
+export type FlowLog = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    contactId: ObjectId;
+    flowId: ObjectId;
+    flowName: string;
+    createdAt: Date;
+    entries: FlowLogEntry[];
+};
+
+
 const getErrorMessage = (error: any): string => {
     if (axios.isAxiosError(error) && error.response?.data?.error) {
         const apiError = error.response.data.error;
@@ -1409,6 +1427,8 @@ export async function handleCleanDatabase(
           await db.collection('outgoing_messages').deleteMany({});
           await db.collection('flows').deleteMany({});
           await db.collection('canned_messages').deleteMany({});
+          await db.collection('flow_logs').deleteMany({});
+
 
           revalidatePath('/dashboard');
   
@@ -1682,6 +1702,9 @@ const getEventSummaryForLog = (log: WithId<WebhookLog>): string => {
                         const body = message.text?.body || '';
                         const bodyPreview = body.substring(0, 30);
                         return `Message from ${from}: "${bodyPreview}${body.length > 30 ? '...' : ''}"`;
+                    }
+                    if (type === 'interactive' && message.interactive?.button_reply?.title) {
+                        return `Button click from ${from}: "${message.interactive.button_reply.title}"`;
                     }
                     return `Message from ${from} (${type})`;
                 }
@@ -3829,4 +3852,54 @@ export async function markConversationAsRead(contactId: string): Promise<{ succe
   } catch (e) {
     return { success: false };
   }
+}
+
+// --- ADMIN FLOW LOG ACTIONS ---
+
+export async function getFlowLogs(
+    page: number = 1,
+    limit: number = 20,
+    query?: string
+): Promise<{ logs: Omit<WithId<FlowLog>, 'entries'>[], total: number }> {
+    try {
+        const { db } = await connectToDatabase();
+        const filter: Filter<FlowLog> = {};
+        if (query) {
+            const isObjectId = ObjectId.isValid(query);
+            filter.$or = [
+                { flowName: { $regex: query, $options: 'i' } },
+                ...(isObjectId ? [{ contactId: new ObjectId(query) }] : [])
+            ];
+        }
+        
+        const skip = (page - 1) * limit;
+
+        const [logs, total] = await Promise.all([
+            db.collection('flow_logs')
+              .find(filter)
+              .sort({ createdAt: -1 })
+              .skip(skip)
+              .limit(limit)
+              .project({ entries: 0 })
+              .toArray(),
+            db.collection('flow_logs').countDocuments(filter)
+        ]);
+
+        return { logs: JSON.parse(JSON.stringify(logs)), total };
+    } catch (error) {
+        console.error('Failed to fetch flow logs:', error);
+        return { logs: [], total: 0 };
+    }
+}
+
+export async function getFlowLogById(logId: string): Promise<WithId<FlowLog> | null> {
+    if (!ObjectId.isValid(logId)) return null;
+    try {
+        const { db } = await connectToDatabase();
+        const log = await db.collection<FlowLog>('flow_logs').findOne({ _id: new ObjectId(logId) });
+        return log ? JSON.parse(JSON.stringify(log)) : null;
+    } catch (error) {
+        console.error('Failed to fetch flow log by ID:', error);
+        return null;
+    }
 }
