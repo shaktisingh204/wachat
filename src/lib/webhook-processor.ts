@@ -304,25 +304,32 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
         }
 
         case 'condition': {
-            let valueToCheck: string;
+            let valueToCheck: string | undefined;
 
             if (userInput !== undefined) {
-                // If input is piped from a previous node (like a button), use it directly.
                 valueToCheck = userInput;
                 console.log(`[Flow Engine] Condition node received direct input: "${valueToCheck}"`);
             } else {
                 const conditionType = node.data.conditionType || 'variable';
                 if (conditionType === 'user_response') {
-                    // No direct input, so pause and wait for the user to type something.
                     console.log(`[Flow Engine] Pausing at condition node ${node.id}, waiting for user response.`);
-                    return; // Pause the flow.
-                } else { // conditionType is 'variable'
+                    return;
+                } else {
                     const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
-                    valueToCheck = contact.activeFlow.variables[variableName] || '';
-                    console.log(`[Flow Engine] Condition node checking variable "${variableName}": "${valueToCheck}"`);
+                    if (variableName) {
+                        valueToCheck = contact.activeFlow.variables[variableName] || '';
+                    }
+                    console.log(`[Flow Engine] Condition node checking variable "${variableName || ''}": "${valueToCheck || ''}"`);
                 }
             }
-            
+
+            if (valueToCheck === undefined) {
+                console.log(`[Flow Engine] Condition on node ${node.id} could not find a value to check. Defaulting to 'No' path.`);
+                edge = flow.edges.find(e => e.sourceHandle === `${node.id}-output-no`);
+                if (edge) nextNodeId = edge.target;
+                break;
+            }
+
             const rawCheckValue = node.data.value || '';
             const interpolatedCheckValue = interpolate(rawCheckValue, contact.activeFlow.variables);
             const operator = node.data.operator || 'equals';
