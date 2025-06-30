@@ -498,28 +498,23 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
     }
 }
 
-export async function getProjectForBroadcast(projectId: string): Promise<{ _id: WithId<Project>['_id'], name: string, phoneNumbers: PhoneNumber[], templates: Template[] } | null> {
-    const projectData = await getProjectById(projectId);
-    if (!projectData) return null;
+export async function getProjectForBroadcast(projectId: string): Promise<Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers'> | null> {
+    const hasAccess = await getProjectById(projectId); // Still need security check
+    if (!hasAccess) return null;
 
     try {
         const { db } = await connectToDatabase();
-        const projectObjectId = new ObjectId(projectId);
-        const [project, templates] = await Promise.all([
-             db.collection('projects').findOne(
-                { _id: projectObjectId },
-                { projection: { name: 1, 'phoneNumbers.id': 1, 'phoneNumbers.display_phone_number': 1 } }
-            ),
-             db.collection('templates').find({ projectId: projectObjectId }).toArray()
-        ]);
-
-
+        const project = await db.collection('projects').findOne(
+            { _id: new ObjectId(projectId) },
+            { projection: { name: 1, phoneNumbers: 1 } }
+        );
+        
         if (!project) {
             console.error("Project not found for ID:", projectId);
             return null;
         }
         
-        return JSON.parse(JSON.stringify({ ...project, templates }));
+        return JSON.parse(JSON.stringify(project));
     } catch (error: any) {
         console.error("Exception in getProjectForBroadcast:", error);
         return null;

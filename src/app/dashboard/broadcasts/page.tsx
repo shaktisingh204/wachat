@@ -230,7 +230,7 @@ function BroadcastPageSkeleton() {
 }
 
 export default function BroadcastPage() {
-  const [project, setProject] = useState<Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null>(null);
+  const [project, setProject] = useState<Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers'> | null>(null);
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
   const [isRefreshing, startRefreshTransition] = useTransition();
@@ -255,7 +255,7 @@ export default function BroadcastPage() {
                 getBroadcasts(projectId, page, BROADCASTS_PER_PAGE),
             ]);
 
-            setProject(projectData as Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null);
+            setProject(projectData as Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers'> | null);
             setTemplates(templatesData || []);
             setHistory(historyData.broadcasts || []);
             setTotalPages(Math.ceil(historyData.total / BROADCASTS_PER_PAGE));
