@@ -362,7 +362,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
 
         case 'condition': {
             let valueToCheck: string = '';
-
+            
             if (userInput !== undefined) {
                 valueToCheck = userInput;
                 console.log(`[Flow Engine] Condition node received direct input: "${valueToCheck}"`);
@@ -375,13 +375,15 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                     const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
                     if (variableName) {
                         valueToCheck = contact.activeFlow.variables[variableName] || '';
+                    } else {
+                        valueToCheck = ''; // Explicitly set to empty string if no variable is defined
                     }
                     console.log(`[Flow Engine] Condition node checking variable "${variableName || ''}": "${valueToCheck || ''}"`);
                 }
             }
             
             valueToCheck = valueToCheck || '';
-
+            
             const rawCheckValue = node.data.value || '';
             const interpolatedCheckValue = interpolate(rawCheckValue, contact.activeFlow.variables);
             const operator = node.data.operator || 'equals';
@@ -441,6 +443,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             console.log(`[Flow Engine] Executing API node ${node.id} with data:`, apiRequest);
 
             try {
+                // Ensure headers and body are not empty strings before parsing
                 const rawHeaders = apiRequest?.headers ? interpolate(apiRequest.headers, contact.activeFlow.variables) : '';
                 const rawBody = apiRequest?.body ? interpolate(apiRequest.body, contact.activeFlow.variables) : '';
 
@@ -560,7 +563,7 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
                 return true;
              } else if (currentNode.type === 'buttons' && interactiveReplyId) {
                 // --- Standard button node reply ---
-                const edge = flow.edges.find(e => e.sourceHandle?.trim() === interactiveReplyId);
+                const edge = flow.edges.find(e => e.sourceHandle?.trim() === interactiveReplyId.trim());
                 if (edge) {
                     await executeNode(db, project, contact, flow, edge.target, buttonReplyText);
                     return true;
@@ -878,19 +881,13 @@ export async function processSingleWebhook(db: Db, payload: any, logId?: ObjectI
                 const value = change.value;
                 if (!value) continue;
                 
-                const phone_number_id = value.metadata?.phone_number_id;
-
+                // Message events are now handled by batch processors, so we skip them here.
                 if (change.field === 'messages') {
-                    // NEW: Handle messages directly
-                    const message = value.messages?.[0];
-                    const contactProfile = value.contacts?.[0];
-                    if (message && contactProfile && phone_number_id) {
-                        await handleSingleMessageEvent(db, wabaId, phone_number_id, message, contactProfile);
-                    }
-                    continue; // Done with this change
+                    continue; 
                 }
 
                 let project: WithId<Project> | null = null;
+                const phone_number_id = value.metadata?.phone_number_id;
 
                 if (wabaId && wabaId !== "0") {
                     project = await db.collection<Project>('projects').findOne({ wabaId: wabaId });
@@ -905,36 +902,59 @@ export async function processSingleWebhook(db: Db, payload: any, logId?: ObjectI
                     continue;
                 }
 
-                switch (change.field) {
-                    case 'account_update': {
-                        // ... same logic as before
+                // Simplified logic for non-message events
+                 const eventType = change.field;
+                 let message = `Received a general update for ${eventType}.`;
+                 let link = `/dashboard/information`;
+
+                 switch (eventType) {
+                    case 'account_update':
+                        message = `Your business account has been updated. Review status: ${value.review_status?.toUpperCase() || 'N/A'}`;
+                        if (value.review_status) {
+                             await db.collection('projects').updateOne({ _id: project._id }, { $set: { reviewStatus: value.review_status } });
+                             revalidatePath('/dashboard');
+                        }
                         break;
-                    }
-                     case 'phone_number_quality_update': {
-                        // ... same logic as before
+                    case 'phone_number_quality_update':
+                        message = `Phone number ${value.display_phone_number} quality is now ${value.event}. Current limit: ${value.current_limit}`;
+                        link = '/dashboard/numbers';
                         break;
-                    }
-                    case 'phone_number_name_update': {
-                        // ... same logic as before
+                    case 'phone_number_name_update':
+                        message = `Name update for ${value.display_phone_number} was ${value.decision}. Verified name: ${value.verified_name}.`;
+                        link = '/dashboard/numbers';
                         break;
-                    }
                     case 'message_template_status_update':
-                    case 'template_status_update': {
-                        // ... same logic as before
-                        break;
-                    }
-                    case 'message_template_quality_update': {
-                        // ... same logic as before
-                        break;
-                    }
+                    case 'template_status_update':
+                         message = `Template '${value.message_template_name}' was ${value.event === 'approved' ? 'approved' : 'rejected'}. Reason: ${value.reason || 'N/A'}`;
+                         link = '/dashboard/templates';
+                         await db.collection('templates').updateOne(
+                           { name: value.message_template_name, projectId: project._id },
+                           { $set: { status: value.event.toUpperCase() } }
+                         );
+                         revalidatePath('/dashboard/templates');
+                         break;
+                    case 'message_template_quality_update':
+                         message = `Template '${value.message_template_name}' quality updated to ${value.new_quality_score}.`;
+                         link = '/dashboard/templates';
+                         await db.collection('templates').updateOne(
+                            { name: value.message_template_name, projectId: project._id },
+                            { $set: { qualityScore: value.new_quality_score } }
+                          );
+                          revalidatePath('/dashboard/templates');
+                          break;
                     default:
                         console.log(`Webhook processor: Unhandled event type: "${change.field}"`);
                         break;
                 }
+                 await db.collection('notifications').insertOne({
+                    projectId: project._id, wabaId: project.wabaId, message, link,
+                    isRead: false, createdAt: new Date(), eventType,
+                });
+                revalidatePath('/dashboard', 'layout');
+                revalidatePath('/dashboard/notifications');
             }
         }
         
-        // Mark as processed at the end of successful execution
         if (logId) {
             await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: null } });
         }
@@ -943,7 +963,6 @@ export async function processSingleWebhook(db: Db, payload: any, logId?: ObjectI
         if (logId) {
             await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: e.message } });
         }
-        // re-throw to let the caller (e.g., cron job) know it failed
         throw e;
     }
 }
@@ -1070,7 +1089,7 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
 
 
 export async function processWebhooksForProject(db: Db, projectId: ObjectId) {
-    const BATCH_SIZE = 50; // Process 50 webhooks at a time for a given project
+    const BATCH_SIZE = 100; // Process 100 webhooks at a time for a given project
     const results = {
         projectId: projectId.toString(),
         processed: 0,
@@ -1091,36 +1110,55 @@ export async function processWebhooksForProject(db: Db, projectId: ObjectId) {
 
         const processingIds = queueItems.map(item => item._id);
         
-        // Mark items as processing to prevent re-picking
         await db.collection('webhook_queue').updateMany(
             { _id: { $in: processingIds } },
             { $set: { status: 'PROCESSING', processedAt: new Date() } }
         );
 
+        const statusUpdates: any[] = [];
+        const incomingMessages: any[] = [];
+        const otherEvents: any[] = [];
+
         for (const item of queueItems) {
-            try {
-                await processSingleWebhook(db, item.payload, item.logId);
-                // Mark as completed
-                await db.collection('webhook_queue').updateOne(
-                    { _id: item._id },
-                    { $set: { status: 'COMPLETED', processedAt: new Date() } }
-                );
-                results.success++;
-            } catch (e: any) {
-                console.error(`Failed to process webhook item ${item._id} for project ${projectId}:`, e.message);
-                // Mark as failed
-                await db.collection('webhook_queue').updateOne(
-                    { _id: item._id },
-                    { $set: { status: 'FAILED', error: e.message, processedAt: new Date() } }
-                );
-                results.failed++;
+            const value = item.payload.entry?.[0]?.changes?.[0]?.value;
+            const field = item.payload.entry?.[0]?.changes?.[0]?.field;
+
+            if (field === 'messages' && value) {
+                if (value.statuses) statusUpdates.push(...value.statuses);
+                if (value.messages) {
+                    incomingMessages.push({
+                        wabaId: item.payload.entry[0].id,
+                        metadata: value.metadata,
+                        messages: value.messages,
+                        contacts: value.contacts,
+                    });
+                }
+            } else {
+                otherEvents.push(item);
             }
-            results.processed++;
         }
+
+        const processingPromises: Promise<any>[] = [];
+        if (statusUpdates.length > 0) processingPromises.push(processStatusUpdateBatch(db, statusUpdates));
+        if (incomingMessages.length > 0) processingPromises.push(processIncomingMessageBatch(db, incomingMessages));
+        otherEvents.forEach(item => processingPromises.push(
+            processSingleWebhook(db, item.payload, item.logId)
+        ));
+
+        await Promise.all(processingPromises);
+
+        await db.collection('webhook_queue').updateMany(
+            { _id: { $in: processingIds } },
+            { $set: { status: 'COMPLETED', processedAt: new Date() } }
+        );
+
+        results.processed = queueItems.length;
+        results.success = queueItems.length; // Optimistic for now
 
     } catch (e: any) {
         console.error(`Error during webhook batch processing for project ${projectId}:`, e);
         results.error = e.message;
+        results.failed = queueItems.length;
     }
     
     return results;
