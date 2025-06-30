@@ -198,6 +198,37 @@ function ISTClock() {
     );
 }
 
+function BroadcastPageSkeleton() {
+    return (
+      <div className="flex flex-col gap-8">
+        <div className="space-y-2">
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-4 w-2/3" />
+        </div>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-1/4" />
+            <Skeleton className="h-4 w-1/2" />
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-6">
+              <Skeleton className="h-10 w-full" />
+              <Skeleton className="h-10 w-full" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <Skeleton className="h-8 w-1/4" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-48 w-full" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+}
+
 export default function BroadcastPage() {
   const [project, setProject] = useState<Pick<WithId<Project>, '_id' | 'phoneNumbers'> | null>(null);
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
@@ -294,7 +325,7 @@ export default function BroadcastPage() {
   }, [activeProjectId, currentPage, fetchData]);
   
   useEffect(() => {
-    if (!isClient || !activeProjectId) return;
+    if (!isClient || !activeProjectId || isRefreshing) return;
 
     const hasActiveBroadcasts = history.some(b => b.status === 'QUEUED' || b.status === 'PROCESSING');
     if (!hasActiveBroadcasts) return;
@@ -304,7 +335,7 @@ export default function BroadcastPage() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [history, activeProjectId, currentPage, isClient, fetchData]);
+  }, [history, activeProjectId, currentPage, isClient, fetchData, isRefreshing]);
 
   const onSyncTemplates = useCallback(async () => {
     if (!activeProjectId) {
@@ -338,35 +369,8 @@ export default function BroadcastPage() {
     });
   }, [toast, activeProjectId, currentPage, fetchData]);
 
-  if (!isClient || !activeProjectId) {
-    return (
-      <div className="flex flex-col gap-8">
-        <div className="space-y-2">
-            <Skeleton className="h-8 w-1/3" />
-            <Skeleton className="h-4 w-2/3" />
-        </div>
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-8 w-1/4" />
-            <Skeleton className="h-4 w-1/2" />
-          </CardHeader>
-          <CardContent>
-            <div className="grid md:grid-cols-2 gap-6">
-              <Skeleton className="h-10 w-full" />
-              <Skeleton className="h-10 w-full" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-8 w-1/4" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-48 w-full" />
-          </CardContent>
-        </Card>
-      </div>
-    );
+  if (!isClient || (!project && isRefreshing)) {
+    return <BroadcastPageSkeleton />;
   }
 
   return (

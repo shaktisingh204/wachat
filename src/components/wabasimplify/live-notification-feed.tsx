@@ -11,7 +11,8 @@ import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
-import { BellRing, Mail, Check, X } from 'lucide-react';
+import { BellRing, Mail, Check, X, LoaderCircle } from 'lucide-react';
+import { Skeleton } from '../ui/skeleton';
 
 export function LiveNotificationFeed() {
   const [notifications, setNotifications] = useState<WithId<NotificationWithProject>[]>([]);
@@ -23,40 +24,40 @@ export function LiveNotificationFeed() {
 
   const fetchData = useCallback(() => {
     startTransition(async () => {
-      const [fetchedNotifications, fetchedInvitations] = await Promise.all([
+      try {
+        const [fetchedNotifications, fetchedInvitations] = await Promise.all([
           getNotifications(),
           getInvitationsForUser()
-      ]);
-      setNotifications(fetchedNotifications);
-      setInvitations(fetchedInvitations);
+        ]);
+        setNotifications(fetchedNotifications);
+        setInvitations(fetchedInvitations);
+      } catch (error) {
+        console.error("Failed to fetch notifications/invitations:", error);
+      }
     });
-  }, [startTransition]);
+  }, []);
 
   useEffect(() => {
     setIsClient(true);
-    fetchData(); // Initial fetch
-    
-    const interval = setInterval(() => {
-        fetchData(); // Polling fetch
-    }, 10000); 
-
+    fetchData();
+    const interval = setInterval(fetchData, 10000);
     return () => clearInterval(interval);
   }, [fetchData]);
   
   const handleNotificationClick = async (notification: WithId<NotificationWithProject>) => {
-    if (!notification.isRead) {
-      startTransition(async () => {
-        const result = await markNotificationAsRead(notification._id.toString());
-        if (result.success) {
-          setNotifications(prev => prev.map(n => n._id.toString() === notification._id.toString() ? {...n, isRead: true} : n));
-        } else {
-          toast({ title: "Error", description: "Failed to mark notification as read.", variant: "destructive" });
+    startTransition(async () => {
+        if (!notification.isRead) {
+          const result = await markNotificationAsRead(notification._id.toString());
+          if (result.success) {
+              setNotifications(prev => prev.map(n => n._id.toString() === notification._id.toString() ? {...n, isRead: true} : n));
+          } else {
+            toast({ title: "Error", description: "Failed to mark notification as read.", variant: "destructive" });
+          }
         }
-      });
-    }
-    if (notification.link) {
-      router.push(notification.link);
-    }
+        if (notification.link) {
+          router.push(notification.link);
+        }
+    });
   };
 
   const handleInviteResponse = (invitationId: string, accepted: boolean) => {
@@ -79,7 +80,19 @@ export function LiveNotificationFeed() {
   };
 
   if (!isClient) {
-    return null; 
+    return (
+        <Card className="shadow-none rounded-none border-none bg-transparent h-full flex flex-col">
+            <CardHeader className="flex flex-row items-center justify-between p-4 border-b">
+                <div className="space-y-1">
+                    <CardTitle className="text-base">Live Notifications</CardTitle>
+                    <CardDescription className="text-xs">Real-time events from your projects.</CardDescription>
+                </div>
+            </CardHeader>
+            <CardContent className="p-2 flex-1 overflow-hidden space-y-2">
+                 {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+            </CardContent>
+        </Card>
+    ); 
   }
   
   const allItems = [
@@ -94,14 +107,15 @@ export function LiveNotificationFeed() {
             <CardTitle className="text-base">Live Notifications</CardTitle>
             <CardDescription className="text-xs">Real-time events from your projects.</CardDescription>
         </div>
+         {isPending && <LoaderCircle className="h-4 w-4 animate-spin text-muted-foreground" />}
     </CardHeader>
     <CardContent className="p-0 flex-1 overflow-hidden">
         <ScrollArea className="h-full">
         <div className="p-2 space-y-2">
             {isPending && allItems.length === 0 ? (
-            <div className="h-full flex items-center justify-center p-4 text-sm text-muted-foreground">
-                Loading...
-            </div>
+                 <div className="p-2 space-y-2">
+                    {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 w-full" />)}
+                </div>
             ) : allItems.length > 0 ? (
             allItems.map(item => (
                 item.type === 'invitation' ? (
@@ -113,8 +127,8 @@ export function LiveNotificationFeed() {
                                 {item.inviterName} invited you to join "{item.projectName}" as a {item.role}.
                             </p>
                              <div className="flex items-center gap-2">
-                                <Button size="sm" className="h-7" onClick={() => handleInviteResponse(item._id.toString(), true)}><Check className="h-4 w-4 mr-1"/>Accept</Button>
-                                <Button size="sm" variant="ghost" className="h-7" onClick={() => handleInviteResponse(item._id.toString(), false)}><X className="h-4 w-4 mr-1"/>Decline</Button>
+                                <Button size="sm" className="h-7" onClick={() => handleInviteResponse(item._id.toString(), true)} disabled={isPending}><Check className="h-4 w-4 mr-1"/>Accept</Button>
+                                <Button size="sm" variant="ghost" className="h-7" onClick={() => handleInviteResponse(item._id.toString(), false)} disabled={isPending}><X className="h-4 w-4 mr-1"/>Decline</Button>
                              </div>
                         </div>
                     </div>

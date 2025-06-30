@@ -10,7 +10,7 @@ import { ChatMessage } from './chat-message';
 import { ChatMessageInput } from './chat-message-input';
 import { Skeleton } from '../ui/skeleton';
 import { Button } from '../ui/button';
-import { ArrowLeft, Info } from 'lucide-react';
+import { ArrowLeft, Info, LoaderCircle } from 'lucide-react';
 import { ContactInfoPanel } from './contact-info-panel';
 
 interface ChatWindowProps {
@@ -22,15 +22,8 @@ interface ChatWindowProps {
     onContactUpdate: (updatedContact: WithId<Contact>) => void;
 }
 
-export function ChatWindow({ project, contact, conversation, isLoading, onBack, onContactUpdate }: ChatWindowProps) {
-    const messagesEndRef = useRef<HTMLDivElement>(null);
-    const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
-
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [conversation]);
-
-    const MessageListSkeleton = () => (
+function MessageListSkeleton() {
+    return (
          <div className="p-4 space-y-4">
             <div className="flex items-end gap-2">
                 <Skeleton className="h-8 w-8 rounded-full" />
@@ -45,6 +38,15 @@ export function ChatWindow({ project, contact, conversation, isLoading, onBack, 
             </div>
         </div>
     );
+}
+
+export function ChatWindow({ project, contact, conversation, isLoading, onBack, onContactUpdate }: ChatWindowProps) {
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
+
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
+    }, [conversation]);
 
     return (
         <>
@@ -76,18 +78,18 @@ export function ChatWindow({ project, contact, conversation, isLoading, onBack, 
                 </div>
                 
                 <ScrollArea className="flex-1 bg-background/50" viewportClassName="scroll-container">
-                    <div className="p-4 space-y-4">
-                        {isLoading ? (
-                            <MessageListSkeleton />
-                        ) : (
-                            <>
-                                {conversation.map((msg) => (
-                                    <ChatMessage key={msg._id.toString()} message={msg} />
-                                ))}
-                                <div ref={messagesEndRef} />
-                            </>
-                        )}
-                    </div>
+                     {isLoading ? (
+                        <div className="flex items-center justify-center h-full">
+                             <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
+                        </div>
+                    ) : (
+                        <div className="p-4 space-y-4">
+                            {conversation.map((msg) => (
+                                <ChatMessage key={msg._id.toString()} message={msg} />
+                            ))}
+                            <div ref={messagesEndRef} />
+                        </div>
+                    )}
                 </ScrollArea>
                 
                 <div className="flex items-center p-2 border-t bg-background h-[50px] flex-shrink-0">

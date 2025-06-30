@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { getFlowLogs, getFlowLogById, type FlowLog, type FlowLogEntry } from '@/app/actions';
 import type { WithId } from "mongodb";
 
@@ -20,7 +21,7 @@ const LOGS_PER_PAGE = 20;
 
 export default function FlowLogsPage() {
     const [logs, setLogs] = useState<(Omit<WithId<FlowLog>, 'entries'>)[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, startTransition] = useTransition();
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
@@ -28,17 +29,16 @@ export default function FlowLogsPage() {
     const [selectedLog, setSelectedLog] = useState<WithId<FlowLog> | null>(null);
     const [loadingPayload, setLoadingPayload] = useState(false);
     
-    const fetchLogs = useCallback(async (page: number, query: string) => {
-        setLoading(true);
-        try {
-            const { logs: newLogs, total } = await getFlowLogs(page, LOGS_PER_PAGE, query);
-            setLogs(newLogs);
-            setTotalPages(Math.ceil(total / LOGS_PER_PAGE));
-        } catch (error) {
-            toast({ title: "Error", description: "Failed to fetch flow logs.", variant: "destructive" });
-        } finally {
-            setLoading(false);
-        }
+    const fetchLogs = useCallback((page: number, query: string) => {
+        startTransition(async () => {
+            try {
+                const { logs: newLogs, total } = await getFlowLogs(page, LOGS_PER_PAGE, query);
+                setLogs(newLogs);
+                setTotalPages(Math.ceil(total / LOGS_PER_PAGE));
+            } catch (error) {
+                toast({ title: "Error", description: "Failed to fetch flow logs.", variant: "destructive" });
+            }
+        });
     }, [toast]);
 
     useEffect(() => {
@@ -99,7 +99,7 @@ export default function FlowLogsPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {loading ? (
+                                    {isLoading ? (
                                         [...Array(5)].map((_, i) => (
                                         <TableRow key={i}>
                                             <TableCell colSpan={5}><Skeleton className="h-5 w-full" /></TableCell>
@@ -133,8 +133,8 @@ export default function FlowLogsPage() {
                             <span className="text-sm text-muted-foreground">
                                 Page {currentPage} of {totalPages > 0 ? totalPages : 1}
                             </span>
-                            <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage <= 1}>Previous</Button>
-                            <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage >= totalPages}>Next</Button>
+                            <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => p - 1)} disabled={currentPage <= 1 || isLoading}>Previous</Button>
+                            <Button variant="outline" size="sm" onClick={() => setCurrentPage(p => p + 1)} disabled={currentPage >= totalPages || isLoading}>Next</Button>
                         </div>
                     </CardContent>
                 </Card>

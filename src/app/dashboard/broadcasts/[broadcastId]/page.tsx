@@ -37,10 +37,27 @@ type FilterStatus = 'ALL' | 'SENT' | 'FAILED' | 'PENDING' | 'DELIVERED' | 'READ'
 
 const ATTEMPTS_PER_PAGE = 50;
 
+function BroadcastReportSkeleton() {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-10 w-48" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
+            {[...Array(5)].map((_, i) => <Card key={i}><CardHeader><Skeleton className="h-4 w-2/3"/></CardHeader><CardContent><Skeleton className="h-6 w-1/2"/></CardContent></Card>)}
+        </div>
+        <Card>
+            <CardHeader><Skeleton className="h-8 w-1/3"/></CardHeader>
+            <CardContent>
+                <Skeleton className="h-64 w-full"/>
+            </CardContent>
+        </Card>
+      </div>
+    );
+}
+
 export default function BroadcastReportPage() {
   const [broadcast, setBroadcast] = useState<WithId<Broadcast> | null>(null);
   const [attempts, setAttempts] = useState<BroadcastAttempt[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isPageLoading, setIsPageLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isExporting, startExportTransition] = useTransition();
   const params = useParams();
@@ -54,7 +71,7 @@ export default function BroadcastReportPage() {
 
   const fetchPageData = useCallback(async (page: number, filterValue: FilterStatus, showToast = false) => {
     if (!broadcastId) {
-      setLoading(false);
+      setIsPageLoading(false);
       return;
     }
     
@@ -85,13 +102,13 @@ export default function BroadcastReportPage() {
   }, [broadcastId, router, toast]);
 
   useEffect(() => {
-    setLoading(true);
-    fetchPageData(currentPage, filter).finally(() => setLoading(false));
+    setIsPageLoading(true);
+    fetchPageData(currentPage, filter).finally(() => setIsPageLoading(false));
   }, [currentPage, filter, fetchPageData]);
 
 
   useEffect(() => {
-      if (!broadcast || loading) return;
+      if (!broadcast || isPageLoading) return;
 
       const shouldAutoRefresh = broadcast.status === 'QUEUED' || broadcast.status === 'PROCESSING';
 
@@ -101,7 +118,7 @@ export default function BroadcastReportPage() {
           }, 5000);
           return () => clearInterval(interval);
       }
-  }, [broadcast, loading, fetchPageData, currentPage, filter]);
+  }, [broadcast, isPageLoading, fetchPageData, currentPage, filter]);
 
 
   const onRefresh = () => {
@@ -173,14 +190,8 @@ export default function BroadcastReportPage() {
     }
   };
 
-  if (loading && currentPage === 1) {
-    return (
-      <div className="space-y-6">
-        <Skeleton className="h-10 w-48" />
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    );
+  if (isPageLoading) {
+    return <BroadcastReportSkeleton />;
   }
 
   if (!broadcast) {
@@ -309,7 +320,7 @@ export default function BroadcastReportPage() {
                             {isRefreshing && attempts.length === 0 ? (
                                 <TableRow>
                                     <TableCell colSpan={3} className="h-24 text-center">
-                                        Loading results...
+                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                                     </TableCell>
                                 </TableRow>
                             ) : allAttempts.length > 0 ? allAttempts.map((attempt) => (
@@ -340,7 +351,7 @@ export default function BroadcastReportPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setCurrentPage(p => p - 1)}
-                        disabled={currentPage <= 1}
+                        disabled={currentPage <= 1 || isRefreshing}
                     >
                         Previous
                     </Button>
@@ -348,7 +359,7 @@ export default function BroadcastReportPage() {
                         variant="outline"
                         size="sm"
                         onClick={() => setCurrentPage(p => p + 1)}
-                        disabled={currentPage >= totalPages}
+                        disabled={currentPage >= totalPages || isRefreshing}
                     >
                         Next
                     </Button>

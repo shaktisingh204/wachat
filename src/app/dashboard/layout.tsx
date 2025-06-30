@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -45,11 +46,24 @@ import {
   LogOut,
   ClipboardList,
   CreditCard,
+  LoaderCircle
 } from 'lucide-react';
 import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { getProjects, getSession, handleLogout } from '@/app/actions';
+
+function FullPageSkeleton() {
+    return (
+      <div className="flex h-screen w-screen">
+        <div className="hidden md:block w-72 border-r p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="flex-1 flex flex-col">
+            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
+            <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
+        </div>
+      </div>
+    );
+}
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -62,6 +76,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   React.useEffect(() => {
     setIsClient(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (!isClient) return;
+
     const isDashboardHome = pathname === '/dashboard';
 
     if (isDashboardHome) {
@@ -80,17 +99,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             getProjects().then(projects => {
               const count = projects.length;
               setProjectCount(count);
-              if (count === 0 && pathname !== '/dashboard' && pathname !== '/dashboard/setup' && pathname !== '/dashboard/profile') {
+              if (count === 0 && pathname !== '/dashboard' && pathname !== '/dashboard/setup' && pathname !== '/dashboard/profile' && pathname !== '/dashboard/billing' && pathname !== '/dashboard/settings') {
                   router.push('/dashboard/setup');
               }
+               setIsVerifying(false);
             });
         } else {
             router.push('/login');
+            setIsVerifying(false);
         }
-        setIsVerifying(false);
     })
 
-  }, [pathname, router]);
+  }, [pathname, router, isClient]);
 
   const isChatPage = pathname.startsWith('/dashboard/chat');
   
@@ -99,12 +119,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     pathname.startsWith('/dashboard/flow-builder') ||
     isChatPage;
 
-  if (isVerifying) {
-      return (
-          <div className="flex items-center justify-center h-screen">
-              <Skeleton className="h-full w-full" />
-          </div>
-      )
+  if (!isClient || isVerifying) {
+      return <FullPageSkeleton />;
   }
 
   const hasNoProjects = projectCount === 0;

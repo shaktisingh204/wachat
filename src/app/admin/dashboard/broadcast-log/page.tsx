@@ -1,25 +1,44 @@
 
+'use client';
+
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { getAllBroadcasts } from '@/app/actions';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { WithId } from 'mongodb';
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
+import { RefreshCw, LoaderCircle } from "lucide-react";
 
-export const dynamic = 'force-dynamic';
 
 const BROADCASTS_PER_PAGE = 20;
 
-export default async function BroadcastLogPage({
-    searchParams,
-}: {
-    searchParams?: { page?: string };
-}) {
-    const currentPage = Number(searchParams?.page) || 1;
-    const { broadcasts, total } = await getAllBroadcasts(currentPage, BROADCASTS_PER_PAGE);
+export default function BroadcastLogPage() {
+    const [broadcasts, setBroadcasts] = useState<WithId<any>[]>([]);
+    const [total, setTotal] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [isLoading, startTransition] = useTransition();
+    const { toast } = useToast();
 
     const totalPages = Math.ceil(total / BROADCASTS_PER_PAGE);
+
+    const fetchBroadcasts = useCallback((page: number) => {
+        startTransition(async () => {
+            try {
+                const { broadcasts: data, total: totalCount } = await getAllBroadcasts(page, BROADCASTS_PER_PAGE);
+                setBroadcasts(data);
+                setTotal(totalCount);
+            } catch (error) {
+                toast({ title: "Error", description: "Failed to fetch broadcast logs.", variant: "destructive" });
+            }
+        });
+    }, [toast]);
+
+    useEffect(() => {
+        fetchBroadcasts(currentPage);
+    }, [currentPage, fetchBroadcasts]);
 
     const getStatusVariant = (status?: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
         if (!status) return 'secondary';
@@ -34,13 +53,21 @@ export default async function BroadcastLogPage({
             <div>
                 <h1 className="text-3xl font-bold font-headline">System-Wide Broadcast Log</h1>
                 <p className="text-muted-foreground">
-                    A raw log of all broadcasts in the database for debugging purposes. Page {currentPage} of {totalPages}.
+                    A raw log of all broadcasts in the database for debugging purposes.
                 </p>
             </div>
             <Card>
                 <CardHeader>
-                    <CardTitle>All Broadcasts</CardTitle>
-                    <CardDescription>This view is unfiltered and shows all records from the broadcasts collection. Total: {total.toLocaleString()}</CardDescription>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                            <CardTitle>All Broadcasts</CardTitle>
+                            <CardDescription>This view shows all records from the broadcasts collection. Total: {total.toLocaleString()}</CardDescription>
+                        </div>
+                         <Button onClick={() => fetchBroadcasts(currentPage)} disabled={isLoading} variant="outline" size="sm">
+                            {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                            Refresh
+                        </Button>
+                    </div>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">
@@ -55,7 +82,13 @@ export default async function BroadcastLogPage({
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {broadcasts.length > 0 ? (
+                                {isLoading ? (
+                                    [...Array(5)].map((_, i) => (
+                                        <TableRow key={i}>
+                                            <TableCell colSpan={5}><Skeleton className="h-5 w-full" /></TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : broadcasts.length > 0 ? (
                                     broadcasts.map((broadcast) => (
                                         <TableRow key={broadcast._id.toString()}>
                                             <TableCell>{new Date(broadcast.createdAt).toLocaleString()}</TableCell>
@@ -80,21 +113,22 @@ export default async function BroadcastLogPage({
                         </Table>
                     </div>
                      <div className="flex flex-wrap items-center justify-end space-x-2 py-4">
+                        <span className="text-sm text-muted-foreground">Page {currentPage} of {totalPages > 0 ? totalPages : 1}</span>
                         <Button
                             variant="outline"
                             size="sm"
-                            asChild
-                            disabled={currentPage <= 1}
+                            onClick={() => setCurrentPage(p => p - 1)}
+                            disabled={currentPage <= 1 || isLoading}
                         >
-                           <Link href={`/admin/dashboard/broadcast-log?page=${currentPage - 1}`}>Previous</Link>
+                           Previous
                         </Button>
                         <Button
                             variant="outline"
                             size="sm"
-                            asChild
-                            disabled={currentPage >= totalPages}
+                            onClick={() => setCurrentPage(p => p + 1)}
+                            disabled={currentPage >= totalPages || isLoading}
                         >
-                           <Link href={`/admin/dashboard/broadcast-log?page=${currentPage + 1}`}>Next</Link>
+                           Next
                         </Button>
                     </div>
                 </CardContent>
