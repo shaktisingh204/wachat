@@ -5,7 +5,7 @@
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
-import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan } from '@/app/actions';
+import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, UserAttribute } from '@/app/dashboard/page';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { CannedMessagesSettingsTab } from '@/components/wabasimplify/canned-messages-settings-tab';
 import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-settings-tab';
+import { useRouter } from 'next/navigation';
 
 
 const updateSettingsInitialState = { message: null, error: null };
@@ -425,38 +426,48 @@ function SettingsPageContent() {
   const [user, setUser] = useState<(Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null }) | null>(null);
   const [isLoading, startLoadingTransition] = useTransition();
   const [isClient, setIsClient] = useState(false);
+  const [activeProjectId, setActiveProjectId] = useState<string|null>(null);
   const [messagesPerSecond, setMessagesPerSecond] = useState(1000);
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleUpdateProjectSettings, updateSettingsInitialState);
+  const router = useRouter();
 
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || 'broadcast';
 
   useEffect(() => {
     setIsClient(true);
+    const storedProjectId = localStorage.getItem('activeProjectId');
+    setActiveProjectId(storedProjectId);
   }, []);
 
   useEffect(() => {
-    if (isClient) {
+    if (isClient && activeProjectId) {
         document.title = 'Project Settings | Wachat';
         startLoadingTransition(async () => {
-            const storedProjectId = localStorage.getItem('activeProjectId');
-            if (storedProjectId) {
-                const [projectData, sessionData] = await Promise.all([
-                    getProjectById(storedProjectId),
-                    getSession()
-                ]);
-                if (projectData) {
-                    setProject(projectData);
-                    setMessagesPerSecond(projectData.messagesPerSecond || 1000);
-                }
-                if (sessionData?.user) {
-                    setUser(sessionData.user);
-                }
+            const [projectData, sessionData] = await Promise.all([
+                getProjectById(activeProjectId),
+                getSession()
+            ]);
+            if (projectData) {
+                setProject(projectData);
+                setMessagesPerSecond(projectData.messagesPerSecond || 1000);
+            }
+            if (sessionData?.user) {
+                setUser(sessionData.user);
+            }
+        });
+    } else if (isClient && !activeProjectId) {
+        startLoadingTransition(async () => {
+             const projects = await getProjects();
+                 if (projects && projects.length > 0) {
+                router.push('/dashboard');
+            } else {
+                router.push('/dashboard/setup');
             }
         });
     }
-  }, [isClient]);
+  }, [isClient, activeProjectId, router]);
 
   useEffect(() => {
     if (state?.message) {
@@ -474,7 +485,7 @@ function SettingsPageContent() {
     }
   }, [state, toast]);
   
-  if (!isClient || isLoading) {
+  if (isLoading || !project || !user) {
     return (
       <div className="flex flex-col gap-8">
         <div>
@@ -485,15 +496,6 @@ function SettingsPageContent() {
           <CardHeader><Skeleton className="h-6 w-1/4" /><Skeleton className="h-4 w-1/2" /></CardHeader>
           <CardContent><Skeleton className="h-48 w-full" /></CardContent>
         </Card>
-      </div>
-    );
-  }
-
-  if (!project || !user) {
-    return (
-      <div className="flex flex-col gap-8">
-        <div><h1 className="text-3xl font-bold font-headline">Project Settings</h1><p className="text-muted-foreground">Manage settings for your project.</p></div>
-        <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertTitle>No Project Selected</AlertTitle><AlertDescription>Please select a project from the main dashboard to manage its settings.</AlertDescription></Alert>
       </div>
     );
   }

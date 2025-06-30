@@ -22,51 +22,79 @@ import { Input } from '@/components/ui/input';
 
 const CONTACTS_PER_PAGE = 20;
 
+function ContactsPageSkeleton() {
+    return (
+        <Card>
+            <CardHeader>
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <Skeleton className="h-6 w-32" />
+                        <Skeleton className="h-4 w-64 mt-2" />
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Skeleton className="h-10 w-24" />
+                        <Skeleton className="h-10 w-24" />
+                    </div>
+                </div>
+            </CardHeader>
+            <CardContent>
+                <div className="mb-4 flex flex-wrap gap-4 items-center">
+                    <Skeleton className="h-10 w-full sm:w-auto sm:min-w-[250px]" />
+                    <Skeleton className="h-10 flex-grow" />
+                </div>
+                <div className="border rounded-md">
+                    <Skeleton className="h-64 w-full" />
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
 export default function ContactsPage() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
     const [contacts, setContacts] = useState<WithId<Contact>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState<string>('');
     const [isClient, setIsClient] = useState(false);
+    const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
     const router = useRouter();
 
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
     
-    const fetchData = useCallback((phoneId: string, page: number, query: string) => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (!storedProjectId) {
-            getProjects().then(projects => {
-                if (projects && projects.length > 0) {
-                    router.push('/dashboard');
-                } else {
-                    router.push('/dashboard/setup');
-                }
-            });
-            return;
-        }
-
+    const fetchData = useCallback((projectId: string, phoneId: string, page: number, query: string) => {
         startTransition(async () => {
-            const data = await getContactsPageData(storedProjectId, phoneId, page, query);
+            const data = await getContactsPageData(projectId, phoneId, page, query);
             
             setProject(data.project);
             setContacts(data.contacts);
             setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
             setSelectedPhoneNumberId(data.selectedPhoneNumberId);
         });
-    }, [router, startTransition]);
+    }, [startTransition]);
 
     useEffect(() => {
         setIsClient(true);
         document.title = 'Contacts | Wachat';
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        setActiveProjectId(storedProjectId);
     }, []);
     
     useEffect(() => {
-        if(isClient) {
-            fetchData(selectedPhoneNumberId, currentPage, searchQuery);
+        if(isClient && activeProjectId) {
+            fetchData(activeProjectId, selectedPhoneNumberId, currentPage, searchQuery);
+        } else if (isClient && !activeProjectId) {
+            startTransition(async () => {
+                const projects = await getProjects();
+                 if (projects && projects.length > 0) {
+                    router.push('/dashboard');
+                } else {
+                    router.push('/dashboard/setup');
+                }
+            });
         }
-    }, [isClient, fetchData, selectedPhoneNumberId, currentPage, searchQuery]);
+    }, [isClient, activeProjectId, fetchData, selectedPhoneNumberId, currentPage, searchQuery, router]);
 
 
     const handleSearch = useDebouncedCallback((term: string) => {
@@ -84,157 +112,139 @@ export default function ContactsPage() {
         router.push(`/dashboard/chat?contactId=${contact._id.toString()}&phoneId=${contact.phoneNumberId}`);
     };
 
-    if (!isClient || (isLoading && !project && contacts.length === 0)) {
-        return (
-            <div className="flex flex-col gap-8">
-                <div>
-                    <Skeleton className="h-8 w-1/3" />
-                    <Skeleton className="h-4 w-2/3 mt-2" />
-                </div>
-                <Card>
-                    <CardHeader>
-                        <Skeleton className="h-6 w-1/4" />
-                        <Skeleton className="h-4 w-1/2" />
-                    </CardHeader>
-                    <CardContent>
-                        <Skeleton className="h-48 w-full" />
-                    </CardContent>
-                </Card>
+    const isLoadingData = isLoading && contacts.length === 0;
+
+    return (
+        <div className="flex flex-col gap-8">
+             <div>
+                <h1 className="text-3xl font-bold font-headline">Contacts</h1>
+                <p className="text-muted-foreground">
+                    {project ? `Manage the contact list for project "${project.name}".` : 'Manage your customer contact list.'}
+                </p>
             </div>
-        );
-    }
-    
-    if (!project) {
-        return (
-            <div className="flex flex-col gap-8">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">Contacts</h1>
-                    <p className="text-muted-foreground">Manage your customer contact list.</p>
-                </div>
-                <Alert variant="destructive">
+            
+            {!activeProjectId && isClient ? (
+                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Project Selected</AlertTitle>
                     <AlertDescription>
                         Please select a project from the main dashboard page to manage contacts.
                     </AlertDescription>
                 </Alert>
-            </div>
-        );
-    }
-
-    return (
-        <div className="flex flex-col gap-8">
-             <div>
-                <h1 className="text-3xl font-bold font-headline">Contacts</h1>
-                <p className="text-muted-foreground">Manage the contact list for project "{project.name}".</p>
-            </div>
-            
-            <Card>
-                <CardHeader>
-                    <div className="flex flex-wrap items-center justify-between gap-4">
-                        <div>
-                            <CardTitle>Contact List</CardTitle>
-                            <CardDescription>Select a business number to view its associated contacts.</CardDescription>
-                        </div>
-                        <div className="flex items-center gap-2">
-                             <ImportContactsDialog project={project} selectedPhoneNumberId={selectedPhoneNumberId} />
-                             <AddContactDialog project={project} selectedPhoneNumberId={selectedPhoneNumberId} />
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                     <div className="mb-4 flex flex-wrap gap-4 items-center">
-                        <Select value={selectedPhoneNumberId} onValueChange={handlePhoneChange} disabled={!project.phoneNumbers || project.phoneNumbers.length === 0}>
-                            <SelectTrigger id="phoneNumberId" className="w-full sm:w-auto sm:min-w-[250px]">
-                                <SelectValue placeholder="Select a phone number..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {(project.phoneNumbers || []).map((phone) => (
-                                    <SelectItem key={phone.id} value={phone.id}>
-                                        {phone.display_phone_number} ({phone.verified_name})
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                         <div className="relative flex-grow">
-                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search by name or ID..."
-                                className="pl-8"
-                                onChange={(e) => handleSearch(e.target.value)}
-                            />
-                        </div>
-                    </div>
-
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>WhatsApp ID</TableHead>
-                                    <TableHead>Last Activity</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                             <TableBody>
-                                {isLoading && contacts.length === 0 ? (
-                                     <TableRow>
-                                        <TableCell colSpan={4} className="h-24 text-center">
-                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                                        </TableCell>
-                                    </TableRow>
-                                ) : contacts.length > 0 ? (
-                                    contacts.map((contact) => (
-                                    <TableRow key={contact._id.toString()}>
-                                        <TableCell className="font-medium">{contact.name}</TableCell>
-                                        <TableCell className="font-mono text-sm">{contact.waId}</TableCell>
-                                        <TableCell>
-                                            {contact.lastMessageTimestamp ? new Date(contact.lastMessageTimestamp).toLocaleString() : 'N/A'}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <Button variant="outline" size="sm" onClick={() => handleMessageContact(contact)}>
-                                                <MessageSquare className="mr-2 h-4 w-4" />
-                                                Message
-                                            </Button>
-                                        </TableCell>
-                                    </TableRow>
-                                    ))
-                                ) : (
-                                    <TableRow>
-                                        <TableCell colSpan={4} className="h-24 text-center">
-                                            No contacts found for this phone number.
-                                        </TableCell>
-                                    </TableRow>
+            ) : isLoadingData ? (
+                <ContactsPageSkeleton />
+            ) : (
+                <Card>
+                    <CardHeader>
+                        <div className="flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <CardTitle>Contact List</CardTitle>
+                                <CardDescription>Select a business number to view its associated contacts.</CardDescription>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                {project && (
+                                    <>
+                                        <ImportContactsDialog project={project} selectedPhoneNumberId={selectedPhoneNumberId} />
+                                        <AddContactDialog project={project} selectedPhoneNumberId={selectedPhoneNumberId} />
+                                    </>
                                 )}
-                            </TableBody>
-                        </Table>
-                    </div>
-
-                    {totalPages > 1 && (
-                        <div className="flex items-center justify-end space-x-2 py-4">
-                            <span className="text-sm text-muted-foreground">
-                                Page {currentPage} of {totalPages > 0 ? totalPages : 1}
-                            </span>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setCurrentPage(p => p - 1)}
-                                disabled={currentPage <= 1 || isLoading}
-                            >
-                                Previous
-                            </Button>
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setCurrentPage(p => p + 1)}
-                                disabled={currentPage >= totalPages || isLoading}
-                            >
-                                Next
-                            </Button>
+                            </div>
                         </div>
-                    )}
-                </CardContent>
-            </Card>
+                    </CardHeader>
+                    <CardContent>
+                         <div className="mb-4 flex flex-wrap gap-4 items-center">
+                            <Select value={selectedPhoneNumberId} onValueChange={handlePhoneChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
+                                <SelectTrigger id="phoneNumberId" className="w-full sm:w-auto sm:min-w-[250px]">
+                                    <SelectValue placeholder="Select a phone number..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {(project?.phoneNumbers || []).map((phone) => (
+                                        <SelectItem key={phone.id} value={phone.id}>
+                                            {phone.display_phone_number} ({phone.verified_name})
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                             <div className="relative flex-grow">
+                                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search by name or ID..."
+                                    className="pl-8"
+                                    onChange={(e) => handleSearch(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="border rounded-md">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Name</TableHead>
+                                        <TableHead>WhatsApp ID</TableHead>
+                                        <TableHead>Last Activity</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                 <TableBody>
+                                    {isLoading && contacts.length === 0 ? (
+                                         <TableRow>
+                                            <TableCell colSpan={4} className="h-24 text-center">
+                                                <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : contacts.length > 0 ? (
+                                        contacts.map((contact) => (
+                                        <TableRow key={contact._id.toString()}>
+                                            <TableCell className="font-medium">{contact.name}</TableCell>
+                                            <TableCell className="font-mono text-sm">{contact.waId}</TableCell>
+                                            <TableCell>
+                                                {contact.lastMessageTimestamp ? new Date(contact.lastMessageTimestamp).toLocaleString() : 'N/A'}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                <Button variant="outline" size="sm" onClick={() => handleMessageContact(contact)}>
+                                                    <MessageSquare className="mr-2 h-4 w-4" />
+                                                    Message
+                                                </Button>
+                                            </TableCell>
+                                        </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="h-24 text-center">
+                                                No contacts found for this phone number.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+
+                        {totalPages > 1 && (
+                            <div className="flex items-center justify-end space-x-2 py-4">
+                                <span className="text-sm text-muted-foreground">
+                                    Page {currentPage} of {totalPages > 0 ? totalPages : 1}
+                                </span>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(p => p - 1)}
+                                    disabled={currentPage <= 1 || isLoading}
+                                >
+                                    Previous
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setCurrentPage(p => p + 1)}
+                                    disabled={currentPage >= totalPages || isLoading}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
+            )}
         </div>
     );
 }

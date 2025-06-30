@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
@@ -89,7 +90,7 @@ export function WebhookLogs() {
                 toast({ title: "Error", description: "Failed to fetch webhook logs.", variant: "destructive" });
             }
         });
-    }, [projectId, toast, startLoadingTransition]);
+    }, [projectId, toast]);
 
     useEffect(() => {
         if (isClient && projectId) {
@@ -151,26 +152,6 @@ export function WebhookLogs() {
         });
     };
     
-    if (isClient && !isLoading && !projectId) {
-        return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Webhook Event Logs</CardTitle>
-                    <CardDescription>A real-time log of events received from Meta for your project.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Alert variant="destructive">
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>No Project Selected</AlertTitle>
-                        <AlertDescription>
-                            Please select a project from the main dashboard page to view its webhook logs.
-                        </AlertDescription>
-                    </Alert>
-                </CardContent>
-            </Card>
-        );
-    }
-
     return (
         <Card>
             <CardHeader>
@@ -200,71 +181,83 @@ export function WebhookLogs() {
                 </div>
             </CardHeader>
             <CardContent>
-                <div className="border rounded-md">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Timestamp</TableHead>
-                                <TableHead>Event Field</TableHead>
-                                <TableHead>Details</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {isLoading ? (
-                                [...Array(5)].map((_, i) => (
-                                <TableRow key={i}>
-                                    <TableCell colSpan={4}><Skeleton className="h-5 w-full" /></TableCell>
-                                </TableRow>
-                                ))
-                            ) : logs.length > 0 ? (
-                                logs.map((log) => (
-                                <TableRow key={log._id.toString()}>
-                                    <TableCell>{new Date(log.createdAt).toLocaleString()}</TableCell>
-                                    <TableCell className="font-mono">{log.eventField}</TableCell>
-                                    <TableCell>{log.eventSummary}</TableCell>
-                                    <TableCell className="text-right">
-                                        <div className="flex items-center justify-end gap-1">
-                                            <ReprocessButton logId={log._id.toString()} onReprocessComplete={() => fetchLogs(currentPage, searchQuery)} />
-                                            <Button variant="ghost" size="icon" onClick={() => handleViewLog(log)} className="h-7 w-7">
-                                                <Eye className="h-4 w-4" />
-                                                <span className="sr-only">View Payload</span>
-                                            </Button>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                                ))
-                            ) : (
+                {isClient && !projectId && !isLoading ? (
+                    <Alert variant="destructive">
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>No Project Selected</AlertTitle>
+                        <AlertDescription>
+                            Please select a project from the main dashboard page to view its webhook logs.
+                        </AlertDescription>
+                    </Alert>
+                ) : (
+                    <>
+                    <div className="border rounded-md">
+                        <Table>
+                            <TableHeader>
                                 <TableRow>
-                                    <TableCell colSpan={4} className="h-24 text-center">
-                                    No webhook logs found for this project.
-                                    </TableCell>
+                                    <TableHead>Timestamp</TableHead>
+                                    <TableHead>Event Field</TableHead>
+                                    <TableHead>Details</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
-                 <div className="flex items-center justify-end space-x-2 py-4">
-                    <span className="text-sm text-muted-foreground">
-                        Page {currentPage} of {totalPages > 0 ? totalPages : 1}
-                    </span>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(p => p - 1)}
-                        disabled={currentPage <= 1 || isLoading}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(p => p + 1)}
-                        disabled={currentPage >= totalPages || isLoading}
-                    >
-                        Next
-                    </Button>
-                </div>
+                            </TableHeader>
+                            <TableBody>
+                                {isLoading ? (
+                                    [...Array(5)].map((_, i) => (
+                                    <TableRow key={i}>
+                                        <TableCell colSpan={4}><Skeleton className="h-5 w-full" /></TableCell>
+                                    </TableRow>
+                                    ))
+                                ) : logs.length > 0 ? (
+                                    logs.map((log) => (
+                                    <TableRow key={log._id.toString()}>
+                                        <TableCell>{new Date(log.createdAt).toLocaleString()}</TableCell>
+                                        <TableCell className="font-mono">{log.eventField}</TableCell>
+                                        <TableCell>{log.eventSummary}</TableCell>
+                                        <TableCell className="text-right">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <ReprocessButton logId={log._id.toString()} onReprocessComplete={() => fetchLogs(currentPage, searchQuery)} />
+                                                <Button variant="ghost" size="icon" onClick={() => handleViewLog(log)} className="h-7 w-7">
+                                                    <Eye className="h-4 w-4" />
+                                                    <span className="sr-only">View Payload</span>
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="h-24 text-center">
+                                        No webhook logs found for this project.
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                    <div className="flex items-center justify-end space-x-2 py-4">
+                        <span className="text-sm text-muted-foreground">
+                            Page {currentPage} of {totalPages > 0 ? totalPages : 1}
+                        </span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(p => p - 1)}
+                            disabled={currentPage <= 1 || isLoading}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setCurrentPage(p => p + 1)}
+                            disabled={currentPage >= totalPages || isLoading}
+                        >
+                            Next
+                        </Button>
+                    </div>
+                    </>
+                )}
             </CardContent>
 
             <Dialog open={!!selectedLog} onOpenChange={(open) => !open && setSelectedLog(null)}>

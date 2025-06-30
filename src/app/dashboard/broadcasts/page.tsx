@@ -201,10 +201,6 @@ function ISTClock() {
 function BroadcastPageSkeleton() {
     return (
       <div className="flex flex-col gap-8">
-        <div className="space-y-2">
-            <Skeleton className="h-8 w-1/3" />
-            <Skeleton className="h-4 w-2/3" />
-        </div>
         <Card>
           <CardHeader>
             <Skeleton className="h-8 w-1/4" />
@@ -304,19 +300,9 @@ export default function BroadcastPage() {
   useEffect(() => {
     if (isClient) {
       const storedProjectId = localStorage.getItem('activeProjectId');
-      if (storedProjectId) {
-        setActiveProjectId(storedProjectId);
-      } else {
-        getProjects().then(projects => {
-          if (projects && projects.length > 0) {
-            router.push('/dashboard');
-          } else {
-            router.push('/dashboard/setup');
-          }
-        });
-      }
+      setActiveProjectId(storedProjectId);
     }
-  }, [isClient, router]);
+  }, [isClient]);
 
   useEffect(() => {
     if (activeProjectId) {
@@ -369,9 +355,7 @@ export default function BroadcastPage() {
     });
   }, [toast, activeProjectId, currentPage, fetchData]);
 
-  if (!isClient || (!project && isRefreshing)) {
-    return <BroadcastPageSkeleton />;
-  }
+  const isLoadingData = isRefreshing && !project;
 
   return (
     <>
@@ -383,7 +367,11 @@ export default function BroadcastPage() {
           </p>
         </div>
 
-        <BroadcastForm templates={templates} project={project} />
+        {isLoadingData ? (
+            <Skeleton className="h-64 w-full"/>
+        ) : (
+            <BroadcastForm templates={templates} project={project} />
+        )}
 
         <Card>
           <CardHeader>
@@ -429,7 +417,7 @@ export default function BroadcastPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {isRefreshing && history.length === 0 ? (
+                {isLoadingData ? (
                     <TableRow>
                         <TableCell colSpan={9} className="h-24 text-center">
                             <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
