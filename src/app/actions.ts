@@ -113,14 +113,16 @@ type MetaPhoneNumbersResponse = {
 };
 
 type MetaTemplateComponent = {
-    type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS';
+    type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS' | 'CAROUSEL';
     text?: string;
     format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
     buttons?: any[];
+    cards?: any[];
     example?: {
         header_handle?: string[];
         header_text?: string[];
         body_text?: string[][];
+        carousel_card_components?: any[];
     }
 };
 
@@ -1060,6 +1062,46 @@ type CreateTemplateState = {
     payload?: string | null;
     debugInfo?: string | null;
 };
+
+async function getMediaHandleForTemplate(file: File | null, url: string | null, accessToken: string, appId: string): Promise<{ handle: string | null; error?: string; debugInfo: string }> {
+    let debugInfo = "";
+    if (!file && !url) return { handle: null, debugInfo };
+
+    try {
+        let mediaData: Buffer;
+        let fileType: string;
+        let fileName: string;
+        let fileLength: number;
+
+        if (file && file.size > 0) {
+            mediaData = Buffer.from(await file.arrayBuffer());
+            fileType = file.type;
+            fileName = file.name;
+            fileLength = file.size;
+        } else if (url) {
+            const mediaResponse = await axios.get(url, { responseType: 'arraybuffer' });
+            mediaData = Buffer.from(mediaResponse.data);
+            fileType = mediaResponse.headers['content-type'] || 'application/octet-stream';
+            fileName = url.split('/').pop()?.split('?')[0] || 'sample';
+            fileLength = mediaData.length;
+        } else {
+            return { handle: null, debugInfo: "No file or URL provided." };
+        }
+
+        const sessionUrl = `https://graph.facebook.com/v22.0/${appId}/uploads?file_length=${fileLength}&file_type=${fileType}&access_token=${accessToken}`;
+        const sessionResponse = await axios.post(sessionUrl, {});
+        debugInfo += `SESSION: ${sessionUrl.replace(accessToken, '<TOKEN>')} -> ${JSON.stringify(sessionResponse.data)}\n`;
+        const uploadSessionId = sessionResponse.data.id;
+
+        const uploadUrl = `https://graph.facebook.com/v22.0/${uploadSessionId}`;
+        const uploadResponse = await axios.post(uploadUrl, mediaData, { headers: { Authorization: `OAuth ${accessToken}` } });
+        debugInfo += `UPLOAD: ${uploadUrl} -> ${JSON.stringify(uploadResponse.data)}\n`;
+        return { handle: uploadResponse.data.h, debugInfo };
+    } catch (uploadError: any) {
+        const errorMessage = getErrorMessage(uploadError);
+        return { handle: null, error: `Media upload failed: ${errorMessage}`, debugInfo };
+    }
+}
   
 export async function handleCreateTemplate(
     prevState: CreateTemplateState,
@@ -1129,203 +1171,122 @@ export async function handleCreateTemplate(
 
             await db.collection('templates').insertOne(carouselTemplateData as any);
             revalidatePath('/dashboard/templates');
-            return { message: 'Carousel template saved successfully.' };
+            return { message: 'Product Carousel template saved successfully.' };
         }
-
-        // --- Existing Logic for Standard Templates ---
+        
         const appId = project.appId || process.env.NEXT_PUBLIC_META_APP_ID;
         if (!appId) {
             return { error: 'App ID is not configured for this project, and no fallback is set in environment variables. Please set NEXT_PUBLIC_META_APP_ID in the .env file or re-configure the project.' };
         }
-        
+
         const name = cleanText(formData.get('templateName') as string);
         const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
-        const bodyText = cleanText(formData.get('body') as string);
         const language = formData.get('language') as string;
-        const headerFormat = formData.get('headerFormat') as string;
-        const headerText = cleanText(formData.get('headerText') as string);
-        const headerSampleFile = formData.get('headerSampleFile') as File;
-        const headerSampleUrl = (formData.get('headerSampleUrl') as string || '').trim();
-        const footerText = cleanText(formData.get('footer') as string);
-        const buttonsJson = formData.get('buttons') as string;
+
+         if (!name || !category || !language) {
+            return { error: 'Name, Language, and Category are required.' };
+        }
         
-        const buttons = (buttonsJson ? JSON.parse(buttonsJson) : []).map((button: any) => ({
-            ...button,
-            text: cleanText(button.text),
-            url: (button.url || '').trim(),
-            phone_number: (button.phone_number || '').trim(),
-            example: Array.isArray(button.example) ? button.example.map((ex: string) => (ex || '').trim()) : button.example,
-        }));
-    
-        if (!name || !category || !bodyText || !language) {
-            return { error: 'Name, Language, Category, and Body are required.' };
-        }
-
         const { wabaId, accessToken } = project;
-
-        let uploadedMediaHandle: string | null = null;
-        if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat)) {
-            if (!headerSampleUrl && (!headerSampleFile || headerSampleFile.size === 0)) {
-                return { error: 'A header sample media URL or file upload is required for this header type.' };
-            }
-
-            try {
-                let mediaData: Buffer;
-                let fileType: string;
-                let fileName: string;
-                let fileLength: number;
-
-                if (headerSampleFile && headerSampleFile.size > 0) {
-                    mediaData = Buffer.from(await headerSampleFile.arrayBuffer());
-                    fileType = headerSampleFile.type;
-                    fileName = headerSampleFile.name;
-                    fileLength = headerSampleFile.size;
-                } else {
-                    const mediaResponse = await fetch(headerSampleUrl);
-                    if (!mediaResponse.ok) {
-                        throw new Error(`Failed to download media from URL: ${mediaResponse.statusText}`);
-                    }
-                    const mediaArrayBuffer = await mediaResponse.arrayBuffer();
-                    mediaData = Buffer.from(mediaArrayBuffer);
-                    fileType = mediaResponse.headers.get('content-type') || 'application/octet-stream';
-                    fileName = headerSampleUrl.split('/').pop()?.split('?')[0] || 'sample';
-                    fileLength = mediaData.length;
-                }
-
-                // Step 1: Start an upload session
-                const sessionUrl = new URL(`https://graph.facebook.com/v22.0/${appId}/uploads`);
-                sessionUrl.searchParams.append('file_name', fileName);
-                sessionUrl.searchParams.append('file_length', fileLength.toString());
-                sessionUrl.searchParams.append('file_type', fileType);
-                sessionUrl.searchParams.append('access_token', accessToken);
-                
-                let sessionResponse;
-                let sessionResponseData;
-
-                try {
-                    sessionResponse = await fetch(sessionUrl.toString(), { method: 'POST' });
-                    sessionResponseData = await sessionResponse.json();
-                } catch (e: any) {
-                    throw new Error(`Failed to start upload session: ${e.message}`);
-                }
-
-                debugInfo += `--- STEP 1: START UPLOAD SESSION ---\n`;
-                debugInfo += `URL: ${sessionUrl.toString().replace(accessToken, '<TOKEN>')}\n`;
-                debugInfo += `Response Status: ${sessionResponse.status}\n`;
-                debugInfo += `Response Body: ${JSON.stringify(sessionResponseData, null, 2)}\n\n`;
-
-                if (!sessionResponse.ok || !sessionResponseData.id) {
-                    const errorMessage = sessionResponseData?.error?.message || 'Failed to get upload session ID.';
-                    throw new Error(`Failed to start upload session: ${errorMessage}`);
-                }
-                const uploadSessionId = sessionResponseData.id;
-
-                // Step 2: Upload the file
-                const uploadUrl = `https://graph.facebook.com/v22.0/${uploadSessionId}`;
-                let uploadResponse;
-                let uploadResponseData;
-
-                try {
-                    uploadResponse = await fetch(uploadUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `OAuth ${accessToken}`,
-                            'file_offset': '0',
-                        },
-                        body: mediaData,
-                    });
-                    uploadResponseData = await uploadResponse.json();
-                } catch (e: any) {
-                    throw new Error(`Failed to upload file: ${e.message}`);
-                }
-                
-                debugInfo += `--- STEP 2: UPLOAD FILE ---\n`;
-                debugInfo += `URL: ${uploadUrl}\n`;
-                debugInfo += `Response Status: ${uploadResponse.status}\n`;
-                debugInfo += `Response Body: ${JSON.stringify(uploadResponseData, null, 2)}\n\n`;
-
-                if (!uploadResponse.ok || !uploadResponseData.h) {
-                    const errorMessage = uploadResponseData?.error?.message || 'Failed to get file handle.';
-                    throw new Error(`Failed to upload file: ${errorMessage}`);
-                }
-                
-                uploadedMediaHandle = uploadResponseData.h;
-
-            } catch (uploadError: any) {
-                 const errorMessage = getErrorMessage(uploadError);
-                 return { error: `Failed to prepare media for template: ${errorMessage}`, debugInfo };
-            }
-        }
-    
-        const components: any[] = [];
-    
-        if (headerFormat !== 'NONE') {
-            const headerComponent: any = { type: 'HEADER', format: headerFormat };
-            if (headerFormat === 'TEXT') {
-                if (!headerText) return { error: 'Header text is required for TEXT header format.' };
-                headerComponent.text = headerText;
-                const headerVarMatches = headerText.match(/{{\s*(\d+)\s*}}/g);
-                if (headerVarMatches) {
-                    const exampleParams = headerVarMatches.map((_, i) => `example_header_var_${i + 1}`);
-                    headerComponent.example = { header_text: exampleParams };
-                }
-            } else if (['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat)) {
-                if (uploadedMediaHandle) {
-                    headerComponent.example = { header_handle: [uploadedMediaHandle] };
-                }
-            }
-            components.push(headerComponent);
-        }
-
-        const bodyComponent: any = { type: 'BODY', text: bodyText };
-        const bodyVarMatches = bodyText.match(/{{\s*(\d+)\s*}}/g);
-        if (bodyVarMatches) {
-            const exampleParams = bodyVarMatches.map((_, i) => `example_body_var_${i + 1}`);
-            bodyComponent.example = { body_text: [exampleParams] };
-        }
-        components.push(bodyComponent);
-
-        if (footerText) {
-            components.push({ type: 'FOOTER', text: footerText });
-        }
-
-        if (buttons.length > 0) {
-            const formattedButtons = buttons.map((button: any) => {
-                const newButton: any = {
-                    type: button.type,
-                    text: button.text,
-                };
-                if (button.type === 'URL') {
-                    if (!button.url) {
-                        throw new Error('URL is required for URL buttons.');
-                    }
-                    newButton.url = button.url;
-                    if (button.example && button.example[0]) {
-                        newButton.example = [button.example[0]];
-                    }
-                }
-                if (button.type === 'PHONE_NUMBER') {
-                    if (!button.phone_number) {
-                        throw new Error('Phone number is required for phone number buttons.');
-                    }
-                    newButton.phone_number = button.phone_number;
-                }
-                return newButton;
-            });
-            components.push({
-                type: 'BUTTONS',
-                buttons: formattedButtons,
-            });
-        }
-    
-        const payload = {
+        let payload: any = {
             name: name.toLowerCase().replace(/\s+/g, '_'),
             language,
             category,
-            components,
             allow_category_change: true,
+            components: []
         };
-        
+        let finalTemplateToInsert: any = {
+            name: payload.name, category, language, qualityScore: 'UNKNOWN',
+            projectId: new ObjectId(projectId),
+        };
+
+        if (templateType === 'MARKETING_CAROUSEL') {
+            const cardsDataString = formData.get('carouselCards') as string;
+            const cardsData = JSON.parse(cardsDataString);
+            
+            finalTemplateToInsert.type = 'MARKETING_CAROUSEL';
+
+            const mediaUploadResults = await Promise.all(
+                cardsData.map(async (card: any, index: number) => {
+                    const file = formData.get(`card_${index}_headerSampleFile`) as File;
+                    if (card.headerFormat !== 'NONE' && file && file.size > 0) {
+                        return await getMediaHandleForTemplate(file, null, accessToken, appId);
+                    }
+                    return { handle: null, error: null, debugInfo: '' };
+                })
+            );
+            
+            let accumulatedDebugInfo = '';
+            const finalCards = [];
+
+            for (let i = 0; i < cardsData.length; i++) {
+                const card = cardsData[i];
+                const uploadResult = mediaUploadResults[i];
+                accumulatedDebugInfo += `CARD ${i}:\n${uploadResult.debugInfo}\n`;
+                if(uploadResult.error) return { error: `Card ${i+1} media error: ${uploadResult.error}`, debugInfo: accumulatedDebugInfo };
+
+                const cardComponents: any[] = [];
+                if (uploadResult.handle && card.headerFormat !== 'NONE') {
+                    cardComponents.push({ type: 'HEADER', format: card.headerFormat, example: { header_handle: [uploadResult.handle] }});
+                }
+                cardComponents.push({ type: 'BODY', text: card.body });
+                if (card.buttons && card.buttons.length > 0) {
+                    const formattedButtons = card.buttons.map((b: any) => ({ type: b.type, text: b.text, ...(b.url && { url: b.url }) }));
+                    cardComponents.push({ type: 'BUTTONS', buttons: formattedButtons });
+                }
+                finalCards.push({ card_index: i, components: cardComponents });
+            }
+            
+            payload.components.push({ type: 'CAROUSEL', cards: finalCards });
+            debugInfo = accumulatedDebugInfo;
+            
+        } else { // Standard Template
+            const bodyText = cleanText(formData.get('body') as string);
+            const footerText = cleanText(formData.get('footer') as string);
+            const buttonsJson = formData.get('buttons') as string;
+            const headerFormat = formData.get('headerFormat') as string;
+            const headerText = cleanText(formData.get('headerText') as string);
+            const headerSampleFile = formData.get('headerSampleFile') as File;
+            const headerSampleUrl = (formData.get('headerSampleUrl') as string || '').trim();
+            finalTemplateToInsert.body = bodyText;
+            finalTemplateToInsert.headerSampleUrl = headerSampleUrl;
+
+            const buttons = (buttonsJson ? JSON.parse(buttonsJson) : []).map((button: any) => ({
+                ...button,
+                text: cleanText(button.text),
+                url: (button.url || '').trim(),
+                phone_number: (button.phone_number || '').trim(),
+                example: Array.isArray(button.example) ? button.example.map((ex: string) => (ex || '').trim()) : button.example,
+            }));
+
+            if (!bodyText) return { error: 'Body text is required for standard templates.' };
+            
+            if (headerFormat !== 'NONE') {
+                const headerComponent: any = { type: 'HEADER', format: headerFormat };
+                if (headerFormat === 'TEXT') {
+                    if (!headerText) return { error: 'Header text is required for TEXT header format.' };
+                    headerComponent.text = headerText;
+                    if (headerText.match(/{{\s*(\d+)\s*}}/g)) headerComponent.example = { header_text: ['example_header_var'] };
+                } else {
+                    const { handle, error, debugInfo: mediaDebug } = await getMediaHandleForTemplate(headerSampleFile, headerSampleUrl, accessToken, appId);
+                    debugInfo = mediaDebug;
+                    if(error) return { error, debugInfo };
+                    if(handle) headerComponent.example = { header_handle: [handle] };
+                }
+                payload.components.push(headerComponent);
+            }
+            
+            const bodyComponent: any = { type: 'BODY', text: bodyText };
+            if (bodyText.match(/{{\s*(\d+)\s*}}/g)) bodyComponent.example = { body_text: [['example_body_var']] };
+            payload.components.push(bodyComponent);
+
+            if (footerText) payload.components.push({ type: 'FOOTER', text: footerText });
+            if (buttons.length > 0) {
+                const formattedButtons = buttons.map((button: any) => ({ type: button.type, text: button.text, ...(button.url && { url: button.url, example: button.example }), ...(button.phone_number && { phone_number: button.phone_number }) }));
+                payload.components.push({ type: 'BUTTONS', buttons: formattedButtons });
+            }
+        }
+    
         payloadString = JSON.stringify(payload, null, 2);
     
         const response = await fetch(
@@ -1343,11 +1304,7 @@ export async function handleCreateTemplate(
         const responseText = await response.text();
         const responseData = responseText ? JSON.parse(responseText) : null;
 
-        debugInfo += `--- STEP 3: CREATE TEMPLATE ---\n`;
-        debugInfo += `URL: https://graph.facebook.com/v22.0/${wabaId}/message_templates\n`;
-        debugInfo += `Payload: ${payloadString}\n`;
-        debugInfo += `Response Status: ${response.status}\n`;
-        debugInfo += `Response Body: ${JSON.stringify(responseData, null, 2)}\n`;
+        debugInfo += `\n--- FINAL SUBMISSION ---\nPayload: ${payloadString}\nResponse Status: ${response.status}\nResponse Body: ${JSON.stringify(responseData, null, 2)}\n`;
     
         if (!response.ok) {
             console.error('Meta Template Creation Error:', responseData?.error || responseText);
@@ -1360,17 +1317,11 @@ export async function handleCreateTemplate(
             return { error: 'Template created on Meta, but no ID was returned. Please sync manually.', payload: payloadString, debugInfo };
         }
 
-        const templateToInsert: any = {
-            name: payload.name,
-            category,
-            language,
+        const templateToInsert = {
+            ...finalTemplateToInsert,
             status: responseData?.status || 'PENDING',
-            qualityScore: 'UNKNOWN',
-            body: bodyText,
-            projectId: new ObjectId(projectId),
             metaId: newMetaTemplateId,
-            components, 
-            ...(headerSampleUrl && { headerSampleUrl })
+            components: payload.components,
         };
 
         await db.collection('templates').insertOne(templateToInsert);
@@ -3504,4 +3455,3 @@ export async function getFlowBuilderPageData(projectId: string): Promise<{
     return { flows, initialFlow };
 }
     
-

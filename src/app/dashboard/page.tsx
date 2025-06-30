@@ -117,7 +117,7 @@ export type Template = {
   metaId: string;
   headerSampleUrl?: string;
   qualityScore?: string;
-  type?: 'STANDARD' | 'CATALOG_MESSAGE';
+  type?: 'STANDARD' | 'CATALOG_MESSAGE' | 'MARKETING_CAROUSEL';
 };
 
 export type FlowNode = {

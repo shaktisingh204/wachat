@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Languages, Edit, FilePlus2, ShoppingCart } from 'lucide-react';
+import { Languages, Edit, FilePlus2, ShoppingCart, View } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -47,6 +47,9 @@ export function TemplateCard({ template }: TemplateCardProps) {
   };
 
   const renderComponentContent = (component: any) => {
+    if (component.type === 'CAROUSEL' && Array.isArray(component.cards)) {
+        return `Contains ${component.cards.length} card(s).`;
+    }
     if (component.text) return component.text;
     if (component.format) return `Format: ${component.format}`;
     if (component.type === 'CATALOG_MESSAGE_ACTION') {
@@ -68,7 +71,8 @@ export function TemplateCard({ template }: TemplateCardProps) {
     return "No text content";
   };
   
-  const isCarousel = template.type === 'CATALOG_MESSAGE';
+  const isMarketingCarousel = template.type === 'MARKETING_CAROUSEL';
+  const isProductCarousel = template.type === 'CATALOG_MESSAGE';
 
   return (
     <>
@@ -77,10 +81,15 @@ export function TemplateCard({ template }: TemplateCardProps) {
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg font-headline break-all">{template.name}</CardTitle>
             <div className="flex flex-col items-end gap-2 flex-shrink-0">
-               {isCarousel ? (
+               {isProductCarousel ? (
                 <Badge variant="secondary" className="capitalize">
                     <ShoppingCart className="mr-2 h-3 w-3"/>
-                    Carousel
+                    Product Catalog
+                </Badge>
+               ) : isMarketingCarousel ? (
+                <Badge variant="secondary" className="capitalize">
+                    <View className="mr-2 h-3 w-3"/>
+                    Marketing Carousel
                 </Badge>
                ) : (
                 <>
@@ -98,7 +107,7 @@ export function TemplateCard({ template }: TemplateCardProps) {
           </div>
           <CardDescription className="flex items-center pt-2 text-xs">
             <Languages className="h-4 w-4 mr-2" />
-            {isCarousel ? 'Interactive Message' : template.language}
+            {isProductCarousel ? 'Interactive Product Message' : template.language}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">
@@ -122,8 +131,8 @@ export function TemplateCard({ template }: TemplateCardProps) {
           <DialogHeader>
             <DialogTitle>{template.name}</DialogTitle>
             <DialogDescription>
-              Category: {template.category} | {isCarousel ? `Type: ${template.type}` : `Language: ${template.language}`} | Status: <span className="capitalize">{template.status?.replace(/_/g, ' ') || 'Unknown'}</span>
-              {!isCarousel && template.qualityScore && template.qualityScore !== 'UNKNOWN' && (
+              Category: {template.category} | {isProductCarousel ? `Type: ${template.type}` : `Language: ${template.language}`} | Status: <span className="capitalize">{template.status?.replace(/_/g, ' ') || 'Unknown'}</span>
+              {!isProductCarousel && !isMarketingCarousel && template.qualityScore && template.qualityScore !== 'UNKNOWN' && (
                 <> | Quality: <span className="capitalize">{template.qualityScore.toLowerCase()}</span></>
               )}
             </DialogDescription>
