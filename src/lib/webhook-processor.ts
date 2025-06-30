@@ -304,7 +304,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
         }
 
         case 'condition': {
-            let valueToCheck: string | undefined;
+            let valueToCheck: string = '';
 
             if (userInput !== undefined) {
                 valueToCheck = userInput;
@@ -317,18 +317,13 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                 } else {
                     const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
                     if (variableName) {
-                        valueToCheck = contact.activeFlow.variables[variableName] || '';
+                        valueToCheck = contact.activeFlow.variables[variableName];
                     }
                     console.log(`[Flow Engine] Condition node checking variable "${variableName || ''}": "${valueToCheck || ''}"`);
                 }
             }
-
-            if (valueToCheck === undefined) {
-                console.log(`[Flow Engine] Condition on node ${node.id} could not find a value to check. Defaulting to 'No' path.`);
-                edge = flow.edges.find(e => e.sourceHandle === `${node.id}-output-no`);
-                if (edge) nextNodeId = edge.target;
-                break;
-            }
+            
+            valueToCheck = valueToCheck || '';
 
             const rawCheckValue = node.data.value || '';
             const interpolatedCheckValue = interpolate(rawCheckValue, contact.activeFlow.variables);
@@ -464,6 +459,7 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
     const messageText = message.text?.body?.trim();
     const buttonReplyText = message.interactive?.button_reply?.title?.trim();
     const interactiveReplyId = message.interactive?.button_reply?.id;
+    const isInteractiveReply = !!message.interactive;
 
     const userResponse = buttonReplyText || messageText;
 
@@ -481,58 +477,51 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
             return false;
         }
 
-        // --- Special handling for our "Set Language" node ---
-        if (currentNode.type === 'language' && currentNode.data.mode === 'manual' && interactiveReplyId?.startsWith(`${currentNode.id}-lang-`)) {
-            const selectedLanguage = buttonReplyText || '';
-            if(selectedLanguage) {
-                contact.activeFlow.variables.flowTargetLanguage = selectedLanguage;
-                await db.collection('contacts').updateOne(
-                    { _id: contact._id },
-                    { $set: { "activeFlow.variables.flowTargetLanguage": selectedLanguage } }
-                );
-                console.log(`[Flow Engine] Manual language set to '${selectedLanguage}' for contact ${contact.waId}.`);
-            }
-            
-            // After setting language, proceed to the main output
-            const edge = flow.edges.find(e => e.source === currentNode.id);
-            if (edge) {
-                await executeNode(db, project, contact, flow, edge.target, undefined);
-            } else {
-                await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
-            }
-            return true; // Flow was handled
-        }
-        
-        // --- RESUME FLOW LOGIC ---
-        // A. Resuming from a 'buttons' node via a direct button click
-        if (currentNode.type === 'buttons' && interactiveReplyId) {
-            const edge = flow.edges.find(e => e.sourceHandle === interactiveReplyId);
-            if (edge) {
-                await executeNode(db, project, contact, flow, edge.target, buttonReplyText);
-                return true;
-            }
-        }
-        
-        // B. Resuming from a node that was waiting for a text-based reply
-        if (userResponse) {
-             if (currentNode.type === 'input') {
-                if (currentNode.data.variableToSave) {
-                    contact.activeFlow.variables[currentNode.data.variableToSave] = userResponse;
+        // --- Exclusive handling for interactive (button) replies ---
+        if (isInteractiveReply) {
+             if (interactiveReplyId?.startsWith(`${currentNode.id}-lang-`)) {
+                // --- Special handling for our "Set Language" node ---
+                const selectedLanguage = buttonReplyText || '';
+                if(selectedLanguage) {
+                    contact.activeFlow.variables.flowTargetLanguage = selectedLanguage;
+                    await db.collection('contacts').updateOne(
+                        { _id: contact._id },
+                        { $set: { "activeFlow.variables.flowTargetLanguage": selectedLanguage } }
+                    );
+                    console.log(`[Flow Engine] Manual language set to '${selectedLanguage}' for contact ${contact.waId}.`);
                 }
                 const edge = flow.edges.find(e => e.source === currentNode.id);
                 if (edge) {
-                     await executeNode(db, project, contact, flow, edge.target, undefined);
+                    await executeNode(db, project, contact, flow, edge.target, undefined);
                 } else {
                     await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
                 }
                 return true;
+             } else if (currentNode.type === 'buttons' && interactiveReplyId) {
+                // --- Standard button node reply ---
+                const edge = flow.edges.find(e => e.sourceHandle === interactiveReplyId);
+                if (edge) {
+                    await executeNode(db, project, contact, flow, edge.target, buttonReplyText);
+                    return true;
+                } else {
+                     console.error(`[Flow Engine] Edge not found for button reply ID: ${interactiveReplyId} from node ${currentNode.id}`);
+                }
             }
-            if (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response') {
+             // If we are here, it's an interactive reply but we weren't expecting it or couldn't find an edge.
+            console.log(`[Flow Engine] User sent unexpected interactive reply. Ending active flow for contact ${contact.waId}.`);
+            await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+            return true; // We "handled" it by ending the flow.
+        }
+
+        // --- Handling for text-based replies ---
+        if (userResponse) {
+            if (currentNode.type === 'input' || (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response')) {
                 await executeNode(db, project, contact, flow, currentNode.id, userResponse);
                 return true;
             }
         }
-
+        
+        // If we reach here, the user sent a text message when the flow wasn't waiting for one.
         console.log(`[Flow Engine] User sent unexpected message. Ending active flow for contact ${contact.waId}.`);
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
     }
