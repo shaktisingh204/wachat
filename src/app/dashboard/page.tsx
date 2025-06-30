@@ -42,6 +42,13 @@ export type PhoneNumber = {
     };
 };
 
+export type GeneralReplyRule = {
+    id: string;
+    keywords: string;
+    reply: string;
+    matchType: 'contains' | 'exact';
+};
+
 export type AutoReplySettings = {
   masterEnabled?: boolean;
   welcomeMessage?: {
@@ -50,7 +57,7 @@ export type AutoReplySettings = {
   };
   general?: {
     enabled: boolean;
-    message: string;
+    replies: GeneralReplyRule[];
   };
   inactiveHours?: {
     enabled: boolean;

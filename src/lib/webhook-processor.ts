@@ -675,6 +675,7 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
 
     let replyMessage: string | null = null;
     
+    // 1. Welcome Message (highest priority for new contacts)
     if (contact.hasReceivedWelcome === false && settings.welcomeMessage?.enabled && settings.welcomeMessage.message) {
         replyMessage = settings.welcomeMessage.message;
         if (replyMessage) {
@@ -684,6 +685,7 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
         }
     }
 
+    // 2. Inactive Hours Reply
     if (settings.inactiveHours?.enabled && settings.inactiveHours.message) {
         const { startTime, endTime, timezone, days, message: inactiveMessage } = settings.inactiveHours;
         try {
@@ -697,12 +699,15 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
 
             let isInactive = (startTimeInMinutes > endTimeInMinutes)
                 ? (currentTime >= startTimeInMinutes || currentTime < endTimeInMinutes)
-                : (currentTime < startTimeInMinutes || currentTime >= endTimeInMinutes);
+                : (currentTime >= endTimeInMinutes || currentTime < startTimeInMinutes);
             
-            if (days.includes(currentDay) && isInactive) replyMessage = inactiveMessage;
+            if (days.includes(currentDay) && isInactive) {
+                replyMessage = inactiveMessage;
+            }
         } catch (e) { console.error("Error processing inactive hours:", e); }
     }
 
+    // 3. AI Assistant Reply
     if (!replyMessage && settings.aiAssistant?.enabled && settings.aiAssistant.context && message.type === 'text') {
         try {
             const result = await generateAutoReply({
@@ -715,15 +720,35 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
         } catch (e: any) { console.error("Error generating AI reply:", e.message); }
     }
     
-    if (!replyMessage && contact.hasReceivedWelcome === false && settings.general?.enabled && settings.general.message) {
-        replyMessage = settings.general.message;
-        if (replyMessage) {
-            await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
-            await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { hasReceivedWelcome: true } });
-            return;
+    // 4. Keyword-based General Reply (only for new contacts)
+    if (!replyMessage && contact.hasReceivedWelcome === false && settings.general?.enabled && Array.isArray(settings.general.replies)) {
+        const messageText = message.text?.body?.trim().toLowerCase();
+        if (messageText) {
+            for (const rule of settings.general.replies) {
+                const keywords = rule.keywords.toLowerCase().split(',').map(k => k.trim()).filter(Boolean);
+                let matchFound = false;
+
+                if (rule.matchType === 'exact') {
+                    matchFound = keywords.some(kw => messageText === kw);
+                } else { // 'contains' is the default
+                    matchFound = keywords.some(kw => messageText.includes(kw));
+                }
+
+                if (matchFound) {
+                    replyMessage = rule.reply;
+                    break; // Use the first rule that matches
+                }
+            }
         }
     }
-    if (replyMessage) await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
+
+    // If any reply was determined, send it and update contact status if needed.
+    if (replyMessage) {
+        await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
+        if (contact.hasReceivedWelcome === false) {
+            await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { hasReceivedWelcome: true } });
+        }
+    }
 }
 
 export async function handleSingleMessageEvent(db: Db, project: WithId<Project>, message: any, contactProfile: any, phoneNumberId: string) {

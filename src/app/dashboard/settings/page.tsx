@@ -5,7 +5,7 @@
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
-import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects } from '@/app/actions';
+import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects, GeneralReplyRule } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, UserAttribute } from '@/app/dashboard/page';
 import { useToast } from '@/hooks/use-toast';
@@ -129,38 +129,77 @@ function WelcomeMessageForm({ project }: { project: WithId<Project> }) {
     );
 }
 
-
 function GeneralReplyForm({ project }: { project: WithId<Project> }) {
     const [state, formAction] = useActionState(handleUpdateAutoReplySettings, updateAutoReplyInitialState);
     const { toast } = useToast();
-    const settings = project.autoReplySettings?.general;
+    
+    const [replies, setReplies] = useState<GeneralReplyRule[]>(project.autoReplySettings?.general?.replies || []);
 
     useEffect(() => {
         if (state?.message) toast({ title: 'Success!', description: state.message });
         if (state?.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }, [state, toast]);
 
+    const handleUpdateReply = (id: string, field: 'keywords' | 'reply' | 'matchType', value: string) => {
+        setReplies(prev => prev.map(r => r.id === id ? { ...r, [field]: value } : r));
+    };
+
+    const handleAddReply = () => {
+        setReplies(prev => [...prev, { id: `rule_${Date.now()}`, keywords: '', reply: '', matchType: 'contains' }]);
+    };
+
+    const handleRemoveReply = (id: string) => {
+        setReplies(prev => prev.filter(r => r.id !== id));
+    };
+    
     return (
         <form action={formAction}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
             <input type="hidden" name="replyType" value="general" />
+            <input type="hidden" name="replies" value={JSON.stringify(replies)} />
             <CardHeader>
                 <div className="flex items-center justify-between">
                     <div>
-                        <CardTitle>General Auto Reply</CardTitle>
-                        <CardDescription>If the Welcome Message is disabled, this message will be sent once to new contacts instead. It's a basic fallback for a first-time interaction.</CardDescription>
+                        <CardTitle>Keyword-based Replies</CardTitle>
+                        <CardDescription>If no other reply is triggered, check the first message from a new contact for keywords and send a specific response.</CardDescription>
                     </div>
-                    <Switch name="enabled" defaultChecked={settings?.enabled} />
+                    <Switch name="enabled" defaultChecked={project.autoReplySettings?.general?.enabled} />
                 </div>
             </CardHeader>
-            <CardContent>
-                <Label htmlFor="general-message">Reply Message</Label>
-                <Textarea id="general-message" name="message" className="min-h-32 mt-2"
-                    placeholder="Thank you for your message! We will get back to you shortly."
-                    defaultValue={settings?.message}
-                    required />
+            <CardContent className="space-y-4">
+                {replies.map((rule, index) => (
+                    <div key={rule.id} className="space-y-3 p-4 border rounded-lg relative">
+                        <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => handleRemoveReply(rule.id)}>
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor={`keywords-${index}`}>If message contains keyword(s)</Label>
+                                <Input id={`keywords-${index}`} value={rule.keywords} onChange={e => handleUpdateReply(rule.id, 'keywords', e.target.value)} placeholder="e.g. hello, pricing, help" />
+                                <p className="text-xs text-muted-foreground">Comma-separated values.</p>
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor={`matchType-${index}`}>Match Type</Label>
+                                <Select value={rule.matchType} onValueChange={v => handleUpdateReply(rule.id, 'matchType', v)}>
+                                    <SelectTrigger id={`matchType-${index}`}><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="contains">Contains any keyword</SelectItem>
+                                        <SelectItem value="exact">Exact match</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor={`reply-${index}`}>Send this reply</Label>
+                            <Textarea id={`reply-${index}`} value={rule.reply} onChange={e => handleUpdateReply(rule.id, 'reply', e.target.value)} placeholder="Enter the reply message..." />
+                        </div>
+                    </div>
+                ))}
+                 <Button type="button" variant="outline" className="w-full" onClick={handleAddReply}><Plus className="mr-2 h-4 w-4"/>Add Rule</Button>
             </CardContent>
-            <CardFooter><SaveButton>Save General Reply</SaveButton></CardFooter>
+            <CardFooter>
+                <SaveButton>Save Keyword Replies</SaveButton>
+            </CardFooter>
         </form>
     );
 }
@@ -539,7 +578,7 @@ function SettingsPageContent() {
             <Tabs defaultValue="welcome" className="w-full">
               <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="welcome"><Handshake className="mr-2 h-4 w-4" />Welcome</TabsTrigger>
-                  <TabsTrigger value="general"><MessageSquareHeart className="mr-2 h-4 w-4" />General</TabsTrigger>
+                  <TabsTrigger value="general"><MessageSquareHeart className="mr-2 h-4 w-4" />Keyword Replies</TabsTrigger>
                   <TabsTrigger value="inactive"><Clock className="mr-2 h-4 w-4" />Inactive Hours</TabsTrigger>
                   <TabsTrigger value="ai"><BrainCircuit className="mr-2 h-4 w-4" />AI Assistant</TabsTrigger>
               </TabsList>

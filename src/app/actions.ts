@@ -8,7 +8,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
-import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent } from '@/app/dashboard/page';
+import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule } from '@/app/dashboard/page';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
@@ -260,7 +260,7 @@ export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 
 
 // Re-export types for client components
-export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent };
+export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule };
 
 export type CannedMessage = {
     _id: ObjectId;
@@ -1902,6 +1902,7 @@ export async function handleClearProcessedLogs(): Promise<{ message?: string; er
 export async function handleSubscribeAllProjects(): Promise<{ message?: string; error?: string }> {
     const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
     const apiVersion = 'v22.0';
+    const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
 
     if (!accessToken) {
         return { error: 'System User Access Token must be configured in environment variables.' };
@@ -1933,7 +1934,7 @@ export async function handleSubscribeAllProjects(): Promise<{ message?: string; 
                     `https://graph.facebook.com/${apiVersion}/${appId}/subscriptions`,
                     {
                         object: 'whatsapp_business_account',
-                        callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/meta`,
+                        callback_url: `${callbackBaseUrl}/api/webhooks/meta`,
                         fields: fields,
                         verify_token: process.env.META_VERIFY_TOKEN,
                         access_token: accessToken,
@@ -3128,8 +3129,18 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
 
     let updatePayload: any = { enabled: formData.get('enabled') === 'on' };
 
-    if (replyType === 'welcomeMessage' || replyType === 'general' || replyType === 'inactiveHours' || replyType === 'aiAssistant') {
+    if (replyType === 'welcomeMessage') {
         updatePayload.message = formData.get('message') as string;
+    }
+    if (replyType === 'general') {
+        const repliesJSON = formData.get('replies') as string;
+        try {
+            updatePayload.replies = repliesJSON ? JSON.parse(repliesJSON) : [];
+            delete updatePayload.message; // old field
+            delete updatePayload.context; // old field
+        } catch (e) {
+            return { error: 'Invalid format for replies data.' };
+        }
     }
     if (replyType === 'inactiveHours') {
         updatePayload = {
