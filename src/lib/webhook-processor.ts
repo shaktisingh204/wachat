@@ -296,8 +296,8 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
     const node = flow.nodes.find(n => n.id === nodeId);
     if (!node) {
         logger.log(`Error: Node with ID ${nodeId} not found in flow ${flow.name}. Terminating flow.`);
-        await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
         logger.log("Flow execution finished.");
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
         return 'finished';
     }
     
@@ -522,6 +522,7 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
         const currentNode = flow.nodes.find(n => n.id === contact.activeFlow.currentNodeId);
         if (!currentNode) {
             logger.log(`Current node ID ${contact.activeFlow.currentNodeId} not found. Terminating flow.`);
+            logger.log("Flow execution finished.");
             await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
             await logger.save();
             return { handled: false, logger, flowStatus: 'finished' };
@@ -536,16 +537,16 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
             const replyId = buttonReply.id?.trim();
             logger.log(`Received button reply.`, { replyId: replyId, title: buttonReply.title });
             
-            // Check for standard button edge
-            const edge = flow.edges.find(e => e.sourceHandle?.trim() === replyId);
+            // Check for standard button edge from the current waiting node
+            const edge = flow.edges.find(e => e.source === currentNode.id && e.sourceHandle?.trim() === replyId);
             if (edge) {
-                logger.log(`Found edge from button handle ${replyId} to target node ${edge.target}.`);
+                logger.log(`Found edge from current node ${currentNode.id} via handle ${replyId} to target node ${edge.target}.`);
                 const flowStatus = await executeNode(db, project, contact, flow, edge.target, buttonReply.title, logger);
                 return { handled: true, logger, flowStatus };
             }
              
-            // Check for special language selection button
-            if (replyId && replyId.startsWith(`${currentNode.id}-lang-`)) {
+            // Check for special language selection button from the current waiting node
+            if (currentNode.type === 'language' && replyId && replyId.startsWith(`${currentNode.id}-lang-`)) {
                 const selectedLanguage = buttonReply.title || '';
                 if(selectedLanguage) {
                     contact.activeFlow.variables.flowTargetLanguage = selectedLanguage;
@@ -570,6 +571,7 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
 
         // 3. The input was not a valid continuation for the waiting flow.
         logger.log("Input did not match any waiting node or path. Terminating flow.");
+        logger.log("Flow execution finished.");
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
         await logger.save();
         return { handled: false, logger, flowStatus: 'finished' };
