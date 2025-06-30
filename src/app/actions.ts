@@ -3263,6 +3263,38 @@ export async function handleUpdateContactVariables(contactId: string, variables:
     }
 }
 
+export async function getContactsForProject(
+    projectId: string,
+    phoneNumberId: string,
+    page: number,
+    limit: number
+): Promise<{ contacts: WithId<Contact>[], total: number }> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess || !phoneNumberId) {
+        return { contacts: [], total: 0 };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const filter: Filter<Contact> = { projectId: new ObjectId(projectId), phoneNumberId };
+        
+        const skip = (page - 1) * limit;
+
+        const [contacts, total] = await Promise.all([
+            db.collection<Contact>('contacts').find(filter).sort({ lastMessageTimestamp: -1 }).skip(skip).limit(limit).toArray(),
+            db.collection<Contact>('contacts').countDocuments(filter)
+        ]);
+        
+        return {
+            contacts: JSON.parse(JSON.stringify(contacts)),
+            total
+        };
+    } catch (e) {
+        console.error("Failed to get contacts for project:", e);
+        return { contacts: [], total: 0 };
+    }
+}
+
 export async function getContactsPageData(projectId: string, phoneNumberId: string, page: number, query: string): Promise<{
     project: WithId<Project> | null,
     contacts: WithId<Contact>[],
