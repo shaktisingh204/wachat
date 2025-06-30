@@ -217,6 +217,7 @@ export type Contact = {
         flowId: string;
         currentNodeId: string;
         variables: Record<string, any>;
+        waitingSince?: Date;
     };
     isOptedOut?: boolean;
     hasReceivedWelcome?: boolean;
@@ -403,6 +404,30 @@ export async function getProjects(query?: string): Promise<WithId<Project>[]> {
     }
 }
 
+export async function getProjectCount(): Promise<number> {
+    const session = await getSession();
+    if (!session?.user) {
+        return 0;
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const filter: Filter<Project> = {
+            $or: [
+                { userId: userObjectId },
+                { 'agents.userId': userObjectId }
+            ]
+        };
+        
+        const count = await db.collection('projects').countDocuments(filter);
+        return count;
+    } catch (error) {
+        console.error("Failed to fetch project count for user:", error);
+        return 0;
+    }
+}
+
 export async function getAllProjectsForAdmin(
     query?: string,
     page: number = 1,
@@ -445,7 +470,6 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
         });
 
         if (!project) {
-            console.error("Project not found for getProjectById for ID:", projectId);
             return null;
         }
         
@@ -1235,7 +1259,7 @@ export async function handleCreateTemplate(
                     const formattedButtons = card.buttons.map((b: any) => ({ type: b.type, text: b.text, ...(b.url && { url: b.url }) }));
                     cardComponents.push({ type: 'BUTTONS', buttons: formattedButtons });
                 }
-                finalCards.push({ card_index: i, components: cardComponents });
+                finalCards.push({ components: cardComponents });
             }
             
             payload.components.push({ type: 'CAROUSEL', cards: finalCards });
@@ -1310,7 +1334,7 @@ export async function handleCreateTemplate(
         if (!response.ok) {
             console.error('Meta Template Creation Error:', responseData?.error || responseText);
             const errorMessage = responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error creating template.';
-            return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}`, payload: payloadString, debugInfo };
+            return { error: `API Error: ${errorMessage}`, payload: payloadString, debugInfo };
         }
 
         const newMetaTemplateId = responseData?.id;

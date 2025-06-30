@@ -51,7 +51,7 @@ import {
 import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { getProjects, getSession, handleLogout } from '@/app/actions';
+import { getProjectCount, getSession, handleLogout } from '@/app/actions';
 
 function FullPageSkeleton() {
     return (
@@ -96,8 +96,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     getSession().then(session => {
         if(session?.user) {
             setSessionUser(session.user);
-            getProjects().then(projects => {
-              const count = projects.length;
+            getProjectCount().then(count => {
               setProjectCount(count);
               if (count === 0 && pathname !== '/dashboard' && pathname !== '/dashboard/setup' && pathname !== '/dashboard/profile' && pathname !== '/dashboard/billing' && pathname !== '/dashboard/settings') {
                   router.push('/dashboard/setup');
