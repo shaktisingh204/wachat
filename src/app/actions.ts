@@ -201,6 +201,7 @@ export type Contact = {
         variables: Record<string, any>;
     };
     isOptedOut?: boolean;
+    hasReceivedWelcome?: boolean;
 }
 
 export type IncomingMessage = {
@@ -2120,7 +2121,7 @@ export async function handleSendMessage(
         const lastMessage = messageText || `[${messagePayload.type}]`;
         await db.collection('contacts').updateOne(
             { _id: new ObjectId(contactId) },
-            { $set: { lastMessage, lastMessageTimestamp: now } }
+            { $set: { lastMessage, lastMessageTimestamp: now, hasReceivedWelcome: true } }
         );
 
         revalidatePath('/dashboard/chat');
@@ -2155,6 +2156,7 @@ export async function findOrCreateContact(
                     name: waId, // Default name to phone number
                     createdAt: new Date(),
                     unreadCount: 0,
+                    hasReceivedWelcome: false,
                 }
             },
             { upsert: true, returnDocument: 'after' }
@@ -2208,6 +2210,7 @@ export async function handleAddNewContact(
             name,
             waId,
             createdAt: new Date(),
+            hasReceivedWelcome: false,
         };
 
         await db.collection('contacts').insertOne(newContact);
@@ -2275,6 +2278,7 @@ export async function handleImportContacts(
                                         phoneNumberId,
                                         waId,
                                         createdAt: new Date(),
+                                        hasReceivedWelcome: false,
                                     }
                                 },
                                 upsert: true
@@ -2506,7 +2510,7 @@ export async function handleUpdateAutoReplySettings(
     formData: FormData
 ): Promise<AutoReplyState> {
     const projectId = formData.get('projectId') as string;
-    const replyType = formData.get('replyType') as 'general' | 'inactiveHours' | 'aiAssistant';
+    const replyType = formData.get('replyType') as 'welcomeMessage' | 'general' | 'inactiveHours' | 'aiAssistant';
 
     if (!replyType) {
         return { error: 'Invalid reply type specified.' };
@@ -2523,6 +2527,12 @@ export async function handleUpdateAutoReplySettings(
         const autoReplySettings = project.autoReplySettings || {};
 
         switch (replyType) {
+            case 'welcomeMessage':
+                autoReplySettings.welcomeMessage = {
+                    enabled: formData.get('enabled') === 'on',
+                    message: formData.get('message') as string,
+                };
+                break;
             case 'general':
                 autoReplySettings.general = {
                     enabled: formData.get('enabled') === 'on',

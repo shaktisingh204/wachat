@@ -44,6 +44,10 @@ export type PhoneNumber = {
 
 export type AutoReplySettings = {
   masterEnabled?: boolean;
+  welcomeMessage?: {
+    enabled: boolean;
+    message: string;
+  };
   general?: {
     enabled: boolean;
     message: string;

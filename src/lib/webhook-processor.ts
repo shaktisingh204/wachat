@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -611,7 +610,7 @@ async function sendAutoReplyMessage(db: Db, project: WithId<Project>, contact: W
 
 async function handleOptInOut(db: Db, project: WithId<Project>, contact: WithId<Contact>, message: any, phoneNumberId: string): Promise<boolean> {
     const settings = project.optInOutSettings;
-    if (!settings) return false;
+    if (!settings?.enabled) return false;
 
     const messageText = message.text?.body?.trim().toLowerCase();
     if (!messageText) return false;
@@ -645,9 +644,20 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
 
     let replyMessage: string | null = null;
     
-    // 1. Check Inactive Hours
+    // 1. Check Welcome Message for new contacts
+    if (contact.hasReceivedWelcome === false && settings.welcomeMessage?.enabled && settings.welcomeMessage.message) {
+        replyMessage = settings.welcomeMessage.message;
+        if (replyMessage) {
+            await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
+            // Mark as welcomed so it doesn't fire again
+            await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { hasReceivedWelcome: true } });
+            return; // Stop further auto-replies
+        }
+    }
+
+    // 2. Check Inactive Hours
     if (settings.inactiveHours?.enabled && settings.inactiveHours.message) {
-        const { startTime, endTime, timezone, days, message } = settings.inactiveHours;
+        const { startTime, endTime, timezone, days, message: inactiveMessage } = settings.inactiveHours;
         try {
             const now = new Date();
             const nowInTZ = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
@@ -676,14 +686,14 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
             }
 
             if (days.includes(currentDay) && isInactive) {
-                replyMessage = message;
+                replyMessage = inactiveMessage;
             }
         } catch (e) {
             console.error("Error processing inactive hours:", e);
         }
     }
 
-    // 2. Check AI Assistant (if no inactive reply was triggered)
+    // 3. Check AI Assistant (if no inactive reply was triggered)
     if (!replyMessage && settings.aiAssistant?.enabled && settings.aiAssistant.context && message.type === 'text') {
         try {
             const result = await generateAutoReply({
@@ -698,7 +708,7 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
         }
     }
     
-    // 3. Check General Reply (if no other reply was triggered)
+    // 4. Check General Reply (if no other reply was triggered)
     if (!replyMessage && settings.general?.enabled && settings.general.message) {
         replyMessage = settings.general.message;
     }
@@ -737,7 +747,7 @@ async function handleSingleMessageEvent(db: Db, wabaId: string, businessPhoneNum
         { 
             $set: { name: senderName, phoneNumberId: businessPhoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
             $inc: { unreadCount: 1 },
-            $setOnInsert: { waId: senderWaId, projectId: project._id, createdAt: new Date() }
+            $setOnInsert: { waId: senderWaId, projectId: project._id, createdAt: new Date(), hasReceivedWelcome: false }
         },
         { upsert: true, returnDocument: 'after' }
     );

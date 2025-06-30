@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog, Handshake, MessageSquareHeart } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -92,6 +92,42 @@ function MasterSwitch({ project }: { project: WithId<Project> }) {
     );
 }
 
+function WelcomeMessageForm({ project }: { project: WithId<Project> }) {
+    const [state, formAction] = useActionState(handleUpdateAutoReplySettings, updateAutoReplyInitialState);
+    const { toast } = useToast();
+    const settings = project.autoReplySettings?.welcomeMessage;
+
+    useEffect(() => {
+        if (state?.message) toast({ title: 'Success!', description: state.message });
+        if (state?.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    }, [state, toast]);
+
+    return (
+        <form action={formAction}>
+            <input type="hidden" name="projectId" value={project._id.toString()} />
+            <input type="hidden" name="replyType" value="welcomeMessage" />
+            <CardHeader>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <CardTitle>Welcome Message</CardTitle>
+                        <CardDescription>A one-time message sent to new contacts on their first interaction.</CardDescription>
+                    </div>
+                    <Switch name="enabled" defaultChecked={settings?.enabled} />
+                </div>
+            </CardHeader>
+            <CardContent>
+                <Label htmlFor="welcome-message">Reply Message</Label>
+                <Textarea id="welcome-message" name="message" className="min-h-32 mt-2"
+                    placeholder="Welcome to our service! How can we help you today?"
+                    defaultValue={settings?.message}
+                    required />
+            </CardContent>
+            <CardFooter><SaveButton>Save Welcome Message</SaveButton></CardFooter>
+        </form>
+    );
+}
+
+
 function GeneralReplyForm({ project }: { project: WithId<Project> }) {
     const [state, formAction] = useActionState(handleUpdateAutoReplySettings, updateAutoReplyInitialState);
     const { toast } = useToast();
@@ -110,7 +146,7 @@ function GeneralReplyForm({ project }: { project: WithId<Project> }) {
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle>General Auto Reply</CardTitle>
-                        <CardDescription>Send a standard reply to any incoming message.</CardDescription>
+                        <CardDescription>A standard reply for any message that doesn't trigger other rules.</CardDescription>
                     </div>
                     <Switch name="enabled" defaultChecked={settings?.enabled} />
                 </div>
@@ -495,12 +531,14 @@ function SettingsPageContent() {
 
           <TabsContent value="auto-reply" className="mt-6 space-y-6">
             <MasterSwitch project={project} />
-            <Tabs defaultValue="general" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="general"><Bot className="mr-2 h-4 w-4" />General</TabsTrigger>
+            <Tabs defaultValue="welcome" className="w-full">
+              <TabsList className="grid w-full grid-cols-4">
+                  <TabsTrigger value="welcome"><Handshake className="mr-2 h-4 w-4" />Welcome</TabsTrigger>
+                  <TabsTrigger value="general"><MessageSquareHeart className="mr-2 h-4 w-4" />General</TabsTrigger>
                   <TabsTrigger value="inactive"><Clock className="mr-2 h-4 w-4" />Inactive Hours</TabsTrigger>
                   <TabsTrigger value="ai"><BrainCircuit className="mr-2 h-4 w-4" />AI Assistant</TabsTrigger>
               </TabsList>
+              <TabsContent value="welcome"><Card><WelcomeMessageForm project={project} /></Card></TabsContent>
               <TabsContent value="general"><Card><GeneralReplyForm project={project} /></Card></TabsContent>
               <TabsContent value="inactive"><Card><InactiveHoursForm project={project} /></Card></TabsContent>
               <TabsContent value="ai"><Card><AiAssistantForm project={project} /></Card></TabsContent>
