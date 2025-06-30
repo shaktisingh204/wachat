@@ -1,7 +1,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { ObjectId } from 'mongodb';
+import type { Db, Filter, ObjectId } from 'mongodb';
+import type { Project } from '@/app/actions';
 
 const getSearchableText = (payload: any): string => {
     let text = '';
@@ -38,6 +39,33 @@ const getSearchableText = (payload: any): string => {
     return text.replace(/\s+/g, ' ').trim();
 };
 
+async function findProjectIdFromWebhook(db: Db, payload: any): Promise<ObjectId | null> {
+    try {
+        const entry = payload?.entry?.[0];
+        if (!entry) return null;
+
+        const wabaId = entry.id;
+        const phoneId = entry.changes?.[0]?.value?.metadata?.phone_number_id;
+
+        const query: Filter<Project> = {};
+        if (phoneId) {
+            query['phoneNumbers.id'] = phoneId;
+        } else if (wabaId && wabaId !== '0') {
+            query.wabaId = wabaId;
+        } else {
+            return null;
+        }
+
+        const project = await db.collection('projects').findOne(query, { projection: { _id: 1 } });
+        return project?._id || null;
+
+    } catch (e) {
+        console.error("Error finding project ID from webhook", e);
+        return null;
+    }
+}
+
+
 /**
  * Handles webhook verification requests from Meta.
  */
@@ -72,25 +100,30 @@ export async function POST(request: NextRequest) {
     const payload = JSON.parse(payloadText);
     const { db } = await connectToDatabase();
 
-    // 1. Log every webhook for visibility and manual reprocessing
+    // 1. Enrich payload with Project ID for efficient parallel processing
+    const projectId = await findProjectIdFromWebhook(db, payload);
     const searchableText = getSearchableText(payload);
+
+    // 2. Log every webhook for visibility and manual reprocessing
     const logResult = await db.collection('webhook_logs').insertOne({
         payload: payload,
         searchableText,
+        projectId: projectId,
         processed: false, // Initially, all logs are unprocessed
         createdAt: new Date(),
     });
     logId = logResult.insertedId;
     
-    // 2. Always queue the event for the cron job to process reliably.
+    // 3. Always queue the event for the cron job to process reliably.
     await db.collection('webhook_queue').insertOne({
         payload: payload,
         logId: logId,
+        projectId: projectId,
         status: 'PENDING',
         createdAt: new Date(),
     });
     
-    // 3. Respond to Meta immediately to acknowledge receipt.
+    // 4. Respond to Meta immediately to acknowledge receipt.
     // Use 200 OK as per Meta's recommendation for reliability.
     return NextResponse.json({ status: 'queued' }, { status: 200 });
 

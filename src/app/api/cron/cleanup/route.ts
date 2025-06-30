@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { handleClearProcessedLogs } from '@/app/actions';
+import { connectToDatabase } from '@/lib/mongodb';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,11 +8,16 @@ export const dynamic = 'force-dynamic';
 // to clear out old, processed webhook logs to keep the database clean.
 export async function GET(request: Request) {
   try {
-    const result = await handleClearProcessedLogs();
-    if (result.error) {
-        throw new Error(result.error);
-    }
-    return NextResponse.json(result);
+    const { db } = await connectToDatabase();
+    
+    const result = await db.collection('webhook_logs').deleteMany({
+        processed: true
+    });
+
+    return NextResponse.json({
+        message: `Successfully cleared ${result.deletedCount} processed webhook log(s).`,
+        deletedCount: result.deletedCount 
+    });
   } catch (error: any) {
     console.error('Error in cleanup-logs cron trigger:', error);
     return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
