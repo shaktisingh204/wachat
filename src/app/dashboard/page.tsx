@@ -109,7 +109,7 @@ export type Project = {
 
 export type Template = {
   name: string;
-  category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
+  category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION' | 'INTERACTIVE';
   body: string;
   language: string;
   status: string;
@@ -117,6 +117,7 @@ export type Template = {
   metaId: string;
   headerSampleUrl?: string;
   qualityScore?: string;
+  type?: 'STANDARD' | 'CATALOG_MESSAGE';
 };
 
 export type FlowNode = {

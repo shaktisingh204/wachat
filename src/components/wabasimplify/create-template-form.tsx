@@ -26,19 +26,21 @@ const createTemplateInitialState = {
   debugInfo: null,
 };
 
-function SubmitButton() {
+function SubmitButton({ templateType }: { templateType: 'STANDARD' | 'CATALOG_MESSAGE' }) {
     const { pending } = useFormStatus();
+    const isStandard = templateType === 'STANDARD';
+    const buttonText = isStandard ? 'Submit for Approval' : 'Save Carousel Template';
     return (
       <Button size="lg" type="submit" disabled={pending}>
         {pending ? (
           <>
             <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-            Submitting for Approval...
+            {isStandard ? 'Submitting...' : 'Saving...'}
           </>
         ) : (
           <>
             <FileUp className="mr-2 h-4 w-4" />
-            Submit for Approval
+            {buttonText}
           </>
         )}
       </Button>
@@ -131,6 +133,8 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   const router = useRouter();
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleCreateTemplate, createTemplateInitialState);
+  
+  const [templateType, setTemplateType] = useState<'STANDARD' | 'CATALOG_MESSAGE'>('STANDARD');
 
   const cleanText = (text: string | null | undefined): string => {
     if (!text) return '';
@@ -151,6 +155,13 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   
   useEffect(() => {
     if (initialTemplate) {
+      if (initialTemplate.type === 'CATALOG_MESSAGE') {
+          // No special handling needed here for now as carousel form is simple
+          setTemplateType('CATALOG_MESSAGE');
+      } else {
+          setTemplateType('STANDARD');
+      }
+
       if (isCloning) {
         setTemplateName(`${initialTemplate.name || ''}_clone_${Math.floor(Math.random() * 1000)}`);
       } else {
@@ -257,158 +268,241 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
     <form action={formAction}>
       <input type="hidden" name="projectId" value={project._id.toString()} />
       <input type="hidden" name="buttons" value={JSON.stringify(buttons)} />
+      <input type="hidden" name="templateType" value={templateType} />
+      
+      <div className="mb-8">
+        <Label className="text-base">Template Type</Label>
+        <RadioGroup value={templateType} onValueChange={(v) => setTemplateType(v as any)} className="grid grid-cols-2 gap-4 mt-2">
+            <div>
+                <RadioGroupItem value="STANDARD" id="type-standard" className="sr-only"/>
+                <Label htmlFor="type-standard" className={`flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer ${templateType === 'STANDARD' ? 'border-primary' : 'border-muted'}`}>Standard</Label>
+            </div>
+             <div>
+                <RadioGroupItem value="CATALOG_MESSAGE" id="type-carousel" className="sr-only"/>
+                <Label htmlFor="type-carousel" className={`flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer ${templateType === 'CATALOG_MESSAGE' ? 'border-primary' : 'border-muted'}`}>Carousel</Label>
+            </div>
+        </RadioGroup>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Template Details</CardTitle>
-              <CardDescription>Define the name, language, and category of your template.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="templateName">Template Name</Label>
-                <Input id="templateName" name="templateName" placeholder="e.g., order_confirmation" value={templateName} onChange={(e) => setTemplateName(e.target.value)} required />
-                <p className="text-xs text-muted-foreground">Lowercase letters, numbers, and underscores only.</p>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Select name="category" value={category} onValueChange={(v) => setCategory(v as Template['category'])} required>
-                  <SelectTrigger id="category"><SelectValue placeholder="Select a category" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="MARKETING">Marketing</SelectItem>
-                    <SelectItem value="UTILITY">Utility</SelectItem>
-                    <SelectItem value="AUTHENTICATION">Authentication</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2 col-span-2">
-                <Label htmlFor="language">Language</Label>
-                <Select name="language" value={language} onValueChange={setLanguage} required>
-                  <SelectTrigger id="language"><SelectValue placeholder="Select a language" /></SelectTrigger>
-                  <SelectContent searchable>
-                    {languages.map((lang) => (
-                        <SelectItem key={lang.code} value={lang.code}>{lang.name} ({lang.code})</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Template Content</CardTitle>
-              <CardDescription>Build the content of your message. Use variables like {'{{1}}'} for personalization.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-                <div className="space-y-2">
-                    <Label>Header (Optional)</Label>
-                    <input type="hidden" name="headerFormat" value={headerFormat} />
-                    <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].map(format => (
-                            <div key={format}><RadioGroupItem value={format} id={format} className="sr-only" /><Label htmlFor={format} className={`flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground ${headerFormat === format ? 'border-primary' : ''} cursor-pointer`}><span className="text-sm font-medium">{format}</span></Label></div>
-                        ))}
-                    </RadioGroup>
-                </div>
-
-                {headerFormat === 'TEXT' && (
+        {templateType === 'STANDARD' ? (
+          <>
+            <div className="lg:col-span-2 space-y-6">
+                <Card>
+                    <CardHeader>
+                    <CardTitle>Template Details</CardTitle>
+                    <CardDescription>Define the name, language, and category of your template.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="headerText">Header Text</Label>
-                        <Input name="headerText" id="headerText" placeholder="Your header text..." maxLength={60} value={headerText} onChange={(e) => setHeaderText(e.target.value)} />
+                        <Label htmlFor="templateName">Template Name</Label>
+                        <Input id="templateName" name="templateName" placeholder="e.g., order_confirmation" value={templateName} onChange={(e) => setTemplateName(e.target.value)} required />
+                        <p className="text-xs text-muted-foreground">Lowercase letters, numbers, and underscores only.</p>
                     </div>
-                )}
-
-                {['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && (
-                    <div className="space-y-4">
-                        <div>
-                            <Label htmlFor="headerSampleUrl">Header Sample Media URL</Label>
-                            <Input
-                                name="headerSampleUrl"
-                                id="headerSampleUrl"
-                                type="url"
-                                placeholder="https://example.com/sample.jpg"
-                                value={headerSampleUrl}
-                                onChange={(e) => setHeaderSampleUrl(e.target.value)}
-                            />
-                            <p className="text-xs text-muted-foreground mt-2">Provide a public URL to a sample media file for submission.</p>
-                        </div>
-                        <div className="relative">
-                            <Separator />
-                            <span className="absolute left-1/2 -translate-x-1/2 -top-2.5 bg-card px-2 text-xs text-muted-foreground">OR</span>
-                        </div>
-                        <div>
-                            <Label htmlFor="headerSampleFile">Upload a sample file</Label>
-                            <Input
-                                name="headerSampleFile"
-                                id="headerSampleFile"
-                                type="file"
-                                accept="image/jpeg,image/png,video/mp4,application/pdf"
-                            />
-                            <p className="text-xs text-muted-foreground mt-2">Upload a file from your device. Max 5MB for images, 16MB for video/docs.</p>
-                        </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="category">Category</Label>
+                        <Select name="category" value={category} onValueChange={(v) => setCategory(v as Template['category'])} required>
+                        <SelectTrigger id="category"><SelectValue placeholder="Select a category" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="MARKETING">Marketing</SelectItem>
+                            <SelectItem value="UTILITY">Utility</SelectItem>
+                            <SelectItem value="AUTHENTICATION">Authentication</SelectItem>
+                        </SelectContent>
+                        </Select>
                     </div>
-                )}
-              
-                <div className="space-y-2">
-                    <Label htmlFor="body">Body</Label>
-                    <Textarea id="body" name="body" placeholder="Hi {{1}}, this is a reminder..." className="min-h-[150px]" value={body} onChange={(e) => setBody(e.target.value)} required/>
-                </div>
+                    <div className="space-y-2 col-span-2">
+                        <Label htmlFor="language">Language</Label>
+                        <Select name="language" value={language} onValueChange={setLanguage} required>
+                        <SelectTrigger id="language"><SelectValue placeholder="Select a language" /></SelectTrigger>
+                        <SelectContent searchable>
+                            {languages.map((lang) => (
+                                <SelectItem key={lang.code} value={lang.code}>{lang.name} ({lang.code})</SelectItem>
+                            ))}
+                        </SelectContent>
+                        </Select>
+                    </div>
+                    </CardContent>
+                </Card>
 
-                <div className="space-y-2">
-                    <Label htmlFor="footer">Footer (Optional)</Label>
-                    <Input name="footer" id="footer" placeholder="e.g., Not a customer? Tap to unsubscribe." maxLength={60} value={footer} onChange={(e) => setFooter(e.target.value)}/>
-                </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="lg:col-span-1 space-y-6">
+                <Card>
+                    <CardHeader>
+                    <CardTitle>Template Content</CardTitle>
+                    <CardDescription>Build the content of your message. Use variables like {'{{1}}'} for personalization.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="space-y-2">
+                            <Label>Header (Optional)</Label>
+                            <input type="hidden" name="headerFormat" value={headerFormat} />
+                            <RadioGroup value={headerFormat} onValueChange={setHeaderFormat} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                {['NONE', 'TEXT', 'IMAGE', 'VIDEO', 'DOCUMENT'].map(format => (
+                                    <div key={format}><RadioGroupItem value={format} id={format} className="sr-only" /><Label htmlFor={format} className={`flex flex-col items-center justify-center rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground ${headerFormat === format ? 'border-primary' : ''} cursor-pointer`}><span className="text-sm font-medium">{format}</span></Label></div>
+                                ))}
+                            </RadioGroup>
+                        </div>
+
+                        {headerFormat === 'TEXT' && (
+                            <div className="space-y-2">
+                                <Label htmlFor="headerText">Header Text</Label>
+                                <Input name="headerText" id="headerText" placeholder="Your header text..." maxLength={60} value={headerText} onChange={(e) => setHeaderText(e.target.value)} />
+                            </div>
+                        )}
+
+                        {['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && (
+                            <div className="space-y-4">
+                                <div>
+                                    <Label htmlFor="headerSampleUrl">Header Sample Media URL</Label>
+                                    <Input
+                                        name="headerSampleUrl"
+                                        id="headerSampleUrl"
+                                        type="url"
+                                        placeholder="https://example.com/sample.jpg"
+                                        value={headerSampleUrl}
+                                        onChange={(e) => setHeaderSampleUrl(e.target.value)}
+                                    />
+                                    <p className="text-xs text-muted-foreground mt-2">Provide a public URL to a sample media file for submission.</p>
+                                </div>
+                                <div className="relative">
+                                    <Separator />
+                                    <span className="absolute left-1/2 -translate-x-1/2 -top-2.5 bg-card px-2 text-xs text-muted-foreground">OR</span>
+                                </div>
+                                <div>
+                                    <Label htmlFor="headerSampleFile">Upload a sample file</Label>
+                                    <Input
+                                        name="headerSampleFile"
+                                        id="headerSampleFile"
+                                        type="file"
+                                        accept="image/jpeg,image/png,video/mp4,application/pdf"
+                                    />
+                                    <p className="text-xs text-muted-foreground mt-2">Upload a file from your device. Max 5MB for images, 16MB for video/docs.</p>
+                                </div>
+                            </div>
+                        )}
+                    
+                        <div className="space-y-2">
+                            <Label htmlFor="body">Body</Label>
+                            <Textarea id="body" name="body" placeholder="Hi {{1}}, this is a reminder..." className="min-h-[150px]" value={body} onChange={(e) => setBody(e.target.value)} required/>
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label htmlFor="footer">Footer (Optional)</Label>
+                            <Input name="footer" id="footer" placeholder="e.g., Not a customer? Tap to unsubscribe." maxLength={60} value={footer} onChange={(e) => setFooter(e.target.value)}/>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="lg:col-span-1 space-y-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Buttons (Optional)</CardTitle>
+                        <CardDescription>Add quick replies or calls to action to your message.</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            {buttons.map((button, index) => (
+                                <div key={index} className="p-3 border rounded-lg space-y-3 relative">
+                                    <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => handleRemoveButton(index)}><Trash2 className="h-4 w-4"/></Button>
+                                    <p className="text-sm font-medium text-muted-foreground">{button.type.replace('_', ' ')}</p>
+                                    <Input placeholder="Button Text (max 25 chars)" value={button.text} onChange={(e) => handleButtonChange(index, 'text', e.target.value)} maxLength={25} required/>
+                                    {button.type === 'QUICK_REPLY' && <Input className="mt-2" placeholder="Payload (optional, max 1000)" value={button.payload || ''} onChange={(e) => handleButtonChange(index, 'payload', e.target.value)} maxLength={1000} />}
+                                    {button.type === 'URL' && (
+                                    <div className="space-y-2">
+                                        <Input placeholder="https://example.com/{{1}}" value={button.url || ''} onChange={(e) => handleButtonChange(index, 'url', e.target.value)} required/>
+                                        {button.url?.includes('{{1}}') && (
+                                            <Input 
+                                                placeholder="Example URL: https://example.com/test" 
+                                                value={button.example?.[0] || ''} 
+                                                onChange={(e) => handleButtonExampleChange(index, e.target.value)} 
+                                                required
+                                            />
+                                        )}
+                                    </div>
+                                    )}
+                                    {button.type === 'PHONE_NUMBER' && <Input placeholder="+15551234567" value={button.phone_number || ''} onChange={(e) => handleButtonChange(index, 'phone_number', e.target.value)} required/>}
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex gap-2 justify-center">
+                            <Button type="button" variant="outline" size="sm" onClick={() => handleAddButton('QUICK_REPLY')}><Plus className="h-4 w-4 mr-1"/>Quick Reply</Button>
+                            <Button type="button" variant="outline" size="sm" onClick={() => handleAddButton('URL')}><Plus className="h-4 w-4 mr-1"/>URL</Button>
+                            <Button type="button" variant="outline" size="sm" onClick={() => handleAddButton('PHONE_NUMBER')}><Plus className="h-4 w-4 mr-1"/>Call</Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground text-center">You can add up to 10 Quick Replies OR 1 URL and 1 Phone button.</p>
+
+                    </CardContent>
+                </Card>
+                <AiSuggestions onSuggestionSelect={setBody} />
+            </div>
+          </>
+        ) : (
+          <div className="lg:col-span-3 space-y-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>Buttons (Optional)</CardTitle>
-                    <CardDescription>Add quick replies or calls to action to your message.</CardDescription>
+                    <CardTitle>Carousel Template Builder</CardTitle>
+                    <CardDescription>
+                        Configure your interactive product carousel. These templates are saved locally and do not require Meta approval.
+                    </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-4">
+                         <div className="space-y-2">
+                            <Label htmlFor="templateName">Template Name</Label>
+                            <Input name="templateName" placeholder="e.g., summer_collection_carousel" required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="catalogId">Meta Catalog ID</Label>
+                            <Input name="catalogId" placeholder="Your Meta Commerce catalog ID" required />
+                        </div>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="carouselHeader">Header Text (Optional)</Label>
+                        <Input name="carouselHeader" placeholder="Our Top Products" />
+                    </div>
                     <div className="space-y-2">
-                        {buttons.map((button, index) => (
-                            <div key={index} className="p-3 border rounded-lg space-y-3 relative">
-                                <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => handleRemoveButton(index)}><Trash2 className="h-4 w-4"/></Button>
-                                <p className="text-sm font-medium text-muted-foreground">{button.type.replace('_', ' ')}</p>
-                                <Input placeholder="Button Text (max 25 chars)" value={button.text} onChange={(e) => handleButtonChange(index, 'text', e.target.value)} maxLength={25} required/>
-                                {button.type === 'QUICK_REPLY' && <Input className="mt-2" placeholder="Payload (optional, max 1000)" value={button.payload || ''} onChange={(e) => handleButtonChange(index, 'payload', e.target.value)} maxLength={1000} />}
-                                {button.type === 'URL' && (
-                                  <div className="space-y-2">
-                                    <Input placeholder="https://example.com/{{1}}" value={button.url || ''} onChange={(e) => handleButtonChange(index, 'url', e.target.value)} required/>
-                                    {button.url?.includes('{{1}}') && (
-                                        <Input 
-                                            placeholder="Example URL: https://example.com/test" 
-                                            value={button.example?.[0] || ''} 
-                                            onChange={(e) => handleButtonExampleChange(index, e.target.value)} 
-                                            required
-                                        />
-                                    )}
-                                  </div>
-                                )}
-                                {button.type === 'PHONE_NUMBER' && <Input placeholder="+15551234567" value={button.phone_number || ''} onChange={(e) => handleButtonChange(index, 'phone_number', e.target.value)} required/>}
+                        <Label htmlFor="carouselBody">Body Text</Label>
+                        <Textarea name="carouselBody" placeholder="Check out these amazing items from our new collection." required />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="carouselFooter">Footer Text (Optional)</Label>
+                        <Input name="carouselFooter" placeholder="Sale ends this Friday!" />
+                    </div>
+                    
+                    <Separator />
+                    
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-4 p-4 border rounded-lg">
+                            <h4 className="font-semibold">Section 1</h4>
+                             <div className="space-y-2">
+                                <Label htmlFor="section1Title">Section Title</Label>
+                                <Input name="section1Title" placeholder="Popular Products" required />
                             </div>
-                        ))}
+                            <div className="space-y-2">
+                                <Label htmlFor="section1ProductIDs">Product IDs</Label>
+                                <Textarea name="section1ProductIDs" placeholder="prod_001&#x0a;prod_002&#x0a;prod_003" className="font-mono text-xs" required />
+                                <p className="text-xs text-muted-foreground">Enter one Product Retailer ID per line.</p>
+                            </div>
+                        </div>
+                        <div className="space-y-4 p-4 border rounded-lg">
+                            <h4 className="font-semibold">Section 2</h4>
+                            <div className="space-y-2">
+                                <Label htmlFor="section2Title">Section Title</Label>
+                                <Input name="section2Title" placeholder="New Arrivals" required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="section2ProductIDs">Product IDs</Label>
+                                <Textarea name="section2ProductIDs" placeholder="prod_004&#x0a;prod_005&#x0a;prod_006" className="font-mono text-xs" required />
+                                <p className="text-xs text-muted-foreground">Enter one Product Retailer ID per line.</p>
+                            </div>
+                        </div>
                     </div>
-
-                    <div className="flex gap-2 justify-center">
-                        <Button type="button" variant="outline" size="sm" onClick={() => handleAddButton('QUICK_REPLY')}><Plus className="h-4 w-4 mr-1"/>Quick Reply</Button>
-                        <Button type="button" variant="outline" size="sm" onClick={() => handleAddButton('URL')}><Plus className="h-4 w-4 mr-1"/>URL</Button>
-                        <Button type="button" variant="outline" size="sm" onClick={() => handleAddButton('PHONE_NUMBER')}><Plus className="h-4 w-4 mr-1"/>Call</Button>
-                    </div>
-                    <p className="text-xs text-muted-foreground text-center">You can add up to 10 Quick Replies OR 1 URL and 1 Phone button.</p>
-
                 </CardContent>
             </Card>
-            <AiSuggestions onSuggestionSelect={setBody} />
-        </div>
+          </div>
+        )}
       </div>
       <Separator className="my-8" />
       
-      {lastDebugInfo && (
+      {lastDebugInfo && templateType === 'STANDARD' && (
         <Card className="mb-8">
             <CardHeader>
                 <CardTitle>Media Upload Debugging</CardTitle>
@@ -422,7 +516,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
         </Card>
       )}
 
-      {lastPayload && (
+      {lastPayload && templateType === 'STANDARD' && (
         <Card className="mb-8">
             <CardHeader className="flex-row items-center justify-between">
                 <div>
@@ -443,7 +537,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
       )}
 
       <div className="flex justify-end">
-        <SubmitButton />
+        <SubmitButton templateType={templateType} />
       </div>
     </form>
   );

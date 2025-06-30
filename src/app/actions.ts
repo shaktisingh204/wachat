@@ -433,6 +433,7 @@ export async function getTemplates(projectId: string): Promise<WithId<Template>[
             status: 1,
             headerSampleUrl: 1,
             qualityScore: 1,
+            type: 1,
         };
         const templates = await db.collection('templates')
             .find({ projectId: new ObjectId(projectId) })
@@ -997,7 +998,6 @@ export async function handleCreateTemplate(
 
     try {
         const projectId = formData.get('projectId') as string;
-        
         if (!projectId || !ObjectId.isValid(projectId)) {
             return { error: 'Invalid Project ID.' };
         }
@@ -1006,7 +1006,56 @@ export async function handleCreateTemplate(
         if (!project) {
             return { error: 'Project not found or you do not have access.' };
         }
+        
+        const { db } = await connectToDatabase();
+        const templateType = formData.get('templateType') as string;
 
+        // --- Logic for Carousel (Catalog Message) Templates ---
+        if (templateType === 'CATALOG_MESSAGE') {
+            const name = formData.get('templateName') as string;
+            const catalogId = formData.get('catalogId') as string;
+            const headerText = formData.get('carouselHeader') as string;
+            const bodyText = formData.get('carouselBody') as string;
+            const footerText = formData.get('carouselFooter') as string;
+            const section1Title = formData.get('section1Title') as string;
+            const section1ProductIDs = (formData.get('section1ProductIDs') as string).split('\n').map(id => id.trim()).filter(Boolean);
+            const section2Title = formData.get('section2Title') as string;
+            const section2ProductIDs = (formData.get('section2ProductIDs') as string).split('\n').map(id => id.trim()).filter(Boolean);
+
+            if (!name || !catalogId || !bodyText || !section1Title || section1ProductIDs.length === 0 || !section2Title || section2ProductIDs.length === 0) {
+                return { error: 'For Carousel templates, you must provide a name, catalog ID, body text, and at least one product for each of the two sections.' };
+            }
+            
+            const carouselTemplateData = {
+                type: 'CATALOG_MESSAGE',
+                name,
+                category: 'INTERACTIVE', // Internal type, not for Meta
+                status: 'LOCAL',
+                language: 'multi',
+                projectId: new ObjectId(projectId),
+                components: [
+                    { type: 'BODY', text: bodyText },
+                    // Store carousel-specific data in a dedicated component for easy retrieval
+                    { 
+                        type: 'CATALOG_MESSAGE_ACTION',
+                        headerText,
+                        footerText,
+                        catalogId,
+                        sections: [
+                            { title: section1Title, products: section1ProductIDs.map(id => ({ product_retailer_id: id })) },
+                            { title: section2Title, products: section2ProductIDs.map(id => ({ product_retailer_id: id })) }
+                        ]
+                    }
+                ],
+                createdAt: new Date(),
+            };
+
+            await db.collection('templates').insertOne(carouselTemplateData as any);
+            revalidatePath('/dashboard/templates');
+            return { message: 'Carousel template saved successfully.' };
+        }
+
+        // --- Existing Logic for Standard Templates ---
         const appId = project.appId || process.env.NEXT_PUBLIC_META_APP_ID;
         if (!appId) {
             return { error: 'App ID is not configured for this project, and no fallback is set in environment variables. Please set NEXT_PUBLIC_META_APP_ID in the .env file or re-configure the project.' };
@@ -1234,7 +1283,6 @@ export async function handleCreateTemplate(
             return { error: 'Template created on Meta, but no ID was returned. Please sync manually.', payload: payloadString, debugInfo };
         }
 
-        const { db } = await connectToDatabase();
         const templateToInsert: any = {
             name: payload.name,
             category,
