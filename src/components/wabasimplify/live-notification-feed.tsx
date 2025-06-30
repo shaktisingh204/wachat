@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useEffect, useState, useTransition, useCallback } from 'react';
@@ -22,30 +23,25 @@ export function LiveNotificationFeed() {
 
   const fetchData = useCallback(() => {
     startTransition(async () => {
-      const activeProjectId = localStorage.getItem('activeProjectId');
       const [fetchedNotifications, fetchedInvitations] = await Promise.all([
-          getNotifications(activeProjectId),
+          getNotifications(),
           getInvitationsForUser()
       ]);
       setNotifications(fetchedNotifications);
       setInvitations(fetchedInvitations);
     });
-  }, []);
+  }, [startTransition]);
 
   useEffect(() => {
     setIsClient(true);
-    fetchData();
-  }, [fetchData]);
-
-  useEffect(() => {
-    if (!isClient) return;
-
+    fetchData(); // Initial fetch
+    
     const interval = setInterval(() => {
-        fetchData();
-    }, 10000); // Poll for new notifications every 10 seconds
+        fetchData(); // Polling fetch
+    }, 10000); 
 
     return () => clearInterval(interval);
-  }, [isClient, fetchData]);
+  }, [fetchData]);
   
   const handleNotificationClick = async (notification: WithId<NotificationWithProject>) => {
     if (!notification.isRead) {
@@ -87,8 +83,8 @@ export function LiveNotificationFeed() {
   }
   
   const allItems = [
-    ...invitations.map(item => ({ ...item, type: 'invitation' })),
-    ...notifications.map(item => ({ ...item, type: 'notification' })),
+    ...invitations.map(item => ({ ...item, type: 'invitation' as const })),
+    ...notifications.map(item => ({ ...item, type: 'notification' as const })),
   ].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   return (
