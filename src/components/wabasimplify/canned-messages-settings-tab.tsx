@@ -1,9 +1,11 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import type { WithId } from 'mongodb';
-import { getCannedMessages, deleteCannedMessage, CannedMessage, Project } from '@/app/actions';
+import { getCannedMessages, deleteCannedMessage } from '@/app/actions';
+import type { CannedMessage, Project } from '@/app/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';

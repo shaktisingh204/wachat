@@ -111,7 +111,7 @@ function WelcomeMessageForm({ project }: { project: WithId<Project> }) {
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle>Welcome Message</CardTitle>
-                        <CardDescription>A one-time message sent to new contacts on their first interaction.</CardDescription>
+                        <CardDescription>Send a dedicated greeting the very first time a new contact messages you. This takes priority over all other replies for that first interaction.</CardDescription>
                     </div>
                     <Switch name="enabled" defaultChecked={settings?.enabled} />
                 </div>
@@ -147,7 +147,7 @@ function GeneralReplyForm({ project }: { project: WithId<Project> }) {
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle>General Auto Reply</CardTitle>
-                        <CardDescription>A standard reply for any message that doesn't trigger other rules. Sent only once to new contacts if Welcome Message is off.</CardDescription>
+                        <CardDescription>If the Welcome Message is disabled, this message will be sent once to new contacts instead. It's a basic fallback for a first-time interaction.</CardDescription>
                     </div>
                     <Switch name="enabled" defaultChecked={settings?.enabled} />
                 </div>
