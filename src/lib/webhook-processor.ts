@@ -9,6 +9,9 @@ import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
 import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelligent-translate-flow';
 import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge } from '@/app/dashboard/page';
 
+const BATCH_SIZE = 1000; // Increased batch size for faster queue processing
+const LOCK_DURATION_MS = 2 * 60 * 1000; // 2 minute lock per project
+
 // --- Flow Engine Utilities ---
 
 /**
@@ -77,7 +80,6 @@ async function sendFlowMessage(db: Db, project: WithId<Project>, contact: WithId
             content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
         });
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${interpolatedText.substring(0, 50)}`, lastMessageTimestamp: now } });
-        revalidatePath('/dashboard/chat');
     } catch (e: any) {
         console.error(`Flow: Failed to send text message to ${contact.waId} for project ${project._id}:`, e.message);
     }
@@ -109,7 +111,6 @@ async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<C
             content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
         });
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: interpolatedCaption || '[Flow]: Sent an image', lastMessageTimestamp: now } });
-        revalidatePath('/dashboard/chat');
     } catch (e: any) {
         console.error(`Flow: Failed to send image message to ${contact.waId} for project ${project._id}:`, e.message);
     }
@@ -158,7 +159,6 @@ async function sendFlowButtons(db: Db, project: WithId<Project>, contact: WithId
             content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
         });
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${interpolatedText.substring(0, 50)}`, lastMessageTimestamp: now } });
-        revalidatePath('/dashboard/chat');
     } catch (e: any) {
         console.error(`Flow: Failed to send buttons message to ${contact.waId} for project ${project._id}:`, e.message);
     }
@@ -198,7 +198,6 @@ async function sendLanguageSelectionButtons(db: Db, project: WithId<Project>, co
             content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
         });
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${text.substring(0, 50)}`, lastMessageTimestamp: now } });
-        revalidatePath('/dashboard/chat');
     } catch (e: any) {
         console.error(`Flow: Failed to send language selection message to ${contact.waId} for project ${project._id}:`, e.message);
     }
@@ -256,7 +255,6 @@ async function sendFlowCarousel(db: Db, project: WithId<Project>, contact: WithI
             content: payload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
         });
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${interpolatedBody.substring(0, 50)}`, lastMessageTimestamp: now } });
-        revalidatePath('/dashboard/chat');
     } catch (e: any) {
         console.error(`Flow: Failed to send carousel message to ${contact.waId} for project ${project._id}:`, e.message);
     }
@@ -268,12 +266,9 @@ async function sendFlowCarousel(db: Db, project: WithId<Project>, contact: WithI
 async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Contact> & { activeFlow?: any }, flow: WithId<Flow>, nodeId: string, userInput?: string) {
     const node = flow.nodes.find(n => n.id === nodeId);
     if (!node) {
-        console.log(`Flow ended for contact ${contact.waId}: node ${nodeId} not found.`);
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
         return;
     }
-
-    console.log(`[Flow Engine] Executing node ${node.id} (${node.type}) for contact ${contact.waId}. Input: "${userInput || 'N/A'}"`);
     
     // Update contact's state to current node
     await db.collection('contacts').updateOne(
@@ -304,86 +299,47 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
 
         case 'buttons':
             await sendFlowButtons(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables);
-            // This node waits for user reply, so we don't proceed automatically.
             return;
             
         case 'delay': {
             const showTyping = node.data.showTyping === true;
             const delayMs = (node.data.delaySeconds || 1) * 1000;
-
             if (showTyping) {
                 try {
-                    const payload = {
-                        messaging_product: 'whatsapp',
-                        recipient_type: 'individual',
-                        to: contact.waId,
-                        type: 'typing',
-                        status: 'start'
-                    };
                     axios.post(
                         `https://graph.facebook.com/v22.0/${contact.phoneNumberId}/messages`, 
-                        payload, 
+                        { messaging_product: 'whatsapp', to: contact.waId, recipient_type: 'individual', type: 'typing', action: 'start' }, 
                         { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
                     ).catch(e => console.error(`Flow: Failed to send typing indicator to ${contact.waId}:`, e.message));
                 } catch (e: any) {
                     console.error(`Flow: Error constructing typing indicator request for ${contact.waId}:`, e.message);
                 }
             }
-            
-            if (delayMs > 0) {
-                await new Promise(resolve => setTimeout(resolve, delayMs));
-            }
-
+            if (delayMs > 0) await new Promise(resolve => setTimeout(resolve, delayMs));
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
         }
 
-        case 'input': {
+        case 'input':
             if (userInput !== undefined) {
-                // Input was provided directly (e.g., from a button click).
-                // Save it and move on without asking the question again.
-                console.log(`[Flow Engine] Input node ${node.id} received direct input: "${userInput}". Saving to variable.`);
-                if (node.data.variableToSave) {
-                    contact.activeFlow.variables[node.data.variableToSave] = userInput;
-                }
+                if (node.data.variableToSave) contact.activeFlow.variables[node.data.variableToSave] = userInput;
                 edge = flow.edges.find(e => e.source === nodeId);
-                if (edge) {
-                    nextNodeId = edge.target;
-                }
+                if (edge) nextNodeId = edge.target;
             } else {
-                // No direct input, so ask the question and wait.
-                console.log(`[Flow Engine] Input node ${node.id} is asking question and waiting for user response.`);
                 await sendFlowMessage(db, project, contact, contact.phoneNumberId, node.data.text, contact.activeFlow.variables);
-                // We are now waiting for user input. The flow will be resumed by the next webhook event.
-                return; 
+                return;
             }
             break;
-        }
 
         case 'condition': {
-            let valueToCheck: string = '';
-            
-            if (userInput !== undefined) {
-                valueToCheck = userInput;
-                console.log(`[Flow Engine] Condition node received direct input: "${valueToCheck}"`);
-            } else {
+            let valueToCheck: string = userInput || '';
+            if (userInput === undefined) {
                 const conditionType = node.data.conditionType || 'variable';
-                if (conditionType === 'user_response') {
-                    console.log(`[Flow Engine] Pausing at condition node ${node.id}, waiting for user response.`);
-                    return;
-                } else {
-                    const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
-                    if (variableName) {
-                        valueToCheck = contact.activeFlow.variables[variableName] || '';
-                    } else {
-                        valueToCheck = ''; // Explicitly set to empty string if no variable is defined
-                    }
-                    console.log(`[Flow Engine] Condition node checking variable "${variableName || ''}": "${valueToCheck || ''}"`);
-                }
+                if (conditionType === 'user_response') return;
+                const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
+                if (variableName) valueToCheck = contact.activeFlow.variables[variableName] || '';
             }
-            
-            valueToCheck = valueToCheck || '';
             
             const rawCheckValue = node.data.value || '';
             const interpolatedCheckValue = interpolate(rawCheckValue, contact.activeFlow.variables);
@@ -395,27 +351,19 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                 case 'not_equals': conditionMet = valueToCheck.toLowerCase() !== interpolatedCheckValue.toLowerCase(); break;
                 case 'contains': conditionMet = valueToCheck.toLowerCase().includes(interpolatedCheckValue.toLowerCase()); break;
                 case 'is_one_of':
-                    const list = interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase());
-                    conditionMet = list.includes(valueToCheck.toLowerCase());
+                    conditionMet = interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase()).includes(valueToCheck.toLowerCase());
                     break;
                 case 'is_not_one_of':
-                    const notList = interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase());
-                    conditionMet = !notList.includes(valueToCheck.toLowerCase());
+                    conditionMet = !interpolatedCheckValue.split(',').map(item => item.trim().toLowerCase()).includes(valueToCheck.toLowerCase());
                     break;
                 case 'greater_than': conditionMet = !isNaN(Number(valueToCheck)) && !isNaN(Number(interpolatedCheckValue)) && Number(valueToCheck) > Number(interpolatedCheckValue); break;
                 case 'less_than': conditionMet = !isNaN(Number(valueToCheck)) && !isNaN(Number(interpolatedCheckValue)) && Number(valueToCheck) < Number(interpolatedCheckValue); break;
-                default: conditionMet = false; break;
+                default: conditionMet = false;
             }
-
-            console.log(`[Flow Engine] Condition Check: '${valueToCheck}' ${operator} '${interpolatedCheckValue}' -> ${conditionMet ? 'Yes' : 'No'}`);
 
             const handle = conditionMet ? `${node.id}-output-yes` : `${node.id}-output-no`;
             edge = flow.edges.find(e => e.sourceHandle === handle);
-            if (edge) {
-                 nextNodeId = edge.target;
-            } else {
-                console.log(`[Flow Engine] No edge found for condition result '${conditionMet ? 'yes' : 'no'}' from node ${node.id}`);
-            }
+            if (edge) nextNodeId = edge.target;
             break;
         }
 
@@ -424,13 +372,10 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             if (mode === 'automatic') {
                 const detectedLanguage = await detectLanguageFromWaId(contact.waId);
                 contact.activeFlow.variables.flowTargetLanguage = detectedLanguage;
-                console.log(`[Flow Engine] Auto language set to '${detectedLanguage}' for contact ${contact.waId}.`);
-                
                 edge = flow.edges.find(e => e.source === nodeId);
                 if (edge) nextNodeId = edge.target;
             } else { // Manual mode
                 await sendLanguageSelectionButtons(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables);
-                // Pause and wait for user's language selection
                 return;
             }
             break;
@@ -439,55 +384,31 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
         case 'api':
         case 'webhook': {
             const apiRequest = node.data.apiRequest;
-            let interpolatedUrl, interpolatedHeaders, interpolatedBody;
-
-            console.log(`[Flow Engine] Executing API node ${node.id} with data:`, apiRequest);
-
-            try {
-                // Ensure headers and body are not empty strings before parsing
-                const rawHeaders = apiRequest?.headers ? interpolate(apiRequest.headers, contact.activeFlow.variables) : '';
-                const rawBody = apiRequest?.body ? interpolate(apiRequest.body, contact.activeFlow.variables) : '';
-
-                interpolatedUrl = interpolate(apiRequest?.url, contact.activeFlow.variables);
-                interpolatedHeaders = rawHeaders ? JSON.parse(rawHeaders) : undefined;
-                interpolatedBody = rawBody ? JSON.parse(rawBody) : undefined;
-                
-                const response = await axios({
-                    method: apiRequest?.method || 'GET',
-                    url: interpolatedUrl,
-                    data: interpolatedBody,
-                    headers: interpolatedHeaders,
-                });
-                
-                const mappings = apiRequest?.responseMappings;
-                if (Array.isArray(mappings)) {
-                    for (const mapping of mappings) {
-                        if (mapping.variable && mapping.path) {
-                            const value = getValueFromPath(response.data, mapping.path);
-                            if (value !== undefined) {
-                                contact.activeFlow.variables[mapping.variable] = value;
-                                console.log(`[Flow Engine] API Response - Set variable '${mapping.variable}' to '${JSON.stringify(value)}'`);
-                            } else {
-                                console.log(`[Flow Engine] API Response - Path '${mapping.path}' not found for variable '${mapping.variable}'.`);
+            if (apiRequest?.url) {
+                try {
+                    const interpolatedUrl = interpolate(apiRequest.url, contact.activeFlow.variables);
+                    const rawHeaders = apiRequest.headers ? interpolate(apiRequest.headers, contact.activeFlow.variables) : '';
+                    const rawBody = apiRequest.body ? interpolate(apiRequest.body, contact.activeFlow.variables) : '';
+                    
+                    const response = await axios({
+                        method: apiRequest.method || 'GET',
+                        url: interpolatedUrl,
+                        data: rawBody ? JSON.parse(rawBody) : undefined,
+                        headers: rawHeaders ? JSON.parse(rawHeaders) : undefined,
+                    });
+                    
+                    const mappings = apiRequest.responseMappings;
+                    if (Array.isArray(mappings)) {
+                        for (const mapping of mappings) {
+                            if (mapping.variable && mapping.path) {
+                                const value = getValueFromPath(response.data, mapping.path);
+                                if (value !== undefined) contact.activeFlow.variables[mapping.variable] = value;
                             }
                         }
                     }
+                } catch (e: any) {
+                    console.error(`[Flow Engine] API call failed for node ${node.id}. Error: ${e.message}`);
                 }
-
-            } catch (e: any) {
-                console.error(`[Flow Engine] API call failed for node ${node.id}.`, {
-                    error: e.message,
-                    request: {
-                        method: apiRequest?.method || 'GET',
-                        url: interpolatedUrl,
-                        headers: interpolatedHeaders,
-                        body: interpolatedBody,
-                    },
-                    response: e.response ? {
-                        status: e.response.status,
-                        data: e.response.data,
-                    } : 'No response from server.'
-                });
             }
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
@@ -499,36 +420,27 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             if (edge) nextNodeId = edge.target;
             break;
         case 'addToCart':
-            console.log(`[Flow Engine] Placeholder for future node type '${node.type}'. Continuing flow.`);
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
 
         default:
-            console.log(`[Flow Engine] Unknown node type ${node.type}. Ending flow.`);
             nextNodeId = null;
             break;
     }
 
     if (nextNodeId) {
-        // A user's input (from a button or text) is "consumed" by the node that uses it.
-        // It is NOT passed along to subsequent nodes automatically.
         await executeNode(db, project, contact, flow, nextNodeId, undefined);
     } else {
-        console.log(`[Flow Engine] Flow ended for contact ${contact.waId}. No further nodes.`);
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
     }
 }
 
 async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId<Contact> & { activeFlow?: any }, message: any, phoneNumberId: string): Promise<boolean> {
     const messageText = message.text?.body?.trim();
-    const buttonReplyText = message.interactive?.button_reply?.title?.trim();
-    const interactiveReplyId = message.interactive?.button_reply?.id?.trim();
-    const isInteractiveReply = !!message.interactive;
+    const buttonReply = message.interactive?.button_reply;
+    const userResponse = buttonReply?.title?.trim() || messageText;
 
-    const userResponse = buttonReplyText || messageText;
-
-    // 1. Check if user is currently in a flow
     if (contact.activeFlow?.flowId) {
         const flow = await db.collection<Flow>('flows').findOne({ _id: new ObjectId(contact.activeFlow.flowId) });
         if (!flow) {
@@ -542,56 +454,41 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
             return false;
         }
 
-        // --- Specific handling for interactive (button) replies first ---
-        if (isInteractiveReply && interactiveReplyId) {
-             if (interactiveReplyId.startsWith(`${currentNode.id}-lang-`)) {
-                // Language selection node is special, handle and return
-                const selectedLanguage = buttonReplyText || '';
+        if (buttonReply) {
+            const replyId = buttonReply.id?.trim();
+            if (replyId.startsWith(`${currentNode.id}-lang-`)) {
+                const selectedLanguage = buttonReply.title || '';
                 if(selectedLanguage) {
                     contact.activeFlow.variables.flowTargetLanguage = selectedLanguage;
                     await db.collection('contacts').updateOne(
                         { _id: contact._id },
                         { $set: { "activeFlow.variables.flowTargetLanguage": selectedLanguage } }
                     );
-                    console.log(`[Flow Engine] Manual language set to '${selectedLanguage}' for contact ${contact.waId}.`);
                 }
                 const edge = flow.edges.find(e => e.source === currentNode.id);
-                if (edge) {
-                    await executeNode(db, project, contact, flow, edge.target, undefined);
-                } else {
-                    await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
-                }
-                return true; // We handled it.
-             } else if (currentNode.type === 'buttons') {
-                // If we're at a buttons node, find the specific button edge
-                const edge = flow.edges.find(e => e.sourceHandle?.trim() === interactiveReplyId.trim());
-                if (edge) {
-                    await executeNode(db, project, contact, flow, edge.target, buttonReplyText);
-                    return true; // Handled
-                }
-             }
-        }
-
-        // --- Handling for text-based replies OR interactive replies that fell through ---
-        if (userResponse) {
-            // Check if the current node is waiting for any kind of text-based input
-            if (currentNode.type === 'input' || (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response')) {
-                await executeNode(db, project, contact, flow, currentNode.id, userResponse);
-                return true; // Handled
+                if (edge) await executeNode(db, project, contact, flow, edge.target, undefined);
+                else await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
+                return true;
             }
-             // Handle case where a button click leads directly to a condition node
-            if (buttonReplyText && currentNode.type === 'condition') {
-                await executeNode(db, project, contact, flow, currentNode.id, buttonReplyText);
+            if (currentNode.type === 'buttons') {
+                const edge = flow.edges.find(e => e.sourceHandle?.trim() === replyId);
+                if (edge) {
+                    await executeNode(db, project, contact, flow, edge.target, buttonReply.title);
+                    return true;
+                }
+            }
+        }
+        
+        if (userResponse) {
+             if (currentNode.type === 'input' || (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response') || (buttonReply && currentNode.type === 'condition')) {
+                await executeNode(db, project, contact, flow, currentNode.id, userResponse);
                 return true;
             }
         }
         
-        // If we reach here, the user sent a message when the flow wasn't explicitly waiting for it. End the flow.
-        console.log(`[Flow Engine] User sent unexpected message. Ending active flow for contact ${contact.waId}.`);
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
     }
 
-    // 2. Check if starting a new flow (this runs if no active flow or if the active flow was just ended)
     const triggerText = userResponse?.toLowerCase();
     if (!triggerText) return false;
     
@@ -605,19 +502,13 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
     );
 
     if (triggeredFlow) {
-        console.log(`[Flow Engine] Starting new flow '${triggeredFlow.name}' for contact ${contact.waId} based on trigger: "${triggerText}"`);
         const startNode = triggeredFlow.nodes.find(n => n.type === 'start');
         if (!startNode) return false;
 
-        // Set up initial state for the new flow
         contact.activeFlow = {
             flowId: triggeredFlow._id.toString(),
             currentNodeId: startNode.id,
-            variables: {
-                ...(contact.variables || {}),
-                name: contact.name,
-                waId: contact.waId,
-            }
+            variables: { ...(contact.variables || {}), name: contact.name, waId: contact.waId },
         };
         
         await executeNode(db, project, contact, triggeredFlow, startNode.id, userResponse);
@@ -633,44 +524,19 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
 async function sendAutoReplyMessage(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, messageText: string) {
     try {
         const messagePayload = {
-            messaging_product: 'whatsapp',
-            recipient_type: 'individual',
-            to: contact.waId,
-            type: 'text',
+            messaging_product: 'whatsapp', recipient_type: 'individual', to: contact.waId, type: 'text',
             text: { preview_url: false, body: messageText },
         };
-
-        const response = await axios.post(
-            `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`,
-            messagePayload,
-            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
-        );
-
+        const response = await axios.post( `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
-        if (!wamid) {
-            throw new Error('Message sent but no WAMID returned from Meta.');
-        }
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
         const now = new Date();
-        const outgoingMessageDoc: Omit<OutgoingMessage, '_id'> = {
-            direction: 'out',
-            contactId: contact._id,
-            projectId: project._id,
-            wamid,
-            messageTimestamp: now,
-            type: 'text',
-            content: messagePayload,
-            status: 'sent',
-            statusTimestamps: { sent: now },
-            createdAt: now,
-        };
-        await db.collection('outgoing_messages').insertOne(outgoingMessageDoc);
-
-        await db.collection('contacts').updateOne(
-            { _id: contact._id },
-            { $set: { lastMessage: `[Auto]: ${messageText.substring(0, 50)}`, lastMessageTimestamp: now } }
-        );
-        revalidatePath('/dashboard/chat');
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'text',
+            content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Auto]: ${messageText.substring(0, 50)}`, lastMessageTimestamp: now } });
     } catch (e: any) {
         console.error(`Failed to send auto-reply to ${contact.waId} for project ${project._id}:`, e.message);
     }
@@ -683,27 +549,18 @@ async function handleOptInOut(db: Db, project: WithId<Project>, contact: WithId<
     const messageText = message.text?.body?.trim().toLowerCase();
     if (!messageText) return false;
 
-    // Check for opt-out
-    if (settings.optOutKeywords && settings.optOutKeywords.includes(messageText)) {
+    if (settings.optOutKeywords?.includes(messageText)) {
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { isOptedOut: true } });
-        if (settings.optOutResponse) {
-            await sendAutoReplyMessage(db, project, contact, phoneNumberId, settings.optOutResponse);
-        }
-        console.log(`Contact ${contact.waId} opted out.`);
-        return true; // Handled
+        if (settings.optOutResponse) await sendAutoReplyMessage(db, project, contact, phoneNumberId, settings.optOutResponse);
+        return true;
     }
 
-    // Check for opt-in
-    if (settings.optInKeywords && settings.optInKeywords.includes(messageText)) {
+    if (settings.optInKeywords?.includes(messageText)) {
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { isOptedOut: false } });
-         if (settings.optInResponse) {
-            await sendAutoReplyMessage(db, project, contact, phoneNumberId, settings.optInResponse);
-        }
-        console.log(`Contact ${contact.waId} opted in.`);
-        return true; // Handled
+         if (settings.optInResponse) await sendAutoReplyMessage(db, project, contact, phoneNumberId, settings.optInResponse);
+        return true;
     }
-
-    return false; // Not handled
+    return false;
 }
 
 async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithId<Contact>, message: any, phoneNumberId: string) {
@@ -712,56 +569,34 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
 
     let replyMessage: string | null = null;
     
-    // 1. Check Welcome Message for new contacts
     if (contact.hasReceivedWelcome === false && settings.welcomeMessage?.enabled && settings.welcomeMessage.message) {
         replyMessage = settings.welcomeMessage.message;
         if (replyMessage) {
             await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
-            // Mark as welcomed so it doesn't fire again
             await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { hasReceivedWelcome: true } });
-            return; // Stop further auto-replies
+            return;
         }
     }
 
-    // 2. Check Inactive Hours
     if (settings.inactiveHours?.enabled && settings.inactiveHours.message) {
         const { startTime, endTime, timezone, days, message: inactiveMessage } = settings.inactiveHours;
         try {
-            const now = new Date();
-            const nowInTZ = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
-            
-            const currentDay = nowInTZ.getDay(); // 0 = Sunday
+            const nowInTZ = new Date(new Date().toLocaleString('en-US', { timeZone: timezone }));
+            const currentDay = nowInTZ.getDay();
             const currentTime = nowInTZ.getHours() * 60 + nowInTZ.getMinutes();
-            
             const [startHour, startMinute] = startTime.split(':').map(Number);
             const startTimeInMinutes = startHour * 60 + startMinute;
-
             const [endHour, endMinute] = endTime.split(':').map(Number);
             const endTimeInMinutes = endHour * 60 + endMinute;
 
-            let isInactive = false;
-
-            if (startTimeInMinutes > endTimeInMinutes) {
-                // Overnight case (e.g., 18:00 to 09:00)
-                if (currentTime >= startTimeInMinutes || currentTime < endTimeInMinutes) {
-                    isInactive = true;
-                }
-            } else {
-                // Same day case (e.g., 09:00 to 18:00)
-                if (currentTime < startTimeInMinutes || currentTime >= endTimeInMinutes) {
-                    isInactive = true;
-                }
-            }
-
-            if (days.includes(currentDay) && isInactive) {
-                replyMessage = inactiveMessage;
-            }
-        } catch (e) {
-            console.error("Error processing inactive hours:", e);
-        }
+            let isInactive = (startTimeInMinutes > endTimeInMinutes)
+                ? (currentTime >= startTimeInMinutes || currentTime < endTimeInMinutes)
+                : (currentTime < startTimeInMinutes || currentTime >= endTimeInMinutes);
+            
+            if (days.includes(currentDay) && isInactive) replyMessage = inactiveMessage;
+        } catch (e) { console.error("Error processing inactive hours:", e); }
     }
 
-    // 3. Check AI Assistant (if no inactive reply was triggered)
     if (!replyMessage && settings.aiAssistant?.enabled && settings.aiAssistant.context && message.type === 'text') {
         try {
             const result = await generateAutoReply({
@@ -771,51 +606,28 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
                 autoTranslate: settings.aiAssistant.autoTranslate,
             });
             replyMessage = result.replyMessage;
-        } catch (e: any) {
-            console.error("Error generating AI reply:", e.message);
-        }
+        } catch (e: any) { console.error("Error generating AI reply:", e.message); }
     }
     
-    // 4. Check General Reply (if no other reply was triggered)
-    // Only trigger if it's the very first message and the welcome message is disabled.
     if (!replyMessage && contact.hasReceivedWelcome === false && settings.general?.enabled && settings.general.message) {
         replyMessage = settings.general.message;
         if (replyMessage) {
             await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
-             // Mark as welcomed so neither the general nor welcome message fires again
             await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { hasReceivedWelcome: true } });
             return;
         }
     }
-
-    if (replyMessage) {
-        await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
-    }
+    if (replyMessage) await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
 }
 
-/**
- * Encapsulates all logic for handling a single incoming message event.
- */
-async function handleSingleMessageEvent(db: Db, wabaId: string, businessPhoneNumberId: string, message: any, contactProfile: any) {
-    // 1. Find project
-    let project: WithId<Project> | null = null;
-    if (wabaId && wabaId !== "0") {
-        project = await db.collection<Project>('projects').findOne({ wabaId: wabaId });
-    }
-    if (!project && businessPhoneNumberId) {
-        project = await db.collection<Project>('projects').findOne({ 'phoneNumbers.id': businessPhoneNumberId });
-    }
-    if (!project) {
-        console.error(`No project found for phone number ID ${businessPhoneNumberId} or WABA ID ${wabaId}. Skipping message.`);
-        return;
-    }
-
-    // 2. Find or create contact
+async function handleSingleMessageEvent(db: Db, project: WithId<Project>, message: any, contactProfile: any) {
+    const businessPhoneNumberId = message.metadata.phone_number_id;
     const senderWaId = message.from;
     const senderName = contactProfile.profile?.name || 'Unknown User';
-    let lastMessageText = `[${message.type}]`;
-    if (message.type === 'text') lastMessageText = message.text.body;
-    else if (message.type === 'interactive') lastMessageText = message.interactive?.button_reply?.title || '[Interactive Reply]';
+    let lastMessageText = message.type === 'text' ? message.text.body : `[${message.type}]`;
+    if (message.type === 'interactive') {
+        lastMessageText = message.interactive?.button_reply?.title || '[Interactive Reply]';
+    }
     
     const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
         { waId: senderWaId, projectId: project._id },
@@ -826,38 +638,16 @@ async function handleSingleMessageEvent(db: Db, wabaId: string, businessPhoneNum
         },
         { upsert: true, returnDocument: 'after' }
     );
+    
+    const contact = contactResult;
+    if (!contact) throw new Error(`Failed to find or create contact for WA ID ${senderWaId}`);
 
-    // The result from findOneAndUpdate might be null if the document didn't exist before the upsert.
-    // In our case, we need the full contact document for subsequent logic.
-    // So we fetch it again to ensure we have it, even if it was just created.
-    const contact = await db.collection<Contact>('contacts').findOne({ waId: senderWaId, projectId: project._id });
-
-    if (!contact) {
-        console.error(`Failed to find or create contact for WA ID ${senderWaId} on project ${project._id}`);
-        return;
-    }
-
-    // 3. Log incoming message
-     await db.collection('incoming_messages').insertOne({
+    await db.collection('incoming_messages').insertOne({
         direction: 'in', projectId: project._id, contactId: contact._id,
         wamid: message.id, messageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000),
         type: message.type, content: message, isRead: false, createdAt: new Date(),
     });
 
-    // 4. Create notification
-    await db.collection('notifications').insertOne({
-        projectId: project._id, wabaId: project.wabaId,
-        message: `New message from ${contact.name}.`,
-        link: `/dashboard/chat?contactId=${contact._id.toString()}&phoneId=${businessPhoneNumberId}`,
-        isRead: false, createdAt: new Date(), eventType: 'messages',
-    });
-
-    revalidatePath('/dashboard/chat');
-    revalidatePath('/dashboard/contacts');
-    revalidatePath('/dashboard/notifications');
-    revalidatePath('/dashboard', 'layout');
-
-    // 5. Run business logic (opt-out, flow, auto-reply)
     const wasOptInOut = await handleOptInOut(db, project, contact, message, businessPhoneNumberId);
     if (!wasOptInOut) {
         const flowHandled = await handleFlowLogic(db, project, contact, message, businessPhoneNumberId);
@@ -870,100 +660,55 @@ async function handleSingleMessageEvent(db: Db, wabaId: string, businessPhoneNum
 
 // --- Main Webhook Processing Logic ---
 
-export async function processSingleWebhook(db: Db, payload: any, logId?: ObjectId) {
+async function processSingleWebhook(db: Db, project: WithId<Project>, payload: any, logId?: ObjectId) {
     try {
-        if (payload.object !== 'whatsapp_business_account') {
-            throw new Error('Not a WhatsApp business account webhook.');
-        }
-
-        for (const entry of payload.entry || []) {
-            const wabaId = entry.id;
-            for (const change of entry.changes || []) {
-                const value = change.value;
-                if (!value) continue;
-                
-                // Message events are now handled by batch processors, so we skip them here.
-                if (change.field === 'messages') {
-                    continue; 
-                }
-
-                let project: WithId<Project> | null = null;
-                const phone_number_id = value.metadata?.phone_number_id;
-
-                if (wabaId && wabaId !== "0") {
-                    project = await db.collection<Project>('projects').findOne({ wabaId: wabaId });
-                }
-
-                if (!project && phone_number_id) {
-                    project = await db.collection<Project>('projects').findOne({ 'phoneNumbers.id': phone_number_id });
-                }
-
-                if (!project) {
-                    console.log(`Webhook processor: Project not found for WABA ID ${wabaId} or phone ID ${phone_number_id}. Skipping event.`);
-                    continue;
-                }
-
-                // Simplified logic for non-message events
-                 const eventType = change.field;
-                 let message = `Received a general update for ${eventType}.`;
-                 let link = `/dashboard/information`;
-
-                 switch (eventType) {
-                    case 'account_update':
-                        message = `Your business account has been updated. Review status: ${value.review_status?.toUpperCase() || 'N/A'}`;
-                        if (value.review_status) {
-                             await db.collection('projects').updateOne({ _id: project._id }, { $set: { reviewStatus: value.review_status } });
-                             revalidatePath('/dashboard');
-                        }
-                        break;
-                    case 'phone_number_quality_update':
-                        message = `Phone number ${value.display_phone_number} quality is now ${value.event}. Current limit: ${value.current_limit}`;
-                        link = '/dashboard/numbers';
-                        break;
-                    case 'phone_number_name_update':
-                        message = `Name update for ${value.display_phone_number} was ${value.decision}. Verified name: ${value.verified_name}.`;
-                        link = '/dashboard/numbers';
-                        break;
-                    case 'message_template_status_update':
-                    case 'template_status_update':
-                         message = `Template '${value.message_template_name}' was ${value.event === 'approved' ? 'approved' : 'rejected'}. Reason: ${value.reason || 'N/A'}`;
-                         link = '/dashboard/templates';
-                         await db.collection('templates').updateOne(
-                           { name: value.message_template_name, projectId: project._id },
-                           { $set: { status: value.event.toUpperCase() } }
-                         );
-                         revalidatePath('/dashboard/templates');
-                         break;
-                    case 'message_template_quality_update':
-                         message = `Template '${value.message_template_name}' quality updated to ${value.new_quality_score}.`;
-                         link = '/dashboard/templates';
-                         await db.collection('templates').updateOne(
-                            { name: value.message_template_name, projectId: project._id },
-                            { $set: { qualityScore: value.new_quality_score } }
-                          );
-                          revalidatePath('/dashboard/templates');
-                          break;
-                    default:
-                        console.log(`Webhook processor: Unhandled event type: "${change.field}"`);
-                        break;
-                }
-                 await db.collection('notifications').insertOne({
-                    projectId: project._id, wabaId: project.wabaId, message, link,
-                    isRead: false, createdAt: new Date(), eventType,
-                });
-                revalidatePath('/dashboard', 'layout');
-                revalidatePath('/dashboard/notifications');
-            }
-        }
+        if (payload.object !== 'whatsapp_business_account') throw new Error('Not a WhatsApp business account webhook.');
         
-        if (logId) {
-            await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: null } });
+        const change = payload.entry?.[0]?.changes?.[0];
+        if (!change) return;
+
+        const value = change.value;
+        const eventType = change.field;
+
+        if (eventType === 'messages' || !value) return;
+
+        let message = `Received a general update for ${eventType}.`;
+        let link = `/dashboard/information`;
+
+        switch (eventType) {
+            case 'account_update':
+                message = `Your business account has been updated. Review status: ${value.review_status?.toUpperCase() || 'N/A'}`;
+                if (value.review_status) await db.collection('projects').updateOne({ _id: project._id }, { $set: { reviewStatus: value.review_status } });
+                break;
+            case 'phone_number_quality_update':
+                message = `Phone number ${value.display_phone_number} quality is now ${value.event}. Current limit: ${value.current_limit}`;
+                link = '/dashboard/numbers';
+                break;
+            case 'phone_number_name_update':
+                message = `Name update for ${value.display_phone_number} was ${value.decision}. Verified name: ${value.verified_name}.`;
+                link = '/dashboard/numbers';
+                break;
+            case 'message_template_status_update':
+            case 'template_status_update':
+                message = `Template '${value.message_template_name}' was ${value.event === 'approved' ? 'approved' : 'rejected'}. Reason: ${value.reason || 'N/A'}`;
+                link = '/dashboard/templates';
+                await db.collection('templates').updateOne({ name: value.message_template_name, projectId: project._id }, { $set: { status: value.event.toUpperCase() } });
+                break;
+            case 'message_template_quality_update':
+                message = `Template '${value.message_template_name}' quality updated to ${value.new_quality_score}.`;
+                link = '/dashboard/templates';
+                await db.collection('templates').updateOne({ name: value.message_template_name, projectId: project._id }, { $set: { qualityScore: value.new_quality_score } });
+                break;
         }
+
+        await db.collection('notifications').insertOne({
+            projectId: project._id, wabaId: project.wabaId, message, link,
+            isRead: false, createdAt: new Date(), eventType,
+        });
+
+        if (logId) await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: null } });
     } catch (e: any) {
-        console.error(`Error processing webhook with logId ${logId}:`, e.message);
-        if (logId) {
-            await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: e.message } });
-        }
+        if (logId) await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: e.message } });
         throw e;
     }
 }
@@ -978,82 +723,58 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
 
         const contactsMap = new Map<string, WithId<any>>();
         const contactsCursor = db.collection('broadcast_contacts').find({ messageId: { $in: wamids } });
-        for await (const contact of contactsCursor) {
-            contactsMap.set(contact.messageId, contact);
-        }
+        for await (const contact of contactsCursor) contactsMap.set(contact.messageId, contact);
 
         const liveChatOps: any[] = [];
         const broadcastContactOps: any[] = [];
         const broadcastCounterUpdates: Record<string, { delivered: number; read: number; failed: number; success: number }> = {};
         
         for (const status of statuses) {
-            if (!status || !status.id) continue;
+            if (!status?.id) continue;
             const wamid = status.id;
             const newStatus = (status.status || 'unknown').toUpperCase();
-            const timestamp = new Date(parseInt(status.timestamp, 10) * 1000);
             
-            const liveChatUpdatePayload: any = { status: status.status, [`statusTimestamps.${status.status}`]: timestamp };
-            if (newStatus === 'FAILED' && status.errors && status.errors.length > 0) {
-                const error = status.errors[0];
-                liveChatUpdatePayload.error = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
-            }
+            const liveChatUpdatePayload: any = { status: status.status, [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000) };
+            if (newStatus === 'FAILED' && status.errors?.[0]) liveChatUpdatePayload.error = `${status.errors[0].title} (Code: ${status.errors[0].code})${status.errors[0].details ? `: ${status.errors[0].details}` : ''}`;
             liveChatOps.push({ updateOne: { filter: { wamid }, update: { $set: liveChatUpdatePayload } } });
 
             const contact = contactsMap.get(wamid);
             if (!contact) continue;
+
             const broadcastIdStr = contact.broadcastId.toString();
-            if (!broadcastCounterUpdates[broadcastIdStr]) {
-                broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0, failed: 0, success: 0 };
-            }
+            if (!broadcastCounterUpdates[broadcastIdStr]) broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0, failed: 0, success: 0 };
 
             const currentStatus = (contact.status || 'PENDING').toUpperCase();
-            if (currentStatus === 'FAILED') continue;
-            if (newStatus === 'FAILED') {
+            const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, FAILED: 1, DELIVERED: 2, READ: 3 };
+
+            if (newStatus === 'FAILED' && currentStatus !== 'FAILED') {
                 const error = status.errors?.[0] || { title: 'Unknown Failure', code: 'N/A' };
                 const errorString = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
                 broadcastContactOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: 'FAILED', error: errorString } } } });
                 broadcastCounterUpdates[broadcastIdStr].success -= 1;
                 broadcastCounterUpdates[broadcastIdStr].failed += 1;
-            } else {
-                const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, DELIVERED: 2, READ: 3 };
-                if (statusHierarchy[newStatus] !== undefined && statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
-                    broadcastContactOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: newStatus } } } });
-                    if (newStatus === 'DELIVERED') broadcastCounterUpdates[broadcastIdStr].delivered += 1;
-                    if (newStatus === 'READ') broadcastCounterUpdates[broadcastIdStr].read += 1;
-                }
+            } else if (statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
+                broadcastContactOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: newStatus } } } });
+                if (newStatus === 'DELIVERED') broadcastCounterUpdates[broadcastIdStr].delivered += 1;
+                if (newStatus === 'READ') broadcastCounterUpdates[broadcastIdStr].read += 1;
             }
         }
 
         const promises = [];
         if (liveChatOps.length > 0) promises.push(db.collection('outgoing_messages').bulkWrite(liveChatOps, { ordered: false }));
         if (broadcastContactOps.length > 0) promises.push(db.collection('broadcast_contacts').bulkWrite(broadcastContactOps, { ordered: false }));
+        
         const broadcastCounterOps = Object.entries(broadcastCounterUpdates)
-            .filter(([_, counts]) => counts.delivered > 0 || counts.read > 0 || counts.failed > 0 || counts.success !== 0)
-            .map(([broadcastId, counts]) => {
-                return {
-                    updateOne: {
-                        filter: { _id: new ObjectId(broadcastId) },
-                        update: { $inc: { 
-                            deliveredCount: counts.delivered,
-                            readCount: counts.read,
-                            errorCount: counts.failed,
-                            successCount: counts.success 
-                        } }
-                    }
-                }
-            });
+            .filter(([_, counts]) => Object.values(counts).some(v => v !== 0))
+            .map(([broadcastId, counts]) => ({
+                updateOne: { filter: { _id: new ObjectId(broadcastId) }, update: { $inc: { deliveredCount: counts.delivered, readCount: counts.read, errorCount: counts.failed, successCount: counts.success } } }
+            }));
+
         if (broadcastCounterOps.length > 0) promises.push(db.collection('broadcasts').bulkWrite(broadcastCounterOps, { ordered: false }));
         
         if (promises.length > 0) await Promise.all(promises);
-        
-        if (liveChatOps.length > 0) revalidatePath('/dashboard/chat');
-        if (broadcastContactOps.length > 0) {
-            revalidatePath('/dashboard/broadcasts/[broadcastId]', 'page');
-            revalidatePath('/dashboard/broadcasts');
-        }
 
         return { success: statuses.length, failed: 0 };
-
     } catch(e: any) {
         console.error("Error in processStatusUpdateBatch:", e);
         return { success: 0, failed: statuses.length };
@@ -1063,36 +784,43 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
 export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) {
     if (messageGroups.length === 0) return { success: 0, failed: 0 };
     
-    let successCount = 0;
-    let failedCount = 0;
+    // Fetch all unique projects in one go
+    const projectIds = [...new Set(messageGroups.map(group => new ObjectId(group.projectId)))];
+    const projectsArray = await db.collection<Project>('projects').find({ _id: { $in: projectIds } }).toArray();
+    const projectsMap = new Map(projectsArray.map(p => [p._id.toString(), p]));
 
-    for (const group of messageGroups) {
-        try {
-            const businessPhoneNumberId = group.metadata.phone_number_id;
-            const wabaId = group.wabaId;
-            const message = group.messages[0];
-            const contactProfile = group.contacts[0];
-
-            if (message && contactProfile && businessPhoneNumberId) {
-                await handleSingleMessageEvent(db, wabaId, businessPhoneNumberId, message, contactProfile);
-                successCount++;
-            } else {
-                failedCount++;
+    const processingPromises = messageGroups.map(group => {
+        return (async () => {
+            try {
+                const project = projectsMap.get(group.projectId.toString());
+                if (!project) throw new Error(`Project ${group.projectId} not found for message batch processing`);
+                
+                // Note: The 'wabaId' from the payload is not used here, we trust the projectId mapping from ingestion.
+                await handleSingleMessageEvent(db, project, group.messages[0], group.contacts[0]);
+                return { success: true };
+            } catch (e: any) {
+                console.error(`Error processing a message from batch for project ${group.projectId}: ${e.message}`);
+                return { success: false };
             }
-        } catch (e) {
-            console.error("Error processing a message from batch:", e);
-            failedCount++;
-        }
+        })();
+    });
+
+    const results = await Promise.all(processingPromises);
+    const successCount = results.filter(r => r.success).length;
+
+    if (successCount > 0) {
+        revalidatePath('/dashboard/chat');
+        revalidatePath('/dashboard/contacts');
+        revalidatePath('/dashboard/notifications');
+        revalidatePath('/dashboard', 'layout');
     }
-    
-    return { success: successCount, failed: failedCount };
+
+    return { success: successCount, failed: results.length - successCount };
 }
 
 
 export async function processWebhooksForProject(db: Db, projectId: ObjectId) {
-    const BATCH_SIZE = 200; // Process more items at once
     const lockId = `webhook_process_lock_${projectId.toString()}`;
-    const LOCK_DURATION_MS = 2 * 60 * 1000; // 2 minute lock per project
     let lockAcquired = false;
 
     const results = {
@@ -1104,7 +832,6 @@ export async function processWebhooksForProject(db: Db, projectId: ObjectId) {
     };
 
     try {
-        // --- Acquire Project-Specific Lock ---
         const now = new Date();
         const lockHeldUntil = new Date(now.getTime() + LOCK_DURATION_MS);
 
@@ -1114,33 +841,26 @@ export async function processWebhooksForProject(db: Db, projectId: ObjectId) {
             { upsert: true, returnDocument: 'after' }
         ).catch(e => (e.code === 11000 ? null : Promise.reject(e)));
 
-        if (!lockResult) {
-            console.log(`[Worker] Lock for project ${projectId} is already held. Skipping.`);
-            results.error = 'Lock already held';
-            return results;
-        }
+        if (!lockResult) return { ...results, error: 'Lock already held' };
         lockAcquired = true;
-        // --- End Acquire Lock ---
 
-        // Process the entire queue for this project in a loop
+        const project = await db.collection<Project>('projects').findOne({ _id: projectId });
+        if (!project) return { ...results, error: 'Project not found' };
+
         while (true) {
             const queueItems = await db.collection('webhook_queue').find({
                 projectId: projectId,
                 status: 'PENDING'
             }).limit(BATCH_SIZE).toArray();
 
-            if (queueItems.length === 0) {
-                break; // No more items for this project, exit the loop.
-            }
+            if (queueItems.length === 0) break;
 
             const processingIds = queueItems.map(item => item._id);
-
             await db.collection('webhook_queue').updateMany(
                 { _id: { $in: processingIds } },
                 { $set: { status: 'PROCESSING', processedAt: new Date() } }
             );
 
-            // Batching logic from original implementation
             const statusUpdates: any[] = [];
             const incomingMessages: any[] = [];
             const otherEvents: any[] = [];
@@ -1151,28 +871,29 @@ export async function processWebhooksForProject(db: Db, projectId: ObjectId) {
 
                 if (field === 'messages' && value) {
                     if (value.statuses) statusUpdates.push(...value.statuses);
-                    if (value.messages) incomingMessages.push({ wabaId: item.payload.entry[0].id, metadata: value.metadata, messages: value.messages, contacts: value.contacts });
+                    if (value.messages) incomingMessages.push({ ...value, projectId: item.projectId });
                 } else {
                     otherEvents.push(item);
                 }
             }
-
-            const batchPromises: Promise<{ success: number; failed: number } | void>[] = [];
-            if (statusUpdates.length > 0) batchPromises.push(processStatusUpdateBatch(db, statusUpdates));
-            if (incomingMessages.length > 0) batchPromises.push(processIncomingMessageBatch(db, incomingMessages));
-            otherEvents.forEach(item => batchPromises.push(
-                processSingleWebhook(db, item.payload, item.logId)
-                    .then(() => ({ success: 1, failed: 0 }))
-                    .catch(() => ({ success: 0, failed: 1 }))
-            ));
+            
+            const batchPromises = [
+                processStatusUpdateBatch(db, statusUpdates),
+                processIncomingMessageBatch(db, incomingMessages),
+                ...otherEvents.map(item => 
+                    processSingleWebhook(db, project, item.payload, item.logId)
+                        .then(() => ({ success: 1, failed: 0 }))
+                        .catch(() => ({ success: 0, failed: 1 }))
+                )
+            ];
 
             const batchResults = await Promise.all(batchPromises);
 
             await db.collection('webhook_queue').updateMany(
                 { _id: { $in: processingIds } },
-                { $set: { status: 'COMPLETED', processedAt: new Date() } }
+                { $set: { status: 'COMPLETED' } }
             );
-
+            
             results.processed += queueItems.length;
             batchResults.forEach(res => {
                 if (res) {
@@ -1184,8 +905,6 @@ export async function processWebhooksForProject(db: Db, projectId: ObjectId) {
     } catch (e: any) {
         console.error(`[Worker] Error during webhook processing for project ${projectId}:`, e);
         results.error = e.message;
-        results.failed = results.processed; // Assume all processed items failed if an error occurs
-        results.success = 0;
     } finally {
         if (lockAcquired) {
             await db.collection('locks').updateOne({ _id: lockId }, { $set: { lockHeldUntil: new Date(0) } });
