@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -49,7 +48,7 @@ import {
 } from 'lucide-react';
 import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { getProjects, getSession, handleLogout } from '@/app/actions';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -234,6 +233,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="p-0">
+                    <SheetTitle className="sr-only">Notifications</SheetTitle>
+                    <SheetDescription className="sr-only">A list of recent notifications from your projects.</SheetDescription>
                     <LiveNotificationFeed />
                 </SheetContent>
             </Sheet>

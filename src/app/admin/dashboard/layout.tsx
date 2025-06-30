@@ -25,7 +25,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell, CreditCard } from 'lucide-react';
 import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
@@ -128,6 +128,8 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="p-0">
+                    <SheetTitle className="sr-only">Notifications</SheetTitle>
+                    <SheetDescription className="sr-only">A list of recent notifications from your projects.</SheetDescription>
                     <LiveNotificationFeed />
                 </SheetContent>
             </Sheet>

@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -49,7 +47,7 @@ import { AlertCircle } from 'lucide-react';
 import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language';
 
@@ -1012,6 +1010,8 @@ export default function FlowBuilderPage() {
                     {/* MOBILE Left Panel Sheet */}
                     <Sheet open={isBlocksSheetOpen} onOpenChange={setIsBlocksSheetOpen}>
                         <SheetContent side="left" className="p-2 flex flex-col gap-4 w-full max-w-xs">
+                            <SheetTitle className="sr-only">Flows and Blocks</SheetTitle>
+                            <SheetDescription className="sr-only">A list of flows and draggable blocks to build your automation.</SheetDescription>
                              <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
                         </SheetContent>
                     </Sheet>
@@ -1084,6 +1084,8 @@ export default function FlowBuilderPage() {
                     {/* Right Panel is only rendered in a sheet on mobile */}
                     <Sheet open={isPropsSheetOpen} onOpenChange={setIsPropsSheetOpen}>
                         <SheetContent side="right" className="p-0 flex flex-col w-full max-w-md">
+                            <SheetTitle className="sr-only">Block Properties</SheetTitle>
+                            <SheetDescription className="sr-only">Configure the selected block's properties.</SheetDescription>
                             <PropertiesPanel 
                                 selectedNode={selectedNode}
                                 updateNodeData={updateNodeData}
