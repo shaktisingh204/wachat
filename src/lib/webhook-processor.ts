@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -204,6 +203,64 @@ async function sendLanguageSelectionButtons(db: Db, project: WithId<Project>, co
     }
 }
 
+async function sendFlowCarousel(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>) {
+    const { headerText, bodyText, footerText, catalogId, sections } = node.data;
+    if (!bodyText || !catalogId || !sections || sections.length === 0) {
+        console.error(`Flow: Carousel node ${node.id} is missing required data (body, catalogId, or sections).`);
+        return;
+    }
+
+    try {
+        const interpolatedBody = interpolate(await maybeTranslate(bodyText, variables), variables);
+
+        const payload: any = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: contact.waId,
+            type: 'interactive',
+            interactive: {
+                type: 'catalog_message',
+                body: { text: interpolatedBody },
+                action: {
+                    catalog_id: catalogId,
+                    sections: (sections || []).map((section: any) => ({
+                        title: interpolate(section.title, variables),
+                        product_items: (section.products || []).map((prod: any) => ({
+                            product_retailer_id: interpolate(prod.product_retailer_id, variables),
+                        })),
+                    })),
+                },
+            },
+        };
+
+        if (headerText) {
+            payload.interactive.header = {
+                type: 'text',
+                text: interpolate(await maybeTranslate(headerText, variables), variables),
+            };
+        }
+        if (footerText) {
+            payload.interactive.footer = {
+                text: interpolate(await maybeTranslate(footerText, variables), variables),
+            };
+        }
+        
+        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'interactive',
+            content: payload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${interpolatedBody.substring(0, 50)}`, lastMessageTimestamp: now } });
+        revalidatePath('/dashboard/chat');
+    } catch (e: any) {
+        console.error(`Flow: Failed to send carousel message to ${contact.waId} for project ${project._id}:`, e.message);
+    }
+}
+
 
 // --- Main Flow Engine ---
 
@@ -317,7 +374,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                 } else {
                     const variableName = node.data.variable?.replace(/{{|}}/g, '').trim();
                     if (variableName) {
-                        valueToCheck = contact.activeFlow.variables[variableName];
+                        valueToCheck = contact.activeFlow.variables[variableName] || '';
                     }
                     console.log(`[Flow Engine] Condition node checking variable "${variableName || ''}": "${valueToCheck || ''}"`);
                 }
@@ -433,6 +490,10 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             break;
         }
         case 'carousel':
+            await sendFlowCarousel(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables);
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
         case 'addToCart':
             console.log(`[Flow Engine] Placeholder for future node type '${node.type}'. Continuing flow.`);
             edge = flow.edges.find(e => e.source === nodeId);
