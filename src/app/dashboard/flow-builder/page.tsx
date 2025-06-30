@@ -689,12 +689,13 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
 const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
     if (!sourcePos || !targetPos) return '';
     const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
-    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${sourcePos.x} ${targetPos.y}`;
     return path;
 };
 
 const FlowsAndBlocksPanel = ({ 
     isLoading,
+    isDeleting,
     flows,
     currentFlow,
     handleSelectFlow,
@@ -703,6 +704,7 @@ const FlowsAndBlocksPanel = ({
     addNode,
 } : {
     isLoading: boolean;
+    isDeleting: boolean;
     flows: WithId<Flow>[];
     currentFlow: WithId<Flow> | null;
     handleSelectFlow: (id: string) => void;
@@ -729,7 +731,9 @@ const FlowsAndBlocksPanel = ({
                                     <File className="mr-2 h-4 w-4"/>
                                     {flow.name}
                                 </Button>
-                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteFlow(flow._id.toString())}><Trash2 className="h-4 w-4"/></Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteFlow(flow._id.toString())} disabled={isDeleting}>
+                                    {isDeleting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4"/>}
+                                </Button>
                             </div>
                         ))
                     }
@@ -763,6 +767,7 @@ export default function FlowBuilderPage() {
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [isSaving, startSaveTransition] = useTransition();
     const [isLoading, startLoadingTransition] = useTransition();
+    const [isDeleting, startDeleteTransition] = useTransition();
     const [isTestFlowOpen, setIsTestFlowOpen] = useState(false);
     
     const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -836,14 +841,16 @@ export default function FlowBuilderPage() {
         });
     }, []);
     
-    const handleDeleteFlow = async (flowId: string) => {
-        const result = await deleteFlow(flowId);
-        if (result.error) {
-            toast({ title: 'Error', description: result.error, variant: 'destructive' });
-        } else {
-            toast({ title: 'Success', description: result.message });
-            loadInitialData();
-        }
+    const handleDeleteFlow = (flowId: string) => {
+        startDeleteTransition(async () => {
+            const result = await deleteFlow(flowId);
+            if (result.error) {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            } else {
+                toast({ title: 'Success', description: result.message });
+                loadInitialData();
+            }
+        });
     };
 
     const addNode = (type: NodeType) => {
@@ -1098,7 +1105,7 @@ export default function FlowBuilderPage() {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 min-h-0">
                     {/* DESKTOP Left Panel */}
                     <div className="hidden md:flex md:col-span-3 lg:col-span-2 flex-col gap-4">
-                        <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
+                        <FlowsAndBlocksPanel {...{ isLoading, isDeleting, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
                     </div>
 
                     {/* MOBILE Left Panel Sheet */}
@@ -1106,7 +1113,7 @@ export default function FlowBuilderPage() {
                         <SheetContent side="left" className="p-2 flex flex-col gap-4 w-full max-w-xs">
                             <SheetTitle className="sr-only">Flows and Blocks</SheetTitle>
                             <SheetDescription className="sr-only">A list of flows and draggable blocks to build your automation.</SheetDescription>
-                             <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
+                             <FlowsAndBlocksPanel {...{ isLoading, isDeleting, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
                         </SheetContent>
                     </Sheet>
 

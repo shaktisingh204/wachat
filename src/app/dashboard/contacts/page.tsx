@@ -14,7 +14,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Users, MessageSquare, Search } from 'lucide-react';
+import { AlertCircle, Users, MessageSquare, Search, LoaderCircle } from 'lucide-react';
 import { AddContactDialog } from '@/components/wabasimplify/add-contact-dialog';
 import { ImportContactsDialog } from '@/components/wabasimplify/import-contacts-dialog';
 import { useDebouncedCallback } from 'use-debounce';
@@ -25,7 +25,7 @@ const CONTACTS_PER_PAGE = 20;
 export default function ContactsPage() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
     const [contacts, setContacts] = useState<WithId<Contact>[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, startTransition] = useTransition();
     const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState<string>('');
     const [isClient, setIsClient] = useState(false);
     const router = useRouter();
@@ -34,10 +34,9 @@ export default function ContactsPage() {
     const [totalPages, setTotalPages] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
     
-    const fetchData = useCallback(async (phoneId: string, page: number, query: string) => {
+    const fetchData = useCallback((phoneId: string, page: number, query: string) => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (!storedProjectId) {
-            setLoading(false);
             getProjects().then(projects => {
                 if (projects && projects.length > 0) {
                     router.push('/dashboard');
@@ -48,16 +47,15 @@ export default function ContactsPage() {
             return;
         }
 
-        setLoading(true);
-        const data = await getContactsPageData(storedProjectId, phoneId, page, query);
-        
-        setProject(data.project);
-        setContacts(data.contacts);
-        setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
-        setSelectedPhoneNumberId(data.selectedPhoneNumberId);
-
-        setLoading(false);
-    }, [router]);
+        startTransition(async () => {
+            const data = await getContactsPageData(storedProjectId, phoneId, page, query);
+            
+            setProject(data.project);
+            setContacts(data.contacts);
+            setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
+            setSelectedPhoneNumberId(data.selectedPhoneNumberId);
+        });
+    }, [router, startTransition]);
 
     useEffect(() => {
         setIsClient(true);
@@ -86,7 +84,7 @@ export default function ContactsPage() {
         router.push(`/dashboard/chat?contactId=${contact._id.toString()}&phoneId=${contact.phoneNumberId}`);
     };
 
-    if (!isClient || (loading && !project)) {
+    if (!isClient || (isLoading && !project && contacts.length === 0)) {
         return (
             <div className="flex flex-col gap-8">
                 <div>
@@ -179,7 +177,13 @@ export default function ContactsPage() {
                                 </TableRow>
                             </TableHeader>
                              <TableBody>
-                                {contacts.length > 0 ? (
+                                {isLoading && contacts.length === 0 ? (
+                                     <TableRow>
+                                        <TableCell colSpan={4} className="h-24 text-center">
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                        </TableCell>
+                                    </TableRow>
+                                ) : contacts.length > 0 ? (
                                     contacts.map((contact) => (
                                     <TableRow key={contact._id.toString()}>
                                         <TableCell className="font-medium">{contact.name}</TableCell>
@@ -215,7 +219,7 @@ export default function ContactsPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setCurrentPage(p => p - 1)}
-                                disabled={currentPage <= 1 || loading}
+                                disabled={currentPage <= 1 || isLoading}
                             >
                                 Previous
                             </Button>
@@ -223,7 +227,7 @@ export default function ContactsPage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => setCurrentPage(p => p + 1)}
-                                disabled={currentPage >= totalPages || loading}
+                                disabled={currentPage >= totalPages || isLoading}
                             >
                                 Next
                             </Button>

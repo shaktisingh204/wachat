@@ -28,23 +28,14 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
   const [currentNodeId, setCurrentNodeId] = useState<string | null>(null);
   const [variables, setVariables] = useState<Record<string, any>>({});
   const [isWaitingForInput, setIsWaitingForInput] = useState(false);
+  const [isBotTyping, setIsBotTyping] = useState(false);
   const [userInput, setUserInput] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const addMessage = (sender: 'bot' | 'user', content: string | React.ReactNode) => {
+    setIsBotTyping(false);
     setMessages(prev => [...prev, { id: `msg-${Date.now()}-${Math.random()}`, sender, content }]);
   };
-
-  const findAndExecuteNextNode = useCallback((sourceNodeId: string, sourceHandleId: string) => {
-    const edge = edges.find(e => e.source === sourceNodeId && e.sourceHandle === sourceHandleId);
-    if (edge) {
-      setTimeout(() => executeFlow(edge.target), 500);
-    } else {
-      setTimeout(() => addMessage('bot', 'Flow ended.'), 500);
-      setIsWaitingForInput(false);
-    }
-  }, [edges]);
-
 
   const executeFlow = useCallback((nodeId: string) => {
     const node = nodes.find(n => n.id === nodeId);
@@ -55,6 +46,22 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
     }
 
     setCurrentNodeId(nodeId);
+    
+    // This is defined inside executeFlow to close over the latest `executeFlow` function reference.
+    const findAndExecuteNextNode = (sourceNodeId: string, sourceHandleId: string) => {
+        const edge = edges.find(e => e.source === sourceNodeId && e.sourceHandle === sourceHandleId);
+        if (edge) {
+            setIsBotTyping(true);
+            setTimeout(() => executeFlow(edge.target), 500 + Math.random() * 500);
+        } else {
+            setIsBotTyping(true);
+            setTimeout(() => {
+                addMessage('bot', 'Flow ended.');
+                setIsWaitingForInput(false);
+            }, 500);
+        }
+    };
+
 
     switch (node.type) {
       case 'start':
@@ -95,7 +102,7 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
         findAndExecuteNextNode(nodeId, 'output-main');
         break;
     }
-  }, [nodes, findAndExecuteNextNode]);
+  }, [nodes, edges]);
 
   const handleUserInput = (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,7 +117,14 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
       }
       setIsWaitingForInput(false);
       setUserInput('');
-      findAndExecuteNextNode(currentNode.id, 'output-main');
+      const edge = edges.find(e => e.source === currentNode.id);
+      if (edge) {
+          setIsBotTyping(true);
+          setTimeout(() => executeFlow(edge.target), 500);
+      } else {
+          setIsBotTyping(true);
+          setTimeout(() => addMessage('bot', 'Flow ended.'), 500);
+      }
     }
   };
 
@@ -119,10 +133,12 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
       setMessages([]);
       setVariables({});
       setIsWaitingForInput(false);
+      setIsBotTyping(false);
       setUserInput('');
       const startNode = nodes.find(n => n.type === 'start');
       if (startNode) {
         addMessage('bot', 'Starting flow test...');
+        setIsBotTyping(true);
         setTimeout(() => executeFlow(startNode.id), 500);
       } else {
         addMessage('bot', 'Error: No "Start" node found in the flow.');
@@ -134,7 +150,7 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
     if(scrollAreaRef.current) {
         scrollAreaRef.current.scrollTo({ top: scrollAreaRef.current.scrollHeight, behavior: 'smooth' });
     }
-  }, [messages]);
+  }, [messages, isBotTyping]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -156,6 +172,16 @@ export function TestFlowDialog({ open, onOpenChange, nodes, edges }: TestFlowDia
                   </div>
                 </div>
               ))}
+              {isBotTyping && (
+                  <div className="flex items-end gap-2 justify-start">
+                    <Avatar className="h-8 w-8"><AvatarFallback>B</AvatarFallback></Avatar>
+                    <div className="max-w-xs rounded-lg p-3 text-sm bg-muted flex items-center gap-1.5">
+                        <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.3s]"></span>
+                        <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse [animation-delay:-0.15s]"></span>
+                        <span className="h-2 w-2 bg-muted-foreground rounded-full animate-pulse"></span>
+                    </div>
+                </div>
+              )}
             </div>
           </ScrollArea>
           <form onSubmit={handleUserInput} className="mt-4 flex gap-2">
