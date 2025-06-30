@@ -67,7 +67,7 @@ const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
-    { type: 'carousel', label: 'Product Carousel', icon: View },
+    { type: 'carousel', label: 'Carousel', icon: View },
     { type: 'language', label: 'Set Language', icon: BrainCircuit },
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
@@ -555,7 +555,7 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="carousel-header">Header Text</Label>
-                            <Input id="carousel-header" placeholder="Our Top Products" value={selectedNode.data.headerText || ''} onChange={(e) => handleDataChange('headerText', e.target.value)} />
+                            <Input id="carousel-header" placeholder="Our Top Items" value={selectedNode.data.headerText || ''} onChange={(e) => handleDataChange('headerText', e.target.value)} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="carousel-body">Body Text</Label>
@@ -568,6 +568,7 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                         <div className="space-y-2">
                             <Label htmlFor="carousel-catalog-id">Catalog ID</Label>
                             <Input id="carousel-catalog-id" placeholder="Your Meta Catalog ID" value={selectedNode.data.catalogId || ''} onChange={(e) => handleDataChange('catalogId', e.target.value)} required />
+                            <p className="text-xs text-muted-foreground">This feature requires a Meta Commerce Catalog.</p>
                         </div>
                         <Separator />
                         <div className="space-y-2">
@@ -591,14 +592,14 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                                         {(section.products || []).map((product, productIndex) => (
                                             <div key={productIndex} className="flex items-center gap-2">
                                                 <Input 
-                                                    placeholder="Product Retailer ID" 
+                                                    placeholder="Item/Product ID" 
                                                     value={product.product_retailer_id}
                                                     onChange={(e) => handleCarouselProductChange(sectionIndex, productIndex, e.target.value)}
                                                 />
                                                 <Button type="button" variant="ghost" size="icon" onClick={() => removeCarouselProduct(sectionIndex, productIndex)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                                             </div>
                                         ))}
-                                        <Button type="button" size="sm" variant="link" onClick={() => addCarouselProduct(sectionIndex)}>+ Add Product</Button>
+                                        <Button type="button" size="sm" variant="link" onClick={() => addCarouselProduct(sectionIndex)}>+ Add Item/Product</Button>
                                     </div>
                                 </div>
                              ))}

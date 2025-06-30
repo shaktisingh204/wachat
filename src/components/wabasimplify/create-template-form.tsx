@@ -440,7 +440,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                 <CardHeader>
                     <CardTitle>Carousel Template Builder</CardTitle>
                     <CardDescription>
-                        Configure your interactive product carousel. These templates are saved locally and do not require Meta approval.
+                        Configure your interactive carousel message. These templates are saved locally and do not require Meta approval.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -452,11 +452,12 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                         <div className="space-y-2">
                             <Label htmlFor="catalogId">Meta Catalog ID</Label>
                             <Input name="catalogId" placeholder="Your Meta Commerce catalog ID" required />
+                            <p className="text-xs text-muted-foreground">This template type requires a Meta Commerce Catalog.</p>
                         </div>
                     </div>
                      <div className="space-y-2">
                         <Label htmlFor="carouselHeader">Header Text (Optional)</Label>
-                        <Input name="carouselHeader" placeholder="Our Top Products" />
+                        <Input name="carouselHeader" placeholder="Our Top Items" />
                     </div>
                     <div className="space-y-2">
                         <Label htmlFor="carouselBody">Body Text</Label>
@@ -474,12 +475,12 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                             <h4 className="font-semibold">Section 1</h4>
                              <div className="space-y-2">
                                 <Label htmlFor="section1Title">Section Title</Label>
-                                <Input name="section1Title" placeholder="Popular Products" required />
+                                <Input name="section1Title" placeholder="Popular Items" required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="section1ProductIDs">Product IDs</Label>
-                                <Textarea name="section1ProductIDs" placeholder="prod_001&#x0a;prod_002&#x0a;prod_003" className="font-mono text-xs" required />
-                                <p className="text-xs text-muted-foreground">Enter one Product Retailer ID per line.</p>
+                                <Label htmlFor="section1ProductIDs">Item/Product IDs</Label>
+                                <Textarea name="section1ProductIDs" placeholder="item_id_1&#x0a;item_id_2&#x0a;item_id_3" className="font-mono text-xs" required />
+                                <p className="text-xs text-muted-foreground">Enter one Item/Product ID from your catalog per line.</p>
                             </div>
                         </div>
                         <div className="space-y-4 p-4 border rounded-lg">
@@ -489,9 +490,9 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                                 <Input name="section2Title" placeholder="New Arrivals" required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="section2ProductIDs">Product IDs</Label>
-                                <Textarea name="section2ProductIDs" placeholder="prod_004&#x0a;prod_005&#x0a;prod_006" className="font-mono text-xs" required />
-                                <p className="text-xs text-muted-foreground">Enter one Product Retailer ID per line.</p>
+                                <Label htmlFor="section2ProductIDs">Item/Product IDs</Label>
+                                <Textarea name="section2ProductIDs" placeholder="item_id_4&#x0a;item_id_5&#x0a;item_id_6" className="font-mono text-xs" required />
+                                <p className="text-xs text-muted-foreground">Enter one Item/Product ID from your catalog per line.</p>
                             </div>
                         </div>
                     </div>
