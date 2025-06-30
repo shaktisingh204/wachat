@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
@@ -37,40 +36,63 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 
+function NumbersPageSkeleton() {
+    return (
+        <div className="flex flex-col gap-8">
+            <div>
+                <Skeleton className="h-8 w-1/2" />
+                <Skeleton className="h-4 w-3/4 mt-2" />
+            </div>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <Skeleton className="h-6 w-1/4" />
+                        <Skeleton className="h-4 w-1/2 mt-2" />
+                    </div>
+                    <Skeleton className="h-10 w-48" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-48 w-full" />
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
 export default function NumbersPage() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isSyncing, startSyncTransition] = useTransition();
+  const [isLoading, startLoadingTransition] = useTransition();
   const [selectedPhone, setSelectedPhone] = useState<PhoneNumber | null>(null);
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
 
+  const fetchProjectData = useCallback(async () => {
+    startLoadingTransition(async () => {
+        try {
+          const storedProjectId = localStorage.getItem('activeProjectId');
+          if (storedProjectId) {
+            const projectData = await getProjectById(storedProjectId);
+            setProject(projectData || null);
+          }
+        } catch (error) {
+          console.error("Failed to fetch project data:", error);
+          toast({
+            title: "Error",
+            description: "Failed to load project numbers. Please try again later.",
+            variant: "destructive",
+          });
+        }
+    });
+  }, [toast]);
+  
   useEffect(() => {
     setIsClient(true);
   }, []);
 
-  const fetchProjectData = useCallback(async () => {
-    try {
-      const storedProjectId = localStorage.getItem('activeProjectId');
-      if (storedProjectId) {
-        const projectData = await getProjectById(storedProjectId);
-        setProject(projectData || null);
-      }
-    } catch (error) {
-      console.error("Failed to fetch project data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load project numbers. Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  }, [toast]);
 
   useEffect(() => {
     if (isClient) {
-      setLoading(true);
       fetchProjectData();
     }
   }, [isClient, fetchProjectData]);
@@ -148,24 +170,8 @@ export default function NumbersPage() {
       return 'outline'; // Default for unknown tiers
   };
 
-  if (!isClient || loading) {
-    return (
-      <div className="flex flex-col gap-8">
-        <div>
-          <Skeleton className="h-8 w-1/2" />
-          <Skeleton className="h-4 w-3/4 mt-2" />
-        </div>
-        <Card>
-          <CardHeader>
-            <Skeleton className="h-6 w-1/4" />
-            <Skeleton className="h-4 w-1/2" />
-          </CardHeader>
-          <CardContent>
-            <Skeleton className="h-48 w-full" />
-          </CardContent>
-        </Card>
-      </div>
-    );
+  if (!isClient || isLoading) {
+    return <NumbersPageSkeleton />;
   }
 
   if (!project) {

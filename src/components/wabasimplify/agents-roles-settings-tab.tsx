@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useState, useRef } from 'react';
+import { useActionState, useEffect, useState, useRef, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import type { WithId } from 'mongodb';
 import type { Project, User, Agent, Plan } from '@/app/actions';
@@ -42,19 +42,27 @@ function InviteSubmitButton() {
 function RemoveAgentForm({ projectId, agentUserId }: { projectId: string, agentUserId: string }) {
     const [state, formAction] = useActionState(handleRemoveAgent, removeInitialState);
     const { toast } = useToast();
-    const { pending } = useFormStatus();
+    const [isPending, startTransition] = useTransition();
 
     useEffect(() => {
         if(state?.message) toast({ title: "Success", description: state.message });
         if(state?.error) toast({ title: "Error", description: state.error, variant: 'destructive' });
     }, [state, toast]);
 
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        startTransition(() => {
+            formAction(formData);
+        });
+    };
+
     return (
-        <form action={formAction}>
+        <form onSubmit={handleSubmit}>
             <input type="hidden" name="projectId" value={projectId} />
             <input type="hidden" name="agentUserId" value={agentUserId} />
-            <Button type="submit" variant="ghost" size="icon" disabled={pending}>
-                {pending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}
+            <Button type="submit" variant="ghost" size="icon" disabled={isPending}>
+                {isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}
             </Button>
         </form>
     )

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
@@ -34,7 +33,7 @@ interface CannedMessagesSettingsTabProps {
 
 export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTabProps) {
     const [cannedMessages, setCannedMessages] = useState<WithId<CannedMessage>[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, startLoadingTransition] = useTransition();
     const { toast } = useToast();
 
     const [searchQuery, setSearchQuery] = useState('');
@@ -44,11 +43,11 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
     const [editingMessage, setEditingMessage] = useState<WithId<CannedMessage> | null>(null);
 
     const fetchData = useCallback(async () => {
-        setLoading(true);
-        const data = await getCannedMessages(project._id.toString());
-        setCannedMessages(data);
-        setLoading(false);
-    }, [project]);
+        startLoadingTransition(async () => {
+            const data = await getCannedMessages(project._id.toString());
+            setCannedMessages(data);
+        });
+    }, [project, startLoadingTransition]);
 
     useEffect(() => {
         fetchData();
@@ -136,7 +135,7 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {loading ? (
+                                {isLoading ? (
                                     [...Array(3)].map((_, i) => (
                                         <TableRow key={i}>
                                             <TableCell colSpan={6}><Skeleton className="h-8 w-full"/></TableCell>

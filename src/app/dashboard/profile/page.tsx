@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useActionState, useRef } from 'react';
@@ -104,6 +105,48 @@ function PasswordForm() {
     );
 }
 
+function ProfilePageSkeleton() {
+    return (
+        <div className="space-y-6">
+            <div>
+                <Skeleton className="h-10 w-48" />
+                <Skeleton className="h-4 w-64 mt-2" />
+            </div>
+            <div className="grid md:grid-cols-2 gap-8 items-start">
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="h-6 w-1/3" />
+                        <Skeleton className="h-4 w-2/3 mt-2" />
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                    </CardContent>
+                    <CardFooter>
+                        <Skeleton className="h-10 w-32" />
+                    </CardFooter>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <Skeleton className="h-6 w-1/3" />
+                        <Skeleton className="h-4 w-2/3 mt-2" />
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                    </CardContent>
+                     <CardFooter>
+                        <Skeleton className="h-10 w-36" />
+                    </CardFooter>
+                </Card>
+            </div>
+        </div>
+    );
+}
+
+
 export default function ProfilePage() {
     const [user, setUser] = useState<Omit<User, 'password'> | null>(null);
     const [loading, setLoading] = useState(true);
@@ -119,15 +162,7 @@ export default function ProfilePage() {
     }, []);
 
     if (loading) {
-        return (
-            <div className="space-y-6">
-                <Skeleton className="h-8 w-1/3" />
-                <div className="grid md:grid-cols-2 gap-8">
-                    <Card><Skeleton className="h-96 w-full" /></Card>
-                    <Card><Skeleton className="h-96 w-full" /></Card>
-                </div>
-            </div>
-        );
+        return <ProfilePageSkeleton />;
     }
 
     if (!user) {

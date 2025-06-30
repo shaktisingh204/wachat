@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
@@ -26,7 +25,7 @@ import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 const LOGS_PER_PAGE = 15;
 
 
-function ReprocessButton({ logId }: { logId: string }) {
+function ReprocessButton({ logId, onReprocessComplete }: { logId: string; onReprocessComplete: () => void }) {
     const [isProcessing, startTransition] = useTransition();
     const { toast } = useToast();
 
@@ -37,6 +36,7 @@ function ReprocessButton({ logId }: { logId: string }) {
                 toast({ title: 'Error Re-processing', description: result.error, variant: 'destructive' });
             } else {
                 toast({ title: 'Success', description: result.message });
+                onReprocessComplete();
             }
         });
     }
@@ -51,8 +51,7 @@ function ReprocessButton({ logId }: { logId: string }) {
 
 export function WebhookLogs() {
     const [logs, setLogs] = useState<WebhookLogListItem[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [isRefreshing, startRefreshTransition] = useTransition();
+    const [isLoading, startLoadingTransition] = useTransition();
     const [isClearing, startClearingTransition] = useTransition();
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
@@ -73,13 +72,12 @@ export function WebhookLogs() {
 
     const fetchLogs = useCallback(async (page: number, query: string, showToast = false) => {
         if (!projectId) {
-            setLoading(false);
             setLogs([]);
             setTotalPages(0);
             return;
         };
 
-        startRefreshTransition(async () => {
+        startLoadingTransition(async () => {
             try {
                 const { logs: newLogs, total } = await getWebhookLogs(projectId, page, LOGS_PER_PAGE, query);
                 setLogs(newLogs);
@@ -91,14 +89,13 @@ export function WebhookLogs() {
                 toast({ title: "Error", description: "Failed to fetch webhook logs.", variant: "destructive" });
             }
         });
-    }, [projectId, toast]);
+    }, [projectId, toast, startLoadingTransition]);
 
     useEffect(() => {
-        if (isClient) {
-            setLoading(true);
-            fetchLogs(currentPage, searchQuery).finally(() => setLoading(false));
+        if (isClient && projectId) {
+            fetchLogs(currentPage, searchQuery);
         }
-    }, [currentPage, searchQuery, fetchLogs, isClient]);
+    }, [currentPage, searchQuery, fetchLogs, isClient, projectId]);
 
 
     const handleSearch = useDebouncedCallback((term: string) => {
@@ -154,7 +151,7 @@ export function WebhookLogs() {
         });
     };
     
-    if (isClient && !loading && !projectId) {
+    if (isClient && !isLoading && !projectId) {
         return (
             <Card>
                 <CardHeader>
@@ -191,12 +188,12 @@ export function WebhookLogs() {
                                 onChange={(e) => handleSearch(e.target.value)}
                             />
                         </div>
-                        <Button onClick={handleClearLogs} disabled={isClearing || isRefreshing} variant="outline" size="sm">
+                        <Button onClick={handleClearLogs} disabled={isClearing || isLoading} variant="outline" size="sm">
                             {isClearing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
                             Clear Processed Logs
                         </Button>
-                         <Button onClick={() => fetchLogs(currentPage, searchQuery, true)} disabled={isRefreshing} variant="outline" size="sm">
-                            <RefreshCw className={`mr-2 h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                         <Button onClick={() => fetchLogs(currentPage, searchQuery, true)} disabled={isLoading} variant="outline" size="sm">
+                            <RefreshCw className={`mr-2 h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
                             Refresh
                         </Button>
                     </div>
@@ -214,7 +211,7 @@ export function WebhookLogs() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {loading ? (
+                            {isLoading ? (
                                 [...Array(5)].map((_, i) => (
                                 <TableRow key={i}>
                                     <TableCell colSpan={4}><Skeleton className="h-5 w-full" /></TableCell>
@@ -228,7 +225,7 @@ export function WebhookLogs() {
                                     <TableCell>{log.eventSummary}</TableCell>
                                     <TableCell className="text-right">
                                         <div className="flex items-center justify-end gap-1">
-                                            <ReprocessButton logId={log._id.toString()} />
+                                            <ReprocessButton logId={log._id.toString()} onReprocessComplete={() => fetchLogs(currentPage, searchQuery)} />
                                             <Button variant="ghost" size="icon" onClick={() => handleViewLog(log)} className="h-7 w-7">
                                                 <Eye className="h-4 w-4" />
                                                 <span className="sr-only">View Payload</span>
@@ -255,7 +252,7 @@ export function WebhookLogs() {
                         variant="outline"
                         size="sm"
                         onClick={() => setCurrentPage(p => p - 1)}
-                        disabled={currentPage <= 1 || isRefreshing}
+                        disabled={currentPage <= 1 || isLoading}
                     >
                         Previous
                     </Button>
@@ -263,7 +260,7 @@ export function WebhookLogs() {
                         variant="outline"
                         size="sm"
                         onClick={() => setCurrentPage(p => p + 1)}
-                        disabled={currentPage >= totalPages || isRefreshing}
+                        disabled={currentPage >= totalPages || isLoading}
                     >
                         Next
                     </Button>
