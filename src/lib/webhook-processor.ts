@@ -376,16 +376,21 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
         
         case 'api':
         case 'webhook': {
-            const url = interpolate(node.data.apiRequest?.url, contact.activeFlow.variables);
+            const apiRequest = node.data.apiRequest;
+            let interpolatedUrl, interpolatedHeaders, interpolatedBody;
             try {
+                interpolatedUrl = interpolate(apiRequest?.url, contact.activeFlow.variables);
+                interpolatedHeaders = apiRequest?.headers ? JSON.parse(interpolate(apiRequest.headers, contact.activeFlow.variables)) : undefined;
+                interpolatedBody = apiRequest?.body ? JSON.parse(interpolate(apiRequest.body, contact.activeFlow.variables)) : undefined;
+                
                 const response = await axios({
-                    method: node.data.apiRequest?.method || 'GET',
-                    url: url,
-                    data: node.data.apiRequest?.body ? JSON.parse(interpolate(node.data.apiRequest.body, contact.activeFlow.variables)) : undefined,
-                    headers: node.data.apiRequest?.headers ? JSON.parse(interpolate(node.data.apiRequest.headers, contact.activeFlow.variables)) : undefined,
+                    method: apiRequest?.method || 'GET',
+                    url: interpolatedUrl,
+                    data: interpolatedBody,
+                    headers: interpolatedHeaders,
                 });
                 
-                const mappings = node.data.apiRequest?.responseMappings;
+                const mappings = apiRequest?.responseMappings;
                 if (Array.isArray(mappings)) {
                     for (const mapping of mappings) {
                         if (mapping.variable && mapping.path) {
@@ -401,7 +406,19 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
                 }
 
             } catch (e: any) {
-                console.error(`[Flow Engine] API call failed for node ${node.id}:`, e.message);
+                console.error(`[Flow Engine] API call failed for node ${node.id}.`, {
+                    error: e.message,
+                    request: {
+                        method: apiRequest?.method || 'GET',
+                        url: interpolatedUrl,
+                        headers: interpolatedHeaders,
+                        body: interpolatedBody,
+                    },
+                    response: e.response ? {
+                        status: e.response.status,
+                        data: e.response.data,
+                    } : 'No response from server.'
+                });
             }
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;

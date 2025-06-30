@@ -33,6 +33,7 @@ import {
     BookOpen,
     PanelLeft,
     Settings2,
+    Copy,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -816,6 +817,22 @@ export default function FlowBuilderPage() {
         });
     };
 
+    const handleCopyJson = () => {
+        const flowName = (document.getElementById('flow-name-input') as HTMLInputElement)?.value;
+        const flowStructure = {
+            name: flowName,
+            nodes,
+            edges,
+        };
+        const jsonString = JSON.stringify(flowStructure, null, 2);
+        navigator.clipboard.writeText(jsonString).then(() => {
+            toast({ title: 'Success', description: 'Flow JSON copied to clipboard.' });
+        }).catch(err => {
+            console.error("Failed to copy JSON:", err);
+            toast({ title: 'Error', description: 'Failed to copy JSON to clipboard.', variant: 'destructive' });
+        });
+    };
+
     const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
         e.preventDefault();
         e.stopPropagation();
@@ -975,6 +992,10 @@ export default function FlowBuilderPage() {
                         <Button variant="outline" onClick={() => setIsTestFlowOpen(true)}>
                             <Play className="mr-2 h-4 w-4" />
                             <span className="hidden sm:inline">Test Flow</span>
+                        </Button>
+                        <Button variant="outline" onClick={handleCopyJson}>
+                            <Copy className="mr-2 h-4 w-4" />
+                            <span className="hidden sm:inline">Copy JSON</span>
                         </Button>
                         <Button onClick={handleSaveFlow} disabled={isSaving}>
                             {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4" />}
