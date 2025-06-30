@@ -21,6 +21,7 @@ import { redirect } from 'next/navigation';
 import { hashPassword, comparePassword, createSessionToken, verifySessionToken } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
+import cache from '@/lib/cache';
 
 // --- Plan Management Types ---
 export type PlanFeaturePermissions = {
@@ -455,6 +456,12 @@ export async function getAllProjectsForAdmin(
 
 
 export async function getProjectById(projectId: string): Promise<WithId<Project> | null> {
+    const cacheKey = `project:${projectId}`;
+    const cachedProject = cache.get<WithId<Project>>(cacheKey);
+    if (cachedProject) {
+        return cachedProject;
+    }
+
     const session = await getSession();
     if (!session?.user) {
         return null;
@@ -482,7 +489,9 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
              return null;
         }
         
-        return JSON.parse(JSON.stringify(project));
+        const projectToCache = JSON.parse(JSON.stringify(project));
+        cache.set(cacheKey, projectToCache);
+        return projectToCache;
     } catch (error: any) {
         console.error("Exception in getProjectById:", error);
         return null;
@@ -992,7 +1001,8 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
             { _id: new ObjectId(projectId) },
             { $set: { phoneNumbers: phoneNumbers } }
         );
-
+        
+        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/numbers');
 
         return { message: `Successfully synced ${phoneNumbers.length} phone number(s).`, count: phoneNumbers.length };
@@ -1435,6 +1445,7 @@ export async function handleUpdateProjectSettings(
             return { error: 'Project not found.' };
         }
         
+        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
 
         return { message: 'Settings updated successfully!' };
@@ -1670,6 +1681,8 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
         
         if (bulkOps.length > 0) {
             const result = await db.collection('projects').bulkWrite(bulkOps);
+            // Invalidate cache for all synced projects
+            allWabas.forEach(waba => cache.del(`project:${waba.id}`));
             const syncedCount = result.upsertedCount + result.modifiedCount;
             revalidatePath('/dashboard');
             return { message: `Successfully synced ${syncedCount} projects from Meta.` };
@@ -1857,7 +1870,11 @@ export async function handleReprocessWebhook(logId: string): Promise<{ message?:
             if (value.messages) {
                 for (const message of value.messages) {
                      const contactProfile = value.contacts?.find((c: any) => c.wa_id === message.from) || {};
-                     await handleSingleMessageEvent(db, project, message, contactProfile, value.metadata);
+                     const phoneNumberId = value.metadata?.phone_number_id;
+                     if (!phoneNumberId) {
+                         throw new Error("Cannot process message: phone_number_id is missing from webhook metadata.");
+                     }
+                     await handleSingleMessageEvent(db, project, message, contactProfile, phoneNumberId);
                 }
             }
         } else {
@@ -2754,7 +2771,8 @@ export async function handleDeleteProject(prevState: any, formData: FormData): P
         ];
 
         await Promise.all(deletePromises);
-
+        
+        cache.del(`project:${projectId}`);
         revalidatePath('/admin/dashboard');
 
         return { message: 'Project and all associated data have been permanently deleted.' };
@@ -2807,6 +2825,8 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
         
         if (bulkOps.length > 0) {
             const result = await db.collection('projects').bulkWrite(bulkOps);
+            // Invalidate cache for all synced projects
+            wabaIds.forEach(id => cache.del(`project:${id}`));
             const syncedCount = result.upsertedCount + result.modifiedCount;
             revalidatePath('/dashboard');
             return { success: true, count: syncedCount };
@@ -2876,6 +2896,7 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
 
         await db.collection('invitations').insertOne(newInvitation as any);
         
+        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: `Invitation sent to ${email}.` };
 
@@ -2907,6 +2928,7 @@ export async function handleRemoveAgent(prevState: any, formData: FormData): Pro
             { $pull: { agents: { userId: new ObjectId(agentUserId) } } }
         );
         
+        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: 'Agent removed successfully.' };
 
@@ -2961,7 +2983,8 @@ export async function handleRespondToInvite(invitationId: string, accepted: bool
         }
 
         await db.collection('invitations').deleteOne({ _id: new ObjectId(invitationId) });
-
+        
+        cache.del(`project:${invite.projectId.toString()}`);
         revalidatePath('/dashboard/settings');
         revalidatePath('/dashboard', 'layout');
         return { success: true };
@@ -3134,6 +3157,7 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
             { _id: new ObjectId(projectId) },
             { $set: { [`autoReplySettings.${replyType}`]: updatePayload } }
         );
+        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: 'Auto-reply settings updated successfully!' };
     } catch (e: any) {
@@ -3150,6 +3174,7 @@ export async function handleUpdateMasterSwitch(projectId: string, isEnabled: boo
             { _id: new ObjectId(projectId) },
             { $set: { "autoReplySettings.masterEnabled": isEnabled } }
         );
+        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: `All auto-replies have been ${isEnabled ? 'enabled' : 'disabled'}.` };
     } catch (e: any) {
@@ -3177,6 +3202,7 @@ export async function handleUpdateOptInOutSettings(prevState: any, formData: For
             { _id: new ObjectId(projectId) },
             { $set: { optInOutSettings: settings } }
         );
+        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: 'Opt-in/out settings saved successfully.' };
     } catch (e: any) {
@@ -3201,6 +3227,7 @@ export async function handleSaveUserAttributes(prevState: any, formData: FormDat
             { _id: new ObjectId(projectId), userId: new ObjectId(session.user._id) },
             { $set: { userAttributes: attributes } }
         );
+        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: 'User attributes saved successfully.' };
     } catch (e: any) {
