@@ -75,7 +75,7 @@ export function ChatWindow({ project, contact, conversation, isLoading, onBack, 
                     </Button>
                 </div>
                 
-                <ScrollArea className="flex-1 bg-background/50">
+                <ScrollArea className="flex-1 bg-background/50" viewportClassName="scroll-container">
                     <div className="p-4 space-y-4">
                         {isLoading ? (
                             <MessageListSkeleton />

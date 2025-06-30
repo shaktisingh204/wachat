@@ -86,3 +86,15 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.scroll-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome/Safari/Opera */
+}
+/* Also hide the custom Radix scrollbar used in the component */
+.scroll-container ~ [data-radix-scroll-area-scrollbar] {
+    display: none;
+}
