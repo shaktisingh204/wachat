@@ -28,7 +28,7 @@ export function ChatWindow({ project, contact, conversation, isLoading, onBack, 
     const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView();
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [conversation]);
 
     const MessageListSkeleton = () => (
@@ -76,7 +76,7 @@ export function ChatWindow({ project, contact, conversation, isLoading, onBack, 
                     </Button>
                 </div>
                 
-                <ScrollArea className="flex-1">
+                <ScrollArea className="flex-1 bg-background/50">
                     <div className="p-4 space-y-4">
                         {isLoading ? (
                             <MessageListSkeleton />
@@ -91,7 +91,7 @@ export function ChatWindow({ project, contact, conversation, isLoading, onBack, 
                     </div>
                 </ScrollArea>
                 
-                <div className="flex items-center px-4 border-t bg-background/80 h-[50px] flex-shrink-0">
+                <div className="flex items-center p-2 border-t bg-background h-[50px] flex-shrink-0">
                     <ChatMessageInput contact={contact} />
                 </div>
             </div>

@@ -53,7 +53,7 @@ export function ChatMessageInput({ contact }: ChatMessageInputProps) {
     };
 
     return (
-        <form ref={formRef} action={formAction} className="flex items-center gap-2">
+        <form ref={formRef} action={formAction} className="flex items-center gap-2 w-full">
             <input type="hidden" name="contactId" value={contact._id.toString()} />
             <input type="hidden" name="projectId" value={contact.projectId.toString()} />
             <input type="hidden" name="phoneNumberId" value={contact.phoneNumberId} />
@@ -63,6 +63,7 @@ export function ChatMessageInput({ contact }: ChatMessageInputProps) {
                 name="messageText"
                 placeholder="Type a message..."
                 autoComplete="off"
+                className="flex-1"
             />
 
             <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}>
