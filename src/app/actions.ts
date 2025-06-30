@@ -585,6 +585,30 @@ export async function getBroadcastAttempts(
     }
 }
 
+export async function getBroadcastAttemptsForExport(
+    broadcastId: string,
+    filter: 'ALL' | 'SENT' | 'FAILED' | 'PENDING' | 'DELIVERED' | 'READ' = 'ALL'
+): Promise<BroadcastAttempt[]> {
+    const broadcast = await getBroadcastById(broadcastId);
+    if (!broadcast) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const query: any = { broadcastId: new ObjectId(broadcastId) };
+        if (filter !== 'ALL') {
+            query.status = filter;
+        }
+
+        const attempts = await db.collection('broadcast_contacts').find(query).sort({createdAt: -1}).toArray();
+        
+        return JSON.parse(JSON.stringify(attempts));
+    } catch (error) {
+        console.error('Failed to fetch broadcast attempts for export:', error);
+        return [];
+    }
+}
+
+
 export async function getDashboardStats(projectId: string): Promise<{
     totalMessages: number;
     totalSent: number;
@@ -2107,6 +2131,32 @@ export async function deleteCannedMessage(cannedMessageId: string): Promise<{ su
 
 // --- AGGREGATOR ACTIONS FOR OPTIMIZED LOADING ---
 
+export async function getConversation(contactId: string): Promise<AnyMessage[]> {
+    if (!ObjectId.isValid(contactId)) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const contactObjectId = new ObjectId(contactId);
+
+        const contact = await db.collection('contacts').findOne({ _id: contactObjectId });
+        if (!contact) return [];
+        const hasAccess = await getProjectById(contact.projectId.toString());
+        if (!hasAccess) return [];
+
+        const incoming = await db.collection('incoming_messages').find({ contactId: contactObjectId }).toArray();
+        const outgoing = await db.collection('outgoing_messages').find({ contactId: contactObjectId }).toArray();
+
+        const allMessages = [...incoming, ...outgoing];
+        allMessages.sort((a, b) => new Date(a.messageTimestamp).getTime() - new Date(b.messageTimestamp).getTime());
+
+        return JSON.parse(JSON.stringify(allMessages));
+    } catch (e) {
+        console.error("Failed to get conversation:", e);
+        return [];
+    }
+}
+
+
 export async function getInitialChatData(
     projectId: string,
     initialPhoneId?: string | null,
@@ -2159,6 +2209,40 @@ export async function getInitialChatData(
         conversation,
         selectedPhoneNumberId: phoneIdToUse
     };
+}
+
+export async function getContactsForProject(projectId: string, phoneNumberId: string, page: number = 1, limit: number = 30, query: string = ''): Promise<{ contacts: WithId<Contact>[], total: number }> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { contacts: [], total: 0 };
+
+    try {
+        const { db } = await connectToDatabase();
+        const filter: Filter<Contact> = {
+            projectId: new ObjectId(projectId),
+            phoneNumberId,
+        };
+
+        if(query) {
+            filter.name = { $regex: query, $options: 'i' };
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [contacts, total] = await Promise.all([
+             db.collection<Contact>('contacts')
+                .find(filter)
+                .sort({ lastMessageTimestamp: -1 })
+                .skip(skip)
+                .limit(limit)
+                .toArray(),
+            db.collection('contacts').countDocuments(filter)
+        ]);
+
+        return { contacts: JSON.parse(JSON.stringify(contacts)), total };
+    } catch (e: any) {
+        console.error("Failed to fetch contacts for project:", e);
+        return { contacts: [], total: 0 };
+    }
 }
 
 export async function getContactsPageData(
@@ -3131,4 +3215,562 @@ export async function handleRemoveAgent(prevState: AgentManagementState, formDat
          console.error('Failed to remove agent:', e);
         return { error: 'An unexpected error occurred.' };
     }
+}
+
+// --- NOTIFICATION ACTIONS ---
+export async function getNotifications(projectId?: string | null): Promise<WithId<NotificationWithProject>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+        
+        const projectFilter: Filter<Project> = {
+             $or: [{ userId: userObjectId }, { 'agents.userId': userObjectId }]
+        };
+        
+        if (projectId) {
+            projectFilter._id = new ObjectId(projectId);
+        }
+
+        const userProjects = await db.collection('projects').find(projectFilter, { projection: { _id: 1 } }).toArray();
+        const projectIds = userProjects.map(p => p._id);
+        
+        const filter: Filter<Notification> = { projectId: { $in: projectIds } };
+
+        const pipeline = [
+            { $match: filter },
+            { $sort: { createdAt: -1 } },
+            { $limit: 20 },
+             {
+                $lookup: {
+                    from: 'projects',
+                    localField: 'projectId',
+                    foreignField: '_id',
+                    as: 'projectInfo'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$projectInfo',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    message: 1,
+                    link: 1,
+                    isRead: 1,
+                    createdAt: 1,
+                    eventType: 1,
+                    projectName: '$projectInfo.name'
+                }
+            }
+        ];
+        
+        const notifications = await db.collection('notifications').aggregate(pipeline).toArray();
+
+        return JSON.parse(JSON.stringify(notifications));
+
+    } catch (e: any) {
+        console.error('Failed to fetch notifications for feed:', e);
+        return [];
+    }
+}
+
+
+export async function getAllNotifications(
+    page: number = 1,
+    limit: number = 20,
+    eventType?: string
+): Promise<{ notifications: WithId<NotificationWithProject>[], total: number }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { notifications: [], total: 0 };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const userProjects = await db.collection('projects').find(
+            { $or: [{ userId: userObjectId }, { 'agents.userId': userObjectId }] },
+            { projection: { _id: 1 } }
+        ).toArray();
+        const userProjectIds = userProjects.map(p => p._id);
+
+        const filter: Filter<Notification> = { projectId: { $in: userProjectIds } };
+        if (eventType) {
+            filter.eventType = eventType;
+        }
+
+        const skip = (page - 1) * limit;
+
+        const pipeline = [
+            { $match: filter },
+            { $sort: { createdAt: -1 } },
+            {
+                $lookup: {
+                    from: 'projects',
+                    localField: 'projectId',
+                    foreignField: '_id',
+                    as: 'projectInfo'
+                }
+            },
+            {
+                $unwind: {
+                    path: '$projectInfo',
+                    preserveNullAndEmptyArrays: true
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    projectId: 1,
+                    wabaId: 1,
+                    message: 1,
+                    link: 1,
+                    isRead: 1,
+                    createdAt: 1,
+                    eventType: 1,
+                    projectName: '$projectInfo.name'
+                }
+            },
+            {
+                $facet: {
+                    paginatedResults: [{ $skip: skip }, { $limit: limit }],
+                    totalCount: [{ $count: 'count' }]
+                }
+            }
+        ];
+        
+        const results = await db.collection('notifications').aggregate(pipeline).toArray();
+
+        const notifications = results[0].paginatedResults || [];
+        const total = results[0].totalCount[0]?.count || 0;
+
+        return { notifications: JSON.parse(JSON.stringify(notifications)), total };
+
+    } catch (error) {
+        console.error('Failed to fetch all notifications:', error);
+        return { notifications: [], total: 0 };
+    }
+}
+
+export async function markNotificationAsRead(notificationId: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: "Not authenticated" };
+
+    if (!ObjectId.isValid(notificationId)) return { success: false, error: 'Invalid ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const notification = await db.collection('notifications').findOne({ _id: new ObjectId(notificationId) });
+        if (!notification) return { success: false, error: "Notification not found." };
+        
+        const hasAccess = await getProjectById(notification.projectId.toString());
+        if (!hasAccess) return { success: false, error: "Access denied." };
+
+        await db.collection('notifications').updateOne({ _id: new ObjectId(notificationId) }, { $set: { isRead: true } });
+        
+        revalidatePath('/dashboard', 'layout');
+        
+        return { success: true };
+    } catch (e: any) {
+        console.error("Failed to mark notification as read:", e);
+        return { success: false, error: e.message };
+    }
+}
+
+export async function markAllNotificationsAsRead(): Promise<{ success: boolean; updatedCount: number; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, updatedCount: 0, error: "Not authenticated" };
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const userProjects = await db.collection('projects').find(
+            { $or: [{ userId: userObjectId }, { 'agents.userId': userObjectId }] },
+            { projection: { _id: 1 } }
+        ).toArray();
+        const userProjectIds = userProjects.map(p => p._id);
+        
+        const result = await db.collection('notifications').updateMany(
+            { projectId: { $in: userProjectIds }, isRead: false },
+            { $set: { isRead: true } }
+        );
+        
+        revalidatePath('/dashboard', 'layout');
+        revalidatePath('/dashboard/notifications');
+
+        return { success: true, updatedCount: result.modifiedCount };
+    } catch (e: any) {
+        console.error("Failed to mark all notifications as read:", e);
+        return { success: false, updatedCount: 0, error: e.message };
+    }
+}
+
+
+export async function handleClearOldQueueItems(): Promise<{ message?: string; error?: string }> {
+    try {
+        const { db } = await connectToDatabase();
+        const sixHoursAgo = new Date();
+        sixHoursAgo.setHours(sixHoursAgo.getHours() - 6);
+
+        const result = await db.collection('webhook_queue').deleteMany({
+            status: { $in: ['COMPLETED', 'FAILED'] },
+            createdAt: { $lt: sixHoursAgo }
+        });
+        
+        revalidatePath('/dashboard/webhooks');
+
+        return { message: `Successfully cleared ${result.deletedCount} old queue item(s).` };
+    } catch (e: any) {
+        console.error('Failed to clear old queue items:', e);
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleClearProcessedLogs(): Promise<{ message?: string; error?: string }> {
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('webhook_logs').deleteMany({ processed: true });
+        
+        revalidatePath('/dashboard/webhooks');
+
+        return { message: `Successfully cleared ${result.deletedCount} processed webhook log(s).` };
+    } catch (e: any) {
+        console.error('Failed to clear processed logs:', e);
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleSubscribeAllProjects(): Promise<{ message?: string; error?: string }> {
+    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
+    const apiVersion = 'v22.0';
+
+    if (!accessToken) {
+        return { error: 'System User Access Token must be configured in environment variables.' };
+    }
+    
+    try {
+        const { db } = await connectToDatabase();
+        const projects = await db.collection('projects').find({}, { projection: { wabaId: 1, appId: 1 } }).toArray();
+
+        if (projects.length === 0) {
+            return { message: 'No projects found in the database to subscribe.' };
+        }
+        
+        let successCount = 0;
+        let errorCount = 0;
+        let lastError = '';
+
+        for (const project of projects) {
+            const appId = project.appId || process.env.NEXT_PUBLIC_META_APP_ID;
+            if (!appId) {
+                errorCount++;
+                lastError = `App ID not found for project with WABA ID ${project.wabaId}`;
+                continue;
+            }
+
+            try {
+                 const fields = 'account_update,message_template_status_update,messages,phone_number_name_update,phone_number_quality_update,security,template_category_update';
+                 await axios.post(
+                    `https://graph.facebook.com/${apiVersion}/${appId}/subscriptions`,
+                    {
+                        object: 'whatsapp_business_account',
+                        callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/meta`,
+                        fields: fields,
+                        verify_token: process.env.META_VERIFY_TOKEN,
+                        access_token: accessToken,
+                    }
+                );
+                successCount++;
+            } catch (e: any) {
+                errorCount++;
+                lastError = getErrorMessage(e);
+                console.error(`Failed to subscribe project with WABA ID ${project.wabaId}:`, lastError);
+            }
+        }
+        
+        if (errorCount > 0) {
+            return { message: `Subscription complete. ${successCount} successful, ${errorCount} failed. Last error: ${lastError}` };
+        }
+        
+        return { message: `Successfully subscribed ${successCount} project(s) to webhook events.` };
+
+    } catch (e: any) {
+        console.error('Failed to subscribe projects:', e);
+        return { error: e.message || 'An unexpected error occurred during subscription.' };
+    }
+}
+
+export async function handleAddNewContact(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    const name = formData.get('name') as string;
+    const waId = (formData.get('waId') as string).replace(/\D/g, ''); // Remove non-digit characters
+
+    if (!projectId || !phoneNumberId || !name || !waId) {
+        return { error: 'All fields are required.' };
+    }
+
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
+
+    try {
+        const { db } = await connectToDatabase();
+        const existingContact = await db.collection('contacts').findOne({ projectId: new ObjectId(projectId), waId });
+
+        if (existingContact) {
+            return { error: 'A contact with this WhatsApp ID already exists for this project.' };
+        }
+        
+        const newContact: Omit<Contact, '_id'> = {
+            projectId: new ObjectId(projectId),
+            waId,
+            phoneNumberId,
+            name,
+            createdAt: new Date(),
+        };
+
+        await db.collection('contacts').insertOne(newContact as any);
+        
+        revalidatePath('/dashboard/contacts');
+        
+        return { message: 'Contact added successfully.' };
+    } catch (e: any) {
+        console.error('Failed to add new contact:', e);
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleImportContacts(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    const contactFile = formData.get('contactFile') as File;
+
+    if (!projectId || !phoneNumberId || !contactFile || contactFile.size === 0) {
+        return { error: 'Project, phone number, and a file are required.' };
+    }
+
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: 'Access denied.' };
+    
+    const { db } = await connectToDatabase();
+
+    const processContacts = (contacts: any[]): Promise<number> => {
+        return new Promise<number>(async (resolve, reject) => {
+            if (contacts.length === 0) return resolve(0);
+            
+            const phoneKey = Object.keys(contacts[0])[0];
+            const nameKey = Object.keys(contacts[0])[1];
+            if (!phoneKey || !nameKey) return reject(new Error('File must have at least two columns: phone and name.'));
+            
+            const bulkOps = contacts.map(row => {
+                const waId = String(row[phoneKey] || '').replace(/\D/g, '');
+                const name = String(row[nameKey] || '').trim();
+
+                if (!waId || !name) return null;
+
+                return {
+                    updateOne: {
+                        filter: { waId, projectId: new ObjectId(projectId) },
+                        update: {
+                            $set: { name, phoneNumberId },
+                            $setOnInsert: { waId, projectId: new ObjectId(projectId), createdAt: new Date() }
+                        },
+                        upsert: true
+                    }
+                }
+            }).filter(Boolean);
+
+            if (bulkOps.length === 0) return resolve(0);
+
+            const result = await db.collection('contacts').bulkWrite(bulkOps as any[]);
+            resolve(result.upsertedCount + result.modifiedCount);
+        });
+    };
+
+    try {
+        let contactCount = 0;
+        if (contactFile.name.endsWith('.csv')) {
+            const csvText = await contactFile.text();
+            const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
+            contactCount = await processContacts(parsed.data);
+        } else if (contactFile.name.endsWith('.xlsx')) {
+            const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
+            const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            if (!sheetName) throw new Error('The XLSX file contains no sheets.');
+            const worksheet = workbook.Sheets[sheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
+            contactCount = await processContacts(jsonData);
+        } else {
+             return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
+        }
+        
+        if (contactCount === 0) {
+            return { error: 'No valid contacts found to import.' };
+        }
+        
+        revalidatePath('/dashboard/contacts');
+        return { message: `Successfully imported ${contactCount} contact(s).` };
+    } catch (e: any) {
+        console.error('Failed to import contacts:', e);
+        return { error: e.message || 'An unexpected error occurred during import.' };
+    }
+}
+
+export async function handleSendMessage(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const contactId = formData.get('contactId') as string;
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    const waId = formData.get('waId') as string;
+    const messageText = formData.get('messageText') as string;
+    const mediaFile = formData.get('mediaFile') as File;
+
+    if (!contactId || !projectId || !waId || !phoneNumberId || (!messageText && mediaFile.size === 0)) {
+        return { error: 'Required fields are missing to send message.' };
+    }
+    
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or you do not have access.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        let messagePayload: any = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: waId,
+        };
+        let messageType: 'text' | 'image' | 'video' | 'document' = 'text';
+
+        if (mediaFile && mediaFile.size > 0) {
+            const appId = project.appId || process.env.NEXT_PUBLIC_META_APP_ID;
+            if (!appId) return { error: 'App ID is not configured.' };
+
+            const mediaData = Buffer.from(await mediaFile.arrayBuffer());
+            
+            // Step 1: Start an upload session
+            const sessionFormData = new FormData();
+            sessionFormData.append('file_length', mediaFile.size.toString());
+            sessionFormData.append('file_type', mediaFile.type);
+            sessionFormData.append('access_token', project.accessToken);
+
+            const sessionResponse = await axios.post(`https://graph.facebook.com/v22.0/${appId}/uploads`, sessionFormData);
+            const uploadSessionId = sessionResponse.data.id;
+            
+            // Step 2: Upload the file
+            const uploadResponse = await axios.post(`https://graph.facebook.com/v22.0/${uploadSessionId}`, mediaData, {
+                headers: {
+                    'Authorization': `OAuth ${project.accessToken}`,
+                    'Content-Type': mediaFile.type,
+                },
+                maxContentLength: Infinity,
+                maxBodyLength: Infinity,
+            });
+            const handle = uploadResponse.data.h;
+
+            const mediaType = mediaFile.type.split('/')[0];
+            if (mediaType === 'image') {
+                messageType = 'image';
+                messagePayload.type = 'image';
+                messagePayload.image = { id: handle, caption: messageText };
+            } else if (mediaType === 'video') {
+                messageType = 'video';
+                messagePayload.type = 'video';
+                messagePayload.video = { id: handle, caption: messageText };
+            } else {
+                messageType = 'document';
+                messagePayload.type = 'document';
+                messagePayload.document = { id: handle, caption: messageText, filename: mediaFile.name };
+            }
+
+        } else {
+            messageType = 'text';
+            messagePayload.type = 'text';
+            messagePayload.text = { body: messageText, preview_url: true };
+        }
+        
+        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
+        
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId), wamid, messageTimestamp: now, type: messageType,
+            content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+
+        const lastMessage = messageType === 'text' ? messageText : `[${messageType}]`;
+        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now } });
+        
+        revalidatePath('/dashboard/chat');
+
+        return { message: 'Message sent successfully.' };
+
+    } catch (e: any) {
+        console.error('Failed to send message:', getErrorMessage(e));
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleTranslateMessage(text: string): Promise<{ translatedText?: string; error?: string }> {
+    if (!text) return { error: 'No text to translate.' };
+    try {
+        const result = await intelligentTranslate({ text, targetLanguage: 'English' });
+        return { translatedText: result.translatedText };
+    } catch (e: any) {
+        return { error: e.message || 'Translation failed.' };
+    }
+}
+
+export async function findOrCreateContact(projectId: string, phoneNumberId: string, waId: string): Promise<{ contact?: WithId<Contact>; error?: string }> {
+    if (!projectId || !phoneNumberId || !waId) {
+        return { error: 'Missing required information.' };
+    }
+
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
+
+    try {
+        const { db } = await connectToDatabase();
+        const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
+            { waId, projectId: new ObjectId(projectId) },
+            { 
+                $setOnInsert: {
+                    waId,
+                    projectId: new ObjectId(projectId),
+                    phoneNumberId,
+                    name: `User (${waId.slice(-4)})`,
+                    createdAt: new Date(),
+                }
+            },
+            { upsert: true, returnDocument: 'after' }
+        );
+        
+        if (contactResult) {
+            revalidatePath('/dashboard/chat');
+            revalidatePath('/dashboard/contacts');
+            return { contact: JSON.parse(JSON.stringify(contactResult)) };
+        } else {
+            return { error: 'Failed to find or create contact.' };
+        }
+    } catch (e: any) {
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function markConversationAsRead(contactId: string): Promise<{ success: boolean }> {
+  try {
+    const { db } = await connectToDatabase();
+    await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { unreadCount: 0 } });
+    await db.collection('incoming_messages').updateMany({ contactId: new ObjectId(contactId) }, { $set: { isRead: true } });
+    revalidatePath('/dashboard/chat');
+    return { success: true };
+  } catch (e) {
+    return { success: false };
+  }
 }
