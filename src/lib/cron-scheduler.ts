@@ -360,7 +360,6 @@ export async function processBroadcastJob() {
         }
         
         if (!lockResult) {
-             console.log("Scheduler lock held by another process. Exiting.");
              return { message: "Scheduler lock held by another process." };
         }
         lockAcquired = true;
@@ -369,7 +368,7 @@ export async function processBroadcastJob() {
         const tenSecondsAgo = new Date(Date.now() - 10 * 1000);
 
         const jobsForThisRun = await db.collection<BroadcastJob>('broadcasts').find({
-            _id: { $ne: lockId },
+            _id: { $ne: lockId as any },
             $or: [
                 { status: 'QUEUED' },
                 { status: 'PROCESSING', startedAt: { $lt: tenSecondsAgo } }

@@ -95,7 +95,6 @@ export async function POST(request: NextRequest) {
   try {
     const payloadText = await request.text();
     if (!payloadText) {
-        console.log("Webhook received an empty POST request. This is likely a test or verification. Ignoring.");
         return NextResponse.json({ status: "ignored_empty_body" }, { status: 200 });
     }
 
@@ -121,7 +120,6 @@ export async function POST(request: NextRequest) {
 
     const project = await db.collection<Project>('projects').findOne({ _id: projectId });
     if (!project) {
-        console.log(`Webhook for project ${projectId} ignored because project was not found in DB.`);
         return NextResponse.json({ status: 'ok_project_not_found_in_db' });
     }
     
@@ -145,7 +143,11 @@ export async function POST(request: NextRequest) {
                 // Batch of incoming messages (usually one)
                 for (const message of value.messages) {
                      const contactProfile = value.contacts?.find((c: any) => c.wa_id === message.from) || {};
-                     await handleSingleMessageEvent(db, project, message, contactProfile, value.metadata);
+                     const phoneNumberId = value.metadata?.phone_number_id;
+                     if (!phoneNumberId) {
+                         throw new Error("Cannot process message: phone_number_id is missing from webhook metadata.");
+                     }
+                     await handleSingleMessageEvent(db, project, message, contactProfile, phoneNumberId);
                 }
             }
         } else {
@@ -165,7 +167,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     if (error instanceof SyntaxError) {
-        console.warn("Webhook ingestion failed due to invalid JSON. This might be a verification request or an empty POST. Ignoring.");
         return NextResponse.json({ status: "ignored_invalid_json" }, { status: 200 });
     }
       

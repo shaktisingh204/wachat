@@ -38,7 +38,6 @@ class FlowLogger {
 
     async save() {
         if (this.entries.length > 0) {
-            this.log("Flow execution finished.");
             await this.db.collection('flow_logs').insertOne({
                 ...this.executionData,
                 createdAt: new Date(),
@@ -727,8 +726,7 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
     if (replyMessage) await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
 }
 
-export async function handleSingleMessageEvent(db: Db, project: WithId<Project>, message: any, contactProfile: any, metadata: any) {
-    const businessPhoneNumberId = metadata.phone_number_id;
+export async function handleSingleMessageEvent(db: Db, project: WithId<Project>, message: any, contactProfile: any, phoneNumberId: string) {
     const senderWaId = message.from;
     const senderName = contactProfile.profile?.name || 'Unknown User';
     let lastMessageText = message.type === 'text' ? message.text.body : `[${message.type}]`;
@@ -739,7 +737,7 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
     const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
         { waId: senderWaId, projectId: project._id },
         { 
-            $set: { name: senderName, phoneNumberId: businessPhoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
+            $set: { name: senderName, phoneNumberId: phoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
             $inc: { unreadCount: 1 },
             $setOnInsert: { waId: senderWaId, projectId: project._id, createdAt: new Date(), hasReceivedWelcome: false }
         },
@@ -755,18 +753,19 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
         type: message.type, content: message, isRead: false, createdAt: new Date(),
     });
 
-    const wasOptInOut = await handleOptInOut(db, project, contact, message, businessPhoneNumberId);
+    const wasOptInOut = await handleOptInOut(db, project, contact, message, phoneNumberId);
     if (!wasOptInOut) {
-        const { handled, logger, flowStatus } = await handleFlowLogic(db, project, contact, message, businessPhoneNumberId);
+        const { handled, logger, flowStatus } = await handleFlowLogic(db, project, contact, message, phoneNumberId);
         
         if (flowStatus === 'waiting') {
             await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { "activeFlow.waitingSince": new Date() } });
         }
 
         if (logger && flowStatus === 'finished') {
+            logger.log("Flow execution finished.");
             await logger.save();
         } else if (!handled) {
-            await triggerAutoReply(db, project, contact, message, businessPhoneNumberId);
+            await triggerAutoReply(db, project, contact, message, phoneNumberId);
         }
     }
 }
