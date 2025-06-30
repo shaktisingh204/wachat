@@ -316,7 +316,8 @@ const getErrorMessage = (error: any): string => {
 };
 
 export async function getSession(): Promise<{ user: (Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null }) } | null> {
-    const sessionToken = cookies().get('session')?.value;
+    const cookieStore = cookies();
+    const sessionToken = cookieStore.get('session')?.value;
     if (!sessionToken) {
         return null;
     }
