@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -1736,13 +1737,20 @@ export async function handleReprocessWebhook(logId: string): Promise<{ message?:
         if (!log) {
             return { error: 'Webhook log not found.' };
         }
+        
+        // Don't process directly, add it to the queue for the cron job to handle
+        await db.collection('webhook_queue').insertOne({
+            payload: log.payload,
+            logId: log._id,
+            projectId: log.projectId,
+            status: 'PENDING',
+            createdAt: new Date(),
+        });
 
-        await processSingleWebhook(db, log.payload, log._id);
-
-        return { message: `Successfully reprocessed webhook event for field: ${log.payload?.entry?.[0]?.changes?.[0]?.field || 'unknown'}` };
+        return { message: `Successfully queued event for re-processing: ${log.payload?.entry?.[0]?.changes?.[0]?.field || 'unknown'}` };
     } catch (e: any) {
-        console.error("Failed to re-process webhook:", e);
-        return { error: e.message || "An unexpected error occurred during re-processing." };
+        console.error("Failed to re-queue webhook:", e);
+        return { error: e.message || "An unexpected error occurred during re-queueing." };
     }
 }
 

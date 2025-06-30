@@ -385,10 +385,16 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
         case 'webhook': {
             const apiRequest = node.data.apiRequest;
             let interpolatedUrl, interpolatedHeaders, interpolatedBody;
+
+            console.log(`[Flow Engine] Executing API node ${node.id} with data:`, apiRequest);
+
             try {
+                const rawHeaders = interpolate(apiRequest?.headers, contact.activeFlow.variables);
+                const rawBody = interpolate(apiRequest?.body, contact.activeFlow.variables);
+
                 interpolatedUrl = interpolate(apiRequest?.url, contact.activeFlow.variables);
-                interpolatedHeaders = apiRequest?.headers ? JSON.parse(interpolate(apiRequest.headers, contact.activeFlow.variables)) : undefined;
-                interpolatedBody = apiRequest?.body ? JSON.parse(interpolate(apiRequest.body, contact.activeFlow.variables)) : undefined;
+                interpolatedHeaders = rawHeaders ? JSON.parse(rawHeaders) : undefined;
+                interpolatedBody = rawBody ? JSON.parse(rawBody) : undefined;
                 
                 const response = await axios({
                     method: apiRequest?.method || 'GET',
