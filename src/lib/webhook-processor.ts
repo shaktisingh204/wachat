@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -541,10 +542,10 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
             return false;
         }
 
-        // --- Exclusive handling for interactive (button) replies ---
+        // --- Specific handling for interactive (button) replies first ---
         if (isInteractiveReply) {
              if (interactiveReplyId?.startsWith(`${currentNode.id}-lang-`)) {
-                // --- Special handling for our "Set Language" node ---
+                // Language selection node is special, handle and return
                 const selectedLanguage = buttonReplyText || '';
                 if(selectedLanguage) {
                     contact.activeFlow.variables.flowTargetLanguage = selectedLanguage;
@@ -560,32 +561,28 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
                 } else {
                     await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
                 }
-                return true;
+                return true; // We handled it.
              } else if (currentNode.type === 'buttons' && interactiveReplyId) {
-                // --- Standard button node reply ---
+                // If we're at a buttons node, find the specific button edge
                 const edge = flow.edges.find(e => e.sourceHandle?.trim() === interactiveReplyId.trim());
                 if (edge) {
                     await executeNode(db, project, contact, flow, edge.target, buttonReplyText);
-                    return true;
-                } else {
-                     console.error(`[Flow Engine] Edge not found for button reply ID: ${interactiveReplyId} from node ${currentNode.id}`);
+                    return true; // Handled
                 }
-            }
-             // If we are here, it's an interactive reply but we weren't expecting it or couldn't find an edge.
-            console.log(`[Flow Engine] User sent unexpected interactive reply. Ending active flow for contact ${contact.waId}.`);
-            await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
-            return true; // We "handled" it by ending the flow.
+             }
+             // Do NOT end the flow here. Let it fall through so the userResponse (from button click) can be processed by other node types like 'condition' or 'input'.
         }
 
-        // --- Handling for text-based replies ---
+        // --- Handling for text-based replies OR interactive replies that fell through ---
         if (userResponse) {
+            // Check if the current node is waiting for any kind of text-based input
             if (currentNode.type === 'input' || (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response')) {
                 await executeNode(db, project, contact, flow, currentNode.id, userResponse);
-                return true;
+                return true; // Handled
             }
         }
         
-        // If we reach here, the user sent a text message when the flow wasn't waiting for one.
+        // If we reach here, the user sent a message when the flow wasn't explicitly waiting for it. End the flow.
         console.log(`[Flow Engine] User sent unexpected message. Ending active flow for contact ${contact.waId}.`);
         await db.collection('contacts').updateOne({ _id: contact._id }, { $unset: { activeFlow: "" } });
     }
@@ -1097,9 +1094,9 @@ export async function processWebhooksForProject(db: Db, projectId: ObjectId) {
         failed: 0,
         error: ''
     };
-
+    let queueItems: any[] = [];
     try {
-        const queueItems = await db.collection('webhook_queue').find({
+        queueItems = await db.collection('webhook_queue').find({
             projectId: projectId,
             status: 'PENDING'
         }).limit(BATCH_SIZE).toArray();
