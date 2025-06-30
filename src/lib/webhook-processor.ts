@@ -1011,3 +1011,61 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
     
     return { success: successCount, failed: failedCount };
 }
+
+
+export async function processWebhooksForProject(db: Db, projectId: ObjectId) {
+    const BATCH_SIZE = 50; // Process 50 webhooks at a time for a given project
+    const results = {
+        projectId: projectId.toString(),
+        processed: 0,
+        success: 0,
+        failed: 0,
+        error: ''
+    };
+
+    try {
+        const queueItems = await db.collection('webhook_queue').find({
+            projectId: projectId,
+            status: 'PENDING'
+        }).limit(BATCH_SIZE).toArray();
+
+        if (queueItems.length === 0) {
+            return results;
+        }
+
+        const processingIds = queueItems.map(item => item._id);
+        
+        // Mark items as processing to prevent re-picking
+        await db.collection('webhook_queue').updateMany(
+            { _id: { $in: processingIds } },
+            { $set: { status: 'PROCESSING', processedAt: new Date() } }
+        );
+
+        for (const item of queueItems) {
+            try {
+                await processSingleWebhook(db, item.payload, item.logId);
+                // Mark as completed
+                await db.collection('webhook_queue').updateOne(
+                    { _id: item._id },
+                    { $set: { status: 'COMPLETED', processedAt: new Date() } }
+                );
+                results.success++;
+            } catch (e: any) {
+                console.error(`Failed to process webhook item ${item._id} for project ${projectId}:`, e.message);
+                // Mark as failed
+                await db.collection('webhook_queue').updateOne(
+                    { _id: item._id },
+                    { $set: { status: 'FAILED', error: e.message, processedAt: new Date() } }
+                );
+                results.failed++;
+            }
+            results.processed++;
+        }
+
+    } catch (e: any) {
+        console.error(`Error during webhook batch processing for project ${projectId}:`, e);
+        results.error = e.message;
+    }
+    
+    return results;
+}
