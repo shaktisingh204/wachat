@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -27,14 +28,13 @@ import {
 } from '@/components/ui/sidebar';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { WachatLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, Users, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell, CreditCard, GitBranch } from 'lucide-react';
+import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell, CreditCard, GitBranch } from 'lucide-react';
 import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
 import { cn } from '@/lib/utils';
 import { handleLogout } from '@/app/actions';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/dashboard/users', label: 'User Management', icon: Users },
   { href: '/admin/dashboard/plans', label: 'Plans', icon: CreditCard },
   { href: '/admin/dashboard/system', label: 'System Health', icon: ShieldCheck },
   { href: '/admin/dashboard/broadcast-log', label: 'Broadcast Log', icon: History },
@@ -67,10 +67,10 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={pathname === '/admin/dashboard/settings'} tooltip="Settings">
-                <Link href="/admin/dashboard/settings">
+              <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/dashboard/system')} tooltip="System Settings">
+                <Link href="/admin/dashboard/system">
                   <Settings className="h-4 w-4" />
-                  <span>Settings</span>
+                  <span>System Settings</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
