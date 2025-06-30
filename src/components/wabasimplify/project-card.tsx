@@ -1,12 +1,12 @@
 
 'use client';
 
-import React, { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Phone, Calendar } from 'lucide-react';
-import { useState, useEffect } from 'react';
 
 interface ProjectCardProps {
     project: any;
