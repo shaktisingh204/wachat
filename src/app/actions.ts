@@ -19,6 +19,8 @@ import { intelligentTranslate } from '@/ai/flows/intelligent-translate-flow';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { hashPassword, comparePassword, createSessionToken, verifySessionToken } from '@/lib/auth';
+import { v4 as uuidv4 } from 'uuid';
+import { createHash } from 'crypto';
 
 // --- Plan Management Types ---
 export type PlanFeaturePermissions = {
@@ -71,6 +73,19 @@ export type Invitation = {
     role: string;
     status: 'pending';
     createdAt: Date;
+};
+
+// --- Transaction Types ---
+export type Transaction = {
+    _id: ObjectId;
+    userId: ObjectId;
+    planId: ObjectId;
+    amount: number; // in paise
+    status: 'PENDING' | 'SUCCESS' | 'FAILED';
+    provider: 'phonepe';
+    providerTransactionId?: string;
+    createdAt: Date;
+    updatedAt: Date;
 };
 
 
@@ -3952,4 +3967,111 @@ export async function savePaymentGatewaySettings(prevState: any, formData: FormD
     }
 }
 
+type InitiatePaymentResult = {
+  redirectUrl?: string;
+  error?: string;
+}
+
+export async function handleInitiatePayment(planId: string): Promise<InitiatePaymentResult> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'You must be logged in to purchase a plan.' };
+    }
+
+    if (!ObjectId.isValid(planId)) {
+        return { error: 'Invalid plan selected.' };
+    }
+
+    const { db } = await connectToDatabase();
+    try {
+        const [plan, pgSettings] = await Promise.all([
+            getPlanById(planId),
+            getPaymentGatewaySettings()
+        ]);
+        
+        if (!plan) return { error: 'Selected plan not found.' };
+        if (!pgSettings) return { error: 'Payment gateway is not configured. Please contact support.' };
+
+        const { merchantId, saltKey, saltIndex, environment } = pgSettings;
+        if (!merchantId || !saltKey || !saltIndex) {
+            return { error: 'Payment gateway credentials are not fully configured.' };
+        }
+
+        const now = new Date();
+        const newTransaction: Omit<Transaction, '_id'> = {
+            userId: new ObjectId(session.user._id),
+            planId: new ObjectId(planId),
+            amount: plan.price * 100, // Amount in paise
+            status: 'PENDING',
+            provider: 'phonepe',
+            createdAt: now,
+            updatedAt: now,
+        };
+        const transactionResult = await db.collection('transactions').insertOne(newTransaction as any);
+        const merchantTransactionId = transactionResult.insertedId.toString();
+
+        const data = {
+            merchantId: merchantId,
+            merchantTransactionId: merchantTransactionId,
+            merchantUserId: session.user._id.toString(),
+            amount: plan.price * 100,
+            redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/payment/${merchantTransactionId}`,
+            redirectMode: 'POST',
+            callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/payment/callback`,
+            mobileNumber: '9999999999', // Placeholder as per PhonePe docs for non-mobile payments
+            paymentInstrument: {
+                type: 'PAY_PAGE',
+            },
+        };
+
+        const payload = JSON.stringify(data);
+        const payloadBase64 = Buffer.from(payload).toString('base64');
+        const apiEndpoint = '/pg/v1/pay';
+
+        const stringToHash = payloadBase64 + apiEndpoint + saltKey;
+        const sha256 = createHash('sha256').update(stringToHash).digest('hex');
+        const checksum = sha256 + '###' + saltIndex;
+
+        const hostUrl = environment === 'production' 
+            ? 'https://api.phonepe.com/apis/hermes'
+            : 'https://api-preprod.phonepe.com/apis/pg-sandbox';
+
+        const response = await axios.post(
+            `${hostUrl}${apiEndpoint}`,
+            { request: payloadBase64 },
+            { headers: { 'Content-Type': 'application/json', 'X-VERIFY': checksum, 'Accept': 'application/json' } }
+        );
+
+        const redirectUrl = response.data?.data?.instrumentResponse?.redirectInfo?.url;
+        if (!redirectUrl) {
+            console.error('PhonePe response error:', response.data);
+            return { error: `Failed to get payment URL from PhonePe: ${response.data?.message || 'Unknown error'}` };
+        }
+        
+        return { redirectUrl };
+
+    } catch (e: any) {
+        console.error("Payment initiation failed:", e);
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+    }
+}
+
+export async function getTransactionStatus(transactionId: string): Promise<WithId<Transaction> | null> {
+    const session = await getSession();
+    if (!session?.user) return null;
+
+    if (!ObjectId.isValid(transactionId)) return null;
+    
+    try {
+        const { db } = await connectToDatabase();
+        const transaction = await db.collection<Transaction>('transactions').findOne({
+            _id: new ObjectId(transactionId),
+            userId: new ObjectId(session.user._id)
+        });
+        return transaction ? JSON.parse(JSON.stringify(transaction)) : null;
+    } catch (error) {
+        console.error("Failed to fetch transaction:", error);
+        return null;
+    }
+}
     

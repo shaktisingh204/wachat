@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -10,8 +11,9 @@ export function middleware(request: NextRequest) {
     pathname.startsWith('/login') ||
     pathname.startsWith('/signup') ||
     pathname.startsWith('/admin-login') ||
-    pathname.startsWith('/api/webhooks') || // Allow webhooks to be public
-    pathname.startsWith('/api/cron'); // Allow cron jobs to be public
+    pathname.startsWith('/api/webhooks') ||
+    pathname.startsWith('/api/cron') ||
+    pathname.startsWith('/api/payment'); // Allow payment callbacks to be public
 
   const isAuthPath = pathname.startsWith('/login') || pathname.startsWith('/signup')
 

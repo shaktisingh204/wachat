@@ -1,11 +1,12 @@
 
+
 import { Check, X } from 'lucide-react';
 import type { Metadata } from 'next';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { getSession, getPlans } from '@/app/actions';
 import { Separator } from '@/components/ui/separator';
+import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-button';
 
 export const metadata: Metadata = {
   title: 'Billing & Plans | Wachat',
@@ -55,11 +56,7 @@ export default async function BillingPage() {
                             </ul>
                         </CardContent>
                         <CardFooter className="mt-auto">
-                             {userPlanId?.toString() === plan._id.toString() ? (
-                                <Button className="w-full" disabled>Current Plan</Button>
-                            ) : (
-                                <Button className="w-full">Upgrade to {plan.name}</Button>
-                            )}
+                            <PlanPurchaseButton plan={plan} currentPlanId={userPlanId?.toString()} />
                         </CardFooter>
                     </Card>
                 ))}
@@ -67,5 +64,3 @@ export default async function BillingPage() {
         </div>
     );
 }
-
-    
