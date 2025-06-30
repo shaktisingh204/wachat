@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
@@ -146,7 +147,7 @@ function GeneralReplyForm({ project }: { project: WithId<Project> }) {
                 <div className="flex items-center justify-between">
                     <div>
                         <CardTitle>General Auto Reply</CardTitle>
-                        <CardDescription>A standard reply for any message that doesn't trigger other rules.</CardDescription>
+                        <CardDescription>A standard reply for any message that doesn't trigger other rules. Sent only once to new contacts if Welcome Message is off.</CardDescription>
                     </div>
                     <Switch name="enabled" defaultChecked={settings?.enabled} />
                 </div>

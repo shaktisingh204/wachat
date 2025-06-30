@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -709,8 +710,15 @@ async function triggerAutoReply(db: Db, project: WithId<Project>, contact: WithI
     }
     
     // 4. Check General Reply (if no other reply was triggered)
-    if (!replyMessage && settings.general?.enabled && settings.general.message) {
+    // Only trigger if it's the very first message and the welcome message is disabled.
+    if (!replyMessage && contact.hasReceivedWelcome === false && settings.general?.enabled && settings.general.message) {
         replyMessage = settings.general.message;
+        if (replyMessage) {
+            await sendAutoReplyMessage(db, project, contact, phoneNumberId, replyMessage);
+             // Mark as welcomed so neither the general nor welcome message fires again
+            await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { hasReceivedWelcome: true } });
+            return;
+        }
     }
 
     if (replyMessage) {
