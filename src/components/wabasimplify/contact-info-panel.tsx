@@ -24,6 +24,7 @@ interface ContactInfoPanelProps {
 export function ContactInfoPanel({ project, contact, isOpen, onOpenChange, onContactUpdate }: ContactInfoPanelProps) {
   const [variables, setVariables] = useState<Record<string, string>>(contact.variables || {});
   const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
   const userAttributes = project.userAttributes || [];
 
   useEffect(() => {

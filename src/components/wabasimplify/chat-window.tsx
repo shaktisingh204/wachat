@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
@@ -57,7 +56,7 @@ export function ChatWindow({ project, contact, conversation, isLoading, onBack, 
                 onContactUpdate={onContactUpdate}
             />
             <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between gap-3 px-3 border-b h-[50px] flex-shrink-0">
+                <div className="flex items-center justify-between gap-3 p-3 border-b h-[50px] flex-shrink-0">
                     <div className="flex items-center gap-3">
                         <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
                             <ArrowLeft className="h-4 w-4" />
