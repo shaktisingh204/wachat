@@ -384,8 +384,8 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             console.log(`[Flow Engine] Executing API node ${node.id} with data:`, apiRequest);
 
             try {
-                const rawHeaders = interpolate(apiRequest?.headers, contact.activeFlow.variables);
-                const rawBody = interpolate(apiRequest?.body, contact.activeFlow.variables);
+                const rawHeaders = apiRequest?.headers ? interpolate(apiRequest.headers, contact.activeFlow.variables) : '';
+                const rawBody = apiRequest?.body ? interpolate(apiRequest.body, contact.activeFlow.variables) : '';
 
                 interpolatedUrl = interpolate(apiRequest?.url, contact.activeFlow.variables);
                 interpolatedHeaders = rawHeaders ? JSON.parse(rawHeaders) : undefined;
@@ -458,7 +458,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
 async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId<Contact> & { activeFlow?: any }, message: any, phoneNumberId: string): Promise<boolean> {
     const messageText = message.text?.body?.trim();
     const buttonReplyText = message.interactive?.button_reply?.title?.trim();
-    const interactiveReplyId = message.interactive?.button_reply?.id;
+    const interactiveReplyId = message.interactive?.button_reply?.id?.trim();
     const isInteractiveReply = !!message.interactive;
 
     const userResponse = buttonReplyText || messageText;
@@ -499,7 +499,7 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
                 return true;
              } else if (currentNode.type === 'buttons' && interactiveReplyId) {
                 // --- Standard button node reply ---
-                const edge = flow.edges.find(e => e.sourceHandle === interactiveReplyId);
+                const edge = flow.edges.find(e => e.sourceHandle?.trim() === interactiveReplyId);
                 if (edge) {
                     await executeNode(db, project, contact, flow, edge.target, buttonReplyText);
                     return true;
