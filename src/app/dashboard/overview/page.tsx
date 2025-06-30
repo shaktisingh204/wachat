@@ -3,11 +3,20 @@
 import { useEffect, useState } from 'react';
 import { getDashboardStats, getProjects } from '@/app/actions';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessagesSquare, CheckCircle, XCircle, Send, AlertCircle, CheckCheck, Eye } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AnalyticsChart } from '@/components/wabasimplify/analytics-chart';
+
+const AnalyticsChart = dynamic(
+  () => import('@/components/wabasimplify/analytics-chart').then(mod => mod.AnalyticsChart),
+  {
+    ssr: false,
+    loading: () => <Skeleton className="min-h-[300px] w-full" />,
+  }
+);
+
 
 type DashboardStats = {
   totalMessages: number;

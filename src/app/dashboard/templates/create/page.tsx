@@ -2,8 +2,8 @@
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
-import { CreateTemplateForm } from '@/components/wabasimplify/create-template-form';
 import Link from 'next/link';
 import { AlertCircle, ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,26 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { getProjectById } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, Template } from '@/app/dashboard/page';
+
+const LoadingSkeleton = () => (
+    <div className="flex flex-col gap-8">
+      <div>
+        <Skeleton className="h-10 w-48 mb-4" />
+        <Skeleton className="h-8 w-1/3" />
+        <Skeleton className="h-4 w-2/3 mt-2" />
+      </div>
+      <div className="space-y-6">
+        <Skeleton className="h-48 w-full" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    </div>
+);
+
+const CreateTemplateForm = dynamic(
+  () => import('@/components/wabasimplify/create-template-form').then(mod => mod.CreateTemplateForm),
+  { loading: () => <LoadingSkeleton /> }
+);
+
 
 function CreateTemplatePageContent() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
@@ -87,20 +107,6 @@ function CreateTemplatePageContent() {
     </div>
   );
 }
-
-const LoadingSkeleton = () => (
-    <div className="flex flex-col gap-8">
-      <div>
-        <Skeleton className="h-10 w-48 mb-4" />
-        <Skeleton className="h-8 w-1/3" />
-        <Skeleton className="h-4 w-2/3 mt-2" />
-      </div>
-      <div className="space-y-6">
-        <Skeleton className="h-48 w-full" />
-        <Skeleton className="h-64 w-full" />
-      </div>
-    </div>
-  );
 
 export default function CreateTemplatePage() {
     return (

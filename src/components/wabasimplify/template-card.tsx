@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,7 +21,7 @@ interface TemplateCardProps {
   template: WithId<Template>;
 }
 
-export function TemplateCard({ template }: TemplateCardProps) {
+export const TemplateCard = React.memo(function TemplateCard({ template }: TemplateCardProps) {
   const router = useRouter();
   const [isViewOpen, setIsViewOpen] = useState(false);
 
@@ -160,4 +160,4 @@ export function TemplateCard({ template }: TemplateCardProps) {
       </Dialog>
     </>
   );
-}
+});

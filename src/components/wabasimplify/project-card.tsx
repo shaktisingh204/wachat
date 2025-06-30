@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
+import React, { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -12,7 +12,7 @@ interface ProjectCardProps {
     project: any;
 }
 
-export function ProjectCard({ project }: ProjectCardProps) {
+export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectCardProps) {
     const router = useRouter();
     const [createdDate, setCreatedDate] = useState<string | null>(null);
 
@@ -116,4 +116,4 @@ export function ProjectCard({ project }: ProjectCardProps) {
             </CardContent>
         </Card>
     );
-}
+});

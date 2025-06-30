@@ -24,10 +24,6 @@ export default function TemplatesPage() {
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const fetchTemplates = useCallback(async (showToast = false) => {
     try {
       const projectId = localStorage.getItem('activeProjectId');
@@ -51,6 +47,10 @@ export default function TemplatesPage() {
   }, [toast]);
   
   useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
     if (isClient) {
       setLoading(true);
       document.title = 'Message Templates | Wachat';
@@ -58,7 +58,7 @@ export default function TemplatesPage() {
     }
   }, [isClient, fetchTemplates]);
 
-  const onSync = () => {
+  const onSync = useCallback(() => {
     startSyncTransition(async () => {
       const projectId = localStorage.getItem('activeProjectId');
       if (!projectId) {
@@ -73,7 +73,7 @@ export default function TemplatesPage() {
         await fetchTemplates(true);
       }
     });
-  };
+  }, [toast, fetchTemplates, startSyncTransition]);
 
   const filteredTemplates = useMemo(() => templates.filter(template => {
     const nameMatch = template.name.toLowerCase().includes(searchQuery.toLowerCase());

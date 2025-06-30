@@ -1,6 +1,8 @@
-import type {NextConfig} from 'next';
+const withBundleAnalyzer = require('@next/bundle-analyzer')({
+  enabled: process.env.ANALYZE === 'true',
+});
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   /* config options here */
   serverActions: {
     bodySizeLimit: '50mb',
@@ -29,4 +31,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);

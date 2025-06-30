@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { AnyMessage, OutgoingMessage, handleTranslateMessage } from '@/app/actions';
 import { cn } from '@/lib/utils';
 import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, XCircle, Languages, LoaderCircle } from 'lucide-react';
@@ -149,7 +148,7 @@ const MessageBody = ({ message, isOutgoing }: { message: AnyMessage; isOutgoing:
 };
 
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export const ChatMessage = React.memo(function ChatMessage({ message }: ChatMessageProps) {
     const isOutgoing = message.direction === 'out';
     const timestamp = message.messageTimestamp || message.createdAt;
     
@@ -230,4 +229,4 @@ export function ChatMessage({ message }: ChatMessageProps) {
             </div>
         </div>
     );
-}
+});

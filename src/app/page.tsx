@@ -1,8 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
-import { getSession } from '@/app/actions';
-import { redirect } from 'next/navigation';
 import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -92,12 +90,6 @@ const faqs = [
 ]
 
 export default async function HomePage() {
-  const session = await getSession();
-
-  if (session?.user) {
-    redirect('/dashboard');
-  }
-
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       {/* Header */}
