@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Db, Filter, ObjectId } from 'mongodb';
 import type { Project } from '@/app/actions';
+import { processSingleWebhook, processStatusUpdateBatch, handleSingleMessageEvent } from '@/lib/webhook-processor';
 
 const getSearchableText = (payload: any): string => {
     let text = '';
@@ -86,7 +87,7 @@ export async function GET(request: NextRequest) {
 
 /**
  * Handles incoming webhook event notifications from Meta.
- * It queues all events for reliable background processing by a cron job.
+ * It now processes events instantly instead of queueing them.
  */
 export async function POST(request: NextRequest) {
   let logId: ObjectId | null = null;
@@ -100,42 +101,75 @@ export async function POST(request: NextRequest) {
     const payload = JSON.parse(payloadText);
     const { db } = await connectToDatabase();
 
-    // 1. Enrich payload with Project ID for efficient parallel processing
+    // 1. Log the incoming event for audit and manual reprocessing
     const projectId = await findProjectIdFromWebhook(db, payload);
     const searchableText = getSearchableText(payload);
-
-    // 2. Log every webhook for visibility and manual reprocessing
     const logResult = await db.collection('webhook_logs').insertOne({
         payload: payload,
         searchableText,
         projectId: projectId,
-        processed: false, // Initially, all logs are unprocessed
+        processed: false, // Initially unprocessed
         createdAt: new Date(),
     });
     logId = logResult.insertedId;
+
+    // 2. Find the project and process the event immediately
+    if (!projectId) {
+        console.log(`Webhook received for an unknown project. WABA ID: ${payload?.entry?.[0]?.id}. Ignoring.`);
+        return NextResponse.json({ status: 'ok_project_not_found' });
+    }
+
+    const project = await db.collection<Project>('projects').findOne({ _id: projectId });
+    if (!project) {
+        console.log(`Webhook for project ${projectId} ignored because project was not found in DB.`);
+        return NextResponse.json({ status: 'ok_project_not_found_in_db' });
+    }
     
-    // 3. Always queue the event for the cron job to process reliably.
-    await db.collection('webhook_queue').insertOne({
-        payload: payload,
-        logId: logId,
-        projectId: projectId,
-        status: 'PENDING',
-        createdAt: new Date(),
-    });
+    // 3. Process the event based on its type
+    const change = payload.entry?.[0]?.changes?.[0];
+    if (!change) {
+        return NextResponse.json({ status: 'ok_no_changes' });
+    }
+
+    const value = change.value;
+    const field = change.field;
+    let processingError: Error | null = null;
+
+    try {
+        if (field === 'messages' && value) {
+            if (value.statuses) {
+                // Batch of status updates
+                await processStatusUpdateBatch(db, value.statuses);
+            }
+            if (value.messages) {
+                // Batch of incoming messages (usually one)
+                for (const message of value.messages) {
+                     const contactProfile = value.contacts?.find((c: any) => c.wa_id === message.from) || {};
+                     await handleSingleMessageEvent(db, project, message, contactProfile);
+                }
+            }
+        } else {
+            // Other system-level events (template approval, etc.)
+            await processSingleWebhook(db, project, payload, logId);
+        }
+    } catch(e: any) {
+        processingError = e;
+        console.error(`Error processing webhook for project ${projectId}:`, e.message);
+    }
     
-    // 4. Respond to Meta immediately to acknowledge receipt.
-    // Use 200 OK as per Meta's recommendation for reliability.
-    return NextResponse.json({ status: 'queued' }, { status: 200 });
+    // 4. Mark the log as processed
+    await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: processingError ? processingError.message : null }});
+    
+    // 5. Respond to Meta immediately to acknowledge receipt.
+    return NextResponse.json({ status: 'processed' }, { status: 200 });
 
   } catch (error: any) {
     if (error instanceof SyntaxError) {
         console.warn("Webhook ingestion failed due to invalid JSON. This might be a verification request or an empty POST. Ignoring.");
-        // Acknowledge the request to prevent Meta from retrying a bad request.
         return NextResponse.json({ status: "ignored_invalid_json" }, { status: 200 });
     }
       
-    console.error('Error in webhook ingestion:', error);
-    // If an error occurs during ingestion and we have a log ID, mark the log as failed.
+    console.error('Fatal error in webhook ingestion:', error);
     if (logId) {
         try {
             const { db } = await connectToDatabase();
@@ -144,7 +178,6 @@ export async function POST(request: NextRequest) {
              console.error('Failed to mark log as error during ingestion failure:', dbError);
         }
     }
-    // In case of error, return a server error but don't block Meta.
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }

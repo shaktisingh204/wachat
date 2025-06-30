@@ -13,7 +13,7 @@ import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
 import { translateText } from '@/ai/flows/translate-text';
-import { processSingleWebhook } from '@/lib/webhook-processor';
+import { processSingleWebhook, handleSingleMessageEvent, processStatusUpdateBatch } from '@/lib/webhook-processor';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { intelligentTranslate } from '@/ai/flows/intelligent-translate-flow';
 import { cookies } from 'next/headers';
@@ -312,6 +312,50 @@ const getErrorMessage = (error: any): string => {
     }
     return String(error) || 'An unknown error occurred';
 };
+
+export async function getSession(): Promise<{ user: (Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null }) } | null> {
+    const sessionToken = cookies().get('session')?.value;
+    if (!sessionToken) {
+        return null;
+    }
+
+    const payload = verifySessionToken(sessionToken);
+    if (!payload) {
+        return null;
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection<User>('users').findOne(
+            { _id: new ObjectId(payload.userId) },
+            { projection: { password: 0 } }
+        );
+
+        if (!user) {
+            return null;
+        }
+
+        let userPlan: WithId<Plan> | null = null;
+        if (user.planId && ObjectId.isValid(user.planId)) {
+            userPlan = await db.collection<Plan>('plans').findOne({ _id: new ObjectId(user.planId) });
+        } else {
+            // If user has no plan, assign the default plan
+            const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
+            if (defaultPlan) {
+                await db.collection('users').updateOne({ _id: user._id }, { $set: { planId: defaultPlan._id } });
+                user.planId = defaultPlan._id;
+                userPlan = defaultPlan;
+            }
+        }
+
+        const userWithPlan = { ...user, plan: userPlan };
+
+        return { user: JSON.parse(JSON.stringify(userWithPlan)) };
+    } catch (error) {
+        console.error("Error fetching session user from DB:", error);
+        return null;
+    }
+}
 
 
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
@@ -1641,7 +1685,6 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
                         $setOnInsert: {
                              createdAt: projectDoc.createdAt,
                              messagesPerSecond: projectDoc.messagesPerSecond,
-                             reviewStatus: projectDoc.reviewStatus,
                         }
                     },
                     upsert: true,
@@ -1671,17 +1714,6 @@ export type WebhookLog = {
     processed?: boolean;
     createdAt: Date;
     projectId?: ObjectId;
-    error?: string;
-};
-
-export type WebhookQueueItem = {
-    _id: any;
-    payload: any;
-    logId?: ObjectId;
-    projectId?: ObjectId;
-    status: 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
-    createdAt: Date;
-    processedAt?: Date;
     error?: string;
 };
 
@@ -1824,1705 +1856,44 @@ export async function handleReprocessWebhook(logId: string): Promise<{ message?:
             return { error: 'Webhook log not found.' };
         }
         
-        // Don't process directly, add it to the queue for the cron job to handle
-        await db.collection('webhook_queue').insertOne({
-            payload: log.payload,
-            logId: log._id,
-            projectId: log.projectId,
-            status: 'PENDING',
-            createdAt: new Date(),
-        });
-
-        return { message: `Successfully queued event for re-processing: ${log.payload?.entry?.[0]?.changes?.[0]?.field || 'unknown'}` };
-    } catch (e: any) {
-        console.error("Failed to re-queue webhook:", e);
-        return { error: e.message || "An unexpected error occurred during re-queueing." };
-    }
-}
-
-export async function handleRequeueAllWebhookLogs(): Promise<{ message?: string; error?: string; count?: number }> {
-    try {
-        const { db } = await connectToDatabase();
-        const logsCursor = db.collection('webhook_logs').find({}, { projection: { payload: 1, projectId: 1 } });
-
-        let totalQueuedCount = 0;
-        const batchSize = 1000;
-        let batch: any[] = [];
-
-        for await (const log of logsCursor) {
-            batch.push({
-                payload: log.payload,
-                logId: log._id,
-                projectId: log.projectId,
-                status: 'PENDING' as const,
-                createdAt: new Date(),
-            });
-
-            if (batch.length >= batchSize) {
-                const result = await db.collection('webhook_queue').insertMany(batch, { ordered: false }).catch(e => {
-                    if (e.code === 11000) return { insertedCount: 0 }; // Ignore duplicates
-                    throw e;
-                });
-                totalQueuedCount += result.insertedCount;
-                batch = [];
-            }
+        const projectId = log.projectId;
+        if (!projectId) {
+            return { error: 'Cannot reprocess: Log is not associated with a project.' };
         }
-        
-        if (batch.length > 0) {
-            const result = await db.collection('webhook_queue').insertMany(batch, { ordered: false }).catch(e => {
-                if (e.code === 11000) return { insertedCount: 0 }; // Ignore duplicates
-                throw e;
-            });
-            totalQueuedCount += result.insertedCount;
-        }
-
-        if (totalQueuedCount === 0) {
-            return { message: 'No new logs found to requeue.' };
-        }
-
-        return { message: `Successfully queued ${totalQueuedCount} events for re-processing. The cron job will handle them shortly.`, count: totalQueuedCount };
-    } catch (e: any) {
-        console.error("Failed to requeue all webhook logs:", e);
-        return { error: e.message || "An unexpected error occurred during requeueing." };
-    }
-}
-
-type AutoReplyState = {
-    message?: string;
-    error?: string;
-};
-
-export async function handleUpdateAutoReplySettings(
-    prevState: AutoReplyState,
-    formData: FormData
-): Promise<AutoReplyState> {
-    const projectId = formData.get('projectId') as string;
-    const replyType = formData.get('replyType') as 'welcomeMessage' | 'general' | 'inactiveHours' | 'aiAssistant';
-
-    if (!replyType) {
-        return { error: 'Invalid reply type specified.' };
-    }
-
-    try {
-        const project = await getProjectById(projectId);
+        const project = await db.collection<Project>('projects').findOne({_id: projectId});
         if (!project) {
-            return { error: 'Project not found or you do not have access.' };
+            return { error: `Cannot reprocess: Project ${projectId} not found.`};
         }
-        
-        const { db } = await connectToDatabase();
-        
-        const autoReplySettings = project.autoReplySettings || {};
 
-        switch (replyType) {
-            case 'welcomeMessage':
-                autoReplySettings.welcomeMessage = {
-                    enabled: formData.get('enabled') === 'on',
-                    message: formData.get('message') as string,
-                };
-                break;
-            case 'general':
-                autoReplySettings.general = {
-                    enabled: formData.get('enabled') === 'on',
-                    message: formData.get('message') as string,
-                };
-                break;
-            case 'inactiveHours':
-                const days: number[] = [];
-                for (let i = 0; i < 7; i++) {
-                    if (formData.get(`day_${i}`) === 'on') {
-                        days.push(i);
-                    }
+        const payload = log.payload;
+        const change = payload.entry?.[0]?.changes?.[0];
+        if (!change) {
+            return { error: 'Cannot reprocess: Invalid payload structure.' };
+        }
+
+        const value = change.value;
+        const field = change.field;
+
+        if (field === 'messages' && value) {
+            if (value.statuses) {
+                await processStatusUpdateBatch(db, value.statuses);
+            }
+            if (value.messages) {
+                for (const message of value.messages) {
+                     const contactProfile = value.contacts?.find((c: any) => c.wa_id === message.from) || {};
+                     await handleSingleMessageEvent(db, project, message, contactProfile);
                 }
-                autoReplySettings.inactiveHours = {
-                    enabled: formData.get('enabled') === 'on',
-                    startTime: formData.get('startTime') as string,
-                    endTime: formData.get('endTime') as string,
-                    timezone: formData.get('timezone') as string,
-                    days: days,
-                    message: formData.get('message') as string,
-                };
-                break;
-            case 'aiAssistant':
-                 autoReplySettings.aiAssistant = {
-                    enabled: formData.get('enabled') === 'on',
-                    context: formData.get('context') as string,
-                    autoTranslate: formData.get('autoTranslate') === 'on',
-                };
-                break;
-            default:
-                return { error: 'Unknown reply type.' };
-        }
-
-        const result = await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
-            { $set: { autoReplySettings } }
-        );
-
-        if (result.matchedCount === 0) {
-             return { error: 'Project not found during update.' };
-        }
-
-        revalidatePath('/dashboard/settings');
-        return { message: 'Auto-reply settings saved successfully!' };
-
-    } catch (e: any) {
-        console.error('Failed to update auto-reply settings:', e);
-        return { error: e.message || 'An unexpected error occurred.' };
-    }
-}
-
-export async function handleUpdateMasterSwitch(projectId: string, enabled: boolean): Promise<{ message?: string; error?: string; }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or you do not have access.' };
-
-    try {
-        const { db } = await connectToDatabase();
-        
-        const autoReplySettings = project.autoReplySettings || {};
-        autoReplySettings.masterEnabled = enabled;
-
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
-            { $set: { autoReplySettings } }
-        );
-
-        revalidatePath('/dashboard/settings');
-        return { message: 'Auto-reply settings updated.' };
-    } catch (e: any) {
-        return { error: e.message || 'An unexpected error occurred.' };
-    }
-}
-
-
-// --- Flow Builder Actions ---
-
-export async function getFlowsForProject(projectId: string): Promise<WithId<Flow>[]> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
-
-    try {
-        const { db } = await connectToDatabase();
-        const flows = await db.collection('flows')
-            .find({ projectId: new ObjectId(projectId) })
-            .project({ name: 1, updatedAt: 1, triggerKeywords: 1 })
-            .sort({ updatedAt: -1 })
-            .toArray();
-        return JSON.parse(JSON.stringify(flows));
-    } catch (e: any) {
-        console.error("Failed to fetch flows:", e);
-        return [];
-    }
-}
-
-export async function getFlowById(flowId: string): Promise<WithId<Flow> | null> {
-    if (!ObjectId.isValid(flowId)) return null;
-
-    try {
-        const { db } = await connectToDatabase();
-        const flow = await db.collection('flows').findOne({ _id: new ObjectId(flowId) });
-        if (!flow) return null;
-
-        const hasAccess = await getProjectById(flow.projectId.toString());
-        if (!hasAccess) return null;
-        
-        return JSON.parse(JSON.stringify(flow));
-    } catch (e: any) {
-        console.error("Failed to fetch flow:", e);
-        return null;
-    }
-}
-
-type SaveFlowResult = {
-  flowId?: string;
-  message?: string;
-  error?: string;
-};
-
-export async function saveFlow(flowData: {
-  flowId?: string;
-  projectId: string;
-  name: string;
-  nodes: FlowNode[];
-  edges: FlowEdge[];
-  triggerKeywords: string[];
-}): Promise<SaveFlowResult> {
-  const { flowId, projectId, name, nodes, edges, triggerKeywords } = flowData;
-
-  if (!name || !nodes) {
-    return { error: "Name and nodes are required." };
-  }
-  
-  const hasAccess = await getProjectById(projectId);
-  if (!hasAccess) return { error: "Project not found or you do not have access." };
-
-  try {
-    const { db } = await connectToDatabase();
-    const now = new Date();
-    const flowDocument = {
-      projectId: new ObjectId(projectId),
-      name,
-      nodes,
-      edges,
-      triggerKeywords,
-      updatedAt: now,
-    };
-
-    let savedFlowId: ObjectId;
-
-    if (flowId && ObjectId.isValid(flowId)) {
-      const result = await db.collection('flows').updateOne(
-        { _id: new ObjectId(flowId), projectId: new ObjectId(projectId) },
-        { $set: flowDocument }
-      );
-       if (result.matchedCount === 0) {
-        return { error: "Flow not found for update." };
-      }
-      savedFlowId = new ObjectId(flowId);
-    } else {
-      const result = await db.collection('flows').insertOne({
-        ...flowDocument,
-        createdAt: now,
-      });
-      savedFlowId = result.insertedId;
-    }
-
-    revalidatePath('/dashboard/flow-builder');
-    return { message: `Flow "${name}" saved successfully.`, flowId: savedFlowId.toString() };
-  } catch (e: any) {
-    console.error("Failed to save flow:", e);
-    return { error: e.message || "An unexpected error occurred while saving the flow." };
-  }
-}
-
-export async function deleteFlow(flowId: string): Promise<{ message?: string; error?: string; }> {
-    if (!ObjectId.isValid(flowId)) {
-        return { error: 'Invalid Flow ID.' };
-    }
-    try {
-        const { db } = await connectToDatabase();
-        const flow = await getFlowById(flowId);
-        if (!flow) return { error: 'Flow not found or you do not have access.' };
-
-        const result = await db.collection('flows').deleteOne({ _id: new ObjectId(flowId) });
-        if (result.deletedCount === 0) {
-            return { error: 'Flow not found.' };
-        }
-        revalidatePath('/dashboard/flow-builder');
-        return { message: 'Flow deleted successfully.' };
-    } catch (e: any) {
-         console.error("Failed to delete flow:", e);
-        return { error: e.message || "An unexpected error occurred while deleting the flow." };
-    }
-}
-
-// --- Canned Messages Actions ---
-export async function getCannedMessages(projectId: string): Promise<WithId<CannedMessage>[]> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
-
-    try {
-        const { db } = await connectToDatabase();
-        const messages = await db.collection('canned_messages')
-            .find({ projectId: new ObjectId(projectId) })
-            .sort({ isFavourite: -1, name: 1 })
-            .toArray();
-        return JSON.parse(JSON.stringify(messages));
-    } catch (e: any) {
-        console.error("Failed to fetch canned messages:", e);
-        return [];
-    }
-}
-
-type SaveCannedMessageResult = {
-  message?: string;
-  error?: string;
-};
-
-export async function saveCannedMessageAction(prevState: any, formData: FormData): Promise<SaveCannedMessageResult> {
-    const session = await getSession();
-    if (!session?.user) return { error: "User not authenticated." };
-
-    const cannedMessageId = formData.get('_id') as string | null;
-    const projectId = formData.get('projectId') as string;
-    
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: "Access denied." };
-
-    const data: Partial<CannedMessage> = {
-        name: formData.get('name') as string,
-        type: formData.get('type') as CannedMessage['type'],
-        isFavourite: formData.get('isFavourite') === 'on',
-        content: {
-            text: formData.get('text') as string,
-            mediaUrl: formData.get('mediaUrl') as string,
-            caption: formData.get('caption') as string,
-            fileName: formData.get('fileName') as string,
-        }
-    };
-    
-    if (!data.name || !data.type) {
-        return { error: 'Name and Type are required.' };
-    }
-    
-    // Clean up content based on type
-    if (data.type === 'text') {
-        if (!data.content?.text) return { error: 'Text content is required for text messages.' };
-        data.content = { text: data.content.text };
-    } else {
-        if (!data.content?.mediaUrl) return { error: 'Media URL is required for media messages.' };
-        data.content = { 
-            mediaUrl: data.content.mediaUrl, 
-            caption: data.content.caption, 
-            fileName: data.content.fileName 
-        };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        if (cannedMessageId && ObjectId.isValid(cannedMessageId)) {
-            await db.collection('canned_messages').updateOne(
-                { _id: new ObjectId(cannedMessageId), projectId: new ObjectId(projectId) },
-                { $set: data }
-            );
+            }
         } else {
-            await db.collection('canned_messages').insertOne({
-                ...data,
-                projectId: new ObjectId(projectId),
-                createdAt: new Date(),
-                createdBy: session.user.name,
-            } as any);
+            await processSingleWebhook(db, project, payload, log._id);
         }
-        revalidatePath('/dashboard/canned-messages');
-        return { message: 'Canned message saved successfully.' };
+
+        await db.collection('webhook_logs').updateOne({ _id: log._id }, { $set: { processed: true, error: null }});
+
+        return { message: `Successfully re-processed event: ${field || 'unknown'}` };
     } catch (e: any) {
-        console.error("Failed to save canned message:", e);
-        return { error: e.message || 'An unexpected error occurred.' };
-    }
-}
-
-export async function deleteCannedMessage(cannedMessageId: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(cannedMessageId)) return { success: false, error: 'Invalid ID.' };
-
-    try {
-        const { db } = await connectToDatabase();
-        
-        const cannedMessage = await db.collection('canned_messages').findOne({ _id: new ObjectId(cannedMessageId) });
-        if (!cannedMessage) return { success: false, error: 'Canned message not found.' };
-
-        const hasAccess = await getProjectById(cannedMessage.projectId.toString());
-        if (!hasAccess) return { success: false, error: 'Access denied.' };
-
-        await db.collection('canned_messages').deleteOne({ _id: new ObjectId(cannedMessageId) });
-        
-        revalidatePath('/dashboard/canned-messages');
-        return { success: true };
-    } catch (e: any) {
-        console.error("Failed to delete canned message:", e);
-        return { success: false, error: e.message || 'An unexpected error occurred.' };
-    }
-}
-
-
-// --- AGGREGATOR ACTIONS FOR OPTIMIZED LOADING ---
-
-export async function getConversation(contactId: string): Promise<AnyMessage[]> {
-    if (!ObjectId.isValid(contactId)) return [];
-
-    try {
-        const { db } = await connectToDatabase();
-        const contactObjectId = new ObjectId(contactId);
-
-        const contact = await db.collection('contacts').findOne({ _id: contactObjectId });
-        if (!contact) return [];
-        const hasAccess = await getProjectById(contact.projectId.toString());
-        if (!hasAccess) return [];
-
-        const incoming = await db.collection('incoming_messages').find({ contactId: contactObjectId }).toArray();
-        const outgoing = await db.collection('outgoing_messages').find({ contactId: contactObjectId }).toArray();
-
-        const allMessages = [...incoming, ...outgoing];
-        allMessages.sort((a, b) => new Date(a.messageTimestamp).getTime() - new Date(b.messageTimestamp).getTime());
-
-        return JSON.parse(JSON.stringify(allMessages));
-    } catch (e) {
-        console.error("Failed to get conversation:", e);
-        return [];
-    }
-}
-
-
-export async function getInitialChatData(
-    projectId: string,
-    initialPhoneId?: string | null,
-    initialContactId?: string | null
-): Promise<{
-    project: WithId<Project> | null;
-    contacts: WithId<Contact>[];
-    totalContacts: number;
-    selectedContact: WithId<Contact> | null;
-    conversation: AnyMessage[];
-    selectedPhoneNumberId: string;
-}> {
-    const project = await getProjectById(projectId);
-    if (!project) {
-        return { project: null, contacts: [], totalContacts: 0, selectedContact: null, conversation: [], selectedPhoneNumberId: '' };
-    }
-
-    const phoneIdToUse = initialPhoneId || project.phoneNumbers?.[0]?.id || '';
-    if (!phoneIdToUse) {
-        return { project, contacts: [], totalContacts: 0, selectedContact: null, conversation: [], selectedPhoneNumberId: '' };
-    }
-    
-    const { contacts, total } = await getContactsForProject(projectId, phoneIdToUse, 1, 30);
-    
-    let conversation: AnyMessage[] = [];
-    let selectedContact: WithId<Contact> | null = null;
-    
-    if (initialContactId) {
-        const contactToSelect = contacts.find(c => c._id.toString() === initialContactId);
-        if (contactToSelect) {
-            selectedContact = contactToSelect;
-            conversation = await getConversation(initialContactId);
-            if (contactToSelect.unreadCount && contactToSelect.unreadCount > 0) {
-                await markConversationAsRead(initialContactId);
-                // The contact in the list will still have the old unreadCount, we should update it
-                const updatedContact = { ...contactToSelect, unreadCount: 0 };
-                const contactIndex = contacts.findIndex(c => c._id.toString() === initialContactId);
-                if (contactIndex > -1) {
-                    contacts[contactIndex] = updatedContact;
-                }
-            }
-        }
-    }
-
-    return {
-        project,
-        contacts,
-        totalContacts: total,
-        selectedContact,
-        conversation,
-        selectedPhoneNumberId: phoneIdToUse
-    };
-}
-
-export async function getContactsForProject(projectId: string, phoneNumberId: string, page: number = 1, limit: number = 30, query: string = ''): Promise<{ contacts: WithId<Contact>[], total: number }> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { contacts: [], total: 0 };
-
-    try {
-        const { db } = await connectToDatabase();
-        const filter: Filter<Contact> = {
-            projectId: new ObjectId(projectId),
-            phoneNumberId,
-        };
-
-        if(query) {
-            filter.name = { $regex: query, $options: 'i' };
-        }
-
-        const skip = (page - 1) * limit;
-
-        const [contacts, total] = await Promise.all([
-             db.collection<Contact>('contacts')
-                .find(filter)
-                .sort({ lastMessageTimestamp: -1 })
-                .skip(skip)
-                .limit(limit)
-                .toArray(),
-            db.collection('contacts').countDocuments(filter)
-        ]);
-
-        return { contacts: JSON.parse(JSON.stringify(contacts)), total };
-    } catch (e: any) {
-        console.error("Failed to fetch contacts for project:", e);
-        return { contacts: [], total: 0 };
-    }
-}
-
-export async function getContactsPageData(
-    projectId: string,
-    phoneId?: string | null,
-    page: number = 1,
-    query: string = ''
-): Promise<{
-    project: WithId<Project> | null;
-    contacts: WithId<Contact>[];
-    total: number;
-    selectedPhoneNumberId: string;
-}> {
-    const project = await getProjectById(projectId);
-    if (!project) {
-        return { project: null, contacts: [], total: 0, selectedPhoneNumberId: '' };
-    }
-    
-    const phoneIdToUse = phoneId || project.phoneNumbers?.[0]?.id || '';
-    if (!phoneIdToUse) {
-        return { project, contacts: [], total: 0, selectedPhoneNumberId: phoneIdToUse };
-    }
-
-    const { contacts, total } = await getContactsForProject(projectId, phoneIdToUse, page, 20, query);
-
-    return { project, contacts, total, selectedPhoneNumberId: phoneIdToUse };
-}
-
-export async function getFlowBuilderPageData(
-    projectId: string
-): Promise<{
-    flows: WithId<Flow>[];
-    initialFlow: WithId<Flow> | null;
-}> {
-    const flows = await getFlowsForProject(projectId);
-    let initialFlow: WithId<Flow> | null = null;
-
-    if (flows.length > 0) {
-        // Fetch the full data for the first flow
-        initialFlow = await getFlowById(flows[0]._id.toString());
-    }
-
-    return { flows, initialFlow };
-}
-
-
-// --- USER AUTHENTICATION ACTIONS ---
-type AuthState = {
-  message?: string | null;
-  error?: string | null;
-};
-
-export async function handleLogin(prevState: AuthState, formData: FormData): Promise<AuthState> {
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-
-    if (!email || !password) {
-        return { error: 'Email and password are required.' };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        const user = await db.collection<User>('users').findOne({ email });
-
-        if (!user || !user.password) {
-            return { error: 'Invalid email or password.' };
-        }
-
-        const isValidPassword = await comparePassword(password, user.password);
-
-        if (!isValidPassword) {
-            return { error: 'Invalid email or password.' };
-        }
-
-        const cookieStore = await cookies();
-        const token = createSessionToken({ userId: user._id.toString(), email: user.email });
-
-        cookieStore.set('session', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/',
-            expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-        });
-
-    } catch (e: any) {
-        console.error("Login failed:", e);
-        return { error: 'An unexpected error occurred.' };
-    }
-    
-    redirect('/dashboard');
-}
-
-export async function handleSignup(prevState: AuthState, formData: FormData): Promise<AuthState> {
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-
-    if (!name || !email || !password) {
-        return { error: 'All fields are required.' };
-    }
-    if (password.length < 6) {
-        return { error: 'Password must be at least 6 characters long.' };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        const existingUser = await db.collection('users').findOne({ email });
-
-        if (existingUser) {
-            return { error: 'A user with this email already exists.' };
-        }
-
-        const defaultPlan = await db.collection('plans').findOne({ isDefault: true });
-        if (!defaultPlan) {
-            console.error("CRITICAL: No default plan found during signup.");
-            return { error: 'Could not create account due to a server configuration issue. Please contact support.' };
-        }
-
-        const hashedPassword = await hashPassword(password);
-
-        const newUser: Omit<User, '_id'> = {
-            name,
-            email,
-            password: hashedPassword,
-            createdAt: new Date(),
-            planId: defaultPlan._id,
-        };
-
-        const result = await db.collection('users').insertOne(newUser);
-        const userId = result.insertedId;
-
-        const cookieStore = await cookies();
-        const token = createSessionToken({ userId: userId.toString(), email });
-
-        cookieStore.set('session', token, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production',
-            sameSite: 'lax',
-            path: '/',
-            expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-        });
-
-    } catch (e: any) {
-        console.error("Signup failed:", e);
-        return { error: 'An unexpected error occurred during signup.' };
-    }
-
-    redirect('/dashboard');
-}
-
-export async function getSession(): Promise<{ user: (Omit<User, 'password' | 'planId'> & { plan: WithId<Plan> | null }) } | null> {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get('session')?.value;
-    if (!sessionCookie) return null;
-
-    try {
-        const session = verifySessionToken(sessionCookie);
-        if (!session) return null;
-
-        const { db } = await connectToDatabase();
-        
-        const aggregationResult = await db.collection<User>('users').aggregate([
-            { $match: { _id: new ObjectId(session.userId) } },
-            {
-                $lookup: {
-                    from: 'plans',
-                    localField: 'planId',
-                    foreignField: '_id',
-                    as: 'planDetails'
-                }
-            },
-            {
-                $unwind: {
-                    path: '$planDetails',
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    name: 1,
-                    email: 1,
-                    createdAt: 1,
-                    plan: '$planDetails'
-                }
-            }
-        ]).toArray();
-        
-        if (aggregationResult.length === 0) return null;
-        
-        const userWithPlan: any = aggregationResult[0];
-
-        const user = {
-            _id: userWithPlan._id,
-            name: userWithPlan.name,
-            email: userWithPlan.email,
-            createdAt: userWithPlan.createdAt,
-            plan: userWithPlan.plan || null
-        };
-        
-        return { user: JSON.parse(JSON.stringify(user)) };
-
-    } catch (e) {
-        console.error("Failed to fetch session user from DB:", e);
-        return null;
-    }
-}
-
-
-export async function handleLogout() {
-  const cookieStore = await cookies();
-  cookieStore.set('session', '', { expires: new Date(0), path: '/' });
-  redirect('/login');
-}
-
-export async function handleFacebookSetup(shortLivedToken: string, wabaIds: string[]): Promise<{ success?: boolean; error?: string; count?: number }> {
-    const session = await getSession();
-    if (!session?.user) {
-        return { error: 'User not authenticated.' };
-    }
-    
-    const appId = process.env.NEXT_PUBLIC_META_APP_ID;
-    const appSecret = process.env.META_APP_SECRET;
-
-    if (!appId || !appSecret || appSecret === 'YOUR_META_APP_SECRET') {
-        return { error: 'Server configuration error: META_APP_SECRET is not configured in the .env file. Please add it from your Meta Developer Dashboard.' };
-    }
-
-    try {
-        const tokenResponse = await axios.get(`https://graph.facebook.com/v20.0/oauth/access_token`, {
-            params: {
-                grant_type: 'fb_exchange_token',
-                client_id: appId,
-                client_secret: appSecret,
-                fb_exchange_token: shortLivedToken,
-            }
-        });
-
-        const longLivedToken = tokenResponse.data.access_token;
-        if (!longLivedToken) {
-            return { error: 'Failed to exchange for a long-lived access token.' };
-        }
-        
-        const { db } = await connectToDatabase();
-        let connectedCount = 0;
-
-        for (const wabaId of wabaIds) {
-            const existingClaim = await db.collection('projects').findOne({ wabaId, userId: { $ne: new ObjectId(session.user._id) } });
-            if (existingClaim) {
-                console.warn(`WABA ${wabaId} is already linked to another user. Skipping.`);
-                continue;
-            }
-            
-            const wabaDetailsResponse = await axios.get(`https://graph.facebook.com/v20.0/${wabaId}`, {
-                params: { fields: 'name', access_token: longLivedToken }
-            });
-            const wabaName = wabaDetailsResponse.data.name;
-
-            const phoneNumbersResponse = await axios.get(`https://graph.facebook.com/v20.0/${wabaId}/phone_numbers`, {
-                params: { 
-                    fields: 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput',
-                    access_token: longLivedToken 
-                }
-            });
-            const phoneNumbers: PhoneNumber[] = phoneNumbersResponse.data.data ? phoneNumbersResponse.data.data.map((num: any) => ({
-                id: num.id,
-                display_phone_number: num.display_phone_number,
-                verified_name: num.verified_name,
-                code_verification_status: num.code_verification_status,
-                quality_rating: num.quality_rating,
-                platform_type: num.platform_type,
-                throughput: num.throughput,
-            })) : [];
-
-            const projectUpdateResult = await db.collection('projects').updateOne(
-                { wabaId, userId: new ObjectId(session.user._id) },
-                {
-                    $set: {
-                        name: wabaName,
-                        accessToken: longLivedToken,
-                        phoneNumbers: phoneNumbers,
-                        appId: appId, // Save the App ID
-                    },
-                    $setOnInsert: {
-                        userId: new ObjectId(session.user._id),
-                        wabaId: wabaId,
-                        createdAt: new Date(),
-                        messagesPerSecond: 1000,
-                        reviewStatus: 'UNKNOWN',
-                    }
-                },
-                { upsert: true }
-            );
-
-            if (projectUpdateResult.upsertedId) {
-                const newProjectId = projectUpdateResult.upsertedId;
-                 if (typeof window !== 'undefined') {
-                    localStorage.setItem('activeProjectId', newProjectId.toString());
-                    localStorage.setItem('activeProjectName', wabaName);
-                }
-            }
-            
-            connectedCount++;
-        }
-        
-        revalidatePath('/dashboard');
-        return { success: true, count: connectedCount };
-
-    } catch (e: any) {
-        console.error('Facebook Setup Failed:', e);
-        return { error: getErrorMessage(e) };
-    }
-}
-
-type UpdateProfileState = {
-  message?: string | null;
-  error?: string | null;
-};
-
-export async function handleUpdateUserProfile(prevState: UpdateProfileState, formData: FormData): Promise<UpdateProfileState> {
-    const session = await getSession();
-    if (!session?.user) {
-        return { error: 'You must be logged in to update your profile.' };
-    }
-
-    const name = formData.get('name') as string;
-    if (!name || name.trim().length < 2) {
-        return { error: 'Name must be at least 2 characters long.' };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        const result = await db.collection('users').updateOne(
-            { _id: new ObjectId(session.user._id) },
-            { $set: { name: name.trim() } }
-        );
-
-        if (result.matchedCount === 0) {
-            return { error: 'User not found.' };
-        }
-        
-        revalidatePath('/dashboard/profile');
-        revalidatePath('/dashboard', 'layout'); // Revalidate layout to update name in header
-
-        return { message: 'Profile updated successfully!' };
-    } catch (e: any) {
-        return { error: 'An unexpected error occurred.' };
-    }
-}
-
-export async function handleChangePassword(prevState: UpdateProfileState, formData: FormData): Promise<UpdateProfileState> {
-     const session = await getSession();
-    if (!session?.user) {
-        return { error: 'You must be logged in to change your password.' };
-    }
-
-    const currentPassword = formData.get('currentPassword') as string;
-    const newPassword = formData.get('newPassword') as string;
-    const confirmPassword = formData.get('confirmPassword') as string;
-
-    if (!currentPassword || !newPassword || !confirmPassword) {
-        return { error: 'All fields are required.' };
-    }
-    if (newPassword !== confirmPassword) {
-        return { error: 'New passwords do not match.' };
-    }
-    if (newPassword.length < 6) {
-        return { error: 'New password must be at least 6 characters long.' };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
-
-        if (!user || !user.password) {
-            return { error: 'User not found or password not set.' };
-        }
-
-        const isMatch = await comparePassword(currentPassword, user.password);
-        if (!isMatch) {
-            return { error: 'Incorrect current password.' };
-        }
-
-        const hashedNewPassword = await hashPassword(newPassword);
-
-        await db.collection('users').updateOne(
-            { _id: user._id },
-            { $set: { password: hashedNewPassword } }
-        );
-
-        return { message: 'Password changed successfully!' };
-
-    } catch (e: any) {
-        return { error: 'An unexpected error occurred.' };
-    }
-}
-
-export async function handleCreateProject(
-    prevState: { message: string | null; error: string | null },
-    formData: FormData
-): Promise<{ message: string | null; error: string | null }> {
-    const session = await getSession();
-    if (!session?.user) {
-        return { error: 'You must be logged in to create a project.' };
-    }
-
-    const wabaId = formData.get('wabaId') as string;
-    const appId = formData.get('appId') as string;
-    const accessToken = formData.get('accessToken') as string;
-
-    if (!wabaId || !accessToken || !appId) {
-        return { error: 'WhatsApp Business ID, App ID, and Access Token are required.' };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        
-        const existingClaim = await db.collection('projects').findOne({ wabaId, userId: { $ne: new ObjectId(session.user._id) } });
-        if (existingClaim) {
-            return { error: 'This WhatsApp Business Account is already linked to another user.' };
-        }
-
-        const apiVersion = 'v22.0';
-
-        const wabaDetailsResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaId}?access_token=${accessToken}&fields=name`);
-        const wabaDetails = await wabaDetailsResponse.json();
-
-        if (wabaDetails.error) {
-            return { error: `Failed to verify Business ID ${wabaId}: ${wabaDetails.error.message}` };
-        }
-        const wabaName = wabaDetails.name;
-        
-        const phoneNumbersResponse = await fetch(`https://graph.facebook.com/${apiVersion}/${wabaId}/phone_numbers?access_token=${accessToken}&fields=verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput`);
-        const phoneNumbersData = await phoneNumbersResponse.json();
-        
-        if (phoneNumbersData.error) {
-            return { error: `Failed to fetch phone numbers: ${phoneNumbersData.error.message}` };
-        }
-        
-        const phoneNumbers: PhoneNumber[] = phoneNumbersData.data ? phoneNumbersData.data.map((num: any) => ({
-            id: num.id,
-            display_phone_number: num.display_phone_number,
-            verified_name: num.verified_name,
-            code_verification_status: num.code_verification_status,
-            quality_rating: num.quality_rating,
-            platform_type: num.platform_type,
-            throughput: num.throughput,
-        })) : [];
-
-        if (phoneNumbers.length === 0) {
-            return { error: 'No phone numbers found for this WhatsApp Business Account.' };
-        }
-
-        const projectDoc = {
-            userId: new ObjectId(session.user._id),
-            name: wabaName,
-            wabaId: wabaId,
-            appId: appId,
-            accessToken: accessToken,
-            phoneNumbers: phoneNumbers,
-            messagesPerSecond: 1000,
-            reviewStatus: 'UNKNOWN',
-        };
-        
-        await db.collection('projects').updateOne(
-            { wabaId: wabaId, userId: new ObjectId(session.user._id) },
-            { $set: projectDoc, $setOnInsert: { createdAt: new Date() } },
-            { upsert: true }
-        );
-
-        revalidatePath('/dashboard');
-        return { message: `Project "${wabaName}" connected successfully!`, error: null };
-
-    } catch (e: any) {
-        console.error('Manual project creation failed:', e);
-        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
-    }
-}
-
-export async function handleDeleteProject(
-  prevState: { message?: string | null; error?: string | null; },
-  formData: FormData
-): Promise<{ message?: string | null; error?: string | null; }> {
-    const projectId = formData.get('projectId') as string;
-
-    if (!projectId || !ObjectId.isValid(projectId)) {
-        return { error: 'Invalid Project ID provided.' };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        const projectObjectId = new ObjectId(projectId);
-
-        const broadcastsToDelete = await db.collection('broadcasts').find({ projectId: projectObjectId }, { projection: { _id: 1 } }).toArray();
-        const broadcastIdsToDelete = broadcastsToDelete.map(b => b._id);
-        
-        await Promise.all([
-            db.collection('broadcast_contacts').deleteMany({ broadcastId: { $in: broadcastIdsToDelete } }),
-            db.collection('broadcasts').deleteMany({ projectId: projectObjectId }),
-            db.collection('templates').deleteMany({ projectId: projectObjectId }),
-            db.collection('notifications').deleteMany({ projectId: projectObjectId }),
-            db.collection('contacts').deleteMany({ projectId: projectObjectId }),
-            db.collection('incoming_messages').deleteMany({ projectId: projectObjectId }),
-            db.collection('outgoing_messages').deleteMany({ projectId: projectObjectId }),
-            db.collection('flows').deleteMany({ projectId: projectObjectId }),
-        ]);
-
-        await db.collection('projects').deleteOne({ _id: projectObjectId });
-
-        revalidatePath('/admin/dashboard');
-
-        return { message: 'Project and all associated data have been successfully deleted.' };
-    } catch (e: any) {
-        console.error('Failed to delete project:', e);
-        return { error: e.message || 'An unexpected error occurred while deleting the project.' };
-    }
-}
-
-type OptInOutState = {
-    message?: string;
-    error?: string;
-};
-
-export async function handleUpdateOptInOutSettings(
-    prevState: OptInOutState,
-    formData: FormData
-): Promise<OptInOutState> {
-    const projectId = formData.get('projectId') as string;
-    const project = await getProjectById(projectId);
-    if (!project) {
-        return { error: 'Project not found or you do not have access.' };
-    }
-
-    const formatKeywords = (keywords: string | null): string[] => {
-        if (!keywords) return [];
-        return keywords.split(',').map(k => k.trim().toLowerCase()).filter(Boolean);
-    };
-
-    try {
-        const settings: OptInOutSettings = {
-            enabled: formData.get('enabled') === 'on',
-            optOutKeywords: formatKeywords(formData.get('optOutKeywords') as string),
-            optOutResponse: formData.get('optOutResponse') as string,
-            optInKeywords: formatKeywords(formData.get('optInKeywords') as string),
-            optInResponse: formData.get('optInResponse') as string,
-        };
-        
-        const { db } = await connectToDatabase();
-        const result = await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
-            { $set: { optInOutSettings: settings } }
-        );
-
-        if (result.matchedCount === 0) {
-            return { error: 'Project not found during update.' };
-        }
-
-        revalidatePath('/dashboard/settings');
-        return { message: 'Opt-in/Opt-out settings saved successfully!' };
-
-    } catch (e: any) {
-        console.error('Failed to update opt-in/out settings:', e);
-        return { error: e.message || 'An unexpected error occurred.' };
-    }
-}
-
-type UserAttributesState = {
-  message?: string;
-  error?: string;
-};
-
-export async function handleSaveUserAttributes(
-  prevState: UserAttributesState,
-  formData: FormData
-): Promise<UserAttributesState> {
-  const projectId = formData.get('projectId') as string;
-  const attributesString = formData.get('attributes') as string;
-
-  const project = await getProjectById(projectId);
-  if (!project) {
-    return { error: 'Project not found or you do not have access.' };
-  }
-
-  const { db } = await connectToDatabase();
-  const owner = await db.collection<User>('users').findOne({ _id: project.userId });
-  if (!owner) return { error: "Project owner not found." };
-  
-  const plan = owner.planId ? await db.collection<Plan>('plans').findOne({ _id: owner.planId }) : null;
-  if (!plan) {
-    console.error(`User ${owner._id} has a planId ${owner.planId} which does not exist in the plans collection.`);
-    return { error: `Attribute limit cannot be determined. Please contact support.` };
-  }
-  
-  const limit = plan.attributeLimit;
-  const planName = plan.name;
-
-  try {
-    const attributes: UserAttribute[] = JSON.parse(attributesString);
-
-    if (attributes.some(attr => !attr.name)) {
-        return { error: "Attribute name cannot be empty." };
-    }
-    
-    if (attributes.length > limit) {
-      return { error: `Your "${planName}" plan allows a maximum of ${limit} user attributes. Please upgrade to create more.` };
-    }
-
-    const result = await db.collection('projects').updateOne(
-      { _id: new ObjectId(projectId) },
-      { $set: { userAttributes: attributes } }
-    );
-
-    if (result.matchedCount === 0) {
-        return { error: 'Project not found during update.' };
-    }
-
-    revalidatePath('/dashboard/settings');
-    return { message: 'User attributes saved successfully!' };
-
-  } catch (e: any) {
-    console.error('Failed to save user attributes:', e);
-    return { error: e.message || 'An unexpected error occurred.' };
-  }
-}
-
-export async function handleUpdateContactVariables(
-  contactId: string,
-  variables: Record<string, string>
-): Promise<{ success: boolean; error?: string }> {
-  if (!ObjectId.isValid(contactId)) {
-    return { success: false, error: "Invalid contact ID." };
-  }
-
-  try {
-    const { db } = await connectToDatabase();
-    const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
-    if (!contact) {
-      return { success: false, error: "Contact not found." };
-    }
-
-    // Security check: ensure the current user has access to this contact's project
-    const hasAccess = await getProjectById(contact.projectId.toString());
-    if (!hasAccess) {
-      return { success: false, error: "Access denied." };
-    }
-
-    const result = await db.collection('contacts').updateOne(
-      { _id: new ObjectId(contactId) },
-      { $set: { variables } }
-    );
-    
-    if (result.modifiedCount === 0) {
-        // This could mean the variables were the same, so not necessarily an error.
-        return { success: true };
-    }
-    
-    revalidatePath('/dashboard/chat');
-    revalidatePath('/dashboard/contacts');
-
-    return { success: true };
-
-  } catch (e: any) {
-    console.error('Failed to update contact variables:', e);
-    return { success: false, error: e.message || 'An unexpected error occurred.' };
-  }
-}
-
-// --- PLAN MANAGEMENT ACTIONS ---
-
-export async function getPlans(filter?: Filter<Plan>): Promise<WithId<Plan>[]> {
-    try {
-        const { db } = await connectToDatabase();
-        const plans = await db.collection<Plan>('plans').find(filter || {}).sort({ price: 1 }).toArray();
-        return JSON.parse(JSON.stringify(plans));
-    } catch (error) {
-        console.error('Failed to fetch plans:', error);
-        return [];
-    }
-}
-
-export async function getPlanById(planId: string): Promise<WithId<Plan> | null> {
-    if (!ObjectId.isValid(planId)) return null;
-    try {
-        const { db } = await connectToDatabase();
-        const plan = await db.collection<Plan>('plans').findOne({ _id: new ObjectId(planId) });
-        return plan ? JSON.parse(JSON.stringify(plan)) : null;
-    } catch (error) {
-        console.error('Failed to fetch plan by ID:', error);
-        return null;
-    }
-}
-
-export async function savePlan(prevState: { message: string | null; error: string | null }, formData: FormData): Promise<{ message: string | null; error: string | null }> {
-    const planId = formData.get('planId') as string;
-    const isNew = planId === 'new';
-
-    const featurePermissions: PlanFeaturePermissions = {
-        campaigns: formData.get('campaigns') === 'on',
-        liveChat: formData.get('liveChat') === 'on',
-        contacts: formData.get('contacts') === 'on',
-        templates: formData.get('templates') === 'on',
-        flowBuilder: formData.get('flowBuilder') === 'on',
-        apiAccess: formData.get('apiAccess') === 'on',
-    };
-
-    const messageCosts: PlanMessageCosts = {
-        marketing: Number(formData.get('cost_marketing')),
-        utility: Number(formData.get('cost_utility')),
-        authentication: Number(formData.get('cost_authentication')),
-    };
-
-    const planData: Omit<Plan, '_id' | 'createdAt'> = {
-        name: formData.get('name') as string,
-        price: Number(formData.get('price')),
-        messageCosts,
-        isPublic: formData.get('isPublic') === 'on',
-        isDefault: formData.get('isDefault') === 'on',
-        projectLimit: Number(formData.get('projectLimit')),
-        agentLimit: Number(formData.get('agentLimit')),
-        attributeLimit: Number(formData.get('attributeLimit')),
-        features: featurePermissions,
-    };
-    
-    if (!planData.name || isNaN(planData.price)) {
-        return { error: 'Plan name and a valid price are required.' };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        
-        if (planData.isDefault) {
-            await db.collection('plans').updateMany({ _id: { $ne: isNew ? new ObjectId() : new ObjectId(planId) } }, { $set: { isDefault: false } });
-        }
-
-        if (isNew) {
-            await db.collection('plans').insertOne({ ...planData, createdAt: new Date() } as any);
-        } else {
-            await db.collection('plans').updateOne({ _id: new ObjectId(planId) }, { $set: planData });
-        }
-
-        revalidatePath('/admin/dashboard/plans');
-        revalidatePath('/dashboard/billing');
-        return { message: 'Plan saved successfully!' };
-    } catch (e: any) {
-        console.error('Failed to save plan:', e);
-        return { error: e.message || 'An unexpected error occurred.' };
-    }
-}
-
-export async function deletePlan(prevState: { message: string | null; error: string | null }, formData: FormData): Promise<{ message: string | null; error: string | null }> {
-    const planId = formData.get('planId') as string;
-    if (!planId || !ObjectId.isValid(planId)) return { error: 'Invalid plan ID.' };
-    
-    try {
-        const { db } = await connectToDatabase();
-        const planToDelete = await db.collection('plans').findOne({ _id: new ObjectId(planId) });
-        if (planToDelete?.isDefault) {
-            return { error: 'Cannot delete the default plan. Please set another plan as default first.' };
-        }
-
-        const userCount = await db.collection('users').countDocuments({ planId: new ObjectId(planId) });
-        if (userCount > 0) {
-            return { error: `Cannot delete plan as ${userCount} user(s) are currently subscribed to it.` };
-        }
-
-        await db.collection('plans').deleteOne({ _id: new ObjectId(planId) });
-        
-        revalidatePath('/admin/dashboard/plans');
-        revalidatePath('/dashboard/billing');
-        return { message: 'Plan deleted successfully.' };
-
-    } catch (e: any) {
-        console.error('Failed to delete plan:', e);
-        return { error: e.message || 'An unexpected error occurred.' };
-    }
-}
-
-
-// --- AGENT MANAGEMENT ACTIONS ---
-
-type AgentManagementState = {
-  message?: string;
-  error?: string;
-};
-
-export async function handleInviteAgent(prevState: AgentManagementState, formData: FormData): Promise<AgentManagementState> {
-    const session = await getSession();
-    if (!session?.user) return { error: 'Authentication required.' };
-    
-    const projectId = formData.get('projectId') as string;
-    const inviteeEmail = (formData.get('email') as string)?.toLowerCase();
-    const role = formData.get('role') as string;
-
-    if (!projectId || !inviteeEmail || !role) {
-        return { error: 'All fields are required.' };
-    }
-    if (inviteeEmail === session.user.email) {
-        return { error: 'You cannot invite yourself.' };
-    }
-
-    const { db } = await connectToDatabase();
-
-    try {
-        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
-        if (!project || project.userId.toString() !== session.user._id.toString()) {
-            return { error: 'You do not have permission to invite agents to this project.' };
-        }
-
-        const owner = await db.collection<User>('users').findOne({ _id: project.userId });
-        if (!owner) return { error: "Project owner not found." };
-        
-        const plan = owner.planId ? await db.collection<Plan>('plans').findOne({ _id: owner.planId }) : null;
-        if (!plan) {
-            console.error(`User ${owner._id} has a planId ${owner.planId} which does not exist.`);
-            return { error: `Agent limit cannot be determined. Please contact support.` };
-        }
-
-        const agentLimit = plan.agentLimit;
-        const currentAgentCount = project.agents?.length || 0;
-        
-        if (currentAgentCount >= agentLimit) {
-            return { error: `You have reached the agent limit for your "${plan.name}" plan. Please upgrade to add more agents.` };
-        }
-        
-        const isAlreadyAgent = project.agents?.some(agent => agent.email === inviteeEmail);
-        if (isAlreadyAgent) {
-            return { error: 'This user is already an agent on this project.' };
-        }
-        
-        const existingInvitation = await db.collection<Invitation>('invitations').findOne({ projectId: project._id, inviteeEmail, status: 'pending' });
-        if (existingInvitation) {
-            return { error: 'An invitation has already been sent to this email address for this project.' };
-        }
-
-        const invitee = await db.collection<User>('users').findOne({ email: inviteeEmail });
-        if (!invitee) {
-            return { error: 'No user found with this email address. Please ask them to sign up first.' };
-        }
-
-        const newInvitation: Omit<Invitation, '_id'> = {
-            projectId: project._id,
-            projectName: project.name,
-            inviterId: new ObjectId(session.user._id),
-            inviterName: session.user.name,
-            inviteeEmail,
-            role,
-            status: 'pending',
-            createdAt: new Date(),
-        };
-
-        await db.collection('invitations').insertOne(newInvitation);
-
-        revalidatePath('/dashboard/settings');
-        return { message: `Invitation sent to ${inviteeEmail}.` };
-        
-    } catch (e: any) {
-        console.error('Failed to invite agent:', e);
-        return { error: 'An unexpected error occurred.' };
-    }
-}
-
-export async function getInvitationsForUser(): Promise<WithId<Invitation>[]> {
-    const session = await getSession();
-    if (!session?.user) return [];
-
-    try {
-        const { db } = await connectToDatabase();
-        const invitations = await db.collection<Invitation>('invitations')
-            .find({ inviteeEmail: session.user.email, status: 'pending' })
-            .sort({ createdAt: -1 })
-            .toArray();
-        return JSON.parse(JSON.stringify(invitations));
-    } catch (e) {
-        console.error('Failed to fetch invitations:', e);
-        return [];
-    }
-}
-
-export async function handleRespondToInvite(invitationId: string, accepted: boolean): Promise<{ success: boolean; error?: string }> {
-    const session = await getSession();
-    if (!session?.user) return { success: false, error: 'Authentication required.' };
-    
-    if (!ObjectId.isValid(invitationId)) return { success: false, error: 'Invalid invitation ID.' };
-
-    const { db } = await connectToDatabase();
-    
-    const invitation = await db.collection<Invitation>('invitations').findOne({ _id: new ObjectId(invitationId), inviteeEmail: session.user.email });
-    if (!invitation) return { success: false, error: 'Invitation not found or not intended for you.' };
-
-    try {
-        if (!accepted) {
-            await db.collection('invitations').deleteOne({ _id: invitation._id });
-            revalidatePath('/dashboard', 'layout');
-            return { success: true };
-        }
-
-        const project = await db.collection<Project>('projects').findOne({ _id: invitation.projectId });
-        if (!project) {
-             await db.collection('invitations').deleteOne({ _id: invitation._id });
-             return { success: false, error: 'The project this invitation was for no longer exists.' };
-        }
-        
-        const owner = await db.collection<User>('users').findOne({ _id: project.userId });
-        if (!owner) return { success: false, error: "Project owner not found." };
-        
-        const plan = owner.planId ? await db.collection<Plan>('plans').findOne({ _id: owner.planId }) : null;
-        if (!plan) {
-            await db.collection('invitations').deleteOne({ _id: invitation._id });
-            console.error(`User ${owner._id} has a planId ${owner.planId} which does not exist.`);
-            return { success: false, error: 'Could not verify project plan. Please contact support.' };
-        }
-        
-        const agentLimit = plan.agentLimit;
-        if ((project.agents?.length || 0) >= agentLimit) {
-            await db.collection('invitations').deleteOne({ _id: invitation._id });
-            return { success: false, error: `The project owner has reached their agent limit for the "${plan.name}" plan.` };
-        }
-        
-        const newAgent: Agent = {
-            userId: new ObjectId(session.user._id),
-            name: session.user.name,
-            email: session.user.email,
-            role: invitation.role,
-        };
-        
-        await db.collection('projects').updateOne(
-            { _id: invitation.projectId },
-            { $push: { agents: newAgent } }
-        );
-
-        await db.collection('invitations').deleteOne({ _id: invitation._id });
-
-        revalidatePath('/dashboard', 'layout');
-        return { success: true };
-
-    } catch (e: any) {
-        console.error('Failed to respond to invite:', e);
-        return { success: false, error: 'An unexpected error occurred.' };
-    }
-}
-
-export async function handleRemoveAgent(prevState: AgentManagementState, formData: FormData): Promise<AgentManagementState> {
-    const session = await getSession();
-    if (!session?.user) return { error: 'Authentication required.' };
-
-    const projectId = formData.get('projectId') as string;
-    const agentUserId = formData.get('agentUserId') as string;
-
-    if (!projectId || !agentUserId) {
-        return { error: 'Missing required data to remove agent.' };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
-
-        if (!project || project.userId.toString() !== session.user._id.toString()) {
-            return { error: 'You do not have permission to remove agents from this project.' };
-        }
-        
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
-            { $pull: { agents: { userId: new ObjectId(agentUserId) } } as Filter<Project> }
-        );
-
-        revalidatePath('/dashboard/settings');
-        return { message: 'Agent removed successfully.' };
-    } catch (e: any) {
-         console.error('Failed to remove agent:', e);
-        return { error: 'An unexpected error occurred.' };
-    }
-}
-
-// --- NOTIFICATION ACTIONS ---
-export async function getNotifications(projectId?: string | null): Promise<WithId<NotificationWithProject>[]> {
-    const session = await getSession();
-    if (!session?.user) return [];
-
-    try {
-        const { db } = await connectToDatabase();
-        const userObjectId = new ObjectId(session.user._id);
-        
-        const projectFilter: Filter<Project> = {
-             $or: [{ userId: userObjectId }, { 'agents.userId': userObjectId }]
-        };
-        
-        if (projectId) {
-            projectFilter._id = new ObjectId(projectId);
-        }
-
-        const userProjects = await db.collection('projects').find(projectFilter, { projection: { _id: 1 } }).toArray();
-        const projectIds = userProjects.map(p => p._id);
-        
-        const filter: Filter<Notification> = { projectId: { $in: projectIds } };
-
-        const pipeline = [
-            { $match: filter },
-            { $sort: { createdAt: -1 } },
-            { $limit: 20 },
-             {
-                $lookup: {
-                    from: 'projects',
-                    localField: 'projectId',
-                    foreignField: '_id',
-                    as: 'projectInfo'
-                }
-            },
-            {
-                $unwind: {
-                    path: '$projectInfo',
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $project: {
-                    message: 1,
-                    link: 1,
-                    isRead: 1,
-                    createdAt: 1,
-                    eventType: 1,
-                    projectName: '$projectInfo.name'
-                }
-            }
-        ];
-        
-        const notifications = await db.collection('notifications').aggregate(pipeline).toArray();
-
-        return JSON.parse(JSON.stringify(notifications));
-
-    } catch (e: any) {
-        console.error('Failed to fetch notifications for feed:', e);
-        return [];
-    }
-}
-
-
-export async function getAllNotifications(
-    page: number = 1,
-    limit: number = 20,
-    eventType?: string
-): Promise<{ notifications: WithId<NotificationWithProject>[], total: number }> {
-    const session = await getSession();
-    if (!session?.user) {
-        return { notifications: [], total: 0 };
-    }
-    try {
-        const { db } = await connectToDatabase();
-        const userObjectId = new ObjectId(session.user._id);
-
-        const userProjects = await db.collection('projects').find(
-            { $or: [{ userId: userObjectId }, { 'agents.userId': userObjectId }] },
-            { projection: { _id: 1 } }
-        ).toArray();
-        const userProjectIds = userProjects.map(p => p._id);
-
-        const filter: Filter<Notification> = { projectId: { $in: userProjectIds } };
-        if (eventType) {
-            filter.eventType = eventType;
-        }
-
-        const skip = (page - 1) * limit;
-
-        const pipeline = [
-            { $match: filter },
-            { $sort: { createdAt: -1 } },
-            {
-                $lookup: {
-                    from: 'projects',
-                    localField: 'projectId',
-                    foreignField: '_id',
-                    as: 'projectInfo'
-                }
-            },
-            {
-                $unwind: {
-                    path: '$projectInfo',
-                    preserveNullAndEmptyArrays: true
-                }
-            },
-            {
-                $project: {
-                    _id: 1,
-                    projectId: 1,
-                    wabaId: 1,
-                    message: 1,
-                    link: 1,
-                    isRead: 1,
-                    createdAt: 1,
-                    eventType: 1,
-                    projectName: '$projectInfo.name'
-                }
-            },
-            {
-                $facet: {
-                    paginatedResults: [{ $skip: skip }, { $limit: limit }],
-                    totalCount: [{ $count: 'count' }]
-                }
-            }
-        ];
-        
-        const results = await db.collection('notifications').aggregate(pipeline).toArray();
-
-        const notifications = results[0].paginatedResults || [];
-        const total = results[0].totalCount[0]?.count || 0;
-
-        return { notifications: JSON.parse(JSON.stringify(notifications)), total };
-
-    } catch (error) {
-        console.error('Failed to fetch all notifications:', error);
-        return { notifications: [], total: 0 };
-    }
-}
-
-export async function markNotificationAsRead(notificationId: string): Promise<{ success: boolean; error?: string }> {
-    const session = await getSession();
-    if (!session?.user) return { success: false, error: "Not authenticated" };
-
-    if (!ObjectId.isValid(notificationId)) return { success: false, error: 'Invalid ID.' };
-
-    try {
-        const { db } = await connectToDatabase();
-        const notification = await db.collection('notifications').findOne({ _id: new ObjectId(notificationId) });
-        if (!notification) return { success: false, error: "Notification not found." };
-        
-        const hasAccess = await getProjectById(notification.projectId.toString());
-        if (!hasAccess) return { success: false, error: "Access denied." };
-
-        await db.collection('notifications').updateOne({ _id: new ObjectId(notificationId) }, { $set: { isRead: true } });
-        
-        revalidatePath('/dashboard', 'layout');
-        
-        return { success: true };
-    } catch (e: any) {
-        console.error("Failed to mark notification as read:", e);
-        return { success: false, error: e.message };
-    }
-}
-
-export async function markAllNotificationsAsRead(): Promise<{ success: boolean; updatedCount: number; error?: string }> {
-    const session = await getSession();
-    if (!session?.user) return { success: false, updatedCount: 0, error: "Not authenticated" };
-
-    try {
-        const { db } = await connectToDatabase();
-        const userObjectId = new ObjectId(session.user._id);
-
-        const userProjects = await db.collection('projects').find(
-            { $or: [{ userId: userObjectId }, { 'agents.userId': userObjectId }] },
-            { projection: { _id: 1 } }
-        ).toArray();
-        const userProjectIds = userProjects.map(p => p._id);
-        
-        const result = await db.collection('notifications').updateMany(
-            { projectId: { $in: userProjectIds }, isRead: false },
-            { $set: { isRead: true } }
-        );
-        
-        revalidatePath('/dashboard', 'layout');
-        revalidatePath('/dashboard/notifications');
-
-        return { success: true, updatedCount: result.modifiedCount };
-    } catch (e: any) {
-        console.error("Failed to mark all notifications as read:", e);
-        return { success: false, updatedCount: 0, error: e.message };
-    }
-}
-
-
-export async function handleClearOldQueueItems(): Promise<{ message?: string; error?: string }> {
-    try {
-        const { db } = await connectToDatabase();
-        const sixHoursAgo = new Date();
-        sixHoursAgo.setHours(sixHoursAgo.getHours() - 6);
-
-        const result = await db.collection('webhook_queue').deleteMany({
-            status: { $in: ['COMPLETED', 'FAILED'] },
-            createdAt: { $lt: sixHoursAgo }
-        });
-        
-        revalidatePath('/dashboard/webhooks');
-
-        return { message: `Successfully cleared ${result.deletedCount} old queue item(s).` };
-    } catch (e: any) {
-        console.error('Failed to clear old queue items:', e);
-        return { error: e.message || 'An unexpected error occurred.' };
+        console.error("Failed to re-process webhook:", e);
+        return { error: e.message || "An unexpected error occurred during re-processing." };
     }
 }
 
@@ -4074,4 +2445,1063 @@ export async function getTransactionStatus(transactionId: string): Promise<WithI
         return null;
     }
 }
+
+// --- AUTH ACTIONS ---
+export async function handleLogin(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    if (!email || !password) {
+        return { error: 'Email and password are required.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection<User>('users').findOne({ email });
+
+        if (!user || !user.password) {
+            return { error: 'Invalid credentials.' };
+        }
+
+        const passwordMatch = await comparePassword(password, user.password);
+        if (!passwordMatch) {
+            return { error: 'Invalid credentials.' };
+        }
+
+        const sessionToken = createSessionToken({ userId: user._id.toString(), email: user.email });
+        cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+
+        redirect('/dashboard');
+        
+    } catch (e: any) {
+        console.error('Login failed:', e);
+        return { error: 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleSignup(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    if (!name || !email || !password) {
+        return { error: 'All fields are required.' };
+    }
+    if (password.length < 6) {
+        return { error: 'Password must be at least 6 characters long.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const existingUser = await db.collection('users').findOne({ email });
+        if (existingUser) {
+            return { error: 'An account with this email already exists.' };
+        }
+
+        const hashedPassword = await hashPassword(password);
+        const newUser: Omit<User, '_id'> = {
+            name,
+            email,
+            password: hashedPassword,
+            createdAt: new Date(),
+        };
+
+        await db.collection('users').insertOne(newUser as any);
+
+        redirect('/login');
+
+    } catch (e: any) {
+        console.error('Signup failed:', e);
+        return { error: 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleLogout() {
+    cookies().delete('session');
+    redirect('/login');
+}
+
+export async function handleUpdateUserProfile(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+
+    const name = formData.get('name') as string;
+    if (!name) return { error: 'Name is required.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $set: { name } }
+        );
+        revalidatePath('/dashboard/profile');
+        return { message: 'Profile updated successfully.' };
+    } catch (e: any) {
+        return { error: 'Failed to update profile.' };
+    }
+}
+
+export async function handleChangePassword(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+
+    const currentPassword = formData.get('currentPassword') as string;
+    const newPassword = formData.get('newPassword') as string;
+    const confirmPassword = formData.get('confirmPassword') as string;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        return { error: 'All password fields are required.' };
+    }
+    if (newPassword !== confirmPassword) {
+        return { error: 'New passwords do not match.' };
+    }
+    if (newPassword.length < 6) {
+        return { error: 'New password must be at least 6 characters long.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection('users').findOne({ _id: new ObjectId(session.user._id) });
+        if (!user || !user.password) return { error: 'User not found or password not set.' };
+
+        const passwordMatch = await comparePassword(currentPassword, user.password);
+        if (!passwordMatch) return { error: 'Incorrect current password.' };
+
+        const hashedNewPassword = await hashPassword(newPassword);
+        await db.collection('users').updateOne(
+            { _id: user._id },
+            { $set: { password: hashedNewPassword } }
+        );
+
+        revalidatePath('/dashboard/profile');
+        return { message: 'Password updated successfully.' };
+    } catch (e: any) {
+        return { error: 'Failed to update password.' };
+    }
+}
+
+// --- PLAN MANAGEMENT ACTIONS ---
+export async function getPlans(filter?: Filter<Plan>): Promise<WithId<Plan>[]> {
+    try {
+        const { db } = await connectToDatabase();
+        const plans = await db.collection('plans').find(filter || {}).sort({ price: 1 }).toArray();
+        return JSON.parse(JSON.stringify(plans));
+    } catch (error) {
+        console.error("Failed to fetch plans:", error);
+        return [];
+    }
+}
+
+export async function getPlanById(planId: string): Promise<WithId<Plan> | null> {
+    if (!ObjectId.isValid(planId)) return null;
+    try {
+        const { db } = await connectToDatabase();
+        const plan = await db.collection('plans').findOne({ _id: new ObjectId(planId) });
+        return plan ? JSON.parse(JSON.stringify(plan)) : null;
+    } catch (error) {
+        console.error('Failed to fetch plan by ID:', error);
+        return null;
+    }
+}
+
+export async function savePlan(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const planId = formData.get('planId') as string;
+    const isNew = planId === 'new';
+
+    try {
+        const features: PlanFeaturePermissions = {
+            campaigns: formData.get('campaigns') === 'on',
+            liveChat: formData.get('liveChat') === 'on',
+            contacts: formData.get('contacts') === 'on',
+            templates: formData.get('templates') === 'on',
+            flowBuilder: formData.get('flowBuilder') === 'on',
+            apiAccess: formData.get('apiAccess') === 'on',
+        };
+
+        const planData: Omit<Plan, '_id' | 'createdAt'> = {
+            name: formData.get('name') as string,
+            price: Number(formData.get('price')),
+            isPublic: formData.get('isPublic') === 'on',
+            isDefault: formData.get('isDefault') === 'on',
+            projectLimit: Number(formData.get('projectLimit')),
+            agentLimit: Number(formData.get('agentLimit')),
+            attributeLimit: Number(formData.get('attributeLimit')),
+            messageCosts: {
+                marketing: Number(formData.get('cost_marketing')),
+                utility: Number(formData.get('cost_utility')),
+                authentication: Number(formData.get('cost_authentication')),
+            },
+            features: features,
+        };
+
+        if (!planData.name || isNaN(planData.price)) {
+            return { error: 'Plan name and price are required.' };
+        }
+        
+        const { db } = await connectToDatabase();
+        
+        if (planData.isDefault) {
+            // Ensure no other plan is default
+            await db.collection('plans').updateMany({ _id: { $ne: isNew ? new ObjectId() : new ObjectId(planId) } }, { $set: { isDefault: false } });
+        }
+
+        if (isNew) {
+            await db.collection('plans').insertOne({ ...planData, createdAt: new Date() } as any);
+        } else {
+            await db.collection('plans').updateOne({ _id: new ObjectId(planId) }, { $set: planData });
+        }
+
+        revalidatePath('/admin/dashboard/plans');
+        return { message: `Plan "${planData.name}" has been saved successfully.` };
+
+    } catch (e: any) {
+        console.error('Failed to save plan:', e);
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function deletePlan(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const planId = formData.get('planId') as string;
+    if (!planId || !ObjectId.isValid(planId)) {
+        return { error: 'Invalid Plan ID.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const planObjectId = new ObjectId(planId);
+        
+        const plan = await db.collection('plans').findOne({ _id: planObjectId });
+        if (plan?.isDefault) {
+            return { error: 'Cannot delete the default plan.' };
+        }
+
+        await db.collection('plans').deleteOne({ _id: planObjectId });
+
+        revalidatePath('/admin/dashboard/plans');
+        return { message: `Plan successfully deleted.` };
+
+    } catch (e: any) {
+        console.error('Failed to delete plan:', e);
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+// --- PROJECT MANAGEMENT ---
+
+export async function handleCreateProject(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'You must be logged in to create a project.' };
+    }
+
+    const wabaId = formData.get('wabaId') as string;
+    const appId = formData.get('appId') as string;
+    const accessToken = formData.get('accessToken') as string;
+
+    if (!wabaId || !appId || !accessToken) {
+        return { error: 'All fields are required.' };
+    }
+
+    try {
+        const response = await fetch(`https://graph.facebook.com/v22.0/${wabaId}?fields=name&access_token=${accessToken}`);
+        const data = await response.json();
+
+        if (data.error) {
+            return { error: `Meta API Error: ${data.error.message}` };
+        }
+
+        const { db } = await connectToDatabase();
+        
+        const existingProject = await db.collection('projects').findOne({ wabaId: wabaId });
+        if(existingProject) {
+            return { error: 'A project with this WABA ID already exists.'};
+        }
+        
+        const newProject: Omit<Project, '_id'> = {
+            userId: new ObjectId(session.user._id),
+            name: data.name,
+            wabaId: wabaId,
+            appId: appId,
+            accessToken: accessToken,
+            phoneNumbers: [],
+            createdAt: new Date(),
+            messagesPerSecond: 1000,
+        };
+
+        const result = await db.collection('projects').insertOne(newProject as any);
+        
+        if(result.insertedId) {
+            await handleSyncPhoneNumbers(result.insertedId.toString());
+        }
+
+        revalidatePath('/dashboard');
+        
+        return { message: `Project "${data.name}" created successfully!` };
+
+    } catch (e: any) {
+        console.error('Project creation failed:', e);
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleDeleteProject(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+
+    // A real app should have a robust role-based check here.
+    const session = await getSession();
+    if (session?.user?.email !== 'admin@wachat.com') {
+        return { error: 'You do not have permission to delete projects.' };
+    }
     
+    if (!projectId || !ObjectId.isValid(projectId)) {
+        return { error: 'Invalid Project ID provided.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const projectObjectId = new ObjectId(projectId);
+        
+        const broadcastIds = await db.collection('broadcasts').find({ projectId: projectObjectId }).map(b => b._id).toArray();
+        
+        const deletePromises = [
+            db.collection('projects').deleteOne({ _id: projectObjectId }),
+            db.collection('templates').deleteMany({ projectId: projectObjectId }),
+            db.collection('broadcasts').deleteMany({ projectId: projectObjectId }),
+            db.collection('broadcast_contacts').deleteMany({ broadcastId: { $in: broadcastIds } }),
+            db.collection('notifications').deleteMany({ projectId: projectObjectId }),
+            db.collection('contacts').deleteMany({ projectId: projectObjectId }),
+            db.collection('incoming_messages').deleteMany({ projectId: projectObjectId }),
+            db.collection('outgoing_messages').deleteMany({ projectId: projectObjectId }),
+            db.collection('flows').deleteMany({ projectId: projectObjectId }),
+            db.collection('canned_messages').deleteMany({ projectId: projectObjectId }),
+            db.collection('flow_logs').deleteMany({ projectId: projectObjectId }),
+        ];
+
+        await Promise.all(deletePromises);
+
+        revalidatePath('/admin/dashboard');
+
+        return { message: 'Project and all associated data have been permanently deleted.' };
+
+    } catch (e: any) {
+        console.error('Failed to delete project:', e);
+        return { error: e.message || 'An unexpected error occurred while deleting the project.' };
+    }
+}
+
+export async function handleFacebookSetup(accessToken: string, wabaIds: string[]): Promise<{ success: boolean, count: number, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { success: false, count: 0, error: 'You must be logged in.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const bulkOps: any[] = [];
+
+        for (const wabaId of wabaIds) {
+            const wabaDetailsResponse = await fetch(`https://graph.facebook.com/v22.0/${wabaId}?fields=name,id&access_token=${accessToken}`);
+            const wabaData = await wabaDetailsResponse.json();
+
+            if (wabaData.error) {
+                console.error(`Failed to fetch details for WABA ${wabaId}:`, wabaData.error);
+                continue;
+            }
+
+            const projectDoc = {
+                userId: new ObjectId(session.user._id),
+                name: wabaData.name,
+                wabaId: wabaData.id,
+                accessToken: accessToken,
+                createdAt: new Date(),
+                messagesPerSecond: 1000,
+            };
+
+            bulkOps.push({
+                updateOne: {
+                    filter: { wabaId: wabaData.id },
+                    update: { 
+                        $set: { name: projectDoc.name, accessToken: projectDoc.accessToken, userId: projectDoc.userId },
+                        $setOnInsert: { ...projectDoc, phoneNumbers: [] }
+                    },
+                    upsert: true,
+                }
+            });
+        }
+        
+        if (bulkOps.length > 0) {
+            const result = await db.collection('projects').bulkWrite(bulkOps);
+            const syncedCount = result.upsertedCount + result.modifiedCount;
+            revalidatePath('/dashboard');
+            return { success: true, count: syncedCount };
+        } else {
+            return { success: false, count: 0, error: "No valid WABAs could be processed." };
+        }
+
+    } catch (e: any) {
+        console.error("Facebook setup failed:", e);
+        return { success: false, count: 0, error: e.message || 'An unexpected error occurred during setup.' };
+    }
+}
+
+
+// --- AGENT & INVITATION MANAGEMENT ---
+
+export async function handleInviteAgent(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const email = formData.get('email') as string;
+    const role = formData.get('role') as string;
+
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+
+    if (!projectId || !email || !role) return { error: 'Missing required fields.' };
+    if (!ObjectId.isValid(projectId)) return { error: 'Invalid project ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+
+        if (!project || project.userId.toString() !== session.user._id.toString()) {
+            return { error: 'Project not found or you are not the owner.' };
+        }
+        
+        const plan = await db.collection('plans').findOne({ _id: new ObjectId(session.user.plan?._id) });
+        if (!plan) return { error: 'Could not determine your plan limits.' };
+
+        const currentAgentCount = project.agents?.length || 0;
+        if (currentAgentCount >= (plan.agentLimit || 0)) {
+            return { error: `You have reached your agent limit of ${plan.agentLimit}. Please upgrade your plan.` };
+        }
+
+        const invitee = await db.collection('users').findOne({ email });
+        if (!invitee) {
+            return { error: `No user found with the email "${email}". Please ask them to sign up first.` };
+        }
+
+        if (invitee._id.toString() === session.user._id.toString()) {
+            return { error: "You cannot invite yourself." };
+        }
+
+        if (project.agents?.some(agent => agent.userId.toString() === invitee._id.toString())) {
+            return { error: "This user is already an agent on this project." };
+        }
+
+        const newInvitation: Omit<Invitation, '_id'> = {
+            projectId: project._id,
+            projectName: project.name,
+            inviterId: session.user._id,
+            inviterName: session.user.name,
+            inviteeEmail: email,
+            role,
+            status: 'pending',
+            createdAt: new Date(),
+        };
+
+        await db.collection('invitations').insertOne(newInvitation as any);
+        
+        revalidatePath('/dashboard/settings');
+        return { message: `Invitation sent to ${email}.` };
+
+    } catch (e: any) {
+        console.error("Agent invitation failed:", e);
+        return { error: 'An unexpected error occurred.' };
+    }
+}
+
+export async function handleRemoveAgent(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const agentUserId = formData.get('agentUserId') as string;
+
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+
+    if (!projectId || !agentUserId) return { error: 'Missing required fields.' };
+    if (!ObjectId.isValid(projectId) || !ObjectId.isValid(agentUserId)) return { error: 'Invalid ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+        if (!project || project.userId.toString() !== session.user._id.toString()) {
+            return { error: 'Project not found or you are not the owner.' };
+        }
+
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $pull: { agents: { userId: new ObjectId(agentUserId) } } }
+        );
+        
+        revalidatePath('/dashboard/settings');
+        return { message: 'Agent removed successfully.' };
+
+    } catch (e: any) {
+        console.error("Agent removal failed:", e);
+        return { error: 'An unexpected error occurred.' };
+    }
+}
+
+export async function getInvitationsForUser(): Promise<WithId<Invitation>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const invitations = await db.collection('invitations').find({
+            inviteeEmail: session.user.email,
+            status: 'pending'
+        }).sort({ createdAt: -1 }).toArray();
+
+        return JSON.parse(JSON.stringify(invitations));
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function handleRespondToInvite(invitationId: string, accepted: boolean): Promise<{ success: boolean, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Authentication required.' };
+
+    if (!ObjectId.isValid(invitationId)) return { success: false, error: 'Invalid invitation ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const invite = await db.collection<Invitation>('invitations').findOne({ _id: new ObjectId(invitationId) });
+
+        if (!invite || invite.inviteeEmail !== session.user.email) {
+            return { success: false, error: 'Invitation not found or not intended for you.' };
+        }
+
+        if (accepted) {
+            const agent: Agent = {
+                userId: new ObjectId(session.user._id),
+                email: session.user.email,
+                name: session.user.name,
+                role: invite.role,
+            };
+            await db.collection('projects').updateOne(
+                { _id: invite.projectId },
+                { $addToSet: { agents: agent } }
+            );
+        }
+
+        await db.collection('invitations').deleteOne({ _id: new ObjectId(invitationId) });
+
+        revalidatePath('/dashboard/settings');
+        revalidatePath('/dashboard', 'layout');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'An unexpected error occurred.' };
+    }
+}
+
+
+// --- NOTIFICATION ACTIONS ---
+
+export async function getAllNotifications(
+    page: number = 1,
+    limit: number = 20,
+    eventTypeFilter?: string
+): Promise<{ notifications: WithId<NotificationWithProject>[], total: number }> {
+    const session = await getSession();
+    if (!session?.user) return { notifications: [], total: 0 };
+    
+    try {
+        const { db } = await connectToDatabase();
+        
+        const projectFilter: Filter<Project> = {
+            $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
+        };
+        const accessibleProjects = await db.collection('projects').find(projectFilter).project({_id: 1}).toArray();
+        const accessibleProjectIds = accessibleProjects.map(p => p._id);
+        
+        const filter: Filter<Notification> = { projectId: { $in: accessibleProjectIds } };
+        if (eventTypeFilter) {
+            filter.eventType = eventTypeFilter;
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [notifications, total] = await Promise.all([
+            db.collection('notifications').aggregate<WithId<NotificationWithProject>>([
+                { $match: filter },
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit },
+                {
+                    $lookup: {
+                        from: 'projects',
+                        localField: 'projectId',
+                        foreignField: '_id',
+                        as: 'projectInfo'
+                    }
+                },
+                {
+                    $unwind: { path: '$projectInfo', preserveNullAndEmptyArrays: true }
+                },
+                {
+                    $addFields: {
+                        projectName: '$projectInfo.name'
+                    }
+                },
+                {
+                    $project: { projectInfo: 0 }
+                }
+            ]).toArray(),
+            db.collection('notifications').countDocuments(filter)
+        ]);
+        
+        return { notifications: JSON.parse(JSON.stringify(notifications)), total };
+    } catch (e: any) {
+        return { notifications: [], total: 0 };
+    }
+}
+
+export async function getNotifications(projectId?: string | null): Promise<WithId<NotificationWithProject>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        const projectFilter: Filter<Project> = {
+            $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
+        };
+        const accessibleProjects = await db.collection('projects').find(projectFilter).project({_id: 1}).toArray();
+        const accessibleProjectIds = accessibleProjects.map(p => p._id);
+
+        const filter: Filter<Notification> = { projectId: { $in: accessibleProjectIds } };
+
+        const notifications = await db.collection('notifications').aggregate<WithId<NotificationWithProject>>([
+            { $match: filter },
+            { $sort: { createdAt: -1 } },
+            { $limit: 20 },
+            { $lookup: { from: 'projects', localField: 'projectId', foreignField: '_id', as: 'projectInfo' } },
+            { $unwind: { path: '$projectInfo', preserveNullAndEmptyArrays: true } },
+            { $addFields: { projectName: '$projectInfo.name' } },
+            { $project: { projectInfo: 0 } }
+        ]).toArray();
+        return JSON.parse(JSON.stringify(notifications));
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function markNotificationAsRead(notificationId: string): Promise<{ success: boolean }> {
+  try {
+    const { db } = await connectToDatabase();
+    await db.collection('notifications').updateOne({ _id: new ObjectId(notificationId) }, { $set: { isRead: true } });
+    revalidatePath('/dashboard/notifications');
+    revalidatePath('/dashboard', 'layout');
+    return { success: true };
+  } catch (e) {
+    return { success: false };
+  }
+}
+
+export async function markAllNotificationsAsRead(): Promise<{ success: boolean, updatedCount?: number }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false };
+
+    try {
+        const { db } = await connectToDatabase();
+        const projectFilter: Filter<Project> = {
+            $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
+        };
+        const accessibleProjects = await db.collection('projects').find(projectFilter).project({_id: 1}).toArray();
+        const accessibleProjectIds = accessibleProjects.map(p => p._id);
+        
+        const result = await db.collection('notifications').updateMany(
+            { projectId: { $in: accessibleProjectIds }, isRead: false },
+            { $set: { isRead: true } }
+        );
+        revalidatePath('/dashboard/notifications');
+        revalidatePath('/dashboard', 'layout');
+        return { success: true, updatedCount: result.modifiedCount };
+    } catch (e) {
+        return { success: false };
+    }
+}
+
+// --- SETTINGS ACTIONS ---
+export async function handleUpdateAutoReplySettings(prevState: any, formData: FormData) {
+    const projectId = formData.get('projectId') as string;
+    const replyType = formData.get('replyType') as keyof AutoReplySettings;
+    if (!projectId || !replyType) return { error: 'Missing required data.' };
+
+    const session = await getSession();
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess || hasAccess.userId.toString() !== session?.user?._id.toString()) return { error: "Access denied." };
+
+    let updatePayload: any = { enabled: formData.get('enabled') === 'on' };
+
+    if (replyType === 'welcomeMessage' || replyType === 'general' || replyType === 'inactiveHours' || replyType === 'aiAssistant') {
+        updatePayload.message = formData.get('message') as string;
+    }
+    if (replyType === 'inactiveHours') {
+        updatePayload = {
+            ...updatePayload,
+            startTime: formData.get('startTime'),
+            endTime: formData.get('endTime'),
+            timezone: formData.get('timezone'),
+            days: [0, 1, 2, 3, 4, 5, 6].filter(day => formData.get(`day_${day}`) === 'on')
+        }
+    }
+    if (replyType === 'aiAssistant') {
+        updatePayload.context = formData.get('context');
+        updatePayload.autoTranslate = formData.get('autoTranslate') === 'on';
+        delete updatePayload.message; // 'message' is not part of aiAssistant schema
+    }
+    
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { [`autoReplySettings.${replyType}`]: updatePayload } }
+        );
+        revalidatePath('/dashboard/settings');
+        return { message: 'Auto-reply settings updated successfully!' };
+    } catch (e: any) {
+        return { error: e.message || 'Failed to save settings.' };
+    }
+}
+
+export async function handleUpdateMasterSwitch(projectId: string, isEnabled: boolean) {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { "autoReplySettings.masterEnabled": isEnabled } }
+        );
+        revalidatePath('/dashboard/settings');
+        return { message: `All auto-replies have been ${isEnabled ? 'enabled' : 'disabled'}.` };
+    } catch (e: any) {
+        return { error: e.message || 'Failed to update master switch.' };
+    }
+}
+
+export async function handleUpdateOptInOutSettings(prevState: any, formData: FormData) {
+    const projectId = formData.get('projectId') as string;
+    if (!projectId) return { error: 'Missing project ID.' };
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
+
+    const settings: OptInOutSettings = {
+        enabled: formData.get('enabled') === 'on',
+        optInKeywords: (formData.get('optInKeywords') as string || '').split(',').map(k => k.trim()).filter(Boolean),
+        optOutKeywords: (formData.get('optOutKeywords') as string || '').split(',').map(k => k.trim()).filter(Boolean),
+        optInResponse: formData.get('optInResponse') as string,
+        optOutResponse: formData.get('optOutResponse') as string,
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { optInOutSettings: settings } }
+        );
+        revalidatePath('/dashboard/settings');
+        return { message: 'Opt-in/out settings saved successfully.' };
+    } catch (e: any) {
+        return { error: 'Failed to save settings.' };
+    }
+}
+
+export async function handleSaveUserAttributes(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+
+    const projectId = formData.get('projectId') as string;
+    const attributesJSON = formData.get('attributes') as string;
+    
+    if (!projectId) return { error: 'Project ID is missing.' };
+    
+    try {
+        const attributes = JSON.parse(attributesJSON);
+        
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId), userId: new ObjectId(session.user._id) },
+            { $set: { userAttributes: attributes } }
+        );
+        revalidatePath('/dashboard/settings');
+        return { message: 'User attributes saved successfully.' };
+    } catch (e: any) {
+        console.error("Failed to save user attributes:", e);
+        return { error: 'An error occurred while saving.' };
+    }
+}
+
+// --- Canned Message Actions ---
+export async function saveCannedMessageAction(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+    
+    const messageId = formData.get('_id') as string | null;
+    const projectId = formData.get('projectId') as string;
+    
+    if (!projectId) return { error: 'Project ID is missing.' };
+
+    const cannedMessageData = {
+        projectId: new ObjectId(projectId),
+        name: formData.get('name') as string,
+        type: formData.get('type') as CannedMessage['type'],
+        content: {
+            text: formData.get('text') as string,
+            mediaUrl: formData.get('mediaUrl') as string,
+            caption: formData.get('caption') as string,
+            fileName: formData.get('fileName') as string,
+        },
+        isFavourite: formData.get('isFavourite') === 'on',
+        createdBy: session.user.name,
+        createdAt: new Date(),
+    };
+
+    try {
+        const { db } = await connectToDatabase();
+        if (messageId) {
+            await db.collection('canned_messages').updateOne({ _id: new ObjectId(messageId) }, { $set: { ...cannedMessageData, createdAt: undefined } as any});
+        } else {
+            await db.collection('canned_messages').insertOne(cannedMessageData as any);
+        }
+        revalidatePath('/dashboard/settings');
+        return { message: 'Canned message saved successfully.' };
+    } catch (e: any) {
+        return { error: 'Failed to save canned message.' };
+    }
+}
+
+export async function deleteCannedMessage(id: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid ID.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('canned_messages').deleteOne({ _id: new ObjectId(id) });
+        revalidatePath('/dashboard/settings');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to delete message.' };
+    }
+}
+
+export async function getCannedMessages(projectId: string): Promise<WithId<CannedMessage>[]> {
+    if (!ObjectId.isValid(projectId)) return [];
+    try {
+        const { db } = await connectToDatabase();
+        return JSON.parse(JSON.stringify(await db.collection('canned_messages').find({ projectId: new ObjectId(projectId) }).sort({ isFavourite: -1, name: 1 }).toArray()));
+    } catch (e) {
+        return [];
+    }
+}
+
+// --- CHAT & CONTACT ACTIONS ---
+export async function handleUpdateContactVariables(contactId: string, variables: Record<string, string>): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(contactId)) {
+        return { success: false, error: 'Invalid Contact ID' };
+    }
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('contacts').updateOne(
+            { _id: new ObjectId(contactId) },
+            { $set: { variables } }
+        );
+        revalidatePath('/dashboard/chat');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to update contact.' };
+    }
+}
+
+export async function getContactsPageData(projectId: string, phoneNumberId: string, page: number, query: string): Promise<{
+    project: WithId<Project> | null,
+    contacts: WithId<Contact>[],
+    total: number,
+    selectedPhoneNumberId: string
+}> {
+    const projectData = await getProjectById(projectId);
+    if (!projectData) return { project: null, contacts: [], total: 0, selectedPhoneNumberId: '' };
+
+    let selectedPhoneId = phoneNumberId;
+    if (!selectedPhoneId && projectData.phoneNumbers?.length > 0) {
+        selectedPhoneId = projectData.phoneNumbers[0].id;
+    }
+    
+    if (!selectedPhoneId) return { project: projectData, contacts: [], total: 0, selectedPhoneNumberId: '' };
+
+    const { db } = await connectToDatabase();
+    const filter: Filter<Contact> = { projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId };
+    if (query) {
+        const queryRegex = { $regex: query, $options: 'i' };
+        filter.$or = [
+            { name: queryRegex },
+            { waId: queryRegex },
+        ];
+    }
+    const skip = (page - 1) * 20;
+
+    const [contacts, total] = await Promise.all([
+        db.collection('contacts').find(filter).sort({ lastMessageTimestamp: -1 }).skip(skip).limit(20).toArray(),
+        db.collection('contacts').countDocuments(filter)
+    ]);
+    
+    return {
+        project: JSON.parse(JSON.stringify(projectData)),
+        contacts: JSON.parse(JSON.stringify(contacts)),
+        total,
+        selectedPhoneNumberId: selectedPhoneId
+    };
+}
+
+export async function getConversation(contactId: string): Promise<AnyMessage[]> {
+    if (!ObjectId.isValid(contactId)) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const contactObjectId = new ObjectId(contactId);
+
+        const incoming = await db.collection('incoming_messages').find({ contactId: contactObjectId }).toArray();
+        const outgoing = await db.collection('outgoing_messages').find({ contactId: contactObjectId }).toArray();
+        
+        const allMessages = [...incoming, ...outgoing];
+        allMessages.sort((a, b) => new Date(a.messageTimestamp).getTime() - new Date(b.messageTimestamp).getTime());
+
+        return JSON.parse(JSON.stringify(allMessages));
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function getInitialChatData(projectId: string, phoneId: string | null, contactId: string | null): Promise<{
+    project: WithId<Project> | null;
+    contacts: WithId<Contact>[];
+    totalContacts: number;
+    selectedContact: WithId<Contact> | null;
+    conversation: AnyMessage[];
+    selectedPhoneNumberId: string;
+}> {
+    const defaultResponse = { project: null, contacts: [], totalContacts: 0, selectedContact: null, conversation: [], selectedPhoneNumberId: '' };
+    const projectData = await getProjectById(projectId);
+    if (!projectData) return defaultResponse;
+
+    let selectedPhoneId = phoneId || projectData.phoneNumbers?.[0]?.id || '';
+    if (!selectedPhoneId) return { ...defaultResponse, project: projectData };
+
+    const { db } = await connectToDatabase();
+    
+    const [allContacts, total] = await Promise.all([
+        db.collection<Contact>('contacts').find({ projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId }).sort({ lastMessageTimestamp: -1 }).limit(30).toArray(),
+        db.collection('contacts').countDocuments({ projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId })
+    ]);
+
+    let selectedContactData: WithId<Contact> | null = null;
+    let conversationData: AnyMessage[] = [];
+
+    if (contactId && ObjectId.isValid(contactId)) {
+        selectedContactData = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
+        if (selectedContactData) {
+            conversationData = await getConversation(contactId);
+        }
+    }
+
+    return {
+        project: JSON.parse(JSON.stringify(projectData)),
+        contacts: JSON.parse(JSON.stringify(allContacts)),
+        totalContacts: total,
+        selectedContact: selectedContactData ? JSON.parse(JSON.stringify(selectedContactData)) : null,
+        conversation: conversationData,
+        selectedPhoneNumberId: selectedPhoneId,
+    };
+}
+
+// --- FLOW ACTIONS ---
+export async function getFlowsForProject(projectId: string): Promise<WithId<Flow>[]> {
+    if (!ObjectId.isValid(projectId)) return [];
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const flows = await db.collection<Flow>('flows')
+            .find({ projectId: new ObjectId(projectId) })
+            .project({ name: 1, triggerKeywords: 1, updatedAt: 1 })
+            .sort({ updatedAt: -1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(flows));
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function getFlowById(flowId: string): Promise<WithId<Flow> | null> {
+    if (!ObjectId.isValid(flowId)) return null;
+    try {
+        const { db } = await connectToDatabase();
+        const flow = await db.collection<Flow>('flows').findOne({ _id: new ObjectId(flowId) });
+        // Add security check here if needed
+        return flow ? JSON.parse(JSON.stringify(flow)) : null;
+    } catch (e) {
+        return null;
+    }
+}
+
+export async function saveFlow(data: {
+    flowId?: string;
+    projectId: string;
+    name: string;
+    nodes: FlowNode[];
+    edges: FlowEdge[];
+    triggerKeywords: string[];
+}): Promise<{ message?: string, error?: string, flowId?: string }> {
+    const { flowId, projectId, name, nodes, edges, triggerKeywords } = data;
+    if (!projectId || !name) return { error: 'Project ID and Flow Name are required.' };
+    const isNew = !flowId;
+    
+    const flowData: Omit<Flow, '_id' | 'createdAt'> = {
+        name,
+        projectId: new ObjectId(projectId),
+        nodes,
+        edges,
+        triggerKeywords,
+        updatedAt: new Date(),
+    };
+
+    try {
+        const { db } = await connectToDatabase();
+        if (isNew) {
+            const result = await db.collection('flows').insertOne({ ...flowData, createdAt: new Date() } as any);
+            revalidatePath('/dashboard/flow-builder');
+            return { message: 'Flow created successfully.', flowId: result.insertedId.toString() };
+        } else {
+            await db.collection('flows').updateOne(
+                { _id: new ObjectId(flowId) },
+                { $set: flowData }
+            );
+            revalidatePath('/dashboard/flow-builder');
+            return { message: 'Flow updated successfully.', flowId };
+        }
+    } catch (e: any) {
+        return { error: 'Failed to save flow.' };
+    }
+}
+
+export async function deleteFlow(flowId: string): Promise<{ message?: string; error?: string }> {
+    if (!ObjectId.isValid(flowId)) return { error: 'Invalid Flow ID.' };
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('flows').deleteOne({ _id: new ObjectId(flowId) });
+        revalidatePath('/dashboard/flow-builder');
+        return { message: 'Flow deleted.' };
+    } catch (e) {
+        return { error: 'Failed to delete flow.' };
+    }
+}
+
+export async function getFlowBuilderPageData(projectId: string): Promise<{
+    flows: WithId<Flow>[];
+    initialFlow: WithId<Flow> | null;
+}> {
+    const flows = await getFlowsForProject(projectId);
+    const initialFlow = flows.length > 0 ? await getFlowById(flows[0]._id.toString()) : null;
+    return { flows, initialFlow };
+}
+    
+
