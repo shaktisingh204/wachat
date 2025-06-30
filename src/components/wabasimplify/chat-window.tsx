@@ -57,7 +57,7 @@ export function ChatWindow({ project, contact, conversation, isLoading, onBack, 
                 onContactUpdate={onContactUpdate}
             />
             <div className="flex flex-col h-full">
-                <div className="flex items-center justify-between gap-3 p-3 border-b">
+                <div className="flex items-center justify-between gap-3 px-3 border-b h-[50px] flex-shrink-0">
                     <div className="flex items-center gap-3">
                         <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
                             <ArrowLeft className="h-4 w-4" />
@@ -91,7 +91,7 @@ export function ChatWindow({ project, contact, conversation, isLoading, onBack, 
                     </div>
                 </ScrollArea>
                 
-                <div className="p-4 border-t bg-background/80">
+                <div className="flex items-center px-4 border-t bg-background/80 h-[50px] flex-shrink-0">
                     <ChatMessageInput contact={contact} />
                 </div>
             </div>
