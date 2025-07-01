@@ -124,7 +124,7 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
 
             // Publish if requested
             if (shouldPublish) {
-                const publishResponse = await axios.post(`https://graph.facebook.com/v22.0/${metaId}?publish=true&access_token=${accessToken}`);
+                const publishResponse = await axios.post(`https://graph.facebook.com/v22.0/${metaId}/publish?access_token=${accessToken}`);
                 if (publishResponse.data.error) {
                     throw new Error(`Flow updated but failed to publish: ${getErrorMessage({ response: publishResponse })}`);
                 }
@@ -156,22 +156,32 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
                 categories: [category],
                 flow_json: JSON.stringify(flow_data),
                 access_token: accessToken,
-                publish: shouldPublish,
             };
             if (endpointUri) {
                 createPayload.endpoint_uri = endpointUri;
             }
 
-            const response = await axios.post(`https://graph.facebook.com/v22.0/${wabaId}/flows`, createPayload);
+            const createUrl = `https://graph.facebook.com/v22.0/${wabaId}/flows`;
+            const createResponse = await axios.post(createUrl, createPayload);
 
-            if (response.data.error) {
-                throw new Error(getErrorMessage({ response }));
+            if (createResponse.data.error) {
+                throw new Error(getErrorMessage({ response: createResponse }));
             }
 
-            const newMetaFlowId = response.data?.id;
+            const newMetaFlowId = createResponse.data?.id;
             if (!newMetaFlowId) {
                 throw new Error('Meta API did not return a flow ID.');
             }
+            
+            if (shouldPublish) {
+                const publishResponse = await axios.post(`https://graph.facebook.com/v22.0/${newMetaFlowId}/publish?access_token=${accessToken}`);
+                if (publishResponse.data.error) {
+                    // Flow created but not published, proceed to save as draft
+                     console.warn(`Flow created but failed to publish: ${getErrorMessage({ response: publishResponse })}`);
+                }
+            }
+
+            const finalFlowData = await axios.get(`https://graph.facebook.com/v22.0/${newMetaFlowId}?fields=status,json_version&access_token=${accessToken}`);
 
             const newFlow: Omit<MetaFlow, '_id' | 'endpointUri'> & { endpointUri?: string | null } = {
                 name,
@@ -179,8 +189,8 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
                 metaId: newMetaFlowId,
                 categories: [category],
                 flow_data,
-                status: response.data.status || 'DRAFT',
-                json_version: response.data.json_version,
+                status: finalFlowData.data.status || 'DRAFT',
+                json_version: finalFlowData.data.json_version,
                 createdAt: new Date(),
                 updatedAt: new Date(),
             };

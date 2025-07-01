@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Suspense, useActionState, useEffect, useState, useTransition } from 'react';
@@ -44,79 +43,48 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 }
 
 function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onRemoveOption }: { component: UIComponent & { id: string }, onUpdate: (key: string, value: any) => void, onAddOption: () => void, onUpdateOption: (index: number, value: string) => void, onRemoveOption: (index: number) => void }) {
-    const commonFields = (
-         <div className="space-y-2 mt-2">
-            <Label htmlFor={`${component.id}_name`}>Field Name/ID (unique)</Label>
-            <Input id={`${component.id}_name`} value={component.name || ''} onChange={e => onUpdate('name', e.target.value)} placeholder="e.g., user_name" />
-        </div>
-    );
     
     switch (component.type) {
-        case 'TextHeading':
-        case 'TextBody':
-        case 'TextSubtext':
-            return <Textarea value={component.text || ''} onChange={e => onUpdate('text', e.target.value)} placeholder="Enter text content..." />;
-        case 'Image':
-             return <Input value={component.url || ''} onChange={e => onUpdate('url', e.target.value)} placeholder="https://example.com/image.png" />;
-        case 'EmbeddedLink':
-            return (
-                <div className="space-y-2">
-                    <div className="space-y-1">
-                        <Label htmlFor={`${component.id}_text`}>Display Text</Label>
-                        <Input id={`${component.id}_text`} value={component.text || ''} onChange={e => onUpdate('text', e.target.value)} placeholder="e.g., View Our Website" />
-                    </div>
-                    <div className="space-y-1">
-                        <Label htmlFor={`${component.id}_url`}>URL</Label>
-                        <Input id={`${component.id}_url`} value={component.url || ''} onChange={e => onUpdate('url', e.target.value)} placeholder="https://example.com" />
-                    </div>
-                </div>
-            );
         case 'TextInput':
+        case 'NumberInput':
+        case 'UrlInput':
+        case 'TimePicker':
+        case 'PhotoPicker':
+        case 'DocumentPicker':
+        case 'Calendar':
+        case 'ContactPicker':
              return (
                 <div className="space-y-2">
                     <Label htmlFor={`${component.id}_label`}>Label</Label>
                     <Input id={`${component.id}_label`} value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Your Full Name" />
-                    {commonFields}
                 </div>
             );
-        case 'PhoneNumberInput':
-             return (
-                <div className="space-y-2">
-                    <Label htmlFor={`${component.id}_label`}>Label</Label>
-                    <Input id={`${component.id}_label`} value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Your Phone Number" />
-                    {commonFields}
+        case 'Button':
+            return (
+                 <div className="space-y-2">
+                    <Label htmlFor={`${component.id}_label`}>Button Label</Label>
+                    <Input id={`${component.id}_label`} value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Next" />
                 </div>
-            );
-        case 'DatePicker':
-             return (
-                <div className="space-y-2">
-                    <Label htmlFor={`${component.id}_label`}>Label</Label>
-                    <Input id={`${component.id}_label`} value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Select a Date" />
-                    {commonFields}
-                </div>
-            );
-        case 'RadioButtons':
-        case 'CheckboxGroup':
-        case 'Dropdown':
+            )
+        case 'ChipsSelector':
+        case 'RadioSelector':
+        case 'ListSelector':
              return (
                 <div className="space-y-2">
                     <Label htmlFor={`${component.id}_label`}>Label</Label>
                     <Input id={`${component.id}_label`} value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Select your interest" />
                     <Label>Options</Label>
                     <div className="space-y-2">
-                        {(component['data-source'] || []).map((opt, index) => (
+                        {(component['options'] || []).map((opt, index) => (
                             <div key={opt.id} className="flex items-center gap-2">
-                                <Input value={opt.title} onChange={e => onUpdateOption(index, e.target.value)} />
+                                <Input value={opt.label} onChange={e => onUpdateOption(index, e.target.value)} />
                                 <Button type="button" variant="ghost" size="icon" onClick={() => onRemoveOption(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                             </div>
                         ))}
                     </div>
                     <Button type="button" variant="outline" size="sm" onClick={onAddOption}>+ Add Option</Button>
-                    {commonFields}
                 </div>
             );
-         case 'OptIn':
-            return <Input value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="I agree to the terms..." />;
         default:
             return <p className="text-xs text-muted-foreground">This component has no editable properties.</p>;
     }
@@ -150,19 +118,18 @@ function CreateMetaFlowPage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [existingFlow, setExistingFlow] = useState<WithId<MetaFlow> | null>(null);
-
-    const [flowName, setFlowName] = useState('new_flow');
-    const [endpointUri, setEndpointUri] = useState('');
-    const [category, setCategory] = useState('LEAD_GENERATION');
     
-    const [screens, setScreens] = useState<any[]>([
-        { id: 'SCREEN_1', title: 'Welcome Screen', layout: { type: 'SingleColumnLayout', children: [{ type: 'Footer', label: 'Continue', 'on-click-action': { name: 'complete' } }] } }
-    ]);
+    // New state structure
+    const [flowName, setFlowName] = useState('');
+    const [flowDescription, setFlowDescription] = useState('');
+    const [screens, setScreens] = useState<any[]>([]);
+    
+    const [endpointUri, setEndpointUri] = useState('');
+    const [category, setCategory] = useState('OTHER');
     const [flowJson, setFlowJson] = useState('');
     const [aiPrompt, setAiPrompt] = useState('');
     const [isGenerating, startGeneratingTransition] = useTransition();
     const [shouldPublish, setShouldPublish] = useState(true);
-
 
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -172,17 +139,19 @@ function CreateMetaFlowPage() {
             getMetaFlowById(flowId).then(data => {
                 if (data) {
                     setExistingFlow(data);
-                    setFlowName(data.name);
+                    const flowContent = data.flow_data?.flow;
+                    setFlowName(flowContent?.name || data.name);
+                    setFlowDescription(flowContent?.description || '');
+                    setScreens(flowContent?.screens || []);
                     setCategory(data.categories[0] || 'OTHER');
                     setEndpointUri((data as any).endpointUri || '');
                     setShouldPublish(data.status === 'PUBLISHED');
-                    if (data.flow_data?.screens) {
-                        setScreens(data.flow_data.screens);
-                    }
                 }
                 setIsLoading(false);
             });
         } else {
+            setFlowName('new_flow_' + Math.floor(Math.random() * 1000));
+            setScreens([{ id: 'screen_1', title: { text: 'Welcome Screen' }, body: { text: "Welcome!" }, components: [{ type: 'Button', id: 'btn_next_1', label: 'Start', action: { type: 'submit' } }] }]);
             setIsLoading(false);
             setShouldPublish(true); // Default to publish for new flows
         }
@@ -204,13 +173,14 @@ function CreateMetaFlowPage() {
             return;
         }
         startGeneratingTransition(async () => {
-            const result = await handleGenerateMetaFlow(aiPrompt, category);
+            const result = await handleGenerateMetaFlow({ prompt: aiPrompt, category });
             if (result.error) {
                 toast({ title: "AI Generation Failed", description: result.error, variant: "destructive" });
-            } else if (result.flowJson) {
+            } else if (result.flow) {
                 try {
-                    const parsedFlow = JSON.parse(result.flowJson);
-                    setScreens(parsedFlow.screens);
+                    setFlowName(result.flow.name);
+                    setFlowDescription(result.flow.description || '');
+                    setScreens(result.flow.screens);
                     toast({ title: "Flow Generated!", description: "The AI has created your flow. Review and save it." });
                 } catch (e) {
                     toast({ title: "JSON Parse Error", description: "The AI returned invalid JSON. Please try again.", variant: "destructive" });
@@ -219,105 +189,114 @@ function CreateMetaFlowPage() {
         });
     };
 
-    const addScreen = () => setScreens(prev => [...prev, { id: `SCREEN_${Date.now()}`, title: `Screen ${prev.length + 1}`, layout: { type: 'SingleColumnLayout', children: [{ type: 'Footer', label: 'Continue', 'on-click-action': { name: 'complete' } }] } }]);
-    const removeScreen = (index: number) => setScreens(prev => prev.filter((_, i) => i !== index));
-    const updateScreen = (index: number, key: string, value: string) => setScreens(prev => prev.map((s, i) => i === index ? { ...s, [key]: value } : s));
+    const addScreen = () => setScreens(prev => [...prev, { id: `screen_${Date.now()}`, title: { text: `Screen ${prev.length + 1}` }, components: [{ type: 'Button', id: `btn_${Date.now()}`, label: 'Continue', action: { type: 'submit' } }] }]);
+    const removeScreen = (screenId: string) => {
+        if (screens.length <= 1) {
+            toast({ title: "Cannot Delete", description: "A flow must have at least one screen.", variant: "destructive" });
+            return;
+        }
+        setScreens(prev => prev.filter(s => s.id !== screenId));
+    };
+
+    const updateScreenField = (screenId: string, field: 'title' | 'body', value: string) => {
+        setScreens(prev => prev.map(s => s.id === screenId ? { ...s, [field]: { ...s[field], text: value } } : s));
+    };
     
-    const updateScreenAction = (screenIndex: number, screenId: string) => {
-        setScreens(prev => prev.map((s, i) => {
-            if (i === screenIndex) {
-                const footer = s.layout.children.find((c: any) => c.type === 'Footer');
-                if(footer) {
-                    if (screenId === 'END_FLOW') {
-                        footer['on-click-action'] = { name: 'complete' };
-                    } else {
-                        footer['on-click-action'] = { name: 'navigate', payload: { next: screenId } };
+    const updateScreenAction = (screenId: string, buttonId: string, targetScreenId: string) => {
+        setScreens(prev => prev.map(s => {
+            if (s.id === screenId) {
+                const newComponents = s.components.map((c: any) => {
+                    if (c.id === buttonId) {
+                        return { ...c, action: targetScreenId === 'SUBMIT' ? { type: 'submit' } : { type: 'navigate', target: targetScreenId } };
                     }
-                }
+                    return c;
+                });
+                return { ...s, components: newComponents };
             }
             return s;
         }))
     };
     
-    const addComponentToScreen = (screenIndex: number, componentType: string) => {
-        setScreens(prev => prev.map((s, i) => {
-            if (i === screenIndex) {
-                const newComponent: any = { id: `comp_${Date.now()}`, type: componentType, name: `field_${Date.now()}` };
-                 if (['RadioButtons', 'CheckboxGroup', 'Dropdown'].includes(componentType)) {
-                    newComponent['data-source'] = [];
+    const addComponentToScreen = (screenId: string, componentType: string) => {
+        setScreens(prev => prev.map((s) => {
+            if (s.id === screenId) {
+                const newComponent: any = { type: componentType, id: `comp_${Date.now()}`, label: `New ${componentType}` };
+                 if (['ChipsSelector', 'RadioSelector', 'ListSelector'].includes(componentType)) {
+                    newComponent.options = [];
                 }
-                const footerIndex = s.layout.children.findIndex(c => c.type === 'Footer');
-                const newChildren = [...s.layout.children];
-                newChildren.splice(footerIndex, 0, newComponent);
-                return { ...s, layout: { ...s.layout, children: newChildren } };
+                // Insert before the last button
+                const buttonIndex = s.components.findLastIndex((c: any) => c.type === 'Button');
+                const newComponents = [...s.components];
+                newComponents.splice(buttonIndex, 0, newComponent);
+                return { ...s, components: newComponents };
             }
             return s;
         }));
     };
 
-    const updateComponentInScreen = (screenIndex: number, componentIndex: number, key: string, value: any) => {
-        setScreens(prev => prev.map((s, i) => {
-            if (i === screenIndex) {
-                const newChildren = s.layout.children.map((c, j) => j === componentIndex ? { ...c, [key]: value } : c);
-                return { ...s, layout: { ...s.layout, children: newChildren } };
+    const updateComponentInScreen = (screenId: string, componentId: string, key: string, value: any) => {
+        setScreens(prev => prev.map(s => {
+            if (s.id === screenId) {
+                const newComponents = s.components.map((c: any) => c.id === componentId ? { ...c, [key]: value } : c);
+                return { ...s, components: newComponents };
             }
             return s;
         }));
     };
     
-    const removeComponentFromScreen = (screenIndex: number, componentIndex: number) => {
+    const removeComponentFromScreen = (screenId: string, componentId: string) => {
         setScreens(prev => prev.map((s, i) => {
-            if (i === screenIndex) {
-                const newChildren = s.layout.children.filter((_, j) => j !== componentIndex);
-                return { ...s, layout: { ...s.layout, children: newChildren } };
+            if (s.id === screenId) {
+                const newComponents = s.components.filter((c: any) => c.id !== componentId);
+                return { ...s, components: newComponents };
             }
             return s;
         }));
     };
 
-    const handleAddComponentOption = (screenIndex: number, componentIndex: number) => {
-        setScreens(prev => prev.map((s, i) => {
-            if (i === screenIndex) {
-                const newChildren = s.layout.children.map((c, j) => {
-                    if (j === componentIndex) {
-                        const newDataSource = [...(c['data-source'] || []), { id: `opt_${Date.now()}`, title: '' }];
-                        return { ...c, 'data-source': newDataSource };
+    const handleAddComponentOption = (screenId: string, componentId: string) => {
+        setScreens(prev => prev.map(s => {
+            if (s.id === screenId) {
+                const newComponents = s.components.map((c: any) => {
+                    if (c.id === componentId) {
+                        const newOptions = [...(c.options || []), { id: `opt_${Date.now()}`, label: '' }];
+                        return { ...c, options: newOptions };
                     }
                     return c;
                 });
-                return { ...s, layout: { ...s.layout, children: newChildren } };
+                return { ...s, components: newComponents };
             }
             return s;
         }));
     };
 
-    const handleUpdateComponentOption = (screenIndex: number, componentIndex: number, optionIndex: number, value: string) => {
-         setScreens(prev => prev.map((s, i) => {
-            if (i === screenIndex) {
-                const newChildren = s.layout.children.map((c, j) => {
-                    if (j === componentIndex) {
-                        const newDataSource = c['data-source'].map((opt, k) => k === optionIndex ? { ...opt, title: value } : opt);
-                        return { ...c, 'data-source': newDataSource };
+    const handleUpdateComponentOption = (screenId: string, componentId: string, optionIndex: number, value: string) => {
+         setScreens(prev => prev.map(s => {
+            if (s.id === screenId) {
+                const newComponents = s.components.map((c: any) => {
+                    if (c.id === componentId) {
+                        const newOptions = c.options.map((opt, k) => k === optionIndex ? { ...opt, label: value } : opt);
+                        return { ...c, options: newOptions };
                     }
                     return c;
                 });
-                return { ...s, layout: { ...s.layout, children: newChildren } };
+                return { ...s, components: newComponents };
             }
             return s;
         }));
     };
 
-    const handleRemoveComponentOption = (screenIndex: number, componentIndex: number, optionIndex: number) => {
-        setScreens(prev => prev.map((s, i) => {
-            if (i === screenIndex) {
-                const newChildren = s.layout.children.map((c, j) => {
-                    if (j === componentIndex) {
-                        const newDataSource = c['data-source'].filter((_, k) => k !== optionIndex);
-                        return { ...c, 'data-source': newDataSource };
+    const handleRemoveComponentOption = (screenId: string, componentId: string, optionIndex: number) => {
+        setScreens(prev => prev.map(s => {
+            if (s.id === screenId) {
+                const newComponents = s.components.map((c: any) => {
+                    if (c.id === componentId) {
+                        const newOptions = c.options.filter((_: any, k: number) => k !== optionIndex);
+                        return { ...c, options: newOptions };
                     }
                     return c;
                 });
-                return { ...s, layout: { ...s.layout, children: newChildren } };
+                return { ...s, components: newComponents };
             }
             return s;
         }));
@@ -325,11 +304,16 @@ function CreateMetaFlowPage() {
 
      useEffect(() => {
         const generatedJson = {
-            version: "3.1",
-            screens: screens
+            version: "7.1",
+            flow: {
+                name: flowName,
+                description: flowDescription,
+                screens: screens,
+                metadata: { language: 'en_US' }
+            }
         };
         setFlowJson(JSON.stringify(generatedJson, null, 2));
-    }, [screens]);
+    }, [flowName, flowDescription, screens]);
     
     if (isLoading) {
         return <PageSkeleton />;
@@ -361,8 +345,8 @@ function CreateMetaFlowPage() {
                             <CardHeader><CardTitle>1. General Details</CardTitle></CardHeader>
                             <CardContent className="space-y-4">
                                  <div className="space-y-2">
-                                    <Label htmlFor="name">Flow Name</Label>
-                                    <Input id="name" value={flowName} onChange={e => setFlowName(e.target.value)} placeholder="e.g., lead_capture_flow" required/>
+                                    <Label htmlFor="flowNameInput">Flow Name</Label>
+                                    <Input id="flowNameInput" value={flowName} onChange={e => setFlowName(e.target.value)} placeholder="e.g., lead_capture_flow" required/>
                                     <p className="text-xs text-muted-foreground">Lowercase letters and underscores only.</p>
                                 </div>
                                 <div className="space-y-2">
@@ -413,57 +397,58 @@ function CreateMetaFlowPage() {
                             <CardHeader><CardTitle>2. Build Your Screens</CardTitle></CardHeader>
                             <CardContent>
                                 <Accordion type="multiple" className="w-full space-y-4" defaultValue={['item-0']}>
-                                    {screens.map((screen, screenIndex) => {
-                                        const footer = screen.layout.children.find((c: any) => c.type === 'Footer');
-                                        const nextAction = footer?.['on-click-action']?.payload?.next || 'END_FLOW';
-
-                                        return (
+                                    {screens.map((screen, screenIndex) => (
                                         <AccordionItem value={`item-${screenIndex}`} key={screen.id} className="border rounded-md px-4">
                                             <AccordionTrigger className="hover:no-underline">
                                                  <div className="flex-1 flex items-center gap-2">
                                                     <GripVertical className="h-5 w-5 text-muted-foreground" />
-                                                    <Input className="text-base font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" value={screen.title} onChange={e => updateScreen(screenIndex, 'title', e.target.value)} onClick={e => e.stopPropagation()}/>
+                                                    <Input className="text-base font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" value={screen.title?.text || ''} onChange={e => updateScreenField(screen.id, 'title', e.target.value)} onClick={e => e.stopPropagation()}/>
                                                 </div>
-                                                <Button type="button" variant="ghost" size="icon" onClick={() => removeScreen(screenIndex)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                                                <Button type="button" variant="ghost" size="icon" onClick={() => removeScreen(screen.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                                             </AccordionTrigger>
                                             <AccordionContent className="pt-4 space-y-4">
-                                                {screen.layout.children.filter((c: any) => c.type !== 'Footer').map((component: any, compIndex: number) => (
+                                                <div className="space-y-2">
+                                                  <Label>Screen Body Text (Optional)</Label>
+                                                  <Textarea value={screen.body?.text || ''} onChange={e => updateScreenField(screen.id, 'body', e.target.value)} placeholder="Enter body text..."/>
+                                                </div>
+                                                <Separator />
+                                                <h4 className="font-semibold text-sm">Components</h4>
+                                                {screen.components?.map((component: any, compIndex: number) => (
                                                     <div key={component.id || compIndex} className="p-3 border rounded-lg space-y-2 relative bg-background">
                                                         <div className="flex justify-between items-center">
                                                             <p className="text-sm font-medium text-muted-foreground">{component.type}</p>
-                                                            <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeComponentFromScreen(screenIndex, compIndex)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                                                            <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeComponentFromScreen(screen.id, component.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                                                         </div>
                                                         <ComponentEditor 
                                                             component={component} 
-                                                            onUpdate={(key, value) => updateComponentInScreen(screenIndex, compIndex, key, value)}
-                                                            onAddOption={() => handleAddComponentOption(screenIndex, compIndex)}
-                                                            onUpdateOption={(optionIndex, value) => handleUpdateComponentOption(screenIndex, compIndex, optionIndex, value)}
-                                                            onRemoveOption={(optionIndex) => handleRemoveComponentOption(screenIndex, compIndex, optionIndex)}
+                                                            onUpdate={(key, value) => updateComponentInScreen(screen.id, component.id, key, value)}
+                                                            onAddOption={() => handleAddComponentOption(screen.id, component.id)}
+                                                            onUpdateOption={(optionIndex, value) => handleUpdateComponentOption(screen.id, component.id, optionIndex, value)}
+                                                            onRemoveOption={(optionIndex) => handleRemoveComponentOption(screen.id, component.id, optionIndex)}
                                                         />
+                                                        {component.type === 'Button' && (
+                                                            <div className="space-y-2 pt-2 border-t mt-2">
+                                                                <Label>Button Action</Label>
+                                                                <Select value={component.action?.target || 'SUBMIT'} onValueChange={value => updateScreenAction(screen.id, component.id, value)}>
+                                                                    <SelectTrigger><SelectValue placeholder="Select next step..." /></SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="SUBMIT">End & Submit Flow</SelectItem>
+                                                                        {screens.filter(s => s.id !== screen.id).map(s => <SelectItem key={s.id} value={s.id}>Go to: {s.title.text}</SelectItem>)}
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 ))}
                                                 <Popover>
                                                     <PopoverTrigger asChild><Button type="button" variant="outline" className="w-full"><Plus className="mr-2 h-4 w-4" /> Add Component</Button></PopoverTrigger>
                                                     <PopoverContent className="w-56 p-1">
-                                                        {uiComponents.map(c => <div key={c.type} className="p-2 text-sm rounded-md hover:bg-accent cursor-pointer" onClick={() => addComponentToScreen(screenIndex, c.type)}>{c.label}</div>)}
+                                                        {uiComponents.map(c => <div key={c.type} className="p-2 text-sm rounded-md hover:bg-accent cursor-pointer" onClick={() => addComponentToScreen(screen.id, c.type)}>{c.label}</div>)}
                                                     </PopoverContent>
                                                 </Popover>
-                                                <div className="space-y-2 pt-4 border-t">
-                                                    <Label>Footer Button Action</Label>
-                                                    <Select value={nextAction} onValueChange={value => updateScreenAction(screenIndex, value)}>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select next step..." />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            <SelectItem value="END_FLOW">End Flow (Complete)</SelectItem>
-                                                            {screens.filter(s => s.id !== screen.id).map(s => <SelectItem key={s.id} value={s.id}>Go to: {s.title}</SelectItem>)}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </div>
                                             </AccordionContent>
                                         </AccordionItem>
-                                        );
-                                    })}
+                                    ))}
                                 </Accordion>
                                 <Button type="button" variant="outline" className="w-full mt-4" onClick={addScreen}><Plus className="mr-2 h-4 w-4"/>Add New Screen</Button>
                             </CardContent>

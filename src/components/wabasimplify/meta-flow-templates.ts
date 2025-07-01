@@ -1,15 +1,12 @@
 
-
 export type UIComponent = {
     id?: string;
-    type: 'TextHeading' | 'TextBody' | 'TextSubtext' | 'Image' | 'TextInput' | 'DatePicker' | 'RadioButtons' | 'CheckboxGroup' | 'Dropdown' | 'OptIn' | 'EmbeddedLink' | 'PhoneNumberInput';
-    name?: string;
+    type: 'TextInput' | 'NumberInput' | 'UrlInput' | 'TimePicker' | 'Button' | 'PhotoPicker' | 'DocumentPicker' | 'Calendar' | 'ContactPicker' | 'ChipsSelector' | 'RadioSelector' | 'ListSelector';
     label?: string;
-    text?: string;
-    url?: string;
-    caption?: string;
-    'input-type'?: 'text' | 'number' | 'email';
-    'data-source'?: { id: string, title: string }[];
+    placeholder?: string;
+    required?: boolean;
+    action?: { type: 'navigate' | 'submit'; target?: string };
+    options?: { id: string; label: string }[];
 };
 
 export const flowCategories = [
@@ -25,16 +22,16 @@ export const flowCategories = [
 ];
 
 export const uiComponents: { type: UIComponent['type'], label: string }[] = [
-    { type: 'TextHeading', label: 'Heading Text' },
-    { type: 'TextBody', label: 'Body Text' },
-    { type: 'TextSubtext', label: 'Sub-text' },
-    { type: 'Image', label: 'Image' },
-    { type: 'EmbeddedLink', label: 'Embedded Link' },
     { type: 'TextInput', label: 'Text Input' },
-    { type: 'PhoneNumberInput', label: 'Phone Number Input' },
-    { type: 'DatePicker', label: 'Date Picker' },
-    { type: 'RadioButtons', label: 'Radio Buttons' },
-    { type: 'CheckboxGroup', label: 'Checkbox Group' },
-    { type: 'Dropdown', label: 'Dropdown' },
-    { type: 'OptIn', label: 'Opt-In Checkbox' },
+    { type: 'NumberInput', label: 'Number Input' },
+    { type: 'UrlInput', label: 'URL Input' },
+    { type: 'TimePicker', label: 'Time Picker' },
+    { type: 'Calendar', label: 'Calendar' },
+    { type: 'PhotoPicker', label: 'Photo Picker' },
+    { type: 'DocumentPicker', label: 'Document Picker' },
+    { type: 'ContactPicker', label: 'Contact Picker' },
+    { type: 'RadioSelector', label: 'Radio Selector' },
+    { type: 'ChipsSelector', label: 'Chips Selector' },
+    { type: 'ListSelector', label: 'List Selector' },
+    { type: 'Button', label: 'Button' },
 ];

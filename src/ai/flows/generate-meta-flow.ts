@@ -10,45 +10,76 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-// --- Zod Schemas for Meta Flow JSON Structure ---
+// --- Zod Schemas for Meta Flow JSON Structure v7.1 ---
 
-const UIComponentSchema = z.object({
-    type: z.enum(['TextHeading', 'TextBody', 'TextSubtext', 'Image', 'TextInput', 'DatePicker', 'RadioButtons', 'CheckboxGroup', 'Dropdown', 'OptIn', 'EmbeddedLink', 'PhoneNumberInput']),
-    name: z.string().optional().describe("A unique identifier for form components like TextInput, DatePicker, etc. This is crucial for data collection."),
-    label: z.string().optional().describe("The user-visible label for a form field."),
-    text: z.string().optional().describe("The text content for components like TextHeading, TextBody, or EmbeddedLink."),
-    url: z.string().optional().describe("URL for Image or EmbeddedLink components. Should be a placeholder like https://placehold.co/600x400.png."),
-    caption: z.string().optional().describe("Optional caption for an Image."),
-    'input-type': z.enum(['text', 'number', 'email']).optional(),
-    'data-source': z.array(z.object({ id: z.string(), title: z.string() })).optional().describe("Options for RadioButtons, CheckboxGroup, or Dropdown."),
+const FlowMetadataSchema = z.object({
+  language: z.string().describe("The BCP 47 language code for the flow, e.g., 'en_US'."),
+  theme: z.enum(['light', 'dark']).optional().describe("The color theme for the flow."),
 });
 
-const FooterSchema = z.object({
-    type: z.enum(['Footer']),
-    label: z.string().describe("The text for the main action button on the screen."),
-    'on-click-action': z.object({
-        name: z.enum(['navigate', 'complete']),
-        payload: z.object({
-            next: z.string().optional().describe("The ID of the next screen to navigate to. Required if name is 'navigate'.")
-        }).optional()
-    })
+const ScreenTextSchema = z.object({
+  text: z.string().describe("The text content."),
+  markdown: z.boolean().optional().describe("Whether the text supports markdown. Default to true."),
 });
 
-const LayoutSchema = z.object({
-    type: z.enum(['SingleColumnLayout']),
-    children: z.array(z.union([UIComponentSchema, FooterSchema]))
+const ActionSchema = z.object({
+  type: z.enum(['navigate', 'submit']).describe("The action to perform when the button is clicked."),
+  target: z.string().optional().describe("The ID of the next screen to navigate to. Required if type is 'navigate'."),
 });
+
+const ButtonComponentSchema = z.object({
+    type: z.literal('Button'),
+    id: z.string().describe("A unique identifier for this component."),
+    label: z.string().describe("The text displayed on the button."),
+    action: ActionSchema,
+});
+
+const TextInputComponentSchema = z.object({ type: z.literal('TextInput'), id: z.string(), label: z.string(), placeholder: z.string().optional(), required: z.boolean().optional() });
+const NumberInputComponentSchema = z.object({ type: z.literal('NumberInput'), id: z.string(), label: z.string(), placeholder: z.string().optional(), min: z.number().optional(), max: z.number().optional(), required: z.boolean().optional() });
+const UrlInputComponentSchema = z.object({ type: z.literal('UrlInput'), id: z.string(), label: z.string(), placeholder: z.string().optional(), required: z.boolean().optional() });
+const TimePickerComponentSchema = z.object({ type: z.literal('TimePicker'), id: z.string(), label: z.string(), required: z.boolean().optional() });
+const PhotoPickerComponentSchema = z.object({ type: z.literal('PhotoPicker'), id: z.string(), label: z.string(), required: z.boolean().optional() });
+const DocumentPickerComponentSchema = z.object({ type: z.literal('DocumentPicker'), id: z.string(), label: z.string(), required: z.boolean().optional() });
+const CalendarComponentSchema = z.object({ type: z.literal('Calendar'), id: z.string(), label: z.string(), required: z.boolean().optional() });
+const ContactPickerComponentSchema = z.object({ type: z.literal('ContactPicker'), id: z.string(), label: z.string(), required: z.boolean().optional() });
+const ChipsSelectorComponentSchema = z.object({ type: z.literal('ChipsSelector'), id: z.string(), label: z.string(), options: z.array(z.object({ id: z.string(), label: z.string() })), multi_select: z.boolean().optional(), required: z.boolean().optional() });
+const RadioSelectorComponentSchema = z.object({ type: z.literal('RadioSelector'), id: z.string(), label: z.string(), options: z.array(z.object({ id: z.string(), label: z.string() })), required: z.boolean().optional() });
+const ListSelectorComponentSchema = z.object({ type: z.literal('ListSelector'), id: z.string(), label: z.string(), options: z.array(z.object({ id: z.string(), label: z.string() })), required: z.boolean().optional() });
+
+const FlowComponentSchema = z.union([
+    TextInputComponentSchema,
+    NumberInputComponentSchema,
+    UrlInputComponentSchema,
+    TimePickerComponentSchema,
+    PhotoPickerComponentSchema,
+    DocumentPickerComponentSchema,
+    CalendarComponentSchema,
+    ContactPickerComponentSchema,
+    ChipsSelectorComponentSchema,
+    RadioSelectorComponentSchema,
+    ListSelectorComponentSchema,
+    ButtonComponentSchema,
+]);
 
 const ScreenSchema = z.object({
-    id: z.string().describe("A unique identifier for the screen, e.g., 'SCREEN_1'."),
-    title: z.string().describe("The title of the screen, displayed in the header."),
-    layout: LayoutSchema
+  id: z.string().describe("A unique identifier for the screen, e.g., 'screen_1'."),
+  title: ScreenTextSchema.describe("The title of the screen."),
+  body: ScreenTextSchema.optional().describe("The body text of the screen."),
+  components: z.array(FlowComponentSchema).describe("An array of UI components for this screen."),
+});
+
+const FlowObjectSchema = z.object({
+  name: z.string().describe("The name of the flow."),
+  description: z.string().optional().describe("A brief description of the flow's purpose."),
+  screens: z.array(ScreenSchema).describe("An array of screens that make up the flow. MUST contain at least one screen."),
+  metadata: FlowMetadataSchema.describe("Metadata for the flow."),
 });
 
 const GenerateMetaFlowOutputSchema = z.object({
-    version: z.enum(["3.1"]),
-    screens: z.array(ScreenSchema).describe("An array of screens that make up the flow. Should contain at least a welcome screen and a confirmation/thank you screen.")
+  version: z.string().describe("The WhatsApp Flow JSON version. Use a supported version like '7.1'."),
+  flow: FlowObjectSchema,
 });
+
 
 const GenerateMetaFlowInputSchema = z.object({
   prompt: z.string().describe("The user's description of the flow they want to create."),
@@ -61,26 +92,26 @@ export async function generateMetaFlow(input: z.infer<typeof GenerateMetaFlowInp
 
 
 const prompt = ai.definePrompt({
-  name: 'generateMetaFlowPrompt',
+  name: 'generateMetaFlowPrompt_v7',
   input: { schema: GenerateMetaFlowInputSchema },
   output: { schema: GenerateMetaFlowOutputSchema },
-  prompt: `You are an expert in creating interactive WhatsApp Flows using Meta's Flow JSON format. Your task is to generate a complete, multi-screen Flow JSON object based on the user's request and the selected category.
+  prompt: `You are an expert in creating interactive WhatsApp Flows using Meta's latest Flow JSON format (v7.1). Your task is to generate a complete, multi-screen Flow JSON object based on the user's request.
 
 The output must strictly adhere to the provided JSON schema.
 
-Here are the available UI components you can use in the 'children' array of a screen's layout: 'TextHeading', 'TextBody', 'TextSubtext', 'Image', 'EmbeddedLink', 'TextInput', 'PhoneNumberInput', 'DatePicker', 'RadioButtons', 'CheckboxGroup', 'Dropdown', 'OptIn'. Be creative and use a variety of components to create a good user experience.
-
 RULES:
-1.  For all interactive components like 'TextInput', 'RadioButtons', 'PhoneNumberInput', etc., you MUST provide a unique 'name' property (e.g., "user_name", "lead_email"). This is crucial for data collection.
-2.  Every screen MUST have a 'Footer' component. The footer's 'on-click-action' should be \`{'name': 'navigate', 'payload': {'next': 'SCREEN_ID_OF_NEXT_SCREEN'}}\` to go to the next screen, or \`{'name': 'complete'}\` for the final screen's button.
-3.  Create at least 2-3 screens to make the flow interactive. For example, a welcome screen, one or more data collection screens, and a final thank you/confirmation screen.
-4.  Screen IDs must be unique and follow the convention 'SCREEN_1', 'SCREEN_2', etc.
-5.  Generate placeholder URLs for images, like 'https://placehold.co/600x400.png'.
+1.  **Navigation is Key**: Every screen MUST have a `Button` component with an action.
+    - To go to the next screen, use: \`"action": { "type": "navigate", "target": "screen_id_of_next_screen" }\`.
+    - The FINAL screen's button MUST use: \`"action": { "type": "submit" }\`.
+2.  **Unique IDs**: All `screen` and `component` IDs must be unique strings (e.g., "screen_1", "text_input_name").
+3.  **Create a Full Experience**: Create at least 2-3 screens for an interactive flow (e.g., a welcome screen, one or more data collection screens, and a final thank you/confirmation screen).
+4.  **Component Variety**: Use a variety of the new components available to create a rich user experience: `TextInput`, `NumberInput`, `UrlInput`, `TimePicker`, `PhotoPicker`, `DocumentPicker`, `Calendar`, `ContactPicker`, `ChipsSelector`, `RadioSelector`, `ListSelector`, and `Button`.
+5.  **Required Fields**: For all input components, set `required: true` if the user's prompt implies the information is necessary.
 
 User Request: "{{{prompt}}}"
 Flow Category: "{{{category}}}"
 
-Generate the Flow JSON now.`,
+Generate the full Flow JSON now.`,
 });
 
 const generateMetaFlowFlow = ai.defineFlow(
