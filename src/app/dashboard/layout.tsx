@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -69,7 +70,7 @@ function FullPageSkeleton() {
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string } | null>(null);
+  const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string, credits?: number } | null>(null);
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
   const [isClient, setIsClient] = React.useState(false);
   const [isVerifying, setIsVerifying] = React.useState(true);
@@ -208,6 +209,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
           </div>
           <div className="flex items-center gap-2">
+             <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
+                <CreditCard className="h-4 w-4" />
+                <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
+              </div>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2">

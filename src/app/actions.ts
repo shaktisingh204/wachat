@@ -39,6 +39,7 @@ export type PlanMessageCosts = {
     marketing: number;
     utility: number;
     authentication: number;
+    service?: number; // Added service for conversations
 };
 
 export type Plan = {
@@ -65,6 +66,7 @@ export type User = {
     password?: string;
     createdAt: Date;
     planId?: ObjectId;
+    credits?: number;
 };
 
 export type Invitation = {
@@ -170,7 +172,9 @@ type MetaWabasResponse = {
 // This type is used within the action, the cron scheduler has its own definition.
 type BroadcastJob = {
     projectId: ObjectId;
-    templateId: ObjectId;
+    broadcastType: 'template' | 'flow';
+    templateId?: ObjectId;
+    metaFlowId?: ObjectId;
     templateName: string;
     phoneNumberId: string;
     accessToken: string;
@@ -178,9 +182,10 @@ type BroadcastJob = {
     createdAt: Date;
     contactCount: number;
     fileName: string;
-    components: any[];
-    language: string;
+    components?: any[];
+    language?: string;
     headerImageUrl?: string;
+    category?: Template['category'];
 };
 
 export type BroadcastAttempt = {
@@ -225,6 +230,8 @@ export type Contact = {
     };
     isOptedOut?: boolean;
     hasReceivedWelcome?: boolean;
+    status?: 'new' | 'open' | 'resolved';
+    assignedAgentId?: string;
 }
 
 export type IncomingMessage = {
@@ -337,7 +344,7 @@ const getErrorMessage = (error: any): string => {
     return String(error) || 'An unknown error occurred';
 };
 
-export async function getSession(): Promise<{ user: (Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null }) } | null> {
+export async function getSession(): Promise<{ user: (Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null, credits?: number }) } | null> {
     const cookieStore = cookies();
     const sessionToken = cookieStore.get('session')?.value;
     if (!sessionToken) {
@@ -373,7 +380,7 @@ export async function getSession(): Promise<{ user: (Omit<User, 'password' | 'pl
             }
         }
 
-        const userWithPlan = { ...user, plan: userPlan };
+        const userWithPlan = { ...user, plan: userPlan, credits: user.credits || 0 };
 
         return { user: JSON.parse(JSON.stringify(userWithPlan)) };
     } catch (error) {
@@ -510,23 +517,26 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
     }
 }
 
-export async function getProjectForBroadcast(projectId: string): Promise<Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers'> | null> {
+export async function getProjectForBroadcast(projectId: string): Promise<(Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers'> & { metaFlows?: WithId<MetaFlow>[] }) | null> {
     const hasAccess = await getProjectById(projectId); // Still need security check
     if (!hasAccess) return null;
 
     try {
         const { db } = await connectToDatabase();
-        const project = await db.collection('projects').findOne(
-            { _id: new ObjectId(projectId) },
-            { projection: { name: 1, phoneNumbers: 1 } }
-        );
+        const [project, metaFlows] = await Promise.all([
+            db.collection('projects').findOne(
+                { _id: new ObjectId(projectId) },
+                { projection: { name: 1, phoneNumbers: 1 } }
+            ),
+            getMetaFlows(projectId)
+        ]);
         
         if (!project) {
             console.error("Project not found for ID:", projectId);
             return null;
         }
         
-        return JSON.parse(JSON.stringify(project));
+        return JSON.parse(JSON.stringify({ ...project, metaFlows }));
     } catch (error: any) {
         console.error("Exception in getProjectForBroadcast:", error);
         return null;
@@ -620,6 +630,7 @@ export async function getBroadcasts(
                         {
                             $project: {
                                 templateId: 1,
+                                metaFlowId: 1,
                                 templateName: 1,
                                 fileName: 1,
                                 contactCount: 1,
@@ -856,6 +867,7 @@ export async function handleStartBroadcast(
   try {
     const projectId = formData.get('projectId') as string;
     const phoneNumberId = formData.get('phoneNumberId') as string;
+    const broadcastType = formData.get('broadcastType') as 'template' | 'flow';
 
     if (!projectId) {
       return { error: 'No project selected. Please go to the dashboard and select a project first.' };
@@ -872,44 +884,69 @@ export async function handleStartBroadcast(
 
     const accessToken = project.accessToken;
 
-    const templateId = formData.get('templateId') as string;
     const contactFile = formData.get('csvFile') as File;
-
-    if (!templateId) return { error: 'Please select a message template.' };
-    if (!ObjectId.isValid(templateId)) {
-        return { error: 'Invalid Template ID.' };
-    }
     if (!contactFile || contactFile.size === 0) return { error: 'Please upload a contact file.' };
-
-    const template = await db.collection('templates').findOne({ _id: new ObjectId(templateId), projectId: project._id });
-    if (!template) return { error: 'Selected template not found for this project.' };
-
-    let finalHeaderImageUrl: string | undefined = undefined;
-    const templateHasMediaHeader = template.components?.some((c: any) => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
     
-    if (templateHasMediaHeader) {
-        const overrideUrl = formData.get('headerImageUrl') as string | null;
-        if (overrideUrl && overrideUrl.trim() !== '') {
-            finalHeaderImageUrl = overrideUrl.trim();
-        } else {
-            return { error: 'A public media URL is required for this template.' };
+    let broadcastJobData: Omit<WithId<BroadcastJob>, '_id'>;
+
+    if(broadcastType === 'flow') {
+        const metaFlowId = formData.get('metaFlowId') as string;
+        if (!metaFlowId) return { error: 'Please select a Meta Flow.' };
+        if (!ObjectId.isValid(metaFlowId)) return { error: 'Invalid Meta Flow ID.' };
+        const flow = await db.collection('meta_flows').findOne({ _id: new ObjectId(metaFlowId), projectId: project._id });
+        if (!flow) return { error: 'Selected flow not found for this project.' };
+
+        broadcastJobData = {
+            projectId: new ObjectId(projectId),
+            broadcastType: 'flow',
+            metaFlowId: new ObjectId(metaFlowId),
+            templateName: flow.name, // Using templateName field to store flow name for consistency
+            phoneNumberId,
+            accessToken,
+            status: 'QUEUED',
+            createdAt: new Date(),
+            contactCount: 0,
+            fileName: contactFile.name,
+            category: 'UTILITY', // Flows are typically utility/service messages
+        };
+
+    } else { // Default to template
+        const templateId = formData.get('templateId') as string;
+        if (!templateId) return { error: 'Please select a message template.' };
+        if (!ObjectId.isValid(templateId)) return { error: 'Invalid Template ID.' };
+
+        const template = await db.collection('templates').findOne({ _id: new ObjectId(templateId), projectId: project._id });
+        if (!template) return { error: 'Selected template not found for this project.' };
+
+        let finalHeaderImageUrl: string | undefined = undefined;
+        const templateHasMediaHeader = template.components?.some((c: any) => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
+        
+        if (templateHasMediaHeader) {
+            const overrideUrl = formData.get('headerImageUrl') as string | null;
+            if (overrideUrl && overrideUrl.trim() !== '') {
+                finalHeaderImageUrl = overrideUrl.trim();
+            } else {
+                return { error: 'A public media URL is required for this template.' };
+            }
         }
+        
+        broadcastJobData = {
+            projectId: new ObjectId(projectId),
+            broadcastType: 'template',
+            templateId: new ObjectId(templateId),
+            templateName: template.name,
+            phoneNumberId,
+            accessToken,
+            status: 'QUEUED',
+            createdAt: new Date(),
+            contactCount: 0,
+            fileName: contactFile.name,
+            components: template.components,
+            language: template.language,
+            headerImageUrl: finalHeaderImageUrl,
+            category: template.category,
+        };
     }
-    
-    const broadcastJobData: Omit<WithId<BroadcastJob>, '_id'> = {
-        projectId: new ObjectId(projectId),
-        templateId: new ObjectId(templateId),
-        templateName: template.name,
-        phoneNumberId,
-        accessToken,
-        status: 'QUEUED',
-        createdAt: new Date(),
-        contactCount: 0, // Will be updated after processing the file
-        fileName: contactFile.name,
-        components: template.components,
-        language: template.language,
-        headerImageUrl: finalHeaderImageUrl,
-    };
 
     const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData);
     broadcastId = broadcastResult.insertedId;
@@ -2039,6 +2076,7 @@ export async function handleAddNewContact(prevState: any, formData: FormData): P
             phoneNumberId,
             name,
             createdAt: new Date(),
+            status: 'new',
         };
 
         await db.collection('contacts').insertOne(newContact as any);
@@ -2085,7 +2123,7 @@ export async function handleImportContacts(prevState: any, formData: FormData): 
                         filter: { waId, projectId: new ObjectId(projectId) },
                         update: {
                             $set: { name, phoneNumberId },
-                            $setOnInsert: { waId, projectId: new ObjectId(projectId), createdAt: new Date() }
+                            $setOnInsert: { waId, projectId: new ObjectId(projectId), createdAt: new Date(), status: 'new' }
                         },
                         upsert: true
                     }
@@ -2211,7 +2249,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
         });
 
         const lastMessage = messageType === 'text' ? messageText : `[${messageType}]`;
-        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now } });
+        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now, status: 'open' } });
         
         revalidatePath('/dashboard/chat');
 
@@ -2267,7 +2305,7 @@ export async function handleSendTemplateMessage(contactId: string, templateId: s
         });
         
         const lastMessage = `[Template]: ${template.name}`;
-        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now } });
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now, status: 'open' } });
 
         revalidatePath('/dashboard/chat');
         return { message: `Template "${template.name}" sent successfully.` };
@@ -2306,6 +2344,7 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
                     phoneNumberId,
                     name: `User (${waId.slice(-4)})`,
                     createdAt: new Date(),
+                    status: 'new'
                 }
             },
             { upsert: true, returnDocument: 'after' }
@@ -2598,6 +2637,7 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
             email,
             password: hashedPassword,
             createdAt: new Date(),
+            credits: 1000, // Give new users 1000 free credits
         };
 
         await db.collection('users').insertOne(newUser as any);
@@ -3417,6 +3457,39 @@ export async function handleUpdateContactVariables(contactId: string, variables:
         return { success: false, error: 'Failed to update contact.' };
     }
 }
+
+export async function handleUpdateContactStatus(contactId: string, status: string, assignedAgentId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(contactId)) return { success: false, error: 'Invalid Contact ID' };
+
+    const session = await getSession();
+    if (!session) return { success: false, error: 'Authentication required' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const contact = await db.collection('contacts').findOne({ _id: new ObjectId(contactId) });
+        if (!contact) return { success: false, error: 'Contact not found' };
+
+        // Security Check: Is user owner or agent on this project?
+        const project = await getProjectById(contact.projectId.toString());
+        if (!project) return { success: false, error: 'Access denied' };
+        
+        const update: any = { status };
+        if (assignedAgentId) {
+            update.assignedAgentId = assignedAgentId;
+        } else {
+            update.assignedAgentId = null;
+        }
+        
+        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: update });
+        
+        revalidatePath('/dashboard/chat');
+        return { success: true };
+
+    } catch (e: any) {
+        return { success: false, error: 'Failed to update contact status.' };
+    }
+}
+
 
 export async function getContactsForProject(
     projectId: string,

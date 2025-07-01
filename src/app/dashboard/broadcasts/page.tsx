@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getTemplates, getProjectForBroadcast, getBroadcasts, handleStopBroadcast, handleSyncTemplates, handleRunCron, getProjects } from '@/app/actions';
 import { useRouter } from 'next/navigation';
-import type { Project, Template } from '@/app/dashboard/page';
+import type { Project, Template, MetaFlow } from '@/app/dashboard/page';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import {
@@ -226,7 +227,7 @@ function BroadcastPageSkeleton() {
 }
 
 export default function BroadcastPage() {
-  const [project, setProject] = useState<Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers'> | null>(null);
+  const [project, setProject] = useState<(Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers'> & { metaFlows?: WithId<MetaFlow>[] }) | null>(null);
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
   const [isRefreshing, startRefreshTransition] = useTransition();
@@ -251,7 +252,7 @@ export default function BroadcastPage() {
                 getBroadcasts(projectId, page, BROADCASTS_PER_PAGE),
             ]);
 
-            setProject(projectData as Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers'> | null);
+            setProject(projectData);
             setTemplates(templatesData || []);
             setHistory(historyData.broadcasts || []);
             setTotalPages(Math.ceil(historyData.total / BROADCASTS_PER_PAGE));
@@ -383,7 +384,7 @@ export default function BroadcastPage() {
         {isLoadingData ? (
             <Skeleton className="h-64 w-full"/>
         ) : (
-            <BroadcastForm templates={templates} project={project} />
+            <BroadcastForm templates={templates} project={project} metaFlows={project?.metaFlows || []} />
         )}
 
         <Card>
@@ -436,7 +437,7 @@ export default function BroadcastPage() {
                       <TableRow>
                         <TableHead>Queued</TableHead>
                         <TableHead>Duration</TableHead>
-                        <TableHead>Template</TableHead>
+                        <TableHead>Template / Flow</TableHead>
                         <TableHead>Delivery Stats</TableHead>
                         <TableHead>File Name</TableHead>
                         <TableHead>Contacts</TableHead>
@@ -495,7 +496,7 @@ export default function BroadcastPage() {
                                   {['Completed', 'Partial Failure', 'Failed', 'Cancelled'].includes(item.status) && (
                                       <RequeueBroadcastDialog
                                         broadcastId={item._id.toString()}
-                                        originalTemplateId={item.templateId.toString()}
+                                        originalTemplateId={item.templateId?.toString()}
                                         project={project}
                                         templates={templates}
                                       />
@@ -547,7 +548,7 @@ export default function BroadcastPage() {
                               {['Completed', 'Partial Failure', 'Failed', 'Cancelled'].includes(item.status) && (
                                 <RequeueBroadcastDialog
                                   broadcastId={item._id.toString()}
-                                  originalTemplateId={item.templateId.toString()}
+                                  originalTemplateId={item.templateId?.toString()}
                                   project={project}
                                   templates={templates}
                                 />
