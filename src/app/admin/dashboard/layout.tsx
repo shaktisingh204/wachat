@@ -29,7 +29,7 @@ import {
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell, CreditCard, GitBranch } from 'lucide-react';
-import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
+import { LiveFlowLogFeed } from '@/components/wabasimplify/live-flow-log-feed';
 import { cn } from '@/lib/utils';
 import { handleLogout } from '@/app/actions';
 
@@ -124,14 +124,14 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
             <Sheet>
                 <SheetTrigger asChild>
                     <Button variant="ghost" size="icon" className="md:hidden">
-                        <Bell className="h-5 w-5"/>
-                        <span className="sr-only">Toggle Notifications</span>
+                        <GitBranch className="h-5 w-5"/>
+                        <span className="sr-only">Toggle Flow Logs</span>
                     </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="p-0">
-                    <SheetTitle className="sr-only">Notifications</SheetTitle>
-                    <SheetDescription className="sr-only">A list of recent notifications from your projects.</SheetDescription>
-                    <LiveNotificationFeed />
+                    <SheetTitle className="sr-only">Flow Logs</SheetTitle>
+                    <SheetDescription className="sr-only">A list of recent flow executions.</SheetDescription>
+                    <LiveFlowLogFeed />
                 </SheetContent>
             </Sheet>
           </div>
@@ -139,7 +139,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
         <div className="flex flex-1 min-h-0">
           <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">{children}</main>
           <aside className="hidden md:flex w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0 flex-col">
-              <LiveNotificationFeed />
+              <LiveFlowLogFeed />
           </aside>
         </div>
       </SidebarInset>

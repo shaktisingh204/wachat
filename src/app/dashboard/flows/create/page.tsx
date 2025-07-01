@@ -84,7 +84,10 @@ const DefaultForm = ({ onJsonChange }: { onJsonChange: (json: string) => void })
 const FeedbackForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
     const [title, setTitle] = useState('Feedback');
     const [question, setQuestion] = useState('How would you rate your experience?');
-    
+    const [options, setOptions] = useState([
+        {id: '5', title: 'Excellent'}, {id: '4', title: 'Good'}, {id: '3', title: 'Average'}, {id: '2', title: 'Poor'}, {id: '1', title: 'Very Poor'}
+    ]);
+
     useEffect(() => {
         const json = {
             version: "3.0", data_api_version: "3.0", routing_model: {},
@@ -93,9 +96,7 @@ const FeedbackForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }
                 layout: { type: 'SingleColumnLayout', children: [
                     { type: 'Form', name: 'feedback_form', children: [
                         { type: 'TextHeading', text: question },
-                        { type: 'RadioButtons', name: 'rating', 'data-source': [
-                            {id: '5', title: 'Excellent'}, {id: '4', title: 'Good'}, {id: '3', title: 'Average'}, {id: '2', title: 'Poor'}, {id: '1', title: 'Very Poor'}
-                        ], required: true },
+                        { type: 'RadioButtons', name: 'rating', 'data-source': options, required: true },
                         { type: 'TextInput', name: 'comments', label: 'Additional Comments', required: false },
                         { type: 'Footer', label: 'Submit Feedback', 'on-click-action': { name: 'complete' } }
                     ] }
@@ -103,12 +104,24 @@ const FeedbackForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }
             }]
         };
         onJsonChange(JSON.stringify(json, null, 2));
-    }, [title, question, onJsonChange]);
+    }, [title, question, options, onJsonChange]);
+
+    const handleOptionChange = (index: number, value: string) => {
+        const newOptions = [...options];
+        newOptions[index].title = value;
+        setOptions(newOptions);
+    };
 
     return (
         <div className="space-y-4">
             <div className="space-y-2"><Label>Screen Title</Label><Input value={title} onChange={e => setTitle(e.target.value)} /></div>
             <div className="space-y-2"><Label>Feedback Question</Label><Input value={question} onChange={e => setQuestion(e.target.value)} /></div>
+            <div className="space-y-2">
+                <Label>Rating Options</Label>
+                <div className="space-y-2">
+                    {options.map((opt, i) => <Input key={opt.id} value={opt.title} onChange={e => handleOptionChange(i, e.target.value)} />)}
+                </div>
+            </div>
         </div>
     );
 };
@@ -117,7 +130,10 @@ const AppointmentForm = ({ onJsonChange }: { onJsonChange: (json: string) => voi
     const [title, setTitle] = useState('Book an Appointment');
     const [dateLabel, setDateLabel] = useState('Select a Date');
     const [timeLabel, setTimeLabel] = useState('Select a Time Slot');
-    
+    const [timeSlots, setTimeSlots] = useState([
+        {id: '0900', title: '09:00 AM'}, {id: '1100', title: '11:00 AM'}, {id: '1400', title: '02:00 PM'}, {id: '1600', title: '04:00 PM'}
+    ]);
+
     useEffect(() => {
         const json = {
             version: "3.0", data_api_version: "3.0", routing_model: {},
@@ -127,9 +143,7 @@ const AppointmentForm = ({ onJsonChange }: { onJsonChange: (json: string) => voi
                     { type: 'Form', name: 'appointment_form', children: [
                         { type: 'TextHeading', text: title },
                         { type: 'DatePicker', name: 'appointment_date', label: dateLabel, required: true },
-                        { type: 'Dropdown', name: 'appointment_time', label: timeLabel, required: true, 'data-source': [
-                            {id: '0900', title: '09:00 AM'}, {id: '1100', title: '11:00 AM'}, {id: '1400', title: '02:00 PM'}, {id: '1600', title: '04:00 PM'}
-                        ]},
+                        { type: 'Dropdown', name: 'appointment_time', label: timeLabel, required: true, 'data-source': timeSlots},
                         { type: 'TextInput', name: 'notes', label: 'Notes (optional)' },
                         { type: 'Footer', label: 'Book Appointment', 'on-click-action': { name: 'complete', payload: { _endpoint: true } } }
                     ] }
@@ -137,19 +151,46 @@ const AppointmentForm = ({ onJsonChange }: { onJsonChange: (json: string) => voi
             }]
         };
         onJsonChange(JSON.stringify(json, null, 2));
-    }, [title, dateLabel, timeLabel, onJsonChange]);
+    }, [title, dateLabel, timeLabel, timeSlots, onJsonChange]);
+
+    const handleSlotChange = (index: number, value: string) => {
+        const newSlots = [...timeSlots];
+        newSlots[index].title = value;
+        newSlots[index].id = value.replace(/[^0-9]/g, ''); // Simple ID generation
+        setTimeSlots(newSlots);
+    };
+
+    const addSlot = () => setTimeSlots([...timeSlots, {id: `${Date.now()}`, title: ''}]);
+    const removeSlot = (index: number) => setTimeSlots(timeSlots.filter((_, i) => i !== index));
 
     return (
         <div className="space-y-4">
             <div className="space-y-2"><Label>Screen Title</Label><Input value={title} onChange={e => setTitle(e.target.value)} /></div>
             <div className="space-y-2"><Label>Date Picker Label</Label><Input value={dateLabel} onChange={e => setDateLabel(e.target.value)} /></div>
-            <div className="space-y-2"><Label>Time Slot Label</Label><Input value={timeLabel} onChange={e => setTimeLabel(e.target.value)} /></div>
+            <div className="space-y-2">
+                <Label>Time Slot Options</Label>
+                <div className="space-y-2">
+                    {timeSlots.map((slot, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                            <Input value={slot.title} onChange={e => handleSlotChange(i, e.target.value)} />
+                            <Button type="button" variant="ghost" size="icon" onClick={() => removeSlot(i)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                        </div>
+                    ))}
+                </div>
+                <Button type="button" variant="outline" size="sm" onClick={addSlot} className="mt-2"><Plus className="mr-2 h-4 w-4"/>Add Time Slot</Button>
+            </div>
         </div>
     );
 };
 
-const GenericFormBuilder = ({ onJsonChange, formTitle, formName, buttonLabel, fields }: { onJsonChange: (json: string) => void, formTitle: string, formName: string, buttonLabel: string, fields: any[] }) => {
+const GenericFormBuilder = ({ onJsonChange, formTitle, formName, buttonLabel, initialFields, endpoint }: { onJsonChange: (json: string) => void, formTitle: string, formName: string, buttonLabel: string, initialFields: any[], endpoint?: boolean }) => {
+    const [fields, setFields] = useState(initialFields);
+    
     useEffect(() => {
+        const action: any = { name: 'complete' };
+        if (endpoint) {
+            action.payload = { _endpoint: true };
+        }
         const json = {
             version: "3.0", data_api_version: "3.0", routing_model: {},
             screens: [{
@@ -158,13 +199,13 @@ const GenericFormBuilder = ({ onJsonChange, formTitle, formName, buttonLabel, fi
                     { type: 'Form', name: formName, children: [
                         { type: 'TextHeading', text: formTitle },
                         ...fields,
-                        { type: 'Footer', label: buttonLabel, 'on-click-action': { name: 'complete' } }
+                        { type: 'Footer', label: buttonLabel, 'on-click-action': action }
                     ] }
                 ] }
             }]
         };
         onJsonChange(JSON.stringify(json, null, 2));
-    }, [formTitle, formName, buttonLabel, fields, onJsonChange]);
+    }, [formTitle, formName, buttonLabel, fields, onJsonChange, endpoint]);
 
     return (
         <div className="p-4 border rounded-md bg-muted/50">
@@ -178,11 +219,8 @@ const GenericFormBuilder = ({ onJsonChange, formTitle, formName, buttonLabel, fi
 
 const PurchaseInterestForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
     return <GenericFormBuilder 
-        onJsonChange={onJsonChange}
-        formTitle="Product Interest"
-        formName="interest_form"
-        buttonLabel="Submit"
-        fields={[
+        onJsonChange={onJsonChange} formTitle="Product Interest" formName="interest_form" buttonLabel="Submit"
+        initialFields={[
             { type: 'TextInput', name: 'name', label: 'Full Name', required: true },
             { type: 'Dropdown', name: 'product', label: 'Which product are you interested in?', required: true, 'data-source': [{id: 'p1', title: 'Product A'}, {id: 'p2', title: 'Product B'}] },
         ]}
@@ -191,11 +229,8 @@ const PurchaseInterestForm = ({ onJsonChange }: { onJsonChange: (json: string) =
 
 const SurveyForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
     return <GenericFormBuilder 
-        onJsonChange={onJsonChange}
-        formTitle="Customer Survey"
-        formName="survey_form"
-        buttonLabel="Submit Survey"
-        fields={[
+        onJsonChange={onJsonChange} formTitle="Customer Survey" formName="survey_form" buttonLabel="Submit Survey"
+        initialFields={[
             { type: 'RadioButtons', name: 'satisfaction', label: 'Overall, how satisfied are you?', required: true, 'data-source': [{id: '5', title: 'Very Satisfied'}, {id: '3', title: 'Neutral'}, {id: '1', title: 'Very Unsatisfied'}] },
             { type: 'CheckboxGroup', name: 'features_used', label: 'Which features do you use?', required: true, 'data-source': [{id: 'f1', title: 'Feature X'}, {id: 'f2', title: 'Feature Y'}] },
         ]}
@@ -204,11 +239,8 @@ const SurveyForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) 
 
 const SupportForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
     return <GenericFormBuilder 
-        onJsonChange={onJsonChange}
-        formTitle="Customer Support"
-        formName="support_form"
-        buttonLabel="Submit Request"
-        fields={[
+        onJsonChange={onJsonChange} formTitle="Customer Support" formName="support_form" buttonLabel="Submit Request"
+        initialFields={[
             { type: 'Dropdown', name: 'issue_type', label: 'What is your issue related to?', required: true, 'data-source': [{id: 'billing', title: 'Billing'}, {id: 'technical', title: 'Technical Support'}, {id: 'general', title: 'General Inquiry'}] },
             { type: 'TextInput', name: 'details', label: 'Please describe your issue', 'input-type': 'multiline', required: true },
         ]}
@@ -217,11 +249,8 @@ const SupportForm = ({ onJsonChange }: { onJsonChange: (json: string) => void })
 
 const LoanCreditForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
     return <GenericFormBuilder 
-        onJsonChange={onJsonChange}
-        formTitle="Loan Application"
-        formName="loan_form"
-        buttonLabel="Apply Now"
-        fields={[
+        onJsonChange={onJsonChange} formTitle="Loan Application" formName="loan_form" buttonLabel="Apply Now" endpoint={true}
+        initialFields={[
             { type: 'TextInput', name: 'full_name', label: 'Full Name', required: true },
             { type: 'TextInput', name: 'email', label: 'Email Address', 'input-type': 'email', required: true },
             { type: 'TextInput', name: 'phone', label: 'Phone Number', 'input-type': 'phone', required: true },
@@ -233,11 +262,8 @@ const LoanCreditForm = ({ onJsonChange }: { onJsonChange: (json: string) => void
 
 const InsuranceQuoteForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
      return <GenericFormBuilder 
-        onJsonChange={onJsonChange}
-        formTitle="Insurance Quote"
-        formName="quote_form"
-        buttonLabel="Get Quote"
-        fields={[
+        onJsonChange={onJsonChange} formTitle="Insurance Quote" formName="quote_form" buttonLabel="Get Quote" endpoint={true}
+        initialFields={[
             { type: 'Dropdown', name: 'insurance_type', label: 'Type of Insurance', required: true, 'data-source': [{id: 'health', title: 'Health'}, {id: 'auto', title: 'Auto'}, {id: 'home', title: 'Home'}] },
             { type: 'TextInput', name: 'zip_code', label: 'ZIP Code', 'input-type': 'number', required: true },
         ]}
@@ -246,11 +272,8 @@ const InsuranceQuoteForm = ({ onJsonChange }: { onJsonChange: (json: string) => 
 
 const PersonalizedOfferForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
     return <GenericFormBuilder 
-        onJsonChange={onJsonChange}
-        formTitle="Personalized Offer"
-        formName="offer_form"
-        buttonLabel="Get My Offer"
-        fields={[
+        onJsonChange={onJsonChange} formTitle="Personalized Offer" formName="offer_form" buttonLabel="Get My Offer" endpoint={true}
+        initialFields={[
             { type: 'CheckboxGroup', name: 'interests', label: 'What are your interests?', required: true, 'data-source': [{id: 'sports', title: 'Sports'}, {id: 'tech', title: 'Technology'}, {id: 'travel', title: 'Travel'}] },
         ]}
     />
@@ -258,11 +281,8 @@ const PersonalizedOfferForm = ({ onJsonChange }: { onJsonChange: (json: string) 
 
 const SignInUpForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
     return <GenericFormBuilder 
-        onJsonChange={onJsonChange}
-        formTitle="Create Your Account"
-        formName="signup_form"
-        buttonLabel="Sign Up"
-        fields={[
+        onJsonChange={onJsonChange} formTitle="Create Your Account" formName="signup_form" buttonLabel="Sign Up" endpoint={true}
+        initialFields={[
             { type: 'TextInput', name: 'email', label: 'Email Address', 'input-type': 'email', required: true },
             { type: 'TextInput', name: 'password', label: 'Password', 'input-type': 'password', required: true },
         ]}
