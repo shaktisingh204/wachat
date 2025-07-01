@@ -39,9 +39,9 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
     z.object({ type: z.literal('DocumentPicker'), name: z.string(), label: z.string(), required: z.boolean().optional(), "min-uploaded-documents": z.number().optional(), "max-uploaded-documents": z.number().optional() }),
     z.object({ type: z.literal('CalendarPicker'), name: z.string(), label: z.union([z.string(), z.object({ "start-date": z.string(), "end-date": z.string() })]), mode: z.enum(['single', 'range']), "on-select-action": ActionSchema.optional() }),
     z.object({ type: z.literal('ChipsSelector'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })), "max-selected-items": z.number().optional(), "min-selected-items": z.number().optional() }),
-    z.object({ type: z.literal('ImageCarousel'), name: z.string(), images: z.array(z.object({ "alt-text": z.string(), src: z.string().describe("Use the placeholder 'BASE64_IMAGE_PLACEHOLDER' for images.") })) }),
+    z.object({ type: z.literal('ImageCarousel'), name: z.string(), images: z.array(z.object({ "alt-text": z.string(), src: z.string().describe("Use the placeholder 'base64_image_placeholder' for images.") })) }),
     z.object({ type: z.literal('OptIn'), name: z.string(), label: z.string(), required: z.boolean().optional() }),
-    z.object({ type: z.literal('Image'), src: z.string().describe("Use the placeholder 'BASE64_IMAGE_PLACEHOLDER' for images."), "alt-text": z.string(), visible: z.boolean().optional() }),
+    z.object({ type: z.literal('Image'), src: z.string().describe("Use the placeholder 'base64_image_placeholder' for images."), "alt-text": z.string(), visible: z.boolean().optional() }),
     // Conditional components
     z.object({ type: z.literal('If'), condition: z.string().describe("A boolean expression, e.g., '${data.show_section}' or '${form.age} > 18'"), then: z.array(FormComponentSchema), else: z.array(FormComponentSchema).optional() }),
     z.object({ type: z.literal('Switch'), value: z.string().describe("The variable to switch on, e.g., '${form.choice}'"), cases: z.record(z.array(FormComponentSchema)).describe("A map where keys are possible values and values are arrays of components to render.") })
@@ -69,11 +69,17 @@ const NavigationListSchema = z.object({
   "on-click-action": ActionSchema.optional(),
 });
 
-const ScreenLayoutChildSchema = z.union([FormSchema, NavigationListSchema]);
+const ScreenLayoutChildSchema = z.union([
+    FormSchema, 
+    NavigationListSchema,
+    z.object({ type: z.literal('TextHeading'), text: z.string() }),
+    z.object({ type: z.literal('TextBody'), text: z.string() }),
+    z.object({ type: z.literal('ImageCarousel'), name: z.string(), images: z.array(z.object({ "alt-text": z.string(), src: z.string().describe("Use the placeholder 'base64_image_placeholder' for images.") })) }),
+]);
 
 const DataDefinitionSchema = z.object({
   type: z.enum(['string', 'number', 'boolean', 'array', 'object']),
-  __example__: z.any().optional().describe("An example value for the data, e.g. 'John Doe' or ['Option 1', 'Option 2']."),
+  __example__: z.any().optional().describe("An example value for the data, e.g., 'John Doe' or ['Option 1', 'Option 2']."),
   items: z.any().optional().describe("For 'array' type, a schema for the items in the array."),
   properties: z.record(z.any()).optional().describe("For 'object' type, a schema for the object properties."),
 });
