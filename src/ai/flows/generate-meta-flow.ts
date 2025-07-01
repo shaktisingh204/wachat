@@ -100,13 +100,13 @@ const prompt = ai.definePrompt({
 The output must strictly adhere to the provided JSON schema.
 
 RULES:
-1.  **Navigation is Key**: Every screen MUST have a `Button` component with an action.
-    - To go to the next screen, use: \`"action": { "type": "navigate", "target": "screen_id_of_next_screen" }\`.
-    - The FINAL screen's button MUST use: \`"action": { "type": "submit" }\`.
-2.  **Unique IDs**: All `screen` and `component` IDs must be unique strings (e.g., "screen_1", "text_input_name").
+1.  **Navigation is Key**: Every screen MUST have a 'Button' component with an action.
+    - To go to the next screen, use: '"action": { "type": "navigate", "target": "screen_id_of_next_screen" }'.
+    - The FINAL screen's button MUST use: '"action": { "type": "submit" }'.
+2.  **Unique IDs**: All 'screen' and 'component' IDs must be unique strings (e.g., "screen_1", "text_input_name").
 3.  **Create a Full Experience**: Create at least 2-3 screens for an interactive flow (e.g., a welcome screen, one or more data collection screens, and a final thank you/confirmation screen).
-4.  **Component Variety**: Use a variety of the new components available to create a rich user experience: `TextInput`, `NumberInput`, `UrlInput`, `TimePicker`, `PhotoPicker`, `DocumentPicker`, `Calendar`, `ContactPicker`, `ChipsSelector`, `RadioSelector`, `ListSelector`, and `Button`.
-5.  **Required Fields**: For all input components, set `required: true` if the user's prompt implies the information is necessary.
+4.  **Component Variety**: Use a variety of the new components available to create a rich user experience: 'TextInput', 'NumberInput', 'UrlInput', 'TimePicker', 'PhotoPicker', 'DocumentPicker', 'Calendar', 'ContactPicker', 'ChipsSelector', 'RadioSelector', 'ListSelector', and 'Button'.
+5.  **Required Fields**: For all input components, set 'required: true' if the user's prompt implies the information is necessary.
 
 User Request: "{{{prompt}}}"
 Flow Category: "{{{category}}}"
