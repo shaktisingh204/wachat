@@ -58,12 +58,40 @@ function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onR
             return <Textarea value={component.text || ''} onChange={e => onUpdate('text', e.target.value)} placeholder="Enter text content..." />;
         case 'Image':
              return <Input value={component.url || ''} onChange={e => onUpdate('url', e.target.value)} placeholder="https://example.com/image.png" />;
+        case 'EmbeddedLink':
+            return (
+                <div className="space-y-2">
+                    <div className="space-y-1">
+                        <Label htmlFor={`${component.id}_text`}>Display Text</Label>
+                        <Input id={`${component.id}_text`} value={component.text || ''} onChange={e => onUpdate('text', e.target.value)} placeholder="e.g., View Our Website" />
+                    </div>
+                    <div className="space-y-1">
+                        <Label htmlFor={`${component.id}_url`}>URL</Label>
+                        <Input id={`${component.id}_url`} value={component.url || ''} onChange={e => onUpdate('url', e.target.value)} placeholder="https://example.com" />
+                    </div>
+                </div>
+            );
         case 'TextInput':
-        case 'DatePicker':
              return (
                 <div className="space-y-2">
                     <Label htmlFor={`${component.id}_label`}>Label</Label>
                     <Input id={`${component.id}_label`} value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Your Full Name" />
+                    {commonFields}
+                </div>
+            );
+        case 'PhoneNumberInput':
+             return (
+                <div className="space-y-2">
+                    <Label htmlFor={`${component.id}_label`}>Label</Label>
+                    <Input id={`${component.id}_label`} value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Your Phone Number" />
+                    {commonFields}
+                </div>
+            );
+        case 'DatePicker':
+             return (
+                <div className="space-y-2">
+                    <Label htmlFor={`${component.id}_label`}>Label</Label>
+                    <Input id={`${component.id}_label`} value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Select a Date" />
                     {commonFields}
                 </div>
             );
@@ -93,6 +121,7 @@ function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onR
             return <p className="text-xs text-muted-foreground">This component has no editable properties.</p>;
     }
 }
+
 
 function PageSkeleton() {
     return (

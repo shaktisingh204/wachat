@@ -1,5 +1,17 @@
 
 
+export type UIComponent = {
+    id?: string;
+    type: 'TextHeading' | 'TextBody' | 'TextSubtext' | 'Image' | 'TextInput' | 'DatePicker' | 'RadioButtons' | 'CheckboxGroup' | 'Dropdown' | 'OptIn' | 'EmbeddedLink' | 'PhoneNumberInput';
+    name?: string;
+    label?: string;
+    text?: string;
+    url?: string;
+    caption?: string;
+    'input-type'?: 'text' | 'number' | 'email';
+    'data-source'?: { id: string, title: string }[];
+};
+
 export const flowCategories = [
     { id: 'LEAD_GENERATION', name: 'Lead Generation' },
     { id: 'CUSTOMER_SUPPORT', name: 'Customer Support' },
@@ -12,25 +24,14 @@ export const flowCategories = [
     { id: 'OTHER', name: 'Other' },
 ];
 
-export type UIComponent = {
-    id?: string;
-    type: 'TextHeading' | 'TextBody' | 'TextSubtext' | 'Image' | 'TextInput' | 'DatePicker' | 'RadioButtons' | 'CheckboxGroup' | 'Dropdown' | 'OptIn';
-    name?: string;
-    label?: string;
-    text?: string;
-    url?: string;
-    caption?: string;
-    'input-type'?: 'text' | 'number' | 'email';
-    'data-source'?: { id: string, title: string }[];
-};
-
-
 export const uiComponents: { type: UIComponent['type'], label: string }[] = [
     { type: 'TextHeading', label: 'Heading Text' },
     { type: 'TextBody', label: 'Body Text' },
     { type: 'TextSubtext', label: 'Sub-text' },
     { type: 'Image', label: 'Image' },
+    { type: 'EmbeddedLink', label: 'Embedded Link' },
     { type: 'TextInput', label: 'Text Input' },
+    { type: 'PhoneNumberInput', label: 'Phone Number Input' },
     { type: 'DatePicker', label: 'Date Picker' },
     { type: 'RadioButtons', label: 'Radio Buttons' },
     { type: 'CheckboxGroup', label: 'Checkbox Group' },

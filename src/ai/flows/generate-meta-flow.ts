@@ -13,11 +13,11 @@ import { z } from 'genkit';
 // --- Zod Schemas for Meta Flow JSON Structure ---
 
 const UIComponentSchema = z.object({
-    type: z.enum(['TextHeading', 'TextBody', 'TextSubtext', 'Image', 'TextInput', 'DatePicker', 'RadioButtons', 'CheckboxGroup', 'Dropdown', 'OptIn']),
+    type: z.enum(['TextHeading', 'TextBody', 'TextSubtext', 'Image', 'TextInput', 'DatePicker', 'RadioButtons', 'CheckboxGroup', 'Dropdown', 'OptIn', 'EmbeddedLink', 'PhoneNumberInput']),
     name: z.string().optional().describe("A unique identifier for form components like TextInput, DatePicker, etc. This is crucial for data collection."),
     label: z.string().optional().describe("The user-visible label for a form field."),
-    text: z.string().optional().describe("The text content for components like TextHeading, TextBody."),
-    url: z.string().optional().describe("URL for the Image component. Should be a placeholder like https://placehold.co/600x400.png."),
+    text: z.string().optional().describe("The text content for components like TextHeading, TextBody, or EmbeddedLink."),
+    url: z.string().optional().describe("URL for Image or EmbeddedLink components. Should be a placeholder like https://placehold.co/600x400.png."),
     caption: z.string().optional().describe("Optional caption for an Image."),
     'input-type': z.enum(['text', 'number', 'email']).optional(),
     'data-source': z.array(z.object({ id: z.string(), title: z.string() })).optional().describe("Options for RadioButtons, CheckboxGroup, or Dropdown."),
@@ -68,10 +68,10 @@ const prompt = ai.definePrompt({
 
 The output must strictly adhere to the provided JSON schema.
 
-Here are the available UI components you can use in the 'children' array of a screen's layout: 'TextHeading', 'TextBody', 'TextSubtext', 'Image', 'TextInput', 'DatePicker', 'RadioButtons', 'CheckboxGroup', 'Dropdown', 'OptIn'. Be creative and use a variety of components to create a good user experience.
+Here are the available UI components you can use in the 'children' array of a screen's layout: 'TextHeading', 'TextBody', 'TextSubtext', 'Image', 'EmbeddedLink', 'TextInput', 'PhoneNumberInput', 'DatePicker', 'RadioButtons', 'CheckboxGroup', 'Dropdown', 'OptIn'. Be creative and use a variety of components to create a good user experience.
 
 RULES:
-1.  For all interactive components like 'TextInput', 'RadioButtons', etc., you MUST provide a unique 'name' property (e.g., "user_name", "lead_email"). This is crucial for data collection.
+1.  For all interactive components like 'TextInput', 'RadioButtons', 'PhoneNumberInput', etc., you MUST provide a unique 'name' property (e.g., "user_name", "lead_email"). This is crucial for data collection.
 2.  Every screen MUST have a 'Footer' component. The footer's 'on-click-action' should be \`{'name': 'navigate', 'payload': {'next': 'SCREEN_ID_OF_NEXT_SCREEN'}}\` to go to the next screen, or \`{'name': 'complete'}\` for the final screen's button.
 3.  Create at least 2-3 screens to make the flow interactive. For example, a welcome screen, one or more data collection screens, and a final thank you/confirmation screen.
 4.  Screen IDs must be unique and follow the convention 'SCREEN_1', 'SCREEN_2', etc.
