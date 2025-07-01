@@ -53,7 +53,7 @@ import {
 import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { getProjectCount, getSession, handleLogout } from '@/app/actions';
+import { getProjectCount, getSession, handleLogout, type Plan } from '@/app/actions';
 
 function FullPageSkeleton() {
     return (
@@ -70,7 +70,7 @@ function FullPageSkeleton() {
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string, credits?: number } | null>(null);
+  const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string, credits?: number, plan?: WithId<Plan> } | null>(null);
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
   const [isClient, setIsClient] = React.useState(false);
   const [isVerifying, setIsVerifying] = React.useState(true);
@@ -97,7 +97,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     getSession().then(session => {
         if(session?.user) {
-            setSessionUser(session.user);
+            setSessionUser(session.user as any);
             getProjectCount().then(count => {
               setProjectCount(count);
               if (count === 0 && pathname !== '/dashboard' && pathname !== '/dashboard/setup' && pathname !== '/dashboard/profile' && pathname !== '/dashboard/billing' && pathname !== '/dashboard/settings') {
@@ -121,6 +121,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const hasNoProjects = projectCount === 0;
   const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
+  const planFeatures = sessionUser?.plan?.features;
+
+  const filteredMenuItems = allMenuItems.filter(item => {
+    if (!planFeatures) return true; // Show all if plan isn't loaded yet
+    switch (item.featureKey) {
+        case 'liveChat': return planFeatures.liveChat;
+        case 'contacts': return planFeatures.contacts;
+        case 'campaigns': return planFeatures.campaigns;
+        case 'whatsappAds': return planFeatures.whatsappAds;
+        case 'templates': return planFeatures.templates;
+        case 'flowBuilder': return planFeatures.flowBuilder;
+        case 'metaFlows': return planFeatures.metaFlows;
+        case 'webhooks': return planFeatures.webhooks;
+        default: return true; // For items without a specific feature flag
+    }
+  });
 
   return (
     <SidebarProvider>
@@ -133,7 +149,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {menuItems.map((item) => (
+            {filteredMenuItems.map((item) => (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
@@ -256,18 +272,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   );
 }
 
-const menuItems = [
-  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard },
-  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare },
-  { href: '/dashboard/contacts', label: 'Contacts', icon: Users },
-  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send },
-  { href: '/dashboard/whatsapp-ads', label: 'WhatsApp Ads', icon: Megaphone },
-  { href: '/dashboard/templates', label: 'Templates', icon: FileText },
-  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitBranch },
-  { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog },
-  { href: '/dashboard/numbers', label: 'Numbers', icon: Phone },
-  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings },
-  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard },
-  { href: '/dashboard/notifications', label: 'Notifications', icon: History },
+const allMenuItems = [
+  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, featureKey: 'overview' },
+  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, featureKey: 'liveChat' },
+  { href: '/dashboard/contacts', label: 'Contacts', icon: Users, featureKey: 'contacts' },
+  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, featureKey: 'campaigns' },
+  { href: '/dashboard/whatsapp-ads', label: 'WhatsApp Ads', icon: Megaphone, featureKey: 'whatsappAds' },
+  { href: '/dashboard/templates', label: 'Templates', icon: FileText, featureKey: 'templates' },
+  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitBranch, featureKey: 'flowBuilder' },
+  { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, featureKey: 'metaFlows' },
+  { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, featureKey: 'numbers' },
+  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, featureKey: 'webhooks' },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings, featureKey: 'settings' },
+  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard, featureKey: 'billing' },
+  { href: '/dashboard/notifications', label: 'Notifications', icon: History, featureKey: 'notifications' },
 ];

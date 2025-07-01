@@ -1,4 +1,5 @@
 
+
 import { getPlans } from '@/app/actions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -39,9 +40,10 @@ export default async function PlansManagementPage() {
                                 <TableRow>
                                     <TableHead>Plan Name</TableHead>
                                     <TableHead>Price</TableHead>
-                                    <TableHead>Costs (Mkt/Util/Auth)</TableHead>
                                     <TableHead>Projects</TableHead>
                                     <TableHead>Agents</TableHead>
+                                    <TableHead>Templates</TableHead>
+                                    <TableHead>Flows</TableHead>
                                     <TableHead>Public</TableHead>
                                     <TableHead>Default</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
@@ -53,13 +55,10 @@ export default async function PlansManagementPage() {
                                         <TableRow key={plan._id.toString()}>
                                             <TableCell className="font-medium">{plan.name}</TableCell>
                                             <TableCell>{plan.currency} {plan.price}/month</TableCell>
-                                            <TableCell className="font-mono text-xs">
-                                                {plan.messageCosts
-                                                ? `${plan.messageCosts.marketing}/${plan.messageCosts.utility}/${plan.messageCosts.authentication}`
-                                                : 'N/A'}
-                                            </TableCell>
                                             <TableCell>{plan.projectLimit}</TableCell>
                                             <TableCell>{plan.agentLimit}</TableCell>
+                                            <TableCell>{plan.templateLimit}</TableCell>
+                                            <TableCell>{plan.flowLimit}</TableCell>
                                             <TableCell>{plan.isPublic ? <CheckCircle className="text-primary"/> : <XCircle className="text-muted"/>}</TableCell>
                                             <TableCell>{plan.isDefault ? <CheckCircle className="text-primary"/> : <XCircle className="text-muted"/>}</TableCell>
                                             <TableCell className="text-right">
@@ -74,7 +73,7 @@ export default async function PlansManagementPage() {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={8} className="h-24 text-center">
+                                        <TableCell colSpan={9} className="h-24 text-center">
                                             No plans found. Create one to get started.
                                         </TableCell>
                                     </TableRow>

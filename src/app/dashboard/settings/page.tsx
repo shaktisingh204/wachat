@@ -4,7 +4,7 @@
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
-import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects, GeneralReplyRule, handleUpdateMarketingSettings } from '@/app/actions';
+import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects, GeneralReplyRule, handleUpdateMarketingSettings, Template } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, UserAttribute } from '@/app/dashboard/page';
 import { useToast } from '@/hooks/use-toast';
@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog, Handshake, MessageSquareHeart, Megaphone, BookCopy } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog, Handshake, MessageSquareHeart, Megaphone, BookCopy, Lock } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -521,6 +521,24 @@ function MarketingSettingsForm({ project }: { project: WithId<Project> }) {
     )
 }
 
+function FeatureGate({ isAllowed, featureName, children }: { isAllowed: boolean, featureName: string, children: React.ReactNode }) {
+    if (isAllowed) {
+        return <>{children}</>;
+    }
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Lock /> {featureName}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground">This feature is not included in your current plan.</p>
+                <Button asChild className="mt-4">
+                    <Link href="/dashboard/billing">Upgrade Plan</Link>
+                </Button>
+            </CardContent>
+        </Card>
+    );
+}
 
 function SettingsPageContent() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
@@ -600,6 +618,8 @@ function SettingsPageContent() {
       </div>
     );
   }
+  
+  const planFeatures = user.plan?.features;
 
   return (
      <div className="flex flex-col gap-8">
@@ -608,94 +628,110 @@ function SettingsPageContent() {
       <Tabs defaultValue={initialTab} className="w-full">
         <ScrollArea className="w-full whitespace-nowrap rounded-md border-b">
             <TabsList className="inline-flex h-auto p-1 bg-transparent w-max">
-              <TabsTrigger value="broadcast"><Save className="mr-2 h-4 w-4" />Broadcast</TabsTrigger>
-              <TabsTrigger value="auto-reply"><Bot className="mr-2 h-4 w-4" />Auto-Replies</TabsTrigger>
-              <TabsTrigger value="marketing"><Megaphone className="mr-2 h-4 w-4" />Marketing</TabsTrigger>
-              <TabsTrigger value="template-library"><BookCopy className="mr-2 h-4 w-4" />Template Library</TabsTrigger>
-              <TabsTrigger value="canned-messages"><ClipboardList className="mr-2 h-4 w-4" />Canned Messages</TabsTrigger>
-              <TabsTrigger value="agents-roles"><UserCog className="mr-2 h-4 w-4" />Agents & Roles</TabsTrigger>
-              <TabsTrigger value="compliance"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
-              <TabsTrigger value="attributes"><Users className="mr-2 h-4 w-4" />User Attributes</TabsTrigger>
+              {planFeatures?.settingsBroadcast && <TabsTrigger value="broadcast"><Save className="mr-2 h-4 w-4" />Broadcast</TabsTrigger>}
+              {planFeatures?.settingsAutoReply && <TabsTrigger value="auto-reply"><Bot className="mr-2 h-4 w-4" />Auto-Replies</TabsTrigger>}
+              {planFeatures?.settingsMarketing && <TabsTrigger value="marketing"><Megaphone className="mr-2 h-4 w-4" />Marketing</TabsTrigger>}
+              {planFeatures?.settingsTemplateLibrary && <TabsTrigger value="template-library"><BookCopy className="mr-2 h-4 w-4" />Template Library</TabsTrigger>}
+              {planFeatures?.settingsCannedMessages && <TabsTrigger value="canned-messages"><ClipboardList className="mr-2 h-4 w-4" />Canned Messages</TabsTrigger>}
+              {planFeatures?.settingsAgentsRoles && <TabsTrigger value="agents-roles"><UserCog className="mr-2 h-4 w-4" />Agents & Roles</TabsTrigger>}
+              {planFeatures?.settingsCompliance && <TabsTrigger value="compliance"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>}
+              {planFeatures?.settingsUserAttributes && <TabsTrigger value="attributes"><Users className="mr-2 h-4 w-4" />User Attributes</TabsTrigger>}
             </TabsList>
             <ScrollBar orientation="horizontal" />
         </ScrollArea>
 
           <TabsContent value="broadcast" className="mt-6">
-            <form action={formAction}>
-              <input type="hidden" name="projectId" value={project._id.toString()} />
-              <Card>
-                <CardHeader>
-                    <CardTitle>Broadcast Settings</CardTitle>
-                    <CardDescription>Configure the rate at which broadcast messages are sent.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2 max-w-sm">
-                    <Label htmlFor="messagesPerSecond">Concurrency Level (Messages in Parallel)</Label>
-                    <Input id="messagesPerSecond" name="messagesPerSecond" type="number" min="1" step="1" value={messagesPerSecond} onChange={(e) => setMessagesPerSecond(Number(e.target.value))} required />
-                    <p className="text-xs text-muted-foreground">The number of messages to send in parallel. Higher values increase throughput but are limited by API response times.</p>
-                  </div>
-                </CardContent>
-                <CardFooter className="border-t px-6 py-4"><SaveButton>Save Broadcast Settings</SaveButton></CardFooter>
-              </Card>
-            </form>
+            <FeatureGate isAllowed={!!planFeatures?.settingsBroadcast} featureName="Broadcast Settings">
+                <form action={formAction}>
+                <input type="hidden" name="projectId" value={project._id.toString()} />
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Broadcast Settings</CardTitle>
+                        <CardDescription>Configure the rate at which broadcast messages are sent.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                    <div className="space-y-2 max-w-sm">
+                        <Label htmlFor="messagesPerSecond">Concurrency Level (Messages in Parallel)</Label>
+                        <Input id="messagesPerSecond" name="messagesPerSecond" type="number" min="1" step="1" value={messagesPerSecond} onChange={(e) => setMessagesPerSecond(Number(e.target.value))} required />
+                        <p className="text-xs text-muted-foreground">The number of messages to send in parallel. Higher values increase throughput but are limited by API response times.</p>
+                    </div>
+                    </CardContent>
+                    <CardFooter className="border-t px-6 py-4"><SaveButton>Save Broadcast Settings</SaveButton></CardFooter>
+                </Card>
+                </form>
+            </FeatureGate>
           </TabsContent>
 
           <TabsContent value="auto-reply" className="mt-6 space-y-6">
-            <MasterSwitch project={project} />
-            <Tabs defaultValue="welcome" className="w-full">
-                <ScrollArea className="w-full whitespace-nowrap rounded-md border-b">
-                  <TabsList className="inline-flex h-auto p-1 bg-transparent w-max">
-                      <TabsTrigger value="welcome"><Handshake className="mr-2 h-4 w-4" />Welcome</TabsTrigger>
-                      <TabsTrigger value="general"><MessageSquareHeart className="mr-2 h-4 w-4" />Keyword Replies</TabsTrigger>
-                      <TabsTrigger value="inactive"><Clock className="mr-2 h-4 w-4" />Inactive Hours</TabsTrigger>
-                      <TabsTrigger value="ai"><BrainCircuit className="mr-2 h-4 w-4" />AI Assistant</TabsTrigger>
-                  </TabsList>
-                  <ScrollBar orientation="horizontal" />
-              </ScrollArea>
-              <TabsContent value="welcome" className="mt-4"><Card><WelcomeMessageForm project={project} /></Card></TabsContent>
-              <TabsContent value="general" className="mt-4"><Card><GeneralReplyForm project={project} /></Card></TabsContent>
-              <TabsContent value="inactive" className="mt-4"><Card><InactiveHoursForm project={project} /></Card></TabsContent>
-              <TabsContent value="ai" className="mt-4"><Card><AiAssistantForm project={project} /></Card></TabsContent>
-            </Tabs>
+            <FeatureGate isAllowed={!!planFeatures?.settingsAutoReply} featureName="Auto-Reply Settings">
+                <MasterSwitch project={project} />
+                <Tabs defaultValue="welcome" className="w-full">
+                    <ScrollArea className="w-full whitespace-nowrap rounded-md border-b">
+                    <TabsList className="inline-flex h-auto p-1 bg-transparent w-max">
+                        <TabsTrigger value="welcome"><Handshake className="mr-2 h-4 w-4" />Welcome</TabsTrigger>
+                        <TabsTrigger value="general"><MessageSquareHeart className="mr-2 h-4 w-4" />Keyword Replies</TabsTrigger>
+                        <TabsTrigger value="inactive"><Clock className="mr-2 h-4 w-4" />Inactive Hours</TabsTrigger>
+                        <TabsTrigger value="ai"><BrainCircuit className="mr-2 h-4 w-4" />AI Assistant</TabsTrigger>
+                    </TabsList>
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+                <TabsContent value="welcome" className="mt-4"><Card><WelcomeMessageForm project={project} /></Card></TabsContent>
+                <TabsContent value="general" className="mt-4"><Card><GeneralReplyForm project={project} /></Card></TabsContent>
+                <TabsContent value="inactive" className="mt-4"><Card><InactiveHoursForm project={project} /></Card></TabsContent>
+                <TabsContent value="ai" className="mt-4"><Card><AiAssistantForm project={project} /></Card></TabsContent>
+                </Tabs>
+            </FeatureGate>
           </TabsContent>
           
           <TabsContent value="marketing" className="mt-6">
-            <MarketingSettingsForm project={project} />
+            <FeatureGate isAllowed={!!planFeatures?.settingsMarketing} featureName="Marketing Settings">
+                <MarketingSettingsForm project={project} />
+            </FeatureGate>
           </TabsContent>
 
           <TabsContent value="template-library" className="mt-6">
-            <Card>
-                <CardHeader>
-                    <CardTitle>Template Library</CardTitle>
-                    <CardDescription>Browse pre-made templates to get started quickly with common use cases.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground">Find a template that fits your needs and customize it for your brand.</p>
-                </CardContent>
-                <CardFooter>
-                    <Button asChild>
-                        <Link href="/dashboard/templates/library">
-                            Go to Template Library
-                        </Link>
-                    </Button>
-                </CardFooter>
-            </Card>
+            <FeatureGate isAllowed={!!planFeatures?.settingsTemplateLibrary} featureName="Template Library">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Template Library</CardTitle>
+                        <CardDescription>Browse pre-made templates to get started quickly with common use cases.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground">Find a template that fits your needs and customize it for your brand.</p>
+                    </CardContent>
+                    <CardFooter>
+                        <Button asChild>
+                            <Link href="/dashboard/templates/library">
+                                Go to Template Library
+                            </Link>
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </FeatureGate>
           </TabsContent>
 
           <TabsContent value="canned-messages" className="mt-6">
-            <CannedMessagesSettingsTab project={project} />
+            <FeatureGate isAllowed={!!planFeatures?.settingsCannedMessages} featureName="Canned Messages">
+                <CannedMessagesSettingsTab project={project} />
+            </FeatureGate>
           </TabsContent>
 
           <TabsContent value="agents-roles" className="mt-6">
-            <AgentsRolesSettingsTab project={project} user={user} />
+             <FeatureGate isAllowed={!!planFeatures?.settingsAgentsRoles} featureName="Agents & Roles">
+                <AgentsRolesSettingsTab project={project} user={user} />
+             </FeatureGate>
           </TabsContent>
 
           <TabsContent value="compliance" className="mt-6">
-              <Card><OptInOutForm project={project} /></Card>
+              <FeatureGate isAllowed={!!planFeatures?.settingsCompliance} featureName="Compliance Settings">
+                <Card><OptInOutForm project={project} /></Card>
+              </FeatureGate>
           </TabsContent>
 
           <TabsContent value="attributes" className="mt-6">
-            <UserAttributesForm project={project} user={user} />
+            <FeatureGate isAllowed={!!planFeatures?.settingsUserAttributes} featureName="User Attributes">
+                <UserAttributesForm project={project} user={user} />
+            </FeatureGate>
           </TabsContent>
 
         </Tabs>

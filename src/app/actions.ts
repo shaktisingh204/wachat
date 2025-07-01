@@ -32,6 +32,17 @@ export type PlanFeaturePermissions = {
     contacts: boolean;
     templates: boolean;
     flowBuilder: boolean;
+    metaFlows: boolean;
+    whatsappAds: boolean;
+    webhooks: boolean;
+    settingsBroadcast: boolean;
+    settingsAutoReply: boolean;
+    settingsMarketing: boolean;
+    settingsTemplateLibrary: boolean;
+    settingsCannedMessages: boolean;
+    settingsAgentsRoles: boolean;
+    settingsCompliance: boolean;
+    settingsUserAttributes: boolean;
     apiAccess: boolean;
 };
 
@@ -52,6 +63,10 @@ export type Plan = {
     projectLimit: number;
     agentLimit: number;
     attributeLimit: number;
+    templateLimit: number;
+    flowLimit: number;
+    metaFlowLimit: number;
+    cannedMessageLimit: number;
     messageCosts: PlanMessageCosts;
     features: PlanFeaturePermissions;
     createdAt: Date;
@@ -2831,6 +2846,17 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
             contacts: formData.get('contacts') === 'on',
             templates: formData.get('templates') === 'on',
             flowBuilder: formData.get('flowBuilder') === 'on',
+            metaFlows: formData.get('metaFlows') === 'on',
+            whatsappAds: formData.get('whatsappAds') === 'on',
+            webhooks: formData.get('webhooks') === 'on',
+            settingsBroadcast: formData.get('settingsBroadcast') === 'on',
+            settingsAutoReply: formData.get('settingsAutoReply') === 'on',
+            settingsMarketing: formData.get('settingsMarketing') === 'on',
+            settingsTemplateLibrary: formData.get('settingsTemplateLibrary') === 'on',
+            settingsCannedMessages: formData.get('settingsCannedMessages') === 'on',
+            settingsAgentsRoles: formData.get('settingsAgentsRoles') === 'on',
+            settingsCompliance: formData.get('settingsCompliance') === 'on',
+            settingsUserAttributes: formData.get('settingsUserAttributes') === 'on',
             apiAccess: formData.get('apiAccess') === 'on',
         };
 
@@ -2843,6 +2869,10 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
             projectLimit: Number(formData.get('projectLimit')),
             agentLimit: Number(formData.get('agentLimit')),
             attributeLimit: Number(formData.get('attributeLimit')),
+            templateLimit: Number(formData.get('templateLimit')),
+            flowLimit: Number(formData.get('flowLimit')),
+            metaFlowLimit: Number(formData.get('metaFlowLimit')),
+            cannedMessageLimit: Number(formData.get('cannedMessageLimit')),
             messageCosts: {
                 marketing: Number(formData.get('cost_marketing')),
                 utility: Number(formData.get('cost_utility')),

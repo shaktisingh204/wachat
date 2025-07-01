@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 const PlanFeature = ({ children, included }: { children: React.ReactNode, included: boolean }) => (
     <li className="flex items-center gap-3">
         {included ? <Check className="h-5 w-5 text-primary flex-shrink-0" /> : <X className="h-5 w-5 text-muted-foreground flex-shrink-0" />}
-        <span className={cn(!included && "text-muted-foreground line-through")}>{children}</span>
+        <span className={cn("text-sm", !included && "text-muted-foreground line-through")}>{children}</span>
     </li>
 );
 
@@ -45,10 +45,12 @@ export default async function BillingPage() {
                         </CardHeader>
                         <Separator />
                         <CardContent className="pt-6 space-y-4">
-                            <ul className="space-y-3 text-sm">
-                                <PlanFeature included={true}>{plan.projectLimit} Project(s)</PlanFeature>
-                                <PlanFeature included={true}>{plan.agentLimit} Agent(s) per Project</PlanFeature>
-                                <PlanFeature included={true}>{plan.attributeLimit} Custom Attributes</PlanFeature>
+                            <ul className="space-y-3">
+                                <PlanFeature included={true}>{plan.projectLimit > 0 ? `${plan.projectLimit} Project(s)` : 'Unlimited Projects'}</PlanFeature>
+                                <PlanFeature included={true}>{plan.agentLimit > 0 ? `${plan.agentLimit} Agent(s) per Project` : 'Unlimited Agents'}</PlanFeature>
+                                <PlanFeature included={true}>{plan.templateLimit > 0 ? `${plan.templateLimit} Templates` : 'Unlimited Templates'}</PlanFeature>
+                                <PlanFeature included={true}>{plan.flowLimit > 0 ? `${plan.flowLimit} Flows` : 'Unlimited Flows'}</PlanFeature>
+                                <PlanFeature included={true}>{plan.metaFlowLimit > 0 ? `${plan.metaFlowLimit} Meta Flows` : 'Unlimited Meta Flows'}</PlanFeature>
                                 <PlanFeature included={plan.features.campaigns}>Broadcast Campaigns</PlanFeature>
                                 <PlanFeature included={plan.features.liveChat}>Live Chat</PlanFeature>
                                 <PlanFeature included={plan.features.flowBuilder}>Flow Builder</PlanFeature>

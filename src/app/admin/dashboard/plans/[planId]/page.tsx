@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useActionState, useState } from 'react';
@@ -36,6 +37,17 @@ const features: { id: keyof PlanFeaturePermissions, name: string }[] = [
     { id: 'contacts', name: 'Contact Management' },
     { id: 'templates', name: 'Message Templates' },
     { id: 'flowBuilder', name: 'Flow Builder' },
+    { id: 'metaFlows', name: 'Meta Flows' },
+    { id: 'whatsappAds', name: 'WhatsApp Ads' },
+    { id: 'webhooks', name: 'Webhooks Page' },
+    { id: 'settingsBroadcast', name: 'Broadcast Settings Tab' },
+    { id: 'settingsAutoReply', name: 'Auto-Reply Settings Tab' },
+    { id: 'settingsMarketing', name: 'Marketing Settings Tab' },
+    { id: 'settingsTemplateLibrary', name: 'Template Library Access' },
+    { id: 'settingsCannedMessages', name: 'Canned Messages Tab' },
+    { id: 'settingsAgentsRoles', name: 'Agents & Roles Tab' },
+    { id: 'settingsCompliance', name: 'Compliance Settings Tab' },
+    { id: 'settingsUserAttributes', name: 'User Attributes Tab' },
     { id: 'apiAccess', name: 'API Access' },
 ];
 
@@ -150,22 +162,28 @@ export default function PlanEditorPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
-                    <CardHeader><CardTitle>Feature Limits</CardTitle></CardHeader>
+                    <CardHeader><CardTitle>Feature Limits</CardTitle><CardDescription>Set to 0 for unlimited.</CardDescription></CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2"><Label htmlFor="projectLimit">Project Limit</Label><Input id="projectLimit" name="projectLimit" type="number" defaultValue={plan?.projectLimit ?? 5} required min="0"/></div>
                         <div className="space-y-2"><Label htmlFor="agentLimit">Agent Limit (per project)</Label><Input id="agentLimit" name="agentLimit" type="number" defaultValue={plan?.agentLimit ?? 10} required min="0"/></div>
                         <div className="space-y-2"><Label htmlFor="attributeLimit">Custom Attribute Limit</Label><Input id="attributeLimit" name="attributeLimit" type="number" defaultValue={plan?.attributeLimit ?? 20} required min="0"/></div>
+                        <div className="space-y-2"><Label htmlFor="templateLimit">Template Limit</Label><Input id="templateLimit" name="templateLimit" type="number" defaultValue={plan?.templateLimit ?? 50} required min="0"/></div>
+                        <div className="space-y-2"><Label htmlFor="flowLimit">Flow Builder Limit</Label><Input id="flowLimit" name="flowLimit" type="number" defaultValue={plan?.flowLimit ?? 10} required min="0"/></div>
+                        <div className="space-y-2"><Label htmlFor="metaFlowLimit">Meta Flows Limit</Label><Input id="metaFlowLimit" name="metaFlowLimit" type="number" defaultValue={plan?.metaFlowLimit ?? 10} required min="0"/></div>
+                        <div className="space-y-2"><Label htmlFor="cannedMessageLimit">Canned Messages Limit</Label><Input id="cannedMessageLimit" name="cannedMessageLimit" type="number" defaultValue={plan?.cannedMessageLimit ?? 25} required min="0"/></div>
                     </CardContent>
                 </Card>
                 <Card>
                     <CardHeader><CardTitle>Enabled Features</CardTitle></CardHeader>
                     <CardContent className="space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
                         {features.map(feature => (
                             <div key={feature.id} className="flex items-center space-x-3">
                                 <Checkbox id={feature.id} name={feature.id} defaultChecked={(plan?.features as any)?.[feature.id] ?? true} />
                                 <Label htmlFor={feature.id} className="font-normal">{feature.name}</Label>
                             </div>
                         ))}
+                        </div>
                     </CardContent>
                 </Card>
             </div>
