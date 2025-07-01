@@ -5,7 +5,7 @@ import { Suspense, useActionState, useEffect, useState, useTransition } from 're
 import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Wand2, ArrowLeftRight, Settings, File } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Wand2, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -24,15 +24,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { WithId } from 'mongodb';
 import type { MetaFlow } from '@/lib/definitions';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
-import {
-  Dialog,
-  DialogContent as EditDialogContent,
-  DialogDescription as EditDialogDescription,
-  DialogFooter as EditDialogFooter,
-  DialogHeader as EditDialogHeader,
-  DialogTitle as EditDialogTitle,
-} from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const createFlowInitialState = { message: null, error: null };
 
@@ -62,39 +54,48 @@ function PageSkeleton() {
     );
 }
 
-function ComponentEditorDialog({ component, onUpdate, onSave, onCancel, isOpen, onOpenChange }: { component: any, onUpdate: (newComponent: any) => void, onSave: () => void, onCancel: () => void, isOpen: boolean, onOpenChange: (open: boolean) => void }) {
+function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChange }: { component: any, onSave: (newComponent: any) => void, onCancel: () => void, isOpen: boolean, onOpenChange: (open: boolean) => void }) {
     const [localComponent, setLocalComponent] = useState(component);
 
     useEffect(() => {
         setLocalComponent(component);
     }, [component]);
     
-    const updateField = (key, value) => setLocalComponent(prev => ({...prev, [key]: value}));
+    const updateField = (key: string, value: any) => {
+        setLocalComponent((prev: any) => ({...prev, [key]: value}));
+    };
+
+    if (!component) return null;
 
     return (
-        <EditDialogContent>
-            <EditDialogHeader>
-                <EditDialogTitle>Edit Component: {component.type}</EditDialogTitle>
-            </EditDialogHeader>
-            <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
-                {Object.keys(component).map(key => (
-                    <div key={key} className="space-y-2">
-                        <Label htmlFor={key}>{key}</Label>
-                        {typeof component[key] === 'boolean' ? (
-                            <Switch id={key} checked={localComponent[key]} onCheckedChange={(val) => updateField(key, val)} />
-                        ) : typeof component[key] === 'object' ? (
-                            <Textarea id={key} value={JSON.stringify(localComponent[key], null, 2)} onChange={e => { try { updateField(key, JSON.parse(e.target.value)) } catch(err) { /* ignore parse error */}}} className="font-mono text-xs h-32"/>
-                        ) : (
-                            <Input id={key} value={localComponent[key]} onChange={e => updateField(key, e.target.value)} />
-                        )}
-                    </div>
-                ))}
-            </div>
-            <EditDialogFooter>
-                <Button variant="outline" onClick={onCancel}>Cancel</Button>
-                <Button onClick={() => { onUpdate(localComponent); onSave(); }}>Save</Button>
-            </EditDialogFooter>
-        </EditDialogContent>
+         <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-2xl">
+                <DialogHeader>
+                    <DialogTitle>Edit Component: {component.type}</DialogTitle>
+                </DialogHeader>
+                <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                    {Object.keys(component).map(key => {
+                        const value = localComponent[key];
+                        return (
+                            <div key={key} className="space-y-2">
+                                <Label htmlFor={key}>{key}</Label>
+                                {typeof value === 'boolean' ? (
+                                    <Switch id={key} checked={value} onCheckedChange={(val) => updateField(key, val)} />
+                                ) : typeof value === 'object' && value !== null ? (
+                                    <Textarea id={key} value={JSON.stringify(value, null, 2)} onChange={e => { try { updateField(key, JSON.parse(e.target.value)) } catch(err) { /* ignore parse error */}}} className="font-mono text-xs h-32"/>
+                                ) : (
+                                    <Input id={key} value={value ?? ''} onChange={e => updateField(key, e.target.value)} />
+                                )}
+                            </div>
+                        )
+                    })}
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={onCancel}>Cancel</Button>
+                    <Button onClick={() => onSave(localComponent)}>Save Changes</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 }
 
@@ -139,6 +140,7 @@ function CreateMetaFlowPage() {
             setFlowData({
                 name: 'new_flow_' + Math.floor(Math.random() * 1000),
                 description: '',
+                routing_model: {},
                 screens: [{
                     id: 'screen_1',
                     title: 'Welcome Screen',
@@ -206,8 +208,8 @@ function CreateMetaFlowPage() {
         if (['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(componentType)) {
             newComponent.text = `New ${componentType} Text`;
         }
-         if (['Dropdown', 'RadioButtonsGroup'].includes(componentType)) {
-            newComponent['data-source'] = [{ id: 'option_1', title: 'Option 1' }];
+         if (['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup'].includes(componentType)) {
+            newComponent['data-source'] = [{ id: `opt_${Date.now()}`, title: 'Option 1' }];
         }
         if (componentType === 'Footer') {
             newComponent.label = 'Submit';
@@ -217,7 +219,11 @@ function CreateMetaFlowPage() {
         setFlowData(prev => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
-            screenToUpdate.layout.children[0].children.push(newComponent);
+            if (screenToUpdate.layout.children[0].type === 'Form') {
+                screenToUpdate.layout.children[0].children.push(newComponent);
+            } else {
+                 screenToUpdate.layout.children.push(newComponent);
+            }
             return { ...prev, screens: newScreens };
         });
     };
@@ -226,7 +232,12 @@ function CreateMetaFlowPage() {
         setFlowData(prev => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
-            screenToUpdate.layout.children[0].children.splice(componentIndex, 1);
+            const formOrLayout = screenToUpdate.layout.children[0];
+            if (formOrLayout.type === 'Form') {
+                formOrLayout.children.splice(componentIndex, 1);
+            } else {
+                 screenToUpdate.layout.children.splice(componentIndex, 1);
+            }
             return { ...prev, screens: newScreens };
         });
     };
@@ -255,6 +266,21 @@ function CreateMetaFlowPage() {
             screens: prev.screens.filter((_: any, i: number) => i !== screenIndex)
         }));
     };
+    
+    const handleComponentUpdate = (updatedComponent: any) => {
+        if (!editingComponent) return;
+        setFlowData(prev => {
+            const newScreens = JSON.parse(JSON.stringify(prev.screens));
+            const formOrLayout = newScreens[editingComponent.screenIndex].layout.children[0];
+            if (formOrLayout.type === 'Form') {
+                formOrLayout.children[editingComponent.componentIndex] = updatedComponent;
+            } else {
+                newScreens[editingComponent.screenIndex].layout.children[editingComponent.componentIndex] = updatedComponent;
+            }
+            return { ...prev, screens: newScreens };
+        });
+        setEditingComponent(null);
+    }
     
     useEffect(() => {
         const newJson = JSON.stringify(flowData, null, 2);
@@ -348,12 +374,12 @@ function CreateMetaFlowPage() {
                                                     <div className="flex items-center gap-2"><Label htmlFor={`success-${screen.id}`}>Success Screen</Label><Switch id={`success-${screen.id}`} checked={!!screen.success} onCheckedChange={(val) => updateScreenField(screenIndex, 'success', val)}/></div>
                                                 </div>
                                                 <h4 className="font-semibold text-sm">Components</h4>
-                                                {(screen.layout.children[0].children || []).map((component: any, compIndex: number) => (
+                                                {(screen.layout.children[0]?.children || screen.layout.children).map((component: any, compIndex: number) => (
                                                     <div key={component.name || compIndex} className="p-3 border rounded-lg space-y-2 relative bg-background">
                                                         <div className="flex justify-between items-center">
                                                             <p className="text-sm font-medium text-muted-foreground">{component.type}</p>
                                                             <div>
-                                                                <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => setEditingComponent({screenIndex, componentIndex, component})}><Settings className="h-3 w-3" /></Button>
+                                                                <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => setEditingComponent({screenIndex, componentIndex: compIndex, component})}><Settings className="h-3 w-3" /></Button>
                                                                 <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeComponentFromScreen(screenIndex, compIndex)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                                                             </div>
                                                         </div>
@@ -385,23 +411,13 @@ function CreateMetaFlowPage() {
                 </AccordionItem>
             </Accordion>
             
-             <Dialog open={!!editingComponent} onOpenChange={(open) => !open && setEditingComponent(null)}>
-                {editingComponent && <ComponentEditorDialog 
-                    isOpen={!!editingComponent}
-                    onOpenChange={(open) => !open && setEditingComponent(null)}
-                    component={editingComponent.component}
-                    onUpdate={(newComp) => {
-                         setFlowData(prev => {
-                            const newScreens = JSON.parse(JSON.stringify(prev.screens));
-                            const screenToUpdate = newScreens[editingComponent.screenIndex];
-                            screenToUpdate.layout.children[0].children[editingComponent.componentIndex] = newComp;
-                            return { ...prev, screens: newScreens };
-                        });
-                    }}
-                    onSave={() => setEditingComponent(null)}
-                    onCancel={() => setEditingComponent(null)}
-                />}
-            </Dialog>
+             <ComponentEditorDialog 
+                isOpen={!!editingComponent}
+                onOpenChange={(open) => !open && setEditingComponent(null)}
+                component={editingComponent?.component}
+                onSave={handleComponentUpdate}
+                onCancel={() => setEditingComponent(null)}
+            />
 
             <div className="flex justify-end"><SubmitButton isEditing={isEditing} /></div>
         </form>
@@ -415,3 +431,5 @@ export default function CreateMetaFlowPageWrapper() {
     </Suspense>
   )
 }
+
+    

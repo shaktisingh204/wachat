@@ -1,6 +1,6 @@
 
 export type DeclarativeUIComponent = {
-    type: 'TextInput' | 'PhoneNumber' | 'DatePicker' | 'EmbeddedLink' | 'TextSubheading' | 'TextHeading' | 'TextArea' | 'Dropdown' | 'RadioButtonsGroup' | 'CheckboxGroup' | 'Footer' | 'PhotoPicker' | 'DocumentPicker' | 'CalendarPicker' | 'ChipsSelector' | 'ImageCarousel' | 'OptIn' | 'If' | 'Switch' | 'NavigationList' | 'Image' | 'TextBody' | 'TextCaption';
+    type: 'TextHeading' | 'TextSubheading' | 'TextBody' | 'TextCaption' | 'TextInput' | 'TextArea' | 'DatePicker' | 'CalendarPicker' | 'Dropdown' | 'RadioButtonsGroup' | 'CheckboxGroup' | 'ChipsSelector' | 'PhotoPicker' | 'DocumentPicker' | 'Image' | 'ImageCarousel' | 'OptIn' | 'EmbeddedLink' | 'Footer' | 'If' | 'Switch' | 'NavigationList';
     name?: string;
     label?: string;
     text?: string;
@@ -40,5 +40,9 @@ export const declarativeFlowComponents: { type: DeclarativeUIComponent['type'], 
     { type: 'OptIn', label: 'Opt-In Checkbox' },
     { type: 'EmbeddedLink', label: 'Embedded Link' },
     { type: 'Footer', label: 'Footer Button' },
+    { type: 'If', label: 'If/Else' },
+    { type: 'Switch', label: 'Switch' },
     { type: 'NavigationList', label: 'Navigation List' },
 ];
+
+    

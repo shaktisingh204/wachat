@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { MoreVertical, ArrowLeft } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-const FlowComponent = ({ component, formData, setFormData }) => {
+const FlowComponent = ({ component, formData, setFormData }: { component: any, formData: Record<string, any>, setFormData: React.Dispatch<React.SetStateAction<Record<string, any>>> }) => {
     const name = component.name;
     const value = formData[name] || '';
 
@@ -38,9 +38,9 @@ const FlowComponent = ({ component, formData, setFormData }) => {
         case 'DatePicker':
             return <div className="space-y-1 w-full"><Label htmlFor={name} className="text-sm font-medium">{component.label}</Label><Input id={name} name={name} type="date" value={value} onChange={e => handleChange(e.target.value)} className="bg-gray-50"/></div>;
         case 'RadioButtonsGroup':
-            return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><RadioGroup name={name} value={value} onValueChange={handleChange}>{(component['data-source'] || []).map(opt => <div key={opt.id} className="flex items-center space-x-2"><RadioGroupItem value={opt.id} id={`${name}-${opt.id}`}/><Label htmlFor={`${name}-${opt.id}`} className="font-normal text-sm">{opt.title}</Label></div>)}</RadioGroup></div>;
+            return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><RadioGroup name={name} value={value} onValueChange={handleChange}>{(component['data-source'] || []).map((opt: any) => <div key={opt.id} className="flex items-center space-x-2"><RadioGroupItem value={opt.id} id={`${name}-${opt.id}`}/><Label htmlFor={`${name}-${opt.id}`} className="font-normal text-sm">{opt.title}</Label></div>)}</RadioGroup></div>;
         case 'Dropdown':
-            return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><Select onValueChange={handleChange}><SelectTrigger className="w-full bg-gray-50"><SelectValue placeholder="Select an option"/></SelectTrigger><SelectContent>{(component['data-source'] || []).map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.title}</SelectItem>)}</SelectContent></Select></div>;
+            return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><Select onValueChange={handleChange}><SelectTrigger className="w-full bg-gray-50"><SelectValue placeholder="Select an option"/></SelectTrigger><SelectContent>{(component['data-source'] || []).map((opt: any) => <SelectItem key={opt.id} value={opt.id}>{opt.title}</SelectItem>)}</SelectContent></Select></div>;
         case 'NavigationList':
             return (
                 <div className="w-full space-y-1">
@@ -56,7 +56,7 @@ const FlowComponent = ({ component, formData, setFormData }) => {
     }
 }
 
-export const MetaFlowPreview = ({ flowJson }) => {
+export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
     const [flowData, setFlowData] = useState<any>(null);
     const [currentScreenId, setCurrentScreenId] = useState<string | null>(null);
     const [formData, setFormData] = useState<Record<string, any>>({});
@@ -67,7 +67,7 @@ export const MetaFlowPreview = ({ flowJson }) => {
             if (flowJson) {
                 const parsed = JSON.parse(flowJson);
                 setFlowData(parsed);
-                if (!currentScreenId || !parsed.screens.some(s => s.id === currentScreenId)) {
+                if (!currentScreenId || !parsed.screens.some((s: any) => s.id === currentScreenId)) {
                     setCurrentScreenId(parsed.screens?.[0]?.id);
                 }
                 setError(null);
@@ -85,22 +85,29 @@ export const MetaFlowPreview = ({ flowJson }) => {
         return <Card className="h-full flex items-center justify-center p-4"><p className="text-muted-foreground text-center">No flow data to preview.</p></Card>
     }
 
-    const currentScreen = flowData.screens.find(s => s.id === currentScreenId);
+    const currentScreen = flowData.screens.find((s: any) => s.id === currentScreenId);
     if (!currentScreen) {
         return <Card className="h-full flex items-center justify-center p-4"><p className="text-destructive text-center">Current screen not found!</p></Card>
     }
     
-    const layoutChildren = currentScreen.layout?.children || [];
-    const form = layoutChildren.find(c => c.type === 'Form');
-    const formComponents = form?.children || [];
-    const navigationList = layoutChildren.find(c => c.type === 'NavigationList');
+    const layout = currentScreen.layout;
+    const layoutChildren = layout?.children || [];
+    const mainContainer = layoutChildren[0];
     
-    const footer = formComponents.find(c => c.type === 'Footer');
+    let renderableComponents: any[] = [];
+    let footerComponent: any = null;
+
+    if (mainContainer?.type === 'Form') {
+        renderableComponents = mainContainer.children || [];
+        footerComponent = renderableComponents.find(c => c.type === 'Footer');
+    } else {
+        renderableComponents = layoutChildren;
+    }
 
     const handleAction = (action: any) => {
         if (!action) return;
         if (action.name === 'navigate' && action.next?.name) {
-            if(flowData.screens.some(s => s.id === action.next.name)) {
+            if(flowData.screens.some((s: any) => s.id === action.next.name)) {
                setCurrentScreenId(action.next.name);
             } else {
                 alert("Test Flow: Next screen not found!");
@@ -122,20 +129,19 @@ export const MetaFlowPreview = ({ flowJson }) => {
             <CardContent className="flex-1 bg-white">
                 <ScrollArea className="h-full w-full">
                     <div className="p-4 space-y-4">
-                        {formComponents.map((component: any, index: number) => (
+                        {renderableComponents.map((component: any, index: number) => (
                             <FlowComponent key={component.name || index} component={component} formData={formData} setFormData={setFormData} />
                         ))}
-                        {navigationList && (
-                             <FlowComponent component={navigationList} formData={formData} setFormData={setFormData} />
-                        )}
                     </div>
                 </ScrollArea>
             </CardContent>
-            {footer && (
+            {footerComponent && (
                 <CardFooter className="p-4 bg-white border-t flex-shrink-0">
-                    <Button onClick={() => handleAction(footer['on-click-action'])} size="lg" className="w-full bg-green-600 hover:bg-green-700">{footer.label}</Button>
+                    <Button onClick={() => handleAction(footerComponent['on-click-action'])} size="lg" className="w-full bg-green-600 hover:bg-green-700">{footerComponent.label}</Button>
                 </CardFooter>
             )}
         </Card>
     );
 }
+
+    

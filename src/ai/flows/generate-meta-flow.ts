@@ -16,6 +16,7 @@ const ActionSchema = z.object({
   name: z.enum(['navigate', 'complete', 'data_exchange', 'open_url']).describe("Action type."),
   next: z.object({ type: z.literal('screen'), name: z.string() }).optional().describe("For 'navigate', the ID of the next screen."),
   payload: z.record(z.any()).optional().describe("Data to be submitted or passed. Use variables like ${form.input_name} or ${data.variable_name}."),
+  url: z.string().optional().describe("For 'open_url', the URL to open."),
 });
 
 // --- Component Schemas (Recursive setup) ---
@@ -26,7 +27,7 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
     z.object({ type: z.literal('TextSubheading'), text: z.string(), visible: z.boolean().optional() }),
     z.object({ type: z.literal('TextBody'), text: z.string(), visible: z.boolean().optional() }),
     z.object({ type: z.literal('TextCaption'), text: z.string(), visible: z.boolean().optional() }),
-    z.object({ type: z.literal('TextInput'), name: z.string(), label: z.string(), "helper-text": z.string().optional(), required: z.boolean().optional(), "input-type": z.enum(['text', 'email', 'password']).optional(), "max-length": z.number().optional() }),
+    z.object({ type: z.literal('TextInput'), name: z.string(), label: z.string(), "helper-text": z.string().optional(), required: z.boolean().optional(), "input-type": z.enum(['text', 'email', 'password', 'phone', 'number']).optional(), "max-length": z.number().optional() }),
     z.object({ type: z.literal('TextArea'), name: z.string(), label: z.string(), "helper-text": z.string().optional(), required: z.boolean().optional(), "max-length": z.number().optional() }),
     z.object({ type: z.literal('Dropdown'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })), required: z.boolean().optional(), "on-select-action": ActionSchema.optional() }),
     z.object({ type: z.literal('RadioButtonsGroup'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })), required: z.boolean().optional() }),
@@ -38,9 +39,9 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
     z.object({ type: z.literal('DocumentPicker'), name: z.string(), label: z.string(), required: z.boolean().optional(), "min-uploaded-documents": z.number().optional(), "max-uploaded-documents": z.number().optional() }),
     z.object({ type: z.literal('CalendarPicker'), name: z.string(), label: z.union([z.string(), z.object({ "start-date": z.string(), "end-date": z.string() })]), mode: z.enum(['single', 'range']), "on-select-action": ActionSchema.optional() }),
     z.object({ type: z.literal('ChipsSelector'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })), "max-selected-items": z.number().optional(), "min-selected-items": z.number().optional() }),
-    z.object({ type: z.literal('ImageCarousel'), name: z.string(), images: z.array(z.object({ "alt-text": z.string(), src: z.string() })) }),
+    z.object({ type: z.literal('ImageCarousel'), name: z.string(), images: z.array(z.object({ "alt-text": z.string(), src: z.string().describe("Use the placeholder 'BASE64_IMAGE_PLACEHOLDER' for images.") })) }),
     z.object({ type: z.literal('OptIn'), name: z.string(), label: z.string(), required: z.boolean().optional() }),
-    z.object({ type: z.literal('Image'), src: z.string(), "alt-text": z.string(), visible: z.boolean().optional() }),
+    z.object({ type: z.literal('Image'), src: z.string().describe("Use the placeholder 'BASE64_IMAGE_PLACEHOLDER' for images."), "alt-text": z.string(), visible: z.boolean().optional() }),
     // Conditional components
     z.object({ type: z.literal('If'), condition: z.string().describe("A boolean expression, e.g., '${data.show_section}' or '${form.age} > 18'"), then: z.array(FormComponentSchema), else: z.array(FormComponentSchema).optional() }),
     z.object({ type: z.literal('Switch'), value: z.string().describe("The variable to switch on, e.g., '${form.choice}'"), cases: z.record(z.array(FormComponentSchema)).describe("A map where keys are possible values and values are arrays of components to render.") })
@@ -70,6 +71,14 @@ const NavigationListSchema = z.object({
 
 const ScreenLayoutChildSchema = z.union([FormSchema, NavigationListSchema]);
 
+const DataDefinitionSchema = z.object({
+  type: z.enum(['string', 'number', 'boolean', 'array', 'object']),
+  __example__: z.any().optional().describe("An example value for the data, e.g. 'John Doe' or ['Option 1', 'Option 2']."),
+  items: z.any().optional().describe("For 'array' type, a schema for the items in the array."),
+  properties: z.record(z.any()).optional().describe("For 'object' type, a schema for the object properties."),
+});
+
+
 const ScreenSchema = z.object({
   id: z.string().describe("A unique identifier for the screen, e.g., 'SURVEY_START'."),
   title: z.string().describe("The title of the screen."),
@@ -79,7 +88,7 @@ const ScreenSchema = z.object({
   }),
   terminal: z.boolean().optional().describe("If true, this is a final screen in the flow."),
   success: z.boolean().optional().describe("Used with terminal screens to indicate success state."),
-  data: z.record(z.any()).optional().describe("Defines the data model for dynamic content, e.g., {'available_slots': { 'type': 'array', 'items': {'type':'string'} } }."),
+  data: z.record(DataDefinitionSchema).optional().describe("Defines the data model for dynamic content. Use `__example__` to provide sample data."),
 });
 
 // --- Main Flow Schema ---
@@ -123,7 +132,7 @@ RULES:
     -   The FINAL screen in a path must have its 'terminal' property set to true and its footer action must be 'name': 'complete'.
 5.  **Data Handling**:
     -   To pass data between screens, use a 'payload' in the navigation action. E.g., 'payload': {'user_name': '\${form.name_input}'}.
-    -   The receiving screen must define this data in its 'data' property. E.g., 'data': {'user_name': { 'type': 'string' } }.
+    -   The receiving screen must define this data in its 'data' property. E.g., 'data': {'user_name': { 'type': 'string', '__example__': 'John Doe' } }.
     -   Use '\${form.component_name}' to access user input from the current screen.
     -   Use '\${data.variable_name}' to access data passed from a previous screen.
 6.  **Component Variety**: Use a variety of the available components based on the user's prompt (e.g., TextInput, DatePicker, Dropdown, RadioButtonsGroup).
@@ -150,3 +159,5 @@ const generateMetaFlowFlow = ai.defineFlow(
     return flow_json;
   }
 );
+
+    
