@@ -3596,16 +3596,15 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
     }
 
     const name = formData.get('name') as string;
-    const categoriesStr = formData.get('categories') as string;
+    const categories = formData.getAll('categories') as string[];
     const flowDataStr = formData.get('flow_data') as string;
     const endpointUri = formData.get('endpoint_uri') as string | null;
 
-    if (!name || !categoriesStr || !flowDataStr) {
-        return { error: 'Name, Categories, and JSON data are required.' };
+    if (!name || categories.length === 0 || !flowDataStr) {
+        return { error: 'Name, at least one Category, and JSON data are required.' };
     }
 
     try {
-        const categories = categoriesStr.split(',').map(c => c.trim().toUpperCase());
         const flow_data = JSON.parse(flowDataStr);
 
         const wabaId = hasAccess.wabaId;

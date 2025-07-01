@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 
 const createFlowInitialState = {
   message: null,
@@ -67,6 +68,25 @@ const defaultFlowJson = `{
     }
   ]
 }`;
+
+const categoriesList = [
+    { id: 'LEAD_GENERATION', name: 'Lead Generation', desc: 'Collect user info like name, email, etc.' },
+    { id: 'CUSTOMER_SUPPORT', name: 'Customer Support', desc: 'Structured support interactions.' },
+    { id: 'APPOINTMENT_BOOKING', name: 'Appointment Booking', desc: 'Book or reschedule appointments.' },
+    { id: 'PRODUCT_RECOMMENDATION', name: 'Product Recommendation', desc: 'Help users select or configure a product.' },
+    { id: 'ORDER_TRACKING', name: 'Order Tracking', desc: 'Allow users to get delivery status.' },
+    { id: 'ONBOARDING', name: 'Onboarding', desc: 'Multi-step guidance for new users.' },
+    { id: 'FEEDBACK_COLLECTION', name: 'Feedback Collection', desc: 'Gather user feedback or ratings.' },
+    { id: 'APPLICATION_PROCESS', name: 'Application Process', desc: 'Step-by-step for job or service applications.' },
+    { id: 'SUBSCRIPTION_MANAGEMENT', name: 'Subscription Management', desc: 'Let users opt-in/out of updates.' },
+    { id: 'SURVEY', name: 'Survey', desc: 'Simple questionnaire for research.' },
+    { id: 'CUSTOM', name: 'Custom', desc: 'For flows that don\'t fit a standard category.' },
+    { id: 'SIGN_UP', name: 'Sign Up', desc: 'User registration flows.' },
+    { id: 'SIGN_IN', name: 'Sign In', desc: 'User authentication flows.' },
+    { id: 'CONTACT_US', name: 'Contact Us', desc: 'General contact forms.' },
+    { id: 'OTHER', name: 'Other', desc: 'A general-purpose category.' },
+];
+
 
 export default function CreateMetaFlowPage() {
     const [projectId, setProjectId] = useState<string | null>(null);
@@ -134,17 +154,26 @@ export default function CreateMetaFlowPage() {
                 <CardHeader>
                     <CardTitle>Flow Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="name">Flow Name</Label>
-                            <Input id="name" name="name" placeholder="e.g., lead_capture_flow" required/>
-                             <p className="text-xs text-muted-foreground">Lowercase letters and underscores only.</p>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="categories">Categories</Label>
-                            <Input id="categories" name="categories" defaultValue="LEAD_GENERATION" placeholder="e.g., LEAD_GENERATION,SURVEY" required/>
-                             <p className="text-xs text-muted-foreground">Comma-separated list of valid categories.</p>
+                <CardContent className="space-y-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Flow Name</Label>
+                        <Input id="name" name="name" placeholder="e.g., lead_capture_flow" required/>
+                            <p className="text-xs text-muted-foreground">Lowercase letters and underscores only.</p>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Categories (select at least one)</Label>
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 rounded-md border p-4">
+                            {categoriesList.map(cat => (
+                                <div key={cat.id} className="flex items-start gap-2">
+                                    <Checkbox id={`cat-${cat.id}`} name="categories" value={cat.id} />
+                                    <div className="grid gap-1.5 leading-none">
+                                        <label htmlFor={`cat-${cat.id}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                            {cat.name}
+                                        </label>
+                                        <p className="text-xs text-muted-foreground">{cat.desc}</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
                      <div className="space-y-2">
