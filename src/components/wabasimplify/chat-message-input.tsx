@@ -88,6 +88,13 @@ export function ChatMessageInput({ contact, metaFlows, templates }: ChatMessageI
         }, 100);
     };
 
+     const handleMediaClick = (acceptType: string) => {
+        if (fileInputRef.current) {
+            fileInputRef.current.accept = acceptType;
+            fileInputRef.current.click();
+        }
+    }
+
      const handleSendFlow = (flowId: string) => {
         startSendingTransition(async () => {
             const result = await handleSendMetaFlow(contact._id.toString(), flowId);
@@ -122,6 +129,36 @@ export function ChatMessageInput({ contact, metaFlows, templates }: ChatMessageI
             .sort((a, b) => (b.isFavourite ? 1 : 0) - (a.isFavourite ? 1 : 0))
         : [];
 
+    const FlowPopoverContent = (
+        <PopoverContent side="top" align="start" className="p-1 w-56">
+            <ScrollArea className="max-h-60">
+                <div className="p-1 space-y-1">
+                    {metaFlows.length > 0 ? metaFlows.map(flow => (
+                        <button key={flow._id.toString()} type="button" className="w-full text-left p-2 rounded-sm hover:bg-accent flex items-center text-sm" onClick={() => handleSendFlow(flow._id.toString())} disabled={isSending}>
+                            {isSending ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin"/> : <Send className="h-4 w-4 mr-2"/>}
+                            {flow.name}
+                        </button>
+                    )) : <p className="text-xs text-center p-2 text-muted-foreground">No Meta Flows found.</p>}
+                </div>
+            </ScrollArea>
+        </PopoverContent>
+    );
+    
+    const TemplatePopoverContent = (
+        <PopoverContent side="top" align="start" className="p-1 w-56">
+            <ScrollArea className="max-h-60">
+                <div className="p-1 space-y-1">
+                    {templates.length > 0 ? templates.map(template => (
+                        <button key={template._id.toString()} type="button" className="w-full text-left p-2 rounded-sm hover:bg-accent flex items-center text-sm" onClick={() => handleSendTemplate(template._id.toString())} disabled={isSending}>
+                            {isSending ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin"/> : <Send className="h-4 w-4 mr-2"/>}
+                            {template.name}
+                        </button>
+                    )) : <p className="text-xs text-center p-2 text-muted-foreground">No approved templates found.</p>}
+                </div>
+            </ScrollArea>
+        </PopoverContent>
+    );
+
     return (
         <div className="flex w-full items-center gap-2">
             <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
@@ -147,7 +184,6 @@ export function ChatMessageInput({ contact, metaFlows, templates }: ChatMessageI
                         ref={fileInputRef}
                         className="hidden"
                         onChange={handleFileChange}
-                        accept="image/*,video/*,application/pdf"
                     />
                 </form>
                 <PopoverContent
@@ -182,69 +218,34 @@ export function ChatMessageInput({ contact, metaFlows, templates }: ChatMessageI
                 </PopoverContent>
             </Popover>
 
-            <Popover open={attachmentPopoverOpen} onOpenChange={setAttachmentPopoverOpen}>
-                <PopoverTrigger asChild>
-                    <Button variant="ghost" size="icon"><Paperclip className="h-4 w-4" /></Button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-56 p-1">
-                    <div className="grid gap-1">
-                        <Button variant="ghost" className="w-full justify-start" onClick={() => { fileInputRef.current?.click(); setAttachmentPopoverOpen(false); }}>
-                            <ImageIcon className="mr-2 h-4 w-4" /> Media (Image/Video)
-                        </Button>
-                         <Button variant="ghost" className="w-full justify-start" onClick={() => { fileInputRef.current?.click(); setAttachmentPopoverOpen(false); }}>
-                            <FileIcon className="mr-2 h-4 w-4" /> Document
-                        </Button>
-                        
-                        <Popover open={flowPopoverOpen} onOpenChange={setFlowPopoverOpen}>
-                            <PopoverTrigger asChild>
-                                <Button variant="ghost" className="w-full justify-start"><ServerCog className="mr-2 h-4 w-4" /> Meta Flow</Button>
-                            </PopoverTrigger>
-                            <PopoverContent side="left" align="start" className="p-1 w-56">
-                                <ScrollArea className="max-h-60">
-                                    <div className="p-1 space-y-1">
-                                        {metaFlows.length > 0 ? metaFlows.map(flow => (
-                                            <button
-                                                key={flow._id.toString()}
-                                                type="button"
-                                                className="w-full text-left p-2 rounded-sm hover:bg-accent flex items-center text-sm"
-                                                onClick={() => handleSendFlow(flow._id.toString())}
-                                                disabled={isSending}
-                                            >
-                                                {isSending ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin"/> : <Send className="h-4 w-4 mr-2"/>}
-                                                {flow.name}
-                                            </button>
-                                        )) : <p className="text-xs text-center p-2 text-muted-foreground">No Meta Flows found.</p>}
-                                    </div>
-                                </ScrollArea>
-                            </PopoverContent>
-                        </Popover>
-
-                        <Popover open={templatePopoverOpen} onOpenChange={setTemplatePopoverOpen}>
-                             <PopoverTrigger asChild>
-                                <Button variant="ghost" className="w-full justify-start"><ClipboardList className="mr-2 h-4 w-4" /> Template</Button>
-                             </PopoverTrigger>
-                             <PopoverContent side="left" align="start" className="p-1 w-56">
-                                <ScrollArea className="max-h-60">
-                                    <div className="p-1 space-y-1">
-                                        {templates.length > 0 ? templates.map(template => (
-                                            <button
-                                                key={template._id.toString()}
-                                                type="button"
-                                                className="w-full text-left p-2 rounded-sm hover:bg-accent flex items-center text-sm"
-                                                onClick={() => handleSendTemplate(template._id.toString())}
-                                                disabled={isSending}
-                                            >
-                                                {isSending ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin"/> : <Send className="h-4 w-4 mr-2"/>}
-                                                {template.name}
-                                            </button>
-                                        )) : <p className="text-xs text-center p-2 text-muted-foreground">No approved templates found.</p>}
-                                    </div>
-                                </ScrollArea>
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-                </PopoverContent>
-            </Popover>
+            {/* Desktop Buttons */}
+            <div className="hidden md:flex items-center gap-1">
+                 <Button variant="ghost" size="icon" onClick={() => handleMediaClick('image/*,video/*')}><ImageIcon className="h-4 w-4" /><span className="sr-only">Send Image or Video</span></Button>
+                 <Button variant="ghost" size="icon" onClick={() => handleMediaClick('application/pdf')}><FileIcon className="h-4 w-4" /><span className="sr-only">Send Document</span></Button>
+                <Popover open={templatePopoverOpen} onOpenChange={setTemplatePopoverOpen}>
+                    <PopoverTrigger asChild><Button variant="ghost" size="icon"><ClipboardList className="h-4 w-4" /><span className="sr-only">Send Template</span></Button></PopoverTrigger>
+                    {TemplatePopoverContent}
+                </Popover>
+                <Popover open={flowPopoverOpen} onOpenChange={setFlowPopoverOpen}>
+                    <PopoverTrigger asChild><Button variant="ghost" size="icon"><ServerCog className="h-4 w-4" /><span className="sr-only">Send Meta Flow</span></Button></PopoverTrigger>
+                    {FlowPopoverContent}
+                </Popover>
+            </div>
+            
+            {/* Mobile Popover */}
+            <div className="md:hidden">
+                <Popover open={attachmentPopoverOpen} onOpenChange={setAttachmentPopoverOpen}>
+                    <PopoverTrigger asChild><Button variant="ghost" size="icon"><Paperclip className="h-4 w-4" /></Button></PopoverTrigger>
+                    <PopoverContent align="end" className="w-56 p-1">
+                        <div className="grid gap-1">
+                            <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('image/*,video/*'); setAttachmentPopoverOpen(false); }}><ImageIcon className="mr-2 h-4 w-4" /> Media (Image/Video)</Button>
+                             <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('application/pdf'); setAttachmentPopoverOpen(false); }}><FileIcon className="mr-2 h-4 w-4" /> Document</Button>
+                             <Popover open={templatePopoverOpen} onOpenChange={setTemplatePopoverOpen}><PopoverTrigger asChild><Button variant="ghost" className="w-full justify-start"><ClipboardList className="mr-2 h-4 w-4" /> Template</Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
+                             <Popover open={flowPopoverOpen} onOpenChange={setFlowPopoverOpen}><PopoverTrigger asChild><Button variant="ghost" className="w-full justify-start"><ServerCog className="mr-2 h-4 w-4" /> Meta Flow</Button></PopoverTrigger>{FlowPopoverContent}</Popover>
+                        </div>
+                    </PopoverContent>
+                </Popover>
+            </div>
             
             <SubmitButton onClick={() => formRef.current?.requestSubmit()} />
         </div>
