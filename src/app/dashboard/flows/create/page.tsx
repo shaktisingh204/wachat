@@ -5,7 +5,7 @@ import { useActionState, useEffect, useState, useRef, useCallback } from 'react'
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Info, Plus, Trash2, GripVertical } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Info, Plus, Trash2, GripVertical, Checkbox, View } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -13,11 +13,15 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { saveMetaFlow } from '@/app/actions/meta-flow.actions';
-import { flowCategories, uiComponents } from '@/components/wabasimplify/meta-flow-templates';
+import { flowCategories, uiComponents, type UIComponent } from '@/components/wabasimplify/meta-flow-templates';
 import { MetaFlowPreview } from '@/components/wabasimplify/meta-flow-preview';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
 
 const createFlowInitialState = { message: null, error: null };
 
@@ -31,20 +35,11 @@ function SubmitButton() {
     );
 }
 
-function ComponentEditor({ component, onUpdate, onDelete }) {
-    const [tempOptions, setTempOptions] = useState((component.data['data-source'] || []).map(o => o.title).join('\n'));
-
-    const handleOptionChange = (e) => {
-        const value = e.target.value;
-        setTempOptions(value);
-        const options = value.split('\n').map((line, index) => ({ id: `${component.name}_opt_${index}`, title: line }));
-        onUpdate('data-source', options);
-    };
-
+function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onRemoveOption }: { component: UIComponent & { id: string }, onUpdate: (key: string, value: any) => void, onAddOption: () => void, onUpdateOption: (index: number, value: string) => void, onRemoveOption: (index: number) => void }) {
     const commonFields = (
          <div className="space-y-2 mt-2">
-            <Label htmlFor={`${component.id}_name`}>Field Name/ID</Label>
-            <Input id={`${component.id}_name`} value={component.name || ''} onChange={e => onUpdate('name', e.target.value)} placeholder="e.g., user_name (unique)" />
+            <Label htmlFor={`${component.id}_name`}>Field Name/ID (unique)</Label>
+            <Input id={`${component.id}_name`} value={component.name || ''} onChange={e => onUpdate('name', e.target.value)} placeholder="e.g., user_name" />
         </div>
     );
     
@@ -52,7 +47,7 @@ function ComponentEditor({ component, onUpdate, onDelete }) {
         case 'TextHeading':
         case 'TextBody':
         case 'TextSubtext':
-            return <Textarea value={component.text} onChange={e => onUpdate('text', e.target.value)} placeholder="Enter text content..." />;
+            return <Textarea value={component.text || ''} onChange={e => onUpdate('text', e.target.value)} placeholder="Enter text content..." />;
         case 'Image':
              return <Input value={component.url || ''} onChange={e => onUpdate('url', e.target.value)} placeholder="https://example.com/image.png" />;
         case 'TextInput':
@@ -71,8 +66,16 @@ function ComponentEditor({ component, onUpdate, onDelete }) {
                 <div className="space-y-2">
                     <Label htmlFor={`${component.id}_label`}>Label</Label>
                     <Input id={`${component.id}_label`} value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Select your interest" />
-                    <Label htmlFor={`${component.id}_options`}>Options (one per line)</Label>
-                    <Textarea id={`${component.id}_options`} value={tempOptions} onChange={handleOptionChange} placeholder="Option 1&#x0a;Option 2" />
+                    <Label>Options</Label>
+                    <div className="space-y-2">
+                        {(component['data-source'] || []).map((opt, index) => (
+                            <div key={opt.id} className="flex items-center gap-2">
+                                <Input value={opt.title} onChange={e => onUpdateOption(index, e.target.value)} />
+                                <Button type="button" variant="ghost" size="icon" onClick={() => onRemoveOption(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                            </div>
+                        ))}
+                    </div>
+                    <Button type="button" variant="outline" size="sm" onClick={onAddOption}>+ Add Option</Button>
                     {commonFields}
                 </div>
             );
@@ -92,7 +95,6 @@ export default function CreateMetaFlowPage() {
     const [flowName, setFlowName] = useState('new_flow');
     const [endpointUri, setEndpointUri] = useState('');
     const [category, setCategory] = useState('LEAD_GENERATION');
-    const [isEndpointFlow, setIsEndpointFlow] = useState(false);
     
     const [screens, setScreens] = useState<any[]>([
         { id: 'SCREEN_1', title: 'Welcome Screen', layout: { type: 'SingleColumnLayout', children: [{ type: 'Footer', label: 'Continue', 'on-click-action': { name: 'complete' } }] } }
@@ -115,11 +117,12 @@ export default function CreateMetaFlowPage() {
     }, [state, toast, router]);
 
     const addScreen = () => setScreens(prev => [...prev, { id: `SCREEN_${prev.length + 1}`, title: `Screen ${prev.length + 1}`, layout: { type: 'SingleColumnLayout', children: [{ type: 'Footer', label: 'Continue', 'on-click-action': { name: 'complete' } }] } }]);
-    const removeScreen = (index) => setScreens(prev => prev.filter((_, i) => i !== index));
-    const updateScreen = (index, key, value) => setScreens(prev => prev.map((s, i) => i === index ? { ...s, [key]: value } : s));
-    const updateScreenAction = (index, screenId) => {
+    const removeScreen = (index: number) => setScreens(prev => prev.filter((_, i) => i !== index));
+    const updateScreen = (index: number, key: string, value: string) => setScreens(prev => prev.map((s, i) => i === index ? { ...s, [key]: value } : s));
+    
+    const updateScreenAction = (screenIndex: number, screenId: string) => {
         setScreens(prev => prev.map((s, i) => {
-            if (i === index) {
+            if (i === screenIndex) {
                 const footer = s.layout.children.find(c => c.type === 'Footer');
                 if(footer) {
                     footer['on-click-action'] = screenId ? { name: 'navigate', payload: { next: screenId } } : { name: 'complete' };
@@ -129,10 +132,13 @@ export default function CreateMetaFlowPage() {
         }))
     };
     
-    const addComponentToScreen = (screenIndex, componentType) => {
+    const addComponentToScreen = (screenIndex: number, componentType: string) => {
         setScreens(prev => prev.map((s, i) => {
             if (i === screenIndex) {
-                const newComponent = { id: `comp_${Date.now()}`, type: componentType };
+                const newComponent: any = { id: `comp_${Date.now()}`, type: componentType, name: `field_${Date.now()}` };
+                 if (['RadioButtons', 'CheckboxGroup', 'Dropdown'].includes(componentType)) {
+                    newComponent['data-source'] = [];
+                }
                 const footerIndex = s.layout.children.findIndex(c => c.type === 'Footer');
                 const newChildren = [...s.layout.children];
                 newChildren.splice(footerIndex, 0, newComponent);
@@ -142,7 +148,7 @@ export default function CreateMetaFlowPage() {
         }));
     };
 
-    const updateComponentInScreen = (screenIndex, componentIndex, key, value) => {
+    const updateComponentInScreen = (screenIndex: number, componentIndex: number, key: string, value: any) => {
         setScreens(prev => prev.map((s, i) => {
             if (i === screenIndex) {
                 const newChildren = s.layout.children.map((c, j) => j === componentIndex ? { ...c, [key]: value } : c);
@@ -152,7 +158,7 @@ export default function CreateMetaFlowPage() {
         }));
     };
     
-    const removeComponentFromScreen = (screenIndex, componentIndex) => {
+    const removeComponentFromScreen = (screenIndex: number, componentIndex: number) => {
         setScreens(prev => prev.map((s, i) => {
             if (i === screenIndex) {
                 const newChildren = s.layout.children.filter((_, j) => j !== componentIndex);
@@ -162,14 +168,61 @@ export default function CreateMetaFlowPage() {
         }));
     };
 
+    const handleAddComponentOption = (screenIndex: number, componentIndex: number) => {
+        setScreens(prev => prev.map((s, i) => {
+            if (i === screenIndex) {
+                const newChildren = s.layout.children.map((c, j) => {
+                    if (j === componentIndex) {
+                        const newDataSource = [...(c['data-source'] || []), { id: `opt_${Date.now()}`, title: '' }];
+                        return { ...c, 'data-source': newDataSource };
+                    }
+                    return c;
+                });
+                return { ...s, layout: { ...s.layout, children: newChildren } };
+            }
+            return s;
+        }));
+    };
+
+    const handleUpdateComponentOption = (screenIndex: number, componentIndex: number, optionIndex: number, value: string) => {
+         setScreens(prev => prev.map((s, i) => {
+            if (i === screenIndex) {
+                const newChildren = s.layout.children.map((c, j) => {
+                    if (j === componentIndex) {
+                        const newDataSource = c['data-source'].map((opt, k) => k === optionIndex ? { ...opt, title: value } : opt);
+                        return { ...c, 'data-source': newDataSource };
+                    }
+                    return c;
+                });
+                return { ...s, layout: { ...s.layout, children: newChildren } };
+            }
+            return s;
+        }));
+    };
+
+    const handleRemoveComponentOption = (screenIndex: number, componentIndex: number, optionIndex: number) => {
+        setScreens(prev => prev.map((s, i) => {
+            if (i === screenIndex) {
+                const newChildren = s.layout.children.map((c, j) => {
+                    if (j === componentIndex) {
+                        const newDataSource = c['data-source'].filter((_, k) => k !== optionIndex);
+                        return { ...c, 'data-source': newDataSource };
+                    }
+                    return c;
+                });
+                return { ...s, layout: { ...s.layout, children: newChildren } };
+            }
+            return s;
+        }));
+    };
+
      useEffect(() => {
         const generatedJson = {
             version: "3.0",
-            data_api_version: isEndpointFlow ? "3.0" : undefined,
             screens: screens
         };
         setFlowJson(JSON.stringify(generatedJson, null, 2));
-    }, [screens, isEndpointFlow]);
+    }, [screens]);
     
     return (
         <form action={formAction} className="space-y-6">
@@ -177,7 +230,7 @@ export default function CreateMetaFlowPage() {
             <input type="hidden" name="category" value={category} />
             <input type="hidden" name="name" value={flowName} />
             <input type="hidden" name="flow_data" value={flowJson} />
-            {isEndpointFlow && <input type="hidden" name="endpoint_uri" value={endpointUri} />}
+            <input type="hidden" name="endpoint_uri" value={endpointUri} />
 
             <div>
                 <Button variant="ghost" asChild className="mb-4 -ml-4">
@@ -211,16 +264,18 @@ export default function CreateMetaFlowPage() {
                                     </div>
                                     </RadioGroup>
                                 </div>
-                                <div className="flex items-center space-x-2">
-                                    <input type="checkbox" id="endpoint-toggle" checked={isEndpointFlow} onChange={e => setIsEndpointFlow(e.target.checked)} className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"/>
-                                    <Label htmlFor="endpoint-toggle">This flow uses a data endpoint</Label>
-                                </div>
-                                {isEndpointFlow && (
-                                    <div className="space-y-2">
-                                        <Label htmlFor="endpoint_uri">Endpoint URI</Label>
-                                        <Input id="endpoint_uri" value={endpointUri} onChange={e => setEndpointUri(e.target.value)} placeholder="https://your-server.com/api/flow" required/>
-                                    </div>
-                                )}
+                                <Tabs defaultValue="no-endpoint">
+                                    <TabsList>
+                                        <TabsTrigger value="no-endpoint">Without Endpoint</TabsTrigger>
+                                        <TabsTrigger value="with-endpoint">With Endpoint</TabsTrigger>
+                                    </TabsList>
+                                    <TabsContent value="with-endpoint" className="pt-4">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="endpoint_uri">Endpoint URI</Label>
+                                            <Input id="endpoint_uri" value={endpointUri} onChange={e => setEndpointUri(e.target.value)} placeholder="https://your-server.com/api/flow"/>
+                                        </div>
+                                    </TabsContent>
+                                </Tabs>
                             </CardContent>
                         </Card>
 
@@ -233,18 +288,24 @@ export default function CreateMetaFlowPage() {
                                             <AccordionTrigger className="hover:no-underline">
                                                  <div className="flex-1 flex items-center gap-2">
                                                     <GripVertical className="h-5 w-5 text-muted-foreground" />
-                                                    <Input className="text-base font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" value={screen.title} onChange={e => updateScreen(screenIndex, 'title', e.target.value)} />
+                                                    <Input className="text-base font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" value={screen.title} onChange={e => updateScreen(screenIndex, 'title', e.target.value)} onClick={e => e.stopPropagation()}/>
                                                 </div>
                                                 <Button type="button" variant="ghost" size="icon" onClick={() => removeScreen(screenIndex)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                                             </AccordionTrigger>
                                             <AccordionContent className="pt-4 space-y-4">
-                                                {screen.layout.children.filter(c => c.type !== 'Footer').map((component, compIndex) => (
-                                                    <div key={component.id || compIndex} className="p-3 border rounded-lg space-y-2 relative">
+                                                {screen.layout.children.filter((c: any) => c.type !== 'Footer').map((component: any, compIndex: number) => (
+                                                    <div key={component.id || compIndex} className="p-3 border rounded-lg space-y-2 relative bg-background">
                                                         <div className="flex justify-between items-center">
                                                             <p className="text-sm font-medium text-muted-foreground">{component.type}</p>
                                                             <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeComponentFromScreen(screenIndex, compIndex)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                                                         </div>
-                                                        <ComponentEditor component={component} onUpdate={(key, value) => updateComponentInScreen(screenIndex, compIndex, key, value)} />
+                                                        <ComponentEditor 
+                                                            component={component} 
+                                                            onUpdate={(key, value) => updateComponentInScreen(screenIndex, compIndex, key, value)}
+                                                            onAddOption={() => handleAddComponentOption(screenIndex, compIndex)}
+                                                            onUpdateOption={(optionIndex, value) => handleUpdateComponentOption(screenIndex, compIndex, optionIndex, value)}
+                                                            onRemoveOption={(optionIndex) => handleRemoveComponentOption(screenIndex, compIndex, optionIndex)}
+                                                        />
                                                     </div>
                                                 ))}
                                                 <Popover>
@@ -255,10 +316,15 @@ export default function CreateMetaFlowPage() {
                                                 </Popover>
                                                 <div className="space-y-2 pt-4 border-t">
                                                     <Label>Footer Button Action</Label>
-                                                    <select value={screen.layout.children.find(c => c.type === 'Footer')['on-click-action']?.payload?.next || ''} onChange={e => updateScreenAction(screenIndex, e.target.value)} className="w-full h-10 rounded-md border border-input bg-background px-3 py-2 text-sm">
-                                                        <option value="">End Flow</option>
-                                                        {screens.filter(s => s.id !== screen.id).map(s => <option key={s.id} value={s.id}>Go to: {s.title}</option>)}
-                                                    </select>
+                                                    <Select value={screen.layout.children.find((c: any) => c.type === 'Footer')['on-click-action']?.payload?.next || ''} onValueChange={value => updateScreenAction(screenIndex, value)}>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select next step..." />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="">End Flow (Complete)</SelectItem>
+                                                            {screens.filter(s => s.id !== screen.id).map(s => <SelectItem key={s.id} value={s.id}>Go to: {s.title}</SelectItem>)}
+                                                        </SelectContent>
+                                                    </Select>
                                                 </div>
                                             </AccordionContent>
                                         </AccordionItem>
