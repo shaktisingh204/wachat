@@ -620,13 +620,13 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
     // 1. Check if there's an active flow and if it has timed out.
     if (currentContact.activeFlow?.flowId && currentContact.activeFlow.waitingSince) {
         const waitingSince = new Date(currentContact.activeFlow.waitingSince).getTime();
-        const timeoutDuration = 10 * 1000; // 10 seconds
+        const timeoutDuration = 10 * 60 * 1000; // 10 minutes timeout for user input
 
         if (Date.now() - waitingSince > timeoutDuration) {
             const flow = await db.collection<Flow>('flows').findOne({ _id: new ObjectId(currentContact.activeFlow.flowId) });
             if (flow) {
                 const logger = new FlowLogger(db, flow, currentContact);
-                logger.log(`Flow timed out after ${timeoutDuration / 1000}s of inactivity. Terminating.`);
+                logger.log(`Flow timed out after ${timeoutDuration / 60000} minutes of inactivity. Terminating.`);
                 await logger.save();
             }
             await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { activeFlow: "" } });
@@ -659,27 +659,19 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
         logger.log(`Current waiting node is "${currentNode.data.label}" (${currentNode.id}).`);
 
         // --- Handle Different User Inputs ---
-
-        // 1. User clicked a standard or language button
         if (buttonReply) {
             const replyId = buttonReply.id?.trim();
             logger.log(`Received button reply.`, { replyId: replyId, title: buttonReply.title });
             
-            const edge = flow.edges.find(e => e.source === currentNode.id && e.sourceHandle?.trim() === replyId);
-            if (edge) {
-                logger.log(`Found edge from current node ${currentNode.id} via handle ${replyId} to target node ${edge.target}.`);
-                await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { "activeFlow.waitingSince": "" } });
-                const flowStatus = await executeNode(db, project, currentContact, flow, edge.target, buttonReply.title, logger);
-                return { handled: true, logger, flowStatus };
-            }
-             
+            // Handle special language selection buttons
             if (currentNode.type === 'language' && replyId && replyId.startsWith(`${currentNode.id}-lang-`)) {
                 const selectedLanguage = buttonReply.title || '';
-                if(selectedLanguage) {
+                if (selectedLanguage) {
                     currentContact.activeFlow.variables.flowTargetLanguage = selectedLanguage;
                     logger.log(`User selected language: ${selectedLanguage}`);
                     await db.collection('contacts').updateOne({ _id: currentContact._id }, { $set: { "activeFlow.variables.flowTargetLanguage": selectedLanguage } });
                 }
+                
                 const langEdge = flow.edges.find(e => e.source === currentNode.id);
                 if (langEdge) {
                     await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { "activeFlow.waitingSince": "" } });
@@ -687,8 +679,16 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
                     return { handled: true, logger, flowStatus };
                 }
             }
+
+            // Handle regular button presses
+            const edge = flow.edges.find(e => e.source === currentNode.id && e.sourceHandle?.trim() === replyId);
+            if (edge) {
+                logger.log(`Found edge from current node ${currentNode.id} via handle ${replyId} to target node ${edge.target}.`);
+                await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { "activeFlow.waitingSince": "" } });
+                const flowStatus = await executeNode(db, project, currentContact, flow, edge.target, buttonReply.title, logger);
+                return { handled: true, logger, flowStatus };
+            }
         } 
-        // 2. User typed text and the current node was waiting for it
         else if (messageText && (currentNode.type === 'input' || (currentNode.type === 'condition' && currentNode.data.conditionType === 'user_response'))) {
              logger.log(`Received text reply.`, { text: messageText });
              await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { "activeFlow.waitingSince": "" } });
@@ -696,7 +696,7 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
              return { handled: true, logger, flowStatus };
         }
 
-        // 3. The input was not a valid continuation for the waiting flow.
+        // The input was not a valid continuation for the waiting flow.
         logger.log("Input did not match any waiting node or path. Terminating flow.");
         await db.collection('contacts').updateOne({ _id: currentContact._id }, { $unset: { activeFlow: "" } });
         await logger.save();
