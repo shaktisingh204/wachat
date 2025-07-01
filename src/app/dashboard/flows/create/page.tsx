@@ -42,7 +42,7 @@ function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onR
     
     const commonInputs = (
         <div className="grid grid-cols-2 gap-2">
-            {component.name !== undefined && <Input value={component.name || ''} onChange={e => onUpdate('name', e.target.value)} placeholder="Component Name" className="text-xs" />}
+            {component.name !== undefined && <Input value={component.name || ''} onChange={e => onUpdate('name', e.target.value)} placeholder="Component Name (unique)" className="text-xs" />}
             {component.label !== undefined && <Input value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="Label" className="text-xs" />}
         </div>
     );
@@ -65,7 +65,9 @@ function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onR
     switch (component.type) {
         case 'TextSubheading':
         case 'TextHeading':
-            return <Input value={component.text} onChange={e => onUpdate('text', e.target.value)} placeholder="Heading Text" className="text-xs" />;
+        case 'TextBody':
+        case 'TextCaption':
+            return <Input value={component.text} onChange={e => onUpdate('text', e.target.value)} placeholder="Display Text" className="text-xs" />;
         case 'TextArea':
         case 'TextInput':
         case 'PhoneNumber':
@@ -73,6 +75,7 @@ function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onR
             return commonInputs;
         case 'Dropdown':
         case 'RadioButtonsGroup':
+        case 'CheckboxGroup':
              return <div className="space-y-2">{commonInputs}{optionManager}</div>;
         default:
             return <p className="text-xs text-muted-foreground">This component has no editable properties in the UI yet.</p>;
@@ -153,7 +156,9 @@ function CreateMetaFlowPage() {
                                 type: 'Footer', label: 'Finish', 'on-click-action': { name: 'complete' }
                             }]
                         }]
-                    }
+                    },
+                    terminal: true,
+                    success: true,
                 }],
             });
             setIsLoading(false);
@@ -180,12 +185,8 @@ function CreateMetaFlowPage() {
             if (result.error) {
                 toast({ title: "AI Generation Failed", description: result.error, variant: "destructive" });
             } else if (result) {
-                try {
-                    setFlowData(result);
-                    toast({ title: "Flow Generated!", description: "The AI has created your flow. Review and save it." });
-                } catch (e) {
-                    toast({ title: "JSON Parse Error", description: "The AI returned invalid JSON. Please try again.", variant: "destructive" });
-                }
+                setFlowData(result);
+                toast({ title: "Flow Generated!", description: "The AI has created your flow. Review and save it." });
             }
         });
     };
@@ -229,21 +230,30 @@ function CreateMetaFlowPage() {
     };
 
     const addComponentToScreen = (screenId: string, componentType: DeclarativeUIComponent['type']) => {
-        const newComponent: any = { type: componentType, name: `${componentType.toLowerCase()}_${Date.now()}` };
-        if (['TextSubheading', 'TextHeading'].includes(componentType)) {
-            newComponent.text = 'New ' + componentType;
-            delete newComponent.name;
+        const newComponent: any = { type: componentType };
+
+        const namedComponents: DeclarativeUIComponent['type'][] = ['TextInput', 'TextArea', 'PhoneNumber', 'DatePicker', 'Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'ChipsSelector', 'PhotoPicker', 'DocumentPicker', 'CalendarPicker', 'OptIn', 'ImageCarousel'];
+        const labeledComponents: DeclarativeUIComponent['type'][] = ['TextInput', 'TextArea', 'PhoneNumber', 'DatePicker', 'Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'ChipsSelector', 'PhotoPicker', 'DocumentPicker', 'OptIn'];
+        const textComponents: DeclarativeUIComponent['type'][] = ['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption', 'EmbeddedLink'];
+
+        if (namedComponents.includes(componentType)) {
+            newComponent.name = `${componentType.toLowerCase()}_${Date.now()}`;
         }
-        if (['TextArea', 'TextInput', 'PhoneNumber', 'DatePicker', 'Dropdown', 'RadioButtonsGroup'].includes(componentType)) {
+        if (labeledComponents.includes(componentType)) {
             newComponent.label = 'New ' + componentType;
         }
-        if (['Dropdown', 'RadioButtonsGroup'].includes(componentType)) {
+        if (textComponents.includes(componentType)) {
+            newComponent.text = 'New ' + componentType;
+        }
+        if (['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'ChipsSelector'].includes(componentType)) {
             newComponent['data-source'] = [{ id: `opt_${Date.now()}`, title: 'Option 1' }];
         }
         if (componentType === 'Footer') {
             newComponent.label = 'Submit';
             newComponent['on-click-action'] = { name: 'complete' };
-            delete newComponent.name;
+        }
+         if (componentType === 'EmbeddedLink') {
+            newComponent['on-click-action'] = { name: 'open_url', payload: { url: 'https://www.example.com' }};
         }
 
         setFlowData(prev => ({
@@ -301,10 +311,19 @@ function CreateMetaFlowPage() {
                     type: 'Form', name: `form_${newScreenId}`,
                     children: [{ type: 'Footer', label: 'Submit', 'on-click-action': { name: 'complete' } }]
                 }]
-            }
+            },
+            terminal: true,
+            success: true,
         };
         setFlowData(prev => ({ ...prev, screens: [...prev.screens, newScreen] }));
     };
+
+    const removeScreen = (screenId: string) => {
+        setFlowData(prev => ({
+            ...prev,
+            screens: prev.screens.filter(s => s.id !== screenId)
+        }))
+    }
 
     useEffect(() => {
         setFlowJson(JSON.stringify(flowData, null, 2));
@@ -339,7 +358,7 @@ function CreateMetaFlowPage() {
                             <CardContent className="space-y-4">
                                  <div className="space-y-2">
                                     <Label htmlFor="flowNameInput">Flow Name</Label>
-                                    <Input id="flowNameInput" value={flowData.name} onChange={e => updateFlowField('name', e.target.value)} placeholder="e.g., lead_capture_flow" required/>
+                                    <Input id="flowNameInput" value={flowData.name || ''} onChange={e => updateFlowField('name', e.target.value)} placeholder="e.g., lead_capture_flow" required/>
                                     <p className="text-xs text-muted-foreground">Lowercase letters and underscores only.</p>
                                 </div>
                                 <div className="space-y-2">
@@ -382,9 +401,16 @@ function CreateMetaFlowPage() {
                                     {(flowData.screens || []).map((screen: any, screenIndex: number) => (
                                         <AccordionItem value={`item-${screenIndex}`} key={screen.id} className="border rounded-md px-4">
                                             <AccordionTrigger className="hover:no-underline">
-                                                 <Input className="text-base font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" value={screen.title || ''} onChange={e => updateScreenField(screen.id, 'title', e.target.value)} onClick={e => e.stopPropagation()}/>
+                                                <div className="flex items-center justify-between w-full">
+                                                    <Input className="text-base font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" value={screen.title || ''} onChange={e => updateScreenField(screen.id, 'title', e.target.value)} onClick={e => e.stopPropagation()}/>
+                                                    {flowData.screens.length > 1 && <Button type="button" variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); removeScreen(screen.id); }}><Trash2 className="h-4 w-4 text-destructive"/></Button>}
+                                                </div>
                                             </AccordionTrigger>
                                             <AccordionContent className="pt-4 space-y-4">
+                                                <div className="flex items-center justify-end gap-6 text-sm">
+                                                    <div className="flex items-center gap-2"><Label htmlFor={`terminal-${screen.id}`}>Terminal Screen</Label><Switch id={`terminal-${screen.id}`} checked={!!screen.terminal} onCheckedChange={(val) => updateScreenField(screen.id, 'terminal', val)}/></div>
+                                                    <div className="flex items-center gap-2"><Label htmlFor={`success-${screen.id}`}>Success Screen</Label><Switch id={`success-${screen.id}`} checked={!!screen.success} onCheckedChange={(val) => updateScreenField(screen.id, 'success', val)}/></div>
+                                                </div>
                                                 <h4 className="font-semibold text-sm">Components</h4>
                                                 {(safeGetFormChildren(screen)).map((component: any, compIndex: number) => (
                                                     <div key={component.name || compIndex} className="p-3 border rounded-lg space-y-2 relative bg-background">
@@ -438,3 +464,4 @@ export default function CreateMetaFlowPageWrapper() {
     </Suspense>
   )
 }
+

@@ -1,6 +1,6 @@
 
 export type DeclarativeUIComponent = {
-    type: 'TextInput' | 'PhoneNumber' | 'DatePicker' | 'EmbeddedLink' | 'TextSubheading' | 'TextHeading' | 'TextArea' | 'Dropdown' | 'RadioButtonsGroup' | 'Footer' | 'PhotoPicker' | 'DocumentPicker' | 'CalendarPicker' | 'ChipsSelector' | 'ImageCarousel' | 'OptIn' | 'If' | 'Switch' | 'NavigationList';
+    type: 'TextInput' | 'PhoneNumber' | 'DatePicker' | 'EmbeddedLink' | 'TextSubheading' | 'TextHeading' | 'TextArea' | 'Dropdown' | 'RadioButtonsGroup' | 'CheckboxGroup' | 'Footer' | 'PhotoPicker' | 'DocumentPicker' | 'CalendarPicker' | 'ChipsSelector' | 'ImageCarousel' | 'OptIn' | 'If' | 'Switch' | 'NavigationList' | 'Image' | 'TextBody' | 'TextCaption';
     name?: string;
     label?: string;
     text?: string;
@@ -21,20 +21,26 @@ export const flowCategories = [
 ];
 
 export const declarativeFlowComponents: { type: DeclarativeUIComponent['type'], label: string }[] = [
-    { type: 'TextSubheading', label: 'Subheading' },
     { type: 'TextHeading', label: 'Heading' },
-    { type: 'TextArea', label: 'Text Area' },
+    { type: 'TextSubheading', label: 'Subheading' },
+    { type: 'TextBody', label: 'Body Text' },
+    { type: 'TextCaption', label: 'Caption Text' },
     { type: 'TextInput', label: 'Text Input' },
+    { type: 'TextArea', label: 'Text Area' },
     { type: 'PhoneNumber', label: 'Phone Number Input' },
     { type: 'DatePicker', label: 'Date Picker' },
+    { type: 'CalendarPicker', label: 'Calendar' },
     { type: 'Dropdown', label: 'Dropdown' },
     { type: 'RadioButtonsGroup', label: 'Radio Buttons' },
+    { type: 'CheckboxGroup', label: 'Checkboxes' },
     { type: 'ChipsSelector', label: 'Chips Selector' },
     { type: 'PhotoPicker', label: 'Photo Picker' },
     { type: 'DocumentPicker', label: 'Document Picker' },
-    { type: 'CalendarPicker', label: 'Calendar' },
+    { type: 'Image', label: 'Image' },
     { type: 'ImageCarousel', label: 'Image Carousel' },
     { type: 'OptIn', label: 'Opt-In Checkbox' },
     { type: 'EmbeddedLink', label: 'Embedded Link' },
     { type: 'Footer', label: 'Footer Button' },
+    { type: 'NavigationList', label: 'Navigation List' },
 ];
+

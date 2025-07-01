@@ -22,7 +22,14 @@ const FlowComponent = ({ component, formData, setFormData }) => {
     switch (component.type) {
         case 'TextSubheading':
         case 'TextHeading':
-            return <h3 className={`font-semibold ${component.type === 'TextHeading' ? 'text-lg' : 'text-base'}`}>{component.text}</h3>;
+        case 'TextBody':
+        case 'TextCaption':
+            return <p className={`
+                ${component.type === 'TextHeading' ? 'text-lg font-bold' : ''}
+                ${component.type === 'TextSubheading' ? 'text-base font-semibold' : ''}
+                ${component.type === 'TextBody' ? 'text-sm' : ''}
+                ${component.type === 'TextCaption' ? 'text-xs text-muted-foreground' : ''}
+            `}>{component.text}</p>;
         case 'TextArea':
             return <div className="space-y-1 w-full"><Label htmlFor={name} className="text-sm font-medium">{component.label}</Label><Textarea id={name} name={name} placeholder={component.placeholder} value={value} onChange={e => handleChange(e.target.value)} className="bg-gray-50"/></div>;
         case 'TextInput':
@@ -34,6 +41,17 @@ const FlowComponent = ({ component, formData, setFormData }) => {
             return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><RadioGroup name={name} value={value} onValueChange={handleChange}>{(component['data-source'] || []).map(opt => <div key={opt.id} className="flex items-center space-x-2"><RadioGroupItem value={opt.id} id={`${name}-${opt.id}`}/><Label htmlFor={`${name}-${opt.id}`} className="font-normal text-sm">{opt.title}</Label></div>)}</RadioGroup></div>;
         case 'Dropdown':
             return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><Select onValueChange={handleChange}><SelectTrigger className="w-full bg-gray-50"><SelectValue placeholder="Select an option"/></SelectTrigger><SelectContent>{(component['data-source'] || []).map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.title}</SelectItem>)}</SelectContent></Select></div>;
+        case 'NavigationList':
+            return (
+                <div className="w-full space-y-1">
+                    {(component['list-items'] || []).map((item: any) => (
+                         <div key={item.id} className="p-3 border-b hover:bg-gray-50 cursor-pointer">
+                            <p className="font-semibold">{item['main-content']?.title}</p>
+                            <p className="text-xs text-muted-foreground">{item['main-content']?.description}</p>
+                        </div>
+                    ))}
+                </div>
+            );
         default: return null;
     }
 }
@@ -72,21 +90,23 @@ export const MetaFlowPreview = ({ flowJson }) => {
         return <Card className="h-full flex items-center justify-center p-4"><p className="text-destructive text-center">Current screen not found!</p></Card>
     }
     
-    const formComponents = currentScreen.layout?.children?.[0]?.children || [];
+    const layoutChildren = currentScreen.layout?.children || [];
+    const form = layoutChildren.find(c => c.type === 'Form');
+    const formComponents = form?.children || [];
+    const navigationList = layoutChildren.find(c => c.type === 'NavigationList');
+    
     const footer = formComponents.find(c => c.type === 'Footer');
 
-    const handleAction = () => {
-        if (footer) {
-            const action = footer['on-click-action'];
-            if (action.name === 'navigate' && action.next?.name) {
-                if(flowData.screens.some(s => s.id === action.next.name)) {
-                   setCurrentScreenId(action.next.name);
-                } else {
-                    alert("Test Flow: Next screen not found!");
-                }
-            } else if(action.name === 'complete') {
-                alert(`Flow Submitted (Test Mode)\nData: ${JSON.stringify(formData, null, 2)}`);
+    const handleAction = (action: any) => {
+        if (!action) return;
+        if (action.name === 'navigate' && action.next?.name) {
+            if(flowData.screens.some(s => s.id === action.next.name)) {
+               setCurrentScreenId(action.next.name);
+            } else {
+                alert("Test Flow: Next screen not found!");
             }
+        } else if(action.name === 'complete') {
+            alert(`Flow Submitted (Test Mode)\nData: ${JSON.stringify(formData, null, 2)}`);
         }
     }
 
@@ -105,14 +125,18 @@ export const MetaFlowPreview = ({ flowJson }) => {
                         {formComponents.map((component: any, index: number) => (
                             <FlowComponent key={component.name || index} component={component} formData={formData} setFormData={setFormData} />
                         ))}
+                        {navigationList && (
+                             <FlowComponent component={navigationList} formData={formData} setFormData={setFormData} />
+                        )}
                     </div>
                 </ScrollArea>
             </CardContent>
             {footer && (
                 <CardFooter className="p-4 bg-white border-t flex-shrink-0">
-                    <Button onClick={handleAction} size="lg" className="w-full bg-green-600 hover:bg-green-700">{footer.label}</Button>
+                    <Button onClick={() => handleAction(footer['on-click-action'])} size="lg" className="w-full bg-green-600 hover:bg-green-700">{footer.label}</Button>
                 </CardFooter>
             )}
         </Card>
     );
 }
+
