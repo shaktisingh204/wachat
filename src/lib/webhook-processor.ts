@@ -600,6 +600,31 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
+        
+        case 'triggerFlow': {
+            const flowToTriggerId = node.data.flowId;
+            if (flowToTriggerId) {
+                const targetFlow = await db.collection<Flow>('flows').findOne({ _id: new ObjectId(flowToTriggerId) });
+                if (targetFlow) {
+                    const startNodeOfTargetFlow = targetFlow.nodes.find(n => n.type === 'start');
+                    if (startNodeOfTargetFlow) {
+                        logger.log(`Transitioning from flow "${flow.name}" to flow "${targetFlow.name}".`);
+                        contact.activeFlow.flowId = targetFlow._id.toString();
+                        contact.activeFlow.currentNodeId = startNodeOfTargetFlow.id;
+                        // Continue with new flow execution
+                        return await executeNode(db, project, contact, targetFlow, startNodeOfTargetFlow.id, undefined, logger);
+                    } else {
+                        logger.log(`Error: Start node not found in target flow "${targetFlow.name}". Proceeding with normal flow path.`);
+                    }
+                } else {
+                    logger.log(`Error: Flow with ID ${flowToTriggerId} not found. Proceeding with normal flow path.`);
+                }
+            }
+            // Fallback to normal execution if trigger fails or is not set
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
+        }
 
         default:
             nextNodeId = null;

@@ -59,7 +59,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
-type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language' | 'sendTemplate' | 'triggerMetaFlow';
+type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language' | 'sendTemplate' | 'triggerMetaFlow' | 'triggerFlow';
 
 type ButtonConfig = {
     id: string;
@@ -84,6 +84,7 @@ const blockTypes = [
     { type: 'api', label: 'Call API', icon: ArrowRightLeft },
     { type: 'sendTemplate', label: 'Send Template', icon: FileTextIcon },
     { type: 'triggerMetaFlow', label: 'Trigger Meta Flow', icon: ServerCog },
+    { type: 'triggerFlow', label: 'Trigger Flow', icon: GitBranch },
     { type: 'addToCart', label: 'Add to Cart', icon: ShoppingCart },
 ];
 
@@ -132,6 +133,8 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
                  return <p className="text-xs text-muted-foreground italic">Sends template: {node.data.templateName || 'None selected'}</p>;
             case 'triggerMetaFlow':
                  return <p className="text-xs text-muted-foreground italic">Triggers flow: {node.data.metaFlowName || 'None selected'}</p>;
+            case 'triggerFlow':
+                 return <p className="text-xs text-muted-foreground italic">Triggers flow: {node.data.flowName || 'None selected'}</p>;
             default:
                 return null;
         }
@@ -236,7 +239,7 @@ const ConnectionLine = ({ from, to }: { from: {x: number, y: number}, to: {x: nu
     return <path d={path} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" strokeDasharray="5,5" />;
 };
 
-const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, metaFlows }: { selectedNode: FlowNode | null; updateNodeData: (id: string, data: Partial<any>) => void, deleteNode: (id: string) => void, templates: WithId<Template>[], metaFlows: WithId<MetaFlow>[] }) => {
+const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, flows, templates, metaFlows }: { selectedNode: FlowNode | null; updateNodeData: (id: string, data: Partial<any>) => void, deleteNode: (id: string) => void, flows: WithId<Flow>[], templates: WithId<Template>[], metaFlows: WithId<MetaFlow>[] }) => {
     const { toast } = useToast();
 
     if (!selectedNode) {
@@ -574,6 +577,31 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, 
                         </div>
                     </div>
                 );
+            case 'triggerFlow':
+                return (
+                    <div className="space-y-2">
+                        <Label htmlFor="flow-select">Flow to Trigger</Label>
+                        <Select
+                            value={selectedNode.data.flowId || ''}
+                            onValueChange={(val) => {
+                                const selectedFlow = flows.find(f => f._id.toString() === val);
+                                handleDataChange('flowId', selectedFlow?._id.toString() || '');
+                                handleDataChange('flowName', selectedFlow?.name || '');
+                            }}
+                        >
+                            <SelectTrigger id="flow-select">
+                                <SelectValue placeholder="Choose a flow to trigger..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {flows.map(f => (
+                                    <SelectItem key={f._id.toString()} value={f._id.toString()}>
+                                        {f.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                );
              case 'api':
                 return (
                     <Tabs defaultValue="request">
@@ -766,7 +794,7 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
 const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
     if (!sourcePos || !targetPos) return '';
     const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
-    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${to.x} ${to.y}`;
     return path;
 };
 
@@ -1318,6 +1346,7 @@ export default function FlowBuilderPage() {
                             selectedNode={selectedNode}
                             updateNodeData={updateNodeData}
                             deleteNode={deleteNode}
+                            flows={flows}
                             templates={templates}
                             metaFlows={metaFlows}
                         />
@@ -1331,6 +1360,7 @@ export default function FlowBuilderPage() {
                                 selectedNode={selectedNode}
                                 updateNodeData={updateNodeData}
                                 deleteNode={deleteNode}
+                                flows={flows}
                                 templates={templates}
                                 metaFlows={metaFlows}
                             />
