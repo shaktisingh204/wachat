@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -35,6 +36,11 @@ import {
     Copy,
     ServerCog,
     FileText as FileTextIcon,
+    ZoomIn,
+    ZoomOut,
+    Frame,
+    Maximize,
+    Minimize,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -853,6 +859,8 @@ export default function FlowBuilderPage() {
 
     const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
     const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
+    
+    const [isFullScreen, setIsFullScreen] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
@@ -1121,6 +1129,41 @@ export default function FlowBuilderPage() {
             setIsPropsSheetOpen(true);
         }
     }, [selectedNodeId]);
+    
+    const handleZoom = (direction: 'in' | 'out') => {
+        setZoom(prevZoom => {
+            const newZoom = direction === 'in' ? prevZoom * 1.2 : prevZoom / 1.2;
+            return Math.max(0.2, Math.min(2, newZoom));
+        });
+    };
+
+    const handleResetView = () => {
+        setZoom(1);
+        setPan({ x: 0, y: 0 });
+    };
+
+    const handleToggleFullScreen = () => {
+        if (!viewportRef.current) return;
+
+        if (!document.fullscreenElement) {
+            viewportRef.current.requestFullscreen().catch(err => {
+                alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            }
+        }
+    };
+
+    useEffect(() => {
+        const handleFullScreenChange = () => {
+            setIsFullScreen(!!document.fullscreenElement);
+        };
+        document.addEventListener('fullscreenchange', handleFullScreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullScreenChange);
+    }, []);
+
 
     const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
 
@@ -1207,7 +1250,7 @@ export default function FlowBuilderPage() {
                             onWheel={handleWheel}
                             onClick={handleCanvasClick}
                         >
-                             <div
+                            <div
                                 className="absolute inset-0"
                                 style={{
                                     backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)',
@@ -1257,6 +1300,14 @@ export default function FlowBuilderPage() {
                                         </svg>
                                     </>
                                 )}
+                            </div>
+                            <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                                <Button variant="outline" size="icon" onClick={() => handleZoom('out')}><ZoomOut className="h-4 w-4" /></Button>
+                                <Button variant="outline" size="icon" onClick={() => handleZoom('in')}><ZoomIn className="h-4 w-4" /></Button>
+                                <Button variant="outline" size="icon" onClick={handleResetView}><Frame className="h-4 w-4" /></Button>
+                                <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>
+                                    {isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                                </Button>
                             </div>
                         </Card>
                     </div>

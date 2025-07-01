@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition, useMemo } from 'react';
@@ -11,6 +12,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { PlusCircle, BookCopy, Check, X } from 'lucide-react';
 import { getLibraryTemplates, type LibraryTemplate } from '@/app/actions';
 import { AdminDeleteLibraryTemplateButton } from '@/components/wabasimplify/admin-delete-library-template-button';
+import { Separator } from '@/components/ui/separator';
+import { AdminTemplateCategoryManager } from '@/components/wabasimplify/admin-template-category-manager';
 
 export default function AdminTemplateLibraryPage() {
     const [templates, setTemplates] = useState<LibraryTemplate[]>([]);
@@ -55,6 +58,10 @@ export default function AdminTemplateLibraryPage() {
                     </Link>
                 </Button>
             </div>
+
+            <AdminTemplateCategoryManager />
+
+            <Separator />
 
             <Card>
                 <CardHeader>

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -98,7 +99,6 @@ export default function TemplateLibraryPage() {
     const router = useRouter();
     const [templates, setTemplates] = useState<LibraryTemplate[]>([]);
     const [isLoading, startLoading] = useTransition();
-    const [categoryFilter, setCategoryFilter] = useState('All');
 
     useEffect(() => {
         startLoading(async () => {
@@ -111,15 +111,6 @@ export default function TemplateLibraryPage() {
         localStorage.setItem('templateToAction', JSON.stringify(template));
         router.push('/dashboard/templates/create?action=clone');
     };
-
-    const categories = useMemo(() => ['All', ...Array.from(new Set(templates.map(t => t.category)))], [templates]);
-
-    const filteredTemplates = useMemo(() => {
-        if (categoryFilter === 'All') {
-            return templates;
-        }
-        return templates.filter(t => t.category === categoryFilter);
-    }, [categoryFilter, templates]);
 
     return (
         <div className="flex flex-col gap-8">
@@ -141,21 +132,13 @@ export default function TemplateLibraryPage() {
                 </div>
             </div>
 
-            <Tabs value={categoryFilter} onValueChange={setCategoryFilter}>
-                <TabsList>
-                    {categories.map(cat => (
-                        <TabsTrigger key={cat} value={cat} className="capitalize">{cat.toLowerCase().replace(/_/g, ' ')}</TabsTrigger>
-                    ))}
-                </TabsList>
-            </Tabs>
-
             {isLoading ? (
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                     {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-96 w-full"/>)}
                 </div>
             ) : (
-                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                    {filteredTemplates.map((template, index) => (
+                <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    {templates.map((template, index) => (
                         <TemplatePreviewCard key={template.name + index} template={template} onUse={handleUseTemplate} />
                     ))}
                 </div>

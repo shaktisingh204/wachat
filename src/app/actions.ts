@@ -270,6 +270,12 @@ export type LibraryTemplate = Omit<Template, 'metaId' | 'status' | 'qualityScore
     createdAt?: Date;
 }
 
+export type TemplateCategory = {
+    _id: ObjectId;
+    name: string;
+    description?: string;
+};
+
 
 export type CannedMessage = {
     _id: ObjectId;
@@ -3809,5 +3815,50 @@ export async function deleteLibraryTemplate(id: string): Promise<{ message?: str
         return { message: 'Custom template removed from the library.' };
     } catch (e: any) {
         return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function getTemplateCategories(): Promise<WithId<TemplateCategory>[]> {
+    try {
+        const { db } = await connectToDatabase();
+        return JSON.parse(JSON.stringify(await db.collection('template_categories').find({}).sort({ name: 1 }).toArray()));
+    } catch (e) {
+        console.error("Failed to fetch template categories:", e);
+        return [];
+    }
+}
+
+export async function saveTemplateCategory(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const name = formData.get('name') as string;
+    const description = formData.get('description') as string;
+    if (!name) return { error: 'Category name is required.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const existing = await db.collection('template_categories').findOne({ name });
+        if (existing) return { error: 'A category with this name already exists.' };
+        await db.collection('template_categories').insertOne({ name, description, createdAt: new Date() });
+        revalidatePath('/admin/dashboard/template-library');
+        return { message: 'Category created successfully.' };
+    } catch (e: any) {
+        console.error('Failed to create category:', e);
+        return { error: 'Failed to create category.' };
+    }
+}
+
+export async function deleteTemplateCategory(id: string): Promise<{ message?: string; error?: string }> {
+    if (!ObjectId.isValid(id)) return { error: 'Invalid category ID.' };
+    try {
+        const { db } = await connectToDatabase();
+        // Potential improvement: Check if any library templates use this category before deleting.
+        const result = await db.collection('template_categories').deleteOne({ _id: new ObjectId(id) });
+        if (result.deletedCount === 0) {
+            return { error: 'Could not find the category to delete.' };
+        }
+        revalidatePath('/admin/dashboard/template-library');
+        return { message: 'Category deleted successfully.' };
+    } catch (e: any) {
+        console.error('Failed to delete category:', e);
+        return { error: 'Failed to delete category.' };
     }
 }

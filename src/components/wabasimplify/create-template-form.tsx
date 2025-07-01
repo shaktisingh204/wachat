@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
@@ -12,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle, FileUp, Plus, Trash2, Copy } from 'lucide-react';
-import { handleCreateTemplate, saveLibraryTemplate } from '@/app/actions';
+import { handleCreateTemplate, saveLibraryTemplate, getTemplateCategories } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project, Template } from '@/app/dashboard/page';
@@ -172,11 +173,28 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdmi
   const [headerSampleUrl, setHeaderSampleUrl] = useState('');
   const [buttons, setButtons] = useState<ButtonType[]>([]);
 
+  // State for categories dropdown
+  const [categories, setCategories] = useState<{ id: string, name: string }[]>([]);
+
   // State for marketing carousel
   const [carouselCards, setCarouselCards] = useState<CarouselCardData[]>([{ id: Date.now(), headerFormat: 'NONE', headerSampleUrl: '', body: '', buttons: [] }]);
 
   const [lastPayload, setLastPayload] = useState('');
   const [lastDebugInfo, setLastDebugInfo] = useState('');
+
+  useEffect(() => {
+    if (isAdminForm) {
+      getTemplateCategories().then(data => {
+        setCategories(data.map(c => ({ id: c.name, name: c.name })));
+      });
+    } else {
+      setCategories([
+        { id: 'MARKETING', name: 'Marketing' },
+        { id: 'UTILITY', name: 'Utility' },
+        { id: 'AUTHENTICATION', name: 'Authentication' },
+      ]);
+    }
+  }, [isAdminForm]);
   
   useEffect(() => {
     if (initialTemplate) {
@@ -358,23 +376,25 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdmi
       {isAdminForm && <input type="hidden" name="components" value={getTemplateComponents()} />}
 
       
-      <div className="mb-8">
-        <Label className="text-base">Template Type</Label>
-        <RadioGroup value={templateType} onValueChange={(v) => setTemplateType(v as any)} className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-            <div>
-                <RadioGroupItem value="STANDARD" id="type-standard" className="sr-only"/>
-                <Label htmlFor="type-standard" className={`flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer ${templateType === 'STANDARD' ? 'border-primary' : 'border-muted'}`}>Standard Template</Label>
-            </div>
-             <div>
-                <RadioGroupItem value="MARKETING_CAROUSEL" id="type-marketing-carousel" className="sr-only"/>
-                <Label htmlFor="type-marketing-carousel" className={`flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer ${templateType === 'MARKETING_CAROUSEL' ? 'border-primary' : 'border-muted'}`}>Marketing Carousel</Label>
-            </div>
-             <div>
-                <RadioGroupItem value="CATALOG_MESSAGE" id="type-product-carousel" className="sr-only"/>
-                <Label htmlFor="type-product-carousel" className={`flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer ${templateType === 'CATALOG_MESSAGE' ? 'border-primary' : 'border-muted'}`}>Product Catalog</Label>
-            </div>
-        </RadioGroup>
-      </div>
+      {!isAdminForm && (
+        <div className="mb-8">
+            <Label className="text-base">Template Type</Label>
+            <RadioGroup value={templateType} onValueChange={(v) => setTemplateType(v as any)} className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
+                <div>
+                    <RadioGroupItem value="STANDARD" id="type-standard" className="sr-only"/>
+                    <Label htmlFor="type-standard" className={`flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer ${templateType === 'STANDARD' ? 'border-primary' : 'border-muted'}`}>Standard Template</Label>
+                </div>
+                <div>
+                    <RadioGroupItem value="MARKETING_CAROUSEL" id="type-marketing-carousel" className="sr-only"/>
+                    <Label htmlFor="type-marketing-carousel" className={`flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer ${templateType === 'MARKETING_CAROUSEL' ? 'border-primary' : 'border-muted'}`}>Marketing Carousel</Label>
+                </div>
+                <div>
+                    <RadioGroupItem value="CATALOG_MESSAGE" id="type-product-carousel" className="sr-only"/>
+                    <Label htmlFor="type-product-carousel" className={`flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer ${templateType === 'CATALOG_MESSAGE' ? 'border-primary' : 'border-muted'}`}>Product Catalog</Label>
+                </div>
+            </RadioGroup>
+        </div>
+      )}
       
       {templateType === 'STANDARD' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -395,9 +415,9 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdmi
                       <Select name="category" value={category} onValueChange={(v) => setCategory(v as Template['category'])} required>
                       <SelectTrigger id="category"><SelectValue placeholder="Select a category" /></SelectTrigger>
                       <SelectContent>
-                          <SelectItem value="MARKETING">Marketing</SelectItem>
-                          <SelectItem value="UTILITY">Utility</SelectItem>
-                          <SelectItem value="AUTHENTICATION">Authentication</SelectItem>
+                          {categories.map((cat) => (
+                              <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>
+                          ))}
                       </SelectContent>
                       </Select>
                   </div>
