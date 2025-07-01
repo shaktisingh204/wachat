@@ -1,7 +1,7 @@
 
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Briefcase, CheckSquare, Server, AlertTriangle } from 'lucide-react';
+import { Briefcase, CheckSquare, Server, AlertTriangle, MessageSquare, Send, GitBranch, ServerCog } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getAllProjectsForAdmin } from '@/app/actions';
 import type { Project } from '@/app/dashboard/page';
@@ -19,6 +19,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ProjectSearch } from '@/components/wabasimplify/project-search';
 import { AdminDeleteProjectButton } from '@/components/wabasimplify/admin-delete-project-button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,18 @@ export const metadata: Metadata = {
 };
 
 const PROJECTS_PER_PAGE = 10;
+
+const StatCard = ({ title, value, icon: Icon }: { title: string, value: string, icon: React.ElementType }) => (
+    <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{title}</CardTitle>
+            <Icon className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+            <div className="text-2xl font-bold">{value}</div>
+        </CardContent>
+    </Card>
+);
 
 export default async function AdminDashboardPage({
     searchParams,
@@ -91,6 +104,40 @@ export default async function AdminDashboardPage({
         </Card>
       </div>
       
+      <Card>
+        <CardHeader>
+          <CardTitle>Platform Insights</CardTitle>
+          <CardDescription>View key metrics over different time periods.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="24h" className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="24h">24 Hours</TabsTrigger>
+              <TabsTrigger value="7d">7 Days</TabsTrigger>
+              <TabsTrigger value="30d">30 Days</TabsTrigger>
+            </TabsList>
+            <TabsContent value="24h" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <StatCard title="Total Chats" value="1,205" icon={MessageSquare} />
+              <StatCard title="Campaigns Sent" value="89" icon={Send} />
+              <StatCard title="Flowbuilder Triggers" value="3,450" icon={GitBranch} />
+              <StatCard title="Meta Flows Used" value="1,890" icon={ServerCog} />
+            </TabsContent>
+            <TabsContent value="7d" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatCard title="Total Chats" value="9,820" icon={MessageSquare} />
+                <StatCard title="Campaigns Sent" value="621" icon={Send} />
+                <StatCard title="Flowbuilder Triggers" value="25,102" icon={GitBranch} />
+                <StatCard title="Meta Flows Used" value="14,331" icon={ServerCog} />
+            </TabsContent>
+            <TabsContent value="30d" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatCard title="Total Chats" value="45,231" icon={MessageSquare} />
+                <StatCard title="Campaigns Sent" value="2,845" icon={Send} />
+                <StatCard title="Flowbuilder Triggers" value="112,899" icon={GitBranch} />
+                <StatCard title="Meta Flows Used" value="65,443" icon={ServerCog} />
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
       <Card>
         <CardHeader>
           <CardTitle>All Projects</CardTitle>
