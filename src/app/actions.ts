@@ -24,7 +24,7 @@ import { getMetaFlows } from './actions/meta-flow.actions';
 import { generateMetaFlow } from '@/ai/flows/generate-meta-flow';
 import { generateFlowBuilderFlow } from '@/ai/flows/generate-flow-builder-flow';
 import { getErrorMessage } from '@/lib/utils';
-import {
+import type {
     PlanFeaturePermissions,
     PlanMessageCosts,
     Plan,
@@ -1089,7 +1089,7 @@ export async function handleCreateTemplate(
             return { error: 'App ID is not configured for this project, and no fallback is set in environment variables. Please set NEXT_PUBLIC_META_APP_ID in the .env file or re-configure the project.' };
         }
 
-        const name = cleanText(formData.get('templateName') as string);
+        const name = cleanText(formData.get('name') as string);
         const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
         const language = formData.get('language') as string;
 
@@ -1536,15 +1536,55 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
 }
 
 
-const getEventFieldForLog = (log: WithId<WebhookLog>): string => {
+export async function getWebhookLogs(
+    projectId: string | null,
+    page: number = 1,
+    limit: number = 20,
+    query?: string
+): Promise<{ logs: WebhookLogListItem[], total: number }> {
     try {
-        return log.payload?.entry?.[0]?.changes?.[0]?.field || 'N/A';
-    } catch {
-        return 'N/A';
-    }
-};
+        const { db } = await connectToDatabase();
+        const filter: Filter<WebhookLog> = {};
 
-const getEventSummaryForLog = (log: WithId<WebhookLog>): string => {
+        if (projectId && ObjectId.isValid(projectId)) {
+            filter.projectId = new ObjectId(projectId);
+        }
+
+        if (query) {
+            const queryRegex = { $regex: query, $options: 'i' };
+            if (filter.searchableText) {
+                filter.$and = [
+                    { searchableText: filter.searchableText },
+                    { searchableText: queryRegex }
+                ];
+                delete filter.searchableText;
+            } else {
+                filter.searchableText = queryRegex;
+            }
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [fullLogs, total] = await Promise.all([
+            db.collection<WithId<WebhookLog>>('webhook_logs').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+            db.collection('webhook_logs').countDocuments(filter)
+        ]);
+
+        const logsForClient = fullLogs.map(log => ({
+            _id: log._id.toString(),
+            createdAt: log.createdAt.toISOString(),
+            eventField: log.payload?.entry?.[0]?.changes?.[0]?.field || 'N/A',
+            eventSummary: getEventSummaryForLog(log)
+        }));
+        
+        return { logs: JSON.parse(JSON.stringify(logsForClient)), total };
+    } catch (error) {
+        console.error('Failed to fetch webhook logs:', error);
+        return { logs: [], total: 0 };
+    }
+}
+
+function getEventSummaryForLog(log: WithId<WebhookLog>): string {
     try {
         const change = log?.payload?.entry?.[0]?.changes?.[0];
         if (!change) return 'No changes found';
@@ -1591,54 +1631,6 @@ const getEventSummaryForLog = (log: WithId<WebhookLog>): string => {
     } catch(e: any) {
          console.error("Error parsing summary:", e, log);
          return 'Could not parse summary details';
-    }
-}
-
-export async function getWebhookLogs(
-    projectId: string | null,
-    page: number = 1,
-    limit: number = 20,
-    query?: string
-): Promise<{ logs: WebhookLogListItem[], total: number }> {
-    try {
-        const { db } = await connectToDatabase();
-        const filter: Filter<WebhookLog> = {};
-
-        if (projectId && ObjectId.isValid(projectId)) {
-            filter.projectId = new ObjectId(projectId);
-        }
-
-        if (query) {
-            const queryRegex = { $regex: query, $options: 'i' };
-            if (filter.searchableText) {
-                filter.$and = [
-                    { searchableText: filter.searchableText },
-                    { searchableText: queryRegex }
-                ];
-                delete filter.searchableText;
-            } else {
-                filter.searchableText = queryRegex;
-            }
-        }
-
-        const skip = (page - 1) * limit;
-
-        const [fullLogs, total] = await Promise.all([
-            db.collection<WithId<WebhookLog>>('webhook_logs').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
-            db.collection('webhook_logs').countDocuments(filter)
-        ]);
-
-        const logsForClient = fullLogs.map(log => ({
-            _id: log._id.toString(),
-            createdAt: log.createdAt.toISOString(),
-            eventField: getEventFieldForLog(log),
-            eventSummary: getEventSummaryForLog(log)
-        }));
-        
-        return { logs: JSON.parse(JSON.stringify(logsForClient)), total };
-    } catch (error) {
-        console.error('Failed to fetch webhook logs:', error);
-        return { logs: [], total: 0 };
     }
 }
 
@@ -4092,8 +4084,3 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
         return { success: false, error: 'Failed to update tags.' };
     }
 }
-
-// This function was originally in this file, but causes build errors.
-// It is moved to `actions/meta-flow.actions.ts`.
-// You must import it from its new location.
-// export async function getMetaFlows(...) { ... }

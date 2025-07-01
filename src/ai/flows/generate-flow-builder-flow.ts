@@ -45,13 +45,13 @@ const FlowEdgeSchema = z.object({
   targetHandle: z.string().optional().describe('The specific input handle on the target node (usually "input").'),
 });
 
-export const GenerateFlowBuilderFlowOutputSchema = z.object({
+const GenerateFlowBuilderFlowOutputSchema = z.object({
   nodes: z.array(FlowNodeSchema).describe('An array of all nodes in the flow.'),
   edges: z.array(FlowEdgeSchema).describe('An array of all edges connecting the nodes.'),
 });
 export type GenerateFlowBuilderFlowOutput = z.infer<typeof GenerateFlowBuilderFlowOutputSchema>;
 
-export const GenerateFlowBuilderFlowInputSchema = z.object({
+const GenerateFlowBuilderFlowInputSchema = z.object({
   prompt: z.string().describe("The user's description of the flow they want to create."),
 });
 export type GenerateFlowBuilderFlowInput = z.infer<typeof GenerateFlowBuilderFlowInputSchema>;

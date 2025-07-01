@@ -46,14 +46,14 @@ const ScreenSchema = z.object({
     layout: LayoutSchema
 });
 
-export const GenerateMetaFlowOutputSchema = z.object({
+const GenerateMetaFlowOutputSchema = z.object({
     version: z.literal("3.0"),
     screens: z.array(ScreenSchema).describe("An array of screens that make up the flow. Should contain at least a welcome screen and a confirmation/thank you screen.")
 });
 export type GenerateMetaFlowOutput = z.infer<typeof GenerateMetaFlowOutputSchema>;
 
 
-export const GenerateMetaFlowInputSchema = z.object({
+const GenerateMetaFlowInputSchema = z.object({
   prompt: z.string().describe("The user's description of the flow they want to create."),
   category: z.string().describe("The category of the flow, which helps give context to the AI."),
 });
