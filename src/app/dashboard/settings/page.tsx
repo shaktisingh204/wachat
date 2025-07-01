@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
@@ -571,8 +570,8 @@ function SettingsPageContent() {
       <div><h1 className="text-3xl font-bold font-headline">Project Settings</h1><p className="text-muted-foreground">Manage settings for project "{project.name}".</p></div>
 
       <Tabs defaultValue={initialTab} className="w-full">
-        <ScrollArea className="w-full whitespace-nowrap rounded-md">
-            <TabsList className="inline-flex w-max">
+        <ScrollArea className="w-full whitespace-nowrap rounded-md border-b">
+            <TabsList className="inline-flex h-auto p-1 bg-transparent w-max">
               <TabsTrigger value="broadcast"><Save className="mr-2 h-4 w-4" />Broadcast</TabsTrigger>
               <TabsTrigger value="auto-reply"><Bot className="mr-2 h-4 w-4" />Auto-Replies</TabsTrigger>
               <TabsTrigger value="canned-messages"><ClipboardList className="mr-2 h-4 w-4" />Canned Messages</TabsTrigger>
@@ -606,8 +605,8 @@ function SettingsPageContent() {
           <TabsContent value="auto-reply" className="mt-6 space-y-6">
             <MasterSwitch project={project} />
             <Tabs defaultValue="welcome" className="w-full">
-              <ScrollArea className="w-full whitespace-nowrap rounded-md">
-                  <TabsList className="inline-flex w-max">
+                <ScrollArea className="w-full whitespace-nowrap rounded-md border-b">
+                  <TabsList className="inline-flex h-auto p-1 bg-transparent w-max">
                       <TabsTrigger value="welcome"><Handshake className="mr-2 h-4 w-4" />Welcome</TabsTrigger>
                       <TabsTrigger value="general"><MessageSquareHeart className="mr-2 h-4 w-4" />Keyword Replies</TabsTrigger>
                       <TabsTrigger value="inactive"><Clock className="mr-2 h-4 w-4" />Inactive Hours</TabsTrigger>
@@ -615,10 +614,10 @@ function SettingsPageContent() {
                   </TabsList>
                   <ScrollBar orientation="horizontal" />
               </ScrollArea>
-              <TabsContent value="welcome"><Card><WelcomeMessageForm project={project} /></Card></TabsContent>
-              <TabsContent value="general"><Card><GeneralReplyForm project={project} /></Card></TabsContent>
-              <TabsContent value="inactive"><Card><InactiveHoursForm project={project} /></Card></TabsContent>
-              <TabsContent value="ai"><Card><AiAssistantForm project={project} /></Card></TabsContent>
+              <TabsContent value="welcome" className="mt-4"><Card><WelcomeMessageForm project={project} /></Card></TabsContent>
+              <TabsContent value="general" className="mt-4"><Card><GeneralReplyForm project={project} /></Card></TabsContent>
+              <TabsContent value="inactive" className="mt-4"><Card><InactiveHoursForm project={project} /></Card></TabsContent>
+              <TabsContent value="ai" className="mt-4"><Card><AiAssistantForm project={project} /></Card></TabsContent>
             </Tabs>
           </TabsContent>
           

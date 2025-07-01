@@ -173,7 +173,7 @@ export function ChatClient() {
                     setConversation(conversationData);
                 }
             });
-        }, 7000);
+        }, 5000);
 
         return () => clearInterval(interval);
     }, [isClient, selectedContact, project, selectedPhoneNumberId, isLoading]);

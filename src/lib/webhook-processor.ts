@@ -793,6 +793,9 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
             await triggerAutoReply(db, project, contact, message, phoneNumberId);
         }
     }
+    
+    // Invalidate chat cache to trigger UI refresh
+    revalidatePath('/dashboard/chat');
 }
 
 
@@ -911,6 +914,10 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
         if (broadcastCounterOps.length > 0) promises.push(db.collection('broadcasts').bulkWrite(broadcastCounterOps, { ordered: false }));
         
         if (promises.length > 0) await Promise.all(promises);
+
+        // Invalidate caches to trigger UI refresh
+        revalidatePath('/dashboard/chat');
+        revalidatePath('/dashboard/broadcasts');
 
         return { success: statuses.length, failed: 0 };
     } catch(e: any) {
