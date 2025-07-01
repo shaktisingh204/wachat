@@ -1,23 +1,24 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getCannedMessages, handleSendMessage, type CannedMessage } from '@/app/actions';
+import { getCannedMessages, handleSendMessage, handleSendMetaFlow, type CannedMessage, type MetaFlow } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Contact } from '@/app/actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Paperclip, Send, LoaderCircle, Star } from 'lucide-react';
+import { Paperclip, Send, LoaderCircle, Star, ServerCog } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { Popover, PopoverAnchor, PopoverContent } from '@/components/ui/popover';
+import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ChatMessageInputProps {
     contact: WithId<Contact>;
+    metaFlows: WithId<MetaFlow>[];
 }
 
-const initialState = {
+const sendInitialState = {
   message: null,
   error: null,
 };
@@ -32,8 +33,8 @@ function SubmitButton() {
     );
 }
 
-export function ChatMessageInput({ contact }: ChatMessageInputProps) {
-    const [state, formAction] = useActionState(handleSendMessage, initialState);
+export function ChatMessageInput({ contact, metaFlows }: ChatMessageInputProps) {
+    const [sendState, sendFormAction] = useActionState(handleSendMessage, sendInitialState);
     const formRef = useRef<HTMLFormElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const mainInputRef = useRef<HTMLInputElement>(null);
@@ -41,32 +42,34 @@ export function ChatMessageInput({ contact }: ChatMessageInputProps) {
 
     const [inputValue, setInputValue] = useState('');
     const [cannedMessages, setCannedMessages] = useState<WithId<CannedMessage>[]>([]);
-    const [popoverOpen, setPopoverOpen] = useState(false);
+    const [cannedPopoverOpen, setCannedPopoverOpen] = useState(false);
+    const [flowPopoverOpen, setFlowPopoverOpen] = useState(false);
+    const [isSendingFlow, startFlowSendTransition] = useTransition();
 
     useEffect(() => {
         getCannedMessages(contact.projectId.toString()).then(setCannedMessages);
     }, [contact.projectId]);
 
     useEffect(() => {
-        if (state.error) {
-            toast({ title: 'Error sending message', description: state.error, variant: 'destructive' });
+        if (sendState.error) {
+            toast({ title: 'Error sending message', description: sendState.error, variant: 'destructive' });
         }
-        if (state.message) {
+        if (sendState.message) {
             formRef.current?.reset();
             setInputValue('');
         }
-    }, [state, toast]);
+    }, [sendState, toast]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
         setInputValue(val);
-        setPopoverOpen(val.startsWith('/'));
+        setCannedPopoverOpen(val.startsWith('/'));
     };
 
     const handleSelectCanned = (message: WithId<CannedMessage>) => {
         if (message.type === 'text' && message.content.text) {
             setInputValue(message.content.text);
-            setPopoverOpen(false);
+            setCannedPopoverOpen(false);
             mainInputRef.current?.focus();
         } else {
              toast({
@@ -77,10 +80,21 @@ export function ChatMessageInput({ contact }: ChatMessageInputProps) {
     };
 
     const handleFileChange = () => {
-        // Automatically submit the form when a file is selected
         setTimeout(() => {
             formRef.current?.requestSubmit();
         }, 100);
+    };
+
+     const handleSendFlow = (flowId: string) => {
+        startFlowSendTransition(async () => {
+            const result = await handleSendMetaFlow(contact._id.toString(), flowId);
+            if (result.error) {
+                toast({ title: 'Error Sending Flow', description: result.error, variant: 'destructive' });
+            } else {
+                toast({ title: 'Success', description: result.message });
+                setFlowPopoverOpen(false);
+            }
+        });
     };
 
     const filteredMessages = inputValue.startsWith('/')
@@ -92,9 +106,9 @@ export function ChatMessageInput({ contact }: ChatMessageInputProps) {
         : [];
 
     return (
-        <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
-            <div className="w-full relative">
-                <form ref={formRef} action={formAction} className="flex items-center gap-2 w-full">
+        <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
+            <div className="w-full relative flex items-center gap-2">
+                <form ref={formRef} action={sendFormAction} className="flex-1 flex items-center gap-2">
                     <input type="hidden" name="contactId" value={contact._id.toString()} />
                     <input type="hidden" name="projectId" value={contact.projectId.toString()} />
                     <input type="hidden" name="phoneNumberId" value={contact.phoneNumberId} />
@@ -111,7 +125,35 @@ export function ChatMessageInput({ contact }: ChatMessageInputProps) {
                             onChange={handleInputChange}
                         />
                     </PopoverAnchor>
-        
+                    
+                     <Popover open={flowPopoverOpen} onOpenChange={setFlowPopoverOpen}>
+                        <PopoverTrigger asChild>
+                             <Button type="button" variant="ghost" size="icon">
+                                <ServerCog className="h-4 w-4" />
+                                <span className="sr-only">Send a Flow</span>
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="p-1 w-56" align="end">
+                            <ScrollArea className="max-h-60">
+                                <div className="p-1 space-y-1">
+                                    <p className="text-xs font-semibold p-2">Send an Interactive Flow</p>
+                                    {metaFlows.length > 0 ? metaFlows.map(flow => (
+                                        <button
+                                            key={flow._id.toString()}
+                                            type="button"
+                                            className="w-full text-left p-2 rounded-sm hover:bg-accent flex items-center text-sm"
+                                            onClick={() => handleSendFlow(flow._id.toString())}
+                                            disabled={isSendingFlow}
+                                        >
+                                            {isSendingFlow ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin"/> : <Send className="h-4 w-4 mr-2"/>}
+                                            {flow.name}
+                                        </button>
+                                    )) : <p className="text-xs text-center p-2 text-muted-foreground">No Meta Flows found.</p>}
+                                </div>
+                            </ScrollArea>
+                        </PopoverContent>
+                    </Popover>
+
                     <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}>
                         <Paperclip className="h-4 w-4" />
                         <span className="sr-only">Attach File</span>

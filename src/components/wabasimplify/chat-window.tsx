@@ -3,7 +3,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { WithId } from 'mongodb';
-import type { Contact, AnyMessage, Project } from '@/app/actions';
+import type { Contact, AnyMessage, Project, MetaFlow } from '@/app/actions';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from './chat-message';
@@ -17,6 +17,7 @@ interface ChatWindowProps {
     project: WithId<Project>;
     contact: WithId<Contact>;
     conversation: AnyMessage[];
+    metaFlows: WithId<MetaFlow>[];
     isLoading: boolean;
     onBack: () => void;
     onContactUpdate: (updatedContact: WithId<Contact>) => void;
@@ -40,7 +41,7 @@ function MessageListSkeleton() {
     );
 }
 
-export function ChatWindow({ project, contact, conversation, isLoading, onBack, onContactUpdate }: ChatWindowProps) {
+export function ChatWindow({ project, contact, conversation, metaFlows, isLoading, onBack, onContactUpdate }: ChatWindowProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
 
@@ -93,7 +94,7 @@ export function ChatWindow({ project, contact, conversation, isLoading, onBack, 
                 </ScrollArea>
                 
                 <div className="flex items-center p-2 border-t bg-background h-[50px] flex-shrink-0">
-                    <ChatMessageInput contact={contact} />
+                    <ChatMessageInput contact={contact} metaFlows={metaFlows} />
                 </div>
             </div>
         </>

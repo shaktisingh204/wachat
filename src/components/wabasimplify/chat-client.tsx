@@ -3,9 +3,9 @@
 
 import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getContactsForProject, getConversation, markConversationAsRead, findOrCreateContact, getInitialChatData, getProjects } from '@/app/actions';
+import { getInitialChatData, getProjects } from '@/app/actions';
 import type { WithId } from 'mongodb';
-import type { Project, Contact, AnyMessage } from '@/app/actions';
+import type { Project, Contact, AnyMessage, MetaFlow } from '@/app/actions';
 
 import { ChatContactList } from './chat-contact-list';
 import { ChatWindow } from './chat-window';
@@ -29,6 +29,7 @@ export function ChatClient() {
     const [contacts, setContacts] = useState<WithId<Contact>[]>([]);
     const [selectedContact, setSelectedContact] = useState<WithId<Contact> | null>(null);
     const [conversation, setConversation] = useState<AnyMessage[]>([]);
+    const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
 
     const [isLoading, startLoadingTransition] = useTransition();
     const [loadingConversation, startConversationLoadTransition] = useTransition();
@@ -72,6 +73,7 @@ export function ChatClient() {
             setHasMoreContacts(data.contacts.length < data.totalContacts);
             setSelectedContact(data.selectedContact);
             setConversation(data.conversation);
+            setMetaFlows(data.metaFlows);
             setSelectedPhoneNumberId(data.selectedPhoneNumberId);
             setContactPage(1); 
         });
@@ -271,6 +273,7 @@ export function ChatClient() {
                                 project={project}
                                 contact={selectedContact}
                                 conversation={conversation}
+                                metaFlows={metaFlows}
                                 isLoading={loadingConversation}
                                 onBack={() => setSelectedContact(null)}
                                 onContactUpdate={handleContactUpdate}

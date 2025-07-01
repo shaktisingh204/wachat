@@ -22,6 +22,7 @@ import { hashPassword, comparePassword, createSessionToken, verifySessionToken }
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import { premadeTemplates } from '@/lib/premade-templates';
+import { getMetaFlows } from './actions/meta-flow.actions';
 
 
 // --- Plan Management Types ---
@@ -3459,9 +3460,10 @@ export async function getInitialChatData(projectId: string, phoneId: string | nu
     totalContacts: number;
     selectedContact: WithId<Contact> | null;
     conversation: AnyMessage[];
+    metaFlows: WithId<MetaFlow>[];
     selectedPhoneNumberId: string;
 }> {
-    const defaultResponse = { project: null, contacts: [], totalContacts: 0, selectedContact: null, conversation: [], selectedPhoneNumberId: '' };
+    const defaultResponse = { project: null, contacts: [], totalContacts: 0, selectedContact: null, conversation: [], metaFlows: [], selectedPhoneNumberId: '' };
     const projectData = await getProjectById(projectId);
     if (!projectData) return defaultResponse;
 
@@ -3470,9 +3472,10 @@ export async function getInitialChatData(projectId: string, phoneId: string | nu
 
     const { db } = await connectToDatabase();
     
-    const [allContacts, total] = await Promise.all([
+    const [allContacts, total, metaFlowsData] = await Promise.all([
         db.collection<Contact>('contacts').find({ projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId }).sort({ lastMessageTimestamp: -1 }).limit(30).toArray(),
-        db.collection('contacts').countDocuments({ projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId })
+        db.collection('contacts').countDocuments({ projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId }),
+        getMetaFlows(projectId),
     ]);
 
     let selectedContactData: WithId<Contact> | null = null;
@@ -3491,9 +3494,66 @@ export async function getInitialChatData(projectId: string, phoneId: string | nu
         totalContacts: total,
         selectedContact: selectedContactData ? JSON.parse(JSON.stringify(selectedContactData)) : null,
         conversation: conversationData,
+        metaFlows: JSON.parse(JSON.stringify(metaFlowsData)),
         selectedPhoneNumberId: selectedPhoneId,
     };
 }
+
+export async function handleSendMetaFlow(contactId: string, metaFlowId: string): Promise<{ message?: string; error?: string }> {
+    if (!ObjectId.isValid(contactId) || !ObjectId.isValid(metaFlowId)) {
+        return { error: 'Invalid ID provided.' };
+    }
+
+    const { db } = await connectToDatabase();
+    
+    const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
+    if (!contact) return { error: 'Contact not found.' };
+
+    const project = await db.collection<Project>('projects').findOne({ _id: contact.projectId });
+    if (!project) return { error: 'Project not found.' };
+
+    const metaFlow = await db.collection<MetaFlow>('meta_flows').findOne({ _id: new ObjectId(metaFlowId) });
+    if (!metaFlow) return { error: 'Flow not found.' };
+    
+    const phoneNumberId = contact.phoneNumberId;
+    const waId = contact.waId;
+    const accessToken = project.accessToken;
+
+    try {
+        const payload = {
+            messaging_product: "whatsapp",
+            to: waId,
+            recipient_type: "individual",
+            type: "interactive",
+            interactive: {
+                type: "flow",
+                header: { type: "text", text: metaFlow.name.replace(/_/g, ' ') },
+                body: { text: "Please tap the button below to start." },
+                footer: { text: "Powered by Wachat" },
+                action: {
+                    name: metaFlow.name,
+                    parameters: {}
+                }
+            }
+        };
+
+        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'interactive',
+            content: payload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+
+        revalidatePath('/dashboard/chat');
+        return { message: `Flow "${metaFlow.name}" sent successfully.` };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) || 'An unexpected error occurred while sending the flow.' };
+    }
+}
+
 
 // --- FLOW ACTIONS ---
 export async function getFlowsForProject(projectId: string): Promise<WithId<Flow>[]> {

@@ -8,66 +8,47 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ChevronLeft, Info, Server } from 'lucide-react';
-import { CodeBlock } from '@/components/wabasimplify/code-block';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ChevronLeft, FileJson, GitBranch, Lightbulb } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
-const ApiSection = ({ title, description, requestType, endpoint, parameters, sampleRequest, sampleResponse, children }: { title: string, description: string, requestType: string, endpoint: string, parameters?: { name: string, type: string, optional?: boolean, desc: React.ReactNode }[], sampleRequest: string, sampleResponse: string, children?: React.ReactNode }) => {
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle>{title}</CardTitle>
-                <CardDescription>{description}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="flex items-center gap-2 font-mono text-sm">
-                    <Badge variant={requestType === 'POST' ? 'default' : requestType === 'GET' ? 'secondary' : 'destructive'} className="w-16 justify-center">{requestType}</Badge>
-                    <span className="text-muted-foreground">{endpoint}</span>
-                </div>
-                {parameters && (
-                    <>
-                    <h4 className="font-semibold pt-2">Parameters</h4>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Parameter</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead>Description</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {parameters.map(param => (
-                                <TableRow key={param.name}>
-                                    <TableCell className="font-mono">{param.name}{!param.optional && <span className="text-destructive">*</span>}</TableCell>
-                                    <TableCell className="font-mono">{param.type}</TableCell>
-                                    <TableCell>{param.desc}</TableCell>
-                                </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                    </>
-                )}
-                <h4 className="font-semibold pt-2">Sample Request</h4>
-                <CodeBlock code={sampleRequest} language="bash" />
-                
-                {children}
+const commonPatterns = [
+    {
+        title: 'Lead Generation',
+        description: 'Capture valuable customer information directly in WhatsApp.',
+        steps: [
+            'Create a "Welcome" screen with a heading and body text explaining the offer.',
+            'Add `TextInput` components for Name, Email, and Phone Number.',
+            'The footer button should navigate to a "Thank You" screen.',
+            'The final screen can confirm submission, e.g., "Thanks, a representative will contact you shortly!"',
+        ],
+    },
+    {
+        title: 'Appointment Booking',
+        description: 'Allow customers to schedule appointments without leaving the chat.',
+        steps: [
+            'Use a `DatePicker` component to let users select a date.',
+            'Add a `Dropdown` or `RadioButtons` for available time slots.',
+            'Use a `TextInput` for any special requests.',
+            'The footer button can submit this data to your endpoint for processing.',
+            'Consider a final screen that confirms the appointment details.',
+        ],
+    },
+    {
+        title: 'Customer Feedback Survey',
+        description: 'Gather feedback with simple, interactive surveys.',
+        steps: [
+            'Use `RadioButtons` for single-choice questions (e.g., star ratings).',
+            'Use `CheckboxGroup` for multiple-choice questions.',
+            'Add a `TextInput` for open-ended comments or suggestions.',
+            'The final button submits the survey data.',
+        ],
+    },
+];
 
-                <h4 className="font-semibold pt-2">Sample Response</h4>
-                <CodeBlock code={sampleResponse} language="json" />
-            </CardContent>
-        </Card>
-    );
-};
-
-
-export default function FlowsApiDocsPage() {
+export default function FlowsUserGuidePage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -78,99 +59,55 @@ export default function FlowsApiDocsPage() {
           </Link>
         </Button>
         <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-            <Server className="h-8 w-8"/>
-            Flows API Documentation
+            <GitBranch className="h-8 w-8"/>
+            Building Interactive Experiences with Meta Flows
         </h1>
         <p className="text-muted-foreground mt-2 max-w-3xl">
-            A guide to the Meta Graph API endpoints for managing interactive WhatsApp Flows.
+            A guide to creating multi-step, interactive forms and journeys inside WhatsApp.
         </p>
       </div>
       
       <Card>
           <CardHeader>
-            <CardTitle>API Variables</CardTitle>
+            <CardTitle>What are Meta Flows?</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm">The following variables are used in the API call examples below.</p>
-             <div className="border rounded-md mt-4">
-                <Table>
-                    <TableHeader><TableRow><TableHead>Variable</TableHead><TableHead>Description</TableHead></TableRow></TableHeader>
-                    <TableBody>
-                        <TableRow><TableCell className="font-mono">BASE-URL</TableCell><TableCell>Base URL for the Graph API, e.g., <code className="bg-muted px-1 py-0.5 rounded">https://graph.facebook.com/v18.0</code></TableCell></TableRow>
-                        <TableRow><TableCell className="font-mono">ACCESS-TOKEN</TableCell><TableCell>A valid User or System User access token with required permissions.</TableCell></TableRow>
-                        <TableRow><TableCell className="font-mono">WABA-ID</TableCell><TableCell>The ID of your WhatsApp Business Account.</TableCell></TableRow>
-                        <TableRow><TableCell className="font-mono">FLOW-ID</TableCell><TableCell>The ID of a specific Flow, returned when you create one.</TableCell></TableRow>
-                    </TableBody>
-                </Table>
+          <CardContent className="space-y-4">
+            <p className="text-foreground/90">Meta Flows are rich, native experiences that you can launch within WhatsApp conversations. Think of them as mini-apps or forms inside the chat. Instead of asking a user for their name, then their email, then their availability one message at a time, you can send a single Flow that collects all this information on one or more screens.</p>
+            <div className="p-4 bg-muted/50 rounded-lg border">
+                 <div className="flex items-start gap-3">
+                    <Lightbulb className="h-5 w-5 mt-1 text-primary flex-shrink-0"/>
+                    <div>
+                        <h4 className="font-semibold">Key Advantage</h4>
+                        <p className="text-sm text-muted-foreground">Flows reduce friction for the user, leading to higher completion rates for tasks like booking appointments, generating leads, or collecting feedback.</p>
+                    </div>
+                </div>
             </div>
           </CardContent>
       </Card>
       
       <Separator />
 
-      <div className="space-y-6">
-        <ApiSection
-            title="Creating a Flow"
-            description="New Flows are by default created in DRAFT status. You can create and publish a new Flow in a single request by specifying the flow_json and publish parameters."
-            requestType="POST"
-            endpoint="/{WABA-ID}/flows"
-            parameters={[
-                { name: 'name', type: 'string', desc: 'The name for your new Flow.' },
-                { name: 'categories', type: 'array', desc: 'A list of categories for your Flow, e.g., ["LEAD_GENERATION"].' },
-                { name: 'flow_json', type: 'string', optional: true, desc: 'The complete Flow JSON structure, encoded as a string.' },
-                { name: 'publish', type: 'boolean', optional: true, desc: 'Set to true to publish the flow immediately upon creation.' },
-                { name: 'clone_flow_id', type: 'string', optional: true, desc: 'The ID of an existing Flow to clone.' },
-                { name: 'endpoint_uri', type: 'string', optional: true, desc: 'The endpoint URL for data exchange flows.' },
-            ]}
-            sampleRequest={`curl -X POST '{BASE-URL}/{WABA-ID}/flows' \\
---header 'Authorization: Bearer {ACCESS-TOKEN}' \\
---header "Content-Type: application/json" \\
---data '{
-  "name": "My first flow",
-  "categories": [ "OTHER" ],
-  "flow_json" : "{\\"version\\":\\"5.0\\",\\"screens\\":[{\\"id\\":\\"WELCOME_SCREEN\\",\\"layout\\":{\\"type\\":\\"SingleColumnLayout\\",\\"children\\":[{\\"type\\":\\"TextHeading\\",\\"text\\":\\"Hello World\\"},{\\"type\\":\\"Footer\\",\\"label\\":\\"Complete\\",\\"on-click-action\\":{\\"name\\":\\"complete\\",\\"payload\\":{}}}]},\"title\\":\\"Welcome\\",\\"terminal\\":true,\\"success\\":true,\\"data\\":{}}]}",
-  "publish" : true
-}'`}
-            sampleResponse={`{\n  "id": "<Flow-ID>",\n  "success": true,\n  "validation_errors": []\n}`}
-        />
+       <div>
+            <h2 className="text-2xl font-bold font-headline">Common Patterns & Use Cases</h2>
+            <p className="text-muted-foreground mt-1">
+                Here are some ideas for flows you can build, and how to structure them.
+            </p>
+        </div>
 
-         <ApiSection
-            title="Updating a Flow's Metadata"
-            description="After creating a Flow, you can update its metadata like name, categories, or endpoint URI."
-            requestType="POST"
-            endpoint="/{FLOW-ID}"
-            parameters={[
-                { name: 'name', type: 'string', optional: true, desc: 'A new name for your Flow.' },
-                { name: 'categories', type: 'array', optional: true, desc: 'An updated list of categories.' },
-                { name: 'endpoint_uri', type: 'string', optional: true, desc: 'Update the endpoint URL for data exchange flows.' },
-            ]}
-            sampleRequest={`curl -X POST '{BASE-URL}/{FLOW-ID}' \\
---header 'Authorization: Bearer {ACCESS-TOKEN}' \\
---header "Content-Type: application/json" \\
---data '{\n  "name": "New flow name"\n}'`}
-            sampleResponse={`{\n  "success": true\n}`}
-        />
-        
-        <ApiSection
-            title="Retrieving a List of Flows"
-            description="Fetch a paginated list of all Flows associated with your WhatsApp Business Account."
-            requestType="GET"
-            endpoint="/{WABA-ID}/flows"
-            sampleRequest={`curl '{BASE-URL}/{WABA-ID}/flows' \\
---header 'Authorization: Bearer {ACCESS-TOKEN}'`}
-            sampleResponse={`{\n  "data": [\n    {\n        "id": "flow-1",\n        "name": "flow 1",\n        "status": "DRAFT",\n        "categories": [ "CONTACT_US" ],\n        "validation_errors": []\n    }\n  ],\n  "paging": {\n    "cursors": {\n      "before": "...",\n      "after": "..."\n    }\n  }\n}`}
-        />
-        
-        <ApiSection
-            title="Deleting a Flow"
-            description="A Flow can only be deleted while it is in the DRAFT status. Published flows cannot be deleted."
-            requestType="DELETE"
-            endpoint="/{FLOW-ID}"
-            sampleRequest={`curl -X DELETE '{BASE-URL}/{FLOW-ID}' \\
---header 'Authorization: Bearer {ACCESS-TOKEN}'`}
-            sampleResponse={`{\n  "success": true\n}`}
-        />
-
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {commonPatterns.map(pattern => (
+            <Card key={pattern.title} className="flex flex-col">
+                <CardHeader>
+                    <CardTitle>{pattern.title}</CardTitle>
+                    <CardDescription>{pattern.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow">
+                    <ol className="list-decimal list-inside space-y-2 text-sm">
+                        {pattern.steps.map((step, index) => <li key={index}>{step}</li>)}
+                    </ol>
+                </CardContent>
+            </Card>
+        ))}
       </div>
 
     </div>
