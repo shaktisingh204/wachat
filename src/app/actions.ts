@@ -8,7 +8,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
-import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign } from '@/app/dashboard/page';
+import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign, PhoneNumberProfile } from '@/app/dashboard/page';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
@@ -105,6 +105,7 @@ type MetaPhoneNumber = {
     throughput?: {
         level: string;
     };
+    whatsapp_business_profile?: PhoneNumberProfile;
 };
 
 type MetaPhoneNumbersResponse = {
@@ -270,7 +271,7 @@ export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 
 
 // Re-export types for client components
-export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign };
+export type { Project, Template, PhoneNumber, PhoneNumberProfile, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign };
 
 export type LibraryTemplate = Omit<Template, 'metaId' | 'status' | 'qualityScore'> & {
     _id?: ObjectId;
@@ -1000,7 +1001,7 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
         const { db } = await connectToDatabase();
 
         const { wabaId, accessToken } = project;
-        const fields = 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput';
+        const fields = 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput,whatsapp_business_profile{about,address,description,email,profile_picture_url,websites,vertical}';
         
         const allPhoneNumbers: MetaPhoneNumber[] = [];
         let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}&limit=100`;
@@ -1039,6 +1040,7 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
             quality_rating: num.quality_rating,
             platform_type: num.platform_type,
             throughput: num.throughput,
+            profile: num.whatsapp_business_profile,
         }));
         
         await db.collection('projects').updateOne(
@@ -1053,6 +1055,89 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
     } catch (e: any) {
         console.error('Phone number sync failed:', e);
         return { error: e.message || 'An unexpected error occurred during phone number sync.' };
+    }
+}
+
+export async function handleUpdatePhoneNumberProfile(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    
+    if (!projectId || !phoneNumberId) {
+        return { error: 'Project and Phone Number IDs are required.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project) return { error: "Access denied." };
+
+    const { accessToken, appId } = project;
+    if (!appId) {
+        return { error: 'App ID is not configured for this project.' };
+    }
+    
+    try {
+        // --- 1. Handle Profile Picture Upload ---
+        const profilePictureFile = formData.get('profilePicture') as File;
+        if (profilePictureFile && profilePictureFile.size > 0) {
+            // Step 1a: Create Upload Session
+            const sessionFormData = new FormData();
+            sessionFormData.append('file_length', profilePictureFile.size.toString());
+            sessionFormData.append('file_type', profilePictureFile.type);
+            sessionFormData.append('access_token', accessToken);
+
+            const sessionResponse = await axios.post(`https://graph.facebook.com/v22.0/${appId}/uploads`, sessionFormData);
+            const uploadSessionId = sessionResponse.data.id;
+            
+            // Step 1b: Upload file data
+            const fileData = await profilePictureFile.arrayBuffer();
+            const uploadResponse = await axios.post(`https://graph.facebook.com/v22.0/${uploadSessionId}`, Buffer.from(fileData), {
+                headers: { 'Authorization': `OAuth ${accessToken}`, 'Content-Type': profilePictureFile.type },
+                maxContentLength: Infinity, maxBodyLength: Infinity,
+            });
+            const handle = uploadResponse.data.h;
+
+            // Step 1c: Update profile picture with handle
+            await axios.post(
+                `https://graph.facebook.com/v22.0/${phoneNumberId}/whatsapp_business_profile`,
+                { messaging_product: "whatsapp", profile_picture_handle: handle },
+                { headers: { 'Authorization': `Bearer ${accessToken}` } }
+            );
+        }
+
+        // --- 2. Handle Text Fields Update ---
+        const profilePayload: any = { messaging_product: 'whatsapp' };
+        const fields: (keyof PhoneNumberProfile)[] = ['about', 'address', 'description', 'email', 'vertical'];
+        let hasTextFields = false;
+
+        fields.forEach(field => {
+            const value = formData.get(field) as string | null;
+            if (value && value.trim() !== '') {
+                profilePayload[field] = value.trim();
+                hasTextFields = true;
+            }
+        });
+        
+        const websites = (formData.getAll('websites') as string[]).map(w => w.trim()).filter(Boolean);
+        if (websites.length > 0) {
+            profilePayload.websites = websites;
+            hasTextFields = true;
+        }
+
+        if (hasTextFields) {
+            await axios.post(
+                `https://graph.facebook.com/v22.0/${phoneNumberId}/whatsapp_business_profile`,
+                profilePayload,
+                { headers: { 'Authorization': `Bearer ${accessToken}` } }
+            );
+        }
+        
+        // --- 3. Re-sync and return ---
+        await handleSyncPhoneNumbers(projectId); // Re-sync to get the latest data, including new profile_picture_url
+        revalidatePath('/dashboard/numbers');
+        return { message: 'Phone number profile updated successfully!' };
+
+    } catch (e: any) {
+        console.error("Failed to update phone number profile:", e);
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
 }
 

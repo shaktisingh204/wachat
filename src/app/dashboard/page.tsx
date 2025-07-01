@@ -31,6 +31,16 @@ export type PaymentConfiguration = {
     updated_timestamp: number;
 };
 
+export type PhoneNumberProfile = {
+    about: string;
+    address: string;
+    description: string;
+    email: string;
+    profile_picture_url: string;
+    websites: string[];
+    vertical: string;
+}
+
 export type PhoneNumber = {
     id: string;
     display_phone_number: string;
@@ -41,6 +51,7 @@ export type PhoneNumber = {
     throughput?: {
         level: string;
     };
+    profile?: PhoneNumberProfile;
 };
 
 export type GeneralReplyRule = {

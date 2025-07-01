@@ -3,54 +3,33 @@
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import type { WithId } from 'mongodb';
-import { getProjectById, handleSyncPhoneNumbers, getProjects } from '@/app/actions';
+import { getProjectById, handleSyncPhoneNumbers } from '@/app/actions';
 import type { Project, PhoneNumber } from '@/app/dashboard/page';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { MoreHorizontal, AlertCircle, RefreshCw, LoaderCircle } from 'lucide-react';
+import { MoreHorizontal, AlertCircle, RefreshCw, LoaderCircle, Edit, UserCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { EditPhoneNumberDialog } from '@/components/wabasimplify/edit-phone-number-dialog';
 
 function NumbersPageSkeleton() {
     return (
-        <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+        <div className="flex flex-col gap-8">
+            <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <Skeleton className="h-6 w-1/4" />
-                    <Skeleton className="h-4 w-1/2 mt-2" />
+                    <Skeleton className="h-8 w-64" />
+                    <Skeleton className="h-4 w-96 mt-2" />
                 </div>
                 <Skeleton className="h-10 w-48" />
-            </CardHeader>
-            <CardContent>
-                <Skeleton className="h-48 w-full" />
-            </CardContent>
-        </Card>
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                 {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-60 w-full" />)}
+            </div>
+        </div>
     );
 }
 
@@ -58,7 +37,7 @@ export default function NumbersPage() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [isSyncing, startSyncTransition] = useTransition();
   const [isLoading, startLoadingTransition] = useTransition();
-  const [selectedPhone, setSelectedPhone] = useState<PhoneNumber | null>(null);
+  const [editingPhone, setEditingPhone] = useState<PhoneNumber | null>(null);
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
   const [activeProjectId, setActiveProjectId] = useState<string|null>(null);
@@ -79,7 +58,7 @@ export default function NumbersPage() {
           });
         }
     });
-  }, [toast, startLoadingTransition]);
+  }, [toast]);
   
   useEffect(() => {
     setIsClient(true);
@@ -110,13 +89,6 @@ export default function NumbersPage() {
     });
   };
 
-  const onCheckHealth = () => {
-    toast({
-        title: "Health Status",
-        description: "Health information (Status, Quality, Throughput) is shown in the table and is up-to-date with the latest sync."
-    });
-  };
-
   const getStatusVariant = (status?: string) => {
     if (!status) return 'outline';
     const lowerStatus = status.toLowerCase();
@@ -134,169 +106,107 @@ export default function NumbersPage() {
     return 'destructive';
   }
   
-  const formatThroughput = (level?: string): string => {
-    if (!level) return 'N/A';
-    const lowerLevel = level.toLowerCase();
-
-    if (lowerLevel.includes('unlimited')) {
-        return 'Unlimited';
-    }
-    if (lowerLevel.startsWith('tier_')) {
-        const tierValue = lowerLevel.replace('tier_', '').toUpperCase();
-        return `${tierValue} / 24h`;
-    }
-
-    return level.replace(/_/g, ' ').toLowerCase();
-  };
-
-  const getThroughputVariant = (level?: string) => {
-      if (!level) return 'outline';
-      const lowerLevel = level.toLowerCase();
-      
-      if (lowerLevel.includes('unlimited') || lowerLevel.includes('100k') || lowerLevel.includes('high')) {
-          return 'default'; // Green
-      }
-      if (lowerLevel.includes('10k') || lowerLevel.includes('medium')) {
-          return 'secondary'; // Yellow-ish/Grey
-      }
-      if (lowerLevel.includes('1k') || lowerLevel.includes('low')) {
-          return 'destructive'; // Red
-      }
-      
-      return 'outline'; // Default for unknown tiers
-  };
-
   const phoneNumbers: PhoneNumber[] = project?.phoneNumbers || [];
     
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold font-headline">Phone Number Management</h1>
-          <p className="text-muted-foreground">
-            {project ? `Your registered WhatsApp phone numbers for project "${project.name}".` : 'Manage your project\'s WhatsApp phone numbers.'}
-            </p>
-        </div>
-        <Button onClick={onSync} disabled={isSyncing || !project || isLoading} variant="outline">
-          {isSyncing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-          Sync Phone Numbers
-        </Button>
-      </div>
-
-      {isLoading ? (
-        <NumbersPageSkeleton />
-      ) : !project ? (
-         <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>No Project Selected</AlertTitle>
-            <AlertDescription>
-                Please select a project from the main dashboard page to see its phone numbers.
-            </AlertDescription>
-        </Alert>
-      ) : (
-        <Card>
-            <CardHeader>
-            <CardTitle>Registered Numbers</CardTitle>
-            <CardDescription>A list of your phone numbers retrieved from your WhatsApp Business Account.</CardDescription>
-            </CardHeader>
-            <CardContent>
-            <Table>
-                <TableHeader>
-                <TableRow>
-                    <TableHead>Number / Name</TableHead>
-                    <TableHead>Platform</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Quality</TableHead>
-                    <TableHead>Throughput</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-                </TableHeader>
-                <TableBody>
-                {phoneNumbers.length > 0 ? (
-                    phoneNumbers.map((phone) => (
-                    <TableRow key={phone.id}>
-                        <TableCell className="font-medium">
-                        <div>{phone.display_phone_number}</div>
-                        <div className="text-xs text-muted-foreground">{phone.verified_name}</div>
-                        </TableCell>
-                        <TableCell>
-                        <Badge variant="outline" className="capitalize">
-                            {phone.platform_type ? phone.platform_type.replace(/_/g, ' ').toLowerCase() : 'N/A'}
-                        </Badge>
-                        </TableCell>
-                        <TableCell>
-                        <Badge
-                            variant={getStatusVariant(phone.code_verification_status)}
-                            className="capitalize"
-                        >
-                            {phone.code_verification_status ? phone.code_verification_status.replace(/_/g, ' ').toLowerCase() : 'N/A'}
-                        </Badge>
-                        </TableCell>
-                        <TableCell>
-                        <Badge
-                            variant={getQualityVariant(phone.quality_rating)}
-                            className="capitalize"
-                        >
-                            {phone.quality_rating ? phone.quality_rating.replace(/_/g, ' ').toLowerCase() : 'N/A'}
-                        </Badge>
-                        </TableCell>
-                        <TableCell>
-                        <Badge variant={getThroughputVariant(phone.throughput?.level)} className="capitalize">
-                            {formatThroughput(phone.throughput?.level)}
-                        </Badge>
-                        </TableCell>
-                        <TableCell className="text-right">
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon">
-                                <MoreHorizontal className="h-4 w-4" />
-                                <span className="sr-only">Actions</span>
-                            </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem onSelect={() => setSelectedPhone(phone)}>View Details</DropdownMenuItem>
-                            <DropdownMenuItem onSelect={onCheckHealth}>Check Health Status</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
-                                disabled
-                            >
-                                Remove (API Sync)
-                            </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                        </TableCell>
-                    </TableRow>
-                    ))
-                ) : (
-                    <TableRow>
-                    <TableCell colSpan={6} className="h-24 text-center">
-                        No phone numbers found for this project.
-                    </TableCell>
-                    </TableRow>
-                )}
-                </TableBody>
-            </Table>
-            </CardContent>
-        </Card>
+    <>
+      {editingPhone && project && (
+        <EditPhoneNumberDialog
+            isOpen={!!editingPhone}
+            onOpenChange={() => setEditingPhone(null)}
+            phone={editingPhone}
+            project={project}
+            onUpdateSuccess={() => fetchProjectData(project._id.toString())}
+        />
       )}
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold font-headline">Phone Number Management</h1>
+            <p className="text-muted-foreground">
+              {project ? `Your registered WhatsApp phone numbers for project "${project.name}".` : 'Manage your project\'s WhatsApp phone numbers.'}
+              </p>
+          </div>
+          <Button onClick={onSync} disabled={isSyncing || !project || isLoading} variant="outline">
+            {isSyncing ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+            Sync Phone Numbers
+          </Button>
+        </div>
 
-      <Dialog open={!!selectedPhone} onOpenChange={(open) => !open && setSelectedPhone(null)}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Phone Number Details</DialogTitle>
-            <DialogDescription>{selectedPhone?.display_phone_number} | {selectedPhone?.verified_name}</DialogDescription>
-          </DialogHeader>
-          {selectedPhone && (
-              <div className="mt-2 text-sm max-h-96 overflow-y-auto">
-                <pre className="p-4 bg-muted/50 rounded-md whitespace-pre-wrap font-code">
-                    {JSON.stringify(selectedPhone, null, 2)}
-                </pre>
-              </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
+        {isLoading ? (
+          <NumbersPageSkeleton />
+        ) : !project ? (
+          <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>No Project Selected</AlertTitle>
+              <AlertDescription>
+                  Please select a project from the main dashboard page to see its phone numbers.
+              </AlertDescription>
+          </Alert>
+        ) : (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {phoneNumbers.length > 0 ? (
+                  phoneNumbers.map(phone => (
+                      <Card key={phone.id} className="flex flex-col">
+                          <CardHeader className="flex-row items-center gap-4">
+                              <div className="relative flex-shrink-0">
+                                  {phone.profile?.profile_picture_url ? (
+                                      <Image 
+                                          src={phone.profile.profile_picture_url} 
+                                          alt={phone.verified_name} 
+                                          width={56} 
+                                          height={56} 
+                                          className="rounded-full border"
+                                          data-ai-hint="business logo" 
+                                      />
+                                  ) : (
+                                      <div className="h-14 w-14 rounded-full bg-muted flex items-center justify-center">
+                                          <UserCircle className="h-8 w-8 text-muted-foreground"/>
+                                      </div>
+                                  )}
+                              </div>
+                              <div className="flex-1">
+                                  <CardTitle className="text-base">{phone.verified_name}</CardTitle>
+                                  <p className="text-sm font-mono text-muted-foreground">{phone.display_phone_number}</p>
+                              </div>
+                          </CardHeader>
+                          <CardContent className="space-y-3 text-sm flex-grow">
+                              <div className="flex justify-between items-center">
+                                  <span className="text-muted-foreground">Status</span>
+                                  <Badge variant={getStatusVariant(phone.code_verification_status)} className="capitalize">
+                                      {phone.code_verification_status ? phone.code_verification_status.replace(/_/g, ' ').toLowerCase() : 'N/A'}
+                                  </Badge>
+                              </div>
+                              <div className="flex justify-between items-center">
+                                  <span className="text-muted-foreground">Quality</span>
+                                  <Badge variant={getQualityVariant(phone.quality_rating)} className="capitalize">
+                                      {phone.quality_rating || 'N/A'}
+                                  </Badge>
+                              </div>
+                               <div className="flex justify-between items-center">
+                                  <span className="text-muted-foreground">About</span>
+                                  <p className="truncate w-40 text-right">{phone.profile?.about || 'Not set'}</p>
+                              </div>
+                          </CardContent>
+                          <CardFooter>
+                              <Button variant="secondary" className="w-full" onClick={() => setEditingPhone(phone)}>
+                                  <Edit className="mr-2 h-4 w-4"/>
+                                  Edit Profile
+                              </Button>
+                          </CardFooter>
+                      </Card>
+                  ))
+              ) : (
+                   <Card className="md:col-span-2 lg:col-span-3">
+                       <CardContent className="h-48 flex flex-col items-center justify-center text-center">
+                           <p className="text-lg font-semibold">No Phone Numbers Found</p>
+                           <p className="text-muted-foreground">Click "Sync Phone Numbers" to fetch them from your Meta Business Account.</p>
+                       </CardContent>
+                   </Card>
+              )}
+          </div>
+        )}
+      </div>
+    </>
   );
 }

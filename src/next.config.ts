@@ -28,6 +28,12 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'scontent.whatsapp.net',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
 };
