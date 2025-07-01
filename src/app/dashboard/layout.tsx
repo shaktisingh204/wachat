@@ -46,7 +46,8 @@ import {
   LogOut,
   ClipboardList,
   CreditCard,
-  LoaderCircle
+  LoaderCircle,
+  Megaphone,
 } from 'lucide-react';
 import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -278,6 +279,7 @@ const menuItems = [
   { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare },
   { href: '/dashboard/contacts', label: 'Contacts', icon: Users },
   { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send },
+  { href: '/dashboard/whatsapp-ads', label: 'WhatsApp Ads', icon: Megaphone },
   { href: '/dashboard/templates', label: 'Templates', icon: FileText },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitBranch },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone },
