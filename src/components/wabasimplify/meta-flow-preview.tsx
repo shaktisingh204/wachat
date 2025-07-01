@@ -8,36 +8,50 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X, MoreVertical, ArrowLeft, ArrowRight } from 'lucide-react';
-import Image from 'next/image';
+import { Textarea } from '@/components/ui/textarea';
+import { MoreVertical, ArrowLeft } from 'lucide-react';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const FlowComponent = ({ component, formData, setFormData }) => {
-    const { name } = component;
+    const { id, label } = component;
+    const value = formData[id] || '';
+
+    const handleChange = (val: string | boolean) => {
+        setFormData(prev => ({ ...prev, [id]: val }));
+    };
 
     switch (component.type) {
-        case 'TextSubheading': return <h3 className="font-semibold text-gray-800 my-2">{component.text}</h3>;
-        case 'TextArea': return <div className="space-y-1 w-full"><Label htmlFor={name} className="text-sm font-medium">{component.label}</Label><Input id={name} name={name} placeholder="Enter value..." value={formData[name] || ''} onChange={(e) => setFormData(prev => ({...prev, [name]: e.target.value}))} className="bg-gray-50"/></div>;
-        case 'Dropdown': return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><Select onValueChange={val => setFormData(prev => ({...prev, [name]: val}))}><SelectTrigger className="w-full bg-gray-50"><SelectValue placeholder="Select an option"/></SelectTrigger><SelectContent>{(component['data-source'] || []).map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.title}</SelectItem>)}</SelectContent></Select></div>;
-        case 'RadioButtonsGroup': return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><RadioGroup name={name} value={formData[name]} onValueChange={val => setFormData(prev => ({ ...prev, [name]: val }))}>{(component['data-source'] || []).map(opt => <div key={opt.id} className="flex items-center space-x-2"><RadioGroupItem value={opt.id} id={`${name}-${opt.id}`}/><Label htmlFor={`${name}-${opt.id}`} className="font-normal text-sm">{opt.title}</Label></div>)}</RadioGroup></div>;
-        case 'CheckboxGroup': return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label>{(component['data-source'] || []).map(opt => <div key={opt.id} className="flex items-center space-x-2"><Checkbox id={`${name}-${opt.id}`} /><Label htmlFor={`${name}-${opt.id}`} className="font-normal text-sm">{opt.title}</Label></div>)}</div>;
-        case 'OptIn': return <div className="flex items-start space-x-2 my-2"><Checkbox id={name} /><Label htmlFor={name} className="text-sm font-normal text-muted-foreground">{component.label}</Label></div>;
+        case 'TextInput':
+        case 'NumberInput':
+        case 'UrlInput':
+             return <div className="space-y-1 w-full"><Label htmlFor={id} className="text-sm font-medium">{label}</Label><Input id={id} name={id} placeholder={component.placeholder} value={value} onChange={e => handleChange(e.target.value)} className="bg-gray-50"/></div>;
+        case 'TimePicker':
+            return <div className="space-y-1 w-full"><Label htmlFor={id} className="text-sm font-medium">{label}</Label><Input id={id} name={id} type="time" value={value} onChange={e => handleChange(e.target.value)} className="bg-gray-50"/></div>;
+        case 'Calendar':
+            return <div className="space-y-1 w-full"><Label htmlFor={id} className="text-sm font-medium">{label}</Label><Input id={id} name={id} type="date" value={value} onChange={e => handleChange(e.target.value)} className="bg-gray-50"/></div>;
+        case 'ChipsSelector':
+             return <div className="w-full space-y-2"><Label className="text-sm font-medium">{label}</Label><div className="flex flex-wrap gap-2">{(component.options || []).map(opt => <Button key={opt.id} variant={value.includes(opt.id) ? 'default': 'outline'} size="sm" onClick={() => { const current = value || []; const newSelection = current.includes(opt.id) ? current.filter(i => i !== opt.id) : [...current, opt.id]; handleChange(newSelection); }}>{opt.label}</Button>)}</div></div>;
+        case 'RadioSelector':
+            return <div className="w-full space-y-2"><Label className="text-sm font-medium">{label}</Label><RadioGroup name={id} value={value} onValueChange={handleChange}>{(component.options || []).map(opt => <div key={opt.id} className="flex items-center space-x-2"><RadioGroupItem value={opt.id} id={`${id}-${opt.id}`}/><Label htmlFor={`${id}-${opt.id}`} className="font-normal text-sm">{opt.label}</Label></div>)}</RadioGroup></div>;
+        case 'ListSelector':
+            return <div className="w-full space-y-2"><Label className="text-sm font-medium">{label}</Label><Select onValueChange={handleChange}><SelectTrigger className="w-full bg-gray-50"><SelectValue placeholder="Select an option"/></SelectTrigger><SelectContent>{(component.options || []).map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select></div>;
         default: return null;
     }
 }
 
 export const MetaFlowPreview = ({ flowJson }) => {
-    const [flowData, setFlowData] = useState(null);
-    const [currentScreenId, setCurrentScreenId] = useState(null);
-    const [formData, setFormData] = useState({});
-    const [error, setError] = useState(null);
+    const [flowData, setFlowData] = useState<any>(null);
+    const [currentScreenId, setCurrentScreenId] = useState<string | null>(null);
+    const [formData, setFormData] = useState<Record<string, any>>({});
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         try {
             if (flowJson) {
                 const parsed = JSON.parse(flowJson);
-                setFlowData(parsed);
-                if (!currentScreenId || !parsed.screens.some(s => s.id === currentScreenId)) {
-                    setCurrentScreenId(parsed.screens?.[0]?.id);
+                setFlowData(parsed.flow);
+                if (!currentScreenId || !parsed.flow.screens.some(s => s.id === currentScreenId)) {
+                    setCurrentScreenId(parsed.flow.screens?.[0]?.id);
                 }
                 setError(null);
             }
@@ -59,20 +73,20 @@ export const MetaFlowPreview = ({ flowJson }) => {
         return <Card className="h-full flex items-center justify-center p-4"><p className="text-destructive text-center">Current screen not found!</p></Card>
     }
     
-    const formChildren = currentScreen.layout?.children?.[0]?.children || [];
-    const footer = formChildren.find(c => c.type === 'Footer');
+    const components = currentScreen.components || [];
+    const button = components.find(c => c.type === 'Button');
 
     const handleAction = () => {
-        if (footer) {
-            const action = footer['on-click-action'];
-            if (action.name === 'navigate' && action.next?.name) {
-                if(flowData.screens.some(s => s.id === action.next.name)) {
-                   setCurrentScreenId(action.next.name);
+        if (button) {
+            const action = button.action;
+            if (action.type === 'navigate' && action.target) {
+                if(flowData.screens.some(s => s.id === action.target)) {
+                   setCurrentScreenId(action.target);
                 } else {
                     alert("Test Flow: Next screen not found!");
                 }
-            } else if(action.name === 'complete') {
-                alert(`Flow Completed (Test Mode)\nData: ${JSON.stringify(formData, null, 2)}`);
+            } else if(action.type === 'submit') {
+                alert(`Flow Submitted (Test Mode)\nData: ${JSON.stringify(formData, null, 2)}`);
             }
         }
     }
@@ -81,29 +95,28 @@ export const MetaFlowPreview = ({ flowJson }) => {
         <Card className="w-full max-w-[360px] mx-auto shadow-2xl rounded-3xl overflow-hidden h-[720px] flex flex-col bg-gray-200">
             <CardHeader className="bg-white p-3 flex flex-row items-center justify-between border-b flex-shrink-0">
                 <div className="flex items-center gap-3">
-                    <X className="h-5 w-5 text-gray-600" />
-                    <p className="font-semibold text-gray-800">{currentScreen.title || 'Flow Preview'}</p>
+                    <ArrowLeft className="h-5 w-5 text-gray-600" />
+                    <p className="font-semibold text-gray-800">{currentScreen.title?.text || 'Flow Preview'}</p>
                 </div>
                 <MoreVertical className="h-5 w-5 text-gray-600" />
             </CardHeader>
-            <CardContent className="flex-1 p-4 bg-white overflow-y-auto space-y-4">
-                {formChildren.map((component, index) => (
-                    <FlowComponent key={component.name || index} component={component} formData={formData} setFormData={setFormData} />
-                ))}
+            <CardContent className="flex-1 bg-white">
+                <ScrollArea className="h-full w-full">
+                    <div className="p-4 space-y-4">
+                        {currentScreen.body?.text && <p className="text-sm text-gray-600">{currentScreen.body.text}</p>}
+                        {components.map((component: any, index: number) => (
+                            <FlowComponent key={component.id || index} component={component} formData={formData} setFormData={setFormData} />
+                        ))}
+                    </div>
+                </ScrollArea>
             </CardContent>
-            {footer && (
-                <CardFooter className="p-4 bg-white border-t flex flex-col items-stretch gap-2 flex-shrink-0">
-                    <Button onClick={handleAction} size="lg" className="w-full bg-green-600 hover:bg-green-700">{footer.label}</Button>
-                    <p className="text-xs text-center text-gray-500">Managed by the business. Learn more</p>
+            {button && (
+                <CardFooter className="p-4 bg-white border-t flex-shrink-0">
+                    <Button onClick={handleAction} size="lg" className="w-full bg-green-600 hover:bg-green-700">{button.label}</Button>
                 </CardFooter>
             )}
-             <div className="bg-gray-200 p-2 flex items-center justify-center flex-shrink-0">
-                 <div className="flex items-center justify-between w-32">
-                    <Button variant="ghost" size="icon" className="text-gray-500"><ArrowLeft/></Button>
-                    <div className="h-5 w-5 rounded-full border-2 border-gray-500"></div>
-                    <Button variant="ghost" size="icon" className="text-gray-500"><ArrowRight/></Button>
-                 </div>
-            </div>
         </Card>
     );
 }
+
+    

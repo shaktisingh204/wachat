@@ -1,24 +1,14 @@
 
 
-export type UIComponent = {
-    id?: string;
+export type DeclarativeUIComponent = {
     type: 'TextInput' | 'NumberInput' | 'UrlInput' | 'TimePicker' | 'Button' | 'PhotoPicker' | 'DocumentPicker' | 'Calendar' | 'ContactPicker' | 'ChipsSelector' | 'RadioSelector' | 'ListSelector';
+    id?: string;
     label?: string;
     placeholder?: string;
     required?: boolean;
     action?: { type: 'navigate' | 'submit'; target?: string };
     options?: { id: string; label: string }[];
 };
-
-export type UIComponentV3 = {
-    type: 'TextSubheading' | 'TextArea' | 'Dropdown' | 'RadioButtonsGroup' | 'CheckboxGroup' | 'OptIn' | 'Footer';
-    label?: string;
-    name?: string;
-    text?: string;
-    'data-source'?: { id: string, title: string }[];
-    'on-click-action'?: any;
-}
-
 
 export const flowCategories = [
     { id: 'LEAD_GENERATION', name: 'Lead Generation' },
@@ -32,7 +22,7 @@ export const flowCategories = [
     { id: 'OTHER', name: 'Other' },
 ];
 
-export const uiComponents: { type: UIComponent['type'], label: string }[] = [
+export const declarativeFlowComponents: { type: DeclarativeUIComponent['type'], label: string }[] = [
     { type: 'TextInput', label: 'Text Input' },
     { type: 'NumberInput', label: 'Number Input' },
     { type: 'UrlInput', label: 'URL Input' },
@@ -47,6 +37,17 @@ export const uiComponents: { type: UIComponent['type'], label: string }[] = [
     { type: 'Button', label: 'Button' },
 ];
 
+// --- Old V3 Layout components - can be deprecated ---
+
+export type UIComponentV3 = {
+    type: 'TextSubheading' | 'TextArea' | 'Dropdown' | 'RadioButtonsGroup' | 'CheckboxGroup' | 'OptIn' | 'Footer';
+    label?: string;
+    name?: string;
+    text?: string;
+    'data-source'?: { id: string, title: string }[];
+    'on-click-action'?: any;
+}
+
 export const uiComponentsV3: { type: UIComponentV3['type'], label: string }[] = [
     { type: 'TextSubheading', label: 'Subheading' },
     { type: 'TextArea', label: 'Text Area' },
@@ -55,3 +56,5 @@ export const uiComponentsV3: { type: UIComponentV3['type'], label: string }[] = 
     { type: 'CheckboxGroup', label: 'Checkboxes' },
     { type: 'OptIn', label: 'Opt-In Checkbox' },
 ]
+
+    
