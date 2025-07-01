@@ -53,7 +53,6 @@ import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-compon
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { getProjectCount, getSession, handleLogout } from '@/app/actions';
-import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
 
 function FullPageSkeleton() {
     return (
