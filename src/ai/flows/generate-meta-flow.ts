@@ -115,13 +115,12 @@ const GenerateMetaFlowOutputSchema = z.object({
   screens: z.array(ScreenSchema).describe("An array of all screens that make up the flow. MUST contain at least one screen."),
 });
 
-type GenerateMetaFlowInput = z.infer<typeof GenerateMetaFlowInputSchema>;
 const GenerateMetaFlowInputSchema = z.object({
   prompt: z.string().describe("The user's description of the flow they want to create."),
   category: z.string().describe("The category of the flow, which helps give context to the AI."),
 });
 
-export async function generateMetaFlow(input: GenerateMetaFlowInput): Promise<z.infer<typeof GenerateMetaFlowOutputSchema>> {
+export async function generateMetaFlow(input: z.infer<typeof GenerateMetaFlowInputSchema>): Promise<z.infer<typeof GenerateMetaFlowOutputSchema>> {
   return generateMetaFlowFlow(input);
 }
 
@@ -137,7 +136,7 @@ RULES:
 1.  **Structure**: Every screen must have a 'SingleColumnLayout' containing one 'Form'. The form's 'children' array holds all UI components.
 2.  **Navigation is Key**: Every form MUST have a 'Footer' component which acts as the main button for the screen.
     - To go to the next screen, the footer's action is: \`"on-click-action": { "name": "navigate", "next": { "type": "screen", "name": "next_screen_id" } }\`.
-    - The FINAL screen's footer MUST use: \`"on-click-action": { "name": "complete" }\`.
+    - The FINAL screen's footer MUST use: \`"on-click-action": { "name": "complete" }\`. It should also have \`terminal: true\` set on the screen itself.
 3.  **Data Passing**: 
     - To pass data from the current screen to the next, add a 'payload' object to the footer's 'on-click-action'. Use variables from the current screen's form like \`"\${form.input_name}"\`.
     - The receiving screen MUST then define these passed variables in its 'data' property. The keys must match the payload keys.

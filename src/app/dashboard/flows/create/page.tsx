@@ -135,6 +135,8 @@ function CreateMetaFlowPage() {
             setScreens([{
                 id: 'screen_1',
                 title: 'Welcome Screen',
+                terminal: true,
+                success: true,
                 layout: {
                     type: 'SingleColumnLayout',
                     children: [{
@@ -191,15 +193,18 @@ function CreateMetaFlowPage() {
          setScreens(prev => prev.map(s => {
             if (s.id === screenId) {
                 const form = getFormComponent(s);
-                const newChildren = form.children.map((c: any) => {
-                    if (c.type === 'Footer') {
-                        const newAction = targetScreenId === 'COMPLETE' 
-                            ? { name: 'complete' }
-                            : { name: 'navigate', next: { type: 'screen', name: targetScreenId } };
-                        return { ...c, 'on-click-action': newAction };
-                    }
-                    return c;
-                });
+                const children = getFormChildren(s);
+                const footerIndex = children.findLastIndex((c: any) => c.type === 'Footer');
+
+                if (footerIndex === -1) return s;
+
+                const newChildren = [...children];
+                const newAction = targetScreenId === 'COMPLETE' 
+                    ? { name: 'complete' }
+                    : { name: 'navigate', next: { type: 'screen', name: targetScreenId } };
+                
+                newChildren[footerIndex] = { ...newChildren[footerIndex], 'on-click-action': newAction };
+                
                 return { ...s, layout: { ...s.layout, children: [{ ...form, children: newChildren }] } };
             }
             return s;
@@ -210,21 +215,24 @@ function CreateMetaFlowPage() {
         const newUiId = `${componentType.toLowerCase()}_${Date.now()}`;
         let newComponent: any = { type: componentType, _ui_id: newUiId };
 
+        const componentsThatNeedName = ['TextArea', 'Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'OptIn'];
+        if (componentsThatNeedName.includes(componentType)) {
+            newComponent.name = newUiId.replace(/[^a-zA-Z0-9]/g, '');
+        }
+
         switch (componentType) {
             case 'TextSubheading':
                 newComponent.text = 'New Subheading';
                 break;
             case 'TextArea':
+            case 'OptIn':
+                newComponent.label = 'New ' + componentType;
+                break;
             case 'Dropdown':
             case 'RadioButtonsGroup':
             case 'CheckboxGroup':
-            case 'OptIn':
-                // Meta API names can't have special characters
-                newComponent.name = newUiId.replace(/[^a-zA-Z0-9]/g, '');
                 newComponent.label = 'New ' + componentType;
-                if (['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup'].includes(componentType)) {
-                    newComponent['data-source'] = [{ id: 'opt_1', title: 'Option 1' }];
-                }
+                newComponent['data-source'] = [{ id: `opt_${Date.now()}`, title: 'Option 1' }];
                 break;
             default:
                 return; 
@@ -233,7 +241,7 @@ function CreateMetaFlowPage() {
         setScreens(prev => prev.map((s) => {
             if (s.id === screenId) {
                 const form = getFormComponent(s);
-                const children = form.children || [];
+                const children = getFormChildren(s);
                 const footerIndex = children.findLastIndex((c: any) => c.type === 'Footer');
                 const newChildren = [...children];
                 newChildren.splice(footerIndex, 0, newComponent);
@@ -247,7 +255,7 @@ function CreateMetaFlowPage() {
         setScreens(prev => prev.map((s) => {
             if (s.id === screenId) {
                 const form = getFormComponent(s);
-                const newChildren = form.children.filter((c: any) => c._ui_id !== componentUiId);
+                const newChildren = getFormChildren(s).filter((c: any) => c._ui_id !== componentUiId);
                 return { ...s, layout: { ...s.layout, children: [{ ...form, children: newChildren }] } };
             }
             return s;
@@ -258,7 +266,7 @@ function CreateMetaFlowPage() {
         setScreens(prev => prev.map(s => {
             if (s.id === screenId) {
                 const form = getFormComponent(s);
-                const newChildren = form.children.map((c: any) => c._ui_id === componentUiId ? { ...c, [key]: value } : c);
+                const newChildren = getFormChildren(s).map((c: any) => c._ui_id === componentUiId ? { ...c, [key]: value } : c);
                 return { ...s, layout: { ...s.layout, children: [{ ...form, children: newChildren }] } };
             }
             return s;
@@ -269,7 +277,7 @@ function CreateMetaFlowPage() {
         setScreens(prev => prev.map(s => {
             if (s.id === screenId) {
                 const form = getFormComponent(s);
-                const newChildren = form.children.map((c: any) => {
+                const newChildren = getFormChildren(s).map((c: any) => {
                     if (c._ui_id === componentUiId) {
                         const newOptions = [...(c['data-source'] || []), { id: `opt_${Date.now()}`, title: '' }];
                         return { ...c, 'data-source': newOptions };
@@ -286,7 +294,7 @@ function CreateMetaFlowPage() {
         setScreens(prev => prev.map(s => {
             if (s.id === screenId) {
                 const form = getFormComponent(s);
-                const newChildren = form.children.map((c: any) => {
+                const newChildren = getFormChildren(s).map((c: any) => {
                     if (c._ui_id === componentUiId) {
                         const newOptions = c['data-source'].map((opt:any, k:number) => k === optionIndex ? { ...opt, title: value } : opt);
                         return { ...c, 'data-source': newOptions };
@@ -303,7 +311,7 @@ function CreateMetaFlowPage() {
         setScreens(prev => prev.map(s => {
             if (s.id === screenId) {
                 const form = getFormComponent(s);
-                const newChildren = form.children.map((c: any) => {
+                const newChildren = getFormChildren(s).map((c: any) => {
                     if (c._ui_id === componentUiId) {
                         const newOptions = c['data-source'].filter((_: any, k: number) => k !== optionIndex);
                         return { ...c, 'data-source': newOptions };
@@ -317,15 +325,17 @@ function CreateMetaFlowPage() {
     };
 
     const addNewScreen = () => {
-        const newScreenId = `screen_${screens.length + 1}`;
+        const newScreenId = `screen_${screens.length + 1}_${Date.now()}`;
         const newScreen = {
             id: newScreenId,
             title: `New Screen ${screens.length + 1}`,
+            terminal: false,
+            success: false,
             layout: {
                 type: 'SingleColumnLayout',
                 children: [{
                     type: 'Form',
-                    name: `form_${screens.length + 1}`,
+                    name: `form_${newScreenId}`,
                     children: [{
                         type: 'Footer',
                         label: 'Submit',
@@ -340,7 +350,7 @@ function CreateMetaFlowPage() {
     useEffect(() => {
         const screensForJson = JSON.parse(JSON.stringify(screens));
         screensForJson.forEach((screen: any) => {
-            screen.layout?.children?.[0]?.children?.forEach((component: any) => {
+            getFormChildren(screen)?.forEach((component: any) => {
                 delete component._ui_id;
             });
         });
@@ -454,7 +464,7 @@ function CreateMetaFlowPage() {
                                                 <Separator />
                                                 <div className="space-y-2 pt-2">
                                                     <Label>Footer Button Action</Label>
-                                                    <Select value={getFormComponent(screen)?.children?.find((c: any) => c.type === 'Footer')?.['on-click-action']?.next?.name || 'COMPLETE'} onValueChange={value => updateScreenAction(screen.id, value)}>
+                                                    <Select value={getFormChildren(screen).find((c: any) => c.type === 'Footer')?.['on-click-action']?.next?.name || 'COMPLETE'} onValueChange={value => updateScreenAction(screen.id, value)}>
                                                         <SelectTrigger><SelectValue/></SelectTrigger>
                                                         <SelectContent>
                                                             <SelectItem value="COMPLETE">End & Complete Flow</SelectItem>

@@ -1,4 +1,5 @@
 
+
 export type UIComponent = {
     id?: string;
     type: 'TextInput' | 'NumberInput' | 'UrlInput' | 'TimePicker' | 'Button' | 'PhotoPicker' | 'DocumentPicker' | 'Calendar' | 'ContactPicker' | 'ChipsSelector' | 'RadioSelector' | 'ListSelector';
