@@ -1,3 +1,4 @@
+
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
@@ -94,7 +95,7 @@ export default async function HomePage() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center">
+        <div className="container mx-auto flex h-14 items-center">
           <div className="mr-4 flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
               <WachatLogo className="h-8 w-auto" />
@@ -114,9 +115,9 @@ export default async function HomePage() {
       {/* Main Content */}
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="py-20 md:py-32">
-          <div className="container mx-auto grid justify-items-center text-center gap-12">
-            <div className="space-y-6 max-w-3xl">
+        <section className="py-16 md:py-24">
+          <div className="container mx-auto grid justify-items-center text-center gap-8">
+            <div className="space-y-4 max-w-3xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tighter">
                 Streamline Your WhatsApp Business API Experience
               </h1>
@@ -146,15 +147,15 @@ export default async function HomePage() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="py-20 bg-muted">
+        <section id="features" className="py-16 bg-muted">
           <div className="container mx-auto">
-            <div className="text-center space-y-4 mb-16">
+            <div className="text-center space-y-4 mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Powerful Tools for Growth</h2>
               <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
                 Everything you need to scale your customer communication on WhatsApp.
               </p>
             </div>
-            <div className="flex flex-wrap justify-center gap-8">
+            <div className="flex flex-wrap justify-center gap-6">
               {features.map((feature, index) => (
                 <Card key={index} className="text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 w-full max-w-sm flex flex-col">
                   <CardHeader className="items-center">
@@ -173,17 +174,17 @@ export default async function HomePage() {
         </section>
 
         {/* How It Works Section */}
-        <section className="py-20">
+        <section className="py-16">
           <div className="container mx-auto">
-            <div className="text-center space-y-4 mb-16">
+            <div className="text-center space-y-4 mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Get Started in 3 Easy Steps</h2>
               <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
                 Connecting your business to Wachat is simple and secure.
               </p>
             </div>
-            <div className="relative grid grid-cols-1 md:grid-cols-3 gap-y-12 md:gap-x-8">
+            <div className="relative grid grid-cols-1 md:grid-cols-3 gap-y-10 md:gap-x-8">
               {steps.map((step, index) => (
-                <div key={index} className="relative flex flex-col items-center text-center space-y-4 px-4">
+                <div key={index} className="relative flex flex-col items-center text-center space-y-3 px-4">
                    <div className="z-10 h-16 w-16 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-2xl border-8 border-background">
                     {index + 1}
                    </div>
@@ -196,15 +197,15 @@ export default async function HomePage() {
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-20 bg-muted">
+        <section className="py-16 bg-muted">
             <div className="container mx-auto">
-                <div className="text-center space-y-4 mb-16">
+                <div className="text-center space-y-4 mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Loved by Businesses Worldwide</h2>
                     <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
                         Don't just take our word for it. Here's what our customers have to say.
                     </p>
                 </div>
-                <div className="flex flex-wrap justify-center gap-8">
+                <div className="flex flex-wrap justify-center gap-6">
                     {testimonials.map((testimonial, index) => (
                         <Card key={index} className="w-full max-w-sm flex flex-col">
                             <CardHeader>
@@ -230,9 +231,9 @@ export default async function HomePage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-20">
+        <section className="py-16">
             <div className="container max-w-3xl mx-auto">
-                 <div className="text-center space-y-4 mb-12">
+                 <div className="text-center space-y-4 mb-10">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Frequently Asked Questions</h2>
                 </div>
                 <Accordion type="single" collapsible className="w-full">
@@ -249,9 +250,9 @@ export default async function HomePage() {
         </section>
         
         {/* Final CTA Section */}
-        <section className="py-20">
+        <section className="py-16">
             <div className="container mx-auto">
-                <div className="relative overflow-hidden bg-primary text-primary-foreground rounded-lg p-8 md:p-16 text-center space-y-6">
+                <div className="relative overflow-hidden bg-primary text-primary-foreground rounded-lg p-8 md:p-12 text-center space-y-4">
                      <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-white/10 rounded-full"></div>
                      <div className="absolute -top-10 -left-10 w-32 h-32 bg-white/10 rounded-full"></div>
                      <h2 className="text-3xl md:text-4xl font-bold font-headline relative z-10">Ready to Supercharge Your WhatsApp?</h2>
@@ -270,7 +271,7 @@ export default async function HomePage() {
 
       {/* Footer */}
       <footer className="border-t">
-        <div className="container mx-auto py-8 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="container mx-auto py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} Wachat. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/terms-and-conditions" className="text-sm text-muted-foreground hover:text-primary">

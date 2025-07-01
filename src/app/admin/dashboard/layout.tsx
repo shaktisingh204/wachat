@@ -88,12 +88,12 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="flex flex-col">
-        <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
-          <div className="flex items-center gap-4">
+        <header className="flex items-center justify-between p-3 border-b bg-background sticky top-0 z-10 shrink-0">
+          <div className="flex items-center gap-2">
             <SidebarTrigger />
             <div className="text-sm font-semibold text-primary">Admin Panel</div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center gap-2">
@@ -124,7 +124,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
           </div>
         </header>
         <div className="flex flex-1 min-h-0">
-          <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">{children}</main>
+          <main className="flex-1 p-2 md:p-4 overflow-y-auto">{children}</main>
         </div>
       </SidebarInset>
     </SidebarProvider>

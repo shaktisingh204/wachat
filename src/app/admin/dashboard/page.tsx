@@ -55,7 +55,7 @@ export default async function AdminDashboardPage({
   const totalPages = Math.ceil(total / PROJECTS_PER_PAGE);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-4">
       <div>
         <h1 className="text-3xl font-bold font-headline">Admin Dashboard</h1>
         <p className="text-muted-foreground">High-level overview of the Wachat platform.</p>

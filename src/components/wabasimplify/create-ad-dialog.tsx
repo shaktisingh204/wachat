@@ -80,7 +80,7 @@ export function CreateAdDialog({ isOpen, onOpenChange, project, onAdCreated }: C
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 py-6">
+          <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="campaignName">Campaign Name</Label>
               <Input id="campaignName" name="campaignName" placeholder="e.g., Summer Sale Promotion" required />

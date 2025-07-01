@@ -15,8 +15,8 @@ export default async function PlansManagementPage() {
     const plans = await getPlans();
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-col gap-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                     <h1 className="text-3xl font-bold font-headline">Subscription Plans</h1>
                     <p className="text-muted-foreground">Create and manage subscription plans for your users.</p>

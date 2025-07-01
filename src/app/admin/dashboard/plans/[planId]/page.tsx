@@ -86,7 +86,7 @@ export default function PlanEditorPage() {
 
     if (loading) {
         return (
-            <div className="space-y-6">
+            <div className="space-y-4">
                 <Skeleton className="h-10 w-48" />
                 <Skeleton className="h-96 w-full" />
                 <Skeleton className="h-64 w-full" />
@@ -95,7 +95,7 @@ export default function PlanEditorPage() {
     }
     
     return (
-        <form action={formAction} className="space-y-6">
+        <form action={formAction} className="space-y-4">
             <input type="hidden" name="planId" value={plan?._id.toString() || 'new'} />
             <div>
                 <Button variant="ghost" asChild className="mb-2 -ml-4">
@@ -109,8 +109,8 @@ export default function PlanEditorPage() {
                 <CardHeader>
                     <CardTitle>Basic Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <CardContent className="space-y-4">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="space-y-2 lg:col-span-2">
                             <Label htmlFor="name">Plan Name</Label>
                             <Input id="name" name="name" defaultValue={plan?.name} required placeholder="e.g., Pro Tier" />
@@ -131,7 +131,7 @@ export default function PlanEditorPage() {
                             </Select>
                         </div>
                     </div>
-                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="signupCredits">Signup Credits</Label>
                             <Input id="signupCredits" name="signupCredits" type="number" defaultValue={plan?.signupCredits ?? 0} required min="0" step="1" />
@@ -140,7 +140,7 @@ export default function PlanEditorPage() {
                     </div>
                     <div>
                         <Label className="text-base font-medium">Per-Message Costs</Label>
-                        <div className="grid md:grid-cols-3 gap-6 mt-2 border p-4 rounded-lg">
+                        <div className="grid md:grid-cols-3 gap-4 mt-2 border p-3 rounded-lg">
                             <div className="space-y-2">
                                 <Label htmlFor="cost_marketing" className="text-sm">Marketing</Label>
                                 <Input id="cost_marketing" name="cost_marketing" type="number" defaultValue={plan?.messageCosts?.marketing ?? 0.05} required min="0" step="0.001" />
@@ -168,10 +168,10 @@ export default function PlanEditorPage() {
                 </CardFooter>
             </Card>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <Card>
                     <CardHeader><CardTitle>Feature Limits</CardTitle><CardDescription>Set to 0 for unlimited.</CardDescription></CardHeader>
-                    <CardContent className="space-y-4">
+                    <CardContent className="space-y-3">
                         <div className="space-y-2"><Label htmlFor="projectLimit">Project Limit</Label><Input id="projectLimit" name="projectLimit" type="number" defaultValue={plan?.projectLimit ?? 5} required min="0"/></div>
                         <div className="space-y-2"><Label htmlFor="agentLimit">Agent Limit (per project)</Label><Input id="agentLimit" name="agentLimit" type="number" defaultValue={plan?.agentLimit ?? 10} required min="0"/></div>
                         <div className="space-y-2"><Label htmlFor="attributeLimit">Custom Attribute Limit</Label><Input id="attributeLimit" name="attributeLimit" type="number" defaultValue={plan?.attributeLimit ?? 20} required min="0"/></div>

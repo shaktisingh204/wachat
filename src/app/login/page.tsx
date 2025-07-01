@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
@@ -72,7 +73,7 @@ export default function LoginPage() {
                 <SubmitButton />
             </CardContent>
           </form>
-          <CardFooter className="flex-col items-center gap-4">
+          <CardFooter className="flex-col items-center gap-2">
               <p className="text-sm text-muted-foreground">
                   Don't have an account?{' '}
                   <Link href="/signup" className="text-primary hover:underline">

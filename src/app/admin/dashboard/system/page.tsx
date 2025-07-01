@@ -12,7 +12,7 @@ export default async function SystemHealthPage() {
     const phonePeSettings = await getPaymentGatewaySettings();
 
     return (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-4">
             <div>
                 <h1 className="text-3xl font-bold font-headline">System Health & Actions</h1>
                 <p className="text-muted-foreground">
@@ -30,7 +30,7 @@ export default async function SystemHealthPage() {
                         These actions help maintain the system, sync data with Meta, and run scheduled tasks on demand.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-wrap gap-4">
+                <CardContent className="flex flex-wrap gap-2">
                     <SubscribeAllButton />
                     <RunCronJobsButton />
                 </CardContent>
