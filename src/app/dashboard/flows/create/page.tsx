@@ -1,12 +1,11 @@
 
-
 'use client';
 
-import { useActionState, useEffect, useState, useRef } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, LoaderCircle, Save, Info, UserRound, Mail, Phone, MessageSquareText, Edit, Code, Star, CheckSquare, Calendar, ChevronsRight } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, Info, UserRound, Mail, Phone, MessageSquareText, Edit, Code, Star, CheckSquare, Calendar, ChevronsRight, GripVertical, Trash2, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -18,6 +17,8 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Separator } from '@/components/ui/separator';
 
 const createFlowInitialState = {
   message: null,
@@ -35,18 +36,19 @@ function SubmitButton() {
 }
 
 const categories = [
-    { id: 'LEAD_GENERATION', name: 'Lead Generation', desc: 'Collect user info like name, email, etc. Common in ads and sign-up.', endpoint: false },
-    { id: 'SIGN_UP', name: 'Sign Up', desc: 'User registration flows.', endpoint: true },
-    { id: 'SIGN_IN', name: 'Sign In', desc: 'User authentication flows.', endpoint: true },
-    { id: 'APPOINTMENT_BOOKING', name: 'Appointment Booking', desc: 'Book or reschedule appointments. Often used in clinics, salons, etc.', endpoint: true },
+    { id: 'LEAD_GENERATION', name: 'Lead Generation', desc: 'Collect user info like name, email, etc. Common in ads and sign-up.', endpoint: true },
+    { id: 'CUSTOMER_SUPPORT', name: 'Customer Support', desc: 'For structured support interactions, like selecting issue type, entering order ID, etc.', endpoint: true },
+    { id: 'APPOINTMENT_BOOKING', name: 'Appointment Booking', desc: 'Book or reschedule appointments or time slots. Often used in clinics, salons, etc.', endpoint: true },
     { id: 'PRODUCT_RECOMMENDATION', name: 'Product Recommendation', desc: 'Helps users select or configure a product (e.g., choose a phone model, size, etc.).', endpoint: false },
-    { id: 'ORDER_TRACKING', name: 'Order Tracking', desc: 'Allow users to get delivery status or updates.', endpoint: true },
+    { id: 'ORDER_TRACKING', name: 'Order Tracking', desc: 'Allows users to input order details and get delivery status or updates.', endpoint: true },
+    { id: 'ONBOARDING', name: 'Onboarding', desc: 'Multi-step guidance for new users (e.g., app signup, product setup, etc.).', endpoint: true },
     { id: 'FEEDBACK_COLLECTION', name: 'Feedback Collection', desc: 'Survey-style flows to gather user feedback, ratings, or suggestions.', endpoint: false },
-    { id: 'SURVEY', name: 'Survey', desc: 'Simple questionnaire for research, customer satisfaction, or reviews.', endpoint: false },
     { id: 'APPLICATION_PROCESS', name: 'Application Process', desc: 'Step-by-step input for job or service applications (e.g., loan, credit card, etc.).', endpoint: true },
     { id: 'SUBSCRIPTION_MANAGEMENT', name: 'Subscription Management', desc: 'Lets users opt-in/out of updates, notifications, or newsletters.', endpoint: false },
-    { id: 'CONTACT_US', name: 'Contact Us', desc: 'General contact forms.', endpoint: false },
-    { id: 'OTHER', name: 'Other (Custom JSON)', desc: 'A general-purpose category for advanced users.', endpoint: true },
+    { id: 'SURVEY', name: 'Survey', desc: 'Simple questionnaire for research, customer satisfaction, or reviews.', endpoint: false },
+    { id: 'SIGN_UP', name: 'Sign Up', desc: 'User registration flows.', endpoint: true },
+    { id: 'SIGN_IN', name: 'Sign In', desc: 'User authentication flows.', endpoint: true },
+    { id: 'OTHER', name: 'Other', desc: 'A general-purpose category for advanced users.', endpoint: true },
 ];
 
 function LeadGenForm({ onJsonChange }: { onJsonChange: (json: string) => void }) {
@@ -114,22 +116,81 @@ function AppointmentForm({ onJsonChange }: { onJsonChange: (json: string) => voi
     );
 }
 
-function CustomJsonEditor({ json, onJsonChange, category }: { json: string; onJsonChange: (json: string) => void; category?: any }) {
-    return (
-        <div className="space-y-2">
-            <Label htmlFor="flow_data">Flow JSON</Label>
-            <Textarea 
-                id="flow_data"
-                name="flow_data_editor"
-                required
-                className="font-mono text-xs min-h-[50vh]"
-                value={json}
-                onChange={(e) => onJsonChange(e.target.value)}
-            />
-        </div>
-    );
-}
+function GenericFlowForm({ onJsonChange }: { onJsonChange: (json: string) => void; }) {
+    const [title, setTitle] = useState("Custom Form");
+    const [elements, setElements] = useState<{ id: number; type: string; label: string; name: string; required: boolean; options: string; }[]>([]);
+    const [submitLabel, setSubmitLabel] = useState("Submit");
+    
+    useEffect(() => {
+        const formChildren: any[] = elements.map(el => {
+            const base: any = { type: el.type, label: el.label, name: el.name, required: el.required };
+            if (el.type === 'RadioButtons' && el.options) {
+                base['data-source'] = el.options.split(',').map(opt => ({ id: opt.trim().toLowerCase().replace(/\s+/g, '_'), title: opt.trim() }));
+            }
+            if (el.type === 'TextInput' && (el.name.includes('email') || el.name.includes('phone') || el.name.includes('password'))) {
+                base['input-type'] = el.name.includes('email') ? 'email' : el.name.includes('phone') ? 'phone' : 'password';
+            }
+            return base;
+        });
 
+        formChildren.push({ type: 'Footer', label: submitLabel, 'on-click-action': { name: 'complete', payload: {} } });
+        const json = { version: "3.0", data_api_version: "3.0", routing_model: {}, screens: [{ id: "CUSTOM_SCREEN", title: title, data: {}, layout: { type: 'SingleColumnLayout', children: [{ type: 'Form', name: 'custom_form', children: formChildren }] } }] };
+        onJsonChange(JSON.stringify(json, null, 2));
+    }, [title, elements, submitLabel, onJsonChange]);
+
+    const addElement = (type: string) => {
+        setElements(prev => [...prev, { id: Date.now(), type, label: '', name: '', required: false, options: '' }]);
+    };
+    
+    const updateElement = (id: number, field: string, value: string | boolean) => {
+        setElements(prev => prev.map(el => el.id === id ? { ...el, [field]: value } : el));
+    };
+
+    const removeElement = (id: number) => {
+        setElements(prev => prev.filter(el => el.id !== id));
+    };
+
+    return (
+        <div className="space-y-4">
+            <div className="space-y-2">
+                <Label>Screen Title</Label>
+                <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g., Customer Survey" />
+            </div>
+            <Separator/>
+             <div className="space-y-2">
+                <Label>Form Fields</Label>
+                <div className="space-y-2">
+                    {elements.map(el => (
+                        <div key={el.id} className="p-4 border rounded-lg bg-background space-y-3 relative">
+                            <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => removeElement(el.id)}><Trash2 className="h-4 w-4"/></Button>
+                            <div className="flex items-center gap-2">
+                                <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab"/>
+                                <Badge variant="secondary">{el.type.replace(/([A-Z])/g, ' $1').trim()}</Badge>
+                            </div>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="space-y-2"><Label>Label</Label><Input value={el.label} onChange={e => updateElement(el.id, 'label', e.target.value)} placeholder="e.g., Your Full Name" /></div>
+                                <div className="space-y-2"><Label>Name (variable)</Label><Input value={el.name} onChange={e => updateElement(el.id, 'name', e.target.value)} placeholder="e.g., user_name" /></div>
+                            </div>
+                             {el.type === 'RadioButtons' && <div className="space-y-2"><Label>Options (comma-separated)</Label><Input value={el.options} onChange={e => updateElement(el.id, 'options', e.target.value)} placeholder="Option 1, Option 2" /></div>}
+                            <div className="flex items-center space-x-2"><Checkbox checked={el.required} onCheckedChange={checked => updateElement(el.id, 'required', !!checked)}/><Label>Required</Label></div>
+                        </div>
+                    ))}
+                </div>
+                <div className="flex flex-wrap gap-2">
+                    <Button type="button" variant="outline" size="sm" onClick={() => addElement('TextHeading')}><Plus className="mr-2 h-4 w-4"/>Heading</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => addElement('TextInput')}><Plus className="mr-2 h-4 w-4"/>Text Input</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => addElement('DatePicker')}><Plus className="mr-2 h-4 w-4"/>Date Picker</Button>
+                    <Button type="button" variant="outline" size="sm" onClick={() => addElement('RadioButtons')}><Plus className="mr-2 h-4 w-4"/>Radio Buttons</Button>
+                </div>
+            </div>
+            <Separator/>
+            <div className="space-y-2">
+                <Label>Submit Button Label</Label>
+                <Input value={submitLabel} onChange={e => setSubmitLabel(e.target.value)} placeholder="Submit"/>
+            </div>
+        </div>
+    )
+}
 
 export default function CreateMetaFlowPage() {
     const [projectId, setProjectId] = useState<string | null>(null);
@@ -180,7 +241,7 @@ export default function CreateMetaFlowPage() {
             case 'SIGN_UP': return <SignUpForm onJsonChange={setFlowJson} />;
             case 'FEEDBACK_COLLECTION': return <FeedbackForm onJsonChange={setFlowJson} />;
             case 'APPOINTMENT_BOOKING': return <AppointmentForm onJsonChange={setFlowJson} />;
-            default: return <CustomJsonEditor json={flowJson} onJsonChange={setFlowJson} />;
+            default: return <GenericFlowForm onJsonChange={setFlowJson} />;
         }
     };
 
@@ -235,9 +296,9 @@ export default function CreateMetaFlowPage() {
                         </div>
                         {needsEndpoint && (
                              <div className="space-y-2">
-                                <Label htmlFor="endpoint_uri">Endpoint URI (Required)</Label>
+                                <Label htmlFor="endpoint_uri">Endpoint URI (Optional)</Label>
                                 <Input id="endpoint_uri" name="endpoint_uri" placeholder="https://your-server.com/api/flow" />
-                                <p className="text-xs text-muted-foreground">This flow type requires a server endpoint to function.</p>
+                                <p className="text-xs text-muted-foreground">The endpoint to send flow data to.</p>
                             </div>
                         )}
                     </div>
@@ -253,11 +314,15 @@ export default function CreateMetaFlowPage() {
                     <AccordionTrigger>
                         <div className="flex items-center gap-2">
                             <Code className="h-4 w-4"/>
-                            Advanced: View/Edit Raw JSON
+                            Advanced: View Raw JSON
                         </div>
                     </AccordionTrigger>
                     <AccordionContent>
-                        <CustomJsonEditor json={flowJson} onJsonChange={setFlowJson} />
+                        <Textarea 
+                            readOnly
+                            className="font-mono text-xs min-h-[50vh] bg-background"
+                            value={flowJson}
+                        />
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
