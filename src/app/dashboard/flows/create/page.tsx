@@ -38,13 +38,12 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
     );
 }
 
-function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onRemoveOption }: { component: DeclarativeUIComponent & { id?: string }, onUpdate: (key: string, value: any) => void, onAddOption: () => void, onUpdateOption: (index: number, value: string) => void, onRemoveOption: (index: number) => void }) {
-    const id = component.id;
-
+function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onRemoveOption }: { component: any, onUpdate: (key: string, value: any) => void, onAddOption: () => void, onUpdateOption: (index: number, value: string) => void, onRemoveOption: (index: number) => void }) {
+    
     const commonInputs = (
-         <div className="grid grid-cols-2 gap-2">
-            <Input value={component.id || ''} onChange={e => onUpdate('id', e.target.value)} placeholder="Component ID" className="text-xs" />
-            <Input value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="Label" className="text-xs" />
+        <div className="grid grid-cols-2 gap-2">
+            {component.name !== undefined && <Input value={component.name || ''} onChange={e => onUpdate('name', e.target.value)} placeholder="Component Name" className="text-xs" />}
+            {component.label !== undefined && <Input value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="Label" className="text-xs" />}
         </div>
     );
     
@@ -52,9 +51,9 @@ function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onR
         <div className="space-y-2 mt-2">
             <Label className="text-xs">Options</Label>
             <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
-                {(component.options || []).map((opt, index) => (
+                {(component['data-source'] || []).map((opt: any, index: number) => (
                     <div key={opt.id} className="flex items-center gap-2">
-                        <Input value={opt.label} className="text-xs h-8" onChange={e => onUpdateOption(index, e.target.value)} />
+                        <Input value={opt.title} className="text-xs h-8" onChange={e => onUpdateOption(index, e.target.value)} placeholder="Option Title" />
                         <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => onRemoveOption(index)}><Trash2 className="h-3 w-3 text-destructive"/></Button>
                     </div>
                 ))}
@@ -64,21 +63,19 @@ function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onR
     );
 
     switch (component.type) {
+        case 'TextSubheading':
+        case 'TextHeading':
+            return <Input value={component.text} onChange={e => onUpdate('text', e.target.value)} placeholder="Heading Text" className="text-xs" />;
+        case 'TextArea':
         case 'TextInput':
-        case 'NumberInput':
-        case 'UrlInput':
-        case 'TimePicker':
-        case 'Calendar':
-        case 'ContactPicker':
-        case 'PhotoPicker':
-        case 'DocumentPicker':
+        case 'PhoneNumber':
+        case 'DatePicker':
             return commonInputs;
-        case 'ChipsSelector':
-        case 'RadioSelector':
-        case 'ListSelector':
-            return <div className="space-y-2">{commonInputs}{optionManager}</div>;
+        case 'Dropdown':
+        case 'RadioButtonsGroup':
+             return <div className="space-y-2">{commonInputs}{optionManager}</div>;
         default:
-            return <p className="text-xs text-muted-foreground">This component has no editable properties.</p>;
+            return <p className="text-xs text-muted-foreground">This component has no editable properties in the UI yet.</p>;
     }
 }
 
@@ -111,13 +108,17 @@ function CreateMetaFlowPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [existingFlow, setExistingFlow] = useState<WithId<MetaFlow> | null>(null);
     
-    const [flowData, setFlowData] = useState<any>({ name: '', screens: [], metadata: { language: 'en_US' } });
+    const [flowData, setFlowData] = useState<any>({ name: '', screens: [], description: '' });
     
     const [category, setCategory] = useState('OTHER');
     const [flowJson, setFlowJson] = useState('');
     const [aiPrompt, setAiPrompt] = useState('');
     const [isGenerating, startGeneratingTransition] = useTransition();
     const [shouldPublish, setShouldPublish] = useState(true);
+
+    const safeGetFormChildren = (screen: any) => {
+      return screen?.layout?.children?.[0]?.children || [];
+    };
 
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -127,7 +128,7 @@ function CreateMetaFlowPage() {
             getMetaFlowById(flowId).then(data => {
                 if (data) {
                     setExistingFlow(data);
-                    const flowContent = data.flow_data.flow || data.flow_data; // Handle both structures
+                    const flowContent = data.flow_data || {};
                     setFlowData(flowContent);
                     setCategory(data.categories[0] || 'OTHER');
                     setShouldPublish(data.status === 'PUBLISHED');
@@ -137,16 +138,23 @@ function CreateMetaFlowPage() {
         } else {
             setFlowData({
                 name: 'new_flow_' + Math.floor(Math.random() * 1000),
+                description: '',
                 screens: [{
                     id: 'screen_1',
-                    title: { text: 'Welcome Screen' },
-                    body: { text: 'This is the start of your flow.' },
-                    components: [{
-                        type: 'Button', id: 'btn_complete', label: 'Finish',
-                        action: { type: 'submit' }
-                    }]
+                    title: 'Welcome Screen',
+                    layout: {
+                        type: 'SingleColumnLayout',
+                        children: [{
+                            type: 'Form',
+                            name: 'form_1',
+                            children: [{
+                                type: 'TextSubheading', text: 'This is the start of your flow.'
+                            }, {
+                                type: 'Footer', label: 'Finish', 'on-click-action': { name: 'complete' }
+                            }]
+                        }]
+                    }
                 }],
-                metadata: { language: 'en_US' }
             });
             setIsLoading(false);
         }
@@ -171,10 +179,9 @@ function CreateMetaFlowPage() {
             const result = await handleGenerateMetaFlow(aiPrompt, category);
             if (result.error) {
                 toast({ title: "AI Generation Failed", description: result.error, variant: "destructive" });
-            } else if (result.flowJson) {
+            } else if (result) {
                 try {
-                    const parsed = JSON.parse(result.flowJson);
-                    setFlowData(parsed.flow);
+                    setFlowData(result);
                     toast({ title: "Flow Generated!", description: "The AI has created your flow. Review and save it." });
                 } catch (e) {
                     toast({ title: "JSON Parse Error", description: "The AI returned invalid JSON. Please try again.", variant: "destructive" });
@@ -192,7 +199,7 @@ function CreateMetaFlowPage() {
             ...prev,
             screens: prev.screens.map(s => {
                 if (s.id === screenId) {
-                    const newScreen = { ...s };
+                    const newScreen = JSON.parse(JSON.stringify(s));
                     let current = newScreen;
                     const keys = path.split('.');
                     for(let i=0; i<keys.length-1; i++){
@@ -206,60 +213,101 @@ function CreateMetaFlowPage() {
         }));
     };
 
-    const addComponentToScreen = (screenId: string, componentType: DeclarativeUIComponent['type']) => {
-        const newComponent: any = { type: componentType, id: `${componentType.toLowerCase()}_${Date.now()}` };
-        if (['TextInput', 'NumberInput', 'UrlInput'].includes(componentType)) newComponent.label = 'New ' + componentType;
-        if (['ChipsSelector', 'RadioSelector', 'ListSelector'].includes(componentType)) {
-             newComponent.label = 'New Selector';
-             newComponent.options = [{ id: 'opt_1', label: 'Option 1' }];
-        }
+    const updateComponentInScreen = (screenId: string, componentIndex: number, key: string, value: any) => {
         setFlowData(prev => ({
             ...prev,
-            screens: prev.screens.map(s => s.id === screenId ? { ...s, components: [...(s.components || []), newComponent] } : s)
-        }));
-    };
-    
-    const removeComponentFromScreen = (screenId: string, componentId: string) => {
-        setFlowData(prev => ({
-            ...prev,
-            screens: prev.screens.map(s => s.id === screenId ? { ...s, components: s.components.filter(c => c.id !== componentId) } : s)
+            screens: prev.screens.map(s => {
+                if (s.id === screenId) {
+                    const newScreen = JSON.parse(JSON.stringify(s));
+                    const formChildren = newScreen.layout.children[0].children;
+                    formChildren[componentIndex] = {...formChildren[componentIndex], [key]: value};
+                    return newScreen;
+                }
+                return s;
+            })
         }));
     };
 
-    const updateComponentInScreen = (screenId: string, componentId: string, key: string, value: any) => {
+    const addComponentToScreen = (screenId: string, componentType: DeclarativeUIComponent['type']) => {
+        const newComponent: any = { type: componentType, name: `${componentType.toLowerCase()}_${Date.now()}` };
+        if (['TextSubheading', 'TextHeading'].includes(componentType)) {
+            newComponent.text = 'New ' + componentType;
+            delete newComponent.name;
+        }
+        if (['TextArea', 'TextInput', 'PhoneNumber', 'DatePicker', 'Dropdown', 'RadioButtonsGroup'].includes(componentType)) {
+            newComponent.label = 'New ' + componentType;
+        }
+        if (['Dropdown', 'RadioButtonsGroup'].includes(componentType)) {
+            newComponent['data-source'] = [{ id: `opt_${Date.now()}`, title: 'Option 1' }];
+        }
+        if (componentType === 'Footer') {
+            newComponent.label = 'Submit';
+            newComponent['on-click-action'] = { name: 'complete' };
+            delete newComponent.name;
+        }
+
         setFlowData(prev => ({
             ...prev,
-            screens: prev.screens.map(s => s.id === screenId ? { ...s, components: s.components.map(c => c.id === componentId ? {...c, [key]: value} : c) } : s)
+            screens: prev.screens.map(s => {
+                if (s.id === screenId) {
+                    const newScreen = JSON.parse(JSON.stringify(s));
+                    newScreen.layout.children[0].children.push(newComponent);
+                    return newScreen;
+                }
+                return s;
+            })
         }));
     };
     
-    const handleAddOption = (screenId: string, componentId: string) => {
-       updateComponentInScreen(screenId, componentId, 'options', [...(flowData.screens.find(s=>s.id===screenId)?.components.find(c=>c.id===componentId)?.options || []), {id: `opt_${Date.now()}`, label: ''}]);
+    const removeComponentFromScreen = (screenId: string, componentIndex: number) => {
+        setFlowData(prev => ({
+            ...prev,
+            screens: prev.screens.map(s => {
+                if (s.id === screenId) {
+                    const newScreen = JSON.parse(JSON.stringify(s));
+                    newScreen.layout.children[0].children.splice(componentIndex, 1);
+                    return newScreen;
+                }
+                return s;
+            })
+        }));
     };
-    const handleUpdateOption = (screenId: string, componentId: string, optionIndex: number, value: string) => {
-        const options = [...(flowData.screens.find(s=>s.id===screenId)?.components.find(c=>c.id===componentId)?.options || [])];
-        options[optionIndex] = {...options[optionIndex], label: value};
-        updateComponentInScreen(screenId, componentId, 'options', options);
+    
+    const handleAddOption = (screenId: string, componentIndex: number) => {
+        const component = safeGetFormChildren(flowData.screens.find(s => s.id === screenId))[componentIndex];
+        const newOptions = [...(component['data-source'] || []), {id: `opt_${Date.now()}`, title: ''}];
+        updateComponentInScreen(screenId, componentIndex, 'data-source', newOptions);
     };
-    const handleRemoveOption = (screenId: string, componentId: string, optionIndex: number) => {
-        const options = (flowData.screens.find(s=>s.id===screenId)?.components.find(c=>c.id===componentId)?.options || []).filter((_,i) => i !== optionIndex);
-        updateComponentInScreen(screenId, componentId, 'options', options);
+    const handleUpdateOption = (screenId: string, componentIndex: number, optionIndex: number, value: string) => {
+        const component = safeGetFormChildren(flowData.screens.find(s => s.id === screenId))[componentIndex];
+        const newOptions = [...(component['data-source'] || [])];
+        newOptions[optionIndex] = {...newOptions[optionIndex], title: value};
+        updateComponentInScreen(screenId, componentIndex, 'data-source', newOptions);
+    };
+    const handleRemoveOption = (screenId: string, componentIndex: number, optionIndex: number) => {
+        const component = safeGetFormChildren(flowData.screens.find(s => s.id === screenId))[componentIndex];
+        const newOptions = (component['data-source'] || []).filter((_: any, i: number) => i !== optionIndex);
+        updateComponentInScreen(screenId, componentIndex, 'data-source', newOptions);
     };
 
     const addNewScreen = () => {
-        const newScreenId = `screen_${flowData.screens.length + 1}_${Date.now()}`;
+        const newScreenId = `screen_${Date.now()}`;
         const newScreen = {
             id: newScreenId,
-            title: { text: `New Screen ${flowData.screens.length + 1}` },
-            body: { text: "This is a new screen." },
-            components: [{ type: 'Button', id: `btn_${newScreenId}`, label: 'Submit', action: { type: 'submit' } }]
+            title: `New Screen ${flowData.screens.length + 1}`,
+            layout: {
+                type: 'SingleColumnLayout',
+                children: [{
+                    type: 'Form', name: `form_${newScreenId}`,
+                    children: [{ type: 'Footer', label: 'Submit', 'on-click-action': { name: 'complete' } }]
+                }]
+            }
         };
         setFlowData(prev => ({ ...prev, screens: [...prev.screens, newScreen] }));
     };
 
     useEffect(() => {
-        const generatedJson = { version: "7.1", flow: flowData };
-        setFlowJson(JSON.stringify(generatedJson, null, 2));
+        setFlowJson(JSON.stringify(flowData, null, 2));
     }, [flowData]);
     
     if (isLoading) {
@@ -334,26 +382,22 @@ function CreateMetaFlowPage() {
                                     {(flowData.screens || []).map((screen: any, screenIndex: number) => (
                                         <AccordionItem value={`item-${screenIndex}`} key={screen.id} className="border rounded-md px-4">
                                             <AccordionTrigger className="hover:no-underline">
-                                                 <Input className="text-base font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" value={screen.title?.text || ''} onChange={e => updateScreenField(screen.id, 'title.text', e.target.value)} onClick={e => e.stopPropagation()}/>
+                                                 <Input className="text-base font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" value={screen.title || ''} onChange={e => updateScreenField(screen.id, 'title', e.target.value)} onClick={e => e.stopPropagation()}/>
                                             </AccordionTrigger>
                                             <AccordionContent className="pt-4 space-y-4">
-                                                <div className="space-y-2">
-                                                    <Label>Screen Body</Label>
-                                                    <Textarea value={screen.body?.text || ''} onChange={e => updateScreenField(screen.id, 'body.text', e.target.value)} />
-                                                </div>
                                                 <h4 className="font-semibold text-sm">Components</h4>
-                                                {(screen.components || []).map((component: any, compIndex: number) => (
-                                                    <div key={component.id || compIndex} className="p-3 border rounded-lg space-y-2 relative bg-background">
+                                                {(safeGetFormChildren(screen)).map((component: any, compIndex: number) => (
+                                                    <div key={component.name || compIndex} className="p-3 border rounded-lg space-y-2 relative bg-background">
                                                         <div className="flex justify-between items-center">
                                                             <p className="text-sm font-medium text-muted-foreground">{component.type}</p>
-                                                            <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeComponentFromScreen(screen.id, component.id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                                                            <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeComponentFromScreen(screen.id, compIndex)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                                                         </div>
                                                         <ComponentEditor 
                                                             component={component} 
-                                                            onUpdate={(key, value) => updateComponentInScreen(screen.id, component.id, key, value)}
-                                                            onAddOption={() => handleAddOption(screen.id, component.id)}
-                                                            onUpdateOption={(optionIndex, value) => handleUpdateOption(screen.id, component.id, optionIndex, value)}
-                                                            onRemoveOption={(optionIndex) => handleRemoveOption(screen.id, component.id, optionIndex)}
+                                                            onUpdate={(key, value) => updateComponentInScreen(screen.id, compIndex, key, value)}
+                                                            onAddOption={() => handleAddOption(screen.id, compIndex)}
+                                                            onUpdateOption={(optionIndex, value) => handleUpdateOption(screen.id, compIndex, optionIndex, value)}
+                                                            onRemoveOption={(optionIndex) => handleRemoveOption(screen.id, compIndex, optionIndex)}
                                                         />
                                                     </div>
                                                 ))}
@@ -394,5 +438,3 @@ export default function CreateMetaFlowPageWrapper() {
     </Suspense>
   )
 }
-
-    

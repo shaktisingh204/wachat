@@ -42,7 +42,7 @@ export async function getMetaFlowById(flowId: string): Promise<WithId<MetaFlow> 
         
         // Fetch the latest version from Meta to ensure editor has the most recent data
         const metaResponse = await axios.get(
-            `https://graph.facebook.com/v22.0/${localFlow.metaId}?fields=name,categories,status,json_version,flow_json&access_token=${project.accessToken}`
+            `https://graph.facebook.com/v22.0/${localFlow.metaId}?fields=name,categories,status,json_version&access_token=${project.accessToken}`
         );
 
         if (metaResponse.data.error) {
@@ -52,6 +52,11 @@ export async function getMetaFlowById(flowId: string): Promise<WithId<MetaFlow> 
         }
 
         const metaFlowData = metaResponse.data;
+        const flowJsonResponse = await axios.get(
+            `https://graph.facebook.com/v22.0/${localFlow.metaId}/assets?access_token=${project.accessToken}`
+        );
+
+        const flow_json = flowJsonResponse.data.data?.[0]?.asset_content;
         
         // Update local DB with fresh data from Meta
         const updateData: Partial<MetaFlow> = {
@@ -59,7 +64,7 @@ export async function getMetaFlowById(flowId: string): Promise<WithId<MetaFlow> 
             categories: metaFlowData.categories || [],
             status: metaFlowData.status,
             json_version: metaFlowData.json_version,
-            flow_data: metaFlowData.flow_json ? JSON.parse(metaFlowData.flow_json) : {},
+            flow_data: flow_json ? JSON.parse(flow_json) : {},
             updatedAt: new Date(),
         };
 

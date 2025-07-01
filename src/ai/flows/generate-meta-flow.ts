@@ -10,7 +10,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-// --- Zod Schemas for Meta Flow JSON Structure (Declarative Layout Style) ---
+// --- Zod Schemas for Meta Flow JSON Structure (Declarative Layout Style v7.1) ---
 
 const ActionSchema = z.object({
   name: z.enum(['navigate', 'complete', 'data_exchange', 'open_url']).describe("Action type."),
@@ -19,47 +19,94 @@ const ActionSchema = z.object({
 });
 
 // --- Component Schemas ---
-const TextInputSchema = z.object({ type: z.literal('TextInput'), id: z.string(), label: z.string(), placeholder: z.string().optional(), required: z.boolean().optional() });
-const NumberInputSchema = z.object({ type: z.literal('NumberInput'), id: z.string(), label: z.string(), placeholder: z.string().optional(), min: z.number().optional(), max: z.number().optional(), required: z.boolean().optional() });
-const UrlInputSchema = z.object({ type: z.literal('UrlInput'), id: z.string(), label: z.string(), placeholder: z.string().optional(), required: z.boolean().optional() });
-const TimePickerSchema = z.object({ type: z.literal('TimePicker'), id: z.string(), label: z.string(), required: z.boolean().optional() });
-const ButtonSchema = z.object({ type: z.literal('Button'), id: z.string(), label: z.string(), action: ActionSchema });
-const PhotoPickerSchema = z.object({ type: z.literal('PhotoPicker'), id: z.string(), label: z.string(), required: z.boolean().optional() });
-const DocumentPickerSchema = z.object({ type: z.literal('DocumentPicker'), id: z.string(), label: z.string(), required: z.boolean().optional() });
-const CalendarSchema = z.object({ type: z.literal('Calendar'), id: z.string(), label: z.string(), required: z.boolean().optional() });
-const ContactPickerSchema = z.object({ type: z.literal('ContactPicker'), id: z.string(), label: z.string(), required: z.boolean().optional() });
-const OptionSchema = z.object({ id: z.string(), label: z.string() });
-const ChipsSelectorSchema = z.object({ type: z.literal('ChipsSelector'), id: z.string(), label: z.string(), options: z.array(OptionSchema), multi_select: z.boolean().optional(), required: z.boolean().optional() });
-const RadioSelectorSchema = z.object({ type: z.literal('RadioSelector'), id: z.string(), label: z.string(), options: z.array(OptionSchema), required: z.boolean().optional() });
-const ListSelectorSchema = z.object({ type: z.literal('ListSelector'), id: z.string(), label: z.string(), options: z.array(OptionSchema), required: z.boolean().optional() });
+const TextInputSchema = z.object({ type: z.literal('TextInput'), name: z.string(), label: z.string(), placeholder: z.string().optional(), required: z.boolean().optional() });
+const PhoneNumberInputSchema = z.object({ type: z.literal('PhoneNumber'), name: z.string(), label: z.string(), required: z.boolean().optional() });
+const DatePickerSchema = z.object({ type: z.literal('DatePicker'), name: z.string(), label: z.string(), required: z.boolean().optional(), "on-select-action": ActionSchema.optional() });
+const EmbeddedLinkSchema = z.object({ type: z.literal('EmbeddedLink'), text: z.string(), "on-click-action": ActionSchema });
+const FooterSchema = z.object({ type: z.literal('Footer'), label: z.string(), "on-click-action": ActionSchema });
 
-const FlowComponentSchema = z.union([
-    TextInputSchema, NumberInputSchema, UrlInputSchema, TimePickerSchema, ButtonSchema,
-    PhotoPickerSchema, DocumentPickerSchema, CalendarSchema, ContactPickerSchema,
-    ChipsSelectorSchema, RadioSelectorSchema, ListSelectorSchema
+const PhotoPickerSchema = z.object({ type: z.literal('PhotoPicker'), name: z.string(), label: z.string(), required: z.boolean().optional(), "min-uploaded-photos": z.number().optional(), "max-uploaded-photos": z.number().optional() });
+const DocumentPickerSchema = z.object({ type: z.literal('DocumentPicker'), name: z.string(), label: z.string(), required: z.boolean().optional(), "min-uploaded-documents": z.number().optional(), "max-uploaded-documents": z.number().optional() });
+const CalendarPickerSchema = z.object({ type: z.literal('CalendarPicker'), name: z.string(), label: z.union([z.string(), z.object({ "start-date": z.string(), "end-date": z.string() })]), mode: z.enum(['single', 'range']), "on-select-action": ActionSchema.optional() });
+const ChipsSelectorSchema = z.object({ type: z.literal('ChipsSelector'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })), "max-selected-items": z.number().optional(), "min-selected-items": z.number().optional() });
+const ImageCarouselSchema = z.object({ type: z.literal('ImageCarousel'), name: z.string(), images: z.array(z.object({ "alt-text": z.string(), src: z.string() })) });
+const OptInSchema = z.object({ type: z.literal('OptIn'), name: z.string(), label: z.string(), required: z.boolean().optional() });
+const TextSubheadingSchema = z.object({ type: z.literal('TextSubheading'), text: z.string() });
+const TextHeadingSchema = z.object({ type: z.literal('TextHeading'), text: z.string() });
+const TextAreaSchema = z.object({ type: z.literal('TextArea'), name: z.string(), label: z.string(), required: z.boolean().optional() });
+const DropdownSchema = z.object({ type: z.literal('Dropdown'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })) });
+const RadioButtonsGroupSchema = z.object({ type: z.literal('RadioButtonsGroup'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })) });
+
+// The If and Switch components require recursive definitions, which we can simulate this way.
+const IfComponentSchema: z.ZodType<any> = z.lazy(() => z.object({ type: z.literal('If'), condition: z.string(), then: z.array(FormComponentSchema), else: z.array(FormComponentSchema).optional() }));
+const SwitchComponentSchema: z.ZodType<any> = z.lazy(() => z.object({ type: z.literal('Switch'), value: z.string(), cases: z.record(z.array(FormComponentSchema)) }));
+
+
+const FormComponentSchema = z.union([
+    TextSubheadingSchema,
+    TextAreaSchema,
+    TextInputSchema,
+    PhoneNumberInputSchema,
+    DatePickerSchema,
+    DropdownSchema,
+    RadioButtonsGroupSchema,
+    PhotoPickerSchema,
+    DocumentPickerSchema,
+    CalendarPickerSchema,
+    ChipsSelectorSchema,
+    ImageCarouselSchema,
+    OptInSchema,
+    TextHeadingSchema,
+    EmbeddedLinkSchema,
+    FooterSchema,
+    IfComponentSchema,
+    SwitchComponentSchema,
 ]);
+
+const FormSchema = z.object({
+  type: z.literal('Form'),
+  name: z.string(),
+  children: z.array(FormComponentSchema),
+});
+
+const NavigationListItemSchema = z.object({
+  id: z.string(),
+  "main-content": z.object({ title: z.string(), description: z.string().optional() }),
+  "on-click-action": ActionSchema.optional(),
+});
+
+const NavigationListSchema = z.object({
+  type: z.literal('NavigationList'),
+  name: z.string(),
+  label: z.string(),
+  "list-items": z.union([z.string().describe("A dynamic variable like ${data.insurances}"), z.array(NavigationListItemSchema)]),
+  "on-click-action": ActionSchema.optional(),
+});
+
+const ScreenLayoutChildSchema = z.union([FormSchema, NavigationListSchema]);
 
 const ScreenSchema = z.object({
   id: z.string().describe("A unique identifier for the screen, e.g., 'SURVEY_START'."),
-  title: z.object({ text: z.string(), markdown: z.boolean().optional() }).describe("The title of the screen."),
-  body: z.object({ text: z.string(), markdown: z.boolean().optional() }).describe("The body text for the screen."),
-  components: z.array(FlowComponentSchema).describe('An array of UI components for the screen.'),
+  title: z.string().describe("The title of the screen."),
+  layout: z.object({
+      type: z.literal('SingleColumnLayout'),
+      children: z.array(ScreenLayoutChildSchema),
+  }),
+  terminal: z.boolean().optional().describe("If true, this is a final screen in the flow."),
+  success: z.boolean().optional().describe("Used with terminal screens to indicate success."),
+  data: z.record(z.any()).optional().describe("Defines data structure for dynamic content."),
 });
 
-const FlowSchema = z.object({
-    name: z.string().describe("The name of the flow."),
-    description: z.string().optional().describe("A brief description of the flow."),
-    screens: z.array(ScreenSchema).describe("An array of all screens that make up the flow. MUST contain at least one screen."),
-    metadata: z.object({
-        language: z.string().describe("Flow language code, e.g., 'en_US'."),
-        theme: z.enum(['light', 'dark']).optional().describe("The visual theme of the flow."),
-    })
+const FlowJSONSchema = z.object({
+  version: z.literal("7.1"),
+  data_api_version: z.literal("3.0").optional(),
+  name: z.string().describe("The name of the flow."),
+  description: z.string().optional().describe("A brief description of the flow."),
+  routing_model: z.record(z.array(z.string())).optional().describe("Defines the navigation paths between screens."),
+  screens: z.array(ScreenSchema).describe("An array of all screens that make up the flow. MUST contain at least one screen."),
 });
 
-const GenerateMetaFlowOutputSchema = z.object({
-  version: z.string().describe("The WhatsApp Flow JSON version. Use '7.1'."),
-  flow: FlowSchema.describe("The main flow object containing screens and metadata."),
-});
+const GenerateMetaFlowOutputSchema = FlowJSONSchema;
 
 const GenerateMetaFlowInputSchema = z.object({
   prompt: z.string().describe("The user's description of the flow they want to create."),
@@ -79,12 +126,12 @@ const prompt = ai.definePrompt({
 The output must strictly adhere to the provided JSON schema.
 
 RULES:
-1.  **Structure**: The root must contain 'version' and 'flow'. The 'flow' object contains 'name', 'screens', and 'metadata'. Each screen has 'id', 'title', 'body', and an array of 'components'.
-2.  **Navigation**: Every screen MUST have a \`Button\` component with an action to navigate or submit.
-    - To go to the next screen, use: \`"action": { "type": "navigate", "target": "screen_id_of_next_screen" }\`.
-    - The FINAL screen's button MUST use: \`"action": { "type": "submit" }\`.
-3.  **Unique IDs**: All 'screen' IDs and component 'id' properties must be unique strings (e.g., "screen_1", "text_input_name").
-4.  **Component Variety**: Use a variety of the available components based on the user's prompt: \`TextInput\`, \`NumberInput\`, \`UrlInput\`, \`TimePicker\`, \`Button\`, \`PhotoPicker\`, \`DocumentPicker\`, \`Calendar\`, \`ContactPicker\`, \`ChipsSelector\`, \`RadioSelector\`, \`ListSelector\`.
+1.  **Structure**: The root must contain 'version' and 'screens'. Each screen has 'id', 'title', and a 'layout'. The layout contains a 'Form' or 'NavigationList' which in turn has 'children' components.
+2.  **Navigation**: Use a 'Footer' component with an 'on-click-action' for navigation.
+    - To go to the next screen, use: \`"on-click-action": { "name": "navigate", "next": { "type": "screen", "name": "screen_id_of_next_screen" } }\`.
+    - The FINAL screen's footer MUST use: \`"on-click-action": { "name": "complete" }\`.
+3.  **Unique IDs**: All 'screen' IDs and component 'name' properties within a form must be unique strings (e.g., "SURVEY_START", "text_input_name").
+4.  **Component Variety**: Use a variety of the available components based on the user's prompt.
 5.  **Create a Full Experience**: Create at least 2-3 screens for an interactive flow (e.g., a welcome screen, one or more data collection screens, and a final thank you/confirmation screen).
 
 User Request: "{{{prompt}}}"
@@ -101,8 +148,10 @@ const generateMetaFlowFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await prompt(input);
-    return output!;
+    const flow_json = {
+        name: output?.name || 'ai_generated_flow',
+        ...output
+    };
+    return flow_json;
   }
 );
-
-    
