@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle, FileUp, Plus, Trash2, Copy } from 'lucide-react';
-import { handleCreateTemplate } from '@/app/actions';
+import { handleCreateTemplate, saveLibraryTemplate } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project, Template } from '@/app/dashboard/page';
@@ -26,11 +26,12 @@ const createTemplateInitialState = {
   debugInfo: null,
 };
 
-function SubmitButton({ templateType }: { templateType: 'STANDARD' | 'CATALOG_MESSAGE' | 'MARKETING_CAROUSEL' }) {
+function SubmitButton({ templateType, isAdminForm }: { templateType: 'STANDARD' | 'CATALOG_MESSAGE' | 'MARKETING_CAROUSEL', isAdminForm?: boolean }) {
     const { pending } = useFormStatus();
     let buttonText = 'Submit for Approval';
-    if (templateType === 'CATALOG_MESSAGE') buttonText = 'Save Product Carousel';
-    if (templateType === 'MARKETING_CAROUSEL') buttonText = 'Submit Carousel for Approval';
+    if (isAdminForm) buttonText = 'Save to Library';
+    else if (templateType === 'CATALOG_MESSAGE') buttonText = 'Save Product Carousel';
+    else if (templateType === 'MARKETING_CAROUSEL') buttonText = 'Submit Carousel for Approval';
 
     return (
       <Button size="lg" type="submit" disabled={pending}>
@@ -139,10 +140,19 @@ const languages = [
     { name: 'Zulu', code: 'zu' }
 ];
 
-export function CreateTemplateForm({ project, initialTemplate, isCloning }: { project: WithId<Project>, initialTemplate?: WithId<Template> | null, isCloning?: boolean }) {
+interface CreateTemplateFormProps {
+    project?: WithId<Project>;
+    initialTemplate?: WithId<Template> | null;
+    isCloning?: boolean;
+    isAdminForm?: boolean;
+}
+
+export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdminForm = false }: CreateTemplateFormProps) {
   const router = useRouter();
   const { toast } = useToast();
-  const [state, formAction] = useActionState(handleCreateTemplate, createTemplateInitialState);
+  
+  const serverAction = isAdminForm ? saveLibraryTemplate : handleCreateTemplate;
+  const [state, formAction] = useActionState(serverAction, createTemplateInitialState);
   
   const [templateType, setTemplateType] = useState<'STANDARD' | 'CATALOG_MESSAGE' | 'MARKETING_CAROUSEL'>('STANDARD');
 
@@ -228,7 +238,11 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
   useEffect(() => {
     if (state?.message) {
       toast({ title: 'Success!', description: state.message });
-      router.push('/dashboard/templates');
+      if (isAdminForm) {
+        router.push('/admin/dashboard/template-library');
+      } else {
+        router.push('/dashboard/templates');
+      }
     }
     if (state?.error) {
       toast({ title: 'Submission Error', description: state.error, variant: 'destructive' });
@@ -239,7 +253,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
     if (state?.debugInfo) {
         setLastDebugInfo(state.debugInfo);
     }
-  }, [state, toast, router]);
+  }, [state, toast, router, isAdminForm]);
 
   const handleAddButton = (type: ButtonType['type']) => {
     const hasQuickReply = buttons.some(b => b.type === 'QUICK_REPLY');
@@ -317,13 +331,32 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
     });
   };
 
+  const getTemplateComponents = () => {
+      const components = [];
+      if (headerFormat !== 'NONE') {
+        const headerComponent: any = { type: 'HEADER', format: headerFormat };
+        if (headerFormat === 'TEXT') {
+            headerComponent.text = headerText;
+        }
+        components.push(headerComponent);
+      }
+      components.push({ type: 'BODY', text: body });
+      if (footer) components.push({ type: 'FOOTER', text: footer });
+      if (buttons.length > 0) {
+        components.push({ type: 'BUTTONS', buttons: buttons });
+      }
+      return JSON.stringify(components);
+  }
+
 
   return (
     <form action={formAction}>
-      <input type="hidden" name="projectId" value={project._id.toString()} />
+      {project && <input type="hidden" name="projectId" value={project._id.toString()} />}
       <input type="hidden" name="buttons" value={JSON.stringify(buttons)} />
       <input type="hidden" name="carouselCards" value={JSON.stringify(carouselCards)} />
       <input type="hidden" name="templateType" value={templateType} />
+      {isAdminForm && <input type="hidden" name="components" value={getTemplateComponents()} />}
+
       
       <div className="mb-8">
         <Label className="text-base">Template Type</Label>
@@ -354,7 +387,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                   <CardContent className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                       <Label htmlFor="templateName">Template Name</Label>
-                      <Input id="templateName" name="templateName" placeholder="e.g., order_confirmation" value={templateName} onChange={(e) => setTemplateName(e.target.value)} required />
+                      <Input id="templateName" name="name" placeholder="e.g., order_confirmation" value={templateName} onChange={(e) => setTemplateName(e.target.value)} required />
                       <p className="text-xs text-muted-foreground">Lowercase letters, numbers, and underscores only.</p>
                   </div>
                   <div className="space-y-2">
@@ -405,7 +438,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
                           </div>
                       )}
 
-                      {['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && (
+                      {['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && !isAdminForm && (
                           <div className="space-y-4">
                               <div>
                                   <Label htmlFor="headerSampleUrl">Header Sample Media URL</Label>
@@ -674,7 +707,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning }: { pr
       )}
 
       <div className="flex justify-end">
-        <SubmitButton templateType={templateType} />
+        <SubmitButton templateType={templateType} isAdminForm={isAdminForm} />
       </div>
     </form>
   );

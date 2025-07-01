@@ -21,6 +21,8 @@ import { redirect } from 'next/navigation';
 import { hashPassword, comparePassword, createSessionToken, verifySessionToken } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
+import { premadeTemplates } from '@/lib/premade-templates';
+
 
 // --- Plan Management Types ---
 export type PlanFeaturePermissions = {
@@ -261,6 +263,13 @@ export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 
 // Re-export types for client components
 export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign };
+
+export type LibraryTemplate = Omit<Template, 'metaId' | 'status' | 'qualityScore'> & {
+    _id?: ObjectId;
+    isCustom?: boolean;
+    createdAt?: Date;
+}
+
 
 export type CannedMessage = {
     _id: ObjectId;
@@ -3740,5 +3749,65 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
     } catch (e: any) {
         console.error('Failed to create WhatsApp Ad:', getErrorMessage(e));
         return { error: getErrorMessage(e) || 'An unexpected error occurred during ad creation.' };
+    }
+}
+
+// --- TEMPLATE LIBRARY ACTIONS ---
+
+export async function getLibraryTemplates(): Promise<LibraryTemplate[]> {
+    try {
+        const { db } = await connectToDatabase();
+        const customTemplates = await db.collection<LibraryTemplate>('library_templates').find({}).sort({ name: 1 }).toArray();
+        const allTemplates = [...premadeTemplates, ...customTemplates];
+        return JSON.parse(JSON.stringify(allTemplates));
+    } catch (e) {
+        console.error("Failed to fetch library templates:", e);
+        return premadeTemplates; // Fallback to static templates on error
+    }
+}
+
+export async function saveLibraryTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    try {
+        const templateData: LibraryTemplate = {
+            name: formData.get('name') as string,
+            category: formData.get('category') as Template['category'],
+            language: formData.get('language') as string,
+            body: formData.get('body') as string,
+            components: JSON.parse(formData.get('components') as string),
+            isCustom: true,
+            createdAt: new Date(),
+        };
+
+        if (!templateData.name || !templateData.category || !templateData.language || !templateData.body) {
+            return { error: 'Name, category, language, and body are required.' };
+        }
+
+        const { db } = await connectToDatabase();
+        await db.collection('library_templates').insertOne(templateData as any);
+
+        revalidatePath('/admin/dashboard/template-library');
+        revalidatePath('/dashboard/templates/library');
+        return { message: `Template "${templateData.name}" added to the library.` };
+
+    } catch (e: any) {
+        console.error("Failed to save library template:", e);
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function deleteLibraryTemplate(id: string): Promise<{ message?: string; error?: string }> {
+    if (!ObjectId.isValid(id)) return { error: 'Invalid template ID.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('library_templates').deleteOne({ _id: new ObjectId(id) });
+        if (result.deletedCount === 0) {
+            return { error: 'Could not find the custom library template to delete.' };
+        }
+        revalidatePath('/admin/dashboard/template-library');
+        revalidatePath('/dashboard/templates/library');
+        return { message: 'Custom template removed from the library.' };
+    } catch (e: any) {
+        return { error: e.message || 'An unexpected error occurred.' };
     }
 }

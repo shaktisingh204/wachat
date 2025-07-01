@@ -28,13 +28,14 @@ import {
 } from '@/components/ui/sidebar';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { WachatLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell, CreditCard, GitBranch } from 'lucide-react';
+import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell, CreditCard, GitBranch, BookCopy } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { handleLogout } from '@/app/actions';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/dashboard/plans', label: 'Plans', icon: CreditCard },
+  { href: '/admin/dashboard/template-library', label: 'Template Library', icon: BookCopy },
   { href: '/admin/dashboard/system', label: 'System Health', icon: ShieldCheck },
   { href: '/admin/dashboard/broadcast-log', label: 'Broadcast Log', icon: History },
   { href: '/admin/dashboard/flow-logs', label: 'Flow Logs', icon: GitBranch },

@@ -4,13 +4,15 @@
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { premadeTemplates } from '@/lib/premade-templates';
-import type { Template } from '@/app/dashboard/page';
+import { getLibraryTemplates, type LibraryTemplate } from '@/app/actions';
 import { BookCopy, ChevronLeft, ImageIcon, Phone, Link as LinkIcon, Star } from 'lucide-react';
 import Link from 'next/link';
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-// New component for the WhatsApp-like preview
-const TemplatePreviewCard = ({ template, onUse }: { template: Omit<Template, 'metaId' | 'status' | 'qualityScore'>, onUse: (template: any) => void }) => {
+
+const TemplatePreviewCard = ({ template, onUse }: { template: LibraryTemplate, onUse: (template: any) => void }) => {
     const headerComponent = template.components.find(c => c.type === 'HEADER');
     const footerComponent = template.components.find(c => c.type === 'FOOTER');
     const buttons = template.components.find(c => c.type === 'BUTTONS')?.buttons || [];
@@ -47,7 +49,7 @@ const TemplatePreviewCard = ({ template, onUse }: { template: Omit<Template, 'me
             </CardHeader>
             <CardContent className="flex-grow flex flex-col justify-center bg-slate-200 p-4 rounded-md border">
                 {/* The WhatsApp-like message bubble */}
-                <div className="w-full max-w-sm mx-auto">
+                <div className="w-full max-w-xs mx-auto">
                     <div className="bg-[#dcf8c6] rounded-lg shadow-sm p-3 text-sm text-gray-800 space-y-2">
                         {/* Header */}
                         {headerComponent && (headerComponent.format === 'IMAGE' || headerComponent.format === 'VIDEO' || headerComponent.format === 'DOCUMENT') && (
@@ -94,12 +96,30 @@ const TemplatePreviewCard = ({ template, onUse }: { template: Omit<Template, 'me
 
 export default function TemplateLibraryPage() {
     const router = useRouter();
+    const [templates, setTemplates] = useState<LibraryTemplate[]>([]);
+    const [isLoading, startLoading] = useTransition();
+    const [categoryFilter, setCategoryFilter] = useState('All');
 
-    const handleUseTemplate = (template: Omit<Template, 'metaId' | 'status' | 'qualityScore'>) => {
-        // We pass the template data to the create page via localStorage
+    useEffect(() => {
+        startLoading(async () => {
+            const data = await getLibraryTemplates();
+            setTemplates(data);
+        });
+    }, []);
+
+    const handleUseTemplate = (template: LibraryTemplate) => {
         localStorage.setItem('templateToAction', JSON.stringify(template));
         router.push('/dashboard/templates/create?action=clone');
     };
+
+    const categories = useMemo(() => ['All', ...Array.from(new Set(templates.map(t => t.category)))], [templates]);
+
+    const filteredTemplates = useMemo(() => {
+        if (categoryFilter === 'All') {
+            return templates;
+        }
+        return templates.filter(t => t.category === categoryFilter);
+    }, [categoryFilter, templates]);
 
     return (
         <div className="flex flex-col gap-8">
@@ -121,11 +141,25 @@ export default function TemplateLibraryPage() {
                 </div>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {premadeTemplates.map((template, index) => (
-                    <TemplatePreviewCard key={index} template={template} onUse={handleUseTemplate} />
-                ))}
-            </div>
+            <Tabs value={categoryFilter} onValueChange={setCategoryFilter}>
+                <TabsList>
+                    {categories.map(cat => (
+                        <TabsTrigger key={cat} value={cat} className="capitalize">{cat.toLowerCase().replace(/_/g, ' ')}</TabsTrigger>
+                    ))}
+                </TabsList>
+            </Tabs>
+
+            {isLoading ? (
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-96 w-full"/>)}
+                </div>
+            ) : (
+                <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                    {filteredTemplates.map((template, index) => (
+                        <TemplatePreviewCard key={template.name + index} template={template} onUse={handleUseTemplate} />
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
