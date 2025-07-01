@@ -179,9 +179,14 @@ function CreateMetaFlowPage() {
             const result = await handleGenerateMetaFlow(aiPrompt, category);
             if (result.error) {
                 toast({ title: "AI Generation Failed", description: result.error, variant: "destructive" });
-            } else if (result) {
-                setFlowData(result);
-                toast({ title: "Flow Generated!", description: "The AI has created your flow. Review and save it." });
+            } else if (result.flowJson) {
+                try {
+                    const parsedFlow = JSON.parse(result.flowJson);
+                    setFlowData(parsedFlow);
+                    toast({ title: "Flow Generated!", description: "The AI has created your flow. Review and save it." });
+                } catch (e) {
+                     toast({ title: "AI Generation Error", description: "The AI returned invalid JSON. Please try again.", variant: "destructive" });
+                }
             }
         });
     };
@@ -201,14 +206,15 @@ function CreateMetaFlowPage() {
     const addComponentToScreen = (screenIndex: number, componentType: DeclarativeUIComponent['type']) => {
         const newComponent: any = { type: componentType };
         // Basic default properties for new components
-        if (['TextInput', 'TextArea', 'DatePicker', 'Dropdown', 'RadioButtonsGroup', 'PhotoPicker', 'DocumentPicker'].includes(componentType)) {
-            newComponent.name = `${componentType.toLowerCase()}_${Date.now()}`;
-            newComponent.label = `New ${componentType}`;
+        if (componentType === 'TextSubheading' || componentType === 'TextBody' || componentType === 'TextCaption') {
+            newComponent.text = `New ${componentType}`;
+        } else {
+             newComponent.name = `${componentType.toLowerCase()}_${Date.now()}`;
+            if (['TextInput', 'TextArea', 'DatePicker', 'Dropdown', 'RadioButtonsGroup', 'PhotoPicker', 'DocumentPicker'].includes(componentType)) {
+                newComponent.label = `New ${componentType}`;
+            }
         }
-        if (['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(componentType)) {
-            newComponent.text = `New ${componentType} Text`;
-        }
-         if (['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup'].includes(componentType)) {
+        if (['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup'].includes(componentType)) {
             newComponent['data-source'] = [{ id: `opt_${Date.now()}`, title: 'Option 1' }];
         }
         if (componentType === 'Footer') {
@@ -219,7 +225,7 @@ function CreateMetaFlowPage() {
         setFlowData(prev => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
-            if (screenToUpdate.layout.children[0].type === 'Form') {
+            if (screenToUpdate.layout.children[0]?.type === 'Form') {
                 screenToUpdate.layout.children[0].children.push(newComponent);
             } else {
                  screenToUpdate.layout.children.push(newComponent);
@@ -233,7 +239,7 @@ function CreateMetaFlowPage() {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
             const formOrLayout = screenToUpdate.layout.children[0];
-            if (formOrLayout.type === 'Form') {
+            if (formOrLayout?.type === 'Form') {
                 formOrLayout.children.splice(componentIndex, 1);
             } else {
                  screenToUpdate.layout.children.splice(componentIndex, 1);
@@ -374,7 +380,7 @@ function CreateMetaFlowPage() {
                                                     <div className="flex items-center gap-2"><Label htmlFor={`success-${screen.id}`}>Success Screen</Label><Switch id={`success-${screen.id}`} checked={!!screen.success} onCheckedChange={(val) => updateScreenField(screenIndex, 'success', val)}/></div>
                                                 </div>
                                                 <h4 className="font-semibold text-sm">Components</h4>
-                                                {(screen.layout.children[0]?.children || screen.layout.children).map((component: any, compIndex: number) => (
+                                                {(screen.layout.children[0]?.children || screen.layout.children).filter(Boolean).map((component: any, compIndex: number) => (
                                                     <div key={component.name || compIndex} className="p-3 border rounded-lg space-y-2 relative bg-background">
                                                         <div className="flex justify-between items-center">
                                                             <p className="text-sm font-medium text-muted-foreground">{component.type}</p>
@@ -431,5 +437,3 @@ export default function CreateMetaFlowPageWrapper() {
     </Suspense>
   )
 }
-
-    
