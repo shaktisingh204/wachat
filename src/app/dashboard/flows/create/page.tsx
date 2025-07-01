@@ -5,7 +5,7 @@ import { useActionState, useEffect, useState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, LoaderCircle, Save, GripVertical, Trash2, Plus } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -15,10 +15,12 @@ import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AlertCircle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const createFlowInitialState = {
   message: null,
@@ -35,110 +37,130 @@ function SubmitButton() {
     )
 }
 
-const categories = [
-    { id: 'LEAD_GENERATION', name: 'Lead Generation', desc: 'Collect user info like name, email, etc.', needsEndpoint: true },
-    { id: 'CUSTOMER_SUPPORT', name: 'Customer Support', desc: 'Structured support interactions.', needsEndpoint: true },
-    { id: 'APPOINTMENT_BOOKING', name: 'Appointment Booking', desc: 'Book or reschedule appointments.', needsEndpoint: true },
-    { id: 'PRODUCT_RECOMMENDATION', name: 'Product Recommendation', desc: 'Help users select or configure a product.', needsEndpoint: false },
-    { id: 'ORDER_TRACKING', name: 'Order Tracking', desc: 'Get delivery status or updates.', needsEndpoint: true },
-    { id: 'ONBOARDING', name: 'Onboarding', desc: 'Multi-step guidance for new users.', needsEndpoint: true },
-    { id: 'FEEDBACK_COLLECTION', name: 'Feedback Collection', desc: 'Survey-style flows to gather feedback.', needsEndpoint: false },
-    { id: 'APPLICATION_PROCESS', name: 'Application Process', desc: 'Step-by-step input for applications.', needsEndpoint: true },
-    { id: 'SUBSCRIPTION_MANAGEMENT', name: 'Subscription Management', desc: 'Lets users opt-in/out of updates.', needsEndpoint: false },
-    { id: 'SURVEY', name: 'Survey', desc: 'Simple questionnaire for research.', needsEndpoint: false },
-    { id: 'SIGN_UP', name: 'Sign Up', desc: 'User registration flows.', needsEndpoint: true },
-    { id: 'SIGN_IN', name: 'Sign In', desc: 'User authentication flows.', needsEndpoint: true },
-    { id: 'OTHER', name: 'Other', desc: 'A general-purpose category.', needsEndpoint: true },
-];
-
-type FormElement = {
-    id: number;
-    type: 'TextHeading' | 'TextInput' | 'DatePicker' | 'RadioButtons';
-    label: string;
-    name: string;
-    required: boolean;
-    options: string;
+const templates = {
+    withoutEndpoint: [
+        { id: 'default', name: 'Default', category: 'OTHER', description: 'A simple, one-screen flow with a title and a completion button.'},
+        { id: 'purchase_interest', name: 'Collect purchase interest', category: 'LEAD_GENERATION', description: 'Ask users which product they are interested in.'},
+        { id: 'feedback', name: 'Get feedback', category: 'FEEDBACK_COLLECTION', description: 'A simple feedback form with a rating.'},
+        { id: 'survey', name: 'Send a survey', category: 'SURVEY', description: 'Ask a few questions to survey your users.'},
+        { id: 'support', name: 'Customer support', category: 'CUSTOMER_SUPPORT', description: 'Guide users through common support queries.'},
+    ],
+    withEndpoint: [
+        { id: 'loan_credit', name: 'Get leads for a pre-approved loan/credit card', category: 'LEAD_GENERATION', description: 'Capture leads for financial products. Endpoint required.'},
+        { id: 'insurance_quote', name: 'Provide insurance quote', category: 'LEAD_GENERATION', description: 'Collect details to provide an insurance quote. Endpoint required.'},
+        { id: 'personalized_offer', name: 'Capture interest for a personalised offer', category: 'LEAD_GENERATION', description: 'Gather user preferences for a custom offer. Endpoint required.'},
+        { id: 'sign_in_up', name: 'Account sign-in/sign-up', category: 'SIGN_UP', description: 'A form for user registration or login. Endpoint required.'},
+        { id: 'appointment', name: 'Appointment booking', category: 'APPOINTMENT_BOOKING', description: 'Allow users to book appointments. Endpoint required.'},
+    ]
 };
 
-function GenericFlowForm({ onJsonChange, category }: { onJsonChange: (json: string) => void, category: string }) {
-    const [title, setTitle] = useState("Custom Form");
-    const [elements, setElements] = useState<FormElement[]>([]);
-    const [submitLabel, setSubmitLabel] = useState("Submit");
-    
+// --- Template Specific Forms ---
+
+const DefaultForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
+    const [title, setTitle] = useState('Hello World');
+    const [body, setBody] = useState('Welcome to our flow.');
+    const [buttonLabel, setButtonLabel] = useState('Complete');
+
     useEffect(() => {
-        const formChildren: any[] = elements.map(el => {
-            const base: any = { type: el.type, label: el.label, name: el.name };
-            if (el.type !== 'TextHeading') {
-                base.required = el.required;
-            }
-            if (el.type === 'RadioButtons' && el.options) {
-                base['data-source'] = el.options.split(',').map(opt => ({ id: opt.trim().toLowerCase().replace(/\s+/g, '_'), title: opt.trim() }));
-            }
-            if (el.type === 'TextInput' && (el.name.includes('email') || el.name.includes('phone') || el.name.includes('password'))) {
-                base['input-type'] = el.name.includes('email') ? 'email' : el.name.includes('phone') ? 'phone' : 'password';
-            }
-            return base;
-        });
-
-        formChildren.push({ type: 'Footer', label: submitLabel, 'on-click-action': { name: 'complete', payload: {} } });
-        const json = { version: "3.0", data_api_version: "3.0", routing_model: {}, screens: [{ id: "CUSTOM_SCREEN", title: title, data: {}, layout: { type: 'SingleColumnLayout', children: [{ type: 'Form', name: `${category.toLowerCase()}_form`, children: formChildren }] } }] };
+        const json = {
+            version: "3.0", data_api_version: "3.0", routing_model: {},
+            screens: [{
+                id: "WELCOME_SCREEN", title, data: {}, terminal: true, success: true,
+                layout: { type: 'SingleColumnLayout', children: [
+                    { type: 'TextHeading', text: title },
+                    { type: 'TextBody', text: body },
+                    { type: 'Footer', label: buttonLabel, 'on-click-action': { name: 'complete' } }
+                ] }
+            }]
+        };
         onJsonChange(JSON.stringify(json, null, 2));
-    }, [title, elements, submitLabel, onJsonChange, category]);
-
-    const addElement = (type: FormElement['type']) => {
-        setElements(prev => [...prev, { id: Date.now(), type, label: '', name: '', required: false, options: '' }]);
-    };
-    
-    const updateElement = (id: number, field: string, value: string | boolean) => {
-        setElements(prev => prev.map(el => el.id === id ? { ...el, [field]: value } : el));
-    };
-
-    const removeElement = (id: number) => {
-        setElements(prev => prev.filter(el => el.id !== id));
-    };
+    }, [title, body, buttonLabel, onJsonChange]);
 
     return (
         <div className="space-y-4">
-            <div className="space-y-2">
-                <Label>Screen Title</Label>
-                <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g., Customer Survey" />
-            </div>
-            <Separator/>
-             <div className="space-y-2">
-                <Label>Form Fields</Label>
-                <div className="space-y-2">
-                    {elements.map(el => (
-                        <div key={el.id} className="p-4 border rounded-lg bg-background space-y-3 relative">
-                            <Button type="button" variant="ghost" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => removeElement(el.id)}><Trash2 className="h-4 w-4"/></Button>
-                            <div className="flex items-center gap-2">
-                                <GripVertical className="h-5 w-5 text-muted-foreground cursor-grab"/>
-                                <Badge variant="secondary">{el.type.replace(/([A-Z])/g, ' $1').trim()}</Badge>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-2"><Label>Label</Label><Input value={el.label} onChange={e => updateElement(el.id, 'label', e.target.value)} placeholder="e.g., Your Full Name" /></div>
-                                <div className="space-y-2"><Label>Name (variable)</Label><Input value={el.name} onChange={e => updateElement(el.id, 'name', e.target.value)} placeholder="e.g., user_name" /></div>
-                            </div>
-                             {el.type === 'RadioButtons' && <div className="space-y-2"><Label>Options (comma-separated)</Label><Input value={el.options} onChange={e => updateElement(el.id, 'options', e.target.value)} placeholder="Option 1, Option 2" /></div>}
-                            {el.type !== 'TextHeading' && (
-                                <div className="flex items-center space-x-2"><Checkbox checked={el.required} onCheckedChange={checked => updateElement(el.id, 'required', !!checked)}/><Label className="font-normal">Required</Label></div>
-                            )}
-                        </div>
-                    ))}
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    <Button type="button" variant="outline" size="sm" onClick={() => addElement('TextHeading')}><Plus className="mr-2 h-4 w-4"/>Heading</Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => addElement('TextInput')}><Plus className="mr-2 h-4 w-4"/>Text Input</Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => addElement('DatePicker')}><Plus className="mr-2 h-4 w-4"/>Date Picker</Button>
-                    <Button type="button" variant="outline" size="sm" onClick={() => addElement('RadioButtons')}><Plus className="mr-2 h-4 w-4"/>Radio Buttons</Button>
-                </div>
-            </div>
-            <Separator/>
-            <div className="space-y-2">
-                <Label>Submit Button Label</Label>
-                <Input value={submitLabel} onChange={e => setSubmitLabel(e.target.value)} placeholder="Submit"/>
-            </div>
+            <div className="space-y-2"><Label>Title</Label><Input value={title} onChange={e => setTitle(e.target.value)} /></div>
+            <div className="space-y-2"><Label>Body</Label><Textarea value={body} onChange={e => setBody(e.target.value)} /></div>
+            <div className="space-y-2"><Label>Button Label</Label><Input value={buttonLabel} onChange={e => setButtonLabel(e.target.value)} /></div>
         </div>
-    )
+    );
+};
+
+const FeedbackForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
+    const [title, setTitle] = useState('Feedback');
+    const [question, setQuestion] = useState('How would you rate your experience?');
+    
+    useEffect(() => {
+        const json = {
+            version: "3.0", data_api_version: "3.0", routing_model: {},
+            screens: [{
+                id: "FEEDBACK_SCREEN", title, data: {},
+                layout: { type: 'SingleColumnLayout', children: [
+                    { type: 'Form', name: 'feedback_form', children: [
+                        { type: 'TextHeading', text: question },
+                        { type: 'RadioButtons', name: 'rating', 'data-source': [
+                            {id: '5', title: 'Excellent'}, {id: '4', title: 'Good'}, {id: '3', title: 'Average'}, {id: '2', title: 'Poor'}, {id: '1', title: 'Very Poor'}
+                        ], required: true },
+                        { type: 'TextInput', name: 'comments', label: 'Additional Comments', required: false },
+                        { type: 'Footer', label: 'Submit Feedback', 'on-click-action': { name: 'complete' } }
+                    ] }
+                ] }
+            }]
+        };
+        onJsonChange(JSON.stringify(json, null, 2));
+    }, [title, question, onJsonChange]);
+
+    return (
+        <div className="space-y-4">
+            <div className="space-y-2"><Label>Screen Title</Label><Input value={title} onChange={e => setTitle(e.target.value)} /></div>
+            <div className="space-y-2"><Label>Feedback Question</Label><Input value={question} onChange={e => setQuestion(e.target.value)} /></div>
+        </div>
+    );
+};
+
+const AppointmentForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
+    const [title, setTitle] = useState('Book an Appointment');
+    const [dateLabel, setDateLabel] = useState('Select a Date');
+    const [timeLabel, setTimeLabel] = useState('Select a Time Slot');
+    
+    useEffect(() => {
+        const json = {
+            version: "3.0", data_api_version: "3.0", routing_model: {},
+            screens: [{
+                id: "APPOINTMENT_SCREEN", title, data: {},
+                layout: { type: 'SingleColumnLayout', children: [
+                    { type: 'Form', name: 'appointment_form', children: [
+                        { type: 'TextHeading', text: title },
+                        { type: 'DatePicker', name: 'appointment_date', label: dateLabel, required: true },
+                        { type: 'Dropdown', name: 'appointment_time', label: timeLabel, required: true, 'data-source': [
+                            {id: '0900', title: '09:00 AM'}, {id: '1100', title: '11:00 AM'}, {id: '1400', title: '02:00 PM'}, {id: '1600', title: '04:00 PM'}
+                        ]},
+                        { type: 'TextInput', name: 'notes', label: 'Notes (optional)' },
+                        { type: 'Footer', label: 'Book Appointment', 'on-click-action': { name: 'complete', payload: { _endpoint: true } } }
+                    ] }
+                ] }
+            }]
+        };
+        onJsonChange(JSON.stringify(json, null, 2));
+    }, [title, dateLabel, timeLabel, onJsonChange]);
+
+    return (
+        <div className="space-y-4">
+            <div className="space-y-2"><Label>Screen Title</Label><Input value={title} onChange={e => setTitle(e.target.value)} /></div>
+            <div className="space-y-2"><Label>Date Picker Label</Label><Input value={dateLabel} onChange={e => setDateLabel(e.target.value)} /></div>
+            <div className="space-y-2"><Label>Time Slot Label</Label><Input value={timeLabel} onChange={e => setTimeLabel(e.target.value)} /></div>
+        </div>
+    );
+};
+
+// ... add more form components for other templates here
+
+const TemplateRenderer = ({ templateId, onJsonChange }: { templateId: string, onJsonChange: (json: string) => void }) => {
+    switch (templateId) {
+        case 'feedback': return <FeedbackForm onJsonChange={onJsonChange} />;
+        case 'appointment': return <AppointmentForm onJsonChange={onJsonChange} />;
+        // Add other cases here
+        default: return <DefaultForm onJsonChange={onJsonChange} />;
+    }
 }
 
 export default function CreateMetaFlowPage() {
@@ -149,7 +171,7 @@ export default function CreateMetaFlowPage() {
     const router = useRouter();
 
     const [activeTab, setActiveTab] = useState('without-endpoint');
-    const [selectedCategory, setSelectedCategory] = useState('LEAD_GENERATION');
+    const [selectedTemplate, setSelectedTemplate] = useState('default');
     const [flowJson, setFlowJson] = useState('');
 
     useEffect(() => {
@@ -167,7 +189,14 @@ export default function CreateMetaFlowPage() {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
     }, [state, toast, router]);
+    
+    const activeTemplateList = activeTab === 'with-endpoint' ? templates.withEndpoint : templates.withoutEndpoint;
 
+    useEffect(() => {
+        setSelectedTemplate(activeTemplateList[0].id);
+    }, [activeTab, activeTemplateList]);
+
+    const currentTemplate = [...templates.withEndpoint, ...templates.withoutEndpoint].find(t => t.id === selectedTemplate);
 
     if (!isClient) {
         return <Skeleton className="h-screen w-full" />
@@ -188,7 +217,7 @@ export default function CreateMetaFlowPage() {
     return (
         <form action={formAction} className="space-y-6">
             <input type="hidden" name="projectId" value={projectId}/>
-            <input type="hidden" name="category" value={selectedCategory} />
+            <input type="hidden" name="category" value={currentTemplate?.category || 'OTHER'} />
             <input type="hidden" name="flow_data" value={flowJson} />
 
             <div>
@@ -212,19 +241,6 @@ export default function CreateMetaFlowPage() {
                         <Input id="name" name="name" placeholder="e.g., lead_capture_flow" required/>
                         <p className="text-xs text-muted-foreground">Lowercase letters and underscores only.</p>
                     </div>
-                    <div className="space-y-2">
-                        <Label>Flow Category</Label>
-                        <RadioGroup value={selectedCategory} onValueChange={setSelectedCategory} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            {categories.map(cat => (
-                                <div key={cat.id}>
-                                    <RadioGroupItem value={cat.id} id={cat.id} className="sr-only" />
-                                    <Label htmlFor={cat.id} className={`flex flex-col items-center justify-center rounded-md border-2 p-4 hover:bg-accent hover:text-accent-foreground cursor-pointer text-center h-full ${selectedCategory === cat.id ? 'border-primary' : 'border-muted'}`}>
-                                        <span className="font-semibold text-sm">{cat.name}</span>
-                                    </Label>
-                                </div>
-                            ))}
-                        </RadioGroup>
-                    </div>
                 </CardContent>
             </Card>
 
@@ -238,25 +254,55 @@ export default function CreateMetaFlowPage() {
                         <TabsTrigger value="without-endpoint">Simple Flow (No Endpoint)</TabsTrigger>
                         <TabsTrigger value="with-endpoint">Data Exchange Flow (With Endpoint)</TabsTrigger>
                       </TabsList>
-                      <TabsContent value="without-endpoint" className="pt-4">
-                          <GenericFlowForm onJsonChange={setFlowJson} category={selectedCategory} />
+                      <TabsContent value="without-endpoint" className="pt-6 space-y-4">
+                        <TemplateSelection templates={activeTemplateList} selected={selectedTemplate} onSelect={setSelectedTemplate}/>
+                        <div className="p-4 border rounded-md">
+                            <TemplateRenderer templateId={selectedTemplate} onJsonChange={setFlowJson} />
+                        </div>
                       </TabsContent>
-                      <TabsContent value="with-endpoint" className="pt-4 space-y-4">
+                      <TabsContent value="with-endpoint" className="pt-6 space-y-4">
                           <div className="space-y-2">
                             <Label htmlFor="endpoint_uri">Endpoint URI</Label>
                             <Input id="endpoint_uri" name="endpoint_uri" placeholder="https://your-server.com/api/flow" />
                             <p className="text-xs text-muted-foreground">The endpoint to send flow data to for processing.</p>
                           </div>
-                          <Separator/>
-                          <GenericFlowForm onJsonChange={setFlowJson} category={selectedCategory} />
+                          <TemplateSelection templates={activeTemplateList} selected={selectedTemplate} onSelect={setSelectedTemplate}/>
+                          <div className="p-4 border rounded-md">
+                            <TemplateRenderer templateId={selectedTemplate} onJsonChange={setFlowJson} />
+                          </div>
                       </TabsContent>
                     </Tabs>
                 </CardContent>
             </Card>
+
+            <Accordion type="single" collapsible>
+                <AccordionItem value="json-preview">
+                    <AccordionTrigger><div className="flex items-center gap-2"><FileJson className="h-4 w-4"/> View Generated JSON</div></AccordionTrigger>
+                    <AccordionContent>
+                        <pre className="p-4 bg-muted/50 rounded-md text-xs font-mono max-h-96 overflow-auto">{flowJson}</pre>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
 
             <div className="flex justify-end">
                 <SubmitButton/>
             </div>
         </form>
     );
+}
+
+function TemplateSelection({ templates, selected, onSelect }: { templates: any[], selected: string, onSelect: (id: string) => void }) {
+    const current = templates.find(t => t.id === selected);
+    return (
+        <div className="space-y-2">
+            <Label>Select a Template</Label>
+            <Select value={selected} onValueChange={onSelect}>
+                <SelectTrigger><SelectValue/></SelectTrigger>
+                <SelectContent>
+                    {templates.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                </SelectContent>
+            </Select>
+            {current && <p className="text-sm text-muted-foreground">{current.description}</p>}
+        </div>
+    )
 }
