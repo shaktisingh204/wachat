@@ -50,7 +50,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getFlowsForProject, saveFlow, deleteFlow, getFlowById, getFlowBuilderPageData, getTemplates, handleGenerateFlowBuilderFlow } from '@/app/actions';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
-import type { Flow, FlowNode, FlowEdge, Template, MetaFlow } from '@/app/actions';
+import type { Flow, FlowNode, FlowEdge, Template, MetaFlow } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -241,18 +241,12 @@ const ConnectionLine = ({ from, to }: { from: {x: number, y: number}, to: {x: nu
 };
 
 const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, flows, templates, metaFlows }: { selectedNode: FlowNode | null; updateNodeData: (id: string, data: Partial<any>) => void, deleteNode: (id: string) => void, flows: WithId<Flow>[], templates: WithId<Template>[], metaFlows: WithId<MetaFlow>[] }) => {
-    const { toast } = useToast();
-
     if (!selectedNode) {
-        return (
-            <Card className="h-full">
-                <CardContent className="flex h-full items-center justify-center p-4">
-                    <p className="text-sm text-muted-foreground text-center">Select a block to see its properties.</p>
-                </CardContent>
-            </Card>
-        );
+        return null;
     }
     
+    const { toast } = useToast();
+
     const handleDataChange = (field: keyof any, value: any) => {
         updateNodeData(selectedNode.id, { [field]: value });
     };
@@ -795,7 +789,7 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
 const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
     if (!sourcePos || !targetPos) return '';
     const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
-    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${to.x} ${to.y}`;
+    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
     return path;
 };
 
@@ -1423,3 +1417,4 @@ export default function FlowBuilderPage() {
         </>
     );
 }
+
