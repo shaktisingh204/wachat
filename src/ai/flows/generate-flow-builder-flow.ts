@@ -21,7 +21,7 @@ const FlowNodeDataSchema = z.object({
     label: z.string().describe('A short, descriptive label for the node block.'),
     text: z.string().optional().describe('The text content for message-based nodes like `text` or `buttons`.'),
     triggerKeywords: z.string().optional().describe('For `start` nodes, a comma-separated list of keywords that trigger the flow.'),
-    buttons: z.array(z.object({ id: z.string(), type: z.enum(['QUICK_REPLY']), text: z.string() })).optional().describe('An array of buttons for `buttons` nodes.'),
+    buttons: z.array(z.object({ id: z.string(), type: z.string().describe('The type of the button, always "QUICK_REPLY".'), text: z.string() })).optional().describe('An array of buttons for `buttons` nodes.'),
     variableToSave: z.string().optional().describe('For `input` nodes, the name of the variable to save the user\'s response to (e.g., "user_name").'),
     conditionType: z.enum(['variable', 'user_response']).optional().describe('For `condition` nodes, what to check.'),
     variable: z.string().optional().describe('For `condition` nodes, the variable to check (e.g., "{{user_name}}").'),
