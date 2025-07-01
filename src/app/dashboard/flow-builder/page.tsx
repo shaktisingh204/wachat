@@ -534,21 +534,37 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, 
                 );
              case 'triggerMetaFlow':
                 return (
-                    <div className="space-y-2">
-                        <Label htmlFor="meta-flow-select">Select Meta Flow</Label>
-                        <Select
-                            value={selectedNode.data.metaFlowId || ''}
-                            onValueChange={(val) => handleSelectChange(val, metaFlows.find(f => f._id.toString() === val)?.name || '', 'metaFlow')}
-                        >
-                            <SelectTrigger id="meta-flow-select"><SelectValue placeholder="Choose a Meta flow..." /></SelectTrigger>
-                            <SelectContent>
-                                {metaFlows.map(f => (
-                                    <SelectItem key={f._id.toString()} value={f._id.toString()}>
-                                        {f.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>Select Meta Flow</Label>
+                            <Select
+                                value={selectedNode.data.metaFlowId || ''}
+                                onValueChange={(val) => handleSelectChange(val, metaFlows.find(f => f._id.toString() === val)?.name || '', 'metaFlow')}
+                            >
+                                <SelectTrigger><SelectValue placeholder="Choose a Meta flow..." /></SelectTrigger>
+                                <SelectContent>
+                                    {metaFlows.map(f => (
+                                        <SelectItem key={f._id.toString()} value={f._id.toString()}>
+                                            {f.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <Separator />
+                        <h4 className="font-medium">Trigger Message Content</h4>
+                        <div className="space-y-2">
+                            <Label htmlFor="flow-header">Header Text</Label>
+                            <Input id="flow-header" value={selectedNode.data.header || ''} onChange={(e) => handleDataChange('header', e.target.value)} placeholder="e.g., Complete This Form" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="flow-body">Body Text</Label>
+                            <Textarea id="flow-body" value={selectedNode.data.body || ''} onChange={(e) => handleDataChange('body', e.target.value)} placeholder="e.g., Tap the button to start." />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="flow-footer">Footer Text</Label>
+                            <Input id="flow-footer" value={selectedNode.data.footer || ''} onChange={(e) => handleDataChange('footer', e.target.value)} placeholder="e.g., Powered by Wachat" />
+                        </div>
                     </div>
                 );
              case 'api':

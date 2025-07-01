@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -7,7 +6,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
 import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelligent-translate-flow';
-import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog } from '@/app/dashboard/page';
+import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template } from '@/app/dashboard/page';
 
 const BATCH_SIZE = 1000;
 
@@ -289,6 +288,110 @@ async function sendFlowCarousel(db: Db, project: WithId<Project>, contact: WithI
     }
 }
 
+async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>, logger: FlowLogger) {
+    const templateId = node.data.templateId;
+    if (!templateId) {
+        logger.log(`Error: Template ID is missing from node ${node.id}.`);
+        return;
+    }
+    const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId) });
+    if (!template) {
+        logger.log(`Error: Template with ID ${templateId} not found in database.`);
+        return;
+    }
+    
+    try {
+        const getVars = (text: string): number[] => {
+            if (!text) return [];
+            const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
+            return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
+        };
+
+        const payloadComponents: any[] = [];
+        const headerComponent = template.components.find(c => c.type === 'HEADER');
+        if (headerComponent?.format === 'TEXT' && headerComponent.text) {
+            const headerVars = getVars(headerComponent.text);
+            if (headerVars.length > 0) {
+                const parameters = headerVars.sort((a,b) => a-b).map(varNum => ({ type: 'text', text: interpolate(variables[`variable${varNum}`] || '', variables) }));
+                payloadComponents.push({ type: 'header', parameters });
+            }
+        }
+
+        const bodyComponent = template.components.find(c => c.type === 'BODY');
+        if (bodyComponent?.text) {
+            const bodyVars = getVars(bodyComponent.text);
+            if (bodyVars.length > 0) {
+                const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({ type: 'text', text: interpolate(variables[`variable${varNum}`] || '', variables) }));
+                payloadComponents.push({ type: 'body', parameters });
+            }
+        }
+        
+        const messageData = {
+            messaging_product: 'whatsapp', to: contact.waId, recipient_type: 'individual', type: 'template',
+            template: { name: template.name, language: { code: template.language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
+        };
+
+        logger.log(`Sending template "${template.name}".`, { payload: messageData });
+        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messageData, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'template',
+            content: messageData, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+
+    } catch(e: any) {
+        logger.log(`Flow: Failed to send template message to ${contact.waId}.`, { error: e.message });
+    }
+}
+
+async function sendMetaFlowTrigger(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>, logger: FlowLogger) {
+    const metaFlowId = node.data.metaFlowId;
+    if (!metaFlowId) {
+        logger.log(`Error: Meta Flow ID is missing from node ${node.id}.`);
+        return;
+    }
+    const metaFlow = await db.collection<MetaFlow>('meta_flows').findOne({ _id: new ObjectId(metaFlowId) });
+    if (!metaFlow) {
+        logger.log(`Error: Meta Flow with DB ID ${metaFlowId} not found.`);
+        return;
+    }
+
+    try {
+        const payload = {
+            messaging_product: "whatsapp",
+            to: contact.waId,
+            recipient_type: "individual",
+            type: "interactive",
+            interactive: {
+                type: "flow",
+                header: { type: "text", text: interpolate(node.data.header, variables) },
+                body: { text: interpolate(node.data.body, variables) },
+                footer: { text: interpolate(node.data.footer, variables) },
+                action: {
+                    name: metaFlow.name,
+                    parameters: {}
+                }
+            }
+        };
+
+        logger.log(`Triggering Meta Flow "${metaFlow.name}".`, { payload });
+        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'interactive',
+            content: payload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+    } catch (e: any) {
+        logger.log(`Flow: Failed to send Meta Flow trigger to ${contact.waId}.`, { error: e.message });
+    }
+}
+
 
 // --- Main Flow Engine ---
 
@@ -484,6 +587,16 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             if (edge) nextNodeId = edge.target;
             break;
         case 'addToCart':
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
+        case 'sendTemplate':
+            await sendFlowTemplate(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables, logger);
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
+        case 'triggerMetaFlow':
+            await sendMetaFlowTrigger(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables, logger);
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
@@ -796,6 +909,7 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
     
     // Invalidate chat cache to trigger UI refresh
     revalidatePath('/dashboard/chat');
+    revalidatePath('/dashboard/broadcasts');
 }
 
 
