@@ -1,25 +1,22 @@
 
 'use client';
 
-import { useActionState, useEffect, useState, useRef } from 'react';
+import { useActionState, useEffect, useState, useRef, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Info } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Info, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
 import { saveMetaFlow } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Textarea } from '@/components/ui/textarea';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 const createFlowInitialState = {
@@ -46,15 +43,15 @@ const templates = {
         { id: 'support', name: 'Customer support', category: 'CUSTOMER_SUPPORT', description: 'Guide users through common support queries.'},
     ],
     withEndpoint: [
-        { id: 'loan_credit', name: 'Get leads for a pre-approved loan/credit card', category: 'LEAD_GENERATION', description: 'Capture leads for financial products. Endpoint required.'},
-        { id: 'insurance_quote', name: 'Provide insurance quote', category: 'LEAD_GENERATION', description: 'Collect details to provide an insurance quote. Endpoint required.'},
-        { id: 'personalized_offer', name: 'Capture interest for a personalised offer', category: 'LEAD_GENERATION', description: 'Gather user preferences for a custom offer. Endpoint required.'},
-        { id: 'sign_in_up', name: 'Account sign-in/sign-up', category: 'SIGN_UP', description: 'A form for user registration or login. Endpoint required.'},
-        { id: 'appointment', name: 'Appointment booking', category: 'APPOINTMENT_BOOKING', description: 'Allow users to book appointments. Endpoint required.'},
+        { id: 'loan_credit', name: 'Get leads for a pre-approved loan/credit card', category: 'LEAD_GENERATION', description: 'Capture leads for financial products.'},
+        { id: 'insurance_quote', name: 'Provide insurance quote', category: 'LEAD_GENERATION', description: 'Collect details to provide an insurance quote.'},
+        { id: 'personalized_offer', name: 'Capture interest for a personalised offer', category: 'LEAD_GENERATION', description: 'Gather user preferences for a custom offer.'},
+        { id: 'sign_in_up', name: 'Account sign-in/sign-up', category: 'SIGN_UP', description: 'A form for user registration or login.'},
+        { id: 'appointment', name: 'Appointment booking', category: 'APPOINTMENT_BOOKING', description: 'Allow users to book appointments.'},
     ]
 };
 
-// --- Template Specific Forms ---
+// --- Form Components for each template ---
 
 const DefaultForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
     const [title, setTitle] = useState('Hello World');
@@ -152,13 +149,141 @@ const AppointmentForm = ({ onJsonChange }: { onJsonChange: (json: string) => voi
     );
 };
 
-// ... add more form components for other templates here
+const GenericFormBuilder = ({ onJsonChange, formTitle, formName, buttonLabel, fields }: { onJsonChange: (json: string) => void, formTitle: string, formName: string, buttonLabel: string, fields: any[] }) => {
+    useEffect(() => {
+        const json = {
+            version: "3.0", data_api_version: "3.0", routing_model: {},
+            screens: [{
+                id: `${formName.toUpperCase()}_SCREEN`, title: formTitle, data: {},
+                layout: { type: 'SingleColumnLayout', children: [
+                    { type: 'Form', name: formName, children: [
+                        { type: 'TextHeading', text: formTitle },
+                        ...fields,
+                        { type: 'Footer', label: buttonLabel, 'on-click-action': { name: 'complete' } }
+                    ] }
+                ] }
+            }]
+        };
+        onJsonChange(JSON.stringify(json, null, 2));
+    }, [formTitle, formName, buttonLabel, fields, onJsonChange]);
+
+    return (
+        <div className="p-4 border rounded-md bg-muted/50">
+            <p className="text-sm text-muted-foreground">This template uses a pre-defined set of fields. To customize fields, use a different template or build your own flow logic.</p>
+            <ul className="list-disc pl-5 mt-2 text-sm">
+                {fields.map((f, i) => <li key={i}>{f.label || f.type}</li>)}
+            </ul>
+        </div>
+    );
+};
+
+const PurchaseInterestForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
+    return <GenericFormBuilder 
+        onJsonChange={onJsonChange}
+        formTitle="Product Interest"
+        formName="interest_form"
+        buttonLabel="Submit"
+        fields={[
+            { type: 'TextInput', name: 'name', label: 'Full Name', required: true },
+            { type: 'Dropdown', name: 'product', label: 'Which product are you interested in?', required: true, 'data-source': [{id: 'p1', title: 'Product A'}, {id: 'p2', title: 'Product B'}] },
+        ]}
+    />
+};
+
+const SurveyForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
+    return <GenericFormBuilder 
+        onJsonChange={onJsonChange}
+        formTitle="Customer Survey"
+        formName="survey_form"
+        buttonLabel="Submit Survey"
+        fields={[
+            { type: 'RadioButtons', name: 'satisfaction', label: 'Overall, how satisfied are you?', required: true, 'data-source': [{id: '5', title: 'Very Satisfied'}, {id: '3', title: 'Neutral'}, {id: '1', title: 'Very Unsatisfied'}] },
+            { type: 'CheckboxGroup', name: 'features_used', label: 'Which features do you use?', required: true, 'data-source': [{id: 'f1', title: 'Feature X'}, {id: 'f2', title: 'Feature Y'}] },
+        ]}
+    />
+};
+
+const SupportForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
+    return <GenericFormBuilder 
+        onJsonChange={onJsonChange}
+        formTitle="Customer Support"
+        formName="support_form"
+        buttonLabel="Submit Request"
+        fields={[
+            { type: 'Dropdown', name: 'issue_type', label: 'What is your issue related to?', required: true, 'data-source': [{id: 'billing', title: 'Billing'}, {id: 'technical', title: 'Technical Support'}, {id: 'general', title: 'General Inquiry'}] },
+            { type: 'TextInput', name: 'details', label: 'Please describe your issue', 'input-type': 'multiline', required: true },
+        ]}
+    />
+};
+
+const LoanCreditForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
+    return <GenericFormBuilder 
+        onJsonChange={onJsonChange}
+        formTitle="Loan Application"
+        formName="loan_form"
+        buttonLabel="Apply Now"
+        fields={[
+            { type: 'TextInput', name: 'full_name', label: 'Full Name', required: true },
+            { type: 'TextInput', name: 'email', label: 'Email Address', 'input-type': 'email', required: true },
+            { type: 'TextInput', name: 'phone', label: 'Phone Number', 'input-type': 'phone', required: true },
+            { type: 'TextInput', name: 'income', label: 'Annual Income', 'input-type': 'number', required: true },
+            { type: 'OptIn', name: 'consent', label: 'I agree to the terms and conditions', required: true },
+        ]}
+    />
+};
+
+const InsuranceQuoteForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
+     return <GenericFormBuilder 
+        onJsonChange={onJsonChange}
+        formTitle="Insurance Quote"
+        formName="quote_form"
+        buttonLabel="Get Quote"
+        fields={[
+            { type: 'Dropdown', name: 'insurance_type', label: 'Type of Insurance', required: true, 'data-source': [{id: 'health', title: 'Health'}, {id: 'auto', title: 'Auto'}, {id: 'home', title: 'Home'}] },
+            { type: 'TextInput', name: 'zip_code', label: 'ZIP Code', 'input-type': 'number', required: true },
+        ]}
+    />
+};
+
+const PersonalizedOfferForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
+    return <GenericFormBuilder 
+        onJsonChange={onJsonChange}
+        formTitle="Personalized Offer"
+        formName="offer_form"
+        buttonLabel="Get My Offer"
+        fields={[
+            { type: 'CheckboxGroup', name: 'interests', label: 'What are your interests?', required: true, 'data-source': [{id: 'sports', title: 'Sports'}, {id: 'tech', title: 'Technology'}, {id: 'travel', title: 'Travel'}] },
+        ]}
+    />
+};
+
+const SignInUpForm = ({ onJsonChange }: { onJsonChange: (json: string) => void }) => {
+    return <GenericFormBuilder 
+        onJsonChange={onJsonChange}
+        formTitle="Create Your Account"
+        formName="signup_form"
+        buttonLabel="Sign Up"
+        fields={[
+            { type: 'TextInput', name: 'email', label: 'Email Address', 'input-type': 'email', required: true },
+            { type: 'TextInput', name: 'password', label: 'Password', 'input-type': 'password', required: true },
+        ]}
+    />
+};
+
+
+// --- Main Page Component ---
 
 const TemplateRenderer = ({ templateId, onJsonChange }: { templateId: string, onJsonChange: (json: string) => void }) => {
     switch (templateId) {
         case 'feedback': return <FeedbackForm onJsonChange={onJsonChange} />;
         case 'appointment': return <AppointmentForm onJsonChange={onJsonChange} />;
-        // Add other cases here
+        case 'purchase_interest': return <PurchaseInterestForm onJsonChange={onJsonChange} />;
+        case 'survey': return <SurveyForm onJsonChange={onJsonChange} />;
+        case 'support': return <SupportForm onJsonChange={onJsonChange} />;
+        case 'loan_credit': return <LoanCreditForm onJsonChange={onJsonChange} />;
+        case 'insurance_quote': return <InsuranceQuoteForm onJsonChange={onJsonChange} />;
+        case 'personalized_offer': return <PersonalizedOfferForm onJsonChange={onJsonChange} />;
+        case 'sign_in_up': return <SignInUpForm onJsonChange={onJsonChange} />;
         default: return <DefaultForm onJsonChange={onJsonChange} />;
     }
 }
@@ -171,7 +296,7 @@ export default function CreateMetaFlowPage() {
     const router = useRouter();
 
     const [activeTab, setActiveTab] = useState('without-endpoint');
-    const [selectedTemplate, setSelectedTemplate] = useState('default');
+    const [selectedTemplateId, setSelectedTemplateId] = useState('default');
     const [flowJson, setFlowJson] = useState('');
 
     useEffect(() => {
@@ -179,6 +304,15 @@ export default function CreateMetaFlowPage() {
         const storedProjectId = localStorage.getItem('activeProjectId');
         setProjectId(storedProjectId);
     }, []);
+    
+    // This effect safely resets the selected template when the tab changes
+    useEffect(() => {
+        if(activeTab === 'without-endpoint') {
+            setSelectedTemplateId('default');
+        } else {
+            setSelectedTemplateId('loan_credit');
+        }
+    }, [activeTab]);
 
     useEffect(() => {
         if(state?.message) {
@@ -190,35 +324,20 @@ export default function CreateMetaFlowPage() {
         }
     }, [state, toast, router]);
     
+    // Stable callback to prevent re-renders
+    const handleJsonChange = useCallback((json: string) => {
+        setFlowJson(json);
+    }, []);
+
     const activeTemplateList = activeTab === 'with-endpoint' ? templates.withEndpoint : templates.withoutEndpoint;
-
-    useEffect(() => {
-        setSelectedTemplate(activeTemplateList[0].id);
-    }, [activeTab, activeTemplateList]);
-
-    const currentTemplate = [...templates.withEndpoint, ...templates.withoutEndpoint].find(t => t.id === selectedTemplate);
-
-    if (!isClient) {
-        return <Skeleton className="h-screen w-full" />
-    }
-
-    if (!projectId) {
-        return (
-             <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>
-                    Please select a project from the main dashboard before creating a Meta Flow.
-                </AlertDescription>
-            </Alert>
-        );
-    }
+    const currentTemplate = activeTemplateList.find(t => t.id === selectedTemplateId);
     
     return (
         <form action={formAction} className="space-y-6">
-            <input type="hidden" name="projectId" value={projectId}/>
+            <input type="hidden" name="projectId" value={projectId || ''}/>
             <input type="hidden" name="category" value={currentTemplate?.category || 'OTHER'} />
             <input type="hidden" name="flow_data" value={flowJson} />
+            {activeTab === 'with-endpoint' && <input type="hidden" name="endpoint_uri" value={(document.getElementById('endpoint_uri') as HTMLInputElement)?.value || ''}/>}
 
             <div>
                 <Button variant="ghost" asChild className="mb-4 -ml-4">
@@ -235,7 +354,7 @@ export default function CreateMetaFlowPage() {
                 <CardHeader>
                     <CardTitle>1. General Details</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent>
                      <div className="space-y-2">
                         <Label htmlFor="name">Flow Name</Label>
                         <Input id="name" name="name" placeholder="e.g., lead_capture_flow" required/>
@@ -254,23 +373,31 @@ export default function CreateMetaFlowPage() {
                         <TabsTrigger value="without-endpoint">Simple Flow (No Endpoint)</TabsTrigger>
                         <TabsTrigger value="with-endpoint">Data Exchange Flow (With Endpoint)</TabsTrigger>
                       </TabsList>
-                      <TabsContent value="without-endpoint" className="pt-6 space-y-4">
-                        <TemplateSelection templates={activeTemplateList} selected={selectedTemplate} onSelect={setSelectedTemplate}/>
-                        <div className="p-4 border rounded-md">
-                            <TemplateRenderer templateId={selectedTemplate} onJsonChange={setFlowJson} />
-                        </div>
-                      </TabsContent>
-                      <TabsContent value="with-endpoint" className="pt-6 space-y-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="endpoint_uri">Endpoint URI</Label>
-                            <Input id="endpoint_uri" name="endpoint_uri" placeholder="https://your-server.com/api/flow" />
-                            <p className="text-xs text-muted-foreground">The endpoint to send flow data to for processing.</p>
-                          </div>
-                          <TemplateSelection templates={activeTemplateList} selected={selectedTemplate} onSelect={setSelectedTemplate}/>
+
+                      <div className="pt-6 space-y-4">
+                          {activeTab === 'with-endpoint' && (
+                            <div className="space-y-2">
+                                <Label htmlFor="endpoint_uri">Endpoint URI</Label>
+                                <Input id="endpoint_uri" name="endpoint_uri" placeholder="https://your-server.com/api/flow" required/>
+                                <p className="text-xs text-muted-foreground">The endpoint to send flow data to for processing.</p>
+                            </div>
+                          )}
+
+                           <div className="space-y-2">
+                                <Label>Select a Template</Label>
+                                <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
+                                    <SelectTrigger><SelectValue/></SelectTrigger>
+                                    <SelectContent>
+                                        {activeTemplateList.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+                                    </SelectContent>
+                                </Select>
+                                {currentTemplate && <p className="text-sm text-muted-foreground">{currentTemplate.description}</p>}
+                            </div>
+
                           <div className="p-4 border rounded-md">
-                            <TemplateRenderer templateId={selectedTemplate} onJsonChange={setFlowJson} />
+                            <TemplateRenderer templateId={selectedTemplateId} onJsonChange={handleJsonChange} />
                           </div>
-                      </TabsContent>
+                      </div>
                     </Tabs>
                 </CardContent>
             </Card>
@@ -289,20 +416,4 @@ export default function CreateMetaFlowPage() {
             </div>
         </form>
     );
-}
-
-function TemplateSelection({ templates, selected, onSelect }: { templates: any[], selected: string, onSelect: (id: string) => void }) {
-    const current = templates.find(t => t.id === selected);
-    return (
-        <div className="space-y-2">
-            <Label>Select a Template</Label>
-            <Select value={selected} onValueChange={onSelect}>
-                <SelectTrigger><SelectValue/></SelectTrigger>
-                <SelectContent>
-                    {templates.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
-                </SelectContent>
-            </Select>
-            {current && <p className="text-sm text-muted-foreground">{current.description}</p>}
-        </div>
-    )
 }
