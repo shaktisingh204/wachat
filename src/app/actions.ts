@@ -8,7 +8,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
-import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule } from '@/app/dashboard/page';
+import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow } from '@/app/dashboard/page';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
@@ -260,7 +260,7 @@ export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 
 
 // Re-export types for client components
-export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule };
+export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow };
 
 export type CannedMessage = {
     _id: ObjectId;
@@ -3596,6 +3596,100 @@ export async function getFlowBuilderPageData(projectId: string): Promise<{
     return { flows, initialFlow };
 }
     
+// --- META FLOW ACTIONS ---
+
+export async function getMetaFlows(projectId: string): Promise<WithId<MetaFlow>[]> {
+    if (!ObjectId.isValid(projectId)) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const flows = await db.collection('meta_flows').find({ projectId: new ObjectId(projectId) }).toArray();
+        return JSON.parse(JSON.stringify(flows));
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function saveMetaFlow(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    if (!projectId) return { error: 'Project ID is missing.' };
+
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
+    if (!hasAccess.phoneNumbers || hasAccess.phoneNumbers.length === 0) {
+        return { error: 'Project has no phone numbers. Sync phone numbers before creating a flow.' };
+    }
+
+    const name = formData.get('name') as string;
+    const categoriesStr = formData.get('categories') as string;
+    const flowDataStr = formData.get('flow_data') as string;
+
+    if (!name || !categoriesStr || !flowDataStr) {
+        return { error: 'Name, Categories, and JSON data are required.' };
+    }
+
+    try {
+        const categories = categoriesStr.split(',').map(c => c.trim().toUpperCase());
+        const flow_data = JSON.parse(flowDataStr);
+
+        const phoneNumberId = hasAccess.phoneNumbers[0].id;
+        const accessToken = hasAccess.accessToken;
+
+        const response = await axios.post(
+            `https://graph.facebook.com/v22.0/${phoneNumberId}/flows`,
+            { name, categories, flow_data, access_token: accessToken }
+        );
+
+        const metaFlowId = response.data?.id;
+        if (!metaFlowId) {
+            throw new Error('Meta API did not return a flow ID.');
+        }
+
+        const newFlow: Omit<MetaFlow, '_id'> = {
+            name,
+            projectId: new ObjectId(projectId),
+            metaId: metaFlowId,
+            categories,
+            flow_data,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+
+        const { db } = await connectToDatabase();
+        await db.collection('meta_flows').insertOne(newFlow as any);
+
+        revalidatePath('/dashboard/flows');
+        return { message: `Meta Flow "${name}" created successfully!` };
+
+    } catch (e: any) {
+        if (e instanceof SyntaxError) {
+            return { error: 'Invalid JSON format for flow data.' };
+        }
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+    }
+}
+
+export async function deleteMetaFlow(flowId: string, metaId: string): Promise<{ message?: string, error?: string }> {
+    if (!ObjectId.isValid(flowId)) return { error: 'Invalid Flow ID.' };
+
+    const { db } = await connectToDatabase();
+    const flow = await db.collection('meta_flows').findOne({ _id: new ObjectId(flowId) });
+    if (!flow) return { error: 'Flow not found in database.' };
+
+    const project = await getProjectById(flow.projectId.toString());
+    if (!project) return { error: 'Project not found.' };
+
+    try {
+        await axios.delete(`https://graph.facebook.com/v22.0/${metaId}?access_token=${project.accessToken}`);
+        
+        await db.collection('meta_flows').deleteOne({ _id: new ObjectId(flowId) });
+
+        revalidatePath('/dashboard/flows');
+        return { message: `Flow "${flow.name}" deleted successfully.` };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) || 'Failed to delete flow from Meta.' };
+    }
+}
+
 // --- ADS MANAGEMENT ACTIONS ---
 
 export async function handleUpdateMarketingSettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
@@ -3671,7 +3765,7 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
 
 
     try {
-        const apiVersion = 'v20.0';
+        const apiVersion = 'v22.0';
 
         // Step 1: Create Campaign
         const campaignResponse = await axios.post(
