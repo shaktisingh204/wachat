@@ -23,6 +23,7 @@ import { createHash } from 'crypto';
 import { premadeTemplates } from '@/lib/premade-templates';
 import { getMetaFlows } from './actions/meta-flow.actions';
 import { generateMetaFlow } from '@/ai/flows/generate-meta-flow';
+import { generateFlowBuilderFlow } from '@/ai/flows/generate-flow-builder-flow';
 
 
 // --- Plan Management Types ---
@@ -438,6 +439,19 @@ export async function handleGenerateMetaFlow(prompt: string, category: string): 
     }
 }
 
+export async function handleGenerateFlowBuilderFlow(prompt: string): Promise<{ nodes?: FlowNode[], edges?: FlowEdge[], error?: string }> {
+    if (!prompt) {
+        return { error: 'Prompt cannot be empty.' };
+    }
+    try {
+        const result = await generateFlowBuilderFlow({ prompt });
+        return { nodes: result.nodes, edges: result.edges };
+    } catch (e: any) {
+        console.error('AI Flow Builder generation failed:', e);
+        return { error: e.message || 'An unexpected error occurred during AI generation.' };
+    }
+}
+
 
 export async function getProjects(query?: string): Promise<WithId<Project>[]> {
     const session = await getSession();
@@ -810,12 +824,14 @@ export async function getDashboardStats(projectId: string): Promise<{
         ]).toArray();
 
         if (stats.length > 0) {
+            const { _id, ...rest } = stats[0];
             return {
-                totalMessages: stats[0].totalMessages || 0,
-                totalSent: stats[0].totalSent || 0,
-                totalFailed: stats[0].totalFailed || 0,
-                totalDelivered: stats[0].totalDelivered || 0,
-                totalCampaigns: stats[0].totalCampaigns || 0,
+                totalMessages: rest.totalMessages || 0,
+                totalSent: rest.totalSent || 0,
+                totalFailed: rest.totalFailed || 0,
+                totalDelivered: rest.totalDelivered || 0,
+                totalRead: rest.totalRead || 0,
+                totalCampaigns: rest.totalCampaigns || 0,
             };
         }
         return defaultStats;
@@ -1615,36 +1631,6 @@ export async function handleUpdateProjectSettings(
         return { error: e.message || 'An unexpected error occurred while saving the settings.' };
     }
 }
-
-export async function handleCleanDatabase(
-    prevState: { message?: string | null; error?: string | null; },
-    formData: FormData
-  ): Promise<{ message?: string | null; error?: string | null; }> {
-      try {
-          const { db } = await connectToDatabase();
-          
-          await db.collection('projects').deleteMany({});
-          await db.collection('templates').deleteMany({});
-          await db.collection('broadcasts').deleteMany({});
-          await db.collection('broadcast_contacts').deleteMany({});
-          await db.collection('notifications').deleteMany({});
-          await db.collection('contacts').deleteMany({});
-          await db.collection('incoming_messages').deleteMany({});
-          await db.collection('outgoing_messages').deleteMany({});
-          await db.collection('flows').deleteMany({});
-          await db.collection('canned_messages').deleteMany({});
-          await db.collection('flow_logs').deleteMany({});
-          await db.collection('meta_flows').deleteMany({});
-
-
-          revalidatePath('/dashboard');
-  
-          return { message: 'Database has been successfully cleaned of all projects, templates, and broadcast data.' };
-      } catch (e: any) {
-          console.error('Database cleaning failed:', e);
-          return { error: e.message || 'An unexpected error occurred while cleaning the database.' };
-      }
-  }
 
 export async function handleRequeueBroadcast(
     prevState: { message?: string | null; error?: string | null; },

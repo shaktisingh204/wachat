@@ -41,13 +41,14 @@ import {
     Frame,
     Maximize,
     Minimize,
+    Wand2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getFlowsForProject, saveFlow, deleteFlow, getFlowById, getFlowBuilderPageData, getTemplates } from '@/app/actions';
+import { getFlowsForProject, saveFlow, deleteFlow, getFlowById, getFlowBuilderPageData, getTemplates, handleGenerateFlowBuilderFlow } from '@/app/actions';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import type { Flow, FlowNode, FlowEdge, Template, MetaFlow } from '@/app/actions';
 import type { WithId } from 'mongodb';
@@ -807,6 +808,8 @@ const FlowsAndBlocksPanel = ({
     handleDeleteFlow,
     handleCreateNewFlow,
     addNode,
+    handleAiGenerate,
+    isGenerating
 } : {
     isLoading: boolean;
     isDeleting: boolean;
@@ -816,6 +819,8 @@ const FlowsAndBlocksPanel = ({
     handleDeleteFlow: (id: string) => void;
     handleCreateNewFlow: () => void;
     addNode: (type: NodeType) => void;
+    handleAiGenerate: (prompt: string) => void;
+    isGenerating: boolean;
 }) => (
     <>
         <Card>
@@ -845,9 +850,9 @@ const FlowsAndBlocksPanel = ({
                 </ScrollArea>
             </CardContent>
         </Card>
-        <Card className="flex-1">
+        <Card className="flex-1 flex flex-col">
             <CardHeader className="p-3"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
-            <CardContent className="space-y-2 p-2 pt-0">
+            <CardContent className="space-y-2 p-2 pt-0 flex-1 min-h-0">
                 <ScrollArea className="h-full">
                     {blockTypes.map(({ type, label, icon: Icon }) => (
                         <Button key={type} variant="outline" className="w-full justify-start mb-2" onClick={() => addNode(type as NodeType)}>
@@ -856,6 +861,30 @@ const FlowsAndBlocksPanel = ({
                         </Button>
                     ))}
                 </ScrollArea>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader className="p-3">
+                <CardTitle className="text-base flex items-center gap-2"><Wand2 className="h-4 w-4" /> AI Assistant</CardTitle>
+            </CardHeader>
+            <CardContent className="p-2 pt-0 space-y-2">
+                <Textarea 
+                    id="ai-prompt"
+                    placeholder="Describe the flow you want to build..." 
+                    className="h-24 text-xs"
+                />
+                <Button 
+                    className="w-full" 
+                    size="sm"
+                    onClick={() => {
+                        const prompt = (document.getElementById('ai-prompt') as HTMLTextAreaElement)?.value;
+                        handleAiGenerate(prompt);
+                    }}
+                    disabled={isGenerating}
+                >
+                    {isGenerating ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Wand2 className="mr-2 h-4 w-4"/>}
+                    Generate Flow
+                </Button>
             </CardContent>
         </Card>
     </>
@@ -875,6 +904,7 @@ export default function FlowBuilderPage() {
     const [isSaving, startSaveTransition] = useTransition();
     const [isLoading, startLoadingTransition] = useTransition();
     const [isDeleting, startDeleteTransition] = useTransition();
+    const [isGenerating, startGeneratingTransition] = useTransition();
     const [isTestFlowOpen, setIsTestFlowOpen] = useState(false);
     
     const [pan, setPan] = useState({ x: 0, y: 0 });
@@ -1046,6 +1076,28 @@ export default function FlowBuilderPage() {
             toast({ title: 'Error', description: 'Failed to copy JSON to clipboard.', variant: 'destructive' });
         });
     };
+
+    const handleAiGenerateFlow = (prompt: string) => {
+        if (!prompt) {
+            toast({ title: 'Error', description: 'Please enter a description for the flow.', variant: 'destructive' });
+            return;
+        }
+        startGeneratingTransition(async () => {
+            const result = await handleGenerateFlowBuilderFlow(prompt);
+            if (result.error) {
+                toast({ title: "AI Generation Failed", description: result.error, variant: "destructive" });
+            } else if (result.nodes && result.edges) {
+                setCurrentFlow(null); // This is now an unsaved flow
+                setNodes(result.nodes);
+                setEdges(result.edges);
+                const flowNameInput = document.getElementById('flow-name-input') as HTMLInputElement;
+                if(flowNameInput) flowNameInput.value = "AI Generated Flow";
+                toast({ title: "Flow Generated!", description: "Review your new flow and save it." });
+                setIsBlocksSheetOpen(false); // Close mobile sheet if open
+            }
+        });
+    };
+
 
     const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
         e.preventDefault();
@@ -1255,7 +1307,7 @@ export default function FlowBuilderPage() {
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 min-h-0">
                     {/* DESKTOP Left Panel */}
                     <div className="hidden md:flex md:col-span-3 lg:col-span-2 flex-col gap-4">
-                        <FlowsAndBlocksPanel {...{ isLoading, isDeleting, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
+                        <FlowsAndBlocksPanel {...{ isLoading, isDeleting, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode, handleAiGenerate: handleAiGenerateFlow, isGenerating }} />
                     </div>
 
                     {/* MOBILE Left Panel Sheet */}
@@ -1263,7 +1315,7 @@ export default function FlowBuilderPage() {
                         <SheetContent side="left" className="p-2 flex flex-col gap-4 w-full max-w-xs">
                             <SheetTitle className="sr-only">Flows and Blocks</SheetTitle>
                             <SheetDescription className="sr-only">A list of flows and draggable blocks to build your automation.</SheetDescription>
-                             <FlowsAndBlocksPanel {...{ isLoading, isDeleting, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
+                             <FlowsAndBlocksPanel {...{ isLoading, isDeleting, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode, handleAiGenerate: handleAiGenerateFlow, isGenerating }} />
                         </SheetContent>
                     </Sheet>
 
