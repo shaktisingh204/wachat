@@ -3577,6 +3577,10 @@ export async function handleSendMetaFlow(contactId: string, metaFlowId: string):
     const accessToken = project.accessToken;
 
     try {
+        const flowTitle = metaFlow.flow_data?.screens?.[0]?.title || metaFlow.name.replace(/_/g, ' ');
+        const headerText = flowTitle.substring(0, 60);
+        const bodyText = metaFlow.flow_data?.screens?.[0]?.layout?.children?.find((c: any) => c.type === 'TextBody')?.text || 'Tap the button below to start.';
+        
         const payload = {
             messaging_product: "whatsapp",
             to: waId,
@@ -3584,8 +3588,8 @@ export async function handleSendMetaFlow(contactId: string, metaFlowId: string):
             type: "interactive",
             interactive: {
                 type: "flow",
-                header: { type: "text", text: metaFlow.name.replace(/_/g, ' ') },
-                body: { text: "Please tap the button below to start." },
+                header: { type: "text", text: headerText },
+                body: { text: bodyText.substring(0, 1024) },
                 footer: { text: "Powered by Wachat" },
                 action: {
                     name: metaFlow.name,
