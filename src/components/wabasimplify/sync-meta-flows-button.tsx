@@ -2,7 +2,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import { handleSyncMetaFlows } from '@/app/actions';
+import { handleSyncMetaFlows } from '@/app/actions/meta-flow.actions';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, LoaderCircle } from 'lucide-react';
