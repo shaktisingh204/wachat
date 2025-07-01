@@ -1,7 +1,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getPaymentGatewaySettings, type Transaction } from '@/app/actions';
+import { getPaymentGatewaySettings } from '@/app/actions';
+import { type Transaction } from '@/lib/definitions';
 import { createHash } from 'crypto';
 import { ObjectId, type WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { getContactsPageData, getProjects } from '@/app/actions';
 import type { WithId } from 'mongodb';
-import type { Project, Contact, Tag } from '@/app/actions';
+import type { Project, Contact, Tag } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';

@@ -11,7 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getProjectById } from '@/app/actions';
 import type { WithId } from 'mongodb';
-import type { Project, Template } from '@/app/dashboard/page';
+import type { Project, Template } from '@/lib/definitions';
 
 const LoadingSkeleton = () => (
     <div className="flex flex-col gap-8">

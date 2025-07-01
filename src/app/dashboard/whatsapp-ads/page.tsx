@@ -4,7 +4,7 @@
 import { useEffect, useState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getAdCampaigns } from '@/app/actions';
-import type { AdCampaign } from '@/app/actions';
+import type { AdCampaign, Project } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PlusCircle, Megaphone, BookOpen, AlertCircle } from 'lucide-react';
 import { CreateAdDialog } from '@/components/wabasimplify/create-ad-dialog';
-import { getProjectById, Project } from '@/app/actions';
+import { getProjectById } from '@/app/actions';
 import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 

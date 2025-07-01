@@ -40,7 +40,7 @@ interface AdminDeleteLibraryTemplateButtonProps {
 
 export function AdminDeleteLibraryTemplateButton({ templateId, templateName }: AdminDeleteLibraryTemplateButtonProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(() => deleteLibraryTemplate(templateId), initialState);
+  const [state, formAction] = useActionState(deleteLibraryTemplate, initialState);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -63,6 +63,7 @@ export function AdminDeleteLibraryTemplateButton({ templateId, templateName }: A
       </AlertDialogTrigger>
       <AlertDialogContent>
         <form action={formAction}>
+          <input type="hidden" name="templateId" value={templateId} />
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>

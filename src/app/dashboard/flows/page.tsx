@@ -5,8 +5,8 @@
 import { useEffect, useState, useTransition, useCallback } from 'react';
 import Link from 'next/link';
 import { useToast } from '@/hooks/use-toast';
-import type { MetaFlow } from '@/app/actions';
 import { getMetaFlows, deleteMetaFlow } from '@/app/actions/meta-flow.actions';
+import type { MetaFlow } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
 import { Button } from '@/components/ui/button';

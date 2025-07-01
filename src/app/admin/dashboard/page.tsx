@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Briefcase, CheckSquare, Server, AlertTriangle, MessageSquare, Send, GitBranch, ServerCog } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getAllProjectsForAdmin } from '@/app/actions';
-import type { Project } from '@/app/dashboard/page';
+import type { Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import {
   Table,

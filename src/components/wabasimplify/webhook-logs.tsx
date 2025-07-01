@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { getWebhookLogs, handleClearProcessedLogs, handleReprocessWebhook, getWebhookLogPayload } from '@/app/actions';
-import type { WebhookLogListItem } from '@/app/actions';
+import type { WebhookLogListItem } from '@/lib/definitions';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";

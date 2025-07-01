@@ -3,9 +3,9 @@
 
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getCannedMessages, handleSendMessage, handleSendMetaFlow, handleSendTemplateMessage, type CannedMessage, type MetaFlow, type Template } from '@/app/actions';
+import { getCannedMessages, handleSendMessage, handleSendMetaFlow, handleSendTemplateMessage } from '@/app/actions';
+import type { CannedMessage, MetaFlow, Template, Contact } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-import type { Contact } from '@/app/actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Paperclip, Send, LoaderCircle, Star, ServerCog, ClipboardList, File as FileIcon, Image as ImageIcon } from 'lucide-react';

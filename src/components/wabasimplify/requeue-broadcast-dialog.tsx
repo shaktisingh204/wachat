@@ -21,7 +21,7 @@ import { RotateCw, LoaderCircle } from 'lucide-react';
 import { handleRequeueBroadcast } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
-import type { Project, Template } from '@/app/dashboard/page';
+import type { Project, Template } from '@/lib/definitions';
 
 const initialState = {
   message: null,

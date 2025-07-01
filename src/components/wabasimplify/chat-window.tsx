@@ -3,7 +3,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import type { WithId } from 'mongodb';
-import type { Contact, AnyMessage, Project, MetaFlow, Template } from '@/app/actions';
+import type { Contact, AnyMessage, Project, MetaFlow, Template } from '@/lib/definitions';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from './chat-message';

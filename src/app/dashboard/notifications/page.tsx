@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { getAllNotifications, markAllNotificationsAsRead, markNotificationAsRead } from '@/app/actions';
-import type { NotificationWithProject } from '@/app/actions';
+import type { NotificationWithProject } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { useRouter } from 'next/navigation';
 

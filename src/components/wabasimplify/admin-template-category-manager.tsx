@@ -5,7 +5,7 @@
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { getTemplateCategories, saveTemplateCategory, deleteTemplateCategory } from '@/app/actions';
-import type { TemplateCategory } from '@/app/actions';
+import type { TemplateCategory } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -108,4 +108,3 @@ export function AdminTemplateCategoryManager() {
         </Card>
     );
 }
-

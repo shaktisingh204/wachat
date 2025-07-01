@@ -11,7 +11,7 @@ import { WithId } from 'mongodb';
 import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { Template } from '@/app/dashboard/page';
+import type { Template } from '@/lib/definitions';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';

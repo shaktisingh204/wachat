@@ -3,7 +3,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Db, Filter, ObjectId } from 'mongodb';
-import type { Project } from '@/app/actions';
+import type { Project } from '@/lib/definitions';
 import { processSingleWebhook, processStatusUpdateBatch, handleSingleMessageEvent } from '@/lib/webhook-processor';
 
 const getSearchableText = (payload: any): string => {

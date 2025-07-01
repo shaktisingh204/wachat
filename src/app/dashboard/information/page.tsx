@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { getProjectById } from '@/app/actions';
 import type { WithId } from 'mongodb';
-import type { Project, PaymentConfiguration, BusinessCapabilities } from '@/app/dashboard/page';
+import type { Project, PaymentConfiguration, BusinessCapabilities } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';

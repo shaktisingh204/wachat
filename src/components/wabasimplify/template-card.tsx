@@ -15,7 +15,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import type { WithId } from 'mongodb';
-import type { Template } from '@/app/dashboard/page';
+import type { Template } from '@/lib/definitions';
 
 interface TemplateCardProps {
   template: WithId<Template>;

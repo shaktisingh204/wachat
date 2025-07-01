@@ -20,7 +20,7 @@ import { LoaderCircle } from 'lucide-react';
 import { handleCreateWhatsAppAd } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
-import type { Project } from '@/app/actions';
+import type { Project } from '@/lib/definitions';
 
 const initialState = {
   message: null,

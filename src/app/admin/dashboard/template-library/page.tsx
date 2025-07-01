@@ -10,7 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PlusCircle, BookCopy, Check, X } from 'lucide-react';
-import { getLibraryTemplates, type LibraryTemplate } from '@/app/actions';
+import { getLibraryTemplates } from '@/app/actions';
+import type { LibraryTemplate } from '@/lib/definitions';
 import { AdminDeleteLibraryTemplateButton } from '@/components/wabasimplify/admin-delete-library-template-button';
 import { Separator } from '@/components/ui/separator';
 import { AdminTemplateCategoryManager } from '@/components/wabasimplify/admin-template-category-manager';

@@ -2,7 +2,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { AnyMessage, OutgoingMessage, handleTranslateMessage } from '@/app/actions';
+import { handleTranslateMessage } from '@/app/actions';
+import type { AnyMessage, OutgoingMessage } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
 import { Check, CheckCheck, Clock, Download, File as FileIcon, Image as ImageIcon, XCircle, Languages, LoaderCircle } from 'lucide-react';
 import Image from 'next/image';

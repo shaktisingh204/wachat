@@ -5,7 +5,8 @@
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { getLibraryTemplates, type LibraryTemplate } from '@/app/actions';
+import { getLibraryTemplates } from '@/app/actions';
+import { type LibraryTemplate } from '@/lib/definitions';
 import { BookCopy, ChevronLeft, ImageIcon, Phone, Link as LinkIcon, Star } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState, useTransition } from 'react';

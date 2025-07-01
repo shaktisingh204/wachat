@@ -7,7 +7,6 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
-import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign, PhoneNumberProfile, Tag } from '@/app/dashboard/page';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
@@ -24,95 +23,43 @@ import { premadeTemplates } from '@/lib/premade-templates';
 import { getMetaFlows } from './actions/meta-flow.actions';
 import { generateMetaFlow } from '@/ai/flows/generate-meta-flow';
 import { generateFlowBuilderFlow } from '@/ai/flows/generate-flow-builder-flow';
-
-
-// --- Plan Management Types ---
-export type PlanFeaturePermissions = {
-    campaigns: boolean;
-    liveChat: boolean;
-    contacts: boolean;
-    templates: boolean;
-    flowBuilder: boolean;
-    metaFlows: boolean;
-    whatsappAds: boolean;
-    webhooks: boolean;
-    settingsBroadcast: boolean;
-    settingsAutoReply: boolean;
-    settingsMarketing: boolean;
-    settingsTemplateLibrary: boolean;
-    settingsCannedMessages: boolean;
-    settingsAgentsRoles: boolean;
-    settingsCompliance: boolean;
-    settingsUserAttributes: boolean;
-    apiAccess: boolean;
-};
-
-export type PlanMessageCosts = {
-    marketing: number;
-    utility: number;
-    authentication: number;
-    service?: number; // Added service for conversations
-};
-
-export type Plan = {
-    _id: ObjectId;
-    name: string;
-    price: number;
-    currency: string;
-    isPublic: boolean;
-    isDefault: boolean;
-    projectLimit: number;
-    agentLimit: number;
-    attributeLimit: number;
-    templateLimit: number;
-    flowLimit: number;
-    metaFlowLimit: number;
-    cannedMessageLimit: number;
-    signupCredits?: number;
-    messageCosts: PlanMessageCosts;
-    features: PlanFeaturePermissions;
-    createdAt: Date;
-};
-
-
-// --- User Management Types ---
-export type User = {
-    _id: ObjectId;
-    name: string;
-    email: string;
-    password?: string;
-    createdAt: Date;
-    planId?: ObjectId;
-    credits?: number;
-};
-
-export type Invitation = {
-    _id: ObjectId;
-    projectId: ObjectId;
-    projectName: string;
-    inviterId: ObjectId;
-    inviterName: string;
-    inviteeEmail: string;
-    role: string;
-    status: 'pending';
-    createdAt: Date;
-};
-
-// --- Transaction Types ---
-export type Transaction = {
-    _id: ObjectId;
-    userId: ObjectId;
-    type: 'PLAN' | 'CREDITS';
-    description: string;
-    planId?: ObjectId;
-    credits?: number;
-    amount: number; // in paise
-    status: 'PENDING' | 'SUCCESS' | 'FAILED';
-    provider: 'phonepe';
-    providerTransactionId?: string;
-    createdAt: Date;
-    updatedAt: Date;
-};
+import {
+    PlanFeaturePermissions,
+    PlanMessageCosts,
+    Plan,
+    User,
+    Invitation,
+    Transaction,
+    BroadcastAttempt,
+    Notification,
+    NotificationWithProject,
+    Contact,
+    IncomingMessage,
+    OutgoingMessage,
+    AnyMessage,
+    LibraryTemplate,
+    TemplateCategory,
+    CannedMessage,
+    FlowLogEntry,
+    FlowLog,
+    PaymentGatewaySettings,
+    WebhookLogListItem,
+    Project, 
+    Template, 
+    PhoneNumber, 
+    PhoneNumberProfile, 
+    AutoReplySettings, 
+    Flow, 
+    FlowNode, 
+    FlowEdge, 
+    OptInOutSettings, 
+    UserAttribute, 
+    Agent, 
+    GeneralReplyRule, 
+    MetaFlow, 
+    AdCampaign, 
+    Tag
+} from '@/lib/definitions';
 
 
 type MetaPhoneNumber = {
@@ -209,135 +156,14 @@ type BroadcastJob = {
     category?: Template['category'];
 };
 
-export type BroadcastAttempt = {
-    _id: string;
-    phone: string;
-    status: 'PENDING' | 'SENT' | 'FAILED' | 'DELIVERED' | 'READ';
-    sentAt?: Date;
-    messageId?: string; // a successful send from Meta
-    error?: string; // a failed send reason
-};
-
-export type Notification = {
+export type WebhookLog = {
     _id: ObjectId;
-    projectId: ObjectId;
-    wabaId: string;
-    message: string;
-    link: string;
-    isRead: boolean;
+    payload: any;
+    searchableText: string;
+    processed?: boolean;
     createdAt: Date;
-    eventType: string;
-};
-
-export type NotificationWithProject = Notification & { projectName?: string };
-
-
-// --- Live Chat Types ---
-export type Contact = {
-    projectId: ObjectId;
-    waId: string; // The user's WhatsApp ID
-    phoneNumberId: string; // The business phone number they are talking to
-    name: string;
-    lastMessage?: string;
-    lastMessageTimestamp?: Date;
-    unreadCount?: number;
-    createdAt: Date;
-    variables?: Record<string, string>;
-    activeFlow?: {
-        flowId: string;
-        currentNodeId: string;
-        variables: Record<string, any>;
-        waitingSince?: Date;
-    };
-    isOptedOut?: boolean;
-    hasReceivedWelcome?: boolean;
-    status?: 'new' | 'open' | 'resolved';
-    assignedAgentId?: string;
-    tagIds?: string[];
-}
-
-export type IncomingMessage = {
-    _id: ObjectId;
-    direction: 'in';
-    contactId: ObjectId;
-    projectId: ObjectId;
-    wamid: string;
-    messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive';
-    content: any; // The raw message object from Meta
-    isRead: boolean;
-    createdAt: Date;
-}
-
-export type OutgoingMessage = {
-    _id: ObjectId;
-    direction: 'out';
-    contactId: ObjectId;
-    projectId: ObjectId;
-    wamid: string;
-    messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive' | 'template';
-    content: any; // The payload sent to Meta
-    status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
-    statusTimestamps: {
-        sent?: Date;
-        delivered?: Date;
-        read?: Date;
-    };
+    projectId?: ObjectId;
     error?: string;
-    createdAt: Date;
-}
-
-export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
-
-
-// Re-export types for client components
-export type { Project, Template, PhoneNumber, PhoneNumberProfile, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign, Tag };
-
-export type LibraryTemplate = Omit<Template, 'metaId' | 'status' | 'qualityScore'> & {
-    _id?: ObjectId;
-    isCustom?: boolean;
-    createdAt?: Date;
-}
-
-export type TemplateCategory = {
-    _id: ObjectId;
-    name: string;
-    description?: string;
-};
-
-
-export type CannedMessage = {
-    _id: ObjectId;
-    projectId: ObjectId;
-    name: string;
-    type: 'text' | 'image' | 'audio' | 'video' | 'document';
-    content: {
-        text?: string;
-        mediaUrl?: string;
-        caption?: string;
-        fileName?: string;
-    };
-    isFavourite: boolean;
-    createdBy: string;
-    createdAt: Date;
-};
-
-// --- Flow Log Types ---
-export type FlowLogEntry = {
-    timestamp: Date;
-    message: string;
-    data?: any;
-};
-
-export type FlowLog = {
-    _id: ObjectId;
-    projectId: ObjectId;
-    contactId: ObjectId;
-    flowId: ObjectId;
-    flowName: string;
-    createdAt: Date;
-    entries: FlowLogEntry[];
 };
 
 
@@ -1842,15 +1668,6 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
     }
 }
 
-export type WebhookLog = {
-    _id: ObjectId;
-    payload: any;
-    searchableText: string;
-    processed?: boolean;
-    createdAt: Date;
-    projectId?: ObjectId;
-    error?: string;
-};
 
 const getEventFieldForLog = (log: WithId<WebhookLog>): string => {
     try {
@@ -1909,13 +1726,6 @@ const getEventSummaryForLog = (log: WithId<WebhookLog>): string => {
          return 'Could not parse summary details';
     }
 }
-
-export type WebhookLogListItem = {
-    _id: string;
-    createdAt: string;
-    eventField: string;
-    eventSummary: string;
-};
 
 export async function getWebhookLogs(
     projectId: string | null,
@@ -2529,14 +2339,6 @@ export async function getFlowLogById(logId: string): Promise<WithId<FlowLog> | n
 }
 
 // --- PAYMENT GATEWAY ACTIONS ---
-export type PaymentGatewaySettings = {
-    _id: 'phonepe'; // Using a fixed ID to ensure only one document for these settings
-    merchantId: string;
-    saltKey: string;
-    saltIndex: string;
-    environment: 'staging' | 'production';
-};
-
 export async function getPaymentGatewaySettings(): Promise<WithId<PaymentGatewaySettings> | null> {
     try {
         const { db } = await connectToDatabase();
@@ -4432,3 +4234,8 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
         return { success: false, error: 'Failed to update tags.' };
     }
 }
+
+// This function was originally in this file, but causes build errors.
+// It is moved to `actions/meta-flow.actions.ts`.
+// You must import it from its new location.
+// export async function getMetaFlows(...) { ... }

@@ -2,7 +2,8 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { getFlowLogs, getFlowLogById, type FlowLog, type FlowLogEntry } from '@/app/actions';
+import { getFlowLogs, getFlowLogById } from '@/app/actions';
+import type { FlowLog, FlowLogEntry } from '@/lib/definitions';
 import type { WithId } from "mongodb";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

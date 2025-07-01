@@ -1,5 +1,6 @@
 
-import { getTransactionsForUser, type Transaction } from '@/app/actions';
+import { getTransactionsForUser } from '@/app/actions';
+import type { Transaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';

@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getTemplates, getProjectForBroadcast, getBroadcasts, handleStopBroadcast, handleSyncTemplates, handleRunCron, getProjects } from '@/app/actions';
 import { useRouter } from 'next/navigation';
-import type { Project, Template, MetaFlow } from '@/app/dashboard/page';
+import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import {

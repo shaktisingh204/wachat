@@ -20,7 +20,7 @@ import { LoaderCircle, Save } from 'lucide-react';
 import { handleUpdatePhoneNumberProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
-import type { Project, PhoneNumber } from '@/app/dashboard/page';
+import type { Project, PhoneNumber } from '@/lib/definitions';
 import { ScrollArea } from '../ui/scroll-area';
 
 const initialState = {

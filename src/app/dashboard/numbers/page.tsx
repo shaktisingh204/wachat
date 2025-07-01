@@ -4,7 +4,7 @@
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import type { WithId } from 'mongodb';
 import { getProjectById, handleSyncPhoneNumbers } from '@/app/actions';
-import type { Project, PhoneNumber } from '@/app/dashboard/page';
+import type { Project, PhoneNumber } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';

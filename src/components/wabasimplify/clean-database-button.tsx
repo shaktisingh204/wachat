@@ -16,7 +16,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Trash2, LoaderCircle } from 'lucide-react';
-import { handleCleanDatabase } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
 const initialState = {
@@ -45,6 +44,9 @@ function SubmitButton() {
     </AlertDialogAction>
   );
 }
+
+// Dummy action for placeholder since the real action is deleted
+const handleCleanDatabase = async () => ({ message: "Database cleaning is currently disabled for safety.", error: null });
 
 export function CleanDatabaseButton() {
   const [state, formAction] = useActionState(handleCleanDatabase, initialState);
