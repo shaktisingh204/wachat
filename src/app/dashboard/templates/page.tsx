@@ -4,7 +4,7 @@
 
 import { Button } from '@/components/ui/button';
 import { TemplateCard } from '@/components/wabasimplify/template-card';
-import { PlusCircle, RefreshCw, Search, FileText } from 'lucide-react';
+import { PlusCircle, RefreshCw, Search, FileText, BookCopy } from 'lucide-react';
 import Link from 'next/link';
 import { getTemplates, handleSyncTemplates, getProjects } from '@/app/actions';
 import { WithId } from 'mongodb';
@@ -131,6 +131,12 @@ export default function TemplatesPage() {
             <Button onClick={onSync} disabled={isSyncing || !activeProjectId} variant="outline">
               <RefreshCw className={`h-4 w-4 sm:mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">Sync with Meta</span>
+            </Button>
+            <Button asChild variant="outline">
+                <Link href="/dashboard/templates/library">
+                    <BookCopy className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Templates Library</span>
+                </Link>
             </Button>
             <Button asChild disabled={!activeProjectId}>
                 <Link href="/dashboard/templates/create">

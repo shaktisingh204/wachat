@@ -611,6 +611,7 @@ function SettingsPageContent() {
               <TabsTrigger value="broadcast"><Save className="mr-2 h-4 w-4" />Broadcast</TabsTrigger>
               <TabsTrigger value="auto-reply"><Bot className="mr-2 h-4 w-4" />Auto-Replies</TabsTrigger>
               <TabsTrigger value="marketing"><Megaphone className="mr-2 h-4 w-4" />Marketing</TabsTrigger>
+              <TabsTrigger value="library"><ClipboardList className="mr-2 h-4 w-4" />Template Library</TabsTrigger>
               <TabsTrigger value="canned-messages"><ClipboardList className="mr-2 h-4 w-4" />Canned Messages</TabsTrigger>
               <TabsTrigger value="agents-roles"><UserCog className="mr-2 h-4 w-4" />Agents & Roles</TabsTrigger>
               <TabsTrigger value="compliance"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
@@ -660,6 +661,25 @@ function SettingsPageContent() {
           
           <TabsContent value="marketing" className="mt-6">
             <MarketingSettingsForm project={project} />
+          </TabsContent>
+
+          <TabsContent value="library" className="mt-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle>Template Library</CardTitle>
+                    <CardDescription>Browse pre-made templates to get started quickly with common use cases.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-sm text-muted-foreground">Find a template that fits your needs and customize it for your brand.</p>
+                </CardContent>
+                <CardFooter>
+                    <Button asChild>
+                        <Link href="/dashboard/templates/library">
+                            Go to Template Library
+                        </Link>
+                    </Button>
+                </CardFooter>
+            </Card>
           </TabsContent>
 
           <TabsContent value="canned-messages" className="mt-6">
