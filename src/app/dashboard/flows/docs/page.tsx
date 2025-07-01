@@ -136,7 +136,7 @@ export default function FlowsApiDocsPage() {
         />
 
          <ApiSection
-            title="Updating a Flow"
+            title="Updating a Flow's Metadata"
             description="After creating a Flow, you can update its metadata like name, categories, or endpoint URI."
             requestType="POST"
             endpoint="/{FLOW-ID}"

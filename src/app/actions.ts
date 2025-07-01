@@ -8,7 +8,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
-import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow } from '@/app/dashboard/page';
+import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign } from '@/app/dashboard/page';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
@@ -244,7 +244,7 @@ export type OutgoingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive' | 'template';
     content: any; // The payload sent to Meta
     status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
     statusTimestamps: {
@@ -260,7 +260,7 @@ export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 
 
 // Re-export types for client components
-export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow };
+export type { Project, Template, PhoneNumber, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign };
 
 export type CannedMessage = {
     _id: ObjectId;
@@ -295,25 +295,15 @@ export type FlowLog = {
     entries: FlowLogEntry[];
 };
 
-// --- Ads Management Types ---
-export type AdCampaign = {
-    _id: ObjectId;
-    projectId: ObjectId;
-    name: string;
-    status: string;
-    dailyBudget: number;
-    metaCampaignId: string;
-    metaAdSetId: string;
-    metaAdCreativeId: string;
-    metaAdId: string;
-    createdAt: Date;
-};
-
 
 const getErrorMessage = (error: any): string => {
     if (axios.isAxiosError(error) && error.response?.data?.error) {
         const apiError = error.response.data.error;
-        return `${apiError.message || 'API Error'} (Code: ${apiError.code}, Type: ${apiError.type})`;
+        let errorMessage = apiError.error_user_title ? `${apiError.error_user_title}: ${apiError.error_user_msg}` : apiError.message || 'API Error';
+        if (apiError.error_data?.details) {
+            errorMessage += ` Details: ${apiError.error_data.details}`;
+        }
+        return `${errorMessage} (Code: ${apiError.code}, Type: ${apiError.type})`;
     }
     if (error instanceof Error) {
         if ('cause' in error && error.cause) {
@@ -1473,6 +1463,7 @@ export async function handleCleanDatabase(
           await db.collection('flows').deleteMany({});
           await db.collection('canned_messages').deleteMany({});
           await db.collection('flow_logs').deleteMany({});
+          await db.collection('meta_flows').deleteMany({});
 
 
           revalidatePath('/dashboard');
@@ -2808,6 +2799,8 @@ export async function handleDeleteProject(prevState: any, formData: FormData): P
             db.collection('flows').deleteMany({ projectId: projectObjectId }),
             db.collection('canned_messages').deleteMany({ projectId: projectObjectId }),
             db.collection('flow_logs').deleteMany({ projectId: projectObjectId }),
+            db.collection('meta_flows').deleteMany({ projectId: projectObjectId }),
+            db.collection('ad_campaigns').deleteMany({ projectId: projectObjectId }),
         ];
 
         await Promise.all(deletePromises);
@@ -3605,6 +3598,7 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
     const name = formData.get('name') as string;
     const categoriesStr = formData.get('categories') as string;
     const flowDataStr = formData.get('flow_data') as string;
+    const endpointUri = formData.get('endpoint_uri') as string | null;
 
     if (!name || !categoriesStr || !flowDataStr) {
         return { error: 'Name, Categories, and JSON data are required.' };
@@ -3614,13 +3608,28 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
         const categories = categoriesStr.split(',').map(c => c.trim().toUpperCase());
         const flow_data = JSON.parse(flowDataStr);
 
-        const phoneNumberId = hasAccess.phoneNumbers[0].id;
+        const wabaId = hasAccess.wabaId;
         const accessToken = hasAccess.accessToken;
 
+        const payload: any = {
+            name,
+            categories,
+            flow_json: JSON.stringify(flow_data),
+            access_token: accessToken,
+        };
+
+        if (endpointUri) {
+            payload.endpoint_uri = endpointUri;
+        }
+
         const response = await axios.post(
-            `https://graph.facebook.com/v22.0/${phoneNumberId}/flows`,
-            { name, categories, flow_data, access_token: accessToken }
+            `https://graph.facebook.com/v22.0/${wabaId}/flows`,
+            payload
         );
+
+        if (response.data.error) {
+            throw new Error(response.data.error.message);
+        }
 
         const metaFlowId = response.data?.id;
         if (!metaFlowId) {
