@@ -24,7 +24,7 @@ const UIComponentSchema = z.object({
 });
 
 const FooterSchema = z.object({
-    type: z.literal('Footer'),
+    type: z.enum(['Footer']),
     label: z.string().describe("The text for the main action button on the screen."),
     'on-click-action': z.object({
         name: z.enum(['navigate', 'complete']),
@@ -35,7 +35,7 @@ const FooterSchema = z.object({
 });
 
 const LayoutSchema = z.object({
-    type: z.literal('SingleColumnLayout'),
+    type: z.enum(['SingleColumnLayout']),
     children: z.array(z.union([UIComponentSchema, FooterSchema]))
 });
 
@@ -46,20 +46,16 @@ const ScreenSchema = z.object({
 });
 
 const GenerateMetaFlowOutputSchema = z.object({
-    version: z.literal("3.0"),
+    version: z.enum(["3.0"]),
     screens: z.array(ScreenSchema).describe("An array of screens that make up the flow. Should contain at least a welcome screen and a confirmation/thank you screen.")
 });
-type GenerateMetaFlowOutput = z.infer<typeof GenerateMetaFlowOutputSchema>;
-
 
 const GenerateMetaFlowInputSchema = z.object({
   prompt: z.string().describe("The user's description of the flow they want to create."),
   category: z.string().describe("The category of the flow, which helps give context to the AI."),
 });
-type GenerateMetaFlowInput = z.infer<typeof GenerateMetaFlowInputSchema>;
 
-
-export async function generateMetaFlow(input: GenerateMetaFlowInput): Promise<GenerateMetaFlowOutput> {
+export async function generateMetaFlow(input: z.infer<typeof GenerateMetaFlowInputSchema>): Promise<z.infer<typeof GenerateMetaFlowOutputSchema>> {
   return generateMetaFlowFlow(input);
 }
 

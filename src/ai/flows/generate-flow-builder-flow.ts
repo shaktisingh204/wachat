@@ -21,7 +21,7 @@ const FlowNodeDataSchema = z.object({
     label: z.string().describe('A short, descriptive label for the node block.'),
     text: z.string().optional().describe('The text content for message-based nodes like `text` or `buttons`.'),
     triggerKeywords: z.string().optional().describe('For `start` nodes, a comma-separated list of keywords that trigger the flow.'),
-    buttons: z.array(z.object({ id: z.string(), type: z.literal('QUICK_REPLY'), text: z.string() })).optional().describe('An array of buttons for `buttons` nodes.'),
+    buttons: z.array(z.object({ id: z.string(), type: z.enum(['QUICK_REPLY']), text: z.string() })).optional().describe('An array of buttons for `buttons` nodes.'),
     variableToSave: z.string().optional().describe('For `input` nodes, the name of the variable to save the user\'s response to (e.g., "user_name").'),
     conditionType: z.enum(['variable', 'user_response']).optional().describe('For `condition` nodes, what to check.'),
     variable: z.string().optional().describe('For `condition` nodes, the variable to check (e.g., "{{user_name}}").'),
@@ -48,14 +48,12 @@ const GenerateFlowBuilderFlowOutputSchema = z.object({
   nodes: z.array(FlowNodeSchema).describe('An array of all nodes in the flow.'),
   edges: z.array(FlowEdgeSchema).describe('An array of all edges connecting the nodes.'),
 });
-type GenerateFlowBuilderFlowOutput = z.infer<typeof GenerateFlowBuilderFlowOutputSchema>;
 
 const GenerateFlowBuilderFlowInputSchema = z.object({
   prompt: z.string().describe("The user's description of the flow they want to create."),
 });
-type GenerateFlowBuilderFlowInput = z.infer<typeof GenerateFlowBuilderFlowInputSchema>;
 
-export async function generateFlowBuilderFlow(input: GenerateFlowBuilderFlowInput): Promise<GenerateFlowBuilderFlowOutput> {
+export async function generateFlowBuilderFlow(input: z.infer<typeof GenerateFlowBuilderFlowInputSchema>): Promise<z.infer<typeof GenerateFlowBuilderFlowOutputSchema>> {
   return generateFlowBuilderFlowFlow(input);
 }
 
