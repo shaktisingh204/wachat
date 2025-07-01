@@ -413,7 +413,11 @@ function CreateMetaFlowPage() {
                             <CardHeader><CardTitle>2. Build Your Screens</CardTitle></CardHeader>
                             <CardContent>
                                 <Accordion type="multiple" className="w-full space-y-4" defaultValue={['item-0']}>
-                                    {screens.map((screen, screenIndex) => (
+                                    {screens.map((screen, screenIndex) => {
+                                        const footer = screen.layout.children.find((c: any) => c.type === 'Footer');
+                                        const nextAction = footer?.['on-click-action']?.payload?.next || 'END_FLOW';
+
+                                        return (
                                         <AccordionItem value={`item-${screenIndex}`} key={screen.id} className="border rounded-md px-4">
                                             <AccordionTrigger className="hover:no-underline">
                                                  <div className="flex-1 flex items-center gap-2">
@@ -446,7 +450,7 @@ function CreateMetaFlowPage() {
                                                 </Popover>
                                                 <div className="space-y-2 pt-4 border-t">
                                                     <Label>Footer Button Action</Label>
-                                                    <Select value={screen.layout.children.find((c: any) => c.type === 'Footer')['on-click-action']?.payload?.next || 'END_FLOW'} onValueChange={value => updateScreenAction(screenIndex, value)}>
+                                                    <Select value={nextAction} onValueChange={value => updateScreenAction(screenIndex, value)}>
                                                         <SelectTrigger>
                                                             <SelectValue placeholder="Select next step..." />
                                                         </SelectTrigger>
@@ -458,7 +462,8 @@ function CreateMetaFlowPage() {
                                                 </div>
                                             </AccordionContent>
                                         </AccordionItem>
-                                    ))}
+                                        );
+                                    })}
                                 </Accordion>
                                 <Button type="button" variant="outline" className="w-full mt-4" onClick={addScreen}><Plus className="mr-2 h-4 w-4"/>Add New Screen</Button>
                             </CardContent>
