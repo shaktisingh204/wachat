@@ -27,7 +27,6 @@ import {
   SidebarInset,
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
 import {
   LayoutDashboard,
   MessageSquare,
@@ -54,6 +53,7 @@ import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-compon
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { getProjectCount, getSession, handleLogout } from '@/app/actions';
+import { LiveNotificationFeed } from '@/components/wabasimplify/live-notification-feed';
 
 function FullPageSkeleton() {
     return (
@@ -114,11 +114,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [pathname, router, isClient]);
 
   const isChatPage = pathname.startsWith('/dashboard/chat');
-  
-  const hideNotificationFeedOnDesktop =
-    pathname === '/dashboard' ||
-    pathname.startsWith('/dashboard/flow-builder') ||
-    isChatPage;
 
   if (!isClient || isVerifying) {
       return <FullPageSkeleton />;
@@ -264,11 +259,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             )}>
               {children}
           </main>
-          {!hideNotificationFeedOnDesktop && (
-           <aside className="hidden md:flex w-full md:w-80 xl:w-96 border-t md:border-t-0 md:border-l bg-background shrink-0 flex-col">
-              <LiveNotificationFeed />
-          </aside>
-          )}
         </div>
       </SidebarInset>
     </SidebarProvider>
