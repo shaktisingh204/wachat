@@ -123,9 +123,13 @@ export default function CreateMetaFlowPage() {
     const updateScreenAction = (screenIndex: number, screenId: string) => {
         setScreens(prev => prev.map((s, i) => {
             if (i === screenIndex) {
-                const footer = s.layout.children.find(c => c.type === 'Footer');
+                const footer = s.layout.children.find((c: any) => c.type === 'Footer');
                 if(footer) {
-                    footer['on-click-action'] = screenId ? { name: 'navigate', payload: { next: screenId } } : { name: 'complete' };
+                    if (screenId === 'END_FLOW') {
+                        footer['on-click-action'] = { name: 'complete' };
+                    } else {
+                        footer['on-click-action'] = { name: 'navigate', payload: { next: screenId } };
+                    }
                 }
             }
             return s;
@@ -316,12 +320,12 @@ export default function CreateMetaFlowPage() {
                                                 </Popover>
                                                 <div className="space-y-2 pt-4 border-t">
                                                     <Label>Footer Button Action</Label>
-                                                    <Select value={screen.layout.children.find((c: any) => c.type === 'Footer')['on-click-action']?.payload?.next || ''} onValueChange={value => updateScreenAction(screenIndex, value)}>
+                                                    <Select value={screen.layout.children.find((c: any) => c.type === 'Footer')['on-click-action']?.payload?.next || 'END_FLOW'} onValueChange={value => updateScreenAction(screenIndex, value)}>
                                                         <SelectTrigger>
                                                             <SelectValue placeholder="Select next step..." />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem value="">End Flow (Complete)</SelectItem>
+                                                            <SelectItem value="END_FLOW">End Flow (Complete)</SelectItem>
                                                             {screens.filter(s => s.id !== screen.id).map(s => <SelectItem key={s.id} value={s.id}>Go to: {s.title}</SelectItem>)}
                                                         </SelectContent>
                                                     </Select>
