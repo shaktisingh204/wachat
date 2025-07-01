@@ -7,7 +7,7 @@ import { getProjectById, handleSyncPhoneNumbers } from '@/app/actions';
 import type { Project, PhoneNumber } from '@/app/dashboard/page';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { MoreHorizontal, AlertCircle, RefreshCw, LoaderCircle, Edit, UserCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
