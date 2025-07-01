@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, PlusCircle, ServerCog, Trash2, LoaderCircle } from 'lucide-react';
+import { AlertCircle, PlusCircle, ServerCog, Trash2, LoaderCircle, BookOpen } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -112,12 +112,20 @@ export default function MetaFlowsPage() {
                     <h1 className="text-3xl font-bold font-headline">Meta Flows</h1>
                     <p className="text-muted-foreground">Manage your interactive Meta WhatsApp Flows.</p>
                 </div>
-                <Button asChild>
-                    <Link href="/dashboard/flows/create">
-                        <PlusCircle className="mr-2 h-4 w-4"/>
-                        Create New Meta Flow
-                    </Link>
-                </Button>
+                <div className="flex items-center gap-2">
+                    <Button asChild variant="outline">
+                        <Link href="/dashboard/flows/docs">
+                            <BookOpen className="mr-2 h-4 w-4"/>
+                            API Docs
+                        </Link>
+                    </Button>
+                    <Button asChild>
+                        <Link href="/dashboard/flows/create">
+                            <PlusCircle className="mr-2 h-4 w-4"/>
+                            Create New Meta Flow
+                        </Link>
+                    </Button>
+                </div>
             </div>
 
             {!projectId ? (
