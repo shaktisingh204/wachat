@@ -139,4 +139,3 @@ export const MetaFlowPreview = ({ flowJson }) => {
         </Card>
     );
 }
-

@@ -27,7 +27,6 @@ export const declarativeFlowComponents: { type: DeclarativeUIComponent['type'], 
     { type: 'TextCaption', label: 'Caption Text' },
     { type: 'TextInput', label: 'Text Input' },
     { type: 'TextArea', label: 'Text Area' },
-    { type: 'PhoneNumber', label: 'Phone Number Input' },
     { type: 'DatePicker', label: 'Date Picker' },
     { type: 'CalendarPicker', label: 'Calendar' },
     { type: 'Dropdown', label: 'Dropdown' },
@@ -43,4 +42,3 @@ export const declarativeFlowComponents: { type: DeclarativeUIComponent['type'], 
     { type: 'Footer', label: 'Footer Button' },
     { type: 'NavigationList', label: 'Navigation List' },
 ];
-
