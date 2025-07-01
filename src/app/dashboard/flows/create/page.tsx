@@ -40,18 +40,20 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
     );
 }
 
-function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onRemoveOption }: { component: UIComponentV3 & { name: string }, onUpdate: (key: string, value: any) => void, onAddOption: () => void, onUpdateOption: (index: number, value: string) => void, onRemoveOption: (index: number) => void }) {
+function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onRemoveOption }: { component: UIComponentV3 & { name?: string }, onUpdate: (key: string, value: any) => void, onAddOption: () => void, onUpdateOption: (index: number, value: string) => void, onRemoveOption: (index: number) => void }) {
+    const { name } = component;
+
     switch (component.type) {
         case 'TextSubheading':
             return <Input value={component.text || ''} onChange={e => onUpdate('text', e.target.value)} placeholder="e.g., Your Details" />;
         case 'TextArea':
-            return <Input value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Additional Comments" />;
+             return <Input value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Additional Comments" />;
         case 'Dropdown':
         case 'RadioButtonsGroup':
         case 'CheckboxGroup':
              return (
                 <div className="space-y-2">
-                    <Input id={`${component.name}_label`} value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Select your interest" />
+                    <Input id={`${name}_label`} value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., Select your interest" />
                     <Label className="text-xs">Options</Label>
                     <div className="space-y-2">
                         {(component['data-source'] || []).map((opt, index) => (
@@ -64,6 +66,8 @@ function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onR
                     <Button type="button" variant="outline" size="sm" onClick={onAddOption}>+ Add Option</Button>
                 </div>
             );
+        case 'OptIn':
+            return <Input value={component.label || ''} onChange={e => onUpdate('label', e.target.value)} placeholder="e.g., I agree to the terms." />;
         default:
             return <p className="text-xs text-muted-foreground">This component has no editable properties.</p>;
     }
@@ -99,7 +103,6 @@ function CreateMetaFlowPage() {
     const [existingFlow, setExistingFlow] = useState<WithId<MetaFlow> | null>(null);
     
     const [flowName, setFlowName] = useState('');
-    const [flowDescription, setFlowDescription] = useState('');
     const [screens, setScreens] = useState<any[]>([]);
     
     const [category, setCategory] = useState('OTHER');
@@ -120,8 +123,7 @@ function CreateMetaFlowPage() {
                 if (data) {
                     setExistingFlow(data);
                     const flowContent = data.flow_data;
-                    setFlowName(flowContent?.name || data.name);
-                    setFlowDescription(flowContent?.description || '');
+                    setFlowName(data.name);
                     setScreens(flowContent?.screens || []);
                     setCategory(data.categories[0] || 'OTHER');
                     setShouldPublish(data.status === 'PUBLISHED');
@@ -166,13 +168,13 @@ function CreateMetaFlowPage() {
             return;
         }
         startGeneratingTransition(async () => {
-            const result = await handleGenerateMetaFlow({ prompt: aiPrompt, category });
+            const result = await handleGenerateMetaFlow(aiPrompt, category);
             if (result.error) {
                 toast({ title: "AI Generation Failed", description: result.error, variant: "destructive" });
-            } else if (result.screens) {
+            } else if (result.flowJson) {
                 try {
-                    // AI returns a full object, we just need the screens.
-                    setScreens(result.screens);
+                    const parsedFlow = JSON.parse(result.flowJson);
+                    setScreens(parsedFlow.screens);
                     toast({ title: "Flow Generated!", description: "The AI has created your flow. Review and save it." });
                 } catch (e) {
                     toast({ title: "JSON Parse Error", description: "The AI returned invalid JSON. Please try again.", variant: "destructive" });
@@ -204,15 +206,34 @@ function CreateMetaFlowPage() {
         }));
     };
 
-    const addComponentToScreen = (screenId: string, componentType: string) => {
+    const addComponentToScreen = (screenId: string, componentType: UIComponentV3['type']) => {
+        const newUiId = `${componentType.toLowerCase()}_${Date.now()}`;
+        let newComponent: any = { type: componentType, _ui_id: newUiId };
+
+        switch (componentType) {
+            case 'TextSubheading':
+                newComponent.text = 'New Subheading';
+                break;
+            case 'TextArea':
+            case 'Dropdown':
+            case 'RadioButtonsGroup':
+            case 'CheckboxGroup':
+            case 'OptIn':
+                // Meta API names can't have special characters
+                newComponent.name = newUiId.replace(/[^a-zA-Z0-9]/g, '');
+                newComponent.label = 'New ' + componentType;
+                if (['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup'].includes(componentType)) {
+                    newComponent['data-source'] = [{ id: 'opt_1', title: 'Option 1' }];
+                }
+                break;
+            default:
+                return; 
+        }
+
         setScreens(prev => prev.map((s) => {
             if (s.id === screenId) {
                 const form = getFormComponent(s);
-                const children = form.children;
-                const newComponent: any = { type: componentType, name: `${componentType.toLowerCase()}_${Date.now()}` };
-                if (['Dropdown', 'RadioButtonsGroup'].includes(componentType)) {
-                    newComponent['data-source'] = [];
-                }
+                const children = form.children || [];
                 const footerIndex = children.findLastIndex((c: any) => c.type === 'Footer');
                 const newChildren = [...children];
                 newChildren.splice(footerIndex, 0, newComponent);
@@ -222,52 +243,35 @@ function CreateMetaFlowPage() {
         }));
     };
     
-    const removeComponentFromScreen = (screenId: string, componentName: string) => {
+    const removeComponentFromScreen = (screenId: string, componentUiId: string) => {
         setScreens(prev => prev.map((s) => {
             if (s.id === screenId) {
                 const form = getFormComponent(s);
-                const newChildren = form.children.filter((c: any) => c.name !== componentName);
+                const newChildren = form.children.filter((c: any) => c._ui_id !== componentUiId);
                 return { ...s, layout: { ...s.layout, children: [{ ...form, children: newChildren }] } };
             }
             return s;
         }));
     };
 
-    const updateComponentInScreen = (screenId: string, componentName: string, key: string, value: any) => {
+    const updateComponentInScreen = (screenId: string, componentUiId: string, key: string, value: any) => {
         setScreens(prev => prev.map(s => {
             if (s.id === screenId) {
                 const form = getFormComponent(s);
-                const newChildren = form.children.map((c: any) => c.name === componentName ? { ...c, [key]: value } : c);
+                const newChildren = form.children.map((c: any) => c._ui_id === componentUiId ? { ...c, [key]: value } : c);
                 return { ...s, layout: { ...s.layout, children: [{ ...form, children: newChildren }] } };
             }
             return s;
         }));
     };
 
-    const handleAddOption = (screenId: string, componentName: string) => {
+    const handleAddOption = (screenId: string, componentUiId: string) => {
         setScreens(prev => prev.map(s => {
             if (s.id === screenId) {
                 const form = getFormComponent(s);
                 const newChildren = form.children.map((c: any) => {
-                    if (c.name === componentName) {
+                    if (c._ui_id === componentUiId) {
                         const newOptions = [...(c['data-source'] || []), { id: `opt_${Date.now()}`, title: '' }];
-                        return { ...c, 'data-source': newOptions };
-                    }
-                    return c;
-                });
-                return { ...s, layout: { ...s.layout, children: [{...form, children: newChildren}] } };
-            }
-            return s;
-        }));
-    };
-
-    const handleUpdateOption = (screenId: string, componentName: string, optionIndex: number, value: string) => {
-        setScreens(prev => prev.map(s => {
-            if (s.id === screenId) {
-                const form = getFormComponent(s);
-                const newChildren = form.children.map((c: any) => {
-                    if (c.name === componentName) {
-                        const newOptions = c['data-source'].map((opt, k) => k === optionIndex ? { ...opt, title: value } : opt);
                         return { ...c, 'data-source': newOptions };
                     }
                     return c;
@@ -278,12 +282,29 @@ function CreateMetaFlowPage() {
         }));
     };
 
-    const handleRemoveOption = (screenId: string, componentName: string, optionIndex: number) => {
+    const handleUpdateOption = (screenId: string, componentUiId: string, optionIndex: number, value: string) => {
         setScreens(prev => prev.map(s => {
             if (s.id === screenId) {
                 const form = getFormComponent(s);
                 const newChildren = form.children.map((c: any) => {
-                    if (c.name === componentName) {
+                    if (c._ui_id === componentUiId) {
+                        const newOptions = c['data-source'].map((opt:any, k:number) => k === optionIndex ? { ...opt, title: value } : opt);
+                        return { ...c, 'data-source': newOptions };
+                    }
+                    return c;
+                });
+                return { ...s, layout: {...s.layout, children: [{...form, children: newChildren}]} };
+            }
+            return s;
+        }));
+    };
+
+    const handleRemoveOption = (screenId: string, componentUiId: string, optionIndex: number) => {
+        setScreens(prev => prev.map(s => {
+            if (s.id === screenId) {
+                const form = getFormComponent(s);
+                const newChildren = form.children.map((c: any) => {
+                    if (c._ui_id === componentUiId) {
                         const newOptions = c['data-source'].filter((_: any, k: number) => k !== optionIndex);
                         return { ...c, 'data-source': newOptions };
                     }
@@ -295,10 +316,37 @@ function CreateMetaFlowPage() {
         }));
     };
 
+    const addNewScreen = () => {
+        const newScreenId = `screen_${screens.length + 1}`;
+        const newScreen = {
+            id: newScreenId,
+            title: `New Screen ${screens.length + 1}`,
+            layout: {
+                type: 'SingleColumnLayout',
+                children: [{
+                    type: 'Form',
+                    name: `form_${screens.length + 1}`,
+                    children: [{
+                        type: 'Footer',
+                        label: 'Submit',
+                        'on-click-action': { name: 'complete' }
+                    }]
+                }]
+            }
+        };
+        setScreens(prev => [...prev, newScreen]);
+    };
+
     useEffect(() => {
-        const generatedJson = { version: "7.1", screens, name: flowName, description: flowDescription };
+        const screensForJson = JSON.parse(JSON.stringify(screens));
+        screensForJson.forEach((screen: any) => {
+            screen.layout?.children?.[0]?.children?.forEach((component: any) => {
+                delete component._ui_id;
+            });
+        });
+        const generatedJson = { version: "7.1", screens: screensForJson };
         setFlowJson(JSON.stringify(generatedJson, null, 2));
-    }, [flowName, flowDescription, screens]);
+    }, [screens]);
     
     if (isLoading) {
         return <PageSkeleton />;
@@ -364,7 +412,12 @@ function CreateMetaFlowPage() {
                         </Card>
 
                         <Card>
-                            <CardHeader><CardTitle>2. Build Your Screens</CardTitle></CardHeader>
+                            <CardHeader>
+                                <div className="flex justify-between items-center">
+                                    <CardTitle>2. Build Your Screens</CardTitle>
+                                    <Button type="button" size="sm" variant="outline" onClick={addNewScreen}><Plus className="mr-2 h-4 w-4" /> Add Screen</Button>
+                                </div>
+                            </CardHeader>
                             <CardContent>
                                 <Accordion type="multiple" className="w-full space-y-4" defaultValue={['item-0']}>
                                     {screens.map((screen, screenIndex) => (
@@ -380,17 +433,17 @@ function CreateMetaFlowPage() {
                                                 <Separator />
                                                 <h4 className="font-semibold text-sm">Components</h4>
                                                 {getFormChildren(screen).filter((c: any) => c.type !== 'Footer').map((component: any, compIndex: number) => (
-                                                    <div key={component.name || compIndex} className="p-3 border rounded-lg space-y-2 relative bg-background">
+                                                    <div key={component._ui_id || compIndex} className="p-3 border rounded-lg space-y-2 relative bg-background">
                                                         <div className="flex justify-between items-center">
                                                             <p className="text-sm font-medium text-muted-foreground">{component.type}</p>
-                                                            <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeComponentFromScreen(screen.id, component.name)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
+                                                            <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeComponentFromScreen(screen.id, component._ui_id)}><Trash2 className="h-3 w-3 text-destructive" /></Button>
                                                         </div>
                                                         <ComponentEditor 
                                                             component={component} 
-                                                            onUpdate={(key, value) => updateComponentInScreen(screen.id, component.name, key, value)}
-                                                            onAddOption={() => handleAddOption(screen.id, component.name)}
-                                                            onUpdateOption={(optionIndex, value) => handleUpdateOption(screen.id, component.name, optionIndex, value)}
-                                                            onRemoveOption={(optionIndex) => handleRemoveOption(screen.id, component.name, optionIndex)}
+                                                            onUpdate={(key, value) => updateComponentInScreen(screen.id, component._ui_id, key, value)}
+                                                            onAddOption={() => handleAddOption(screen.id, component._ui_id)}
+                                                            onUpdateOption={(optionIndex, value) => handleUpdateOption(screen.id, component._ui_id, optionIndex, value)}
+                                                            onRemoveOption={(optionIndex) => handleRemoveOption(screen.id, component._ui_id, optionIndex)}
                                                         />
                                                     </div>
                                                 ))}
