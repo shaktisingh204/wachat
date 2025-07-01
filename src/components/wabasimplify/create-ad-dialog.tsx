@@ -87,8 +87,8 @@ export function CreateAdDialog({ isOpen, onOpenChange, project, onAdCreated }: C
             </div>
             <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                    <Label htmlFor="dailyBudget">Daily Budget (INR)</Label>
-                    <Input id="dailyBudget" name="dailyBudget" type="number" placeholder="500" required />
+                    <Label htmlFor="dailyBudget">Daily Budget (in Ad Account Currency)</Label>
+                    <Input id="dailyBudget" name="dailyBudget" type="number" placeholder="10.00" required step="0.01" />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="adPhoneNumber">WhatsApp Number</Label>

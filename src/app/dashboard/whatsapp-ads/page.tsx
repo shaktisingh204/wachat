@@ -154,7 +154,7 @@ export default function WhatsAppAdsPage() {
                             <TableCell>
                             <Badge variant={campaign.status === 'PAUSED' ? 'secondary' : 'default'}>{campaign.status}</Badge>
                             </TableCell>
-                            <TableCell>INR {campaign.dailyBudget.toLocaleString()}</TableCell>
+                            <TableCell>{campaign.dailyBudget.toLocaleString()}</TableCell>
                             <TableCell>{new Date(campaign.createdAt).toLocaleDateString()}</TableCell>
                         </TableRow>
                         ))}
@@ -173,7 +173,7 @@ export default function WhatsAppAdsPage() {
                         <CardContent className="p-4 pt-2 text-sm space-y-2">
                         <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">Daily Budget:</span>
-                            <span className="font-medium">INR {campaign.dailyBudget.toLocaleString()}</span>
+                            <span className="font-medium">{campaign.dailyBudget.toLocaleString()}</span>
                         </div>
                         <div className="flex justify-between items-center">
                             <span className="text-muted-foreground">Created:</span>

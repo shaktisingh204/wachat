@@ -16,6 +16,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, LoaderCircle, Save } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const initialState = { message: null, error: null };
 
@@ -96,14 +97,25 @@ export default function PlanEditorPage() {
                     <CardTitle>Basic Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="grid md:grid-cols-3 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="name">Plan Name</Label>
                             <Input id="name" name="name" defaultValue={plan?.name} required placeholder="e.g., Pro Tier" />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="price">Price (per month, in INR)</Label>
+                            <Label htmlFor="price">Price (per month)</Label>
                             <Input id="price" name="price" type="number" defaultValue={plan?.price ?? 49} required min="0" step="1" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="currency">Currency</Label>
+                            <Select name="currency" defaultValue={plan?.currency || 'INR'} required>
+                                <SelectTrigger id="currency"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="INR">INR (Indian Rupee)</SelectItem>
+                                    <SelectItem value="USD">USD (US Dollar)</SelectItem>
+                                    <SelectItem value="EUR">EUR (Euro)</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
                     <div>

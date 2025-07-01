@@ -43,6 +43,7 @@ export type Plan = {
     _id: ObjectId;
     name: string;
     price: number;
+    currency: string;
     isPublic: boolean;
     isDefault: boolean;
     projectLimit: number;
@@ -2663,6 +2664,7 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
         const planData: Omit<Plan, '_id' | 'createdAt'> = {
             name: formData.get('name') as string,
             price: Number(formData.get('price')),
+            currency: formData.get('currency') as string,
             isPublic: formData.get('isPublic') === 'on',
             isDefault: formData.get('isDefault') === 'on',
             projectLimit: Number(formData.get('projectLimit')),
@@ -3861,3 +3863,4 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
         return { error: getErrorMessage(e) || 'An unexpected error occurred during ad creation.' };
     }
 }
+

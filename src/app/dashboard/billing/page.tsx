@@ -38,7 +38,7 @@ export default async function BillingPage() {
                     <Card key={plan._id.toString()} className={cn("flex flex-col", userPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
                         <CardHeader className="flex-grow">
                             <CardTitle>{plan.name}</CardTitle>
-                            <div className="text-4xl font-bold pt-4">INR {plan.price} <span className="text-sm font-normal text-muted-foreground">/ month</span></div>
+                            <div className="text-4xl font-bold pt-4">{plan.currency || 'INR'} {plan.price} <span className="text-sm font-normal text-muted-foreground">/ month</span></div>
                             <CardDescription>
                                 + Mkt: INR {plan.messageCosts?.marketing ?? 'N/A'} | Util: INR {plan.messageCosts?.utility ?? 'N/A'} | Auth: INR {plan.messageCosts?.authentication ?? 'N/A'}
                             </CardDescription>
