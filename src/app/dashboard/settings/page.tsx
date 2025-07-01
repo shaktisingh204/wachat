@@ -4,7 +4,7 @@
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
-import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects, GeneralReplyRule } from '@/app/actions';
+import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects, GeneralReplyRule, handleUpdateMarketingSettings } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, UserAttribute } from '@/app/dashboard/page';
 import { useToast } from '@/hooks/use-toast';
@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog, Handshake, MessageSquareHeart } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog, Handshake, MessageSquareHeart, Megaphone } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -32,6 +32,7 @@ const updateSettingsInitialState = { message: null, error: null };
 const updateAutoReplyInitialState = { message: null, error: null };
 const updateOptInOutInitialState = { message: null, error: null };
 const saveUserAttributesInitialState = { message: null, error: null };
+const marketingSettingsInitialState = { message: null, error: null };
 
 
 function SaveButton({ children }: { children: React.ReactNode }) {
@@ -485,6 +486,41 @@ function UserAttributesForm({ project, user }: { project: WithId<Project>, user:
   );
 }
 
+function MarketingSettingsForm({ project }: { project: WithId<Project> }) {
+    const [state, formAction] = useActionState(handleUpdateMarketingSettings, marketingSettingsInitialState);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        if (state?.message) toast({ title: 'Success!', description: state.message });
+        if (state?.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    }, [state, toast]);
+    
+    return (
+        <form action={formAction}>
+            <input type="hidden" name="projectId" value={project._id.toString()} />
+            <Card>
+                <CardHeader>
+                    <CardTitle>Marketing API Settings</CardTitle>
+                    <CardDescription>Configure credentials for creating and managing ads via API.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="adAccountId">Ad Account ID</Label>
+                        <Input id="adAccountId" name="adAccountId" placeholder="e.g., act_1234567890" defaultValue={project.adAccountId}/>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="facebookPageId">Facebook Page ID</Label>
+                        <Input id="facebookPageId" name="facebookPageId" placeholder="e.g., 1234567890" defaultValue={project.facebookPageId}/>
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <SaveButton>Save Marketing Settings</SaveButton>
+                </CardFooter>
+            </Card>
+        </form>
+    )
+}
+
 
 function SettingsPageContent() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
@@ -574,6 +610,7 @@ function SettingsPageContent() {
             <TabsList className="inline-flex h-auto p-1 bg-transparent w-max">
               <TabsTrigger value="broadcast"><Save className="mr-2 h-4 w-4" />Broadcast</TabsTrigger>
               <TabsTrigger value="auto-reply"><Bot className="mr-2 h-4 w-4" />Auto-Replies</TabsTrigger>
+              <TabsTrigger value="marketing"><Megaphone className="mr-2 h-4 w-4" />Marketing</TabsTrigger>
               <TabsTrigger value="canned-messages"><ClipboardList className="mr-2 h-4 w-4" />Canned Messages</TabsTrigger>
               <TabsTrigger value="agents-roles"><UserCog className="mr-2 h-4 w-4" />Agents & Roles</TabsTrigger>
               <TabsTrigger value="compliance"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
@@ -621,6 +658,10 @@ function SettingsPageContent() {
             </Tabs>
           </TabsContent>
           
+          <TabsContent value="marketing" className="mt-6">
+            <MarketingSettingsForm project={project} />
+          </TabsContent>
+
           <TabsContent value="canned-messages" className="mt-6">
             <CannedMessagesSettingsTab project={project} />
           </TabsContent>

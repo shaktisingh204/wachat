@@ -112,6 +112,8 @@ export type Project = {
     optInOutSettings?: OptInOutSettings;
     userAttributes?: UserAttribute[];
     agents?: Agent[];
+    adAccountId?: string;
+    facebookPageId?: string;
 };
 
 export type Template = {
@@ -150,6 +152,18 @@ export type Flow = {
     triggerKeywords: string[];
     createdAt: Date;
     updatedAt: Date;
+};
+
+export type AdCampaign = {
+    projectId: ObjectId;
+    name: string;
+    status: string;
+    dailyBudget: number;
+    metaCampaignId: string;
+    metaAdSetId: string;
+    metaAdCreativeId: string;
+    metaAdId: string;
+    createdAt: Date;
 };
 
 export default async function SelectProjectPage({

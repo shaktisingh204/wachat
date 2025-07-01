@@ -1,179 +1,174 @@
 
-import type { Metadata } from 'next';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Key, Target, WandSparkles, PenSquare, BarChart3, FlaskConical, Wrench, Megaphone, ShieldCheck } from 'lucide-react';
-import { CodeBlock } from '@/components/wabasimplify/code-block';
+'use client';
+
+import { useEffect, useState, useTransition, useCallback } from 'react';
+import type { WithId } from 'mongodb';
+import { getProjectById, getAdCampaigns, handleCreateWhatsAppAd } from '@/app/actions';
+import type { Project, AdCampaign } from '@/app/dashboard/page';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle, Megaphone, PlusCircle, LoaderCircle } from 'lucide-react';
+import { CreateAdDialog } from '@/components/wabasimplify/create-ad-dialog';
 
-export const metadata: Metadata = {
-  title: 'WhatsApp Ads Guide | Wachat',
-};
-
-const campaignPayload = `{
-  "name": "Click to WhatsApp Campaign",
-  "objective": "MESSAGES",
-  "status": "PAUSED",
-  "special_ad_categories": []
-}`;
-
-const adSetPayload = `{
-  "name": "WhatsApp Ad Set",
-  "campaign_id": "<CAMPAIGN_ID>",
-  "daily_budget": 1000,
-  "billing_event": "IMPRESSIONS",
-  "optimization_goal": "LEAD_GENERATION",
-  "promoted_object": {
-    "custom_event_type": "LEAD"
-  },
-  "targeting": {
-    "geo_locations": {
-      "countries": ["IN"]
-    },
-    "age_min": 18,
-    "age_max": 55
-  },
-  "status": "PAUSED"
-}`;
-
-const adCreativePayload = `{
-  "name": "Click to WhatsApp Creative",
-  "object_story_spec": {
-    "page_id": "<FB_PAGE_ID>",
-    "link_data": {
-      "message": "Need help? Chat with us on WhatsApp!",
-      "link": "https://wa.me/<NUMBER>?text=Hi%20there!",
-      "call_to_action": {
-        "type": "WHATSAPP_MESSAGE",
-        "value": {
-          "app_destination": "WHATSAPP_THREAD"
-        }
-      }
-    }
-  }
-}`;
-
-const adPayload = `{
-  "name": "Click to WhatsApp Ad",
-  "adset_id": "<ADSET_ID>",
-  "creative": { "creative_id": "<AD_CREATIVE_ID>" },
-  "status": "PAUSED"
-}`;
+function WhatsAppAdsPageSkeleton() {
+    return (
+        <div className="flex flex-col gap-8">
+             <div>
+                <Skeleton className="h-10 w-48" />
+                <Skeleton className="h-4 w-64 mt-2" />
+            </div>
+            <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <Skeleton className="h-6 w-32" />
+                        <Skeleton className="h-4 w-48 mt-2" />
+                    </div>
+                    <Skeleton className="h-10 w-24" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-48 w-full" />
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
 
 export default function WhatsAppAdsPage() {
+  const [project, setProject] = useState<WithId<Project> | null>(null);
+  const [adCampaigns, setAdCampaigns] = useState<WithId<AdCampaign>[]>([]);
+  const [isLoading, startLoadingTransition] = useTransition();
+  const [isClient, setIsClient] = useState(false);
+  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
+  const fetchData = useCallback(async (projectId: string) => {
+    startLoadingTransition(async () => {
+      const [projectData, adsData] = await Promise.all([
+        getProjectById(projectId),
+        getAdCampaigns(projectId),
+      ]);
+      setProject(projectData);
+      setAdCampaigns(adsData);
+    });
+  }, []);
+
+  useEffect(() => {
+    setIsClient(true);
+    const storedProjectId = localStorage.getItem('activeProjectId');
+    setActiveProjectId(storedProjectId);
+  }, []);
+
+  useEffect(() => {
+    if (isClient && activeProjectId) {
+      fetchData(activeProjectId);
+    }
+  }, [isClient, activeProjectId, fetchData]);
+
+  if (!isClient || isLoading) {
+      return <WhatsAppAdsPageSkeleton />;
+  }
+
+  if (!activeProjectId) {
+    return (
+        <Alert variant="destructive" className="max-w-lg mx-auto">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>No Project Selected</AlertTitle>
+            <AlertDescription>
+                Please select a project from the main dashboard to manage WhatsApp Ads.
+            </AlertDescription>
+        </Alert>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-8">
+    <>
+      {project && (
+          <CreateAdDialog 
+            isOpen={isCreateDialogOpen}
+            onOpenChange={setIsCreateDialogOpen}
+            project={project}
+            onAdCreated={() => fetchData(project._id.toString())}
+          />
+      )}
+      <div className="flex flex-col gap-8">
         <div>
-            <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Megaphone className="h-8 w-8" />WhatsApp Ads</h1>
-            <p className="text-muted-foreground mt-2 max-w-3xl">A comprehensive guide to creating "Click to WhatsApp" ads using the Meta Marketing API.</p>
+          <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
+            <Megaphone className="h-8 w-8" />
+            WhatsApp Ads
+          </h1>
+          <p className="text-muted-foreground mt-2 max-w-3xl">
+            Create and manage your "Click to WhatsApp" ad campaigns.
+          </p>
         </div>
 
         <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Target className="h-5 w-5"/>Key Concepts</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <ul className="list-inside list-disc space-y-1 text-sm text-foreground/90">
-                    <li><strong>Platform:</strong> Meta Marketing API</li>
-                    <li><strong>WhatsApp Entry Point:</strong> via <code>"destination_type": "WHATSAPP_THREAD"</code> or <code>"call_to_action_type": "WHATSAPP_MESSAGE"</code></li>
-                    <li><strong>Ad Type:</strong> Click to WhatsApp Ad (Message Objective)</li>
-                </ul>
-            </CardContent>
+          <CardHeader>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <CardTitle>Your Ad Campaigns</CardTitle>
+                    <CardDescription>
+                        A list of ad campaigns created for this project.
+                    </CardDescription>
+                </div>
+                <Button onClick={() => setIsCreateDialogOpen(true)} disabled={!project}>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Create New Ad
+                </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="border rounded-md">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Campaign Name</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Daily Budget</TableHead>
+                    <TableHead>Created At</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {adCampaigns.length > 0 ? (
+                    adCampaigns.map((campaign) => (
+                      <TableRow key={campaign._id.toString()}>
+                        <TableCell className="font-medium">{campaign.name}</TableCell>
+                        <TableCell>
+                          <Badge variant={campaign.status === 'PAUSED' ? 'secondary' : 'default'}>{campaign.status}</Badge>
+                        </TableCell>
+                        <TableCell>INR {campaign.dailyBudget.toLocaleString()}</TableCell>
+                        <TableCell>{new Date(campaign.createdAt).toLocaleDateString()}</TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell colSpan={4} className="h-24 text-center">
+                        No ad campaigns found. Create one to get started.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
         </Card>
-
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5"/>1. Setup Requirements</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <ul className="list-inside list-disc space-y-2 text-sm text-foreground/90">
-                    <li>WhatsApp Business Phone Number connected to a Meta Business Account</li>
-                    <li>Verified Meta Business Manager</li>
-                    <li>WhatsApp Connected to Facebook Page</li>
-                    <li>App Review Approval for <code>ads_management</code> and <code>whatsapp_business_messaging</code></li>
-                    <li>Access token with required scopes: <code>ads_management</code>, <code>business_management</code>, <code>whatsapp_business_messaging</code></li>
-                </ul>
-            </CardContent>
-        </Card>
-
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><PenSquare className="h-5 w-5"/>2. Create Campaign</CardTitle>
-                <CardDescription>Endpoint: <code>POST https://graph.facebook.com/v19.0/act_&lt;AD_ACCOUNT_ID&gt;/campaigns</code></CardDescription>
-            </CardHeader>
-            <CardContent>
-                <CodeBlock code={campaignPayload} language="json" />
-            </CardContent>
-        </Card>
-
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><PenSquare className="h-5 w-5"/>3. Create Ad Set (With WhatsApp CTA)</CardTitle>
-                <CardDescription>Endpoint: <code>POST https://graph.facebook.com/v19.0/act_&lt;AD_ACCOUNT_ID&gt;/adsets</code></CardDescription>
-            </CardHeader>
-            <CardContent>
-                <CodeBlock code={adSetPayload} language="json" />
-            </CardContent>
-        </Card>
-
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><WandSparkles className="h-5 w-5"/>4. Create Ad Creative with WhatsApp CTA</CardTitle>
-                <CardDescription>Endpoint: <code>POST https://graph.facebook.com/v19.0/act_&lt;AD_ACCOUNT_ID&gt;/adcreatives</code></CardDescription>
-            </CardHeader>
-            <CardContent>
-                <CodeBlock code={adCreativePayload} language="json" />
-                 <Alert className="mt-4">
-                    <Key className="h-4 w-4" />
-                    <AlertTitle>Important</AlertTitle>
-                    <AlertDescription>You must have a Facebook Page connected to your WhatsApp number.</AlertDescription>
-                </Alert>
-            </CardContent>
-        </Card>
-        
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><PenSquare className="h-5 w-5"/>5. Create Ad</CardTitle>
-                <CardDescription>Endpoint: <code>POST https://graph.facebook.com/v19.0/act_&lt;AD_ACCOUNT_ID&gt;/ads</code></CardDescription>
-            </CardHeader>
-            <CardContent>
-                <CodeBlock code={adPayload} language="json" />
-            </CardContent>
-        </Card>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><BarChart3 className="h-5 w-5"/>6. Track and Manage</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm mb-2">Use Graph API to check delivery, results, and costs. Retrieve Insights:</p>
-                    <CodeBlock code={`GET /<AD_ID>/insights?fields=clicks,impressions,spend,actions`} language="bash" />
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><FlaskConical className="h-5 w-5"/>Test Tools</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <ul className="list-inside list-disc space-y-1 text-sm text-foreground/90">
-                        <li>Graph API Explorer</li>
-                        <li>Ad Preview Tool</li>
-                    </ul>
-                </CardContent>
-            </Card>
-        </div>
-
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Wrench className="h-5 w-5"/>Notes</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <ul className="list-inside list-disc space-y-1 text-sm text-foreground/90">
-                    <li>You can also use Dynamic Ads with WhatsApp as CTA.</li>
-                    <li>WhatsApp Template Messages (for follow-up) are handled via WhatsApp Cloud API separately.</li>
-                </ul>
-            </CardContent>
-        </Card>
-    </div>
+      </div>
+    </>
   );
 }
