@@ -18,7 +18,7 @@ const OnClickActionSchema = z.object({
     type: z.literal('screen'),
     name: z.string().describe("The ID of the screen to navigate to."),
   }).optional().describe("The next screen to navigate to. Required if action name is 'navigate'."),
-  payload: z.record(z.any()).optional().describe("Data to be submitted or passed to the next screen. Use variables like ${form.input_name}."),
+  payload: z.record(z.any()).optional().describe("Data to be submitted or passed to the next screen. Use variables like ${form.input_name} for current screen data or ${data.variable_name} for data from previous screens."),
 });
 
 const FooterComponentSchema = z.object({
@@ -96,10 +96,15 @@ const LayoutSchema = z.object({
   children: z.array(FormContainerSchema),
 });
 
+const DataVariableSchema = z.object({
+  type: z.literal('string').describe("The data type, always 'string' for flows."),
+  __example__: z.string().optional().describe("An optional example value for the variable."),
+});
+
 const ScreenSchema = z.object({
   id: z.string().describe("A unique identifier for the screen, e.g., 'SURVEY_START'."),
   title: z.string().describe("The title of the screen."),
-  data: z.record(z.any()).optional().describe("Defines variables passed from the previous screen."),
+  data: z.record(DataVariableSchema).optional().describe("Defines variables passed from a previous screen's payload, mapping variable name to its type."),
   terminal: z.boolean().optional().describe("Set to true if this is a final screen in the flow."),
   success: z.boolean().optional().describe("Indicates if this is a success screen, often used with terminal:true."),
   layout: LayoutSchema,
@@ -110,15 +115,15 @@ const GenerateMetaFlowOutputSchema = z.object({
   screens: z.array(ScreenSchema).describe("An array of all screens that make up the flow. MUST contain at least one screen."),
 });
 
+type GenerateMetaFlowInput = z.infer<typeof GenerateMetaFlowInputSchema>;
 const GenerateMetaFlowInputSchema = z.object({
   prompt: z.string().describe("The user's description of the flow they want to create."),
   category: z.string().describe("The category of the flow, which helps give context to the AI."),
 });
 
-export async function generateMetaFlow(input: z.infer<typeof GenerateMetaFlowInputSchema>): Promise<z.infer<typeof GenerateMetaFlowOutputSchema>> {
+export async function generateMetaFlow(input: GenerateMetaFlowInput): Promise<z.infer<typeof GenerateMetaFlowOutputSchema>> {
   return generateMetaFlowFlow(input);
 }
-
 
 const prompt = ai.definePrompt({
   name: 'generateMetaFlowPrompt_v7_layout',
@@ -133,7 +138,10 @@ RULES:
 2.  **Navigation is Key**: Every form MUST have a 'Footer' component which acts as the main button for the screen.
     - To go to the next screen, the footer's action is: \`"on-click-action": { "name": "navigate", "next": { "type": "screen", "name": "next_screen_id" } }\`.
     - The FINAL screen's footer MUST use: \`"on-click-action": { "name": "complete" }\`.
-3.  **Data Passing**: To pass data to the next screen, add a 'payload' object to the footer's 'on-click-action'. Use variables like \`"\${form.input_name}"\`. The next screen must define these variables in its 'data' property.
+3.  **Data Passing**: 
+    - To pass data from the current screen to the next, add a 'payload' object to the footer's 'on-click-action'. Use variables from the current screen's form like \`"\${form.input_name}"\`.
+    - The receiving screen MUST then define these passed variables in its 'data' property. The keys must match the payload keys.
+    - To use a variable that was passed to the current screen, use \`"\${data.variable_name}"\` in your payload.
 4.  **Unique IDs**: All 'screen' IDs and component 'name' properties within a form must be unique strings (e.g., "screen_1", "user_name").
 5.  **Component Variety**: Use a variety of the available components: 'TextSubheading', 'TextArea', 'Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'OptIn', and 'Footer'.
 6.  **Create a Full Experience**: Create at least 2-3 screens for an interactive flow (e.g., a welcome screen, one or more data collection screens, and a final thank you/confirmation screen).
