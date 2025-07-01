@@ -21,7 +21,6 @@ import { redirect } from 'next/navigation';
 import { hashPassword, comparePassword, createSessionToken, verifySessionToken } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
-import cache from '@/lib/cache';
 
 // --- Plan Management Types ---
 export type PlanFeaturePermissions = {
@@ -471,12 +470,6 @@ export async function getAllProjectsForAdmin(
 
 
 export async function getProjectById(projectId: string): Promise<WithId<Project> | null> {
-    const cacheKey = `project:${projectId}`;
-    const cachedProject = cache.get<WithId<Project>>(cacheKey);
-    if (cachedProject) {
-        return cachedProject;
-    }
-
     const session = await getSession();
     if (!session?.user) {
         return null;
@@ -504,9 +497,7 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
              return null;
         }
         
-        const projectToCache = JSON.parse(JSON.stringify(project));
-        cache.set(cacheKey, projectToCache);
-        return projectToCache;
+        return JSON.parse(JSON.stringify(project));
     } catch (error: any) {
         console.error("Exception in getProjectById:", error);
         return null;
@@ -1012,7 +1003,6 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
             { $set: { phoneNumbers: phoneNumbers } }
         );
         
-        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/numbers');
 
         return { message: `Successfully synced ${phoneNumbers.length} phone number(s).`, count: phoneNumbers.length };
@@ -1455,7 +1445,6 @@ export async function handleUpdateProjectSettings(
             return { error: 'Project not found.' };
         }
         
-        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
 
         return { message: 'Settings updated successfully!' };
@@ -2823,7 +2812,6 @@ export async function handleDeleteProject(prevState: any, formData: FormData): P
 
         await Promise.all(deletePromises);
         
-        cache.del(`project:${projectId}`);
         revalidatePath('/admin/dashboard');
 
         return { message: 'Project and all associated data have been permanently deleted.' };
@@ -2945,7 +2933,6 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
 
         await db.collection('invitations').insertOne(newInvitation as any);
         
-        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: `Invitation sent to ${email}.` };
 
@@ -2977,7 +2964,6 @@ export async function handleRemoveAgent(prevState: any, formData: FormData): Pro
             { $pull: { agents: { userId: new ObjectId(agentUserId) } } }
         );
         
-        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: 'Agent removed successfully.' };
 
@@ -3033,7 +3019,6 @@ export async function handleRespondToInvite(invitationId: string, accepted: bool
 
         await db.collection('invitations').deleteOne({ _id: new ObjectId(invitationId) });
         
-        cache.del(`project:${invite.projectId.toString()}`);
         revalidatePath('/dashboard/settings');
         revalidatePath('/dashboard', 'layout');
         return { success: true };
@@ -3216,7 +3201,6 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
             { _id: new ObjectId(projectId) },
             { $set: { [`autoReplySettings.${replyType}`]: updatePayload } }
         );
-        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: 'Auto-reply settings updated successfully!' };
     } catch (e: any) {
@@ -3233,7 +3217,6 @@ export async function handleUpdateMasterSwitch(projectId: string, isEnabled: boo
             { _id: new ObjectId(projectId) },
             { $set: { "autoReplySettings.masterEnabled": isEnabled } }
         );
-        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: `All auto-replies have been ${isEnabled ? 'enabled' : 'disabled'}.` };
     } catch (e: any) {
@@ -3261,7 +3244,6 @@ export async function handleUpdateOptInOutSettings(prevState: any, formData: For
             { _id: new ObjectId(projectId) },
             { $set: { optInOutSettings: settings } }
         );
-        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: 'Opt-in/out settings saved successfully.' };
     } catch (e: any) {
@@ -3286,7 +3268,6 @@ export async function handleSaveUserAttributes(prevState: any, formData: FormDat
             { _id: new ObjectId(projectId), userId: new ObjectId(session.user._id) },
             { $set: { userAttributes: attributes } }
         );
-        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: 'User attributes saved successfully.' };
     } catch (e: any) {
@@ -3712,7 +3693,6 @@ export async function handleUpdateMarketingSettings(prevState: any, formData: Fo
             { _id: new ObjectId(projectId) },
             { $set: { adAccountId, facebookPageId } }
         );
-        cache.del(`project:${projectId}`);
         revalidatePath('/dashboard/settings');
         return { message: 'Marketing settings updated successfully!' };
     } catch (e: any) {
@@ -3863,4 +3843,3 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
         return { error: getErrorMessage(e) || 'An unexpected error occurred during ad creation.' };
     }
 }
-

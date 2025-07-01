@@ -20,6 +20,8 @@ import { Button } from '@/components/ui/button';
 import { ProjectSearch } from '@/components/wabasimplify/project-search';
 import { AdminDeleteProjectButton } from '@/components/wabasimplify/admin-delete-project-button';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Admin Dashboard | Wachat',
 };

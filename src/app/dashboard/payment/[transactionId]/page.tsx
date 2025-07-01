@@ -1,4 +1,5 @@
 
+
 import { getTransactionStatus } from '@/app/actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle, XCircle, AlertCircle } from 'lucide-react';
@@ -66,4 +67,3 @@ export default async function PaymentStatusPage({ params }: { params: { transact
         </div>
     );
 }
-
