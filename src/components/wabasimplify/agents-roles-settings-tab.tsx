@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useState, useRef, useTransition } from 'react';
@@ -8,7 +9,7 @@ import type { Project, User, Agent, Plan } from '@/app/actions';
 import { handleInviteAgent, handleRemoveAgent } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -162,7 +163,9 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
                         </div>
                     </form>
                     <Separator/>
-                    <div className="border rounded-md">
+                    
+                    {/* Desktop View */}
+                    <div className="hidden md:block border rounded-md">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -201,6 +204,41 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
                             </TableBody>
                         </Table>
                     </div>
+
+                    {/* Mobile View */}
+                    <div className="md:hidden space-y-4">
+                        <Card>
+                            <CardContent className="p-4 flex justify-between items-center">
+                                <div>
+                                    <p className="font-medium">{user?.name}</p>
+                                    <p className="text-sm text-muted-foreground">{user?.email}</p>
+                                </div>
+                                <Badge>Owner</Badge>
+                            </CardContent>
+                        </Card>
+                        {project.agents && project.agents.map(agent => (
+                            <Card key={agent.userId.toString()}>
+                                <CardHeader className="flex flex-row justify-between items-start pb-2">
+                                     <div>
+                                        <p className="font-medium">{agent.name}</p>
+                                        <p className="text-sm text-muted-foreground">{agent.email}</p>
+                                    </div>
+                                    <RemoveAgentForm projectId={project._id.toString()} agentUserId={agent.userId.toString()} />
+                                </CardHeader>
+                                <CardContent className="p-4 pt-0">
+                                     <Select defaultValue={agent.role}>
+                                        <SelectTrigger>
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {mockRoles.map(role => <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+
                 </CardContent>
             </Card>
 

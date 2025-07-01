@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -128,13 +129,13 @@ export default function TemplatesPage() {
         </div>
         <div className="flex items-center gap-2">
             <Button onClick={onSync} disabled={isSyncing || !activeProjectId} variant="outline">
-              <RefreshCw className={`mr-2 h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
-              Sync with Meta
+              <RefreshCw className={`h-4 w-4 sm:mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+              <span className="hidden sm:inline">Sync with Meta</span>
             </Button>
             <Button asChild disabled={!activeProjectId}>
                 <Link href="/dashboard/templates/create">
-                    <PlusCircle className="mr-2 h-4 w-4" />
-                    Create New Template
+                    <PlusCircle className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Create New Template</span>
                 </Link>
             </Button>
         </div>

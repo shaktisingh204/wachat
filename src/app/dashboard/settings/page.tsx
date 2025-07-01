@@ -26,6 +26,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { CannedMessagesSettingsTab } from '@/components/wabasimplify/canned-messages-settings-tab';
 import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-settings-tab';
 import { useRouter } from 'next/navigation';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 
 const updateSettingsInitialState = { message: null, error: null };
@@ -415,7 +416,33 @@ function UserAttributesForm({ project, user }: { project: WithId<Project>, user:
                 <Input placeholder="Search by attribute name..." className="pl-8" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
             </div>
             
-            <div className="border rounded-md">
+            {/* Mobile View */}
+            <div className="space-y-2 md:hidden">
+              {filteredAttributes.map((attr, index) => {
+                  const originalIndex = attributes.findIndex(a => a.id === attr.id);
+                  return (
+                      <Card key={attr.id} className="p-4 space-y-4">
+                          <div className="flex justify-between items-start">
+                              <Input className="text-base font-semibold border-0 shadow-none -ml-3 p-0 h-auto" value={attr.name} onChange={(e) => handleUpdateAttribute(originalIndex, 'name', e.target.value)} placeholder="Attribute Name" />
+                              <Button type="button" variant="ghost" size="icon" onClick={() => handleDeleteAttribute(attr.id)}>
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                          </div>
+                          <div className="space-y-2">
+                              <Label>Action (optional)</Label>
+                              <Input value={attr.action || ''} onChange={(e) => handleUpdateAttribute(originalIndex, 'action', e.target.value)} placeholder="Action Name"/>
+                          </div>
+                          <div className="flex items-center justify-between">
+                              <Label>Status</Label>
+                              <Switch checked={attr.status === 'ACTIVE'} onCheckedChange={(checked) => handleUpdateAttribute(originalIndex, 'status', checked)} />
+                          </div>
+                      </Card>
+                  );
+              })}
+            </div>
+
+            {/* Desktop View */}
+            <div className="hidden md:block border rounded-md">
                 <div className="grid grid-cols-[1fr,1fr,auto,auto] items-center p-2 border-b font-medium text-sm text-muted-foreground">
                     <div className="px-2">Name*</div>
                     <div className="px-2">Action (optional)</div>
@@ -441,7 +468,7 @@ function UserAttributesForm({ project, user }: { project: WithId<Project>, user:
 
             <div className="space-y-2">
                 <h4 className="font-semibold text-sm">Add user attribute manually</h4>
-                <div className="grid grid-cols-[1fr,1fr,auto] items-center gap-2 p-2 border rounded-md border-dashed">
+                <div className="grid grid-cols-1 sm:grid-cols-[1fr,1fr,auto] items-center gap-2 p-2 border rounded-md border-dashed">
                     <Input placeholder="Enter attribute name" value={newAttrName} onChange={e => setNewAttrName(e.target.value)} />
                     <Input placeholder="Enter action name" value={newAttrAction} onChange={e => setNewAttrAction(e.target.value)} />
                     <Button type="button" onClick={handleAddAttribute} disabled={isAtLimit}><Plus className="mr-2 h-4 w-4"/>Add</Button>
@@ -544,14 +571,17 @@ function SettingsPageContent() {
       <div><h1 className="text-3xl font-bold font-headline">Project Settings</h1><p className="text-muted-foreground">Manage settings for project "{project.name}".</p></div>
 
       <Tabs defaultValue={initialTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6">
+        <ScrollArea className="w-full whitespace-nowrap rounded-md">
+            <TabsList className="inline-flex w-max">
               <TabsTrigger value="broadcast"><Save className="mr-2 h-4 w-4" />Broadcast</TabsTrigger>
               <TabsTrigger value="auto-reply"><Bot className="mr-2 h-4 w-4" />Auto-Replies</TabsTrigger>
               <TabsTrigger value="canned-messages"><ClipboardList className="mr-2 h-4 w-4" />Canned Messages</TabsTrigger>
               <TabsTrigger value="agents-roles"><UserCog className="mr-2 h-4 w-4" />Agents & Roles</TabsTrigger>
               <TabsTrigger value="compliance"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
               <TabsTrigger value="attributes"><Users className="mr-2 h-4 w-4" />User Attributes</TabsTrigger>
-          </TabsList>
+            </TabsList>
+            <ScrollBar orientation="horizontal" />
+        </ScrollArea>
 
           <TabsContent value="broadcast" className="mt-6">
             <form action={formAction}>
@@ -576,12 +606,15 @@ function SettingsPageContent() {
           <TabsContent value="auto-reply" className="mt-6 space-y-6">
             <MasterSwitch project={project} />
             <Tabs defaultValue="welcome" className="w-full">
-              <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="welcome"><Handshake className="mr-2 h-4 w-4" />Welcome</TabsTrigger>
-                  <TabsTrigger value="general"><MessageSquareHeart className="mr-2 h-4 w-4" />Keyword Replies</TabsTrigger>
-                  <TabsTrigger value="inactive"><Clock className="mr-2 h-4 w-4" />Inactive Hours</TabsTrigger>
-                  <TabsTrigger value="ai"><BrainCircuit className="mr-2 h-4 w-4" />AI Assistant</TabsTrigger>
-              </TabsList>
+              <ScrollArea className="w-full whitespace-nowrap rounded-md">
+                  <TabsList className="inline-flex w-max">
+                      <TabsTrigger value="welcome"><Handshake className="mr-2 h-4 w-4" />Welcome</TabsTrigger>
+                      <TabsTrigger value="general"><MessageSquareHeart className="mr-2 h-4 w-4" />Keyword Replies</TabsTrigger>
+                      <TabsTrigger value="inactive"><Clock className="mr-2 h-4 w-4" />Inactive Hours</TabsTrigger>
+                      <TabsTrigger value="ai"><BrainCircuit className="mr-2 h-4 w-4" />AI Assistant</TabsTrigger>
+                  </TabsList>
+                  <ScrollBar orientation="horizontal" />
+              </ScrollArea>
               <TabsContent value="welcome"><Card><WelcomeMessageForm project={project} /></Card></TabsContent>
               <TabsContent value="general"><Card><GeneralReplyForm project={project} /></Card></TabsContent>
               <TabsContent value="inactive"><Card><InactiveHoursForm project={project} /></Card></TabsContent>

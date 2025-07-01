@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import { getCannedMessages, deleteCannedMessage } from '@/app/actions';
 import type { CannedMessage, Project } from '@/app/actions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -122,7 +123,8 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
                     </div>
                 </CardHeader>
                 <CardContent>
-                    <div className="border rounded-md">
+                    {/* Desktop View */}
+                    <div className="hidden md:block border rounded-md">
                         <Table>
                             <TableHeader>
                                 <TableRow>
@@ -180,6 +182,51 @@ export function CannedMessagesSettingsTab({ project }: CannedMessagesSettingsTab
                                 )}
                             </TableBody>
                         </Table>
+                    </div>
+
+                    {/* Mobile View */}
+                    <div className="md:hidden space-y-4">
+                        {isLoading ? (
+                             [...Array(3)].map((_, i) => <Skeleton key={i} className="h-24 w-full"/>)
+                        ) : filteredMessages.length > 0 ? (
+                            filteredMessages.map(msg => (
+                                <Card key={msg._id.toString()}>
+                                    <CardHeader className="flex flex-row justify-between items-start p-4">
+                                        <div>
+                                            <CardTitle className="text-base flex items-center gap-2">
+                                                {msg.isFavourite && <Star className="h-5 w-5 text-amber-400 fill-amber-400" />}
+                                                {msg.name}
+                                            </CardTitle>
+                                            <CardDescription>
+                                                <Badge variant="outline" className="capitalize mt-1">{msg.type}</Badge>
+                                            </CardDescription>
+                                        </div>
+                                        <div>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(msg)}><Edit className="h-4 w-4"/></Button>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently delete the "{msg.name}" canned message.</AlertDialogDescription></AlertDialogHeader>
+                                                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleDelete(msg._id.toString())} disabled={isDeleting}>{isDeleting ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : null} Delete</AlertDialogAction></AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="p-4 pt-0">
+                                        <p className="text-sm text-muted-foreground truncate">{msg.content.text || msg.content.mediaUrl}</p>
+                                    </CardContent>
+                                    <CardFooter className="p-4 pt-0 text-xs text-muted-foreground">
+                                        Created by: {msg.createdBy}
+                                    </CardFooter>
+                                </Card>
+                            ))
+                        ) : (
+                            <div className="h-24 text-center flex items-center justify-center">
+                                No canned messages found.
+                            </div>
+                        )}
                     </div>
                 </CardContent>
             </Card>
