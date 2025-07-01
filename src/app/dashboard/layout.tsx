@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -53,7 +52,7 @@ import {
 import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { getProjectCount, getSession, handleLogout, type Plan } from '@/app/actions';
+import { getProjectCount, getSession, handleLogout, type Plan, type WithId } from '@/app/actions';
 
 function FullPageSkeleton() {
     return (
@@ -195,6 +194,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><Link href="/dashboard/billing/history">Billing History</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link href="/dashboard/settings">Settings</Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
@@ -245,6 +245,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/dashboard/billing/history">Billing History</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link href="/dashboard/settings">Settings</Link></DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>

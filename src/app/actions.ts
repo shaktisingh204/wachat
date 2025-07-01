@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -100,7 +99,10 @@ export type Invitation = {
 export type Transaction = {
     _id: ObjectId;
     userId: ObjectId;
-    planId: ObjectId;
+    type: 'PLAN' | 'CREDITS';
+    description: string;
+    planId?: ObjectId;
+    credits?: number;
     amount: number; // in paise
     status: 'PENDING' | 'SUCCESS' | 'FAILED';
     provider: 'phonepe';
@@ -1753,7 +1755,7 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
     if (!businessId || !accessToken) {
         return { error: 'Business ID and Access Token must be configured in environment variables.' };
     }
-
+    
     try {
         const { db } = await connectToDatabase();
         let allWabas: MetaWaba[] = [];
@@ -2609,6 +2611,8 @@ export async function handleInitiatePayment(planId: string): Promise<InitiatePay
             provider: 'phonepe',
             createdAt: now,
             updatedAt: now,
+            type: 'PLAN',
+            description: `Upgrade to ${plan.name} Plan`,
         };
         const transactionResult = await db.collection('transactions').insertOne(newTransaction as any);
         const merchantTransactionId = transactionResult.insertedId.toString();
@@ -2658,6 +2662,101 @@ export async function handleInitiatePayment(planId: string): Promise<InitiatePay
         return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
 }
+
+export async function handleInitiateCreditPurchase(data: {credits: number, amount: number}): Promise<InitiatePaymentResult> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'You must be logged in to purchase credits.' };
+    }
+    const { credits, amount } = data;
+    if (!credits || !amount || credits <= 0 || amount <= 0) {
+        return { error: 'Invalid credit or amount value.' };
+    }
+
+    const { db } = await connectToDatabase();
+    try {
+        const pgSettings = await getPaymentGatewaySettings();
+        if (!pgSettings) return { error: 'Payment gateway is not configured. Please contact support.' };
+
+        const { merchantId, saltKey, saltIndex, environment } = pgSettings;
+        if (!merchantId || !saltKey || !saltIndex) {
+            return { error: 'Payment gateway credentials are not fully configured.' };
+        }
+
+        const now = new Date();
+        const newTransaction: Omit<Transaction, '_id'> = {
+            userId: new ObjectId(session.user._id),
+            amount: amount * 100, // Amount in paise
+            status: 'PENDING',
+            provider: 'phonepe',
+            createdAt: now,
+            updatedAt: now,
+            type: 'CREDITS',
+            description: `Purchase of ${credits.toLocaleString()} Credits`,
+            credits,
+        };
+        const transactionResult = await db.collection('transactions').insertOne(newTransaction as any);
+        const merchantTransactionId = transactionResult.insertedId.toString();
+
+        const paymentData = {
+            merchantId: merchantId,
+            merchantTransactionId: merchantTransactionId,
+            merchantUserId: session.user._id.toString(),
+            amount: amount * 100,
+            redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/payment/${merchantTransactionId}`,
+            redirectMode: 'POST',
+            callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/payment/callback`,
+            mobileNumber: '9999999999',
+            paymentInstrument: { type: 'PAY_PAGE' },
+        };
+
+        const payload = JSON.stringify(paymentData);
+        const payloadBase64 = Buffer.from(payload).toString('base64');
+        const apiEndpoint = '/pg/v1/pay';
+        const stringToHash = payloadBase64 + apiEndpoint + saltKey;
+        const sha256 = createHash('sha256').update(stringToHash).digest('hex');
+        const checksum = sha256 + '###' + saltIndex;
+        const hostUrl = environment === 'production' 
+            ? 'https://api.phonepe.com/apis/hermes'
+            : 'https://api-preprod.phonepe.com/apis/pg-sandbox';
+
+        const response = await axios.post(
+            `${hostUrl}${apiEndpoint}`,
+            { request: payloadBase64 },
+            { headers: { 'Content-Type': 'application/json', 'X-VERIFY': checksum, 'Accept': 'application/json' } }
+        );
+
+        const redirectUrl = response.data?.data?.instrumentResponse?.redirectInfo?.url;
+        if (!redirectUrl) {
+            console.error('PhonePe response error:', response.data);
+            return { error: `Failed to get payment URL from PhonePe: ${response.data?.message || 'Unknown error'}` };
+        }
+        
+        return { redirectUrl };
+
+    } catch (e: any) {
+        console.error("Credit purchase initiation failed:", e);
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+    }
+}
+
+
+export async function getTransactionsForUser(): Promise<WithId<Transaction>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+    
+    try {
+        const { db } = await connectToDatabase();
+        const transactions = await db.collection('transactions').find({
+            userId: new ObjectId(session.user._id)
+        }).sort({ createdAt: -1 }).toArray();
+        return JSON.parse(JSON.stringify(transactions));
+    } catch (error) {
+        console.error("Failed to fetch transactions:", error);
+        return [];
+    }
+}
+
 
 export async function getTransactionStatus(transactionId: string): Promise<WithId<Transaction> | null> {
     const session = await getSession();

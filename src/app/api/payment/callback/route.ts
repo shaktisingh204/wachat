@@ -1,9 +1,9 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getPaymentGatewaySettings } from '@/app/actions';
+import { getPaymentGatewaySettings, type Transaction } from '@/app/actions';
 import { createHash } from 'crypto';
-import { ObjectId } from 'mongodb';
+import { ObjectId, type WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 
 export async function POST(request: NextRequest) {
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Missing transaction ID' }, { status: 400 });
         }
 
-        const transaction = await db.collection('transactions').findOne({ _id: new ObjectId(merchantTransactionId) });
+        const transaction = await db.collection<WithId<Transaction>>('transactions').findOne({ _id: new ObjectId(merchantTransactionId) });
         if (!transaction) {
             console.error(`PhonePe callback error: Transaction ${merchantTransactionId} not found`);
             return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
@@ -56,10 +56,17 @@ export async function POST(request: NextRequest) {
         };
 
         if (paymentStatus === 'PAYMENT_SUCCESS') {
-            await db.collection('users').updateOne(
-                { _id: transaction.userId },
-                { $set: { planId: transaction.planId } }
-            );
+            if (transaction.type === 'PLAN' && transaction.planId) {
+                await db.collection('users').updateOne(
+                    { _id: transaction.userId },
+                    { $set: { planId: transaction.planId } }
+                );
+            } else if (transaction.type === 'CREDITS' && transaction.credits) {
+                await db.collection('users').updateOne(
+                    { _id: transaction.userId },
+                    { $inc: { credits: transaction.credits } }
+                );
+            }
         }
         
         await db.collection('transactions').updateOne(
@@ -68,6 +75,7 @@ export async function POST(request: NextRequest) {
         );
 
         revalidatePath('/dashboard/billing');
+        revalidatePath('/dashboard/billing/history');
         revalidatePath('/dashboard', 'layout');
 
         return NextResponse.json({ success: true, message: 'Callback processed' });
