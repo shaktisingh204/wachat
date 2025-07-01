@@ -17,7 +17,7 @@ const UIComponentSchema = z.object({
     name: z.string().optional().describe("A unique identifier for form components like TextInput, DatePicker, etc. This is crucial for data collection."),
     label: z.string().optional().describe("The user-visible label for a form field."),
     text: z.string().optional().describe("The text content for components like TextHeading, TextBody."),
-    url: z.string().url().optional().describe("URL for the Image component."),
+    url: z.string().optional().describe("URL for the Image component. Should be a placeholder like https://placehold.co/600x400.png."),
     caption: z.string().optional().describe("Optional caption for an Image."),
     'input-type': z.enum(['text', 'number', 'email']).optional(),
     'data-source': z.array(z.object({ id: z.string(), title: z.string() })).optional().describe("Options for RadioButtons, CheckboxGroup, or Dropdown."),
