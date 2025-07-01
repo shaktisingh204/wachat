@@ -109,8 +109,8 @@ export default function PlanEditorPage() {
                     <CardTitle>Basic Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                    <div className="grid md:grid-cols-3 gap-6">
-                        <div className="space-y-2">
+                    <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="space-y-2 lg:col-span-2">
                             <Label htmlFor="name">Plan Name</Label>
                             <Input id="name" name="name" defaultValue={plan?.name} required placeholder="e.g., Pro Tier" />
                         </div>
@@ -128,6 +128,13 @@ export default function PlanEditorPage() {
                                     <SelectItem value="EUR">EUR (Euro)</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+                    </div>
+                     <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="signupCredits">Signup Credits</Label>
+                            <Input id="signupCredits" name="signupCredits" type="number" defaultValue={plan?.signupCredits ?? 0} required min="0" step="1" />
+                            <p className="text-xs text-muted-foreground">Credits new users get on this plan.</p>
                         </div>
                     </div>
                     <div>
@@ -196,5 +203,3 @@ export default function PlanEditorPage() {
         </form>
     );
 }
-
-    

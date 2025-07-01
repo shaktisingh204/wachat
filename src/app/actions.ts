@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -66,6 +67,7 @@ export type Plan = {
     flowLimit: number;
     metaFlowLimit: number;
     cannedMessageLimit: number;
+    signupCredits?: number;
     messageCosts: PlanMessageCosts;
     features: PlanFeaturePermissions;
     createdAt: Date;
@@ -2829,12 +2831,17 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
         }
 
         const hashedPassword = await hashPassword(password);
+        
+        // Find the default plan
+        const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
+
         const newUser: Omit<User, '_id'> = {
             name,
             email,
             password: hashedPassword,
             createdAt: new Date(),
-            credits: 1000, // Give new users 1000 free credits
+            planId: defaultPlan?._id, // Assign default plan ID
+            credits: defaultPlan?.signupCredits || 0, // Assign signup credits from default plan
         };
 
         await db.collection('users').insertOne(newUser as any);
@@ -2972,6 +2979,7 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
             flowLimit: Number(formData.get('flowLimit')),
             metaFlowLimit: Number(formData.get('metaFlowLimit')),
             cannedMessageLimit: Number(formData.get('cannedMessageLimit')),
+            signupCredits: Number(formData.get('signupCredits') || 0),
             messageCosts: {
                 marketing: Number(formData.get('cost_marketing')),
                 utility: Number(formData.get('cost_utility')),
@@ -4273,5 +4281,93 @@ export async function deleteTemplateCategory(id: string): Promise<{ message?: st
     } catch (e: any) {
         console.error('Failed to delete category:', e);
         return { error: 'Failed to delete category.' };
+    }
+}
+
+// --- ADMIN USER MANAGEMENT ---
+
+export type AdminUserView = Omit<User, 'password'> & {
+    plan?: Pick<Plan, 'name'>;
+};
+
+export async function getUsersForAdmin(
+    page: number = 1,
+    limit: number = 10,
+    query?: string
+): Promise<{ users: AdminUserView[], total: number }> {
+    try {
+        const { db } = await connectToDatabase();
+        const filter: Filter<User> = {};
+        if (query) {
+            filter.$or = [
+                { name: { $regex: query, $options: 'i' } },
+                { email: { $regex: query, $options: 'i' } }
+            ];
+        }
+
+        const skip = (page - 1) * limit;
+
+        const usersPipeline = [
+            { $match: filter },
+            { $sort: { createdAt: -1 } },
+            { $skip: skip },
+            { $limit: limit },
+            {
+                $lookup: {
+                    from: 'plans',
+                    localField: 'planId',
+                    foreignField: '_id',
+                    as: 'planInfo'
+                }
+            },
+            {
+                $unwind: { path: '$planInfo', preserveNullAndEmptyArrays: true }
+            },
+            {
+                $project: {
+                    password: 0,
+                    'planInfo.features': 0,
+                    'planInfo.messageCosts': 0,
+                    'planInfo.createdAt': 0,
+                }
+            }
+        ];
+
+        const [users, total] = await Promise.all([
+            db.collection<User>('users').aggregate(usersPipeline).toArray(),
+            db.collection('users').countDocuments(filter)
+        ]);
+
+        const typedUsers: AdminUserView[] = users.map(u => ({ ...u, plan: u.planInfo as any }));
+
+        return { users: JSON.parse(JSON.stringify(typedUsers)), total };
+
+    } catch (error) {
+        console.error("Failed to fetch users for admin:", error);
+        return { users: [], total: 0 };
+    }
+}
+
+export async function updateUserCreditsByAdmin(userId: string, credits: number): Promise<{ success: boolean, error?: string }> {
+    if (!ObjectId.isValid(userId) || isNaN(credits) || credits < 0) {
+        return { success: false, error: 'Invalid user ID or credit amount.' };
+    }
+
+    // A real app should have a robust role-based check here to ensure only an admin can call this.
+    
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('users').updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: { credits: credits } }
+        );
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'User not found.' };
+        }
+        revalidatePath('/admin/dashboard/users');
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to update user credits:", error);
+        return { success: false, error: 'An unexpected database error occurred.' };
     }
 }

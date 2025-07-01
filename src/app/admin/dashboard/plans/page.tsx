@@ -40,6 +40,7 @@ export default async function PlansManagementPage() {
                                 <TableRow>
                                     <TableHead>Plan Name</TableHead>
                                     <TableHead>Price</TableHead>
+                                    <TableHead>Signup Credits</TableHead>
                                     <TableHead>Projects</TableHead>
                                     <TableHead>Agents</TableHead>
                                     <TableHead>Templates</TableHead>
@@ -55,6 +56,7 @@ export default async function PlansManagementPage() {
                                         <TableRow key={plan._id.toString()}>
                                             <TableCell className="font-medium">{plan.name}</TableCell>
                                             <TableCell>{plan.currency} {plan.price}/month</TableCell>
+                                            <TableCell>{plan.signupCredits?.toLocaleString() || 0}</TableCell>
                                             <TableCell>{plan.projectLimit}</TableCell>
                                             <TableCell>{plan.agentLimit}</TableCell>
                                             <TableCell>{plan.templateLimit}</TableCell>
@@ -73,7 +75,7 @@ export default async function PlansManagementPage() {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={9} className="h-24 text-center">
+                                        <TableCell colSpan={10} className="h-24 text-center">
                                             No plans found. Create one to get started.
                                         </TableCell>
                                     </TableRow>
