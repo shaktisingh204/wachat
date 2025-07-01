@@ -1,172 +1,183 @@
 
 'use client';
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { useEffect, useState, useTransition } from 'react';
+import type { WithId } from 'mongodb';
+import { getAdCampaigns } from '@/app/actions';
+import type { AdCampaign } from '@/app/actions';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import {
-  CheckCircle,
-  Megaphone,
-  Settings,
-  Link2,
-  Rocket,
-  Bot,
-  BarChart2,
-  Database,
-  Star,
-} from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { PlusCircle, Megaphone, BookOpen } from 'lucide-react';
+import { CreateAdDialog } from '@/components/wabasimplify/create-ad-dialog';
+import { getProjectById, Project } from '@/app/actions';
+import Link from 'next/link';
 
-const roadmapPhases = [
-  {
-    phase: 1,
-    title: 'Preparation & Setup',
-    icon: Settings,
-    description: 'Ensure your Meta Business assets are correctly configured before you start.',
-    points: [
-      'Meta Business Manager verified',
-      'Facebook Page connected',
-      'WhatsApp Business Account (WABA) with Cloud API access',
-      'Credit card added for ads',
-      'Developer App with ads_management, whatsapp_business_messaging, and business_management permissions',
-    ],
-  },
-  {
-    phase: 2,
-    title: 'Connect Assets',
-    icon: Link2,
-    description: 'Link your WhatsApp number to your Facebook Page. This is required to show the WhatsApp call-to-action on your ads.',
-  },
-  {
-    phase: 3,
-    title: 'Ad Creation: "Click to WhatsApp"',
-    icon: Megaphone,
-    description: 'Create Facebook or Instagram ads that start a WhatsApp chat using the Meta Marketing API.',
-    steps: [
-      { title: 'Create Campaign', details: 'Objective: MESSAGES' },
-      { title: 'Create Ad Set', details: 'Set targeting, budget, and optimization goal.' },
-      { title: 'Create Ad Creative', details: 'Design the ad with a call-to-action to WhatsApp.' },
-      { title: 'Create Ad', details: 'Combine the ad set and creative to launch the ad.' },
-    ],
-  },
-  {
-    phase: 4,
-    title: 'Automate WhatsApp Replies',
-    icon: Bot,
-    description: 'Set up a webhook using the WhatsApp Cloud API to receive and process incoming messages.',
-    points: [
-        'Subscribe to "messages", "message_deliveries", and "message_status" webhook fields.',
-    ],
-  },
-  {
-    phase: 5,
-    title: 'Reply to Ad Leads',
-    icon: Rocket,
-    description: 'When a customer clicks your ad and sends a message, your webhook receives it, allowing you to send an automated or manual reply.',
-  },
-   {
-    phase: 6,
-    title: 'Use Flows / Forms (Optional)',
-    icon: Star,
-    description: 'Create interactive forms and experiences within WhatsApp to qualify leads and gather information efficiently.',
-  },
-  {
-    phase: 7,
-    title: 'Track Performance',
-    icon: BarChart2,
-    description: 'Use the Meta Insights API to track ad performance (clicks, impressions) and Cloud API webhooks for message delivery and read status.',
-  },
-  {
-    phase: 8,
-    title: 'CRM or DB Sync',
-    icon: Database,
-    description: 'Store lead information (phone number, message, ad ID, etc.) in your database or CRM for follow-up and analysis.',
-  },
-];
-
-const apiOverview = [
-    { func: 'Ad Creation', api: 'Meta Marketing API'},
-    { func: 'Ad Tracking', api: 'Insights API'},
-    { func: 'WhatsApp Automation', api: 'WhatsApp Cloud API'},
-    { func: 'Lead Forms', api: 'WhatsApp Flows API'},
-    { func: 'CRM Integration', api: 'Webhooks + DB'},
-    { func: 'Re-engagement', api: 'WhatsApp Template Messages'},
-]
-
-export default function WhatsAppAdsRoadmapPage() {
+function AdsPageSkeleton() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-            <Megaphone className="h-8 w-8" />
-            WhatsApp Ads Roadmap
-        </h1>
-        <p className="text-muted-foreground mt-2 max-w-3xl">
-          A complete guide to integrating Meta Marketing API and WhatsApp Cloud API for a full ad-to-lead workflow.
-        </p>
+        <Skeleton className="h-8 w-64" />
+        <Skeleton className="h-4 w-96 mt-2" />
       </div>
-
-      <div className="space-y-6">
-        {roadmapPhases.map((phase) => (
-          <Card key={phase.phase}>
-            <CardHeader>
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 flex-shrink-0">
-                    <phase.icon className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                    <CardTitle>Phase {phase.phase}: {phase.title}</CardTitle>
-                    <CardDescription className="mt-1">{phase.description}</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            {(phase.points || phase.steps) && (
-                <CardContent>
-                {phase.points && (
-                    <ul className="space-y-2">
-                        {phase.points.map((point, index) => (
-                            <li key={index} className="flex items-start gap-3">
-                                <CheckCircle className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
-                                <span>{point}</span>
-                            </li>
-                        ))}
-                    </ul>
-                )}
-                {phase.steps && (
-                     <ol className="list-decimal list-inside space-y-2">
-                        {phase.steps.map((step, index) => (
-                            <li key={index}>
-                                <strong>{step.title}:</strong> <span className="text-muted-foreground">{step.details}</span>
-                            </li>
-                        ))}
-                    </ol>
-                )}
-                </CardContent>
-            )}
-          </Card>
-        ))}
-      </div>
-
-       <Card>
-            <CardHeader>
-                <CardTitle>Full Stack API Overview</CardTitle>
-                <CardDescription>A summary of which APIs are used for each function in the workflow.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="divide-y divide-border">
-                    {apiOverview.map((item, index) => (
-                        <div key={index} className="flex flex-col sm:flex-row justify-between items-start sm:items-center py-3">
-                            <span className="font-semibold">{item.func}</span>
-                            <Badge variant="outline">{item.api}</Badge>
-                        </div>
-                    ))}
-                </div>
-            </CardContent>
-        </Card>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <Skeleton className="h-6 w-1/4" />
+          <Skeleton className="h-10 w-36" />
+        </CardHeader>
+        <CardContent>
+          <Skeleton className="h-48 w-full" />
+        </CardContent>
+      </Card>
     </div>
+  );
+}
+
+export default function WhatsAppAdsPage() {
+  const [project, setProject] = useState<WithId<Project> | null>(null);
+  const [campaigns, setCampaigns] = useState<WithId<AdCampaign>[]>([]);
+  const [isClient, setIsClient] = useState(false);
+  const [isLoading, startLoadingTransition] = useTransition();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (isClient) {
+      const storedProjectId = localStorage.getItem('activeProjectId');
+      if (storedProjectId) {
+        startLoadingTransition(async () => {
+          const [projectData, campaignsData] = await Promise.all([
+            getProjectById(storedProjectId),
+            getAdCampaigns(storedProjectId),
+          ]);
+          setProject(projectData);
+          setCampaigns(campaignsData);
+        });
+      }
+    }
+  }, [isClient]);
+
+  const onAdCreated = () => {
+    if (project) {
+        startLoadingTransition(async () => {
+            const campaignsData = await getAdCampaigns(project._id.toString());
+            setCampaigns(campaignsData);
+        });
+    }
+  };
+
+  const getStatusVariant = (status: string) => {
+    const lowerStatus = status.toLowerCase();
+    if (lowerStatus === 'active') return 'default';
+    if (lowerStatus === 'paused') return 'secondary';
+    return 'destructive';
+  };
+
+  if (!isClient || isLoading) {
+    return <AdsPageSkeleton />;
+  }
+  
+  return (
+    <>
+      {project && (
+        <CreateAdDialog 
+            isOpen={isDialogOpen} 
+            onOpenChange={setIsDialogOpen} 
+            project={project}
+            onAdCreated={onAdCreated}
+        />
+      )}
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold font-headline">WhatsApp Ad Campaigns</h1>
+            <p className="text-muted-foreground">Create and manage your "Click to WhatsApp" ads.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button asChild variant="outline">
+              <Link href="/dashboard/whatsapp-ads/roadmap">
+                <BookOpen className="mr-2 h-4 w-4"/>
+                View Roadmap
+              </Link>
+            </Button>
+            <Button onClick={() => setIsDialogOpen(true)} disabled={!project}>
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Create New Ad
+            </Button>
+          </div>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Your Campaigns</CardTitle>
+            <CardDescription>A list of all ad campaigns created for this project.</CardDescription>
+          </CardHeader>
+          <CardContent>
+             {/* Desktop Table View */}
+             <div className="hidden md:block border rounded-md">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Campaign Name</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Daily Budget</TableHead>
+                            <TableHead>Meta Campaign ID</TableHead>
+                            <TableHead>Created At</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {campaigns.length > 0 ? campaigns.map((ad) => (
+                            <TableRow key={ad._id.toString()}>
+                                <TableCell className="font-medium">{ad.name}</TableCell>
+                                <TableCell><Badge variant={getStatusVariant(ad.status)}>{ad.status}</Badge></TableCell>
+                                <TableCell>{ad.dailyBudget.toFixed(2)}</TableCell>
+                                <TableCell className="font-mono text-xs">{ad.metaCampaignId}</TableCell>
+                                <TableCell>{new Date(ad.createdAt).toLocaleDateString()}</TableCell>
+                            </TableRow>
+                        )) : (
+                            <TableRow><TableCell colSpan={5} className="h-24 text-center">No ad campaigns found.</TableCell></TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+                {campaigns.length > 0 ? campaigns.map((ad) => (
+                    <Card key={ad._id.toString()}>
+                        <CardHeader className="pb-4">
+                             <div className="flex justify-between items-start">
+                                <CardTitle className="text-base">{ad.name}</CardTitle>
+                                <Badge variant={getStatusVariant(ad.status)}>{ad.status}</Badge>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="space-y-2 text-sm">
+                           <div className="flex justify-between">
+                                <span className="text-muted-foreground">Daily Budget:</span>
+                                <span>{ad.dailyBudget.toFixed(2)}</span>
+                            </div>
+                           <div className="flex justify-between">
+                                <span className="text-muted-foreground">Created:</span>
+                                <span>{new Date(ad.createdAt).toLocaleDateString()}</span>
+                            </div>
+                             <div className="text-xs text-muted-foreground pt-2">
+                                <p className="font-mono break-all">ID: {ad.metaCampaignId}</p>
+                             </div>
+                        </CardContent>
+                    </Card>
+                )) : (
+                     <div className="h-24 text-center flex items-center justify-center">No ad campaigns found.</div>
+                )}
+            </div>
+
+          </CardContent>
+        </Card>
+      </div>
+    </>
   );
 }
