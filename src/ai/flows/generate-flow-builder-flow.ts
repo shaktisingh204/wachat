@@ -27,7 +27,7 @@ const FlowNodeDataSchema = z.object({
     variable: z.string().optional().describe('For `condition` nodes, the variable to check (e.g., "{{user_name}}").'),
     operator: z.string().optional().describe('For `condition` nodes, the comparison operator (e.g., "equals", "contains").'),
     value: z.string().optional().describe('For `condition` nodes, the value to compare against.'),
-}).passthrough();
+});
 
 const FlowNodeSchema = z.object({
   id: z.string().describe('A unique identifier for the node, e.g., "node-start" or "node-text-123".'),

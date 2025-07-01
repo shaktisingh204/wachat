@@ -21,7 +21,7 @@ const UIComponentSchema = z.object({
     caption: z.string().optional().describe("Optional caption for an Image."),
     'input-type': z.enum(['text', 'number', 'email']).optional(),
     'data-source': z.array(z.object({ id: z.string(), title: z.string() })).optional().describe("Options for RadioButtons, CheckboxGroup, or Dropdown."),
-}).passthrough();
+});
 
 const FooterSchema = z.object({
     type: z.literal('Footer'),
