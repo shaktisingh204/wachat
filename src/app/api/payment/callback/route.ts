@@ -4,6 +4,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getPaymentGatewaySettings } from '@/app/actions';
 import { createHash } from 'crypto';
 import { ObjectId } from 'mongodb';
+import { revalidatePath } from 'next/cache';
 
 export async function POST(request: NextRequest) {
     try {

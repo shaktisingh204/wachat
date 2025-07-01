@@ -1600,6 +1600,7 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
     const businessId = process.env.META_MAIN_BUSINESS_ID;
     const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
     const apiVersion = 'v22.0';
+    const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
 
     if (!businessId || !accessToken) {
         return { error: 'Business ID and Access Token must be configured in environment variables.' };
