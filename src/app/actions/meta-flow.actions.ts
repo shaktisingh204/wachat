@@ -47,8 +47,35 @@ export async function getMetaFlows(projectId: string): Promise<WithId<MetaFlow>[
     }
 }
 
+export async function getMetaFlowById(flowId: string): Promise<WithId<MetaFlow> | null> {
+    if (!ObjectId.isValid(flowId)) {
+        console.error("Invalid Flow ID provided to getMetaFlowById:", flowId);
+        return null;
+    }
+    try {
+        const { db } = await connectToDatabase();
+        const flow = await db.collection<MetaFlow>('meta_flows').findOne({ _id: new ObjectId(flowId) });
+        if (!flow) return null;
+
+        // Security check: ensure the current user has access to the project this flow belongs to.
+        const project = await getProjectById(flow.projectId.toString());
+        if (!project) {
+            console.error(`User does not have access to project ${flow.projectId.toString()} for flow ${flowId}`);
+            return null;
+        }
+
+        return JSON.parse(JSON.stringify(flow));
+    } catch (e) {
+        console.error("Error fetching Meta Flow by ID:", e);
+        return null;
+    }
+}
+
 export async function saveMetaFlow(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const projectId = formData.get('projectId') as string;
+    const flowId = formData.get('flowId') as string | null;
+    const metaId = formData.get('metaId') as string | null;
+
     if (!projectId) return { error: 'Project ID is missing.' };
 
     const hasAccess = await getProjectById(projectId);
@@ -65,51 +92,88 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
 
     try {
         const flow_data = JSON.parse(flowDataStr);
-        const wabaId = hasAccess.wabaId;
         const accessToken = hasAccess.accessToken;
 
-        const payload: any = {
-            name,
-            categories: [category],
-            flow_json: JSON.stringify(flow_data),
-            access_token: accessToken,
-        };
+        if (flowId && metaId) {
+            // ----- UPDATE LOGIC -----
+            const payload: any = {
+                name,
+                categories: [category],
+                flow_json: JSON.stringify(flow_data),
+                access_token: accessToken,
+            };
+            if (endpointUri) payload.endpoint_uri = endpointUri;
 
-        if (endpointUri) {
-            payload.endpoint_uri = endpointUri;
+            // POST to /<flow_meta_id> to update
+            const response = await axios.post(`https://graph.facebook.com/v22.0/${metaId}`, payload);
+
+            if (response.data.error) {
+                throw new Error(getErrorMessage({ response }));
+            }
+
+            const updatedFlow = {
+                name,
+                categories: [category],
+                flow_data,
+                ...(endpointUri && { endpointUri }),
+                updatedAt: new Date(),
+            };
+
+            const { db } = await connectToDatabase();
+            await db.collection('meta_flows').updateOne(
+                { _id: new ObjectId(flowId) },
+                { $set: updatedFlow }
+            );
+
+            revalidatePath('/dashboard/flows');
+            return { message: `Flow "${name}" updated successfully!` };
+            
+        } else {
+            // ----- CREATE LOGIC -----
+            const wabaId = hasAccess.wabaId;
+            const payload: any = {
+                name,
+                categories: [category],
+                flow_json: JSON.stringify(flow_data),
+                access_token: accessToken,
+                publish: true,
+            };
+            if (endpointUri) {
+                payload.endpoint_uri = endpointUri;
+            }
+
+            const response = await axios.post(`https://graph.facebook.com/v22.0/${wabaId}/flows`, payload);
+
+            if (response.data.error) {
+                throw new Error(getErrorMessage({ response }));
+            }
+
+            const newMetaFlowId = response.data?.id;
+            if (!newMetaFlowId) {
+                throw new Error('Meta API did not return a flow ID.');
+            }
+
+            const newFlow: Omit<MetaFlow, '_id' | 'endpointUri'> & { endpointUri?: string | null } = {
+                name,
+                projectId: new ObjectId(projectId),
+                metaId: newMetaFlowId,
+                categories: [category],
+                flow_data,
+                status: response.data.status || 'DRAFT',
+                json_version: response.data.json_version,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+             if (endpointUri) {
+                newFlow.endpointUri = endpointUri;
+            }
+
+            const { db } = await connectToDatabase();
+            await db.collection('meta_flows').insertOne(newFlow as any);
+
+            revalidatePath('/dashboard/flows');
+            return { message: `Meta Flow "${name}" created successfully!` };
         }
-
-        const response = await axios.post(
-            `https://graph.facebook.com/v22.0/${wabaId}/flows`,
-            payload
-        );
-
-        if (response.data.error) {
-            throw new Error(response.data.error.message);
-        }
-
-        const metaFlowId = response.data?.id;
-        if (!metaFlowId) {
-            throw new Error('Meta API did not return a flow ID.');
-        }
-
-        const newFlow: Omit<MetaFlow, '_id'> = {
-            name,
-            projectId: new ObjectId(projectId),
-            metaId: metaFlowId,
-            categories: [category],
-            flow_data,
-            status: response.data.status || 'DRAFT',
-            json_version: response.data.json_version,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-        };
-
-        const { db } = await connectToDatabase();
-        await db.collection('meta_flows').insertOne(newFlow as any);
-
-        revalidatePath('/dashboard/flows');
-        return { message: `Meta Flow "${name}" created successfully!` };
 
     } catch (e: any) {
         if (e instanceof SyntaxError) {
@@ -118,6 +182,7 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
         return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
 }
+
 
 export async function deleteMetaFlow(flowId: string, metaId: string): Promise<{ message?: string, error?: string }> {
     if (!ObjectId.isValid(flowId)) return { error: 'Invalid Flow ID.' };

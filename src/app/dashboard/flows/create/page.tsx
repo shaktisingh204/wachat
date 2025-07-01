@@ -1,18 +1,18 @@
 
 'use client';
 
-import { useActionState, useEffect, useState, useRef, useCallback } from 'react';
+import { Suspense, useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Info, Plus, Trash2, GripVertical, Checkbox, View } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Info, Plus, Trash2, GripVertical, Checkbox, View, Edit, Copy, ServerCog } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { saveMetaFlow } from '@/app/actions/meta-flow.actions';
+import { saveMetaFlow, getMetaFlowById } from '@/app/actions/meta-flow.actions';
 import { flowCategories, uiComponents, type UIComponent } from '@/components/wabasimplify/meta-flow-templates';
 import { MetaFlowPreview } from '@/components/wabasimplify/meta-flow-preview';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -22,15 +22,20 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { WithId } from 'mongodb';
+import type { MetaFlow } from '@/app/dashboard/page';
 
 const createFlowInitialState = { message: null, error: null };
 
-function SubmitButton() {
+function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
+    const buttonText = isEditing ? 'Update Flow' : 'Save & Publish Flow';
+    const Icon = isEditing ? Save : FileJson;
     return (
         <Button type="submit" disabled={pending} size="lg">
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Save & Publish Flow
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Icon className="mr-2 h-4 w-4" />}
+            {buttonText}
         </Button>
     );
 }
@@ -86,11 +91,33 @@ function ComponentEditor({ component, onUpdate, onAddOption, onUpdateOption, onR
     }
 }
 
-export default function CreateMetaFlowPage() {
+function PageSkeleton() {
+    return (
+        <div className="space-y-6">
+            <Skeleton className="h-10 w-48"/>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                    <Skeleton className="h-48 w-full"/>
+                    <Skeleton className="h-96 w-full"/>
+                </div>
+                <Skeleton className="h-full w-full min-h-[720px] hidden lg:block"/>
+            </div>
+        </div>
+    );
+}
+
+function CreateMetaFlowPage() {
+    const searchParams = useSearchParams();
+    const flowId = searchParams.get('flowId');
+    const isEditing = !!flowId;
+    
     const [projectId, setProjectId] = useState<string | null>(null);
     const [state, formAction] = useActionState(saveMetaFlow, createFlowInitialState);
     const { toast } = useToast();
     const router = useRouter();
+
+    const [isLoading, setIsLoading] = useState(true);
+    const [existingFlow, setExistingFlow] = useState<WithId<MetaFlow> | null>(null);
 
     const [flowName, setFlowName] = useState('new_flow');
     const [endpointUri, setEndpointUri] = useState('');
@@ -104,7 +131,24 @@ export default function CreateMetaFlowPage() {
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         setProjectId(storedProjectId);
-    }, []);
+        if (flowId) {
+            setIsLoading(true);
+            getMetaFlowById(flowId).then(data => {
+                if (data) {
+                    setExistingFlow(data);
+                    setFlowName(data.name);
+                    setCategory(data.categories[0] || 'OTHER');
+                    setEndpointUri((data as any).endpointUri || '');
+                    if (data.flow_data?.screens) {
+                        setScreens(data.flow_data.screens);
+                    }
+                }
+                setIsLoading(false);
+            });
+        } else {
+            setIsLoading(false);
+        }
+    }, [flowId]);
     
     useEffect(() => {
         if (state?.message) {
@@ -116,7 +160,7 @@ export default function CreateMetaFlowPage() {
         }
     }, [state, toast, router]);
 
-    const addScreen = () => setScreens(prev => [...prev, { id: `SCREEN_${prev.length + 1}`, title: `Screen ${prev.length + 1}`, layout: { type: 'SingleColumnLayout', children: [{ type: 'Footer', label: 'Continue', 'on-click-action': { name: 'complete' } }] } }]);
+    const addScreen = () => setScreens(prev => [...prev, { id: `SCREEN_${Date.now()}`, title: `Screen ${prev.length + 1}`, layout: { type: 'SingleColumnLayout', children: [{ type: 'Footer', label: 'Continue', 'on-click-action': { name: 'complete' } }] } }]);
     const removeScreen = (index: number) => setScreens(prev => prev.filter((_, i) => i !== index));
     const updateScreen = (index: number, key: string, value: string) => setScreens(prev => prev.map((s, i) => i === index ? { ...s, [key]: value } : s));
     
@@ -228,9 +272,15 @@ export default function CreateMetaFlowPage() {
         setFlowJson(JSON.stringify(generatedJson, null, 2));
     }, [screens]);
     
+    if (isLoading) {
+        return <PageSkeleton />;
+    }
+
     return (
         <form action={formAction} className="space-y-6">
             <input type="hidden" name="projectId" value={projectId || ''}/>
+            <input type="hidden" name="flowId" value={flowId || ''}/>
+            <input type="hidden" name="metaId" value={existingFlow?.metaId || ''}/>
             <input type="hidden" name="category" value={category} />
             <input type="hidden" name="name" value={flowName} />
             <input type="hidden" name="flow_data" value={flowJson} />
@@ -240,8 +290,8 @@ export default function CreateMetaFlowPage() {
                 <Button variant="ghost" asChild className="mb-4 -ml-4">
                   <Link href="/dashboard/flows"><ChevronLeft className="mr-2 h-4 w-4" />Back to Meta Flows</Link>
                 </Button>
-                <h1 className="text-3xl font-bold font-headline">Create New Meta Flow</h1>
-                <p className="text-muted-foreground mt-2">Build interactive forms and experiences for your customers.</p>
+                <h1 className="text-3xl font-bold font-headline">{isEditing ? 'Edit Meta Flow' : 'Create New Meta Flow'}</h1>
+                <p className="text-muted-foreground mt-2">{isEditing ? `Editing flow: ${existingFlow?.name}` : 'Build interactive forms and experiences for your customers.'}</p>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -352,7 +402,16 @@ export default function CreateMetaFlowPage() {
                 </AccordionItem>
             </Accordion>
 
-            <div className="flex justify-end"><SubmitButton/></div>
+            <div className="flex justify-end"><SubmitButton isEditing={isEditing} /></div>
         </form>
     );
+}
+
+
+export default function CreateMetaFlowPageWrapper() {
+  return (
+    <Suspense fallback={<PageSkeleton />}>
+      <CreateMetaFlowPage />
+    </Suspense>
+  )
 }
