@@ -2260,7 +2260,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
     const messageText = formData.get('messageText') as string;
     const mediaFile = formData.get('mediaFile') as File;
 
-    if (!contactId || !projectId || !waId || !phoneNumberId || (!messageText && mediaFile.size === 0)) {
+    if (!contactId || !projectId || !waId || !phoneNumberId || (!messageText && (!mediaFile || mediaFile.size === 0))) {
         return { error: 'Required fields are missing to send message.' };
     }
     
@@ -2274,49 +2274,47 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
             recipient_type: 'individual',
             to: waId,
         };
-        let messageType: 'text' | 'image' | 'video' | 'document' = 'text';
+        let messageType: OutgoingMessage['type'] = 'text';
 
         if (mediaFile && mediaFile.size > 0) {
-            const appId = project.appId || process.env.NEXT_PUBLIC_META_APP_ID;
-            if (!appId) return { error: 'App ID is not configured.' };
-
-            const mediaData = Buffer.from(await mediaFile.arrayBuffer());
-            
-            // Step 1: Start an upload session
-            const sessionFormData = new FormData();
-            sessionFormData.append('file_length', mediaFile.size.toString());
-            sessionFormData.append('file_type', mediaFile.type);
-            sessionFormData.append('access_token', project.accessToken);
-
-            const sessionResponse = await axios.post(`https://graph.facebook.com/v22.0/${appId}/uploads`, sessionFormData);
-            const uploadSessionId = sessionResponse.data.id;
-            
-            // Step 2: Upload the file
-            const uploadResponse = await axios.post(`https://graph.facebook.com/v22.0/${uploadSessionId}`, mediaData, {
-                headers: {
-                    'Authorization': `OAuth ${project.accessToken}`,
-                    'Content-Type': mediaFile.type,
-                },
-                maxContentLength: Infinity,
-                maxBodyLength: Infinity,
+            // Step 1: Upload the media file to get a media ID
+            const form = new FormData();
+            form.append('file', Buffer.from(await mediaFile.arrayBuffer()), {
+                filename: mediaFile.name,
+                contentType: mediaFile.type,
             });
-            const handle = uploadResponse.data.h;
+            form.append('messaging_product', 'whatsapp');
 
-            const mediaType = mediaFile.type.split('/')[0];
-            if (mediaType === 'image') {
+            const uploadResponse = await axios.post(
+                `https://graph.facebook.com/v22.0/${phoneNumberId}/media`,
+                form,
+                { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${project.accessToken}` } }
+            );
+            
+            const mediaId = uploadResponse.data.id;
+            if (!mediaId) {
+                return { error: 'Failed to upload media to Meta. No ID returned.' };
+            }
+
+            // Step 2: Construct the message payload with the media ID
+            const detectedMediaType = mediaFile.type.split('/')[0];
+
+            if (detectedMediaType === 'image') {
                 messageType = 'image';
                 messagePayload.type = 'image';
-                messagePayload.image = { id: handle, caption: messageText };
-            } else if (mediaType === 'video') {
+                messagePayload.image = { id: mediaId };
+                if (messageText) messagePayload.image.caption = messageText;
+            } else if (detectedMediaType === 'video') {
                 messageType = 'video';
                 messagePayload.type = 'video';
-                messagePayload.video = { id: handle, caption: messageText };
+                messagePayload.video = { id: mediaId };
+                if (messageText) messagePayload.video.caption = messageText;
             } else {
                 messageType = 'document';
                 messagePayload.type = 'document';
-                messagePayload.document = { id: handle, caption: messageText, filename: mediaFile.name };
+                messagePayload.document = { id: mediaId, filename: mediaFile.name };
+                 if (messageText) messagePayload.document.caption = messageText;
             }
-
         } else {
             messageType = 'text';
             messagePayload.type = 'text';
@@ -2423,10 +2421,10 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
         const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
             { waId, projectId: new ObjectId(projectId) },
             { 
+                $set: { phoneNumberId }, // Ensure phone number is updated if they message a new one
                 $setOnInsert: {
                     waId,
                     projectId: new ObjectId(projectId),
-                    phoneNumberId,
                     name: `User (${waId.slice(-4)})`,
                     createdAt: new Date(),
                     status: 'new'
@@ -3526,12 +3524,18 @@ export async function getCannedMessages(projectId: string): Promise<WithId<Canne
 }
 
 // --- CHAT & CONTACT ACTIONS ---
-export async function handleUpdateContactVariables(contactId: string, variables: Record<string, string>): Promise<{ success: boolean; error?: string }> {
+export async function handleUpdateContactDetails(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const contactId = formData.get('contactId') as string;
+    const variablesJSON = formData.get('variables') as string;
+
     if (!ObjectId.isValid(contactId)) {
         return { success: false, error: 'Invalid Contact ID' };
     }
+    
     try {
+        const variables = JSON.parse(variablesJSON);
         const { db } = await connectToDatabase();
+        
         await db.collection('contacts').updateOne(
             { _id: new ObjectId(contactId) },
             { $set: { variables } }
@@ -3542,6 +3546,7 @@ export async function handleUpdateContactVariables(contactId: string, variables:
         return { success: false, error: 'Failed to update contact.' };
     }
 }
+
 
 export async function handleUpdateContactStatus(contactId: string, status: string, assignedAgentId: string): Promise<{ success: boolean; error?: string }> {
     if (!ObjectId.isValid(contactId)) return { success: false, error: 'Invalid Contact ID' };
