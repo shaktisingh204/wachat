@@ -3585,103 +3585,20 @@ export async function getMetaFlows(projectId: string): Promise<WithId<MetaFlow>[
     }
 }
 
-function buildLeadGenFlowJson(formData: FormData): string {
-    const welcomeMessage = formData.get('leadgen_welcome') as string;
-    const includeName = formData.get('includeName') === 'on';
-    const includeEmail = formData.get('includeEmail') === 'on';
-    const includePhone = formData.get('includePhone') === 'on';
-    const includeCustom = formData.get('includeCustom') === 'on';
-    const customLabel = formData.get('leadgen_custom_question_label') as string;
-    const customName = formData.get('leadgen_custom_question_name') as string;
-
-    const formChildren: any[] = [{ type: 'TextHeading', text: welcomeMessage }];
-    if (includeName) formChildren.push({ type: 'TextInput', label: 'Full Name', name: 'name', required: true });
-    if (includeEmail) formChildren.push({ type: 'TextInput', label: 'Email Address', name: 'email', 'input-type': 'email' });
-    if (includePhone) formChildren.push({ type: 'TextInput', label: 'Phone Number', name: 'phone', 'input-type': 'phone' });
-    if (includeCustom && customLabel && customName) {
-        formChildren.push({ type: 'TextInput', label: customLabel, name: customName });
-    }
-
-    formChildren.push({ type: 'Footer', label: 'Submit', 'on-click-action': { name: 'complete', payload: {} } });
-
-    const flowJson = {
-        version: '3.0',
-        data_api_version: '3.0',
-        routing_model: {},
-        screens: [{
-            id: 'LEAD_GEN_SCREEN',
-            title: 'Lead Generation',
-            data: {},
-            layout: {
-                type: 'SingleColumnLayout',
-                children: [{ type: 'Form', name: 'lead_gen_form', children: formChildren }]
-            }
-        }]
-    };
-
-    return JSON.stringify(flowJson);
-}
-
-function buildSignUpFlowJson(formData: FormData): string {
-    const welcomeMessage = formData.get('signup_welcome') as string;
-    
-    const formChildren: any[] = [
-        { type: 'TextHeading', text: welcomeMessage },
-        { type: 'TextInput', label: 'Full Name', name: 'name', required: true },
-        { type: 'TextInput', label: 'Email Address', name: 'email', 'input-type': 'email', required: true },
-        { type: 'TextInput', label: 'Password', name: 'password', 'input-type': 'password', required: true },
-        { type: 'Footer', label: 'Sign Up', 'on-click-action': { name: 'complete', payload: {} } },
-    ];
-    
-    const flowJson = {
-        version: '3.0',
-        data_api_version: '3.0',
-        routing_model: {},
-        screens: [{
-            id: 'SIGN_UP_SCREEN',
-            title: 'Sign Up',
-            data: {},
-            layout: {
-                type: 'SingleColumnLayout',
-                children: [{ type: 'Form', name: 'sign_up_form', children: formChildren }]
-            }
-        }]
-    };
-    return JSON.stringify(flowJson);
-}
-
 export async function saveMetaFlow(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const projectId = formData.get('projectId') as string;
     if (!projectId) return { error: 'Project ID is missing.' };
 
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: "Access denied." };
-    if (!hasAccess.phoneNumbers || hasAccess.phoneNumbers.length === 0) {
-        return { error: 'Project has no phone numbers. Sync phone numbers before creating a flow.' };
-    }
-
-    const flowType = formData.get('flowType') as 'custom' | 'lead_gen' | 'sign_up';
-    let name = '';
-    let categories: string[] = [];
-    let flowDataStr = '';
-    const endpointUri = formData.get('endpoint_uri') as string | null;
-
-    if (flowType === 'lead_gen') {
-        name = formData.get('leadgen_name') as string;
-        categories = ['LEAD_GENERATION'];
-        flowDataStr = buildLeadGenFlowJson(formData);
-    } else if (flowType === 'sign_up') {
-        name = formData.get('signup_name') as string;
-        categories = ['SIGN_UP'];
-        flowDataStr = buildSignUpFlowJson(formData);
-    } else { // custom
-        name = formData.get('name') as string;
-        categories = formData.getAll('categories') as string[];
-        flowDataStr = formData.get('flow_data') as string;
-    }
     
-    if (!name || categories.length === 0 || !flowDataStr) {
-        return { error: 'Name, at least one Category, and Flow Data are required.' };
+    const name = formData.get('name') as string;
+    const category = formData.get('category') as string; // Single category from RadioGroup
+    const flowDataStr = formData.get('flow_data') as string;
+    const endpointUri = formData.get('endpoint_uri') as string | null;
+    
+    if (!name || !category || !flowDataStr) {
+        return { error: 'Name, Category, and Flow Data are required.' };
     }
 
     try {
@@ -3691,7 +3608,7 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
 
         const payload: any = {
             name,
-            categories,
+            categories: [category],
             flow_json: JSON.stringify(flow_data),
             access_token: accessToken,
         };
@@ -3718,7 +3635,7 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
             name,
             projectId: new ObjectId(projectId),
             metaId: metaFlowId,
-            categories,
+            categories: [category],
             flow_data,
             status: response.data.status || 'DRAFT',
             json_version: response.data.json_version,
@@ -3739,7 +3656,6 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
         return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
 }
-
 
 export async function deleteMetaFlow(flowId: string, metaId: string): Promise<{ message?: string, error?: string }> {
     if (!ObjectId.isValid(flowId)) return { error: 'Invalid Flow ID.' };
