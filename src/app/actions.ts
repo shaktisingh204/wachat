@@ -2499,13 +2499,12 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
 
         const sessionToken = createSessionToken({ userId: user._id.toString(), email: user.email });
         cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
-
-        redirect('/dashboard');
-        
     } catch (e: any) {
         console.error('Login failed:', e);
         return { error: 'An unexpected error occurred.' };
     }
+    
+    redirect('/dashboard');
 }
 
 export async function handleSignup(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
@@ -2536,13 +2535,12 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
         };
 
         await db.collection('users').insertOne(newUser as any);
-
-        redirect('/login');
-
     } catch (e: any) {
         console.error('Signup failed:', e);
         return { error: 'An unexpected error occurred.' };
     }
+
+    redirect('/login');
 }
 
 export async function handleLogout() {
