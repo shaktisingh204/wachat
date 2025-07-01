@@ -1,10 +1,10 @@
+
 'use server';
 /**
  * @fileOverview A simple text translation flow.
  *
- * - translateText - A function that translates text to a target language.
- * - TranslateTextInput - The input type for the translateText function.
- * - TranslateTextOutput - The return type for the translateText function.
+ * This file defines the `translateText` function, which translates a given
+ * piece of text to a specified target language.
  */
 
 import {ai} from '@/ai/genkit';
@@ -14,12 +14,12 @@ const TranslateTextInputSchema = z.object({
   text: z.string().describe('The text to translate.'),
   targetLanguage: z.string().describe('The language to translate the text into.'),
 });
-export type TranslateTextInput = z.infer<typeof TranslateTextInputSchema>;
+type TranslateTextInput = z.infer<typeof TranslateTextInputSchema>;
 
 const TranslateTextOutputSchema = z.object({
   translatedText: z.string().describe('The translated text.'),
 });
-export type TranslateTextOutput = z.infer<typeof TranslateTextOutputSchema>;
+type TranslateTextOutput = z.infer<typeof TranslateTextOutputSchema>;
 
 export async function translateText(input: TranslateTextInput): Promise<TranslateTextOutput> {
   return translateTextFlow(input);

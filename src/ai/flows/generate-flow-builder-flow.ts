@@ -3,9 +3,8 @@
 /**
  * @fileOverview Generates a complete flow (nodes and edges) for the Flow Builder from a user prompt.
  *
- * - generateFlowBuilderFlow - The main function that orchestrates the AI generation.
- * - GenerateFlowBuilderFlowInput - The input type for the AI flow.
- * - GenerateFlowBuilderFlowOutput - The return type, representing the flow's nodes and edges.
+ * This file defines the `generateFlowBuilderFlow` function, which takes a user's prompt
+ * and generates a valid Flow Builder JSON object.
  */
 
 import { ai } from '@/ai/genkit';
@@ -49,12 +48,12 @@ const GenerateFlowBuilderFlowOutputSchema = z.object({
   nodes: z.array(FlowNodeSchema).describe('An array of all nodes in the flow.'),
   edges: z.array(FlowEdgeSchema).describe('An array of all edges connecting the nodes.'),
 });
-export type GenerateFlowBuilderFlowOutput = z.infer<typeof GenerateFlowBuilderFlowOutputSchema>;
+type GenerateFlowBuilderFlowOutput = z.infer<typeof GenerateFlowBuilderFlowOutputSchema>;
 
 const GenerateFlowBuilderFlowInputSchema = z.object({
   prompt: z.string().describe("The user's description of the flow they want to create."),
 });
-export type GenerateFlowBuilderFlowInput = z.infer<typeof GenerateFlowBuilderFlowInputSchema>;
+type GenerateFlowBuilderFlowInput = z.infer<typeof GenerateFlowBuilderFlowInputSchema>;
 
 export async function generateFlowBuilderFlow(input: GenerateFlowBuilderFlowInput): Promise<GenerateFlowBuilderFlowOutput> {
   return generateFlowBuilderFlowFlow(input);

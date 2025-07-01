@@ -3,9 +3,8 @@
 /**
  * @fileOverview Generates a complete, multi-screen Meta Flow JSON structure based on a user's prompt.
  *
- * - generateMetaFlow - The main function that orchestrates the AI generation.
- * - GenerateMetaFlowInput - The input type for the AI flow.
- * - GenerateMetaFlowOutput - The return type, representing the full Flow JSON.
+ * This file defines the `generateMetaFlow` function, which takes a user's prompt
+ * and a category to generate a valid Meta Flow JSON object.
  */
 
 import { ai } from '@/ai/genkit';
@@ -50,14 +49,14 @@ const GenerateMetaFlowOutputSchema = z.object({
     version: z.literal("3.0"),
     screens: z.array(ScreenSchema).describe("An array of screens that make up the flow. Should contain at least a welcome screen and a confirmation/thank you screen.")
 });
-export type GenerateMetaFlowOutput = z.infer<typeof GenerateMetaFlowOutputSchema>;
+type GenerateMetaFlowOutput = z.infer<typeof GenerateMetaFlowOutputSchema>;
 
 
 const GenerateMetaFlowInputSchema = z.object({
   prompt: z.string().describe("The user's description of the flow they want to create."),
   category: z.string().describe("The category of the flow, which helps give context to the AI."),
 });
-export type GenerateMetaFlowInput = z.infer<typeof GenerateMetaFlowInputSchema>;
+type GenerateMetaFlowInput = z.infer<typeof GenerateMetaFlowInputSchema>;
 
 
 export async function generateMetaFlow(input: GenerateMetaFlowInput): Promise<GenerateMetaFlowOutput> {

@@ -3,9 +3,8 @@
 /**
  * @fileOverview Generates an AI-powered auto-reply based on business context, with language detection.
  *
- * - generateAutoReply - A function that handles the AI auto-reply process.
- * - AutoReplyInput - The input type for the generateAutoReply function.
- * - AutoReplyOutput - The return type for the generateAutoReply function.
+ * This file defines the `generateAutoReply` function, which takes a user's message
+ * and business context to generate a helpful and friendly response.
  */
 
 import {ai} from '@/ai/genkit';
@@ -17,12 +16,12 @@ const AutoReplyInputSchema = z.object({
   userWaId: z.string().describe("The user's WhatsApp ID (phone number), used for language detection."),
   autoTranslate: z.boolean().optional().describe('Whether to automatically translate the reply to the user\'s language.'),
 });
-export type AutoReplyInput = z.infer<typeof AutoReplyInputSchema>;
+type AutoReplyInput = z.infer<typeof AutoReplyInputSchema>;
 
 const AutoReplyOutputSchema = z.object({
   replyMessage: z.string().describe('The generated, helpful, and friendly reply to send to the user.'),
 });
-export type AutoReplyOutput = z.infer<typeof AutoReplyOutputSchema>;
+type AutoReplyOutput = z.infer<typeof AutoReplyOutputSchema>;
 
 export async function generateAutoReply(input: AutoReplyInput): Promise<AutoReplyOutput> {
   return autoReplyFlow(input);

@@ -3,10 +3,8 @@
 /**
  * @fileOverview A flow that translates text, either to a specified language or by detecting it from the user's WA ID.
  *
- * - intelligentTranslate - The main function for translation.
- * - detectLanguageFromWaId - A helper to get a language from a WhatsApp ID.
- * - IntelligentTranslateInput - The input type for the function.
- * - IntelligentTranslateOutput - The return type for the function.
+ * This file defines the `intelligentTranslate` function for translation and `detectLanguageFromWaId`
+ * for language detection from a WhatsApp ID.
  */
 
 import {ai} from '@/ai/genkit';
@@ -144,12 +142,12 @@ const IntelligentTranslateInputSchema = z.object({
   waId: z.string().optional().describe("The user's WhatsApp ID, used for automatic language detection if targetLanguage is not provided."),
   targetLanguage: z.string().optional().describe('The language to translate the text into. If not provided, it will be detected from the waId.'),
 });
-export type IntelligentTranslateInput = z.infer<typeof IntelligentTranslateInputSchema>;
+type IntelligentTranslateInput = z.infer<typeof IntelligentTranslateInputSchema>;
 
 const IntelligentTranslateOutputSchema = z.object({
   translatedText: z.string().describe('The translated text.'),
 });
-export type IntelligentTranslateOutput = z.infer<typeof IntelligentTranslateOutputSchema>;
+type IntelligentTranslateOutput = z.infer<typeof IntelligentTranslateOutputSchema>;
 
 export async function intelligentTranslate(input: IntelligentTranslateInput): Promise<IntelligentTranslateOutput> {
   return intelligentTranslateFlow(input);
