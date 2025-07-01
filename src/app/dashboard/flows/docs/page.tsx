@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ChevronLeft, FileJson, GitBranch, Lightbulb } from 'lucide-react';
+import { ChevronLeft, FileJson, GitFork, Lightbulb } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
@@ -59,7 +59,7 @@ export default function FlowsUserGuidePage() {
           </Link>
         </Button>
         <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-            <GitBranch className="h-8 w-8"/>
+            <GitFork className="h-8 w-8"/>
             Building Interactive Experiences with Meta Flows
         </h1>
         <p className="text-muted-foreground mt-2 max-w-3xl">

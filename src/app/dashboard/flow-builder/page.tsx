@@ -85,7 +85,7 @@ const blockTypes = [
     { type: 'api', label: 'Call API', icon: ArrowRightLeft },
     { type: 'sendTemplate', label: 'Send Template', icon: FileTextIcon },
     { type: 'triggerMetaFlow', label: 'Trigger Meta Flow', icon: ServerCog },
-    { type: 'triggerFlow', label: 'Trigger Flow', icon: GitBranch },
+    { type: 'triggerFlow', label: 'Trigger Flow', icon: GitFork },
     { type: 'addToCart', label: 'Add to Cart', icon: ShoppingCart },
 ];
 
@@ -1273,10 +1273,12 @@ export default function FlowBuilderPage() {
                                 <PanelLeft className="mr-2 h-4 w-4"/>
                                 Flows & Blocks
                             </Button>
-                            <Button variant="outline" onClick={() => setIsPropsSheetOpen(true)} disabled={!selectedNode}>
-                                <Settings2 className="mr-2 h-4 w-4"/>
-                                Properties
-                            </Button>
+                            {selectedNode && (
+                                <Button variant="outline" onClick={() => setIsPropsSheetOpen(true)} disabled={!selectedNode}>
+                                    <Settings2 className="mr-2 h-4 w-4"/>
+                                    Properties
+                                </Button>
+                            )}
                         </div>
                         <Button asChild variant="outline">
                             <Link href="/dashboard/flow-builder/docs">
@@ -1388,20 +1390,7 @@ export default function FlowBuilderPage() {
 
                     {/* Right Panel */}
                     <div className="hidden md:block md:col-span-3">
-                        <PropertiesPanel 
-                            selectedNode={selectedNode}
-                            updateNodeData={updateNodeData}
-                            deleteNode={deleteNode}
-                            flows={flows}
-                            templates={templates}
-                            metaFlows={metaFlows}
-                        />
-                    </div>
-                    {/* Right Panel Sheet for Mobile */}
-                    <Sheet open={isPropsSheetOpen} onOpenChange={setIsPropsSheetOpen}>
-                        <SheetContent side="right" className="p-0 flex flex-col w-full max-w-md">
-                            <SheetTitle className="sr-only">Block Properties</SheetTitle>
-                            <SheetDescription className="sr-only">Configure the selected block's properties.</SheetDescription>
+                        {selectedNode && (
                             <PropertiesPanel 
                                 selectedNode={selectedNode}
                                 updateNodeData={updateNodeData}
@@ -1410,6 +1399,23 @@ export default function FlowBuilderPage() {
                                 templates={templates}
                                 metaFlows={metaFlows}
                             />
+                        )}
+                    </div>
+                    {/* Right Panel Sheet for Mobile */}
+                    <Sheet open={isPropsSheetOpen} onOpenChange={setIsPropsSheetOpen}>
+                        <SheetContent side="right" className="p-0 flex flex-col w-full max-w-md">
+                            <SheetTitle className="sr-only">Block Properties</SheetTitle>
+                            <SheetDescription className="sr-only">Configure the selected block's properties.</SheetDescription>
+                             {selectedNode && (
+                                <PropertiesPanel 
+                                    selectedNode={selectedNode}
+                                    updateNodeData={updateNodeData}
+                                    deleteNode={deleteNode}
+                                    flows={flows}
+                                    templates={templates}
+                                    metaFlows={metaFlows}
+                                />
+                             )}
                         </SheetContent>
                     </Sheet>
                 </div>
@@ -1417,4 +1423,3 @@ export default function FlowBuilderPage() {
         </>
     );
 }
-
