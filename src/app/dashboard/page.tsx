@@ -1,5 +1,4 @@
 
-
 import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
@@ -108,6 +107,12 @@ export type Agent = {
     role: string;
 };
 
+export type Tag = {
+    _id: string;
+    name: string;
+    color: string;
+};
+
 export type Project = {
     userId: ObjectId;
     name: string;
@@ -126,6 +131,7 @@ export type Project = {
     agents?: Agent[];
     adAccountId?: string;
     facebookPageId?: string;
+    tags?: Tag[];
 };
 
 export type Template = {

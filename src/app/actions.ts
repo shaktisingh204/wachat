@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -8,7 +7,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { revalidatePath } from 'next/cache';
-import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign, PhoneNumberProfile } from '@/app/dashboard/page';
+import type { PhoneNumber, Project, Template, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign, PhoneNumberProfile, Tag } from '@/app/dashboard/page';
 import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
@@ -253,6 +252,7 @@ export type Contact = {
     hasReceivedWelcome?: boolean;
     status?: 'new' | 'open' | 'resolved';
     assignedAgentId?: string;
+    tagIds?: string[];
 }
 
 export type IncomingMessage = {
@@ -291,7 +291,7 @@ export type AnyMessage = (WithId<IncomingMessage> | WithId<OutgoingMessage>);
 
 
 // Re-export types for client components
-export type { Project, Template, PhoneNumber, PhoneNumberProfile, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign };
+export type { Project, Template, PhoneNumber, PhoneNumberProfile, AutoReplySettings, Flow, FlowNode, FlowEdge, OptInOutSettings, UserAttribute, Agent, GeneralReplyRule, MetaFlow, AdCampaign, Tag };
 
 export type LibraryTemplate = Omit<Template, 'metaId' | 'status' | 'qualityScore'> & {
     _id?: ObjectId;
@@ -815,7 +815,6 @@ export async function getDashboardStats(projectId: string): Promise<{
                 totalSent: stats[0].totalSent || 0,
                 totalFailed: stats[0].totalFailed || 0,
                 totalDelivered: stats[0].totalDelivered || 0,
-                totalRead: stats[0].totalRead || 0,
                 totalCampaigns: stats[0].totalCampaigns || 0,
             };
         }
@@ -2196,6 +2195,7 @@ export async function handleAddNewContact(prevState: any, formData: FormData): P
             name,
             createdAt: new Date(),
             status: 'new',
+            tagIds: [],
         };
 
         await db.collection('contacts').insertOne(newContact as any);
@@ -2242,7 +2242,7 @@ export async function handleImportContacts(prevState: any, formData: FormData): 
                         filter: { waId, projectId: new ObjectId(projectId) },
                         update: {
                             $set: { name, phoneNumberId },
-                            $setOnInsert: { waId, projectId: new ObjectId(projectId), createdAt: new Date(), status: 'new' }
+                            $setOnInsert: { waId, projectId: new ObjectId(projectId), createdAt: new Date(), status: 'new', tagIds: [] }
                         },
                         upsert: true
                     }
@@ -2461,7 +2461,8 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
                     projectId: new ObjectId(projectId),
                     name: `User (${waId.slice(-4)})`,
                     createdAt: new Date(),
-                    status: 'new'
+                    status: 'new',
+                    tagIds: [],
                 }
             },
             { upsert: true, returnDocument: 'after' }
@@ -3765,7 +3766,13 @@ export async function getContactsForProject(
     }
 }
 
-export async function getContactsPageData(projectId: string, phoneNumberId: string, page: number, query: string): Promise<{
+export async function getContactsPageData(
+    projectId: string, 
+    phoneNumberId: string, 
+    page: number, 
+    query: string,
+    tags?: string[],
+): Promise<{
     project: WithId<Project> | null,
     contacts: WithId<Contact>[],
     total: number,
@@ -3783,6 +3790,7 @@ export async function getContactsPageData(projectId: string, phoneNumberId: stri
 
     const { db } = await connectToDatabase();
     const filter: Filter<Contact> = { projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId };
+    
     if (query) {
         const queryRegex = { $regex: query, $options: 'i' };
         filter.$or = [
@@ -3790,6 +3798,11 @@ export async function getContactsPageData(projectId: string, phoneNumberId: stri
             { waId: queryRegex },
         ];
     }
+
+    if (tags && tags.length > 0) {
+        filter.tagIds = { $in: tags };
+    }
+    
     const skip = (page - 1) * 20;
 
     const [contacts, total] = await Promise.all([
@@ -4384,5 +4397,52 @@ export async function updateUserCreditsByAdmin(userId: string, credits: number):
     } catch (error) {
         console.error("Failed to update user credits:", error);
         return { success: false, error: 'An unexpected database error occurred.' };
+    }
+}
+
+// --- TAGS ACTIONS ---
+export async function saveProjectTags(projectId: string, tags: Tag[]): Promise<{ success: boolean; error?: string }> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { success: false, error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { tags: tags } }
+        );
+        revalidatePath('/dashboard/settings');
+        revalidatePath('/dashboard/contacts');
+        revalidatePath('/dashboard/chat');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to save tags.' };
+    }
+}
+
+export async function updateContactTags(contactId: string, tagIds: string[]): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(contactId)) {
+        return { success: false, error: 'Invalid contact ID.' };
+    }
+    
+    // Security check: ensure user has access to this contact's project
+    const { db } = await connectToDatabase();
+    const contact = await db.collection('contacts').findOne({ _id: new ObjectId(contactId) });
+    if (!contact) {
+        return { success: false, error: 'Contact not found.' };
+    }
+    const hasAccess = await getProjectById(contact.projectId.toString());
+    if (!hasAccess) return { success: false, error: 'Access denied.' };
+    
+    try {
+        await db.collection('contacts').updateOne(
+            { _id: new ObjectId(contactId) },
+            { $set: { tagIds } }
+        );
+        revalidatePath('/dashboard/chat');
+        revalidatePath('/dashboard/contacts');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to update tags.' };
     }
 }

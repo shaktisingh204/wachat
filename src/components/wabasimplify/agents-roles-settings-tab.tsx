@@ -1,304 +1,159 @@
 
-
 'use client';
 
-import { useActionState, useEffect, useState, useRef, useTransition } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useState, useEffect } from 'react';
 import type { WithId } from 'mongodb';
-import type { Project, User, Agent, Plan } from '@/app/actions';
-import { handleInviteAgent, handleRemoveAgent } from '@/app/actions';
+import type { Project, User, Plan } from '@/app/actions';
+import { handleInviteAgent, handleRemoveAgent, handleGetSession } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Plus, Trash2, Loader2 } from 'lucide-react';
+import { useFormStatus } from 'react-dom';
 import { Separator } from '@/components/ui/separator';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { MailPlus, Plus, Shield, Trash2, Users, LoaderCircle } from 'lucide-react';
-import Link from 'next/link';
-import { Badge } from '../ui/badge';
+import { useActionState } from 'react-dom';
 
 interface AgentsRolesSettingsTabProps {
     project: WithId<Project>;
     user: (Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null }) | null;
 }
 
-const inviteInitialState = { message: null, error: null };
-const removeInitialState = { message: null, error: null };
-
-function InviteSubmitButton() {
-    const { pending } = useFormStatus();
-    return (
-        <Button type="submit" disabled={pending}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <MailPlus className="mr-2 h-4 w-4" />}
-            Invite Agent
-        </Button>
-    )
-}
-
-function RemoveAgentForm({ projectId, agentUserId }: { projectId: string, agentUserId: string }) {
-    const [state, formAction] = useActionState(handleRemoveAgent, removeInitialState);
-    const { toast } = useToast();
-    const [isPending, startTransition] = useTransition();
-
-    useEffect(() => {
-        if(state?.message) toast({ title: "Success", description: state.message });
-        if(state?.error) toast({ title: "Error", description: state.error, variant: 'destructive' });
-    }, [state, toast]);
-
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget);
-        startTransition(() => {
-            formAction(formData);
-        });
-    };
-
-    return (
-        <form onSubmit={handleSubmit}>
-            <input type="hidden" name="projectId" value={projectId} />
-            <input type="hidden" name="agentUserId" value={agentUserId} />
-            <Button type="submit" variant="ghost" size="icon" disabled={isPending}>
-                {isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}
-            </Button>
-        </form>
-    )
-}
-
-const mockRoles = [
-    { id: 'Administrator', name: 'Administrator', description: 'Full access to all features.' },
-    { id: 'Marketer', name: 'Marketer', description: 'Access to campaigns and templates.' },
-    { id: 'Agent', name: 'Agent', description: 'Access to live chat and contacts.' },
-];
-
-const features = [
-    { id: 'campaigns', name: 'Campaigns' },
-    { id: 'live_chat', name: 'Live Chat' },
-    { id: 'contacts', name: 'Contacts' },
-    { id: 'templates', name: 'Templates' },
-    { id: 'flow_builder', name: 'Flow Builder' },
-    { id: 'settings', name: 'Project Settings' },
-];
-
+const inviteAgentInitialState = { message: null, error: null };
+const removeAgentInitialState = { message: null, error: null };
 
 export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTabProps) {
-    const { toast } = useToast();
-    const [inviteState, inviteAction] = useActionState(handleInviteAgent, inviteInitialState);
-    const inviteFormRef = useRef<HTMLFormElement>(null);
-    const isOwner = project.userId.toString() === user?._id.toString();
-    
-    const plan = user?.plan;
-    const planName = plan?.name || 'Unknown';
-    const agentLimit = plan?.agentLimit ?? 0;
-    const currentAgentCount = project.agents?.length || 0;
+    const [isClient, setIsClient] = useState(false);
+    const [inviteState, inviteAction] = useActionState(handleInviteAgent, inviteAgentInitialState);
+    const [removeState, removeAction] = useActionState(handleRemoveAgent, removeAgentInitialState);
 
+    const { toast } = useToast();
+    const plan = user?.plan;
+    const limit = plan?.agentLimit ?? 0;
+    const isAtLimit = (project.agents?.length || 0) >= limit;
+    const planName = plan?.name || 'Unknown';
+    
     useEffect(() => {
-        if (inviteState?.message) {
-            toast({ title: 'Success!', description: inviteState.message });
-            inviteFormRef.current?.reset();
-        }
-        if (inviteState?.error) {
-            toast({ title: 'Error', description: inviteState.error, variant: 'destructive' });
-        }
+        setIsClient(true);
+        if (inviteState?.message) toast({ title: 'Success!', description: inviteState.message });
+        if (inviteState?.error) toast({ title: 'Error', description: inviteState.error, variant: 'destructive' });
     }, [inviteState, toast]);
 
-    const handleComingSoon = (action: string) => {
-        toast({
-            title: 'Feature in Development',
-            description: `The "${action}" functionality is not yet implemented.`,
-        });
-    }
-    
-    if (!isOwner) {
+     useEffect(() => {
+        if (removeState?.message) toast({ title: 'Success!', description: removeState.message });
+        if (removeState?.error) toast({ title: 'Error', description: removeState.error, variant: 'destructive' });
+    }, [removeState, toast]);
+
+    const TeamMemberCard = ({ agent }: { agent: any }) => {
         return (
-            <Card>
-                <CardHeader>
-                    <CardTitle>Agents & Roles</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">Only the project owner can manage agents and roles.</p>
-                </CardContent>
-            </Card>
+            <div className="flex items-center justify-between gap-4 border rounded-md p-4">
+                <div className="flex items-center gap-4">
+                    <Avatar>
+                        <AvatarImage src={`https://api.dicebear.com/7.x/lorelei/svg?seed=${agent.email}`} alt={agent.name} />
+                        <AvatarFallback>{agent.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div className="space-y-0.5">
+                        <p className="text-sm font-medium leading-none">{agent.name}</p>
+                        <p className="text-sm text-muted-foreground">{agent.email}</p>
+                    </div>
+                </div>
+                <div>
+                    <RemoveAgentForm agent={agent} project={project} />
+                </div>
+            </div>
         );
-    }
+    };
+    
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Agents & Roles</CardTitle>
+                <CardDescription>Manage agents and their roles for this project.</CardDescription>
+            </CardHeader>
+             <CardContent className="space-y-6">
+                <div className="p-4 bg-muted/50 rounded-lg space-y-2 text-sm text-muted-foreground">
+                    <h4 className="font-semibold text-card-foreground">Team Management</h4>
+                    <p>Invite team members to assist with managing this project.</p>
+                    <p>Your current <span className="font-semibold capitalize text-primary">{planName}</span> plan allows for <span className="font-semibold text-primary">{limit}</span> team members. There are currently <span className="font-semibold text-primary">{project.agents?.length || 0}</span> team member(s) assigned to this project.</p>
+                    {limit < 10 && (
+                        <p className="font-semibold">
+                            <Link href="/dashboard/billing" className="text-primary hover:underline">Upgrade your plan</Link> to invite more team members! 🚀
+                        </p>
+                    )}
+                </div>
+                
+                <InviteAgentForm project={project} isDisabled={isAtLimit} />
+                <Separator/>
+                <div>
+                    <h3 className="text-lg font-semibold mb-2">Team Members</h3>
+                    {project.agents && project.agents.length > 0 ? (
+                        project.agents.map((agent: any) => (
+                            <TeamMemberCard key={agent.userId.toString()} agent={agent} />
+                        ))
+                    ) : (
+                        <p className="text-sm text-muted-foreground">No team members have been added to this project yet.</p>
+                    )}
+                </div>
+             </CardContent>
+        </Card>
+    );
+}
+
+function InviteAgentForm({ project, isDisabled }: { project: any, isDisabled: boolean }) {
+    const [state, formAction] = useActionState(handleInviteAgent, inviteAgentInitialState);
+    const { pending } = useFormStatus();
+    
+    return (
+       <Card className="p-4 border-dashed">
+            <CardHeader>
+                <CardTitle>Invite a New Team Member</CardTitle>
+                <CardDescription>Assign a role to the new user.</CardDescription>
+            </CardHeader>
+            <CardContent>
+            <form action={formAction}>
+                <input type="hidden" name="projectId" value={project._id} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" name="email" type="email" placeholder="Enter agent's email" required />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="role">Role</Label>
+                        <Select name="role" defaultValue="agent">
+                            <SelectTrigger id="role"><SelectValue placeholder="Select role" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="agent">Agent</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <Button type="submit" disabled={pending || isDisabled} className="mt-4">
+                  {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+                  Invite Agent
+                </Button>
+            </form>
+            </CardContent>
+        </Card>
+    );
+}
+
+function RemoveAgentForm({ agent, project }: { agent: any, project: any }) {
+    const [state, formAction] = useActionState(handleRemoveAgent, removeAgentInitialState);
+    const { pending } = useFormStatus();
 
     return (
-        <div className="space-y-6">
-            <Card>
-                <CardHeader>
-                    <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5"/>
-                        <CardTitle>Manage Agents</CardTitle>
-                    </div>
-                    <CardDescription>
-                        Invite, remove, and manage roles for team members. 
-                        Your <span className="font-semibold capitalize text-primary">{planName}</span> plan allows for {agentLimit} agent(s). 
-                        You have {currentAgentCount} of {agentLimit} agents. 
-                        {currentAgentCount >= agentLimit && (
-                            <Link href="/dashboard/billing" className="font-semibold text-primary hover:underline ml-1">Upgrade to add more.</Link>
-                        )}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <form action={inviteAction} ref={inviteFormRef}>
-                        <input type="hidden" name="projectId" value={project._id.toString()} />
-                        <div>
-                            <Label>Invite New Agent</Label>
-                            <div className="flex flex-col sm:flex-row gap-2 mt-2">
-                                <Input type="email" name="email" placeholder="Enter agent's email" className="flex-grow" required />
-                                <Select name="role" required>
-                                    <SelectTrigger className="w-full sm:w-[180px]">
-                                        <SelectValue placeholder="Select a role" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {mockRoles.map(role => <SelectItem key={role.id} value={role.id}>{role.name}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                                <InviteSubmitButton />
-                            </div>
-                        </div>
-                    </form>
-                    <Separator/>
-                    
-                    {/* Desktop View */}
-                    <div className="hidden md:block border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Role</TableHead>
-                                    <TableHead className="text-right">Action</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                <TableRow>
-                                    <TableCell className="font-medium">{user?.name} (Owner)</TableCell>
-                                    <TableCell>{user?.email}</TableCell>
-                                    <TableCell><Badge>Owner</Badge></TableCell>
-                                    <TableCell></TableCell>
-                                </TableRow>
-                                {project.agents && project.agents.map(agent => (
-                                    <TableRow key={agent.userId.toString()}>
-                                        <TableCell className="font-medium">{agent.name}</TableCell>
-                                        <TableCell>{agent.email}</TableCell>
-                                        <TableCell>
-                                            <Select defaultValue={agent.role}>
-                                                <SelectTrigger className="h-8 w-[150px]">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {mockRoles.map(role => <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>)}
-                                                </SelectContent>
-                                            </Select>
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            <RemoveAgentForm projectId={project._id.toString()} agentUserId={agent.userId.toString()} />
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-
-                    {/* Mobile View */}
-                    <div className="md:hidden space-y-4">
-                        <Card>
-                            <CardContent className="p-4 flex justify-between items-center">
-                                <div>
-                                    <p className="font-medium">{user?.name}</p>
-                                    <p className="text-sm text-muted-foreground">{user?.email}</p>
-                                </div>
-                                <Badge>Owner</Badge>
-                            </CardContent>
-                        </Card>
-                        {project.agents && project.agents.map(agent => (
-                            <Card key={agent.userId.toString()}>
-                                <CardHeader className="flex flex-row justify-between items-start pb-2">
-                                     <div>
-                                        <p className="font-medium">{agent.name}</p>
-                                        <p className="text-sm text-muted-foreground">{agent.email}</p>
-                                    </div>
-                                    <RemoveAgentForm projectId={project._id.toString()} agentUserId={agent.userId.toString()} />
-                                </CardHeader>
-                                <CardContent className="p-4 pt-0">
-                                     <Select defaultValue={agent.role}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {mockRoles.map(role => <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                </CardContent>
-                            </Card>
-                        ))}
-                    </div>
-
-                </CardContent>
-            </Card>
-
-             <Card>
-                <CardHeader>
-                    <div className="flex items-center gap-2">
-                        <Shield className="h-5 w-5"/>
-                        <CardTitle>Manage Roles &amp; Permissions</CardTitle>
-                    </div>
-                    <CardDescription>Create custom roles and define what each role can see and do.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div>
-                        <Label>Create New Role</Label>
-                        <div className="flex gap-2 mt-2">
-                           <Input placeholder="Enter role name (e.g., Support Lead)" />
-                           <Button onClick={() => handleComingSoon('Create Role')}><Plus className="mr-2 h-4 w-4"/>Create Role</Button>
-                        </div>
-                    </div>
-                     <Separator/>
-                     <Accordion type="single" collapsible className="w-full">
-                        {mockRoles.map(role => (
-                             <AccordionItem key={role.id} value={role.id}>
-                                <AccordionTrigger>
-                                    <div className="flex flex-col items-start text-left">
-                                        <span className="font-semibold text-base">{role.name}</span>
-                                        <span className="text-sm text-muted-foreground font-normal">{role.description}</span>
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent>
-                                    <div className="border rounded-md overflow-hidden">
-                                        <Table>
-                                            <TableHeader>
-                                                <TableRow>
-                                                    <TableHead>Feature</TableHead>
-                                                    <TableHead className="text-center">Read</TableHead>
-                                                    <TableHead className="text-center">Write</TableHead>
-                                                </TableRow>
-                                            </TableHeader>
-                                            <TableBody>
-                                                {features.map(feature => (
-                                                    <TableRow key={feature.id}>
-                                                        <TableCell className="font-medium">{feature.name}</TableCell>
-                                                        <TableCell className="text-center"><Checkbox/></TableCell>
-                                                        <TableCell className="text-center"><Checkbox/></TableCell>
-                                                    </TableRow>
-                                                ))}
-                                            </TableBody>
-                                        </Table>
-                                    </div>
-                                    <div className="flex justify-end gap-2 mt-4">
-                                        <Button variant="destructive" size="sm" onClick={() => handleComingSoon('Delete Role')}>Delete Role</Button>
-                                        <Button variant="default" size="sm" onClick={() => handleComingSoon('Save Role')}>Save Role</Button>
-                                    </div>
-                                </AccordionContent>
-                            </AccordionItem>
-                        ))}
-                     </Accordion>
-                </CardContent>
-            </Card>
-        </div>
-    )
+         <form action={formAction}>
+            <input type="hidden" name="projectId" value={project._id} />
+            <input type="hidden" name="agentUserId" value={agent.userId} />
+            <Button type="submit" variant="destructive" size="icon" disabled={pending}>
+               {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+            </Button>
+        </form>
+    );
 }

@@ -1,24 +1,28 @@
 
-
 'use client';
 
 import { useEffect, useState, useCallback, useTransition } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { getContactsPageData, getProjects } from '@/app/actions';
 import type { WithId } from 'mongodb';
-import type { Project, Contact } from '@/app/actions';
+import type { Project, Contact, Tag } from '@/app/actions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Users, MessageSquare, Search, LoaderCircle } from 'lucide-react';
+import { AlertCircle, Users, MessageSquare, Search, LoaderCircle, Check, ChevronsUpDown } from 'lucide-react';
 import { AddContactDialog } from '@/components/wabasimplify/add-contact-dialog';
 import { ImportContactsDialog } from '@/components/wabasimplify/import-contacts-dialog';
 import { useDebouncedCallback } from 'use-debounce';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
+
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -50,6 +54,51 @@ function ContactsPageSkeleton() {
     );
 }
 
+function TagsFilter({ tags, selectedTags, onSelectionChange }: { tags: Tag[], selectedTags: string[], onSelectionChange: (tags: string[]) => void }) {
+    const [open, setOpen] = useState(false);
+    
+    const handleSelect = (tagId: string) => {
+        const newSelected = selectedTags.includes(tagId)
+            ? selectedTags.filter(id => id !== tagId)
+            : [...selectedTags, tagId];
+        onSelectionChange(newSelected);
+    };
+
+    return (
+         <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" className="w-full sm:w-[200px] justify-between">
+                    <span className="truncate">
+                        {selectedTags.length > 0 ? `${selectedTags.length} tag(s) selected` : "Filter by tags..."}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[200px] p-0" align="start">
+                <Command>
+                    <CommandInput placeholder="Search tags..." />
+                    <CommandList>
+                        <CommandEmpty>No tags found.</CommandEmpty>
+                        <CommandGroup>
+                             {tags.map((tag) => (
+                                <CommandItem
+                                    key={tag._id}
+                                    value={tag.name}
+                                    onSelect={() => handleSelect(tag._id)}
+                                >
+                                    <Check className={cn("mr-2 h-4 w-4", selectedTags.includes(tag._id) ? "opacity-100" : "opacity-0")} />
+                                    <span className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: tag.color }} />
+                                    <span>{tag.name}</span>
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
+    )
+}
+
 export default function ContactsPage() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
     const [contacts, setContacts] = useState<WithId<Contact>[]>([]);
@@ -58,14 +107,18 @@ export default function ContactsPage() {
     const [isClient, setIsClient] = useState(false);
     const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
     const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(0);
-    const [searchQuery, setSearchQuery] = useState('');
+    const currentPage = Number(searchParams.get('page')) || 1;
+    const searchQuery = searchParams.get('query') || '';
+    const selectedTags = searchParams.get('tags')?.split(',') || [];
     
-    const fetchData = useCallback((projectId: string, phoneId: string, page: number, query: string) => {
+    const [totalPages, setTotalPages] = useState(0);
+    
+    const fetchData = useCallback((projectId: string, phoneId: string, page: number, query: string, tags: string[]) => {
         startTransition(async () => {
-            const data = await getContactsPageData(projectId, phoneId, page, query);
+            const data = await getContactsPageData(projectId, phoneId, page, query, tags);
             
             setProject(data.project);
             setContacts(data.contacts);
@@ -83,7 +136,7 @@ export default function ContactsPage() {
     
     useEffect(() => {
         if(isClient && activeProjectId) {
-            fetchData(activeProjectId, selectedPhoneNumberId, currentPage, searchQuery);
+            fetchData(activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags);
         } else if (isClient && !activeProjectId) {
             startTransition(async () => {
                 const projects = await getProjects();
@@ -94,18 +147,27 @@ export default function ContactsPage() {
                 }
             });
         }
-    }, [isClient, activeProjectId, fetchData, selectedPhoneNumberId, currentPage, searchQuery, router]);
+    }, [isClient, activeProjectId, fetchData, selectedPhoneNumberId, currentPage, searchQuery, selectedTags, router]);
 
 
-    const handleSearch = useDebouncedCallback((term: string) => {
-        setSearchQuery(term);
-        setCurrentPage(1);
+    const updateSearchParam = useDebouncedCallback((key: string, value: string | null) => {
+        const params = new URLSearchParams(searchParams);
+        if (value && value.trim() !== '') {
+            params.set(key, value);
+        } else {
+            params.delete(key);
+        }
+        if (key !== 'page') {
+            params.set('page', '1');
+        }
+        router.replace(`${pathname}?${params.toString()}`);
     }, 300);
     
     const handlePhoneChange = (phoneId: string) => {
         setSelectedPhoneNumberId(phoneId);
-        setCurrentPage(1);
-        setSearchQuery('');
+        updateSearchParam('page', '1');
+        updateSearchParam('query', null);
+        updateSearchParam('tags', null);
     }
 
     const handleMessageContact = (contact: WithId<Contact>) => {
@@ -170,9 +232,15 @@ export default function ContactsPage() {
                                 <Input
                                     placeholder="Search by name or ID..."
                                     className="pl-8"
-                                    onChange={(e) => handleSearch(e.target.value)}
+                                    defaultValue={searchQuery}
+                                    onChange={(e) => updateSearchParam('query', e.target.value)}
                                 />
                             </div>
+                            <TagsFilter 
+                                tags={project?.tags || []} 
+                                selectedTags={selectedTags}
+                                onSelectionChange={(tags) => updateSearchParam('tags', tags.join(','))}
+                            />
                         </div>
 
                         <div className="border rounded-md">
@@ -181,6 +249,7 @@ export default function ContactsPage() {
                                     <TableRow>
                                         <TableHead>Name</TableHead>
                                         <TableHead>WhatsApp ID</TableHead>
+                                        <TableHead>Tags</TableHead>
                                         <TableHead>Last Activity</TableHead>
                                         <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
@@ -188,7 +257,7 @@ export default function ContactsPage() {
                                  <TableBody>
                                     {isLoading && contacts.length === 0 ? (
                                          <TableRow>
-                                            <TableCell colSpan={4} className="h-24 text-center">
+                                            <TableCell colSpan={5} className="h-24 text-center">
                                                 <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                                             </TableCell>
                                         </TableRow>
@@ -197,6 +266,18 @@ export default function ContactsPage() {
                                         <TableRow key={contact._id.toString()}>
                                             <TableCell className="font-medium">{contact.name}</TableCell>
                                             <TableCell className="font-mono text-sm">{contact.waId}</TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {(contact.tagIds || []).map(tagId => {
+                                                        const tag = project?.tags?.find(t => t._id === tagId);
+                                                        return tag ? (
+                                                            <Badge key={tagId} className="rounded" style={{ backgroundColor: tag.color, color: '#fff' }}>
+                                                                {tag.name}
+                                                            </Badge>
+                                                        ) : null;
+                                                    })}
+                                                </div>
+                                            </TableCell>
                                             <TableCell>
                                                 {contact.lastMessageTimestamp ? new Date(contact.lastMessageTimestamp).toLocaleString() : 'N/A'}
                                             </TableCell>
@@ -210,8 +291,8 @@ export default function ContactsPage() {
                                         ))
                                     ) : (
                                         <TableRow>
-                                            <TableCell colSpan={4} className="h-24 text-center">
-                                                No contacts found for this phone number.
+                                            <TableCell colSpan={5} className="h-24 text-center">
+                                                No contacts found.
                                             </TableCell>
                                         </TableRow>
                                     )}
@@ -227,7 +308,7 @@ export default function ContactsPage() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => setCurrentPage(p => p - 1)}
+                                    onClick={() => updateSearchParam('page', String(currentPage - 1))}
                                     disabled={currentPage <= 1 || isLoading}
                                 >
                                     Previous
@@ -235,7 +316,7 @@ export default function ContactsPage() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => setCurrentPage(p => p + 1)}
+                                    onClick={() => updateSearchParam('page', String(currentPage + 1))}
                                     disabled={currentPage >= totalPages || isLoading}
                                 >
                                     Next

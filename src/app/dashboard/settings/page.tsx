@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog, Handshake, MessageSquareHeart, Megaphone, BookCopy, Lock } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog, Handshake, MessageSquareHeart, Megaphone, BookCopy, Lock, Tags } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -26,6 +26,7 @@ import { CannedMessagesSettingsTab } from '@/components/wabasimplify/canned-mess
 import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-settings-tab';
 import { useRouter } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { TagsSettingsTab } from '@/components/wabasimplify/tags-settings-tab';
 
 
 const updateSettingsInitialState = { message: null, error: null };
@@ -324,8 +325,7 @@ function OptInOutForm({ project }: { project: WithId<Project> }) {
                 </div>
             </CardContent>
             <CardFooter>
-                <SaveButton>Save Opt-in/Opt-out Settings</SaveButton>
-            </CardFooter>
+                <SaveButton>Save Opt-in/Opt-out Settings</SaveButton></CardFooter>
         </form>
     )
 }
@@ -636,6 +636,7 @@ function SettingsPageContent() {
               {planFeatures?.settingsAgentsRoles && <TabsTrigger value="agents-roles"><UserCog className="mr-2 h-4 w-4" />Agents & Roles</TabsTrigger>}
               {planFeatures?.settingsCompliance && <TabsTrigger value="compliance"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>}
               {planFeatures?.settingsUserAttributes && <TabsTrigger value="attributes"><Users className="mr-2 h-4 w-4" />User Attributes</TabsTrigger>}
+              <TabsTrigger value="tags"><Tags className="mr-2 h-4 w-4" />Tags & Labels</TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
         </ScrollArea>
@@ -732,6 +733,10 @@ function SettingsPageContent() {
             <FeatureGate isAllowed={!!planFeatures?.settingsUserAttributes} featureName="User Attributes">
                 <UserAttributesForm project={project} user={user} />
             </FeatureGate>
+          </TabsContent>
+          
+          <TabsContent value="tags" className="mt-6">
+            <TagsSettingsTab project={project} />
           </TabsContent>
 
         </Tabs>
