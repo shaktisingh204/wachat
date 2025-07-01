@@ -134,39 +134,64 @@ export default function WhatsAppAdsPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <div className="border rounded-md">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Campaign Name</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Daily Budget</TableHead>
-                    <TableHead>Created At</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {adCampaigns.length > 0 ? (
-                    adCampaigns.map((campaign) => (
-                      <TableRow key={campaign._id.toString()}>
-                        <TableCell className="font-medium">{campaign.name}</TableCell>
-                        <TableCell>
-                          <Badge variant={campaign.status === 'PAUSED' ? 'secondary' : 'default'}>{campaign.status}</Badge>
-                        </TableCell>
-                        <TableCell>INR {campaign.dailyBudget.toLocaleString()}</TableCell>
-                        <TableCell>{new Date(campaign.createdAt).toLocaleDateString()}</TableCell>
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={4} className="h-24 text-center">
-                        No ad campaigns found. Create one to get started.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
+            {adCampaigns.length > 0 ? (
+                <>
+                {/* Desktop Table View */}
+                <div className="hidden md:block border rounded-md">
+                    <Table>
+                    <TableHeader>
+                        <TableRow>
+                        <TableHead>Campaign Name</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead>Daily Budget</TableHead>
+                        <TableHead>Created At</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {adCampaigns.map((campaign) => (
+                        <TableRow key={campaign._id.toString()}>
+                            <TableCell className="font-medium">{campaign.name}</TableCell>
+                            <TableCell>
+                            <Badge variant={campaign.status === 'PAUSED' ? 'secondary' : 'default'}>{campaign.status}</Badge>
+                            </TableCell>
+                            <TableCell>INR {campaign.dailyBudget.toLocaleString()}</TableCell>
+                            <TableCell>{new Date(campaign.createdAt).toLocaleDateString()}</TableCell>
+                        </TableRow>
+                        ))}
+                    </TableBody>
+                    </Table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4">
+                    {adCampaigns.map((campaign) => (
+                    <Card key={campaign._id.toString()} className="border">
+                        <CardHeader className="flex flex-row items-center justify-between p-4 pb-2">
+                            <CardTitle className="text-base leading-snug">{campaign.name}</CardTitle>
+                            <Badge variant={campaign.status === 'PAUSED' ? 'secondary' : 'default'} className="flex-shrink-0">{campaign.status}</Badge>
+                        </CardHeader>
+                        <CardContent className="p-4 pt-2 text-sm space-y-2">
+                        <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Daily Budget:</span>
+                            <span className="font-medium">INR {campaign.dailyBudget.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                            <span className="text-muted-foreground">Created:</span>
+                            <span className="font-medium">{new Date(campaign.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        </CardContent>
+                    </Card>
+                    ))}
+                </div>
+                </>
+            ) : (
+                <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
+                    <Megaphone className="mx-auto h-12 w-12" />
+                    <h3 className="mt-4 text-lg font-semibold">No Ad Campaigns Yet</h3>
+                    <p className="mt-1 text-sm">Click "Create New Ad" to get started.</p>
+                </div>
+            )}
+            </CardContent>
         </Card>
       </div>
     </>
