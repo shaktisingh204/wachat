@@ -33,14 +33,16 @@ import {
     PanelLeft,
     Settings2,
     Copy,
+    ServerCog,
+    FileText as FileTextIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getFlowsForProject, saveFlow, deleteFlow, getFlowById, getFlowBuilderPageData } from '@/app/actions';
-import type { Flow, FlowNode, FlowEdge } from '@/app/actions';
+import { getFlowsForProject, saveFlow, deleteFlow, getFlowById, getFlowBuilderPageData, getTemplates, getMetaFlows } from '@/app/actions';
+import type { Flow, FlowNode, FlowEdge, Template, MetaFlow } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -50,7 +52,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
-type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language';
+type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language' | 'sendTemplate' | 'triggerMetaFlow';
 
 type ButtonConfig = {
     id: string;
@@ -73,6 +75,8 @@ const blockTypes = [
     { type: 'condition', label: 'Add Condition', icon: GitFork },
     { type: 'delay', label: 'Add Delay', icon: Clock },
     { type: 'api', label: 'Call API', icon: ArrowRightLeft },
+    { type: 'sendTemplate', label: 'Send Template', icon: FileTextIcon },
+    { type: 'triggerMetaFlow', label: 'Trigger Meta Flow', icon: ServerCog },
     { type: 'addToCart', label: 'Add to Cart', icon: ShoppingCart },
 ];
 
@@ -117,6 +121,10 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
                         </div>
                     </div>
                 );
+            case 'sendTemplate':
+                 return <p className="text-xs text-muted-foreground italic">Sends template: {node.data.templateName || 'None selected'}</p>;
+            case 'triggerMetaFlow':
+                 return <p className="text-xs text-muted-foreground italic">Triggers flow: {node.data.metaFlowName || 'None selected'}</p>;
             default:
                 return null;
         }
@@ -221,7 +229,7 @@ const ConnectionLine = ({ from, to }: { from: {x: number, y: number}, to: {x: nu
     return <path d={path} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" strokeDasharray="5,5" />;
 };
 
-const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selectedNode: FlowNode | null; updateNodeData: (id: string, data: Partial<any>) => void, deleteNode: (id: string) => void }) => {
+const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, metaFlows }: { selectedNode: FlowNode | null; updateNodeData: (id: string, data: Partial<any>) => void, deleteNode: (id: string) => void, templates: WithId<Template>[], metaFlows: WithId<MetaFlow>[] }) => {
     const { toast } = useToast();
 
     if (!selectedNode) {
@@ -237,6 +245,13 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
     const handleDataChange = (field: keyof any, value: any) => {
         updateNodeData(selectedNode.id, { [field]: value });
     };
+
+    const handleSelectChange = (id: string, name: string, fieldPrefix: string) => {
+        updateNodeData(selectedNode.id, {
+            [`${fieldPrefix}Id`]: id,
+            [`${fieldPrefix}Name`]: name,
+        });
+    }
 
     const handleApiChange = (field: keyof any, value: any) => {
         const currentApiRequest = selectedNode.data.apiRequest || {};
@@ -497,6 +512,45 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                         </div>
                     </div>
                  );
+            case 'sendTemplate':
+                return (
+                    <div className="space-y-2">
+                        <Label htmlFor="template-select">Select Template</Label>
+                        <Select
+                            value={selectedNode.data.templateId || ''}
+                            onValueChange={(val) => handleSelectChange(val, templates.find(t => t._id.toString() === val)?.name || '', 'template')}
+                        >
+                            <SelectTrigger id="template-select"><SelectValue placeholder="Choose a template..." /></SelectTrigger>
+                            <SelectContent>
+                                {templates.filter(t => t.status === 'APPROVED').map(t => (
+                                    <SelectItem key={t._id.toString()} value={t._id.toString()}>
+                                        {t.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <p className="text-xs text-muted-foreground">Use variables in the format {'{{variable1}}'} to fill template placeholders.</p>
+                    </div>
+                );
+             case 'triggerMetaFlow':
+                return (
+                    <div className="space-y-2">
+                        <Label htmlFor="meta-flow-select">Select Meta Flow</Label>
+                        <Select
+                            value={selectedNode.data.metaFlowId || ''}
+                            onValueChange={(val) => handleSelectChange(val, metaFlows.find(f => f._id.toString() === val)?.name || '', 'metaFlow')}
+                        >
+                            <SelectTrigger id="meta-flow-select"><SelectValue placeholder="Choose a Meta flow..." /></SelectTrigger>
+                            <SelectContent>
+                                {metaFlows.map(f => (
+                                    <SelectItem key={f._id.toString()} value={f._id.toString()}>
+                                        {f.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                );
              case 'api':
                 return (
                     <Tabs defaultValue="request">
@@ -761,6 +815,8 @@ export default function FlowBuilderPage() {
     const [isClient, setIsClient] = useState(false);
     const [projectId, setProjectId] = useState<string | null>(null);
     const [flows, setFlows] = useState<WithId<Flow>[]>([]);
+    const [templates, setTemplates] = useState<WithId<Template>[]>([]);
+    const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
     const [currentFlow, setCurrentFlow] = useState<WithId<Flow> | null>(null);
     const [nodes, setNodes] = useState<FlowNode[]>([]);
     const [edges, setEdges] = useState<FlowEdge[]>([]);
@@ -801,12 +857,18 @@ export default function FlowBuilderPage() {
     const loadInitialData = useCallback(async () => {
         if (projectId) {
             startLoadingTransition(async () => {
-                const data = await getFlowBuilderPageData(projectId);
-                setFlows(data.flows);
-                if (data.initialFlow) {
-                    setCurrentFlow(data.initialFlow);
-                    setNodes(data.initialFlow.nodes || []);
-                    setEdges(data.initialFlow.edges || []);
+                const [flowsData, templateData, metaFlowsData] = await Promise.all([
+                    getFlowBuilderPageData(projectId),
+                    getTemplates(projectId),
+                    getMetaFlows(projectId),
+                ]);
+                setFlows(flowsData.flows);
+                setTemplates(templateData);
+                setMetaFlows(metaFlowsData);
+                if (flowsData.initialFlow) {
+                    setCurrentFlow(flowsData.initialFlow);
+                    setNodes(flowsData.initialFlow.nodes || []);
+                    setEdges(flowsData.initialFlow.edges || []);
                     setSelectedNodeId(null);
                 } else {
                     handleCreateNewFlow();
@@ -1117,7 +1179,7 @@ export default function FlowBuilderPage() {
                         </SheetContent>
                     </Sheet>
 
-                    <div className="md:col-span-9 lg:col-span-10">
+                    <div className="md:col-span-6 lg:col-span-7">
                         <Card
                             ref={viewportRef}
                             className="h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing"
@@ -1182,7 +1244,17 @@ export default function FlowBuilderPage() {
                         </Card>
                     </div>
 
-                    {/* Right Panel is only rendered in a sheet on mobile */}
+                    {/* Right Panel */}
+                    <div className="hidden md:block md:col-span-3">
+                        <PropertiesPanel 
+                            selectedNode={selectedNode}
+                            updateNodeData={updateNodeData}
+                            deleteNode={deleteNode}
+                            templates={templates}
+                            metaFlows={metaFlows}
+                        />
+                    </div>
+                    {/* Right Panel Sheet for Mobile */}
                     <Sheet open={isPropsSheetOpen} onOpenChange={setIsPropsSheetOpen}>
                         <SheetContent side="right" className="p-0 flex flex-col w-full max-w-md">
                             <SheetTitle className="sr-only">Block Properties</SheetTitle>
@@ -1191,6 +1263,8 @@ export default function FlowBuilderPage() {
                                 selectedNode={selectedNode}
                                 updateNodeData={updateNodeData}
                                 deleteNode={deleteNode}
+                                templates={templates}
+                                metaFlows={metaFlows}
                             />
                         </SheetContent>
                     </Sheet>

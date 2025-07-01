@@ -166,6 +166,16 @@ export type AdCampaign = {
     createdAt: Date;
 };
 
+export type MetaFlow = {
+    name: string;
+    projectId: ObjectId;
+    metaId: string; // The ID from Meta
+    categories: string[];
+    flow_data: any; // Storing the raw JSON structure
+    createdAt: Date;
+    updatedAt: Date;
+};
+
 export default async function SelectProjectPage({
   searchParams,
 }: {

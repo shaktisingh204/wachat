@@ -48,6 +48,7 @@ import {
   CreditCard,
   LoaderCircle,
   Megaphone,
+  ServerCog,
 } from 'lucide-react';
 import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -282,6 +283,7 @@ const menuItems = [
   { href: '/dashboard/whatsapp-ads', label: 'WhatsApp Ads', icon: Megaphone },
   { href: '/dashboard/templates', label: 'Templates', icon: FileText },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitBranch },
+  { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings },
