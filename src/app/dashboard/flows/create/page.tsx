@@ -296,7 +296,7 @@ function CreateMetaFlowPage() {
 
      useEffect(() => {
         const generatedJson = {
-            version: "3.0",
+            version: "3.1",
             screens: screens
         };
         setFlowJson(JSON.stringify(generatedJson, null, 2));
@@ -445,7 +445,7 @@ function CreateMetaFlowPage() {
             <Accordion type="single" collapsible>
                 <AccordionItem value="json-preview">
                     <AccordionTrigger><div className="flex items-center gap-2"><FileJson className="h-4 w-4"/> View Generated JSON</div></AccordionTrigger>
-                    <AccordionContent><pre className="p-4 bg-muted/50 rounded-md text-xs font-mono max-h-96 overflow-auto">{flowJson}</pre></AccordionContent>
+                    <AccordionContent><pre className="p-4 bg-muted/50 rounded-md text-xs font-mono max-h-96 overflow-y-auto">{flowJson}</pre></AccordionContent>
                 </AccordionItem>
             </Accordion>
 

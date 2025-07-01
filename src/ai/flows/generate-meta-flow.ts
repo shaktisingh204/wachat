@@ -46,7 +46,7 @@ const ScreenSchema = z.object({
 });
 
 const GenerateMetaFlowOutputSchema = z.object({
-    version: z.enum(["3.0"]),
+    version: z.enum(["3.1"]),
     screens: z.array(ScreenSchema).describe("An array of screens that make up the flow. Should contain at least a welcome screen and a confirmation/thank you screen.")
 });
 
