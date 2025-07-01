@@ -3,10 +3,11 @@
 
 import { useRouter } from 'next/navigation';
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Phone, Calendar } from 'lucide-react';
+import { SubscribeProjectButton } from './subscribe-project-button';
 
 interface ProjectCardProps {
     project: any;
@@ -110,9 +111,12 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                         </Badge>
                     )}
                 </div>
-                <Button className="w-full" size="sm" onClick={handleSelectProject}>
-                    Select Project
-                </Button>
+                <div className="flex items-stretch gap-2">
+                    <SubscribeProjectButton projectId={project._id.toString()} />
+                    <Button className="w-full flex-grow" size="sm" onClick={handleSelectProject}>
+                        Select Project
+                    </Button>
+                </div>
             </CardContent>
         </Card>
     );

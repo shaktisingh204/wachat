@@ -1676,8 +1676,6 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
         
         if (bulkOps.length > 0) {
             const result = await db.collection('projects').bulkWrite(bulkOps);
-            // Invalidate cache for all synced projects
-            allWabas.forEach(waba => cache.del(`project:${waba.id}`));
             const syncedCount = result.upsertedCount + result.modifiedCount;
             revalidatePath('/dashboard');
             return { message: `Successfully synced ${syncedCount} projects from Meta.` };
@@ -1959,6 +1957,48 @@ export async function handleSubscribeAllProjects(): Promise<{ message?: string; 
         return { error: e.message || 'An unexpected error occurred during subscription.' };
     }
 }
+
+export async function handleSubscribeProjectWebhook(projectId: string): Promise<{ message?: string; error?: string }> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) {
+        return { error: 'Project not found or you do not have access.' };
+    }
+
+    const accessToken = hasAccess.accessToken;
+    const appId = hasAccess.appId || process.env.NEXT_PUBLIC_META_APP_ID;
+    const apiVersion = 'v22.0';
+    const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
+    const verifyToken = process.env.META_VERIFY_TOKEN;
+
+    if (!appId) {
+        return { error: 'App ID is not configured for this project, and no fallback is set.' };
+    }
+    if (!verifyToken) {
+        return { error: 'META_VERIFY_TOKEN is not configured.' };
+    }
+
+    try {
+        const fields = 'account_update,message_template_status_update,messages,phone_number_name_update,phone_number_quality_update,security,template_category_update';
+        await axios.post(
+            `https://graph.facebook.com/${apiVersion}/${appId}/subscriptions`,
+            {
+                object: 'whatsapp_business_account',
+                callback_url: `${callbackBaseUrl}/api/webhooks/meta`,
+                fields: fields,
+                verify_token: verifyToken,
+                access_token: accessToken,
+            }
+        );
+        
+        return { message: `Successfully subscribed project "${hasAccess.name}" to webhook events.` };
+
+    } catch (e: any) {
+        const errorMessage = getErrorMessage(e);
+        console.error(`Failed to subscribe project ${projectId}:`, errorMessage);
+        return { error: errorMessage };
+    }
+}
+
 
 export async function handleAddNewContact(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
@@ -2821,8 +2861,6 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
         
         if (bulkOps.length > 0) {
             const result = await db.collection('projects').bulkWrite(bulkOps);
-            // Invalidate cache for all synced projects
-            wabaIds.forEach(id => cache.del(`project:${id}`));
             const syncedCount = result.upsertedCount + result.modifiedCount;
             revalidatePath('/dashboard');
             return { success: true, count: syncedCount };

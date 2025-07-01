@@ -20,6 +20,7 @@ import { Label } from '@/components/ui/label';
 import { PlusCircle, LoaderCircle, Key } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 const initialState = {
   message: null,
@@ -47,6 +48,7 @@ export function CreateProjectDialog() {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(handleCreateProject, initialState);
   const { toast } = useToast();
+  const router = useRouter();
   
   useEffect(() => {
     if (state?.message) {
@@ -55,6 +57,7 @@ export function CreateProjectDialog() {
         description: state.message,
       });
       setOpen(false); 
+      router.push('/dashboard');
     }
     if (state?.error) {
       toast({
@@ -63,7 +66,7 @@ export function CreateProjectDialog() {
         variant: 'destructive',
       });
     }
-  }, [state, toast]);
+  }, [state, toast, router]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
