@@ -1,6 +1,4 @@
 
-'use server';
-
 import type { ObjectId, WithId } from 'mongodb';
 
 // --- From dashboard/page.tsx and actions.ts ---
