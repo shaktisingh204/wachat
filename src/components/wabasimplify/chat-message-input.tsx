@@ -3,12 +3,12 @@
 
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getCannedMessages, handleSendMessage, handleSendMetaFlow, type CannedMessage, type MetaFlow } from '@/app/actions';
+import { getCannedMessages, handleSendMessage, handleSendMetaFlow, handleSendTemplateMessage, type CannedMessage, type MetaFlow, type Template } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Contact } from '@/app/actions';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Paperclip, Send, LoaderCircle, Star, ServerCog } from 'lucide-react';
+import { Paperclip, Send, LoaderCircle, Star, ServerCog, ClipboardList, File as FileIcon, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -16,6 +16,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 interface ChatMessageInputProps {
     contact: WithId<Contact>;
     metaFlows: WithId<MetaFlow>[];
+    templates: WithId<Template>[];
 }
 
 const sendInitialState = {
@@ -23,17 +24,17 @@ const sendInitialState = {
   error: null,
 };
 
-function SubmitButton() {
+function SubmitButton({ onClick }: { onClick: () => void }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" size="icon" disabled={pending}>
+        <Button type="button" size="icon" onClick={onClick} disabled={pending}>
             {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
             <span className="sr-only">Send Message</span>
         </Button>
     );
 }
 
-export function ChatMessageInput({ contact, metaFlows }: ChatMessageInputProps) {
+export function ChatMessageInput({ contact, metaFlows, templates }: ChatMessageInputProps) {
     const [sendState, sendFormAction] = useActionState(handleSendMessage, sendInitialState);
     const formRef = useRef<HTMLFormElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -43,8 +44,10 @@ export function ChatMessageInput({ contact, metaFlows }: ChatMessageInputProps) 
     const [inputValue, setInputValue] = useState('');
     const [cannedMessages, setCannedMessages] = useState<WithId<CannedMessage>[]>([]);
     const [cannedPopoverOpen, setCannedPopoverOpen] = useState(false);
+    const [attachmentPopoverOpen, setAttachmentPopoverOpen] = useState(false);
     const [flowPopoverOpen, setFlowPopoverOpen] = useState(false);
-    const [isSendingFlow, startFlowSendTransition] = useTransition();
+    const [templatePopoverOpen, setTemplatePopoverOpen] = useState(false);
+    const [isSending, startSendingTransition] = useTransition();
 
     useEffect(() => {
         getCannedMessages(contact.projectId.toString()).then(setCannedMessages);
@@ -86,18 +89,32 @@ export function ChatMessageInput({ contact, metaFlows }: ChatMessageInputProps) 
     };
 
      const handleSendFlow = (flowId: string) => {
-        startFlowSendTransition(async () => {
+        startSendingTransition(async () => {
             const result = await handleSendMetaFlow(contact._id.toString(), flowId);
             if (result.error) {
                 toast({ title: 'Error Sending Flow', description: result.error, variant: 'destructive' });
             } else {
                 toast({ title: 'Success', description: result.message });
                 setFlowPopoverOpen(false);
+                setAttachmentPopoverOpen(false);
             }
         });
     };
+    
+    const handleSendTemplate = (templateId: string) => {
+        startSendingTransition(async () => {
+            const result = await handleSendTemplateMessage(contact._id.toString(), templateId);
+            if (result.error) {
+                toast({ title: 'Error Sending Template', description: result.error, variant: 'destructive' });
+            } else {
+                toast({ title: 'Success', description: result.message });
+                setTemplatePopoverOpen(false);
+                setAttachmentPopoverOpen(false);
+            }
+        });
+    }
 
-    const filteredMessages = inputValue.startsWith('/')
+    const filteredCannedMessages = inputValue.startsWith('/')
         ? cannedMessages
             .filter(msg =>
                 msg.type === 'text' && msg.name.toLowerCase().includes(inputValue.substring(1).toLowerCase())
@@ -106,14 +123,13 @@ export function ChatMessageInput({ contact, metaFlows }: ChatMessageInputProps) 
         : [];
 
     return (
-        <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
-            <div className="w-full relative flex items-center gap-2">
-                <form ref={formRef} action={sendFormAction} className="flex-1 flex items-center gap-2">
+        <div className="flex w-full items-center gap-2">
+            <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
+                <form ref={formRef} action={sendFormAction} className="flex-1 relative">
                     <input type="hidden" name="contactId" value={contact._id.toString()} />
                     <input type="hidden" name="projectId" value={contact.projectId.toString()} />
                     <input type="hidden" name="phoneNumberId" value={contact.phoneNumberId} />
                     <input type="hidden" name="waId" value={contact.waId} />
-
                     <PopoverAnchor asChild>
                         <Input
                             ref={mainInputRef}
@@ -125,39 +141,6 @@ export function ChatMessageInput({ contact, metaFlows }: ChatMessageInputProps) 
                             onChange={handleInputChange}
                         />
                     </PopoverAnchor>
-                    
-                     <Popover open={flowPopoverOpen} onOpenChange={setFlowPopoverOpen}>
-                        <PopoverTrigger asChild>
-                             <Button type="button" variant="ghost" size="icon">
-                                <ServerCog className="h-4 w-4" />
-                                <span className="sr-only">Send a Flow</span>
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="p-1 w-56" align="end">
-                            <ScrollArea className="max-h-60">
-                                <div className="p-1 space-y-1">
-                                    <p className="text-xs font-semibold p-2">Send an Interactive Flow</p>
-                                    {metaFlows.length > 0 ? metaFlows.map(flow => (
-                                        <button
-                                            key={flow._id.toString()}
-                                            type="button"
-                                            className="w-full text-left p-2 rounded-sm hover:bg-accent flex items-center text-sm"
-                                            onClick={() => handleSendFlow(flow._id.toString())}
-                                            disabled={isSendingFlow}
-                                        >
-                                            {isSendingFlow ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin"/> : <Send className="h-4 w-4 mr-2"/>}
-                                            {flow.name}
-                                        </button>
-                                    )) : <p className="text-xs text-center p-2 text-muted-foreground">No Meta Flows found.</p>}
-                                </div>
-                            </ScrollArea>
-                        </PopoverContent>
-                    </Popover>
-
-                    <Button type="button" variant="ghost" size="icon" onClick={() => fileInputRef.current?.click()}>
-                        <Paperclip className="h-4 w-4" />
-                        <span className="sr-only">Attach File</span>
-                    </Button>
                     <input
                         type="file"
                         name="mediaFile"
@@ -166,40 +149,104 @@ export function ChatMessageInput({ contact, metaFlows }: ChatMessageInputProps) 
                         onChange={handleFileChange}
                         accept="image/*,video/*,application/pdf"
                     />
-                    
-                    <SubmitButton />
                 </form>
-            </div>
-            <PopoverContent
-                className="w-[--radix-popover-trigger-width] p-0"
-                onOpenAutoFocus={(e) => e.preventDefault()}
-                align="end" side="top"
-            >
-                <ScrollArea className="max-h-60">
-                    <div className="p-1">
-                        {filteredMessages.length > 0 ? (
-                            filteredMessages.map(msg => (
-                                <button
-                                    key={msg._id.toString()}
-                                    type="button"
-                                    className="w-full text-left p-2 rounded-sm hover:bg-accent flex flex-col"
-                                    onClick={() => handleSelectCanned(msg)}
-                                >
-                                    <div className="flex justify-between items-center">
-                                        <p className="font-semibold">{msg.name}</p>
-                                        {msg.isFavourite && <Star className="h-4 w-4 text-amber-400 fill-amber-400" />}
+                <PopoverContent
+                    className="w-[--radix-popover-trigger-width] p-0"
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                    align="end" side="top"
+                >
+                    <ScrollArea className="max-h-60">
+                        <div className="p-1">
+                            {filteredCannedMessages.length > 0 ? (
+                                filteredCannedMessages.map(msg => (
+                                    <button
+                                        key={msg._id.toString()}
+                                        type="button"
+                                        className="w-full text-left p-2 rounded-sm hover:bg-accent flex flex-col"
+                                        onClick={() => handleSelectCanned(msg)}
+                                    >
+                                        <div className="flex justify-between items-center">
+                                            <p className="font-semibold">{msg.name}</p>
+                                            {msg.isFavourite && <Star className="h-4 w-4 text-amber-400 fill-amber-400" />}
+                                        </div>
+                                        <p className="text-muted-foreground truncate text-xs">{msg.content.text}</p>
+                                    </button>
+                                ))
+                            ) : (
+                                <p className="p-4 text-center text-sm text-muted-foreground">
+                                    {inputValue.length > 1 ? "No matches found." : "Start typing to search..."}
+                                </p>
+                            )}
+                        </div>
+                    </ScrollArea>
+                </PopoverContent>
+            </Popover>
+
+            <Popover open={attachmentPopoverOpen} onOpenChange={setAttachmentPopoverOpen}>
+                <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon"><Paperclip className="h-4 w-4" /></Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-56 p-1">
+                    <div className="grid gap-1">
+                        <Button variant="ghost" className="w-full justify-start" onClick={() => { fileInputRef.current?.click(); setAttachmentPopoverOpen(false); }}>
+                            <ImageIcon className="mr-2 h-4 w-4" /> Media (Image/Video)
+                        </Button>
+                         <Button variant="ghost" className="w-full justify-start" onClick={() => { fileInputRef.current?.click(); setAttachmentPopoverOpen(false); }}>
+                            <FileIcon className="mr-2 h-4 w-4" /> Document
+                        </Button>
+                        
+                        <Popover open={flowPopoverOpen} onOpenChange={setFlowPopoverOpen}>
+                            <PopoverTrigger asChild>
+                                <Button variant="ghost" className="w-full justify-start"><ServerCog className="mr-2 h-4 w-4" /> Meta Flow</Button>
+                            </PopoverTrigger>
+                            <PopoverContent side="left" align="start" className="p-1 w-56">
+                                <ScrollArea className="max-h-60">
+                                    <div className="p-1 space-y-1">
+                                        {metaFlows.length > 0 ? metaFlows.map(flow => (
+                                            <button
+                                                key={flow._id.toString()}
+                                                type="button"
+                                                className="w-full text-left p-2 rounded-sm hover:bg-accent flex items-center text-sm"
+                                                onClick={() => handleSendFlow(flow._id.toString())}
+                                                disabled={isSending}
+                                            >
+                                                {isSending ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin"/> : <Send className="h-4 w-4 mr-2"/>}
+                                                {flow.name}
+                                            </button>
+                                        )) : <p className="text-xs text-center p-2 text-muted-foreground">No Meta Flows found.</p>}
                                     </div>
-                                    <p className="text-muted-foreground truncate text-xs">{msg.content.text}</p>
-                                </button>
-                            ))
-                        ) : (
-                            <p className="p-4 text-center text-sm text-muted-foreground">
-                                {inputValue.length > 1 ? "No matches found." : "Start typing to search..."}
-                            </p>
-                        )}
+                                </ScrollArea>
+                            </PopoverContent>
+                        </Popover>
+
+                        <Popover open={templatePopoverOpen} onOpenChange={setTemplatePopoverOpen}>
+                             <PopoverTrigger asChild>
+                                <Button variant="ghost" className="w-full justify-start"><ClipboardList className="mr-2 h-4 w-4" /> Template</Button>
+                             </PopoverTrigger>
+                             <PopoverContent side="left" align="start" className="p-1 w-56">
+                                <ScrollArea className="max-h-60">
+                                    <div className="p-1 space-y-1">
+                                        {templates.length > 0 ? templates.map(template => (
+                                            <button
+                                                key={template._id.toString()}
+                                                type="button"
+                                                className="w-full text-left p-2 rounded-sm hover:bg-accent flex items-center text-sm"
+                                                onClick={() => handleSendTemplate(template._id.toString())}
+                                                disabled={isSending}
+                                            >
+                                                {isSending ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin"/> : <Send className="h-4 w-4 mr-2"/>}
+                                                {template.name}
+                                            </button>
+                                        )) : <p className="text-xs text-center p-2 text-muted-foreground">No approved templates found.</p>}
+                                    </div>
+                                </ScrollArea>
+                            </PopoverContent>
+                        </Popover>
                     </div>
-                </ScrollArea>
-            </PopoverContent>
-        </Popover>
+                </PopoverContent>
+            </Popover>
+            
+            <SubmitButton onClick={() => formRef.current?.requestSubmit()} />
+        </div>
     );
 }

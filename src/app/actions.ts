@@ -2223,6 +2223,60 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
     }
 }
 
+export async function handleSendTemplateMessage(contactId: string, templateId: string): Promise<{ message?: string; error?: string }> {
+    if (!ObjectId.isValid(contactId) || !ObjectId.isValid(templateId)) {
+        return { error: 'Invalid ID provided.' };
+    }
+
+    const { db } = await connectToDatabase();
+    
+    const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
+    if (!contact) return { error: 'Contact not found.' };
+
+    const project = await db.collection<Project>('projects').findOne({ _id: contact.projectId });
+    if (!project) return { error: 'Project not found.' };
+
+    const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId) });
+    if (!template) return { error: 'Template not found.' };
+    if (template.status !== 'APPROVED') return { error: 'Cannot send a template that is not approved.' };
+    
+    const phoneNumberId = contact.phoneNumberId;
+    const waId = contact.waId;
+    const accessToken = project.accessToken;
+
+    try {
+        const payload = {
+            messaging_product: "whatsapp",
+            to: waId,
+            type: "template",
+            template: {
+                name: template.name,
+                language: { code: template.language }
+                // Note: This simplified version does not handle template variables.
+            }
+        };
+
+        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'template',
+            content: payload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+        
+        const lastMessage = `[Template]: ${template.name}`;
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now } });
+
+        revalidatePath('/dashboard/chat');
+        return { message: `Template "${template.name}" sent successfully.` };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) || 'An unexpected error occurred while sending the template.' };
+    }
+}
+
+
 export async function handleTranslateMessage(text: string): Promise<{ translatedText?: string; error?: string }> {
     if (!text) return { error: 'No text to translate.' };
     try {
@@ -3461,9 +3515,10 @@ export async function getInitialChatData(projectId: string, phoneId: string | nu
     selectedContact: WithId<Contact> | null;
     conversation: AnyMessage[];
     metaFlows: WithId<MetaFlow>[];
+    templates: WithId<Template>[];
     selectedPhoneNumberId: string;
 }> {
-    const defaultResponse = { project: null, contacts: [], totalContacts: 0, selectedContact: null, conversation: [], metaFlows: [], selectedPhoneNumberId: '' };
+    const defaultResponse = { project: null, contacts: [], totalContacts: 0, selectedContact: null, conversation: [], metaFlows: [], templates: [], selectedPhoneNumberId: '' };
     const projectData = await getProjectById(projectId);
     if (!projectData) return defaultResponse;
 
@@ -3472,10 +3527,11 @@ export async function getInitialChatData(projectId: string, phoneId: string | nu
 
     const { db } = await connectToDatabase();
     
-    const [allContacts, total, metaFlowsData] = await Promise.all([
+    const [allContacts, total, metaFlowsData, templatesData] = await Promise.all([
         db.collection<Contact>('contacts').find({ projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId }).sort({ lastMessageTimestamp: -1 }).limit(30).toArray(),
         db.collection('contacts').countDocuments({ projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId }),
         getMetaFlows(projectId),
+        getTemplates(projectId),
     ]);
 
     let selectedContactData: WithId<Contact> | null = null;
@@ -3495,6 +3551,7 @@ export async function getInitialChatData(projectId: string, phoneId: string | nu
         selectedContact: selectedContactData ? JSON.parse(JSON.stringify(selectedContactData)) : null,
         conversation: conversationData,
         metaFlows: JSON.parse(JSON.stringify(metaFlowsData)),
+        templates: JSON.parse(JSON.stringify(templatesData.filter(t => t.status === 'APPROVED'))),
         selectedPhoneNumberId: selectedPhoneId,
     };
 }

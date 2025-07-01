@@ -5,7 +5,7 @@ import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getInitialChatData, getProjects } from '@/app/actions';
 import type { WithId } from 'mongodb';
-import type { Project, Contact, AnyMessage, MetaFlow } from '@/app/actions';
+import type { Project, Contact, AnyMessage, MetaFlow, Template } from '@/app/actions';
 
 import { ChatContactList } from './chat-contact-list';
 import { ChatWindow } from './chat-window';
@@ -30,6 +30,7 @@ export function ChatClient() {
     const [selectedContact, setSelectedContact] = useState<WithId<Contact> | null>(null);
     const [conversation, setConversation] = useState<AnyMessage[]>([]);
     const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
+    const [templates, setTemplates] = useState<WithId<Template>[]>([]);
 
     const [isLoading, startLoadingTransition] = useTransition();
     const [loadingConversation, startConversationLoadTransition] = useTransition();
@@ -74,6 +75,7 @@ export function ChatClient() {
             setSelectedContact(data.selectedContact);
             setConversation(data.conversation);
             setMetaFlows(data.metaFlows);
+            setTemplates(data.templates);
             setSelectedPhoneNumberId(data.selectedPhoneNumberId);
             setContactPage(1); 
         });
@@ -274,6 +276,7 @@ export function ChatClient() {
                                 contact={selectedContact}
                                 conversation={conversation}
                                 metaFlows={metaFlows}
+                                templates={templates}
                                 isLoading={loadingConversation}
                                 onBack={() => setSelectedContact(null)}
                                 onContactUpdate={handleContactUpdate}
