@@ -129,7 +129,7 @@ export default function FlowsApiDocsPage() {
 --data '{
   "name": "My first flow",
   "categories": [ "OTHER" ],
-  "flow_json" : "{\\"version\\":\\"5.0\\",\\"screens\\":[{\\"id\\":\\"WELCOME_SCREEN\\",\\"layout\\":{\\"type\\":\\"SingleColumnLayout\\",\\"children\\":[{\\"type\\":\\"TextHeading\\",\\"text\\":\\"Hello World\\"},{\\"type\\":\\"Footer\\",\\"label\\":\\"Complete\\",\\"on-click-action\\":{\\"name\\":\\"complete\\",\\"payload\\":{}}}]},\\"title\\":\\"Welcome\\",\\"terminal\\":true,\\"success\\":true,\\"data\\":{}}]}",
+  "flow_json" : "{\\"version\\":\\"5.0\\",\\"screens\\":[{\\"id\\":\\"WELCOME_SCREEN\\",\\"layout\\":{\\"type\\":\\"SingleColumnLayout\\",\\"children\\":[{\\"type\\":\\"TextHeading\\",\\"text\\":\\"Hello World\\"},{\\"type\\":\\"Footer\\",\\"label\\":\\"Complete\\",\\"on-click-action\\":{\\"name\\":\\"complete\\",\\"payload\\":{}}}]},\"title\\":\\"Welcome\\",\\"terminal\\":true,\\"success\\":true,\\"data\\":{}}]}",
   "publish" : true
 }'`}
             sampleResponse={`{\n  "id": "<Flow-ID>",\n  "success": true,\n  "validation_errors": []\n}`}
@@ -177,4 +177,3 @@ export default function FlowsApiDocsPage() {
     </div>
   );
 }
-

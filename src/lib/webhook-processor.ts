@@ -907,7 +907,7 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
         }
     }
     
-    // Invalidate chat cache to trigger UI refresh
+    // Invalidate cache to trigger UI refresh
     revalidatePath('/dashboard/chat');
     revalidatePath('/dashboard/broadcasts');
 }
