@@ -416,3 +416,126 @@ export type WebhookLog = {
     projectId?: ObjectId;
     error?: string;
 };
+
+// --- Types moved from actions.ts to fix build error ---
+
+export type MetaPhoneNumber = {
+    id: string;
+    display_phone_number: string;
+    verified_name: string;
+    code_verification_status: string;
+    quality_rating: string;
+    platform_type?: string;
+    throughput?: {
+        level: string;
+    };
+    whatsapp_business_profile?: PhoneNumberProfile;
+};
+
+export type MetaPhoneNumbersResponse = {
+    data: MetaPhoneNumber[];
+    paging?: {
+        cursors: {
+            before: string;
+            after: string;
+        },
+        next?: string;
+    }
+};
+
+export type MetaTemplateComponent = {
+    type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS' | 'CAROUSEL';
+    text?: string;
+    format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
+    buttons?: any[];
+    cards?: any[];
+    example?: {
+        header_handle?: string[];
+        header_text?: string[];
+        body_text?: string[][];
+        carousel_card_components?: any[];
+    }
+};
+
+export type MetaTemplate = {
+    id:string;
+    name: string;
+    language: string;
+    status: string;
+    category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
+    components: MetaTemplateComponent[];
+    quality_score?: { score: string };
+};
+
+export type MetaTemplatesResponse = {
+    data: MetaTemplate[];
+    paging?: {
+        cursors: {
+            before: string;
+            after: string;
+        },
+        next?: string;
+    }
+};
+
+export type MetaWaba = {
+    id: string;
+    name: string;
+};
+
+export type MetaWabasResponse = {
+    data: MetaWaba[];
+    paging?: {
+        cursors: {
+            before: string;
+            after: string;
+        },
+        next?: string;
+    }
+};
+
+// This type is used within the action, the cron scheduler has its own definition.
+export type BroadcastJob = {
+    projectId: ObjectId;
+    broadcastType: 'template' | 'flow';
+    templateId?: ObjectId;
+    metaFlowId?: ObjectId;
+    templateName: string;
+    phoneNumberId: string;
+    accessToken: string;
+    status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled';
+    createdAt: Date;
+    contactCount: number;
+    fileName: string;
+    components?: any[];
+    language?: string;
+    headerImageUrl?: string;
+    category?: Template['category'];
+};
+
+export type AdminUserView = Omit<User, 'password'> & {
+    plan?: Pick<Plan, 'name'>;
+};
+
+// Form state types
+export type CreateTemplateState = {
+    message?: string | null;
+    error?: string | null;
+    payload?: string | null;
+    debugInfo?: string | null;
+};
+
+export type BroadcastState = {
+  message?: string | null;
+  error?: string | null;
+};
+
+export type UpdateProjectSettingsState = {
+  message?: string | null;
+  error?: string | null;
+};
+
+export type InitiatePaymentResult = {
+  redirectUrl?: string;
+  error?: string;
+}

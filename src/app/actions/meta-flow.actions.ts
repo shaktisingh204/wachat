@@ -6,32 +6,8 @@ import { type Db, ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions';
-import type { Project, MetaFlow } from '@/app/dashboard/page';
-
-const getErrorMessage = (error: any): string => {
-    if (axios.isAxiosError(error) && error.response?.data?.error) {
-        const apiError = error.response.data.error;
-        let errorMessage = apiError.error_user_title ? `${apiError.error_user_title}: ${apiError.error_user_msg}` : apiError.message || 'API Error';
-        if (apiError.error_data?.details) {
-            errorMessage += ` Details: ${apiError.error_data.details}`;
-        }
-        return `${errorMessage} (Code: ${apiError.code}, Type: ${apiError.type})`;
-    }
-    if (error instanceof Error) {
-        if ('cause' in error && error.cause) {
-            const cause = error.cause as any;
-            if (cause.error) {
-                const apiError = cause.error;
-                 return `${apiError.message || 'API Error'} (Code: ${apiError.code}, Type: ${apiError.type})`;
-            }
-             if (cause.message) {
-                return cause.message;
-            }
-        }
-        return error.message;
-    }
-    return String(error) || 'An unknown error occurred';
-};
+import type { Project, MetaFlow } from '@/lib/definitions';
+import { getErrorMessage } from '@/lib/utils';
 
 
 // --- META FLOW ACTIONS ---

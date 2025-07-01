@@ -23,6 +23,7 @@ import { premadeTemplates } from '@/lib/premade-templates';
 import { getMetaFlows } from './actions/meta-flow.actions';
 import { generateMetaFlow } from '@/ai/flows/generate-meta-flow';
 import { generateFlowBuilderFlow } from '@/ai/flows/generate-flow-builder-flow';
+import { getErrorMessage } from '@/lib/utils';
 import {
     PlanFeaturePermissions,
     PlanMessageCosts,
@@ -59,129 +60,21 @@ import {
     MetaFlow, 
     AdCampaign, 
     Tag,
-    WebhookLog
+    WebhookLog,
+    MetaPhoneNumber,
+    MetaPhoneNumbersResponse,
+    MetaTemplate,
+    MetaTemplatesResponse,
+    MetaWaba,
+    MetaWabasResponse,
+    BroadcastJob,
+    BroadcastState,
+    CreateTemplateState,
+    UpdateProjectSettingsState,
+    InitiatePaymentResult,
+    AdminUserView,
 } from '@/lib/definitions';
 
-
-type MetaPhoneNumber = {
-    id: string;
-    display_phone_number: string;
-    verified_name: string;
-    code_verification_status: string;
-    quality_rating: string;
-    platform_type?: string;
-    throughput?: {
-        level: string;
-    };
-    whatsapp_business_profile?: PhoneNumberProfile;
-};
-
-type MetaPhoneNumbersResponse = {
-    data: MetaPhoneNumber[];
-    paging?: {
-        cursors: {
-            before: string;
-            after: string;
-        },
-        next?: string;
-    }
-};
-
-type MetaTemplateComponent = {
-    type: 'HEADER' | 'BODY' | 'FOOTER' | 'BUTTONS' | 'CAROUSEL';
-    text?: string;
-    format?: 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOCUMENT';
-    buttons?: any[];
-    cards?: any[];
-    example?: {
-        header_handle?: string[];
-        header_text?: string[];
-        body_text?: string[][];
-        carousel_card_components?: any[];
-    }
-};
-
-type MetaTemplate = {
-    id:string;
-    name: string;
-    language: string;
-    status: string;
-    category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
-    components: MetaTemplateComponent[];
-    quality_score?: { score: string };
-};
-
-type MetaTemplatesResponse = {
-    data: MetaTemplate[];
-    paging?: {
-        cursors: {
-            before: string;
-            after: string;
-        },
-        next?: string;
-    }
-};
-
-type MetaWaba = {
-    id: string;
-    name: string;
-};
-
-type MetaWabasResponse = {
-    data: MetaWaba[];
-    paging?: {
-        cursors: {
-            before: string;
-            after: string;
-        },
-        next?: string;
-    }
-};
-
-// This type is used within the action, the cron scheduler has its own definition.
-type BroadcastJob = {
-    projectId: ObjectId;
-    broadcastType: 'template' | 'flow';
-    templateId?: ObjectId;
-    metaFlowId?: ObjectId;
-    templateName: string;
-    phoneNumberId: string;
-    accessToken: string;
-    status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled';
-    createdAt: Date;
-    contactCount: number;
-    fileName: string;
-    components?: any[];
-    language?: string;
-    headerImageUrl?: string;
-    category?: Template['category'];
-};
-
-
-const getErrorMessage = (error: any): string => {
-    if (axios.isAxiosError(error) && error.response?.data?.error) {
-        const apiError = error.response.data.error;
-        let errorMessage = apiError.error_user_title ? `${apiError.error_user_title}: ${apiError.error_user_msg}` : apiError.message || 'API Error';
-        if (apiError.error_data?.details) {
-            errorMessage += ` Details: ${apiError.error_data.details}`;
-        }
-        return `${errorMessage} (Code: ${apiError.code}, Type: ${apiError.type})`;
-    }
-    if (error instanceof Error) {
-        if ('cause' in error && error.cause) {
-            const cause = error.cause as any;
-            if (cause.error) {
-                const apiError = cause.error;
-                 return `${apiError.message || 'API Error'} (Code: ${apiError.code}, Type: ${apiError.type})`;
-            }
-             if (cause.message) {
-                return cause.message;
-            }
-        }
-        return error.message;
-    }
-    return String(error) || 'An unknown error occurred';
-};
 
 export async function getSession(): Promise<{ user: (Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null, credits?: number }) } | null> {
     const cookieStore = cookies();
@@ -658,11 +551,6 @@ export async function getDashboardStats(projectId: string): Promise<{
     }
 }
 
-type BroadcastState = {
-  message?: string | null;
-  error?: string | null;
-};
-
 const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId, project: WithId<Project>): Promise<number> => {
     return new Promise<number>((resolve, reject) => {
         const allParsedContacts: any[] = [];
@@ -1085,13 +973,6 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
     }
 }
 
-type CreateTemplateState = {
-    message?: string | null;
-    error?: string | null;
-    payload?: string | null;
-    debugInfo?: string | null;
-};
-
 async function getMediaHandleForTemplate(file: File | null, url: string | null, accessToken: string, appId: string): Promise<{ handle: string | null; error?: string; debugInfo: string }> {
     let debugInfo = "";
     if (!file && !url) return { handle: null, debugInfo };
@@ -1404,11 +1285,6 @@ export async function handleStopBroadcast(broadcastId: string): Promise<{ messag
         return { error: e.message || 'An unexpected error occurred while stopping the broadcast.' };
     }
 }
-
-type UpdateProjectSettingsState = {
-  message?: string | null;
-  error?: string | null;
-};
 
 export async function handleUpdateProjectSettings(
   prevState: UpdateProjectSettingsState,
@@ -2367,11 +2243,6 @@ export async function savePaymentGatewaySettings(prevState: any, formData: FormD
         console.error('Failed to save payment gateway settings:', e);
         return { error: e.message || 'An unexpected error occurred.' };
     }
-}
-
-type InitiatePaymentResult = {
-  redirectUrl?: string;
-  error?: string;
 }
 
 export async function handleInitiatePayment(planId: string): Promise<InitiatePaymentResult> {
@@ -4092,10 +3963,6 @@ export async function deleteTemplateCategory(id: string): Promise<{ message?: st
 }
 
 // --- ADMIN USER MANAGEMENT ---
-
-export type AdminUserView = Omit<User, 'password'> & {
-    plan?: Pick<Plan, 'name'>;
-};
 
 export async function getUsersForAdmin(
     page: number = 1,
