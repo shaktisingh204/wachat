@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useState, useRef } from 'react';
@@ -45,12 +46,12 @@ const categoriesList = [
     { id: 'APPLICATION_PROCESS', name: 'Application Process', desc: 'Step-by-step for job or service applications.' },
     { id: 'SUBSCRIPTION_MANAGEMENT', name: 'Subscription Management', desc: 'Let users opt-in/out of updates.' },
     { id: 'SURVEY', name: 'Survey', desc: 'Simple questionnaire for research.' },
-    { id: 'CUSTOM', name: 'Custom', desc: 'For flows that don\'t fit a standard category.' },
     { id: 'SIGN_UP', name: 'Sign Up', desc: 'User registration flows.' },
     { id: 'SIGN_IN', name: 'Sign In', desc: 'User authentication flows.' },
     { id: 'CONTACT_US', name: 'Contact Us', desc: 'General contact forms.' },
     { id: 'OTHER', name: 'Other', desc: 'A general-purpose category.' },
 ];
+
 
 const defaultLeadGenJson = `{
   "version": "3.0",
@@ -65,35 +66,29 @@ const defaultLeadGenJson = `{
         "type": "SingleColumnLayout",
         "children": [
           {
-            "type": "Form",
-            "name": "form",
-            "children": [
-              {
-                "type": "TextHeading",
-                "text": "Welcome! Let's get your information."
-              },
-              {
-                "type": "TextInput",
-                "label": "Full Name",
-                "name": "name",
-                "required": true
-              },
-              {
-                "type": "TextInput",
-                "label": "Email",
-                "name": "email",
-                "input-type": "email",
-                "required": false
-              },
-              {
-                "type": "Footer",
-                "label": "Submit",
-                "on-click-action": {
-                  "name": "complete",
-                  "payload": {}
-                }
-              }
-            ]
+            "type": "TextHeading",
+            "text": "Welcome! Let's get your information."
+          },
+          {
+            "type": "TextInput",
+            "label": "Full Name",
+            "name": "name",
+            "required": true
+          },
+          {
+            "type": "TextInput",
+            "label": "Email",
+            "name": "email",
+            "input-type": "email",
+            "required": false
+          },
+          {
+            "type": "Footer",
+            "label": "Submit",
+            "on-click-action": {
+              "name": "complete",
+              "payload": {}
+            }
           }
         ]
       }
@@ -210,6 +205,32 @@ const LeadGenFlowTab = () => {
     );
 }
 
+const SignUpFlowTab = () => (
+    <Card>
+        <CardHeader>
+            <CardTitle>Sign Up Form</CardTitle>
+            <CardDescription>Create a simple sign-up form for new users.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            <div className="space-y-2">
+                <Label htmlFor="signup_name">Flow Name</Label>
+                <Input id="signup_name" name="signup_name" placeholder="e.g., new_user_signup" required defaultValue="new_user_signup_1" />
+                <p className="text-xs text-muted-foreground">Lowercase letters and underscores only.</p>
+            </div>
+            <Separator />
+            <div className="space-y-2">
+                <Label htmlFor="signup_welcome">Welcome Message</Label>
+                <Textarea id="signup_welcome" name="signup_welcome" placeholder="Create your account to get started." defaultValue="Welcome! Please create your account to continue." required />
+            </div>
+            <div className="space-y-4">
+                <Label>Form Fields</Label>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                    <p>The sign-up form will include fields for: Full Name, Email, and Password.</p>
+                </div>
+            </div>
+        </CardContent>
+    </Card>
+);
 
 export default function CreateMetaFlowPage() {
     const [projectId, setProjectId] = useState<string | null>(null);
@@ -266,13 +287,18 @@ export default function CreateMetaFlowPage() {
             </div>
             
              <Tabs defaultValue="lead_gen" className="w-full">
-                <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="lead_gen">Lead Generation Form</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="lead_gen">Lead Generation</TabsTrigger>
+                    <TabsTrigger value="sign_up">Sign Up</TabsTrigger>
                     <TabsTrigger value="custom">Custom (Advanced)</TabsTrigger>
                 </TabsList>
                 <TabsContent value="lead_gen" className="pt-4">
                      <input type="hidden" name="flowType" value="lead_gen" />
                      <LeadGenFlowTab />
+                </TabsContent>
+                 <TabsContent value="sign_up" className="pt-4">
+                     <input type="hidden" name="flowType" value="sign_up" />
+                     <SignUpFlowTab />
                 </TabsContent>
                 <TabsContent value="custom" className="pt-4">
                     <input type="hidden" name="flowType" value="custom" />

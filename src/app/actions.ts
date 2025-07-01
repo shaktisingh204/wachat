@@ -3578,7 +3578,7 @@ export async function getMetaFlows(projectId: string): Promise<WithId<MetaFlow>[
     if (!ObjectId.isValid(projectId)) return [];
     try {
         const { db } = await connectToDatabase();
-        const flows = await db.collection('meta_flows').find({ projectId: new ObjectId(projectId) }).toArray();
+        const flows = await db.collection('meta_flows').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
         return JSON.parse(JSON.stringify(flows));
     } catch (e) {
         return [];
@@ -3622,6 +3622,34 @@ function buildLeadGenFlowJson(formData: FormData): string {
     return JSON.stringify(flowJson);
 }
 
+function buildSignUpFlowJson(formData: FormData): string {
+    const welcomeMessage = formData.get('signup_welcome') as string;
+    
+    const formChildren: any[] = [
+        { type: 'TextHeading', text: welcomeMessage },
+        { type: 'TextInput', label: 'Full Name', name: 'name', required: true },
+        { type: 'TextInput', label: 'Email Address', name: 'email', 'input-type': 'email', required: true },
+        { type: 'TextInput', label: 'Password', name: 'password', 'input-type': 'password', required: true },
+        { type: 'Footer', label: 'Sign Up', 'on-click-action': { name: 'complete', payload: {} } },
+    ];
+    
+    const flowJson = {
+        version: '3.0',
+        data_api_version: '3.0',
+        routing_model: {},
+        screens: [{
+            id: 'SIGN_UP_SCREEN',
+            title: 'Sign Up',
+            data: {},
+            layout: {
+                type: 'SingleColumnLayout',
+                children: [{ type: 'Form', name: 'sign_up_form', children: formChildren }]
+            }
+        }]
+    };
+    return JSON.stringify(flowJson);
+}
+
 export async function saveMetaFlow(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const projectId = formData.get('projectId') as string;
     if (!projectId) return { error: 'Project ID is missing.' };
@@ -3632,7 +3660,7 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
         return { error: 'Project has no phone numbers. Sync phone numbers before creating a flow.' };
     }
 
-    const flowType = formData.get('flowType') as 'custom' | 'lead_gen';
+    const flowType = formData.get('flowType') as 'custom' | 'lead_gen' | 'sign_up';
     let name = '';
     let categories: string[] = [];
     let flowDataStr = '';
@@ -3642,6 +3670,10 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
         name = formData.get('leadgen_name') as string;
         categories = ['LEAD_GENERATION'];
         flowDataStr = buildLeadGenFlowJson(formData);
+    } else if (flowType === 'sign_up') {
+        name = formData.get('signup_name') as string;
+        categories = ['SIGN_UP'];
+        flowDataStr = buildSignUpFlowJson(formData);
     } else { // custom
         name = formData.get('name') as string;
         categories = formData.getAll('categories') as string[];
@@ -3688,6 +3720,8 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
             metaId: metaFlowId,
             categories,
             flow_data,
+            status: response.data.status || 'DRAFT',
+            json_version: response.data.json_version,
             createdAt: new Date(),
             updatedAt: new Date(),
         };
@@ -3726,6 +3760,70 @@ export async function deleteMetaFlow(flowId: string, metaId: string): Promise<{ 
         return { message: `Flow "${flow.name}" deleted successfully.` };
     } catch (e: any) {
         return { error: getErrorMessage(e) || 'Failed to delete flow from Meta.' };
+    }
+}
+
+export async function handleSyncMetaFlows(projectId: string): Promise<{ message?: string; error?: string, count?: number }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or you do not have access.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        const { wabaId, accessToken } = project;
+        const allMetaFlows: any[] = [];
+        let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${wabaId}/flows?access_token=${accessToken}&fields=id,name,status,categories,json_version&limit=100`;
+
+        while(nextUrl) {
+            const response = await fetch(nextUrl);
+            const responseData = await response.json();
+
+            if (!response.ok) {
+                const errorMessage = responseData?.error?.message || 'Unknown error syncing Meta Flows.';
+                return { error: `API Error: ${errorMessage}` };
+            }
+            
+            if (responseData.data && responseData.data.length > 0) {
+                allMetaFlows.push(...responseData.data);
+            }
+            nextUrl = responseData.paging?.next;
+        }
+        
+        if (allMetaFlows.length === 0) {
+            return { message: "No flows found in your WhatsApp Business Account to sync." }
+        }
+
+        const bulkOps = allMetaFlows.map(flow => ({
+            updateOne: {
+                filter: { metaId: flow.id, projectId: new ObjectId(projectId) },
+                update: { 
+                    $set: {
+                        name: flow.name,
+                        status: flow.status,
+                        categories: flow.categories,
+                        json_version: flow.json_version,
+                        updatedAt: new Date(),
+                    },
+                    $setOnInsert: {
+                        metaId: flow.id,
+                        projectId: new ObjectId(projectId),
+                        createdAt: new Date()
+                    }
+                },
+                upsert: true,
+            }
+        }));
+
+        const result = await db.collection('meta_flows').bulkWrite(bulkOps);
+        const syncedCount = result.upsertedCount + result.modifiedCount;
+        
+        revalidatePath('/dashboard/flows');
+        
+        return { message: `Successfully synced ${syncedCount} Meta Flow(s).`, count: syncedCount };
+
+    } catch (e: any) {
+        console.error('Meta Flow sync failed:', e);
+        return { error: e.message || 'An unexpected error occurred during flow sync.' };
     }
 }
 

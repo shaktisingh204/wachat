@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
@@ -25,6 +26,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import { SyncMetaFlowsButton } from '@/components/wabasimplify/sync-meta-flows-button';
 
 
 function MetaFlowCard({ flow, onDelete }: { flow: WithId<MetaFlow>, onDelete: (flowId: string, metaId: string) => void }) {
@@ -35,13 +37,24 @@ function MetaFlowCard({ flow, onDelete }: { flow: WithId<MetaFlow>, onDelete: (f
             onDelete(flow._id.toString(), flow.metaId);
         });
     }
+    
+    const getStatusVariant = (status: string) => {
+        if (!status) return 'secondary';
+        const lowerStatus = status.toLowerCase();
+        if (lowerStatus === 'published') return 'default';
+        if (lowerStatus === 'draft') return 'secondary';
+        return 'destructive';
+    };
 
     return (
         <Card className="flex flex-col">
             <CardHeader>
-                <CardTitle className="text-base">{flow.name}</CardTitle>
+                <div className="flex justify-between items-start">
+                    <CardTitle className="text-base">{flow.name}</CardTitle>
+                    <Badge variant={getStatusVariant(flow.status)} className="capitalize">{flow.status || 'UNKNOWN'}</Badge>
+                </div>
                 <CardDescription>
-                    {flow.categories.map(cat => <Badge key={cat} variant="outline" className="mr-1">{cat}</Badge>)}
+                    {flow.categories?.map(cat => <Badge key={cat} variant="outline" className="mr-1 mt-1">{cat}</Badge>)}
                 </CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
@@ -113,6 +126,7 @@ export default function MetaFlowsPage() {
                     <p className="text-muted-foreground">Manage your interactive Meta WhatsApp Flows.</p>
                 </div>
                 <div className="flex items-center gap-2">
+                    <SyncMetaFlowsButton projectId={projectId} onSyncComplete={fetchFlows}/>
                     <Button asChild variant="outline">
                         <Link href="/dashboard/flows/docs">
                             <BookOpen className="mr-2 h-4 w-4"/>

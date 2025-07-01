@@ -1,4 +1,5 @@
 
+
 import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
@@ -170,6 +171,8 @@ export type MetaFlow = {
     name: string;
     projectId: ObjectId;
     metaId: string; // The ID from Meta
+    status: string;
+    json_version?: string;
     categories: string[];
     flow_data: any; // Storing the raw JSON structure
     createdAt: Date;
