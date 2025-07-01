@@ -12,30 +12,16 @@ import { X, MoreVertical, ArrowLeft, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 
 const FlowComponent = ({ component, formData, setFormData }) => {
+    const { name } = component;
+
     switch (component.type) {
-        case 'TextHeading': return <h2 className="text-xl font-bold text-gray-800">{component.text}</h2>;
-        case 'TextBody': return <p className="text-gray-600">{component.text}</p>;
-        case 'TextSubtext': return <p className="text-xs text-gray-500">{component.text}</p>;
-        case 'Image': return <div className="relative aspect-video w-full rounded-lg overflow-hidden my-2"><Image src={component.url || 'https://placehold.co/600x400.png'} alt={component.caption || 'Flow image'} layout="fill" objectFit="cover" data-ai-hint="house loan" />{component.caption && <p className="text-xs text-center p-1 bg-black/50 text-white absolute bottom-0 w-full">{component.caption}</p>}</div>;
-        case 'TextInput':
-        case 'NumberInput':
-        case 'UrlInput':
-            return <div className="space-y-1 w-full"><Label htmlFor={component.id} className="text-xs text-gray-500">{component.label}</Label><Input id={component.id} name={component.id} placeholder={component.placeholder || 'Enter value...'} type={component.type === 'NumberInput' ? 'number' : component.type === 'UrlInput' ? 'url' : 'text'} value={formData[component.id] || ''} onChange={(e) => setFormData(prev => ({...prev, [component.id]: e.target.value}))} className="bg-gray-50"/></div>;
-        case 'TimePicker':
-        case 'DatePicker':
-        case 'Calendar':
-            return <div className="space-y-1 w-full"><Label htmlFor={component.id} className="text-xs text-gray-500">{component.label}</Label><Input id={component.id} name={component.id} type="date" value={formData[component.id] || ''} onChange={(e) => setFormData(prev => ({...prev, [component.id]: e.target.value}))} className="bg-gray-50"/></div>;
-        case 'RadioSelector':
-        case 'ChipsSelector':
-            return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><RadioGroup name={component.id} value={formData[component.id]} onValueChange={val => setFormData(prev => ({ ...prev, [component.id]: val }))}>{(component.options || []).map(opt => <div key={opt.id} className="flex items-center space-x-2"><RadioGroupItem value={opt.id} id={`${component.id}-${opt.id}`}/><Label htmlFor={`${component.id}-${opt.id}`} className="font-normal">{opt.label}</Label></div>)}</RadioGroup></div>;
-        case 'ListSelector':
-            return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><Select onValueChange={val => setFormData(prev => ({...prev, [component.id]: val}))}><SelectTrigger className="w-full"><SelectValue placeholder="Select an option"/></SelectTrigger><SelectContent>{(component.options || []).map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.label}</SelectItem>)}</SelectContent></Select></div>;
-        case 'PhotoPicker':
-        case 'DocumentPicker':
-        case 'ContactPicker':
-            return <div className="w-full"><Button variant="outline" className="w-full">{component.label}</Button></div>;
-        default:
-            return null; // Don't render buttons or unsupported types
+        case 'TextSubheading': return <h3 className="font-semibold text-gray-800 my-2">{component.text}</h3>;
+        case 'TextArea': return <div className="space-y-1 w-full"><Label htmlFor={name} className="text-xs text-gray-500">{component.label}</Label><Input id={name} name={name} placeholder="Enter value..." value={formData[name] || ''} onChange={(e) => setFormData(prev => ({...prev, [name]: e.target.value}))} className="bg-gray-50"/></div>;
+        case 'Dropdown': return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><Select onValueChange={val => setFormData(prev => ({...prev, [name]: val}))}><SelectTrigger className="w-full bg-gray-50"><SelectValue placeholder="Select an option"/></SelectTrigger><SelectContent>{(component['data-source'] || []).map(opt => <SelectItem key={opt.id} value={opt.id}>{opt.title}</SelectItem>)}</SelectContent></Select></div>;
+        case 'RadioButtonsGroup': return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><RadioGroup name={name} value={formData[name]} onValueChange={val => setFormData(prev => ({ ...prev, [name]: val }))}>{(component['data-source'] || []).map(opt => <div key={opt.id} className="flex items-center space-x-2"><RadioGroupItem value={opt.id} id={`${name}-${opt.id}`}/><Label htmlFor={`${name}-${opt.id}`} className="font-normal text-sm">{opt.title}</Label></div>)}</RadioGroup></div>;
+        case 'CheckboxGroup': return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label>{(component['data-source'] || []).map(opt => <div key={opt.id} className="flex items-center space-x-2"><Checkbox id={`${name}-${opt.id}`} /><Label htmlFor={`${name}-${opt.id}`} className="font-normal text-sm">{opt.title}</Label></div>)}</div>;
+        case 'OptIn': return <div className="flex items-start space-x-2 my-2"><Checkbox id={name} /><Label htmlFor={name} className="text-sm font-normal text-muted-foreground">{component.label}</Label></div>;
+        default: return null;
     }
 }
 
@@ -49,9 +35,9 @@ export const MetaFlowPreview = ({ flowJson }) => {
         try {
             if (flowJson) {
                 const parsed = JSON.parse(flowJson);
-                setFlowData(parsed.flow);
-                if (!currentScreenId || !parsed.flow.screens.some(s => s.id === currentScreenId)) {
-                    setCurrentScreenId(parsed.flow.screens?.[0]?.id);
+                setFlowData(parsed);
+                if (!currentScreenId || !parsed.screens.some(s => s.id === currentScreenId)) {
+                    setCurrentScreenId(parsed.screens?.[0]?.id);
                 }
                 setError(null);
             }
@@ -73,18 +59,19 @@ export const MetaFlowPreview = ({ flowJson }) => {
         return <Card className="h-full flex items-center justify-center p-4"><p className="text-destructive text-center">Current screen not found!</p></Card>
     }
     
-    const actionButton = currentScreen.components.find(c => c.type === 'Button');
+    const formChildren = currentScreen.layout?.children?.[0]?.children || [];
+    const footer = formChildren.find(c => c.type === 'Footer');
 
     const handleAction = () => {
-        if (actionButton) {
-            const action = actionButton.action;
-            if (action.type === 'navigate' && action.target) {
-                if(flowData.screens.some(s => s.id === action.target)) {
-                   setCurrentScreenId(action.target);
+        if (footer) {
+            const action = footer['on-click-action'];
+            if (action.name === 'navigate' && action.next?.name) {
+                if(flowData.screens.some(s => s.id === action.next.name)) {
+                   setCurrentScreenId(action.next.name);
                 } else {
                     alert("Test Flow: Next screen not found!");
                 }
-            } else if(action.type === 'submit') {
+            } else if(action.name === 'complete') {
                 alert(`Flow Completed (Test Mode)\nData: ${JSON.stringify(formData, null, 2)}`);
             }
         }
@@ -95,19 +82,18 @@ export const MetaFlowPreview = ({ flowJson }) => {
             <CardHeader className="bg-white p-3 flex flex-row items-center justify-between border-b flex-shrink-0">
                 <div className="flex items-center gap-3">
                     <X className="h-5 w-5 text-gray-600" />
-                    <p className="font-semibold text-gray-800">{currentScreen.title?.text || 'Flow Preview'}</p>
+                    <p className="font-semibold text-gray-800">{currentScreen.title || 'Flow Preview'}</p>
                 </div>
                 <MoreVertical className="h-5 w-5 text-gray-600" />
             </CardHeader>
             <CardContent className="flex-1 p-4 bg-white overflow-y-auto space-y-4">
-                {currentScreen.body?.text && <p className="text-gray-600">{currentScreen.body.text}</p>}
-                {currentScreen.components.map((component, index) => (
-                    <FlowComponent key={component.id || index} component={component} formData={formData} setFormData={setFormData} />
+                {formChildren.map((component, index) => (
+                    <FlowComponent key={component.name || index} component={component} formData={formData} setFormData={setFormData} />
                 ))}
             </CardContent>
-            {actionButton && (
+            {footer && (
                 <CardFooter className="p-4 bg-white border-t flex flex-col items-stretch gap-2 flex-shrink-0">
-                    <Button onClick={handleAction} size="lg" className="w-full bg-green-600 hover:bg-green-700">{actionButton.label}</Button>
+                    <Button onClick={handleAction} size="lg" className="w-full bg-green-600 hover:bg-green-700">{footer.label}</Button>
                     <p className="text-xs text-center text-gray-500">Managed by the business. Learn more</p>
                 </CardFooter>
             )}

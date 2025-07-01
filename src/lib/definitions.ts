@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 // --- From dashboard/page.tsx and actions.ts ---
@@ -178,8 +179,7 @@ export type MetaFlow = {
     status: string;
     json_version?: string;
     categories: string[];
-    flow_data: any; // Storing the raw JSON structure
-    endpointUri?: string;
+    flow_data: any; // Storing the raw JSON structure from Meta
     createdAt: Date;
     updatedAt: Date;
 };

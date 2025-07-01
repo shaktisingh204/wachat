@@ -9,6 +9,16 @@ export type UIComponent = {
     options?: { id: string; label: string }[];
 };
 
+export type UIComponentV3 = {
+    type: 'TextSubheading' | 'TextArea' | 'Dropdown' | 'RadioButtonsGroup' | 'CheckboxGroup' | 'OptIn' | 'Footer';
+    label?: string;
+    name?: string;
+    text?: string;
+    'data-source'?: { id: string, title: string }[];
+    'on-click-action'?: any;
+}
+
+
 export const flowCategories = [
     { id: 'LEAD_GENERATION', name: 'Lead Generation' },
     { id: 'CUSTOMER_SUPPORT', name: 'Customer Support' },
@@ -35,3 +45,12 @@ export const uiComponents: { type: UIComponent['type'], label: string }[] = [
     { type: 'ListSelector', label: 'List Selector' },
     { type: 'Button', label: 'Button' },
 ];
+
+export const uiComponentsV3: { type: UIComponentV3['type'], label: string }[] = [
+    { type: 'TextSubheading', label: 'Subheading' },
+    { type: 'TextArea', label: 'Text Area' },
+    { type: 'Dropdown', label: 'Dropdown' },
+    { type: 'RadioButtonsGroup', label: 'Radio Buttons' },
+    { type: 'CheckboxGroup', label: 'Checkboxes' },
+    { type: 'OptIn', label: 'Opt-In Checkbox' },
+]
