@@ -179,6 +179,7 @@ export type MetaFlow = {
     json_version?: string;
     categories: string[];
     flow_data: any; // Storing the raw JSON structure
+    endpointUri?: string;
     createdAt: Date;
     updatedAt: Date;
 };

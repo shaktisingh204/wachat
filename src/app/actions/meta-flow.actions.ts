@@ -28,22 +28,56 @@ export async function getMetaFlowById(flowId: string): Promise<WithId<MetaFlow> 
         console.error("Invalid Flow ID provided to getMetaFlowById:", flowId);
         return null;
     }
+
     try {
         const { db } = await connectToDatabase();
-        const flow = await db.collection<MetaFlow>('meta_flows').findOne({ _id: new ObjectId(flowId) });
-        if (!flow) return null;
+        // 1. Get the local flow to find its metaId and check permissions
+        const localFlow = await db.collection<MetaFlow>('meta_flows').findOne({ _id: new ObjectId(flowId) });
+        if (!localFlow) return null;
 
-        // Security check: ensure the current user has access to the project this flow belongs to.
-        const project = await getProjectById(flow.projectId.toString());
-        if (!project) {
-            console.error(`User does not have access to project ${flow.projectId.toString()} for flow ${flowId}`);
-            return null;
+        const project = await getProjectById(localFlow.projectId.toString());
+        if (!project || !project.accessToken) {
+            console.error(`User does not have access to project or project is missing access token.`);
+            return JSON.parse(JSON.stringify(localFlow)); // Return local data as fallback
+        }
+        
+        // 2. Fetch the latest version from Meta
+        const metaResponse = await axios.get(
+            `https://graph.facebook.com/v22.0/${localFlow.metaId}?fields=name,categories,status,json_version,flow_json,endpoint_uri&access_token=${project.accessToken}`
+        );
+
+        if (metaResponse.data.error) {
+            throw new Error(getErrorMessage({ response: metaResponse }));
         }
 
-        return JSON.parse(JSON.stringify(flow));
+        const metaFlowData = metaResponse.data;
+        
+        // 3. Update local DB with fresh data from Meta
+        const updateData: Partial<MetaFlow> = {
+            name: metaFlowData.name,
+            categories: metaFlowData.categories || [],
+            status: metaFlowData.status,
+            json_version: metaFlowData.json_version,
+            flow_data: metaFlowData.flow_json ? JSON.parse(metaFlowData.flow_json) : {},
+            endpointUri: metaFlowData.endpoint_uri,
+            updatedAt: new Date(),
+        };
+
+        await db.collection('meta_flows').updateOne(
+            { _id: new ObjectId(flowId) },
+            { $set: updateData }
+        );
+
+        // 4. Return the merged, updated document
+        const updatedFlow = await db.collection<MetaFlow>('meta_flows').findOne({ _id: new ObjectId(flowId) });
+        return JSON.parse(JSON.stringify(updatedFlow));
+
     } catch (e) {
-        console.error("Error fetching Meta Flow by ID:", e);
-        return null;
+        console.error("Error fetching or syncing Meta Flow by ID:", getErrorMessage(e));
+        // Fallback to local data if Meta sync fails
+        const { db } = await connectToDatabase();
+        const flow = await db.collection<MetaFlow>('meta_flows').findOne({ _id: new ObjectId(flowId) });
+        return flow ? JSON.parse(JSON.stringify(flow)) : null;
     }
 }
 
@@ -61,6 +95,7 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
     const category = formData.get('category') as string;
     const flowDataStr = formData.get('flow_data') as string;
     const endpointUri = formData.get('endpoint_uri') as string | null;
+    const shouldPublish = formData.get('publish') === 'on';
     
     if (!name || !category || !flowDataStr) {
         return { error: 'Name, Category, and Flow Data are required.' };
@@ -72,53 +107,62 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
 
         if (flowId && metaId) {
             // ----- UPDATE LOGIC -----
-            const payload: any = {
+            const updatePayload: any = {
                 name,
                 categories: [category],
                 flow_json: JSON.stringify(flow_data),
                 access_token: accessToken,
             };
-            if (endpointUri) payload.endpoint_uri = endpointUri;
+            if (endpointUri) updatePayload.endpoint_uri = endpointUri;
 
-            // POST to /<flow_meta_id> to update
-            const response = await axios.post(`https://graph.facebook.com/v22.0/${metaId}`, payload);
+            // POST to /<flow_meta_id> to update the flow content
+            const updateResponse = await axios.post(`https://graph.facebook.com/v22.0/${metaId}`, updatePayload);
 
-            if (response.data.error) {
-                throw new Error(getErrorMessage({ response }));
+            if (updateResponse.data.error) {
+                throw new Error(getErrorMessage({ response: updateResponse }));
             }
 
-            const updatedFlow = {
+            // Publish if requested
+            if (shouldPublish) {
+                const publishResponse = await axios.post(`https://graph.facebook.com/v22.0/${metaId}?publish=true&access_token=${accessToken}`);
+                if (publishResponse.data.error) {
+                    throw new Error(`Flow updated but failed to publish: ${getErrorMessage({ response: publishResponse })}`);
+                }
+            }
+
+            const updatedFlowInDb = {
                 name,
                 categories: [category],
                 flow_data,
                 ...(endpointUri && { endpointUri }),
                 updatedAt: new Date(),
+                status: shouldPublish ? 'PUBLISHED' : (formData.get('currentStatus') as string || 'DRAFT')
             };
 
             const { db } = await connectToDatabase();
             await db.collection('meta_flows').updateOne(
                 { _id: new ObjectId(flowId) },
-                { $set: updatedFlow }
+                { $set: updatedFlowInDb }
             );
 
             revalidatePath('/dashboard/flows');
-            return { message: `Flow "${name}" updated successfully!` };
+            return { message: `Flow "${name}" ${shouldPublish ? 'updated and published' : 'updated'} successfully!` };
             
         } else {
             // ----- CREATE LOGIC -----
             const wabaId = hasAccess.wabaId;
-            const payload: any = {
+            const createPayload: any = {
                 name,
                 categories: [category],
                 flow_json: JSON.stringify(flow_data),
                 access_token: accessToken,
-                publish: true,
+                publish: shouldPublish,
             };
             if (endpointUri) {
-                payload.endpoint_uri = endpointUri;
+                createPayload.endpoint_uri = endpointUri;
             }
 
-            const response = await axios.post(`https://graph.facebook.com/v22.0/${wabaId}/flows`, payload);
+            const response = await axios.post(`https://graph.facebook.com/v22.0/${wabaId}/flows`, createPayload);
 
             if (response.data.error) {
                 throw new Error(getErrorMessage({ response }));

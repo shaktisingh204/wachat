@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { saveMetaFlow, getMetaFlowById } from '@/app/actions/meta-flow.actions';
 import { handleGenerateMetaFlow } from '@/app/actions';
@@ -26,7 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { WithId } from 'mongodb';
-import type { MetaFlow } from '@/app/dashboard/page';
+import type { MetaFlow } from '@/lib/definitions';
 
 const createFlowInitialState = { message: null, error: null };
 
@@ -131,6 +132,7 @@ function CreateMetaFlowPage() {
     const [flowJson, setFlowJson] = useState('');
     const [aiPrompt, setAiPrompt] = useState('');
     const [isGenerating, startGeneratingTransition] = useTransition();
+    const [shouldPublish, setShouldPublish] = useState(true);
 
 
     useEffect(() => {
@@ -144,6 +146,7 @@ function CreateMetaFlowPage() {
                     setFlowName(data.name);
                     setCategory(data.categories[0] || 'OTHER');
                     setEndpointUri((data as any).endpointUri || '');
+                    setShouldPublish(data.status === 'PUBLISHED');
                     if (data.flow_data?.screens) {
                         setScreens(data.flow_data.screens);
                     }
@@ -152,6 +155,7 @@ function CreateMetaFlowPage() {
             });
         } else {
             setIsLoading(false);
+            setShouldPublish(true); // Default to publish for new flows
         }
     }, [flowId]);
     
@@ -311,6 +315,7 @@ function CreateMetaFlowPage() {
             <input type="hidden" name="name" value={flowName} />
             <input type="hidden" name="flow_data" value={flowJson} />
             <input type="hidden" name="endpoint_uri" value={endpointUri} />
+            <input type="hidden" name="currentStatus" value={existingFlow?.status || 'DRAFT'}/>
 
             <div>
                 <Button variant="ghost" asChild className="mb-4 -ml-4">
@@ -344,18 +349,14 @@ function CreateMetaFlowPage() {
                                     </div>
                                     </RadioGroup>
                                 </div>
-                                <Tabs defaultValue="no-endpoint">
-                                    <TabsList>
-                                        <TabsTrigger value="no-endpoint">Without Endpoint</TabsTrigger>
-                                        <TabsTrigger value="with-endpoint">With Endpoint</TabsTrigger>
-                                    </TabsList>
-                                    <TabsContent value="with-endpoint" className="pt-4">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="endpoint_uri">Endpoint URI</Label>
-                                            <Input id="endpoint_uri" value={endpointUri} onChange={e => setEndpointUri(e.target.value)} placeholder="https://your-server.com/api/flow"/>
-                                        </div>
-                                    </TabsContent>
-                                </Tabs>
+                                <div className="space-y-2">
+                                    <Label>Endpoint URI (Optional)</Label>
+                                    <Input id="endpoint_uri_visible" value={endpointUri} onChange={e => setEndpointUri(e.target.value)} placeholder="https://your-server.com/api/flow"/>
+                                </div>
+                                 <div className="flex items-center space-x-2 pt-2">
+                                    <Switch id="publish" name="publish" checked={shouldPublish} onCheckedChange={setShouldPublish} />
+                                    <Label htmlFor="publish">Publish this flow</Label>
+                                </div>
                             </CardContent>
                         </Card>
 
