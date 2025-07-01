@@ -7,7 +7,7 @@ import { getTemplates, getProjectForBroadcast, getBroadcasts, handleStopBroadcas
 import { useRouter } from 'next/navigation';
 import type { Project, Template } from '@/app/dashboard/page';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import {
   Table,
   TableBody,
@@ -64,7 +64,7 @@ type RateData = {
 
 const BROADCASTS_PER_PAGE = 10;
 
-function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
+function StopBroadcastButton({ broadcastId, size = 'sm' }: { broadcastId: string, size?: 'sm' | 'default' | 'lg' | 'icon' | null }) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
@@ -84,8 +84,8 @@ function StopBroadcastButton({ broadcastId }: { broadcastId: string }) {
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm">
-          <StopCircle />
+        <Button variant="destructive" size={size}>
+          <StopCircle className="mr-2 h-4 w-4"/>
           Stop
         </Button>
       </AlertDialogTrigger>
@@ -355,6 +355,19 @@ export default function BroadcastPage() {
     });
   }, [toast, activeProjectId, currentPage, fetchData]);
 
+  const getStatusVariant = (item: WithId<Broadcast>) => {
+    const status = item.status;
+    return status === 'QUEUED'
+            ? 'outline'
+            : status === 'PROCESSING'
+            ? 'secondary'
+            : status === 'Completed'
+            ? 'default'
+            : status === 'Partial Failure'
+            ? 'secondary'
+            : 'destructive';
+  };
+
   const isLoadingData = isRefreshing && !project;
 
   return (
@@ -402,126 +415,160 @@ export default function BroadcastPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Queued</TableHead>
-                  <TableHead>Duration</TableHead>
-                  <TableHead>Template</TableHead>
-                  <TableHead>Delivery Stats</TableHead>
-                  <TableHead>File Name</TableHead>
-                  <TableHead>Contacts</TableHead>
-                  <TableHead>Progress</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {isLoadingData ? (
-                    <TableRow>
-                        <TableCell colSpan={9} className="h-24 text-center">
-                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                        </TableCell>
-                    </TableRow>
-                ) : !activeProjectId ? (
-                    <TableRow>
-                        <TableCell colSpan={9} className="h-24 text-center">
-                            <Alert variant="destructive" className="max-w-md mx-auto">
-                                <AlertCircle className="h-4 w-4" />
-                                <AlertTitle>No Project Selected</AlertTitle>
-                                <AlertDescription>
-                                    Please select a project from the main dashboard to view its broadcast history.
-                                </AlertDescription>
-                            </Alert>
-                        </TableCell>
-                    </TableRow>
-                ) : history.length > 0 ? (
-                  history.map((item) => (
-                    <TableRow key={item._id.toString()}>
-                      <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
-                      <TableCell>
-                        {item.status === 'PROCESSING' && item.startedAt ? (
-                          <LiveTimer startTime={item.startedAt} />
-                        ) : item.completedAt && item.startedAt ? (
-                          formatDuration(item.startedAt, item.completedAt)
-                        ) : (
-                          '-'
-                        )}
-                      </TableCell>
-                      <TableCell>{item.templateName}</TableCell>
-                      <TableCell>
-                        <div className="font-mono text-xs">
-                            <div>DELIVERED: {item.deliveredCount ?? 0}</div>
-                            <div>READ: {item.readCount ?? 0}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{item.fileName}</TableCell>
-                      <TableCell>{item.contactCount}</TableCell>
-                      <TableCell>
-                        {item.status === 'PROCESSING' && item.contactCount > 0 ? (
-                            <div className="w-48 space-y-1">
-                                <div className="text-xs font-mono text-muted-foreground">
-                                    <div>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</div>
-                                    <div>{`Rate: ${sendRateData[item._id.toString()]?.rate ?? 0}/${item.projectMessagesPerSecond ?? item.messagesPerSecond ?? 'N/A'} msg/s`}</div>
-                                </div>
-                                <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
-                            </div>
-                        ) : item.successCount !== undefined ? (
-                          `${item.successCount} sent, ${item.errorCount || 0} failed`
-                        ) : (
-                          '-'
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={
-                            item.status === 'QUEUED'
-                              ? 'outline'
-                              : item.status === 'PROCESSING'
-                              ? 'secondary'
-                              : item.status === 'Completed'
-                              ? 'default'
-                              : item.status === 'Partial Failure'
-                              ? 'secondary'
-                              : 'destructive'
-                          }
-                          className="capitalize"
-                        >
-                          {item.status?.toLowerCase() || 'unknown'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-2">
-                           {(item.status === 'QUEUED' || item.status === 'PROCESSING') && (
-                                <StopBroadcastButton broadcastId={item._id.toString()} />
-                            )}
-                            {['Completed', 'Partial Failure', 'Failed', 'Cancelled'].includes(item.status) && (
+            {isLoadingData ? (
+                <div className="h-24 text-center flex items-center justify-center">
+                    <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
+            ) : !activeProjectId ? (
+                 <Alert variant="destructive" className="max-w-md mx-auto">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>No Project Selected</AlertTitle>
+                    <AlertDescription>
+                        Please select a project from the main dashboard to view its broadcast history.
+                    </AlertDescription>
+                </Alert>
+            ) : history.length > 0 ? (
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden md:block">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Queued</TableHead>
+                        <TableHead>Duration</TableHead>
+                        <TableHead>Template</TableHead>
+                        <TableHead>Delivery Stats</TableHead>
+                        <TableHead>File Name</TableHead>
+                        <TableHead>Contacts</TableHead>
+                        <TableHead>Progress</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {history.map((item) => (
+                          <TableRow key={item._id.toString()}>
+                            <TableCell>{new Date(item.createdAt).toLocaleString()}</TableCell>
+                            <TableCell>
+                              {item.status === 'PROCESSING' && item.startedAt ? (
+                                <LiveTimer startTime={item.startedAt} />
+                              ) : item.completedAt && item.startedAt ? (
+                                formatDuration(item.startedAt, item.completedAt)
+                              ) : (
+                                '-'
+                              )}
+                            </TableCell>
+                            <TableCell>{item.templateName}</TableCell>
+                            <TableCell>
+                              <div className="font-mono text-xs">
+                                  <div>DELIVERED: {item.deliveredCount ?? 0}</div>
+                                  <div>READ: {item.readCount ?? 0}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>{item.fileName}</TableCell>
+                            <TableCell>{item.contactCount}</TableCell>
+                            <TableCell>
+                              {item.status === 'PROCESSING' && item.contactCount > 0 ? (
+                                  <div className="w-48 space-y-1">
+                                      <div className="text-xs font-mono text-muted-foreground">
+                                          <div>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</div>
+                                          <div>{`Rate: ${sendRateData[item._id.toString()]?.rate ?? 0}/${item.projectMessagesPerSecond ?? item.messagesPerSecond ?? 'N/A'} msg/s`}</div>
+                                      </div>
+                                      <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
+                                  </div>
+                              ) : item.successCount !== undefined ? (
+                                `${item.successCount} sent, ${item.errorCount || 0} failed`
+                              ) : (
+                                '-'
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={getStatusVariant(item)} className="capitalize">
+                                {item.status?.toLowerCase() || 'unknown'}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center justify-end gap-2">
+                                {(item.status === 'QUEUED' || item.status === 'PROCESSING') && (
+                                      <StopBroadcastButton broadcastId={item._id.toString()} />
+                                  )}
+                                  {['Completed', 'Partial Failure', 'Failed', 'Cancelled'].includes(item.status) && (
+                                      <RequeueBroadcastDialog
+                                        broadcastId={item._id.toString()}
+                                        originalTemplateId={item.templateId.toString()}
+                                        project={project}
+                                        templates={templates}
+                                      />
+                                  )}
+                                  <Button asChild variant="outline" size="sm">
+                                      <Link href={`/dashboard/broadcasts/${item._id.toString()}`}>
+                                          <FileText className="mr-2 h-4 w-4" />
+                                          <span>View Report</span>
+                                      </Link>
+                                  </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </div>
+                {/* Mobile Card View */}
+                <div className="md:hidden space-y-4">
+                  {history.map((item) => (
+                      <Card key={item._id.toString()} className="border">
+                        <CardHeader>
+                          <div className="flex justify-between items-start">
+                              <CardTitle className="text-base leading-snug">{item.templateName}</CardTitle>
+                              <Badge variant={getStatusVariant(item)} className="capitalize">{item.status?.toLowerCase() || 'unknown'}</Badge>
+                          </div>
+                          <CardDescription className="text-xs">{new Date(item.createdAt).toLocaleString()}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4 text-sm">
+                          {item.status === 'PROCESSING' && item.contactCount > 0 && (
+                              <div className="w-full space-y-1">
+                                  <div className="flex justify-between text-xs font-mono text-muted-foreground">
+                                    <span>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</span>
+                                    <span>{`Rate: ${sendRateData[item._id.toString()]?.rate ?? 0} msg/s`}</span>
+                                  </div>
+                                  <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
+                              </div>
+                          )}
+                           <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+                              <div className="flex justify-between"><span className="text-muted-foreground">Duration:</span> <span className="font-mono">{item.status === 'PROCESSING' && item.startedAt ? <LiveTimer startTime={item.startedAt} /> : item.completedAt && item.startedAt ? formatDuration(item.startedAt, item.completedAt) : '-'}</span></div>
+                              <div className="flex justify-between"><span className="text-muted-foreground">Contacts:</span> <span className="font-medium">{item.contactCount}</span></div>
+                              <div className="flex justify-between"><span className="text-muted-foreground">Sent:</span> <span className="font-medium">{item.successCount || 0}</span></div>
+                              <div className="flex justify-between"><span className="text-muted-foreground">Failed:</span> <span className="font-medium">{item.errorCount || 0}</span></div>
+                              <div className="flex justify-between col-span-2"><span className="text-muted-foreground">File:</span> <span className="font-medium truncate">{item.fileName}</span></div>
+                          </div>
+                        </CardContent>
+                        <CardFooter className="flex justify-end gap-2">
+                             {(item.status === 'QUEUED' || item.status === 'PROCESSING') && <StopBroadcastButton broadcastId={item._id.toString()} size="sm" />}
+                              {['Completed', 'Partial Failure', 'Failed', 'Cancelled'].includes(item.status) && (
                                 <RequeueBroadcastDialog
                                   broadcastId={item._id.toString()}
                                   originalTemplateId={item.templateId.toString()}
                                   project={project}
                                   templates={templates}
                                 />
-                            )}
-                            <Button asChild variant="outline" size="sm">
-                                <Link href={`/dashboard/broadcasts/${item._id.toString()}`}>
-                                    <FileText />
-                                    <span>View Report</span>
-                                </Link>
-                            </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={9} className="h-24 text-center">
-                      No broadcast history found for this project.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                              )}
+                              <Button asChild variant="outline" size="sm">
+                                  <Link href={`/dashboard/broadcasts/${item._id.toString()}`}>
+                                      <FileText className="mr-2 h-4 w-4" />
+                                      <span>Report</span>
+                                  </Link>
+                              </Button>
+                        </CardFooter>
+                    </Card>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <div className="h-24 text-center flex items-center justify-center">
+                  No broadcast history found for this project.
+              </div>
+            )}
+            
             {totalPages > 1 && (
                 <div className="flex items-center justify-end space-x-2 py-4">
                     <span className="text-sm text-muted-foreground">
