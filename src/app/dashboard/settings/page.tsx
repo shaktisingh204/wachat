@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog, Handshake, MessageSquareHeart, Megaphone } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog, Handshake, MessageSquareHeart, Megaphone, BookCopy } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -611,7 +611,7 @@ function SettingsPageContent() {
               <TabsTrigger value="broadcast"><Save className="mr-2 h-4 w-4" />Broadcast</TabsTrigger>
               <TabsTrigger value="auto-reply"><Bot className="mr-2 h-4 w-4" />Auto-Replies</TabsTrigger>
               <TabsTrigger value="marketing"><Megaphone className="mr-2 h-4 w-4" />Marketing</TabsTrigger>
-              <TabsTrigger value="library"><ClipboardList className="mr-2 h-4 w-4" />Template Library</TabsTrigger>
+              <TabsTrigger value="template-library"><BookCopy className="mr-2 h-4 w-4" />Template Library</TabsTrigger>
               <TabsTrigger value="canned-messages"><ClipboardList className="mr-2 h-4 w-4" />Canned Messages</TabsTrigger>
               <TabsTrigger value="agents-roles"><UserCog className="mr-2 h-4 w-4" />Agents & Roles</TabsTrigger>
               <TabsTrigger value="compliance"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
@@ -663,7 +663,7 @@ function SettingsPageContent() {
             <MarketingSettingsForm project={project} />
           </TabsContent>
 
-          <TabsContent value="library" className="mt-6">
+          <TabsContent value="template-library" className="mt-6">
             <Card>
                 <CardHeader>
                     <CardTitle>Template Library</CardTitle>

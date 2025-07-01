@@ -4,11 +4,93 @@
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { premadeTemplates } from '@/lib/premade-templates';
 import type { Template } from '@/app/dashboard/page';
-import { BookCopy, ChevronLeft } from 'lucide-react';
+import { BookCopy, ChevronLeft, ImageIcon, Phone, Link as LinkIcon, Star } from 'lucide-react';
 import Link from 'next/link';
+
+// New component for the WhatsApp-like preview
+const TemplatePreviewCard = ({ template, onUse }: { template: Omit<Template, 'metaId' | 'status' | 'qualityScore'>, onUse: (template: any) => void }) => {
+    const headerComponent = template.components.find(c => c.type === 'HEADER');
+    const footerComponent = template.components.find(c => c.type === 'FOOTER');
+    const buttons = template.components.find(c => c.type === 'BUTTONS')?.buttons || [];
+
+    const renderTextWithVariables = (text: string) => {
+        if (!text) return null;
+        // Simple regex to find {{...}} and style them.
+        const parts = text.split(/({{\d+}})/g);
+        return parts.map((part, i) =>
+            part.match(/{{\d+}}/) ? (
+                <span key={i} className="font-bold text-blue-500">
+                    {part}
+                </span>
+            ) : (
+                part
+            )
+        );
+    };
+
+    const getButtonIcon = (type: string) => {
+        switch(type) {
+            case 'URL': return <LinkIcon className="h-4 w-4 mr-2" />;
+            case 'PHONE_NUMBER': return <Phone className="h-4 w-4 mr-2" />;
+            case 'QUICK_REPLY': return <Star className="h-4 w-4 mr-2" />;
+            default: return null;
+        }
+    }
+
+    return (
+        <Card className="flex flex-col">
+             <CardHeader>
+                <CardTitle className="text-base">{template.name.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())}</CardTitle>
+                <CardDescription>A pre-built template for {template.category.replace(/_/g, ' ').toLowerCase()} use cases.</CardDescription>
+            </CardHeader>
+            <CardContent className="flex-grow flex flex-col justify-center bg-slate-200 p-4 rounded-md border">
+                {/* The WhatsApp-like message bubble */}
+                <div className="w-full max-w-sm mx-auto">
+                    <div className="bg-[#dcf8c6] rounded-lg shadow-sm p-3 text-sm text-gray-800 space-y-2">
+                        {/* Header */}
+                        {headerComponent && (headerComponent.format === 'IMAGE' || headerComponent.format === 'VIDEO' || headerComponent.format === 'DOCUMENT') && (
+                            <div className="bg-slate-300 aspect-video rounded-md flex items-center justify-center mb-2">
+                                <ImageIcon className="h-10 w-10 text-slate-500" />
+                            </div>
+                        )}
+                        {headerComponent && headerComponent.format === 'TEXT' && (
+                            <h3 className="font-bold text-base mb-1">{headerComponent.text}</h3>
+                        )}
+                        {/* Body */}
+                        <p className="whitespace-pre-wrap">
+                            {renderTextWithVariables(template.body)}
+                        </p>
+                        {/* Footer */}
+                        {footerComponent && (
+                            <p className="text-xs text-gray-500 pt-1">
+                                {footerComponent.text}
+                            </p>
+                        )}
+                    </div>
+                    {/* Buttons */}
+                    {buttons.length > 0 && (
+                        <div className="mt-2 space-y-1">
+                            {buttons.map((button: any, index: number) => (
+                                <div key={index} className="bg-white rounded-lg text-center p-2 text-blue-500 font-medium shadow-sm border flex items-center justify-center">
+                                    {getButtonIcon(button.type)}
+                                    {button.text}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </CardContent>
+             <CardFooter className="mt-auto pt-6">
+                <Button className="w-full" onClick={() => onUse(template)}>
+                    Use This Template
+                </Button>
+            </CardFooter>
+        </Card>
+    );
+};
+
 
 export default function TemplateLibraryPage() {
     const router = useRouter();
@@ -41,27 +123,7 @@ export default function TemplateLibraryPage() {
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                 {premadeTemplates.map((template, index) => (
-                    <Card key={index} className="flex flex-col">
-                        <CardHeader>
-                            <div className="flex justify-between items-start">
-                                <CardTitle className="text-base">{template.name}</CardTitle>
-                                <Badge variant="secondary" className="capitalize">
-                                    {template.category.replace(/_/g, ' ').toLowerCase()}
-                                </Badge>
-                            </div>
-                            <CardDescription>A pre-built template for {template.category.replace(/_/g, ' ').toLowerCase()} use cases.</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-grow">
-                            <div className="p-4 bg-muted/50 rounded-md text-sm border">
-                                <p className="font-mono whitespace-pre-wrap">{template.body}</p>
-                            </div>
-                        </CardContent>
-                        <CardFooter>
-                            <Button className="w-full" onClick={() => handleUseTemplate(template)}>
-                                Use This Template
-                            </Button>
-                        </CardFooter>
-                    </Card>
+                    <TemplatePreviewCard key={index} template={template} onUse={handleUseTemplate} />
                 ))}
             </div>
         </div>
