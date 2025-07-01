@@ -58,7 +58,8 @@ import {
     GeneralReplyRule, 
     MetaFlow, 
     AdCampaign, 
-    Tag
+    Tag,
+    WebhookLog
 } from '@/lib/definitions';
 
 
@@ -154,16 +155,6 @@ type BroadcastJob = {
     language?: string;
     headerImageUrl?: string;
     category?: Template['category'];
-};
-
-export type WebhookLog = {
-    _id: ObjectId;
-    payload: any;
-    searchableText: string;
-    processed?: boolean;
-    createdAt: Date;
-    projectId?: ObjectId;
-    error?: string;
 };
 
 

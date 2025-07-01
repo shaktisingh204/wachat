@@ -406,3 +406,13 @@ export type WebhookLogListItem = {
     eventField: string;
     eventSummary: string;
 };
+
+export type WebhookLog = {
+    _id: ObjectId;
+    payload: any;
+    searchableText: string;
+    processed?: boolean;
+    createdAt: Date;
+    projectId?: ObjectId;
+    error?: string;
+};
