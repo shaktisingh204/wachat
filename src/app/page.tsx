@@ -5,12 +5,15 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
-import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone } from 'lucide-react';
+import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 const features = [
@@ -266,8 +269,102 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Showcase Section */}
+        <section id="showcase" className="py-16 md:py-24">
+            <div className="container mx-auto">
+                <div className="text-center space-y-4 mb-16">
+                    <h2 className="text-3xl md:text-4xl font-bold font-headline">Visual Automation at Your Fingertips</h2>
+                    <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
+                        From simple bots to complex interactive forms, build it all without writing a single line of code.
+                    </p>
+                </div>
+                
+                <div className="grid grid-cols-1 gap-16 xl:gap-24">
+                    {/* Flow Builder Mockup */}
+                    <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+                        <div className="lg:w-1/3 space-y-4 text-center lg:text-left">
+                            <h3 className="text-2xl font-bold font-headline">No-Code Flow Builder</h3>
+                            <p className="text-muted-foreground">
+                                Visually map out complex conversation logic with branching, conditions, and API calls. Perfect for support bots and drip campaigns.
+                            </p>
+                        </div>
+                        <div className="lg:w-2/3 p-8 rounded-lg bg-muted/50 w-full">
+                            <div className="relative h-96 w-full">
+                                {/* SVG for lines */}
+                                <svg className="absolute top-0 left-0 w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M110 50 C 150 50, 150 100, 210 100" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw-long" style={{animationDelay: '0.5s'}}/>
+                                    <path d="M110 50 C 150 50, 150 200, 210 200" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw-long" style={{animationDelay: '0.8s'}}/>
+                                    <path d="M320 100 C 360 100, 360 50, 420 50" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw-long" style={{animationDelay: '1.2s'}}/>
+                                    <path d="M320 200 C 360 200, 360 280, 420 280" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw-long" style={{animationDelay: '1.5s'}}/>
+                                </svg>
+                                {/* Nodes */}
+                                <div className="absolute top-8 left-0 w-28 text-center animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+                                    <div className="mx-auto bg-primary/20 text-primary rounded-full h-10 w-10 flex items-center justify-center"><Play className="h-5 w-5"/></div>
+                                    <p className="text-xs font-semibold mt-1">Start Flow</p>
+                                </div>
+                                <div className="absolute top-[80px] left-[210px] w-28 text-center animate-fade-in-up" style={{animationDelay: '1s'}}>
+                                    <div className="mx-auto bg-blue-500/20 text-blue-600 rounded-full h-10 w-10 flex items-center justify-center"><MessageSquare className="h-5 w-5"/></div>
+                                    <p className="text-xs font-semibold mt-1">Welcome Message</p>
+                                </div>
+                                <div className="absolute top-[180px] left-[210px] w-28 text-center animate-fade-in-up" style={{animationDelay: '1.3s'}}>
+                                    <div className="mx-auto bg-purple-500/20 text-purple-600 rounded-full h-10 w-10 flex items-center justify-center"><GitBranch className="h-5 w-5"/></div>
+                                    <p className="text-xs font-semibold mt-1">Main Menu</p>
+                                </div>
+                                <div className="absolute top-8 left-[420px] w-28 text-center animate-fade-in-up" style={{animationDelay: '1.8s'}}>
+                                    <div className="mx-auto bg-orange-500/20 text-orange-600 rounded-full h-10 w-10 flex items-center justify-center"><ServerCog className="h-5 w-5"/></div>
+                                    <p className="text-xs font-semibold mt-1">Check Balance API</p>
+                                </div>
+                                <div className="absolute top-[260px] left-[420px] w-28 text-center animate-fade-in-up" style={{animationDelay: '2.1s'}}>
+                                    <div className="mx-auto bg-teal-500/20 text-teal-600 rounded-full h-10 w-10 flex items-center justify-center"><Bot className="h-5 w-5"/></div>
+                                    <p className="text-xs font-semibold mt-1">Connect to Agent</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {/* Declarative UI Builder Mockup */}
+                    <div className="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-12">
+                        <div className="lg:w-1/3 space-y-4 text-center lg:text-left">
+                            <h3 className="text-2xl font-bold font-headline">Declarative Flow UI Builder</h3>
+                            <p className="text-muted-foreground">
+                                Build rich, native forms and multi-step experiences that open directly inside WhatsApp for higher conversion rates.
+                            </p>
+                        </div>
+                        <div className="lg:w-2/3 flex justify-center">
+                            <div className="relative w-80 h-[580px] bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl">
+                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-800 rounded-b-lg"></div>
+                                <div className="h-full bg-slate-100 rounded-[2rem] flex flex-col">
+                                    <div className="p-2 border-b text-center font-semibold text-sm">
+                                        Book Appointment
+                                    </div>
+                                    <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+                                        <div className="space-y-1">
+                                            <Label htmlFor="name-mockup">Your Name</Label>
+                                            <Input id="name-mockup" placeholder="John Doe" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <Label htmlFor="service-mockup">Select Service</Label>
+                                            <Select>
+                                                <SelectTrigger id="service-mockup"><SelectValue placeholder="Choose a service..."/></SelectTrigger>
+                                                <SelectContent><SelectItem value="consult">Consultation</SelectItem></SelectContent>
+                                            </Select>
+                                        </div>
+                                         <div className="space-y-1">
+                                            <Label htmlFor="date-mockup">Preferred Date</Label>
+                                            <Input id="date-mockup" type="date" />
+                                        </div>
+                                    </div>
+                                    <div className="p-3 border-t"><Button className="w-full">Confirm Booking</Button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
         {/* Testimonials Section */}
-        <section className="py-16">
+        <section className="py-16 bg-muted">
             <div className="container mx-auto">
                 <div className="text-center space-y-4 mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Loved by Businesses Worldwide</h2>
@@ -301,7 +398,7 @@ export default function HomePage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-16 bg-muted">
+        <section className="py-16">
             <div className="container max-w-3xl mx-auto">
                  <div className="text-center space-y-4 mb-10">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Frequently Asked Questions</h2>
@@ -320,7 +417,7 @@ export default function HomePage() {
         </section>
         
         {/* Final CTA Section */}
-        <section className="py-16">
+        <section className="py-16 bg-muted">
             <div className="container mx-auto">
                 <div className="relative overflow-hidden bg-primary text-primary-foreground rounded-lg p-8 md:p-12 text-center space-y-4">
                      <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-white/10 rounded-full"></div>
