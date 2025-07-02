@@ -1,3 +1,4 @@
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -593,6 +594,7 @@ export async function handleStartBroadcast(
     const projectId = formData.get('projectId') as string;
     const phoneNumberId = formData.get('phoneNumberId') as string;
     const broadcastType = formData.get('broadcastType') as 'template' | 'flow';
+    const mediaSource = formData.get('mediaSource') as 'url' | 'file';
 
     if (!projectId) {
       return { error: 'No project selected. Please go to the dashboard and select a project first.' };
@@ -643,15 +645,34 @@ export async function handleStartBroadcast(
         const template = await db.collection('templates').findOne({ _id: new ObjectId(templateId), projectId: project._id });
         if (!template) return { error: 'Selected template not found for this project.' };
 
-        let finalHeaderImageUrl: string | undefined = undefined;
+        let headerMediaId: string | undefined = undefined;
+        let headerImageUrl: string | undefined = undefined;
+
         const templateHasMediaHeader = template.components?.some((c: any) => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
         
         if (templateHasMediaHeader) {
-            const overrideUrl = formData.get('headerImageUrl') as string | null;
-            if (overrideUrl && overrideUrl.trim() !== '') {
-                finalHeaderImageUrl = overrideUrl.trim();
-            } else {
-                return { error: 'A public media URL is required for this template.' };
+            if (mediaSource === 'file') {
+                const mediaFile = formData.get('headerImageFile') as File;
+                if (!mediaFile || mediaFile.size === 0) return { error: 'Please upload a media file for this template header.' };
+                
+                const form = new FormData();
+                form.append('file', Buffer.from(await mediaFile.arrayBuffer()), {
+                    filename: mediaFile.name, contentType: mediaFile.type,
+                });
+                form.append('messaging_product', 'whatsapp');
+                
+                const uploadResponse = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
+                const mediaId = uploadResponse.data.id;
+                if (!mediaId) return { error: 'Failed to upload media to Meta. No ID returned.' };
+                headerMediaId = mediaId;
+
+            } else { // mediaSource is 'url'
+                const overrideUrl = formData.get('headerImageUrl') as string | null;
+                if (overrideUrl && overrideUrl.trim() !== '') {
+                    headerImageUrl = overrideUrl.trim();
+                } else {
+                    return { error: 'A public media URL is required for this template.' };
+                }
             }
         }
         
@@ -668,7 +689,8 @@ export async function handleStartBroadcast(
             fileName: contactFile.name,
             components: template.components,
             language: template.language,
-            headerImageUrl: finalHeaderImageUrl,
+            headerImageUrl: headerImageUrl,
+            headerMediaId: headerMediaId,
             category: template.category,
         };
     }
@@ -4103,7 +4125,7 @@ export async function updateUserPlanByAdmin(userId: string, planId: string): Pro
         return { success: true };
     } catch (error) {
         console.error("Failed to update user plan:", error);
-        return { success: false, error: 'An unexpected database error occurred.' };
+        return { success: false, error: 'An unexpected error occurred.' };
     }
 }
 

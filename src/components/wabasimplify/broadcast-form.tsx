@@ -12,9 +12,9 @@ import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { LoaderCircle, Send, AlertCircle } from 'lucide-react';
+import { LoaderCircle, Send, AlertCircle, UploadCloud, Link } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import type { Project, Template, MetaFlow } from '@/app/dashboard/page';
+import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
@@ -59,7 +59,8 @@ export function BroadcastForm({ templates, project, metaFlows }: BroadcastFormPr
   const [selectedFlowId, setSelectedFlowId] = useState('');
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState('');
   const [fileInputKey, setFileInputKey] = useState(Date.now());
-  const [headerImageUrl, setHeaderImageUrl] = useState('');
+  const [headerMediaSource, setHeaderMediaSource] = useState<'url' | 'file'>('url');
+
 
   useEffect(() => {
     if (state?.message) {
@@ -67,9 +68,11 @@ export function BroadcastForm({ templates, project, metaFlows }: BroadcastFormPr
         title: 'Success!',
         description: state.message,
       });
-      // Instead of resetting the whole form, just reset the file input and header image url
-      setFileInputKey(Date.now());
-      setHeaderImageUrl('');
+      setFileInputKey(Date.now()); // Resets both file inputs
+      formRef.current?.reset();
+      setSelectedTemplate(null);
+      setSelectedFlowId('');
+      setSelectedPhoneNumber('');
     }
     if (state?.error) {
       toast({
@@ -209,20 +212,31 @@ export function BroadcastForm({ templates, project, metaFlows }: BroadcastFormPr
                     <div className="md:col-span-3">
                         <Separator className="my-2" />
                     </div>
-                    <div className="md:col-span-3 space-y-2">
-                        <Label htmlFor="headerImageUrl">Header Media URL (Required)</Label>
-                        <Input
-                            id="headerImageUrl"
-                            name="headerImageUrl"
-                            type="url"
-                            placeholder="https://example.com/image.png"
-                            value={headerImageUrl}
-                            onChange={(e) => setHeaderImageUrl(e.target.value)}
-                            required
-                        />
-                        <p className="text-xs text-muted-foreground">
-                            A public media URL is required to send a broadcast with this template.
-                        </p>
+                    <div className="md:col-span-3 space-y-4">
+                        <Label>Header Media (Required)</Label>
+                        <RadioGroup name="mediaSource" value={headerMediaSource} onValueChange={(val) => setHeaderMediaSource(val as any)} className="flex gap-4 pt-1">
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="source-url" /><Label htmlFor="source-url" className="flex items-center gap-2"><Link className="h-4 w-4"/>Use public URL</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="file" id="source-file" /><Label htmlFor="source-file" className="flex items-center gap-2"><UploadCloud className="h-4 w-4"/>Upload file</Label></div>
+                        </RadioGroup>
+                        
+                        {headerMediaSource === 'url' ? (
+                             <Input
+                                id="headerImageUrl"
+                                name="headerImageUrl"
+                                type="url"
+                                placeholder="https://example.com/image.png"
+                                required
+                            />
+                        ) : (
+                            <Input
+                                id="headerImageFile"
+                                name="headerImageFile"
+                                type="file"
+                                accept="image/*,video/*,application/pdf"
+                                required
+                                className="file:text-primary file:font-medium"
+                            />
+                        )}
                     </div>
                 </>
             )}

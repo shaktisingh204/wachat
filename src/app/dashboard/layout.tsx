@@ -123,21 +123,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
   const planFeatures = sessionUser?.plan?.features;
 
-  const filteredMenuItems = allMenuItems.filter(item => {
-    if (!planFeatures) return true; // Show all if plan isn't loaded yet
-    switch (item.featureKey) {
-        case 'liveChat': return planFeatures.liveChat;
-        case 'contacts': return planFeatures.contacts;
-        case 'campaigns': return planFeatures.campaigns;
-        case 'whatsappAds': return planFeatures.whatsappAds;
-        case 'templates': return planFeatures.templates;
-        case 'flowBuilder': return planFeatures.flowBuilder;
-        case 'metaFlows': return planFeatures.metaFlows;
-        case 'webhooks': return planFeatures.webhooks;
-        default: return true; // For items without a specific feature flag
-    }
-  });
-
   return (
     <SidebarProvider>
       <Sidebar>
@@ -149,22 +134,33 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {filteredMenuItems.map((item) => (
+            {allMenuItems.map((item) => {
+              const isAllowed = !planFeatures ? true : (planFeatures as any)[item.featureKey] ?? true;
+              const isDisabled = (hasNoProjects && !isSetupPage) || !isAllowed;
+              
+              let tooltipText = item.label;
+              if (hasNoProjects && !isSetupPage) {
+                tooltipText = `${item.label} (connect a project first)`;
+              } else if (!isAllowed) {
+                tooltipText = `${item.label} (Upgrade plan)`;
+              }
+
+              return (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
                   isActive={pathname.startsWith(item.href)}
-                  tooltip={hasNoProjects && !isSetupPage ? `${item.label} (connect a project first)` : item.label}
-                  disabled={hasNoProjects && !isSetupPage}
-                  aria-disabled={hasNoProjects && !isSetupPage}
+                  tooltip={tooltipText}
+                  disabled={isDisabled}
+                  aria-disabled={isDisabled}
                 >
-                  <Link href={hasNoProjects && !isSetupPage ? '#' : item.href} className={cn(hasNoProjects && !isSetupPage && 'pointer-events-none')}>
+                  <Link href={isDisabled ? '#' : item.href} className={cn(isDisabled && 'pointer-events-none')}>
                     <item.icon />
                     <span>{item.label}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-            ))}
+            )})}
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>

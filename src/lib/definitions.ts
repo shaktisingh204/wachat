@@ -493,8 +493,8 @@ export type MetaWabasResponse = {
     }
 };
 
-// This type is used within the action, the cron scheduler has its own definition.
 export type BroadcastJob = {
+    _id: ObjectId;
     projectId: ObjectId;
     broadcastType: 'template' | 'flow';
     templateId?: ObjectId;
@@ -504,12 +504,19 @@ export type BroadcastJob = {
     accessToken: string;
     status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled';
     createdAt: Date;
+    startedAt?: Date;
+    completedAt?: Date;
     contactCount: number;
     fileName: string;
-    components?: any[];
-    language?: string;
+    components: any[];
+    language: string;
     headerImageUrl?: string;
+    headerMediaId?: string;
     category?: Template['category'];
+    successCount?: number;
+    errorCount?: number;
+    messagesPerSecond?: number;
+    projectMessagesPerSecond?: number;
 };
 
 export type AdminUserView = Omit<User, 'password'> & {

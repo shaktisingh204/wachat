@@ -6,7 +6,7 @@ import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
 import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects, GeneralReplyRule, handleUpdateMarketingSettings, Template } from '@/app/actions';
 import type { WithId } from 'mongodb';
-import type { Project, UserAttribute } from '@/app/dashboard/page';
+import type { Project, UserAttribute } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -521,22 +521,23 @@ function MarketingSettingsForm({ project }: { project: WithId<Project> }) {
     )
 }
 
-function FeatureGate({ isAllowed, featureName, children }: { isAllowed: boolean, featureName: string, children: React.ReactNode }) {
-    if (isAllowed) {
-        return <>{children}</>;
-    }
+function FeatureLock({ isAllowed, featureName, children }: { isAllowed: boolean; featureName: string; children: React.ReactNode }) {
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Lock /> {featureName}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground">This feature is not included in your current plan.</p>
-                <Button asChild className="mt-4">
-                    <Link href="/dashboard/billing">Upgrade Plan</Link>
-                </Button>
-            </CardContent>
-        </Card>
+        <div className="relative">
+            {!isAllowed && (
+                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-10 flex flex-col items-center justify-center gap-4 p-4 text-center rounded-lg">
+                    <Lock className="h-12 w-12 text-muted-foreground"/>
+                    <h3 className="text-xl font-bold">'{featureName}' is a Premium Feature</h3>
+                    <p className="text-muted-foreground">This feature is not included in your current plan.</p>
+                    <Button asChild>
+                        <Link href="/dashboard/billing">Upgrade Plan</Link>
+                    </Button>
+                </div>
+            )}
+            <div className={!isAllowed ? 'opacity-40 pointer-events-none' : ''}>
+                {children}
+            </div>
+        </div>
     );
 }
 
@@ -628,21 +629,21 @@ function SettingsPageContent() {
       <Tabs defaultValue={initialTab} className="w-full">
         <ScrollArea className="w-full whitespace-nowrap rounded-md border-b">
             <TabsList className="inline-flex h-auto p-1 bg-transparent w-max">
-              {planFeatures?.settingsBroadcast && <TabsTrigger value="broadcast"><Save className="mr-2 h-4 w-4" />Broadcast</TabsTrigger>}
-              {planFeatures?.settingsAutoReply && <TabsTrigger value="auto-reply"><Bot className="mr-2 h-4 w-4" />Auto-Replies</TabsTrigger>}
-              {planFeatures?.settingsMarketing && <TabsTrigger value="marketing"><Megaphone className="mr-2 h-4 w-4" />Marketing</TabsTrigger>}
-              {planFeatures?.settingsTemplateLibrary && <TabsTrigger value="template-library"><BookCopy className="mr-2 h-4 w-4" />Template Library</TabsTrigger>}
-              {planFeatures?.settingsCannedMessages && <TabsTrigger value="canned-messages"><ClipboardList className="mr-2 h-4 w-4" />Canned Messages</TabsTrigger>}
-              {planFeatures?.settingsAgentsRoles && <TabsTrigger value="agents-roles"><UserCog className="mr-2 h-4 w-4" />Agents & Roles</TabsTrigger>}
-              {planFeatures?.settingsCompliance && <TabsTrigger value="compliance"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>}
-              {planFeatures?.settingsUserAttributes && <TabsTrigger value="attributes"><Users className="mr-2 h-4 w-4" />User Attributes</TabsTrigger>}
+              <TabsTrigger value="broadcast" disabled={!planFeatures?.settingsBroadcast}><Save className="mr-2 h-4 w-4" />Broadcast</TabsTrigger>
+              <TabsTrigger value="auto-reply" disabled={!planFeatures?.settingsAutoReply}><Bot className="mr-2 h-4 w-4" />Auto-Replies</TabsTrigger>
+              <TabsTrigger value="marketing" disabled={!planFeatures?.settingsMarketing}><Megaphone className="mr-2 h-4 w-4" />Marketing</TabsTrigger>
+              <TabsTrigger value="template-library" disabled={!planFeatures?.settingsTemplateLibrary}><BookCopy className="mr-2 h-4 w-4" />Template Library</TabsTrigger>
+              <TabsTrigger value="canned-messages" disabled={!planFeatures?.settingsCannedMessages}><ClipboardList className="mr-2 h-4 w-4" />Canned Messages</TabsTrigger>
+              <TabsTrigger value="agents-roles" disabled={!planFeatures?.settingsAgentsRoles}><UserCog className="mr-2 h-4 w-4" />Agents & Roles</TabsTrigger>
+              <TabsTrigger value="compliance" disabled={!planFeatures?.settingsCompliance}><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
+              <TabsTrigger value="attributes" disabled={!planFeatures?.settingsUserAttributes}><Users className="mr-2 h-4 w-4" />User Attributes</TabsTrigger>
               <TabsTrigger value="tags"><Tags className="mr-2 h-4 w-4" />Tags & Labels</TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
         </ScrollArea>
 
           <TabsContent value="broadcast" className="mt-6">
-            <FeatureGate isAllowed={!!planFeatures?.settingsBroadcast} featureName="Broadcast Settings">
+            <FeatureLock isAllowed={!!planFeatures?.settingsBroadcast} featureName="Broadcast Settings">
                 <form action={formAction}>
                 <input type="hidden" name="projectId" value={project._id.toString()} />
                 <Card>
@@ -660,11 +661,11 @@ function SettingsPageContent() {
                     <CardFooter className="border-t px-6 py-4"><SaveButton>Save Broadcast Settings</SaveButton></CardFooter>
                 </Card>
                 </form>
-            </FeatureGate>
+            </FeatureLock>
           </TabsContent>
 
           <TabsContent value="auto-reply" className="mt-6 space-y-6">
-            <FeatureGate isAllowed={!!planFeatures?.settingsAutoReply} featureName="Auto-Reply Settings">
+            <FeatureLock isAllowed={!!planFeatures?.settingsAutoReply} featureName="Auto-Reply Settings">
                 <MasterSwitch project={project} />
                 <Tabs defaultValue="welcome" className="w-full">
                     <ScrollArea className="w-full whitespace-nowrap rounded-md border-b">
@@ -681,17 +682,17 @@ function SettingsPageContent() {
                 <TabsContent value="inactive" className="mt-4"><Card><InactiveHoursForm project={project} /></Card></TabsContent>
                 <TabsContent value="ai" className="mt-4"><Card><AiAssistantForm project={project} /></Card></TabsContent>
                 </Tabs>
-            </FeatureGate>
+            </FeatureLock>
           </TabsContent>
           
           <TabsContent value="marketing" className="mt-6">
-            <FeatureGate isAllowed={!!planFeatures?.settingsMarketing} featureName="Marketing Settings">
+            <FeatureLock isAllowed={!!planFeatures?.settingsMarketing} featureName="Marketing Settings">
                 <MarketingSettingsForm project={project} />
-            </FeatureGate>
+            </FeatureLock>
           </TabsContent>
 
           <TabsContent value="template-library" className="mt-6">
-            <FeatureGate isAllowed={!!planFeatures?.settingsTemplateLibrary} featureName="Template Library">
+            <FeatureLock isAllowed={!!planFeatures?.settingsTemplateLibrary} featureName="Template Library">
                 <Card>
                     <CardHeader>
                         <CardTitle>Template Library</CardTitle>
@@ -708,31 +709,31 @@ function SettingsPageContent() {
                         </Button>
                     </CardFooter>
                 </Card>
-            </FeatureGate>
+            </FeatureLock>
           </TabsContent>
 
           <TabsContent value="canned-messages" className="mt-6">
-            <FeatureGate isAllowed={!!planFeatures?.settingsCannedMessages} featureName="Canned Messages">
+            <FeatureLock isAllowed={!!planFeatures?.settingsCannedMessages} featureName="Canned Messages">
                 <CannedMessagesSettingsTab project={project} />
-            </FeatureGate>
+            </FeatureLock>
           </TabsContent>
 
           <TabsContent value="agents-roles" className="mt-6">
-             <FeatureGate isAllowed={!!planFeatures?.settingsAgentsRoles} featureName="Agents & Roles">
+             <FeatureLock isAllowed={!!planFeatures?.settingsAgentsRoles} featureName="Agents & Roles">
                 <AgentsRolesSettingsTab project={project} user={user} />
-             </FeatureGate>
+             </FeatureLock>
           </TabsContent>
 
           <TabsContent value="compliance" className="mt-6">
-              <FeatureGate isAllowed={!!planFeatures?.settingsCompliance} featureName="Compliance Settings">
+              <FeatureLock isAllowed={!!planFeatures?.settingsCompliance} featureName="Compliance Settings">
                 <Card><OptInOutForm project={project} /></Card>
-              </FeatureGate>
+              </FeatureLock>
           </TabsContent>
 
           <TabsContent value="attributes" className="mt-6">
-            <FeatureGate isAllowed={!!planFeatures?.settingsUserAttributes} featureName="User Attributes">
+            <FeatureLock isAllowed={!!planFeatures?.settingsUserAttributes} featureName="User Attributes">
                 <UserAttributesForm project={project} user={user} />
-            </FeatureGate>
+            </FeatureLock>
           </TabsContent>
           
           <TabsContent value="tags" className="mt-6">

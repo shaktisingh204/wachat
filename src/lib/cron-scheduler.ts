@@ -8,27 +8,7 @@ config();
 import { connectToDatabase } from '@/lib/mongodb';
 import { Db, ObjectId, FindOneAndUpdateOptions, Filter } from 'mongodb';
 import axios from 'axios';
-
-type BroadcastJob = {
-    _id: ObjectId;
-    projectId: ObjectId;
-    templateId: ObjectId;
-    templateName: string;
-    phoneNumberId: string;
-    accessToken: string;
-    status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled';
-    createdAt: Date;
-    startedAt?: Date;
-    completedAt?: Date;
-    successCount?: number;
-    errorCount?: number;
-    components: any[];
-    language: string;
-    headerImageUrl?: string;
-    contactCount?: number;
-    messagesPerSecond?: number;
-    projectMessagesPerSecond?: number;
-};
+import { type BroadcastJob as BroadcastJobType } from './definitions';
 
 type BroadcastContact = {
     _id: ObjectId;
@@ -119,11 +99,9 @@ async function* contactGenerator(
 }
 
 
-async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: number): Promise<any> {
+async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate: number): Promise<any> {
     const jobId = job._id;
     try {
-        const uploadFilename = 'media-file';
-
         const operationsBuffer: any[] = [];
         
         const sendSingleMessage = async (contactDoc: BroadcastContact) => {
@@ -150,26 +128,17 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
                                 parameters.push({ type: 'text', text: contact[`variable${varNum}`] || '' });
                             });
                         }
-                    } else if (job.headerImageUrl && ['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                        const format = headerComponent.format.toUpperCase();
-                        const link = job.headerImageUrl;
-                        let parameter;
-
-                        switch (format) {
-                            case 'IMAGE':
-                                parameter = { type: 'image', image: { link } };
-                                break;
-                            case 'VIDEO':
-                                parameter = { type: 'video', video: { link } };
-                                break;
-                            case 'DOCUMENT':
-                                parameter = { type: 'document', document: { link, filename: contact['filename'] || uploadFilename } };
-                                break;
-                            case 'AUDIO':
-                                parameter = { type: 'audio', audio: { link } };
-                                break;
+                    } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
+                        const format = headerComponent.format.toLowerCase();
+                        let parameter: any;
+                        if (job.headerMediaId) {
+                            parameter = { type: format, [format]: { id: job.headerMediaId } };
+                        } else if (job.headerImageUrl) {
+                            parameter = { type: format, [format]: { link: job.headerImageUrl } };
+                            if(format === 'document') {
+                                parameter.document.filename = contact['filename'] || 'document';
+                            }
                         }
-
                         if (parameter) {
                             parameters.push(parameter);
                         }
@@ -254,7 +223,7 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJob, perJobRate: num
             const now = Date.now();
             if (now - lastCheckTime > 2000) { // Check every 2 seconds
                 lastCheckTime = now;
-                const currentJobState = await db.collection<BroadcastJob>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
+                const currentJobState = await db.collection<BroadcastJobType>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
                 if (currentJobState?.status === 'Cancelled') {
                     isCancelled = true;
                     return true;
@@ -367,7 +336,7 @@ export async function processBroadcastJob() {
 
         const tenSecondsAgo = new Date(Date.now() - 10 * 1000);
 
-        const jobsForThisRun = await db.collection<BroadcastJob>('broadcasts').find({
+        const jobsForThisRun = await db.collection<BroadcastJobType>('broadcasts').find({
             _id: { $ne: lockId as any },
             $or: [
                 { status: 'QUEUED' },
@@ -400,7 +369,7 @@ export async function processBroadcastJob() {
             }
             acc[projectId].push(job);
             return acc;
-        }, {} as Record<string, BroadcastJob[]>);
+        }, {} as Record<string, BroadcastJobType[]>);
 
         const processingTasks: Promise<any>[] = [];
 
