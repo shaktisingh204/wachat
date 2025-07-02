@@ -91,17 +91,18 @@ export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
     }
     
     const layout = currentScreen.layout;
-    const layoutChildren = layout?.children || [];
-    const mainContainer = layoutChildren[0];
+    const safeLayoutChildren = layout?.children?.filter(Boolean) || [];
+    const mainContainer = safeLayoutChildren.find((c: any) => c && c.type === 'Form');
     
     let renderableComponents: any[] = [];
     let footerComponent: any = null;
 
-    if (mainContainer?.type === 'Form') {
-        renderableComponents = mainContainer.children || [];
-        footerComponent = renderableComponents.find(c => c.type === 'Footer');
+    if (mainContainer) {
+        renderableComponents = mainContainer.children?.filter(Boolean) || [];
+        footerComponent = renderableComponents.find(c => c && c.type === 'Footer');
     } else {
-        renderableComponents = layoutChildren;
+        renderableComponents = safeLayoutChildren;
+        footerComponent = renderableComponents.find(c => c && c.type === 'Footer');
     }
 
     const handleAction = (action: any) => {
@@ -129,7 +130,7 @@ export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
             <CardContent className="flex-1 bg-white">
                 <ScrollArea className="h-full w-full">
                     <div className="p-4 space-y-4">
-                        {renderableComponents.map((component: any, index: number) => (
+                        {renderableComponents.filter(c => c && c.type !== 'Footer').map((component: any, index: number) => (
                             <FlowComponent key={component.name || index} component={component} formData={formData} setFormData={setFormData} />
                         ))}
                     </div>
@@ -143,5 +144,3 @@ export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
         </Card>
     );
 }
-
-    

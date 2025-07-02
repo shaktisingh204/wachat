@@ -5,7 +5,7 @@ import { Suspense, useActionState, useEffect, useState, useTransition, useCallba
 import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Wand2, Settings } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Wand2, Settings, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -25,6 +25,7 @@ import type { WithId } from 'mongodb';
 import type { MetaFlow } from '@/lib/definitions';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const createFlowInitialState = { message: null, error: null };
 
@@ -125,6 +126,11 @@ function CreateMetaFlowPage() {
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         setProjectId(storedProjectId);
+        if (!storedProjectId) {
+            setIsLoading(false);
+            return;
+        }
+
         if (flowId) {
             setIsLoading(true);
             getMetaFlowById(flowId).then(data => {
@@ -145,7 +151,7 @@ function CreateMetaFlowPage() {
                 description: '',
                 routing_model: {},
                 screens: [{
-                    id: 'SCREENA',
+                    id: 'SCREEN_1',
                     title: 'Welcome Screen',
                     layout: {
                         type: 'SingleColumnLayout',
@@ -185,7 +191,7 @@ function CreateMetaFlowPage() {
             } else if (result.flowJson) {
                 try {
                     const parsedFlow = JSON.parse(result.flowJson);
-                    parsedFlow.version = '7.1';
+                    if (!parsedFlow.version) parsedFlow.version = '7.1';
                     setFlowData(parsedFlow);
                     toast({ title: "Flow Generated!", description: "The AI has created your flow. Review and save it." });
                 } catch (e) {
@@ -212,7 +218,6 @@ function CreateMetaFlowPage() {
     
     const addComponentToScreen = (screenIndex: number, componentType: DeclarativeUIComponent['type']) => {
         const newComponent: any = { type: componentType };
-        // Add name only to components that support it
         const supportedNameComponents = ['TextInput', 'TextArea', 'DatePicker', 'CalendarPicker', 'Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'ChipsSelector', 'PhotoPicker', 'DocumentPicker', 'ImageCarousel', 'OptIn', 'NavigationList'];
         if (supportedNameComponents.includes(componentType)) {
             newComponent.name = `${componentType.toLowerCase()}_${Date.now()}`;
@@ -234,10 +239,14 @@ function CreateMetaFlowPage() {
         setFlowData((prev: any) => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
-            if (screenToUpdate.layout.children.find((c: any) => c.type === 'Form')) {
-                 const formIndex = screenToUpdate.layout.children.findIndex((c: any) => c.type === 'Form');
-                 screenToUpdate.layout.children[formIndex].children.push(newComponent);
+            const safeLayoutChildren = screenToUpdate.layout?.children?.filter(Boolean) || [];
+            const formContainer = safeLayoutChildren.find((c: any) => c && c.type === 'Form');
+            
+            if (formContainer) {
+                 if (!formContainer.children) formContainer.children = [];
+                 formContainer.children.push(newComponent);
             } else {
+                 if (!screenToUpdate.layout.children) screenToUpdate.layout.children = [];
                  screenToUpdate.layout.children.push(newComponent);
             }
             return { ...prev, screens: newScreens };
@@ -248,35 +257,42 @@ function CreateMetaFlowPage() {
         setFlowData((prev: any) => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
-            const formContainer = screenToUpdate.layout.children.find((c: any) => c.type === 'Form');
-            if (formContainer) {
-                formContainer.children = (formContainer.children || []).filter((_: any, i: number) => i !== componentIndex).filter(Boolean);
-            } else {
-                 screenToUpdate.layout.children = (screenToUpdate.layout.children || []).filter((_: any, i: number) => i !== componentIndex).filter(Boolean);
+            const safeLayoutChildren = screenToUpdate.layout?.children?.filter(Boolean) || [];
+            const formContainer = safeLayoutChildren.find((c: any) => c && c.type === 'Form');
+
+            if (formContainer && formContainer.children) {
+                formContainer.children = formContainer.children.filter((_: any, i: number) => i !== componentIndex);
+            } else if (screenToUpdate.layout.children) {
+                 screenToUpdate.layout.children = screenToUpdate.layout.children.filter((_: any, i: number) => i !== componentIndex);
             }
             return { ...prev, screens: newScreens };
         });
     };
     
     const addNewScreen = () => {
-        const existingIds = flowData.screens.map((s: any) => s.id);
+        let counter = flowData.screens?.length || 0;
         let newId = '';
-        let counter = 0;
-        // Find a unique letter suffix (A, B, ..., Z, AA, AB, ...)
+        const existingIds = flowData.screens?.map((s: any) => s.id) || [];
+        
         do {
             let suffix = '';
             let num = counter;
-            while (num >= 0) {
-                suffix = String.fromCharCode(65 + (num % 26)) + suffix;
-                num = Math.floor(num / 26) - 1;
+            if (num === 0) {
+                suffix = 'A';
+            } else {
+                 while (num >= 0) {
+                    suffix = String.fromCharCode(65 + (num % 26)) + suffix;
+                    num = Math.floor(num / 26) - 1;
+                    if (num < 0) break;
+                }
             }
-            newId = `SCREEN${suffix}`;
+            newId = `SCREEN_${suffix}`;
             counter++;
         } while (existingIds.includes(newId));
 
         const newScreen = {
             id: newId,
-            title: `Screen ${newId.replace('SCREEN', '')}`,
+            title: `New Screen`,
             layout: {
                 type: 'SingleColumnLayout',
                 children: [{
@@ -287,11 +303,11 @@ function CreateMetaFlowPage() {
             terminal: true,
             success: true,
         };
-        setFlowData(prev => ({ ...prev, screens: [...prev.screens, newScreen] }));
+        setFlowData((prev: any) => ({ ...prev, screens: [...(prev.screens || []), newScreen] }));
     };
 
     const removeScreen = (screenIndex: number) => {
-        setFlowData(prev => ({
+        setFlowData((prev: any) => ({
             ...prev,
             screens: prev.screens.filter((_: any, i: number) => i !== screenIndex)
         }));
@@ -301,10 +317,12 @@ function CreateMetaFlowPage() {
         if (!editingComponent) return;
         setFlowData(prev => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
-            const formContainer = newScreens[editingComponent.screenIndex].layout.children.find((c: any) => c.type === 'Form');
-            if (formContainer) {
+            const safeLayoutChildren = newScreens[editingComponent.screenIndex].layout?.children?.filter(Boolean) || [];
+            const formContainer = safeLayoutChildren.find((c: any) => c && c.type === 'Form');
+
+            if (formContainer && formContainer.children) {
                 formContainer.children[editingComponent.componentIndex] = updatedComponent;
-            } else {
+            } else if (newScreens[editingComponent.screenIndex].layout.children) {
                 newScreens[editingComponent.screenIndex].layout.children[editingComponent.componentIndex] = updatedComponent;
             }
             return { ...prev, screens: newScreens };
@@ -360,7 +378,7 @@ function CreateMetaFlowPage() {
                 targets = findNavTargets(screen.layout.children);
             }
             
-            const navList = screen.layout?.children?.find((c: any) => c.type === 'NavigationList');
+            const navList = screen.layout?.children?.find((c: any) => c && c.type === 'NavigationList');
             if (navList) {
                 const compAction = navList['on-click-action'];
                 if (compAction?.name === 'navigate' && compAction.next?.name) {
@@ -385,6 +403,18 @@ function CreateMetaFlowPage() {
     }, [flowData?.screens, flowData?.routing_model, updateFlowField]);
     
     if (isLoading) return <PageSkeleton />;
+
+    if (!projectId && !isLoading) {
+        return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>No Project Selected</AlertTitle>
+                <AlertDescription>
+                    Please select a project from the main dashboard before creating a Meta Flow.
+                </AlertDescription>
+            </Alert>
+        )
+    }
 
     return (
         <form action={formAction} className="space-y-6">
@@ -451,7 +481,12 @@ function CreateMetaFlowPage() {
                             </CardHeader>
                             <CardContent>
                                 <Accordion type="multiple" className="w-full space-y-4" defaultValue={['item-0']}>
-                                    {(flowData.screens || []).map((screen: any, screenIndex: number) => (
+                                    {(flowData.screens || []).map((screen: any, screenIndex: number) => {
+                                        const safeLayoutChildren = screen.layout?.children?.filter(Boolean) || [];
+                                        const formContainer = safeLayoutChildren.find((c: any) => c && c.type === 'Form');
+                                        const componentsToRender = formContainer ? (formContainer.children || []) : safeLayoutChildren;
+                                        
+                                        return (
                                         <AccordionItem value={`item-${screenIndex}`} key={screen.id} className="border rounded-md px-4">
                                             <AccordionTrigger className="hover:no-underline">
                                                 <div className="flex items-center justify-between w-full">
@@ -465,17 +500,17 @@ function CreateMetaFlowPage() {
                                                     <Input
                                                         id={`screen-id-${screen.id}`}
                                                         value={screen.id}
-                                                        onChange={e => updateScreenField(screenIndex, 'id', e.target.value.toUpperCase().replace(/[^A-Z]/g, ''))}
+                                                        onChange={e => updateScreenField(screenIndex, 'id', e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''))}
                                                         className="font-mono"
                                                     />
-                                                    <p className="text-xs text-muted-foreground">Unique ID for this screen. Only uppercase letters are allowed.</p>
+                                                    <p className="text-xs text-muted-foreground">Unique ID for this screen. Only uppercase letters, numbers and underscores are allowed.</p>
                                                 </div>
                                                 <div className="flex items-center justify-end gap-6 text-sm">
                                                     <div className="flex items-center gap-2"><Label htmlFor={`terminal-${screen.id}`}>Terminal Screen</Label><Switch id={`terminal-${screen.id}`} checked={!!screen.terminal} onCheckedChange={(val) => updateScreenField(screenIndex, 'terminal', val)}/></div>
                                                     <div className="flex items-center gap-2"><Label htmlFor={`success-${screen.id}`}>Success Screen</Label><Switch id={`success-${screen.id}`} checked={!!screen.success} onCheckedChange={(val) => updateScreenField(screenIndex, 'success', val)}/></div>
                                                 </div>
                                                 <h4 className="font-semibold text-sm">Components</h4>
-                                                {(screen.layout.children.find((c: any) => c.type === 'Form')?.children || screen.layout.children).filter(Boolean).map((component: any, compIndex: number) => (
+                                                {componentsToRender.filter(Boolean).map((component: any, compIndex: number) => (
                                                     <div key={component.name || compIndex} className="p-3 border rounded-lg space-y-2 relative bg-background">
                                                         <div className="flex justify-between items-center">
                                                             <p className="text-sm font-medium text-muted-foreground">{component.type}</p>
@@ -493,7 +528,7 @@ function CreateMetaFlowPage() {
                                                 </Popover>
                                             </AccordionContent>
                                         </AccordionItem>
-                                    ))}
+                                    )})}
                                 </Accordion>
                             </CardContent>
                         </Card>
