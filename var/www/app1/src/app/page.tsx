@@ -59,6 +59,12 @@ const features = [
     title: 'Kanban Chat View',
     description: 'Organize conversations visually with a drag-and-drop Kanban board to track leads and support tickets.',
     gradient: 'card-gradient-purple',
+  },
+  {
+    icon: <ShoppingBag className="h-8 w-8 text-primary" />,
+    title: 'Product Catalogs',
+    description: 'Showcase your products directly within WhatsApp using interactive catalog messages.',
+    gradient: 'card-gradient-orange',
   }
 ];
 
@@ -121,7 +127,7 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       {/* Header */}
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex h-14 items-center">
+        <div className="container mx-auto px-4 flex h-14 items-center">
           <div className="mr-4 flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
               <WachatLogo className="h-8 w-auto" />
@@ -142,7 +148,7 @@ export default function HomePage() {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="py-16 md:py-24">
-          <div className="container mx-auto grid justify-items-center text-center gap-8">
+          <div className="container mx-auto px-4 grid justify-items-center text-center gap-8">
             <div className="space-y-4 max-w-3xl">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tighter">
                 Streamline Your WhatsApp Business API Experience
@@ -281,7 +287,7 @@ export default function HomePage() {
 
         {/* Features Section */}
         <section id="features" className="py-16 bg-muted">
-          <div className="container mx-auto">
+          <div className="container mx-auto px-4">
             <div className="text-center space-y-4 mb-12">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Powerful Tools for Growth</h2>
               <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -308,7 +314,7 @@ export default function HomePage() {
 
         {/* Showcase Section */}
         <section id="showcase" className="py-16 md:py-24 bg-muted">
-            <div className="container mx-auto">
+            <div className="container mx-auto px-4">
                 <div className="text-center space-y-4 mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">One Platform, Complete Control</h2>
                     <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -464,7 +470,7 @@ export default function HomePage() {
 
         {/* New Features Section */}
         <section className="py-16 md:py-24">
-            <div className="container mx-auto">
+            <div className="container mx-auto px-4">
                 <div className="text-center space-y-4 mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">A Complete Toolkit for WhatsApp</h2>
                     <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -623,13 +629,65 @@ export default function HomePage() {
                             <p className="text-muted-foreground">Easily manage opt-ins and opt-outs to stay compliant with WhatsApp policies and respect customer preferences.</p>
                         </div>
                     </div>
+
+                    {/* Product Catalog Showcase */}
+                    <div className="flex flex-col sm:flex-row-reverse items-center gap-8" key={`showcase-9-${animationKey}`}>
+                         <div className="w-[340px] h-auto flex-shrink-0">
+                            <div className="relative w-full h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                                <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
+                                    <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                                        <ArrowLeft className="h-5 w-5 opacity-90" />
+                                        <Avatar><AvatarFallback>E</AvatarFallback></Avatar>
+                                        <div className="flex-1"><p className="font-semibold text-[15px]">Ecoshop</p><p className="text-xs opacity-80">online</p></div>
+                                    </div>
+                                    <div className="flex-1 p-3 space-y-3 overflow-y-auto">
+                                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-[#202C33] text-white rounded-lg rounded-tl-none p-2 text-sm max-w-xs shadow">Do you have any new arrivals?</div></div>
+                                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '1.5s' }}>
+                                            <div className="bg-[#005C4B] text-white rounded-lg rounded-tr-none p-2 text-sm max-w-xs shadow">
+                                                <p>Yes we do! Check out our latest collection by tapping the button below.</p>
+                                                <div className="w-full bg-black/20 text-center rounded-md p-2 mt-2 font-medium text-base">
+                                                    🛍️ View Products
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '2.5s', opacity: 0 }}>
+                                      <div className="bg-white h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '2.8s' }}>
+                                        <div className="p-2 border-b text-center font-semibold text-sm">
+                                          Our Collection
+                                        </div>
+                                        <div className="flex-1 p-2 space-y-2 overflow-y-auto">
+                                          <div className="flex gap-3 border rounded-lg p-2 bg-white">
+                                            <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="eco-friendly bottle"/>
+                                            <div><p className="font-medium text-gray-800 text-sm">Eco Water Bottle</p><p className="text-xs text-muted-foreground">$15.00</p></div>
+                                          </div>
+                                           <div className="flex gap-3 border rounded-lg p-2 bg-white">
+                                            <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="bamboo toothbrush"/>
+                                            <div><p className="font-medium text-gray-800 text-sm">Bamboo Toothbrush Set</p><p className="text-xs text-muted-foreground">$8.00</p></div>
+                                          </div>
+                                          <div className="flex gap-3 border rounded-lg p-2 bg-white">
+                                            <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="tote bag"/>
+                                            <div><p className="font-medium text-gray-800 text-sm">Reusable Tote Bag</p><p className="text-xs text-muted-foreground">$12.00</p></div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                   </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="space-y-4 text-center sm:text-left">
+                            <ShoppingBag className="h-8 w-8 text-primary"/>
+                            <h3 className="text-2xl font-bold font-headline">Interactive Product Catalogs</h3>
+                            <p className="text-muted-foreground">Let customers browse and purchase your products directly in chat with rich, interactive catalog messages.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
         {/* Testimonials Section */}
         <section className="py-16">
-            <div className="container mx-auto">
+            <div className="container mx-auto px-4">
                 <div className="text-center space-y-4 mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Loved by Businesses Worldwide</h2>
                     <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
@@ -663,7 +721,7 @@ export default function HomePage() {
 
         {/* FAQ Section */}
         <section className="py-16 bg-muted">
-            <div className="container max-w-3xl mx-auto">
+            <div className="container max-w-3xl mx-auto px-4">
                  <div className="text-center space-y-4 mb-10">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Frequently Asked Questions</h2>
                 </div>
@@ -682,7 +740,7 @@ export default function HomePage() {
         
         {/* Final CTA Section */}
         <section className="py-16">
-            <div className="container mx-auto">
+            <div className="container mx-auto px-4">
                 <div className="relative overflow-hidden bg-primary text-primary-foreground rounded-lg p-8 md:p-12 text-center space-y-4">
                      <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-white/10 rounded-full"></div>
                      <div className="absolute -top-10 -left-10 w-32 h-32 bg-white/10 rounded-full"></div>
@@ -702,7 +760,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer className="border-t">
-        <div className="container mx-auto py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="container mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} Wachat. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/terms-and-conditions" className="text-sm text-muted-foreground hover:text-primary">
