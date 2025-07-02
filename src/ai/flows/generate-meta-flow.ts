@@ -305,7 +305,7 @@ const DataDefinitionSchema = z.object({
 
 
 const ScreenSchema = z.object({
-  id: z.string().regex(/^[A-Z_0-9]+$/, "Screen ID must be uppercase letters, numbers, and underscores only.").describe("A unique identifier for the screen, e.g., 'SURVEY_START'. Must be uppercase letters, numbers, and underscores only."),
+  id: z.string().regex(/^[A-Z_]+$/, "Screen ID must be uppercase letters and underscores only.").describe("A unique identifier for the screen, e.g., 'SURVEY_START'. Must be uppercase letters and underscores only."),
   title: z.string().describe("The title of the screen."),
   layout: z.object({
       type: z.literal('SingleColumnLayout'),
@@ -347,14 +347,14 @@ const prompt = ai.definePrompt({
 **CRITICAL RULES:**
 1.  **Top-Level Structure**: The root object MUST contain 'version', 'name', 'routing_model', and 'screens'.
 2.  **Name and Version**: The 'version' MUST be "7.1". The 'name' MUST be a lowercase, snake_cased string (e.g., 'appointment_booking'). Generate a descriptive 'name' and a helpful 'description' for the flow.
-3.  **Screen IDs**: Each screen ID MUST be unique and contain ONLY uppercase letters, numbers, and underscores (e.g., 'WELCOME_SCREEN', 'SURVEY_PAGE_1'). The regex is /^[A-Z_0-9]+$/ .
-4.  **Strict Schema Adherence**: Only include properties explicitly defined in the schema for each component. DO NOT add extraneous properties. For example:
-    -   \`TextHeading\`, \`TextSubheading\`, \`TextBody\`, and \`TextCaption\` components ONLY have a \`text\` and optional \`visible\` property. DO NOT add a \`name\` property to them.
-    -   Input components like \`TextInput\` and \`Dropdown\` MUST have a \`name\` property.
+3.  **Screen IDs**: Each screen ID MUST be unique and contain ONLY uppercase letters and underscores (e.g., 'WELCOME_SCREEN', 'SURVEY_PAGE_ONE'). Avoid using numbers in screen IDs. The regex is /^[A-Z_]+$/ .
+4.  **Strict Schema Adherence**: Only include properties explicitly defined in the schema for each component. DO NOT add extraneous properties. This is the most important rule.
+    -   **Text Components**: \`TextHeading\`, \`TextSubheading\`, \`TextBody\`, and \`TextCaption\` components ONLY have a \`text\` property and optional visibility/enabled properties. They MUST NOT have a \`name\` property.
+    -   **Input Components**: Input components like \`TextInput\` or \`Dropdown\` MUST have a \`name\` property and a \`label\` property (for user-facing text), not a \`text\` property.
 5.  **Screen Structure**: Each screen in the 'screens' array requires an \`id\`, \`title\`, and a \`layout\`.
     -   \`layout\`: A 'SingleColumnLayout' object containing a 'children' array. This array usually holds a single 'Form' or a 'NavigationList'.
 6.  **Navigation**:
-    -   The \`routing_model\` defines all possible navigation paths. For each screen ID, list the IDs of all screens it can navigate to. Example: \`{'SCREEN_A': ['SCREEN_B'], 'SCREEN_B': ['FINAL_SCREEN'], 'FINAL_SCREEN': []}\`.
+    -   The \`routing_model\` defines all possible navigation paths. For each screen ID, list the IDs of all screens it can navigate to. Example: \`{'WELCOME_SCREEN': ['SURVEY_PAGE_ONE'], 'SURVEY_PAGE_ONE': ['FINAL_SCREEN'], 'FINAL_SCREEN': []}\`.
     -   Navigation is triggered by \`on-click-action\` (on \`Footer\`, \`EmbeddedLink\`, or \`NavigationList\` items).
     -   Use the format: \`{ "name": "navigate", "next": { "type": "screen", "name": "TARGET_ID" } }\`.
 7.  **Final Screens**: The final screen in any path must have \`terminal: true\`. Its footer's on-click-action must be \`{ "name": "complete" }\`.
