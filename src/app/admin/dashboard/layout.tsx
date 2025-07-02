@@ -26,19 +26,18 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { WachatLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell, CreditCard, GitFork, BookCopy } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users } from 'lucide-react';
 import { handleAdminLogout } from '@/app/actions';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/dashboard/users', label: 'Users', icon: Users },
   { href: '/admin/dashboard/plans', label: 'Plans', icon: CreditCard },
   { href: '/admin/dashboard/template-library', label: 'Template Library', icon: BookCopy },
-  { href: '/admin/dashboard/system', label: 'System Health', icon: ShieldCheck },
   { href: '/admin/dashboard/broadcast-log', label: 'Broadcast Log', icon: History },
   { href: '/admin/dashboard/flow-logs', label: 'Flow Logs', icon: GitFork },
+  { href: '/admin/dashboard/system', label: 'System Health', icon: ShieldCheck },
 ];
 
 export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
@@ -54,7 +53,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
           <SidebarMenu>
             {menuItems.map((item) => (
               <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                <SidebarMenuButton asChild isActive={pathname === item.href || (item.href !== '/admin/dashboard' && pathname.startsWith(item.href))} tooltip={item.label}>
                   <Link href={item.href}>
                     <item.icon className="h-4 w-4" />
                     <span>{item.label}</span>
@@ -66,14 +65,6 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive={pathname.startsWith('/admin/dashboard/system')} tooltip="System Settings">
-                <Link href="/admin/dashboard/system">
-                  <Settings className="h-4 w-4" />
-                  <span>System Settings</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
             <SidebarMenuItem>
                 <form action={handleAdminLogout} className="w-full">
                     <SidebarMenuButton asChild tooltip="Logout">
@@ -107,9 +98,6 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
                  <DropdownMenuItem asChild>
                     <form action={handleAdminLogout} className="w-full">

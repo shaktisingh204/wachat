@@ -2459,6 +2459,9 @@ export async function getFlowLogById(logId: string): Promise<WithId<FlowLog> | n
 }
 
 export async function getPaymentGatewaySettings(): Promise<WithId<PaymentGatewaySettings> | null> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return null;
+
     try {
         const { db } = await connectToDatabase();
         const settings = await db.collection('system_settings').findOne({ _id: 'phonepe' });
@@ -3524,12 +3527,15 @@ export async function handleSaveUserAttributes(prevState: any, formData: FormDat
     
     if (!projectId) return { error: 'Project ID is missing.' };
     
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
+    
     try {
         const attributes = JSON.parse(attributesJSON);
         
         const { db } = await connectToDatabase();
         await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId), userId: new ObjectId(session.user._id) },
+            { _id: new ObjectId(projectId) },
             { $set: { userAttributes: attributes } }
         );
         revalidatePath('/dashboard/settings');
@@ -4123,6 +4129,8 @@ export async function deleteLibraryTemplate(id: string): Promise<{ message?: str
 }
 
 export async function getTemplateCategories(): Promise<WithId<TemplateCategory>[]> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return [];
     try {
         const { db } = await connectToDatabase();
         return JSON.parse(JSON.stringify(await db.collection('template_categories').find({}).sort({ name: 1 }).toArray()));

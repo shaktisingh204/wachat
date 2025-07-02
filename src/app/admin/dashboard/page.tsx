@@ -1,9 +1,9 @@
 
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Briefcase, CheckSquare, Server, AlertTriangle, MessageSquare, Send, GitFork, ServerCog } from 'lucide-react';
+import { Briefcase, CheckSquare, Server, AlertTriangle, MessageSquare, Send, GitFork, ServerCog, Edit } from 'lucide-react';
 import type { Metadata } from 'next';
-import { getAllProjectsForAdmin } from '@/app/actions';
+import { getAllProjectsForAdmin, getPlans } from '@/app/actions';
 import type { Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import {
@@ -21,6 +21,8 @@ import { ProjectSearch } from '@/components/wabasimplify/project-search';
 import { AdminDeleteProjectButton } from '@/components/wabasimplify/admin-delete-project-button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { AdminUpdateCreditsButton } from '@/components/wabasimplify/admin-update-credits-button';
+import { AdminAssignPlanDialog } from '@/components/wabasimplify/admin-assign-plan-dialog';
 
 export const dynamic = 'force-dynamic';
 
@@ -53,6 +55,7 @@ export default async function AdminDashboardPage({
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
   const { projects, total } = await getAllProjectsForAdmin(query, currentPage, PROJECTS_PER_PAGE);
+  const allPlans = await getPlans();
   const totalPages = Math.ceil(total / PROJECTS_PER_PAGE);
 
   return (
@@ -153,9 +156,9 @@ export default async function AdminDashboardPage({
                 <TableHeader>
                 <TableRow>
                     <TableHead>Project Name</TableHead>
+                    <TableHead>Current Plan</TableHead>
+                    <TableHead>Credits</TableHead>
                     <TableHead>WABA ID</TableHead>
-                    <TableHead>Phone Numbers</TableHead>
-                    <TableHead>Created At</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
                 </TableHeader>
@@ -164,12 +167,12 @@ export default async function AdminDashboardPage({
                     projects.map((project) => (
                     <TableRow key={project._id.toString()}>
                         <TableCell className="font-medium">{project.name}</TableCell>
+                        <TableCell><Badge variant="outline">{project.plan?.name || 'N/A'}</Badge></TableCell>
+                        <TableCell>{project.credits?.toLocaleString() || 0}</TableCell>
                         <TableCell>{project.wabaId}</TableCell>
-                        <TableCell>
-                        <Badge variant="outline">{project.phoneNumbers?.length || 0}</Badge>
-                        </TableCell>
-                        <TableCell>{new Date(project.createdAt).toLocaleDateString()}</TableCell>
                         <TableCell className="text-right">
+                           <AdminUpdateCreditsButton projectId={project._id.toString()} currentCredits={project.credits || 0} />
+                           <AdminAssignPlanDialog projectId={project._id.toString()} currentPlanId={project.planId?.toString()} allPlans={allPlans} />
                            <AdminDeleteProjectButton projectId={project._id.toString()} projectName={project.name} />
                         </TableCell>
                     </TableRow>
