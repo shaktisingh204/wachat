@@ -3,19 +3,18 @@
 
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getCannedMessages, handleSendMessage, handleSendMetaFlow, handleSendTemplateMessage } from '@/app/actions';
-import type { CannedMessage, MetaFlow, Template, Contact } from '@/lib/definitions';
+import { getCannedMessages, handleSendMessage, handleSendTemplateMessage } from '@/app/actions';
+import type { CannedMessage, Template, Contact } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Paperclip, Send, LoaderCircle, Star, ServerCog, ClipboardList, File as FileIcon, Image as ImageIcon } from 'lucide-react';
+import { Paperclip, Send, LoaderCircle, Star, ClipboardList, File as FileIcon, Image as ImageIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface ChatMessageInputProps {
     contact: WithId<Contact>;
-    metaFlows: WithId<MetaFlow>[];
     templates: WithId<Template>[];
 }
 
@@ -34,7 +33,7 @@ function SubmitButton({ onClick }: { onClick: () => void }) {
     );
 }
 
-export function ChatMessageInput({ contact, metaFlows, templates }: ChatMessageInputProps) {
+export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) {
     const [sendState, sendFormAction] = useActionState(handleSendMessage, sendInitialState);
     const formRef = useRef<HTMLFormElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,7 +44,6 @@ export function ChatMessageInput({ contact, metaFlows, templates }: ChatMessageI
     const [cannedMessages, setCannedMessages] = useState<WithId<CannedMessage>[]>([]);
     const [cannedPopoverOpen, setCannedPopoverOpen] = useState(false);
     const [attachmentPopoverOpen, setAttachmentPopoverOpen] = useState(false);
-    const [flowPopoverOpen, setFlowPopoverOpen] = useState(false);
     const [templatePopoverOpen, setTemplatePopoverOpen] = useState(false);
     const [isSending, startSendingTransition] = useTransition();
 
@@ -95,19 +93,6 @@ export function ChatMessageInput({ contact, metaFlows, templates }: ChatMessageI
         }
     }
 
-     const handleSendFlow = (flowId: string) => {
-        startSendingTransition(async () => {
-            const result = await handleSendMetaFlow(contact._id.toString(), flowId);
-            if (result.error) {
-                toast({ title: 'Error Sending Flow', description: result.error, variant: 'destructive' });
-            } else {
-                toast({ title: 'Success', description: result.message });
-                setFlowPopoverOpen(false);
-                setAttachmentPopoverOpen(false);
-            }
-        });
-    };
-    
     const handleSendTemplate = (templateId: string) => {
         startSendingTransition(async () => {
             const result = await handleSendTemplateMessage(contact._id.toString(), templateId);
@@ -128,21 +113,6 @@ export function ChatMessageInput({ contact, metaFlows, templates }: ChatMessageI
             )
             .sort((a, b) => (b.isFavourite ? 1 : 0) - (a.isFavourite ? 1 : 0))
         : [];
-
-    const FlowPopoverContent = (
-        <PopoverContent side="top" align="start" className="p-1 w-56">
-            <ScrollArea className="max-h-60">
-                <div className="p-1 space-y-1">
-                    {metaFlows.length > 0 ? metaFlows.map(flow => (
-                        <button key={flow._id.toString()} type="button" className="w-full text-left p-2 rounded-sm hover:bg-accent flex items-center text-sm" onClick={() => handleSendFlow(flow._id.toString())} disabled={isSending}>
-                            {isSending ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin"/> : <Send className="h-4 w-4 mr-2"/>}
-                            {flow.name}
-                        </button>
-                    )) : <p className="text-xs text-center p-2 text-muted-foreground">No Meta Flows found.</p>}
-                </div>
-            </ScrollArea>
-        </PopoverContent>
-    );
     
     const TemplatePopoverContent = (
         <PopoverContent side="top" align="start" className="p-1 w-56">
@@ -226,10 +196,6 @@ export function ChatMessageInput({ contact, metaFlows, templates }: ChatMessageI
                     <PopoverTrigger asChild><Button variant="ghost" size="icon"><ClipboardList className="h-4 w-4" /><span className="sr-only">Send Template</span></Button></PopoverTrigger>
                     {TemplatePopoverContent}
                 </Popover>
-                <Popover open={flowPopoverOpen} onOpenChange={setFlowPopoverOpen}>
-                    <PopoverTrigger asChild><Button variant="ghost" size="icon"><ServerCog className="h-4 w-4" /><span className="sr-only">Send Meta Flow</span></Button></PopoverTrigger>
-                    {FlowPopoverContent}
-                </Popover>
             </div>
             
             {/* Mobile Popover */}
@@ -241,7 +207,6 @@ export function ChatMessageInput({ contact, metaFlows, templates }: ChatMessageI
                             <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('image/*,video/*'); setAttachmentPopoverOpen(false); }}><ImageIcon className="mr-2 h-4 w-4" /> Media (Image/Video)</Button>
                              <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('application/pdf'); setAttachmentPopoverOpen(false); }}><FileIcon className="mr-2 h-4 w-4" /> Document</Button>
                              <Popover open={templatePopoverOpen} onOpenChange={setTemplatePopoverOpen}><PopoverTrigger asChild><Button variant="ghost" className="w-full justify-start"><ClipboardList className="mr-2 h-4 w-4" /> Template</Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
-                             <Popover open={flowPopoverOpen} onOpenChange={setFlowPopoverOpen}><PopoverTrigger asChild><Button variant="ghost" className="w-full justify-start"><ServerCog className="mr-2 h-4 w-4" /> Meta Flow</Button></PopoverTrigger>{FlowPopoverContent}</Popover>
                         </div>
                     </PopoverContent>
                 </Popover>

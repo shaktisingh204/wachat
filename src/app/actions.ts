@@ -1247,6 +1247,91 @@ export async function handleCreateTemplate(
     }
 }
 
+export async function handleCreateFlowTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; payload?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const flowId = formData.get('flowId') as string; // This is the Meta Flow ID
+    
+    const templateName = formData.get('templateName') as string;
+    const language = formData.get('language') as string;
+    const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
+    const bodyText = formData.get('bodyText') as string;
+    const buttonText = formData.get('buttonText') as string;
+
+    if (!projectId || !flowId || !templateName || !language || !category || !bodyText || !buttonText) {
+        return { error: 'All fields are required.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project) {
+        return { error: 'Project not found or you do not have access.' };
+    }
+
+    let payload: any = {
+        name: templateName.toLowerCase().replace(/\s+/g, '_'),
+        language,
+        category,
+        components: [
+            {
+                type: 'BODY',
+                text: bodyText
+            },
+            {
+                type: 'BUTTONS',
+                buttons: [
+                    {
+                        type: 'FLOW',
+                        text: buttonText,
+                        flow_id: flowId
+                    }
+                ]
+            }
+        ]
+    };
+
+    const payloadString = JSON.stringify(payload, null, 2);
+
+    try {
+        const { wabaId, accessToken } = project;
+        const response = await axios.post(
+            `https://graph.facebook.com/v22.0/${wabaId}/message_templates`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
+        );
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response: { data: response.data } }));
+        }
+
+        const newMetaTemplateId = response.data?.id;
+        if (!newMetaTemplateId) {
+            return { error: 'Template created on Meta, but no ID was returned. Please sync manually.', payload: payloadString };
+        }
+
+        const { db } = await connectToDatabase();
+        const templateToInsert: Omit<Template, '_id'> & { projectId: ObjectId } = {
+            name: payload.name,
+            category,
+            language,
+            status: response.data?.status || 'PENDING',
+            metaId: newMetaTemplateId,
+            components: payload.components,
+            body: bodyText,
+            projectId: new ObjectId(projectId),
+            qualityScore: 'UNKNOWN',
+        };
+
+        await db.collection('templates').insertOne(templateToInsert as any);
+        revalidatePath('/dashboard/templates');
+
+        return { message: `Template "${templateName}" created successfully and is now pending approval.`, payload: payloadString };
+
+    } catch (e: any) {
+        console.error('Error creating flow template:', e);
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.', payload: payloadString };
+    }
+}
+
+
 export async function handleStopBroadcast(broadcastId: string): Promise<{ message?: string; error?: string }> {
     const broadcast = await getBroadcastById(broadcastId);
     if (!broadcast) return { error: 'Broadcast not found or you do not have access.' };
@@ -3484,11 +3569,10 @@ export async function getInitialChatData(projectId: string, phoneId: string | nu
     totalContacts: number;
     selectedContact: WithId<Contact> | null;
     conversation: AnyMessage[];
-    metaFlows: WithId<MetaFlow>[];
     templates: WithId<Template>[];
     selectedPhoneNumberId: string;
 }> {
-    const defaultResponse = { project: null, contacts: [], totalContacts: 0, selectedContact: null, conversation: [], metaFlows: [], templates: [], selectedPhoneNumberId: '' };
+    const defaultResponse = { project: null, contacts: [], totalContacts: 0, selectedContact: null, conversation: [], templates: [], selectedPhoneNumberId: '' };
     const projectData = await getProjectById(projectId);
     if (!projectData) return defaultResponse;
 
@@ -3497,10 +3581,9 @@ export async function getInitialChatData(projectId: string, phoneId: string | nu
 
     const { db } = await connectToDatabase();
     
-    const [allContacts, total, metaFlowsData, templatesData] = await Promise.all([
+    const [allContacts, total, templatesData] = await Promise.all([
         db.collection<Contact>('contacts').find({ projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId }).sort({ lastMessageTimestamp: -1 }).limit(30).toArray(),
         db.collection('contacts').countDocuments({ projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId }),
-        getMetaFlows(projectId),
         getTemplates(projectId),
     ]);
 
@@ -3520,69 +3603,9 @@ export async function getInitialChatData(projectId: string, phoneId: string | nu
         totalContacts: total,
         selectedContact: selectedContactData ? JSON.parse(JSON.stringify(selectedContactData)) : null,
         conversation: conversationData,
-        metaFlows: JSON.parse(JSON.stringify(metaFlowsData)),
         templates: JSON.parse(JSON.stringify(templatesData.filter(t => t.status === 'APPROVED'))),
         selectedPhoneNumberId: selectedPhoneId,
     };
-}
-
-export async function handleSendMetaFlow(contactId: string, metaFlowId: string): Promise<{ message?: string; error?: string }> {
-    if (!ObjectId.isValid(contactId) || !ObjectId.isValid(metaFlowId)) {
-        return { error: 'Invalid ID provided.' };
-    }
-
-    const { db } = await connectToDatabase();
-    
-    const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
-    if (!contact) return { error: 'Contact not found.' };
-
-    const project = await db.collection<Project>('projects').findOne({ _id: contact.projectId });
-    if (!project) return { error: 'Project not found.' };
-
-    const metaFlow = await db.collection<MetaFlow>('meta_flows').findOne({ _id: new ObjectId(metaFlowId) });
-    if (!metaFlow) return { error: 'Flow not found.' };
-    
-    const phoneNumberId = contact.phoneNumberId;
-    const waId = contact.waId;
-    const accessToken = project.accessToken;
-
-    try {
-        const flowTitle = metaFlow.flow_data?.screens?.[0]?.title || metaFlow.name.replace(/_/g, ' ');
-        const headerText = flowTitle.substring(0, 60);
-        const bodyText = metaFlow.flow_data?.screens?.[0]?.layout?.children?.find((c: any) => c.type === 'TextBody')?.text || 'Tap the button below to start.';
-        
-        const payload = {
-            messaging_product: "whatsapp",
-            to: waId,
-            recipient_type: "individual",
-            type: "interactive",
-            interactive: {
-                type: "flow",
-                header: { type: "text", text: headerText },
-                body: { text: bodyText.substring(0, 1024) },
-                footer: { text: "Powered by Wachat" },
-                action: {
-                    name: metaFlow.name,
-                    parameters: {}
-                }
-            }
-        };
-
-        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${accessToken}` } });
-        const wamid = response.data?.messages?.[0]?.id;
-        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
-
-        const now = new Date();
-        await db.collection('outgoing_messages').insertOne({
-            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'interactive',
-            content: payload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
-        });
-
-        revalidatePath('/dashboard/chat');
-        return { message: `Flow "${metaFlow.name}" sent successfully.` };
-    } catch (e: any) {
-        return { error: getErrorMessage(e) || 'An unexpected error occurred while sending the flow.' };
-    }
 }
 
 

@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import type { WithId } from 'mongodb';
-import type { Contact, AnyMessage, Project, MetaFlow, Template } from '@/lib/definitions';
+import type { Contact, AnyMessage, Project, Template } from '@/lib/definitions';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { ChatMessage } from './chat-message';
@@ -17,7 +18,6 @@ interface ChatWindowProps {
     project: WithId<Project>;
     contact: WithId<Contact>;
     conversation: AnyMessage[];
-    metaFlows: WithId<MetaFlow>[];
     templates: WithId<Template>[];
     isLoading: boolean;
     onBack: () => void;
@@ -42,7 +42,7 @@ function MessageListSkeleton() {
     );
 }
 
-export function ChatWindow({ project, contact, conversation, metaFlows, templates, isLoading, onBack, onContactUpdate }: ChatWindowProps) {
+export function ChatWindow({ project, contact, conversation, templates, isLoading, onBack, onContactUpdate }: ChatWindowProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
 
@@ -95,7 +95,7 @@ export function ChatWindow({ project, contact, conversation, metaFlows, template
                 </ScrollArea>
                 
                 <div className="flex items-center p-2 border-t bg-background h-[60px] flex-shrink-0">
-                    <ChatMessageInput contact={contact} metaFlows={metaFlows} templates={templates} />
+                    <ChatMessageInput contact={contact} templates={templates} />
                 </div>
             </div>
         </>

@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, PlusCircle, ServerCog, Trash2, LoaderCircle, BookOpen, Edit } from 'lucide-react';
+import { AlertCircle, PlusCircle, ServerCog, Trash2, LoaderCircle, BookOpen, Edit, Send } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
 import { SyncMetaFlowsButton } from '@/components/wabasimplify/sync-meta-flows-button';
+import { MetaFlowToTemplateDialog } from '@/components/wabasimplify/meta-flow-to-template-dialog';
 
 
 function MetaFlowCard({ flow, onDelete }: { flow: WithId<MetaFlow>, onDelete: (flowId: string, metaId: string) => void }) {
@@ -61,6 +62,7 @@ function MetaFlowCard({ flow, onDelete }: { flow: WithId<MetaFlow>, onDelete: (f
                 <p className="text-xs text-muted-foreground font-mono break-all">Meta ID: {flow.metaId}</p>
             </CardContent>
             <CardFooter className="flex justify-end gap-2">
+                <MetaFlowToTemplateDialog flow={flow} />
                 <Button asChild variant="outline" size="sm">
                     <Link href={`/dashboard/flows/create?flowId=${flow._id.toString()}`}>
                         <Edit className="h-4 w-4"/>
