@@ -60,7 +60,9 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
     const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
-        setLocalComponent(component);
+        if(component) {
+            setLocalComponent(component);
+        }
     }, [component]);
     
     if (!component || !localComponent) return null; 
@@ -90,13 +92,20 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         updateField(key, finalValue);
     };
     
-    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, index?: number) => {
         const file = e.target.files?.[0];
         if (file) {
             setIsUploading(true);
             const reader = new FileReader();
             reader.onloadend = () => {
-                updateField('src', reader.result as string);
+                const result = reader.result as string;
+                if (typeof index === 'number') { // Carousel image
+                    const newImages = [...localComponent.images];
+                    newImages[index].src = result;
+                    updateField('images', newImages);
+                } else { // Single image
+                    updateField('src', result);
+                }
                 setIsUploading(false);
             };
             reader.onerror = () => {
@@ -107,7 +116,28 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         }
     };
     
+    const handleCarouselImageChange = (index: number, field: 'alt-text', value: string) => {
+        const newImages = [...localComponent.images];
+        newImages[index] = { ...newImages[index], [field]: value };
+        updateField('images', newImages);
+    };
+
+    const addCarouselImage = () => {
+        const images = localComponent.images || [];
+        if (images.length < 3) {
+            const newImages = [...images, { src: 'base64_image_placeholder', 'alt-text': '' }];
+            updateField('images', newImages);
+        }
+    };
+
+    const removeCarouselImage = (index: number) => {
+        const newImages = localComponent.images.filter((_:any, i: number) => i !== index);
+        updateField('images', newImages);
+    };
+
     const isTextComponent = ['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(component?.type);
+    const isImageComponent = component?.type === 'Image';
+    const isCarouselComponent = component?.type === 'ImageCarousel';
 
     return (
          <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -117,7 +147,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                 </DialogHeader>
                 <ScrollArea className="max-h-[60vh] -mx-6 px-6">
                 <div className="py-4 space-y-4">
-                    {component.type === 'Image' ? (
+                    {isImageComponent ? (
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="image-upload">Upload Image</Label>
@@ -168,6 +198,58 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                                         </SelectContent>
                                     </Select>
                                 </div>
+                            </div>
+                        </div>
+                    ) : isCarouselComponent ? (
+                        <div className="space-y-4">
+                             <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="carousel-aspect-ratio">Aspect Ratio</Label>
+                                    <Select value={localComponent['aspect-ratio'] || '16:9'} onValueChange={v => updateField('aspect-ratio', v)}>
+                                        <SelectTrigger id="carousel-aspect-ratio"><SelectValue/></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="16:9">16:9 (Widescreen)</SelectItem>
+                                            <SelectItem value="4:3">4:3 (Standard)</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="carousel-scale-type">Scale Type</Label>
+                                    <Select value={localComponent['scale-type'] || 'contain'} onValueChange={v => updateField('scale-type', v)}>
+                                        <SelectTrigger id="carousel-scale-type"><SelectValue/></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="contain">Contain</SelectItem>
+                                            <SelectItem value="cover">Cover</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            <Separator />
+                             <div className="space-y-3">
+                                <Label>Images (Max 3)</Label>
+                                {(localComponent.images || []).map((img: any, index: number) => (
+                                    <div key={index} className="p-3 border rounded-lg space-y-2 relative bg-background">
+                                        <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeCarouselImage(index)}>
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                        <div className="space-y-2">
+                                            <Label htmlFor={`carousel-img-upload-${index}`}>Upload Image {index + 1}</Label>
+                                            <Input id={`carousel-img-upload-${index}`} type="file" accept="image/png, image/jpeg" onChange={e => handleImageUpload(e, index)} />
+                                        </div>
+                                         <div className="space-y-2">
+                                            <Label htmlFor={`carousel-alt-text-${index}`}>Alt Text {index + 1}</Label>
+                                            <Input id={`carousel-alt-text-${index}`} value={img['alt-text'] || ''} onChange={e => handleCarouselImageChange(index, 'alt-text', e.target.value)} />
+                                        </div>
+                                         {img.src && img.src.startsWith('data:image') && (
+                                            <Image src={img.src} alt="preview" width={150} height={84} className="mt-2 rounded-md border" />
+                                        )}
+                                    </div>
+                                ))}
+                                {(localComponent.images?.length || 0) < 3 && (
+                                    <Button type="button" variant="outline" className="w-full" onClick={addCarouselImage}>
+                                        <Plus className="mr-2 h-4 w-4" /> Add Image
+                                    </Button>
+                                )}
                             </div>
                         </div>
                     ) : isTextComponent ? (
@@ -342,6 +424,10 @@ function CreateMetaFlowPage() {
         if (componentType === 'Image') {
             newComponent.src = 'base64_image_placeholder';
             newComponent['alt-text'] = 'Placeholder image';
+        }
+        if (componentType === 'ImageCarousel') {
+            newComponent.name = `carousel_${Date.now()}`;
+            newComponent.images = [{ src: 'base64_image_placeholder', 'alt-text': 'Image 1' }];
         }
         if (['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'ChipsSelector'].includes(componentType)) {
             newComponent['data-source'] = [{ id: `opt_${Date.now()}`, title: 'Option 1' }];

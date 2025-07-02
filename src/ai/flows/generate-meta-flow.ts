@@ -39,7 +39,16 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
     z.object({ type: z.literal('DocumentPicker'), name: z.string(), label: z.string(), required: z.boolean().optional(), "min-uploaded-documents": z.number().optional(), "max-uploaded-documents": z.number().optional() }),
     z.object({ type: z.literal('CalendarPicker'), name: z.string(), label: z.union([z.string(), z.object({ "start-date": z.string(), "end-date": z.string() })]), mode: z.enum(['single', 'range']), "on-select-action": ActionSchema.optional() }),
     z.object({ type: z.literal('ChipsSelector'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })), "max-selected-items": z.number().optional(), "min-selected-items": z.number().optional() }),
-    z.object({ type: z.literal('ImageCarousel'), name: z.string(), images: z.array(z.object({ "alt-text": z.string(), src: z.string().describe("Use the placeholder 'base64_image_placeholder' for images.") })) }),
+    z.object({ 
+        type: z.literal('ImageCarousel'), 
+        name: z.string(), 
+        images: z.array(z.object({ 
+            "alt-text": z.string(), 
+            src: z.string().describe("Use the placeholder 'base64_image_placeholder' for images.") 
+        })).min(1).max(3),
+        "aspect-ratio": z.enum(['16:9', '4:3']).optional(),
+        "scale-type": z.enum(['cover', 'contain']).optional()
+    }),
     z.object({ type: z.literal('OptIn'), name: z.string(), label: z.string(), required: z.boolean().optional() }),
     z.object({ 
         type: z.literal('Image'), 
@@ -83,7 +92,11 @@ const ScreenLayoutChildSchema = z.union([
     NavigationListSchema,
     z.object({ type: z.literal('TextHeading'), text: z.string() }),
     z.object({ type: z.literal('TextBody'), text: z.string() }),
-    z.object({ type: z.literal('ImageCarousel'), name: z.string(), images: z.array(z.object({ "alt-text": z.string(), src: z.string().describe("Use the placeholder 'base64_image_placeholder' for images.") })) }),
+    z.object({ 
+        type: z.literal('ImageCarousel'), 
+        name: z.string(), 
+        images: z.array(z.object({ "alt-text": z.string(), src: z.string().describe("Use the placeholder 'base64_image_placeholder' for images.") })) 
+    }),
 ]);
 
 const DataDefinitionSchema = z.object({

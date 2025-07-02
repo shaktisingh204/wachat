@@ -52,4 +52,3 @@ export const declarativeFlowComponents: { type: DeclarativeUIComponent['type'], 
     { type: 'If', label: 'If/Else Block' },
     { type: 'Switch', label: 'Switch Block' },
 ];
-
