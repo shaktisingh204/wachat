@@ -5,6 +5,7 @@ import { Suspense, useActionState, useEffect, useState, useTransition, useCallba
 import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Wand2, Settings, AlertCircle, Server } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -57,43 +58,105 @@ function PageSkeleton() {
 
 function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChange }: { component: any, onSave: (newComponent: any) => void, onCancel: () => void, isOpen: boolean, onOpenChange: (open: boolean) => void }) {
     const [localComponent, setLocalComponent] = useState(component);
+    const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
         setLocalComponent(component);
     }, [component]);
     
-    // Guard against rendering with a null component state
-    if (!component || !localComponent) return null;
+    if (!component || !localComponent) return null; 
 
     const updateField = (key: string, value: any) => {
         setLocalComponent((prev: any) => ({...prev, [key]: value}));
     };
     
+    const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setIsUploading(true);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                updateField('src', reader.result as string);
+                setIsUploading(false);
+            };
+            reader.onerror = () => {
+                alert("Failed to read file");
+                setIsUploading(false);
+            }
+            reader.readAsDataURL(file);
+        }
+    };
+
     return (
          <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
                     <DialogTitle>Edit Component: {component.type}</DialogTitle>
                 </DialogHeader>
-                <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
-                    {Object.keys(component).map(key => {
-                        const value = localComponent[key];
-                        // Don't allow editing type or auto-generated name
-                        if (key === 'type' || (key === 'name' && value?.startsWith(component.type.toLowerCase()))) return null; 
-                        return (
-                            <div key={key} className="space-y-2">
-                                <Label htmlFor={key}>{key}</Label>
-                                {typeof value === 'boolean' ? (
-                                    <Switch id={key} checked={value} onCheckedChange={(val) => updateField(key, val)} />
-                                ) : typeof value === 'object' && value !== null ? (
-                                    <Textarea id={key} value={JSON.stringify(value, null, 2)} onChange={e => { try { updateField(key, JSON.parse(e.target.value)) } catch(err) { /* ignore parse error */}}} className="font-mono text-xs h-32"/>
-                                ) : (
-                                    <Input id={key} value={value ?? ''} onChange={e => updateField(key, e.target.value)} />
+                <ScrollArea className="max-h-[60vh] -mx-6 px-6">
+                <div className="py-4 space-y-4 px-6">
+                    {component.type === 'Image' ? (
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="image-upload">Upload Image</Label>
+                                <Input id="image-upload" type="file" accept="image/png, image/jpeg" onChange={handleImageUpload} />
+                                {isUploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
+                                {localComponent.src && localComponent.src.startsWith('data:image') && (
+                                    <Image src={localComponent.src} alt="preview" width={200} height={112} className="mt-2 max-h-40 w-auto rounded-md border" />
                                 )}
                             </div>
-                        )
-                    })}
+                            <div className="space-y-2">
+                                <Label htmlFor="alt-text">Alt Text (Required)</Label>
+                                <Input id="alt-text" value={localComponent['alt-text'] || ''} onChange={e => updateField('alt-text', e.target.value)} />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="width">Width (optional)</Label>
+                                    <Input id="width" type="number" value={localComponent.width || ''} onChange={e => updateField('width', e.target.value ? parseInt(e.target.value) : undefined)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="height">Height (optional)</Label>
+                                    <Input id="height" type="number" value={localComponent.height || ''} onChange={e => updateField('height', e.target.value ? parseInt(e.target.value) : undefined)} />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="aspect-ratio">Aspect Ratio (optional)</Label>
+                                    <Input id="aspect-ratio" type="number" step="0.1" value={localComponent['aspect-ratio'] || ''} onChange={e => updateField('aspect-ratio', e.target.value ? parseFloat(e.target.value) : undefined)} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="scale-type">Scale Type (optional)</Label>
+                                    <Select value={localComponent['scale-type'] || 'contain'} onValueChange={v => updateField('scale-type', v)}>
+                                        <SelectTrigger><SelectValue/></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="contain">Contain</SelectItem>
+                                            <SelectItem value="cover">Cover</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        Object.keys(component).map(key => {
+                            const value = localComponent[key];
+                            // Don't allow editing type or auto-generated name
+                            if (key === 'type' || (key === 'name' && value?.startsWith(component.type.toLowerCase()))) return null; 
+                            return (
+                                <div key={key} className="space-y-2">
+                                    <Label htmlFor={key}>{key}</Label>
+                                    {typeof value === 'boolean' ? (
+                                        <Switch id={key} checked={value} onCheckedChange={(val) => updateField(key, val)} />
+                                    ) : typeof value === 'object' && value !== null ? (
+                                        <Textarea id={key} value={JSON.stringify(value, null, 2)} onChange={e => { try { updateField(key, JSON.parse(e.target.value)) } catch(err) { /* ignore parse error */}}} className="font-mono text-xs h-32"/>
+                                    ) : (
+                                        <Input id={key} value={value ?? ''} onChange={e => updateField(key, e.target.value)} />
+                                    )}
+                                </div>
+                            )
+                        })
+                    )}
                 </div>
+                </ScrollArea>
                 <DialogFooter>
                     <Button variant="outline" onClick={onCancel}>Cancel</Button>
                     <Button onClick={() => onSave(localComponent)}>Save Changes</Button>
@@ -152,15 +215,15 @@ function CreateMetaFlowPage() {
             setFlowName('new_flow');
             setFlowData({
                 version: '7.1',
-                routing_model: { SCREEN_1: [] },
+                routing_model: { SCREEN_A: [] },
                 screens: [{
-                    id: 'SCREEN_1',
+                    id: 'SCREEN_A',
                     title: 'Welcome Screen',
                     layout: {
                         type: 'SingleColumnLayout',
                         children: [{
                             type: 'Form',
-                            name: 'form_screen_1',
+                            name: 'form_screen_a',
                             children: [{ type: 'TextBody', text: 'This is the start of your flow.' }, { type: 'Footer', label: 'Finish', 'on-click-action': { name: 'complete' } }]
                         }]
                     },
@@ -214,7 +277,6 @@ function CreateMetaFlowPage() {
             if (field === 'id' && value !== newScreens[screenIndex].id) {
                 const oldId = newScreens[screenIndex].id;
                 newScreens[screenIndex][field] = value;
-                // This is a simplistic update for routing_model. A real app might need more robust logic.
                 const newRoutingModel = { ...prev.routing_model };
                 if (newRoutingModel[oldId]) {
                     newRoutingModel[value] = newRoutingModel[oldId];
@@ -239,6 +301,10 @@ function CreateMetaFlowPage() {
         }
         if (['TextSubheading', 'TextBody', 'TextCaption', 'TextHeading'].includes(componentType)) {
             newComponent.text = `New ${componentType}`;
+        }
+        if (componentType === 'Image') {
+            newComponent.src = 'base64_image_placeholder';
+            newComponent['alt-text'] = 'Placeholder image';
         }
         if (['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'ChipsSelector'].includes(componentType)) {
             newComponent['data-source'] = [{ id: `opt_${Date.now()}`, title: 'Option 1' }];
@@ -288,14 +354,13 @@ function CreateMetaFlowPage() {
             let suffix = '';
             let num = counter;
             if (num === 0 && !existingIds.includes('SCREEN_A')) {
-                suffix = '_A';
+                suffix = 'A';
             } else {
                  while (num >= 0) {
                     suffix = String.fromCharCode(65 + (num % 26)) + suffix;
                     num = Math.floor(num / 26) - 1;
                     if (num < 0) break;
                 }
-                 suffix = `_${suffix}`;
             }
             newId = `SCREEN${suffix}`;
             counter++;
@@ -491,7 +556,7 @@ function CreateMetaFlowPage() {
                                 <Accordion type="multiple" className="w-full space-y-4" defaultValue={['item-0']}>
                                     {(flowData.screens || []).map((screen: any, screenIndex: number) => {
                                         const formContainer = screen.layout?.children?.find((c: any) => c && c.type === 'Form');
-                                        const componentsToRender = formContainer ? (formContainer.children || []) : (screen.layout?.children || []);
+                                        const componentsToRender = (formContainer ? (formContainer.children || []) : (screen.layout?.children || [])).filter(Boolean);
                                         
                                         return (
                                         <AccordionItem value={`item-${screenIndex}`} key={screen.id} className="border rounded-md px-4">
@@ -517,7 +582,7 @@ function CreateMetaFlowPage() {
                                                     <div className="flex items-center gap-2"><Label htmlFor={`success-${screen.id}`}>Success Screen</Label><Switch id={`success-${screen.id}`} checked={!!screen.success} onCheckedChange={(val) => updateScreenField(screenIndex, 'success', val)}/></div>
                                                 </div>
                                                 <h4 className="font-semibold text-sm">Components</h4>
-                                                {componentsToRender.filter(Boolean).map((component: any, compIndex: number) => (
+                                                {componentsToRender.map((component: any, compIndex: number) => (
                                                     <div key={component.name || compIndex} className="p-3 border rounded-lg space-y-2 relative bg-background">
                                                         <div className="flex justify-between items-center">
                                                             <p className="text-sm font-medium text-muted-foreground">{component.type}</p>
@@ -587,4 +652,4 @@ export default function CreateMetaFlowPageWrapper() {
   )
 }
 
-
+    

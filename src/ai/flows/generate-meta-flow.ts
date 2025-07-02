@@ -41,7 +41,16 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
     z.object({ type: z.literal('ChipsSelector'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })), "max-selected-items": z.number().optional(), "min-selected-items": z.number().optional() }),
     z.object({ type: z.literal('ImageCarousel'), name: z.string(), images: z.array(z.object({ "alt-text": z.string(), src: z.string().describe("Use the placeholder 'base64_image_placeholder' for images.") })) }),
     z.object({ type: z.literal('OptIn'), name: z.string(), label: z.string(), required: z.boolean().optional() }),
-    z.object({ type: z.literal('Image'), src: z.string().describe("Use the placeholder 'base64_image_placeholder' for images."), "alt-text": z.string(), visible: z.boolean().optional() }),
+    z.object({ 
+        type: z.literal('Image'), 
+        src: z.string().describe("Use the placeholder 'base64_image_placeholder' for images."), 
+        "alt-text": z.string(), 
+        visible: z.boolean().optional(),
+        width: z.number().optional(),
+        height: z.number().optional(),
+        "scale-type": z.enum(['cover', 'contain']).optional(),
+        "aspect-ratio": z.number().optional()
+    }),
     // Conditional components
     z.object({ type: z.literal('If'), condition: z.string().describe("A boolean expression, e.g., '${data.show_section}' or '${form.age} > 18'"), then: z.array(FormComponentSchema), else: z.array(FormComponentSchema).optional() }),
     z.object({ type: z.literal('Switch'), value: z.string().describe("The variable to switch on, e.g., '${form.choice}'"), cases: z.record(z.array(FormComponentSchema)).describe("A map where keys are possible values and values are arrays of components to render.") })
@@ -173,3 +182,4 @@ const generateMetaFlowFlow = ai.defineFlow(
   }
 );
 
+    
