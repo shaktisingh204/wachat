@@ -169,7 +169,20 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
     }),
     z.object({ type: z.literal('Footer'), label: z.string(), "on-click-action": ActionSchema }),
     z.object({ type: z.literal('EmbeddedLink'), text: z.string(), "on-click-action": ActionSchema, visible: z.boolean().optional() }),
-    z.object({ type: z.literal('PhotoPicker'), name: z.string(), label: z.string(), required: z.boolean().optional(), "min-uploaded-photos": z.number().optional(), "max-uploaded-photos": z.number().optional() }),
+    z.object({ 
+        type: z.literal('PhotoPicker'), 
+        name: z.string(), 
+        label: z.string().max(80),
+        description: z.string().max(300).optional(),
+        "photo-source": z.enum(['camera_gallery', 'camera', 'gallery']).optional(),
+        "min-uploaded-photos": z.number().min(0).max(30).optional(),
+        "max-uploaded-photos": z.number().min(1).max(30).optional(),
+        "max-file-size-kb": z.number().max(25600).optional(),
+        enabled: z.union([z.boolean(), z.string()]).optional(),
+        visible: z.union([z.boolean(), z.string()]).optional(),
+        "error-message": z.union([z.string(), z.record(z.string())]).optional(),
+        "on-select-action": ActionSchema.optional()
+    }),
     z.object({ type: z.literal('DocumentPicker'), name: z.string(), label: z.string(), required: z.boolean().optional(), "min-uploaded-documents": z.number().optional(), "max-uploaded-documents": z.number().optional() }),
     z.object({ 
         type: z.literal('ImageCarousel'), 
