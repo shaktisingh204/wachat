@@ -1,9 +1,8 @@
 
-
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
-import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote } from 'lucide-react';
+import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Play, ArrowRightLeft } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -98,6 +97,15 @@ const faqs = [
         answer: 'Yes, you can sign up for free to explore the platform. Meta may have its own charges for sending messages, which are separate from our platform fees. Please refer to Meta\'s documentation for their latest pricing.'
     }
 ]
+
+const FlowNode = ({ icon, title, position, delay }: { icon: React.ReactNode, title: string, position: string, delay: string }) => (
+    <Card className={cn("absolute w-40 animate-fade-in-up", position)} style={{ animationDelay: delay }}>
+        <CardHeader className="flex flex-row items-center gap-3 p-3">
+            {icon}
+            <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        </CardHeader>
+    </Card>
+);
 
 export default async function HomePage() {
   return (
@@ -199,35 +207,33 @@ export default async function HomePage() {
                 <h3 className="text-2xl font-semibold text-center">No-Code Flow Builder</h3>
                 <p className="text-muted-foreground text-center max-w-md mx-auto">Visually map out complex conversation logic with branching, conditions, and API calls. Perfect for support bots and drip campaigns.</p>
                 <div className="relative p-6 border rounded-xl bg-card shadow-lg h-[400px] lg:h-[450px] overflow-hidden group">
-                    {/* Animated UI representation */}
-                    <div className="absolute top-8 left-6 w-32 h-12 bg-green-200 rounded-md flex items-center justify-center text-green-800 text-sm font-semibold animate-fade-in-up" style={{ animationDelay: '0.1s' }}>Start</div>
-                    <div className="absolute top-28 left-40 w-48 h-16 bg-blue-200 rounded-md flex items-center justify-center text-blue-800 text-sm font-semibold p-2 text-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>Send Message</div>
-                    <div className="absolute top-24 right-6 w-36 h-20 bg-purple-200 rounded-md flex items-center justify-center text-purple-800 text-sm font-semibold p-2 text-center animate-fade-in-up" style={{ animationDelay: '0.5s' }}>Condition</div>
-                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-40 h-16 bg-orange-200 rounded-md flex items-center justify-center text-orange-800 text-sm font-semibold p-2 text-center animate-fade-in-up" style={{ animationDelay: '0.7s' }}>Call API</div>
+                    <FlowNode icon={<Play className="h-5 w-5 text-muted-foreground" />} title="Start" position="top-8 left-6" delay="0.1s" />
+                    <FlowNode icon={<MessageSquare className="h-5 w-5 text-muted-foreground" />} title="Send Message" position="top-36 left-48" delay="0.3s" />
+                    <FlowNode icon={<GitBranch className="h-5 w-5 text-muted-foreground" />} title="Condition" position="top-24 right-6" delay="0.5s" />
+                    <FlowNode icon={<ArrowRightLeft className="h-5 w-5 text-muted-foreground" />} title="Call API" position="bottom-8 left-1/2 -translate-x-1/2" delay="0.7s" />
 
-                    {/* SVG Lines for connections */}
                     <svg className="absolute top-0 left-0 w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M152 72 C 200 72, 200 132, 252 132" stroke="hsl(var(--border))" strokeWidth="2" className="stroke-dash animate-draw" style={{ animationDelay: '0.2s' }}/>
-                        <path d="M340 148 C 360 148, 360 92, 380 92" stroke="hsl(var(--border))" strokeWidth="2" className="stroke-dash animate-draw" style={{ animationDelay: '0.6s' }}/>
-                        <path d="M290 236 C 290 260, 240 260, 240 292" stroke="hsl(var(--border))" strokeWidth="2" className="stroke-dash animate-draw" style={{ animationDelay: '0.8s' }}/>
+                        <path d="M184 76 C 220 76, 220 152, 256 152" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.2s' }}/>
+                        <path d="M352 160 C 370 160, 370 104, 388 104" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.6s' }}/>
+                        <path d="M256 220 C 256 250, 220 250, 220 280" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.8s' }}/>
                     </svg>
                 </div>
               </div>
 
-              {/* Meta Flow UI Mockup */}
+              {/* Declarative Flow UI Builder Mockup */}
               <div className="space-y-4">
-                <h3 className="text-2xl font-semibold text-center">Declarative UI Builder</h3>
+                <h3 className="text-2xl font-semibold text-center">Declarative Flow UI Builder</h3>
                 <p className="text-muted-foreground text-center max-w-md mx-auto">Build rich, native forms and multi-step experiences that open directly inside WhatsApp for higher conversion rates.</p>
                 <div className="relative p-6 border rounded-xl bg-card shadow-lg h-[400px] lg:h-[450px] flex justify-center items-center">
                     {/* Animated Phone Preview */}
-                    <div className="w-56 h-[400px] bg-gray-800 rounded-2xl p-2 shadow-2xl">
-                        <div className="h-full bg-white rounded-lg flex flex-col">
+                    <div className="w-64 h-[420px] bg-gray-800 rounded-3xl p-2 shadow-2xl">
+                        <div className="h-full bg-white rounded-2xl flex flex-col">
                             <div className="bg-gray-100 p-2 text-xs font-mono text-gray-500 flex justify-between">
                                 <span>9:41 AM</span>
                                 <span>📶 LTE</span>
                             </div>
                             <div className="bg-gray-100 p-2 flex items-center gap-2 border-b border-gray-200 flex-shrink-0">
-                                <div className="h-6 w-6 rounded-full bg-green-500"></div>
+                                <div className="h-6 w-6 rounded-full bg-primary/20"></div>
                                 <p className="font-semibold text-xs text-gray-800">Your Business</p>
                             </div>
                             <div className="flex-1 p-3 space-y-2 overflow-y-auto">
@@ -238,14 +244,14 @@ export default async function HomePage() {
                             </div>
                             {/* The animated flow part */}
                             <div className="absolute inset-0 bg-black/30 flex flex-col justify-end">
-                                <div className="bg-white rounded-t-xl h-[80%] flex flex-col animate-slide-in-up">
+                                <div className="bg-background rounded-t-2xl h-[80%] flex flex-col animate-slide-in-up">
                                     <div className="p-2 border-b text-center font-semibold text-sm">Book Appointment</div>
                                     <div className="flex-1 p-3 space-y-3 overflow-auto">
                                         <div className="animate-fade-in-up" style={{animationDelay: '0.2s'}}><Label className="text-xs">Your Name</Label><Input className="h-8 text-xs" placeholder="John Doe"/></div>
                                         <div className="animate-fade-in-up" style={{animationDelay: '0.4s'}}><Label className="text-xs">Select Service</Label><Select><SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Choose a service..."/></SelectTrigger></Select></div>
                                         <div className="animate-fade-in-up" style={{animationDelay: '0.6s'}}><Label className="text-xs">Preferred Date</Label><Input type="date" className="h-8 text-xs"/></div>
                                     </div>
-                                    <div className="p-3 border-t"><Button className="w-full h-9 bg-green-600 hover:bg-green-700 text-sm animate-fade-in-up" style={{animationDelay: '0.8s'}}>Confirm Booking</Button></div>
+                                    <div className="p-3 border-t"><Button className="w-full h-9 bg-primary hover:bg-primary/90 text-primary-foreground text-sm animate-fade-in-up" style={{animationDelay: '0.8s'}}>Confirm Booking</Button></div>
                                 </div>
                             </div>
                         </div>
