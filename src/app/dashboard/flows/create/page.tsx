@@ -108,6 +108,7 @@ const generateScreenId = () => {
     return result;
 };
 
+
 const inputComponentTypes: DeclarativeUIComponent['type'][] = [
     'TextInput', 'TextArea', 'DatePicker', 'CalendarPicker', 'Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'ChipsSelector', 'PhotoPicker', 'DocumentPicker', 'OptIn', 'Switch'
 ];

@@ -6,7 +6,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Input } from '@/components/ui/input';
 
 export const DynamicBooleanInput = ({ label, value, onChange, placeholder = "e.g. ${data.is_visible}" }: { label: string, value: any, onChange: (newValue: any) => void, placeholder?: string }) => {
-    const currentMode = typeof value === 'boolean' ? 'boolean' : 'dynamic';
+    const currentMode = typeof value === 'boolean' ? 'boolean' : (value === undefined || value === null) ? 'boolean' : 'dynamic';
     
     return (
         <div className="space-y-2 rounded-lg border p-4">
@@ -17,7 +17,7 @@ export const DynamicBooleanInput = ({ label, value, onChange, placeholder = "e.g
                     if (newMode === 'boolean') {
                         onChange(true); // default to true
                     } else {
-                        onChange(undefined); // clear for dynamic input
+                        onChange(''); // clear for dynamic input
                     }
                 }} 
                 className="flex gap-4"
@@ -26,7 +26,7 @@ export const DynamicBooleanInput = ({ label, value, onChange, placeholder = "e.g
                 <div className="flex items-center space-x-2"><RadioGroupItem value="dynamic" id={`${label}-dyn`} /><Label htmlFor={`${label}-dyn`} className="font-normal">Dynamic</Label></div>
             </RadioGroup>
             {currentMode === 'boolean' ? (
-                 <RadioGroup value={String(value)} onValueChange={(val) => onChange(val === 'true')} className="flex gap-4 pt-2">
+                 <RadioGroup value={String(value ?? true)} onValueChange={(val) => onChange(val === 'true')} className="flex gap-4 pt-2">
                     <div className="flex items-center space-x-2"><RadioGroupItem value="true" id={`${label}-true`} /><Label htmlFor={`${label}-true`} className="font-normal">True</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="false" id={`${label}-false`} /><Label htmlFor={`${label}-false`} className="font-normal">False</Label></div>
                  </RadioGroup>

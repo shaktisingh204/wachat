@@ -13,24 +13,27 @@ interface ActionEditorProps {
     action: any;
     onActionChange: (newAction: any) => void;
     actionType: 'on-click-action' | 'on-select-action';
+    allScreens?: any[];
 }
 
-export function ActionEditor({ label, action, onActionChange, actionType }: ActionEditorProps) {
+export function ActionEditor({ label, action, onActionChange, actionType, allScreens = [] }: ActionEditorProps) {
     const actionName = action?.name || 'complete';
 
     const handleNameChange = (newName: string) => {
-        const newAction = { name: newName, payload: action?.payload || {} };
+        const newAction: any = { name: newName };
+        if(action?.payload) newAction.payload = action.payload;
+
         if (newName === 'navigate') {
-            (newAction as any).next = { type: 'screen', name: '' };
+            newAction.next = { type: 'screen', name: '' };
         } else if (newName === 'open_url') {
-            (newAction as any).url = '';
+            newAction.url = '';
         }
         onActionChange(newAction);
     };
 
     const handlePayloadChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
         try {
-            const payload = JSON.parse(e.target.value);
+            const payload = e.target.value ? JSON.parse(e.target.value) : {};
             onActionChange({ ...action, payload });
         } catch (error) {
             // Can add toast feedback here if needed
@@ -52,13 +55,18 @@ export function ActionEditor({ label, action, onActionChange, actionType }: Acti
 
             {actionName === 'navigate' && (
                 <div className="space-y-2 pt-2">
-                    <Label htmlFor="next-screen">Next Screen Name</Label>
-                    <Input
-                        id="next-screen"
-                        placeholder="e.g., THANK_YOU_SCREEN"
+                    <Label htmlFor="next-screen">Next Screen</Label>
+                     <Select
                         value={action?.next?.name || ''}
-                        onChange={e => onActionChange({ ...action, next: { type: 'screen', name: e.target.value } })}
-                    />
+                        onValueChange={(val) => onActionChange({ ...action, next: { type: 'screen', name: val } })}
+                    >
+                        <SelectTrigger id="next-screen"><SelectValue placeholder="Select a screen..." /></SelectTrigger>
+                        <SelectContent>
+                            {allScreens.map(screen => (
+                                <SelectItem key={screen.id} value={screen.id}>{screen.title || screen.id}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
             )}
             
