@@ -23,10 +23,10 @@ const ActionSchema = z.object({
 
 // Use z.ZodType to allow for recursive schema definitions.
 const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
-    z.object({ type: z.literal('TextHeading'), text: z.string(), visible: z.boolean().optional() }),
-    z.object({ type: z.literal('TextSubheading'), text: z.string(), visible: z.boolean().optional() }),
-    z.object({ type: z.literal('TextBody'), text: z.string(), visible: z.boolean().optional() }),
-    z.object({ type: z.literal('TextCaption'), text: z.string(), visible: z.boolean().optional() }),
+    z.object({ type: z.literal('TextHeading'), text: z.string(), visible: z.union([z.boolean(), z.string()]).optional(), enabled: z.union([z.boolean(), z.string()]).optional() }),
+    z.object({ type: z.literal('TextSubheading'), text: z.string(), visible: z.union([z.boolean(), z.string()]).optional(), enabled: z.union([z.boolean(), z.string()]).optional() }),
+    z.object({ type: z.literal('TextBody'), text: z.string(), visible: z.union([z.boolean(), z.string()]).optional(), enabled: z.union([z.boolean(), z.string()]).optional() }),
+    z.object({ type: z.literal('TextCaption'), text: z.string(), visible: z.union([z.boolean(), z.string()]).optional(), enabled: z.union([z.boolean(), z.string()]).optional() }),
     z.object({ type: z.literal('TextInput'), name: z.string(), label: z.string(), "helper-text": z.string().optional(), required: z.boolean().optional(), "input-type": z.enum(['text', 'email', 'password', 'phone', 'number']).optional(), "max-length": z.number().optional() }),
     z.object({ type: z.literal('TextArea'), name: z.string(), label: z.string(), "helper-text": z.string().optional(), required: z.boolean().optional(), "max-length": z.number().optional() }),
     z.object({ type: z.literal('Dropdown'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })), required: z.boolean().optional(), "on-select-action": ActionSchema.optional() }),
