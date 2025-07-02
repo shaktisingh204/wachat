@@ -2,15 +2,12 @@
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
-import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Play, ArrowRightLeft, ToggleRight, ServerCog, Megaphone, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil } from 'lucide-react';
+import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Select, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 const features = [
@@ -95,16 +92,6 @@ const faqs = [
     }
 ]
 
-const FlowNode = ({ icon, title, position, delay, children }: { icon: React.ReactNode, title: string, position: string, delay: string, children?: React.ReactNode }) => (
-    <Card className={cn("absolute w-40 animate-fade-in-up", position)} style={{ animationDelay: delay }}>
-        <CardHeader className="flex flex-row items-center gap-3 p-3">
-            {icon}
-            <CardTitle className="text-sm font-medium">{title}</CardTitle>
-        </CardHeader>
-        {children && <CardContent className="p-3 pt-0">{children}</CardContent>}
-    </Card>
-);
-
 export default async function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
@@ -148,145 +135,7 @@ export default async function HomePage() {
                 </Button>
               </div>
             </div>
-            <div className="relative p-2 bg-muted rounded-xl w-full max-w-6xl shadow-2xl">
-              <Image
-                src="https://placehold.co/1200x675.png"
-                alt="Wachat dashboard preview"
-                width={1200}
-                height={675}
-                className="rounded-lg ring-1 ring-border w-full h-auto"
-                data-ai-hint="app dashboard"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section id="features" className="py-16 bg-muted">
-          <div className="container mx-auto">
-            <div className="text-center space-y-4 mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold font-headline">Powerful Tools for Growth</h2>
-              <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
-                Everything you need to scale your customer communication on WhatsApp.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {features.map((feature, index) => (
-                <Card key={index} className={cn("text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 flex flex-col card-gradient", feature.gradient)}>
-                  <CardHeader className="items-center">
-                    <div className="p-4 bg-primary/10 rounded-full">
-                        {feature.icon}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-2 flex-grow">
-                    <h3 className="text-xl font-semibold">{feature.title}</h3>
-                    <p className="text-muted-foreground">{feature.description}</p>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Visual Automation Section */}
-        <section id="visual-automation" className="py-16 md:py-24 bg-background overflow-hidden">
-          <div className="container mx-auto">
-            <div className="text-center space-y-4 mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold font-headline">Visual Automation at Your Fingertips</h2>
-              <p className="max-w-3xl mx-auto text-lg text-muted-foreground">
-                Craft powerful conversational journeys with our two distinct visual builders, designed for every business need.
-              </p>
-            </div>
-
-            <div className="flex flex-col gap-24 items-center">
-              
-              {/* Flow Builder UI Mockup */}
-              <div className="space-y-4 w-full">
-                <h3 className="text-2xl font-semibold text-center">No-Code Flow Builder</h3>
-                <p className="text-muted-foreground text-center max-w-md mx-auto">Visually map out complex conversation logic with branching, conditions, and API calls. Perfect for support bots and drip campaigns.</p>
-                <div className="relative p-6 border rounded-xl bg-card shadow-lg h-[400px] lg:h-[450px] overflow-hidden group">
-                    <FlowNode icon={<Play className="h-5 w-5 text-muted-foreground" />} title="Start Flow" position="top-40 left-6" delay="0.1s" />
-                    <FlowNode icon={<MessageSquare className="h-5 w-5 text-muted-foreground" />} title="Welcome Message" position="top-40 left-52" delay="0.3s" />
-                    <FlowNode icon={<ToggleRight className="h-5 w-5 text-muted-foreground" />} title="Main Menu" position="top-40 left-[27rem]" delay="0.5s">
-                        <div className="space-y-1 text-xs text-center text-muted-foreground">
-                            <div className="bg-background rounded-sm py-1 border">Check Balance</div>
-                            <div className="bg-background rounded-sm py-1 border">Talk to Agent</div>
-                        </div>
-                    </FlowNode>
-                    <FlowNode icon={<ArrowRightLeft className="h-5 w-5 text-muted-foreground" />} title="Check Balance API" position="top-20 left-[46rem]" delay="0.7s" />
-                    <FlowNode icon={<MessageSquare className="h-5 w-5 text-muted-foreground" />} title="Connect to Agent" position="bottom-20 left-[46rem]" delay="0.9s" />
-
-                    <svg className="absolute top-0 left-0 w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M184 190 L 208 190" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.2s' }}/>
-                        <path d="M368 190 L 432 190" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.4s' }}/>
-                        <path d="M592 185 C 664 185, 664 110, 736 110" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.6s' }}/>
-                        <path d="M592 235 C 664 235, 664 340, 736 340" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.8s' }}/>
-                    </svg>
-                </div>
-              </div>
-
-              {/* Declarative Flow UI Builder Mockup */}
-              <div className="space-y-4 w-full">
-                <h3 className="text-2xl font-semibold text-center">Declarative Flow UI Builder</h3>
-                <p className="text-muted-foreground text-center max-w-md mx-auto">Build rich, native forms and multi-step experiences that open directly inside WhatsApp for higher conversion rates.</p>
-                <div className="relative mt-8">
-                    <div className="relative p-6 border rounded-xl bg-card shadow-lg h-[450px] flex justify-center items-center w-full max-w-sm mx-auto">
-                        <div className="absolute -top-8 -left-12 w-24 h-24 bg-primary/10 rounded-full -z-10 animate-fade-in-up"></div>
-                        <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-accent/10 rounded-full -z-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}></div>
-                        
-                        <Card className="absolute top-12 -left-28 bg-card p-3 rounded-lg shadow-lg animate-fade-in-up w-48 text-left" style={{ animationDelay: '0.4s' }}>
-                            <p className="text-xs font-semibold">"This is incredible!"</p>
-                            <p className="text-xs text-muted-foreground">- Mark T.</p>
-                        </Card>
-                        
-                        <Card className="absolute bottom-16 -right-32 bg-card p-3 rounded-lg shadow-lg animate-fade-in-up w-52 text-left" style={{ animationDelay: '0.6s' }}>
-                            <div className="flex items-center gap-1">
-                                {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 text-yellow-400 fill-yellow-400" />)}
-                            </div>
-                            <p className="text-xs font-semibold mt-1">Saved us hours of work.</p>
-                        </Card>
-
-                        {/* Phone Mockup */}
-                        <div className="w-64 h-[420px] bg-gray-800 rounded-3xl p-2 shadow-2xl z-10">
-                            <div className="h-full bg-white rounded-2xl flex flex-col relative overflow-hidden">
-                                <div className="flex-1 p-3 space-y-2 overflow-y-auto">
-                                    <div className="p-2 bg-gray-200 rounded-lg text-xs max-w-[80%]">Welcome! Tap below to book an appointment.</div>
-                                    <div className="flex justify-end">
-                                        <div className="p-2 bg-blue-500 text-white rounded-lg text-xs max-w-[80%]">Book Now</div>
-                                    </div>
-                                </div>
-                                {/* The animated flow part */}
-                                <div className="absolute inset-0 bg-black/30 flex flex-col justify-end">
-                                    <div className="bg-background rounded-t-xl h-full flex flex-col animate-slide-in-up">
-                                        <div className="p-2 border-b text-center font-semibold text-sm flex-shrink-0">Book Appointment</div>
-                                        <div className="flex-1 p-3 space-y-3 overflow-auto">
-                                            <div className="animate-fade-in-up" style={{animationDelay: '0.2s'}}><Label className="text-xs">Your Name</Label><Input className="h-8 text-xs" placeholder="John Doe"/></div>
-                                            <div className="animate-fade-in-up" style={{animationDelay: '0.4s'}}><Label className="text-xs">Select Service</Label><Select><SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Choose a service..."/></SelectTrigger></Select></div>
-                                            <div className="animate-fade-in-up" style={{animationDelay: '0.6s'}}><Label className="text-xs">Preferred Date</Label><Input type="date" className="h-8 text-xs"/></div>
-                                        </div>
-                                        <div className="p-3 border-t flex-shrink-0"><Button className="w-full h-9 bg-primary hover:bg-primary/90 text-primary-foreground text-sm animate-fade-in-up" style={{animationDelay: '0.8s'}}>Confirm Booking</Button></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Live Action Section */}
-        <section className="py-16 md:py-24 bg-muted">
-          <div className="container mx-auto">
-             <div className="text-center space-y-4 mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold font-headline">See It All In Action</h2>
-              <p className="max-w-3xl mx-auto text-lg text-muted-foreground">
-                From the first touchpoint to the final sale, see how Wachat streamlines your entire customer conversation in one seamless flow.
-              </p>
-            </div>
-
-            <div className="relative flex justify-center">
+             <div className="relative mt-8 flex justify-center">
               {/* Doodles */}
               <Zap className="h-8 w-8 text-yellow-400 absolute top-0 -left-4 animate-fade-in-up" style={{animationDelay: '0.5s'}} />
               <AtSign className="h-6 w-6 text-red-400 absolute top-16 -right-8 animate-fade-in-up" style={{animationDelay: '0.7s'}}/>
@@ -337,6 +186,33 @@ export default async function HomePage() {
                    </div>
                 </div>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Section */}
+        <section id="features" className="py-16 bg-muted">
+          <div className="container mx-auto">
+            <div className="text-center space-y-4 mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold font-headline">Powerful Tools for Growth</h2>
+              <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
+                Everything you need to scale your customer communication on WhatsApp.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {features.map((feature, index) => (
+                <Card key={index} className={cn("text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 flex flex-col card-gradient", feature.gradient)}>
+                  <CardHeader className="items-center">
+                    <div className="p-4 bg-primary/10 rounded-full">
+                        {feature.icon}
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-2 flex-grow">
+                    <h3 className="text-xl font-semibold">{feature.title}</h3>
+                    <p className="text-muted-foreground">{feature.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
         </section>
