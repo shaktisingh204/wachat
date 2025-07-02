@@ -10,9 +10,11 @@ import { Badge } from '@/components/ui/badge';
 import { Phone, Calendar } from 'lucide-react';
 import { SubscribeProjectButton } from './subscribe-project-button';
 import { cn } from '@/lib/utils';
+import type { WithId, Project } from '@/lib/definitions';
+
 
 interface ProjectCardProps {
-    project: any;
+    project: WithId<Project>;
 }
 
 export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectCardProps) {
@@ -26,7 +28,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
 
     const handleSelectProject = () => {
         if (typeof window !== 'undefined') {
-            localStorage.setItem('activeProjectId', project._id);
+            localStorage.setItem('activeProjectId', project._id.toString());
             localStorage.setItem('activeProjectName', project.name);
         }
         router.push('/dashboard/overview');
@@ -80,6 +82,11 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                 <div className="flex justify-between items-start gap-2">
                     <CardTitle className="text-base leading-tight">{project.name}</CardTitle>
                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        {project.banState && (
+                            <Badge variant="destructive" className="capitalize">
+                                {project.banState.replace(/_/g, ' ')}
+                            </Badge>
+                        )}
                         {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
                             <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-xs">
                                 {project.reviewStatus.replace(/_/g, ' ').toLowerCase()}

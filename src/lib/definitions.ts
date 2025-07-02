@@ -109,6 +109,7 @@ export type Project = {
     createdAt: Date;
     messagesPerSecond?: number;
     reviewStatus?: string;
+    banState?: string;
     paymentConfiguration?: PaymentConfiguration;
     businessCapabilities?: BusinessCapabilities;
     autoReplySettings?: AutoReplySettings;

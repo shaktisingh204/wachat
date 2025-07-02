@@ -6,7 +6,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
 import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelligent-translate-flow';
-import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template } from '@/app/dashboard/page';
+import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template } from './definitions';
 
 const BATCH_SIZE = 1000;
 
@@ -957,8 +957,13 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
 
         switch (eventType) {
             case 'account_update':
-                message = `Your business account has been updated. Review status: ${value.review_status?.toUpperCase() || 'N/A'}`;
-                if (value.review_status) await db.collection('projects').updateOne({ _id: project._id }, { $set: { reviewStatus: value.review_status } });
+                if (value.event === 'DISABLED_UPDATE' && value.ban_info?.waba_ban_state) {
+                    message = `Account status updated: ${value.ban_info.waba_ban_state}. Ban date: ${value.ban_info.waba_ban_date || 'N/A'}`;
+                    await db.collection('projects').updateOne({ _id: project._id }, { $set: { banState: value.ban_info.waba_ban_state } });
+                } else if (value.review_status) {
+                    message = `Your business account has been updated. Review status: ${value.review_status?.toUpperCase() || 'N/A'}`;
+                    await db.collection('projects').updateOne({ _id: project._id }, { $set: { reviewStatus: value.review_status } });
+                }
                 break;
             case 'phone_number_quality_update':
                 message = `Phone number ${value.display_phone_number} quality is now ${value.event}. Current limit: ${value.current_limit}`;
