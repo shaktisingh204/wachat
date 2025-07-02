@@ -6,7 +6,7 @@ import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, AlertCircle, Server, Check, ChevronsUpDown, Switch as SwitchIcon, GitBranch, MessageSquare, Image as ImageIcon, CaseSensitive, Calendar, List, Link as LinkIcon, Hand, Footprints, MousePointerClick, FileUp } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, AlertCircle, Server, Check, ChevronsUpDown, Switch as SwitchIcon, GitBranch, MessageSquare, Image as ImageIcon, CaseSensitive, Calendar, List, Link as LinkIcon, Hand, Footprints, MousePointerClick, FileUp, Heading1 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -24,7 +24,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { WithId } from 'mongodb';
 import type { MetaFlow } from '@/lib/definitions';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -1139,7 +1139,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                     <DialogTitle>Edit Component: {localComponent.type}</DialogTitle>
                 </DialogHeader>
                 <ScrollArea className="max-h-[60vh] -mx-6 px-6">
-                <div className="py-4 space-y-6">
+                <div className="py-6 space-y-6">
                     {renderProperties()}
                 </div>
                 </ScrollArea>
@@ -1151,6 +1151,48 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         </Dialog>
     );
 }
+
+function AddComponentDialog({ isOpen, onOpenChange, onAddComponent }: { isOpen: boolean, onOpenChange: (open: boolean) => void, onAddComponent: (type: DeclarativeUIComponent['type']) => void }) {
+    return (
+        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-4xl">
+                <DialogHeader>
+                    <DialogTitle>Add a Component</DialogTitle>
+                    <DialogDescription>Select a component to add to the current screen.</DialogDescription>
+                </DialogHeader>
+                <ScrollArea className="max-h-[70vh]">
+                    <div className="p-1 space-y-6">
+                        {declarativeFlowComponents.map(category => (
+                            <div key={category.name}>
+                                <h3 className="font-semibold text-lg mb-3 px-2">{category.name}</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {category.components.map(component => {
+                                        const Icon = component.icon || Heading1;
+                                        return (
+                                             <button 
+                                                key={component.type} 
+                                                onClick={() => {
+                                                    onAddComponent(component.type);
+                                                    onOpenChange(false);
+                                                }}
+                                                className="p-4 border rounded-lg text-left hover:bg-accent hover:border-primary transition-all space-y-2 h-full flex flex-col"
+                                                >
+                                                    <Icon className="h-6 w-6 text-primary" />
+                                                    <p className="font-semibold flex-grow">{component.label}</p>
+                                                    <p className="text-xs text-muted-foreground">{component.description}</p>
+                                            </button>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </ScrollArea>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 
 function CreateMetaFlowPageContent() {
     const router = useRouter();
@@ -1170,6 +1212,7 @@ function CreateMetaFlowPageContent() {
     const [selectedScreenId, setSelectedScreenId] = useState<string | null>(null);
     const [editingComponent, setEditingComponent] = useState<any>(null);
     const [isComponentEditorOpen, setIsComponentEditorOpen] = useState(false);
+    const [isAddComponentOpen, setIsAddComponentOpen] = useState(false);
 
     const isEditing = !!flowId;
 
@@ -1314,6 +1357,7 @@ function CreateMetaFlowPageContent() {
     return (
         <Suspense fallback={<PageSkeleton />}>
             {editingComponent && <ComponentEditorDialog component={editingComponent} onSave={updateComponent} onCancel={closeComponentEditor} isOpen={isComponentEditorOpen} onOpenChange={setIsComponentEditorOpen} />}
+            <AddComponentDialog isOpen={isAddComponentOpen} onOpenChange={setIsAddComponentOpen} onAddComponent={addComponent} />
 
             <form action={formAction}>
                  {projectId && <input type="hidden" name="projectId" value={projectId} />}
@@ -1332,11 +1376,11 @@ function CreateMetaFlowPageContent() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                         <div className="space-y-6">
-                            <Card>
-                                <CardHeader className="p-6">
+                            <Card className="p-2">
+                                <CardHeader className="p-4">
                                     <CardTitle>Flow Configuration</CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4 p-6">
+                                <CardContent className="space-y-6 p-4">
                                      <div className="space-y-2">
                                         <Label htmlFor="flowName">Flow Name</Label>
                                         <Input id="flowName" name="flowName" value={flowName} onChange={(e) => setFlowName(e.target.value)} required />
@@ -1358,7 +1402,7 @@ function CreateMetaFlowPageContent() {
                             <Accordion type="single" collapsible defaultValue="screens">
                                 <AccordionItem value="screens">
                                     <AccordionTrigger className="text-base font-semibold px-4 py-3">Screens</AccordionTrigger>
-                                    <AccordionContent className="space-y-3 p-2">
+                                    <AccordionContent className="space-y-3 p-4">
                                         {flowData.screens?.map((screen: any) => (
                                              <div key={screen.id} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
                                                 <Button variant={selectedScreenId === screen.id ? 'default' : 'ghost'} className="flex-1 justify-start" onClick={() => setSelectedScreenId(screen.id)}>{screen.title || screen.id}</Button>
@@ -1386,7 +1430,7 @@ function CreateMetaFlowPageContent() {
                                 </AccordionItem>
                                 <AccordionItem value="components">
                                      <AccordionTrigger className="text-base font-semibold px-4 py-3">Components</AccordionTrigger>
-                                     <AccordionContent className="space-y-3 p-2">
+                                     <AccordionContent className="space-y-3 p-4">
                                         {currentScreenForEditor ? (
                                             <>
                                                 {(currentScreenForEditor.layout.children.find((c:any) => c.type === 'Form' || c.type === 'NavigationList')?.children || []).map((comp:any, index:number) => (
@@ -1396,32 +1440,14 @@ function CreateMetaFlowPageContent() {
                                                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeComponent(comp.name)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                                                      </div>
                                                 ))}
-                                                <Popover>
-                                                    <PopoverTrigger asChild><Button variant="outline" className="w-full"><Plus className="mr-2 h-4 w-4"/>Add Component</Button></PopoverTrigger>
-                                                    <PopoverContent className="w-64 p-1">
-                                                        <Accordion type="multiple" className="w-full">
-                                                          {declarativeFlowComponents.map(category => (
-                                                            <AccordionItem key={category.name} value={category.name}>
-                                                              <AccordionTrigger>{category.name}</AccordionTrigger>
-                                                              <AccordionContent>
-                                                                <div className="flex flex-col items-start">
-                                                                  {category.components.map(c => (
-                                                                    <Button key={c.type} variant="ghost" className="w-full justify-start" onClick={() => addComponent(c.type)}>{c.label}</Button>
-                                                                  ))}
-                                                                </div>
-                                                              </AccordionContent>
-                                                            </AccordionItem>
-                                                          ))}
-                                                        </Accordion>
-                                                    </PopoverContent>
-                                                </Popover>
+                                                <Button variant="outline" className="w-full" onClick={() => setIsAddComponentOpen(true)}><Plus className="mr-2 h-4 w-4"/>Add Component</Button>
                                             </>
                                         ): <p className="text-sm text-muted-foreground p-4">Select a screen to add components.</p>}
                                      </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="json">
                                     <AccordionTrigger className="text-base font-semibold px-4 py-3">Raw JSON</AccordionTrigger>
-                                    <AccordionContent className="p-2"><Textarea value={JSON.stringify(flowData, null, 2)} onChange={(e) => { try { const parsed = JSON.parse(e.target.value); setFlowData(parsed); } catch(err) {/* ignore */} }} className="h-96 font-mono text-xs" /></AccordionContent>
+                                    <AccordionContent className="p-4"><Textarea value={JSON.stringify(flowData, null, 2)} onChange={(e) => { try { const parsed = JSON.parse(e.target.value); setFlowData(parsed); } catch(err) {/* ignore */} }} className="h-96 font-mono text-xs" /></AccordionContent>
                                 </AccordionItem>
                             </Accordion>
 

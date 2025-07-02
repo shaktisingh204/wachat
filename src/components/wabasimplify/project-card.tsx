@@ -75,7 +75,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
     const throughputLevel = project.phoneNumbers?.[0]?.throughput?.level;
 
     return (
-        <Card className={cn("flex flex-col hover:shadow-lg hover:border-primary transition-all card-gradient card-gradient-purple")}>
+        <Card className={cn("flex flex-col hover:shadow-lg hover:border-primary transition-all card-gradient card-gradient-green")}>
             <CardHeader className="flex-grow">
                 <div className="flex justify-between items-start gap-2">
                     <CardTitle className="text-base leading-tight">{project.name}</CardTitle>

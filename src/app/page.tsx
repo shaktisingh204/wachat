@@ -1,4 +1,5 @@
 
+
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
@@ -7,6 +8,7 @@ import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { cn } from '@/lib/utils';
 
 
 const features = [
@@ -14,21 +16,25 @@ const features = [
     icon: <Send className="h-8 w-8 text-primary" />,
     title: 'Campaign Management',
     description: 'Launch targeted broadcast campaigns to thousands of contacts with detailed, real-time analytics and delivery reports.',
+    gradient: 'card-gradient-green',
   },
   {
     icon: <GitBranch className="h-8 w-8 text-primary" />,
     title: 'No-Code Flow Builder',
     description: 'Design powerful, automated conversational flows with our intuitive drag-and-drop builder. No coding required.',
+     gradient: 'card-gradient-blue',
   },
   {
     icon: <MessageSquare className="h-8 w-8 text-primary" />,
     title: 'Unified Live Chat',
     description: 'Engage with your customers in real-time through a multi-agent live chat interface, complete with translation tools.',
+     gradient: 'card-gradient-purple',
   },
   {
     icon: <Bot className="h-8 w-8 text-primary" />,
     title: 'AI-Powered Replies',
     description: 'Leverage AI to handle common queries, provide instant support, and translate messages automatically.',
+     gradient: 'card-gradient-orange',
   },
 ];
 
@@ -157,7 +163,7 @@ export default async function HomePage() {
             </div>
             <div className="flex flex-wrap justify-center gap-6">
               {features.map((feature, index) => (
-                <Card key={index} className="text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 w-full max-w-sm flex flex-col">
+                <Card key={index} className={cn("text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 w-full max-w-sm flex flex-col card-gradient", feature.gradient)}>
                   <CardHeader className="items-center">
                     <div className="p-4 bg-primary/10 rounded-full">
                         {feature.icon}

@@ -1,4 +1,5 @@
 
+
 import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
@@ -55,7 +56,7 @@ export default async function SelectProjectPage({
             </div>
 
             {projects.length > 0 ? (
-                 <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
+                 <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
                     {projects.map((project) => (
                         <ProjectCard key={project._id.toString()} project={project} />
                     ))}
