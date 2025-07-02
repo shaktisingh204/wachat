@@ -256,6 +256,44 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         const isFooterComponent = localComponent?.type === 'Footer';
         const isEmbeddedLinkComponent = localComponent?.type === 'EmbeddedLink';
         const isNavigationListComponent = localComponent?.type === 'NavigationList';
+        const isIfComponent = localComponent?.type === 'If';
+        const isSwitchComponent = localComponent?.type === 'Switch';
+
+        if (isIfComponent) {
+            return (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="condition">Condition Expression</Label>
+                        <Input id="condition" value={localComponent.condition || ''} onChange={(e) => updateField('condition', e.target.value)} placeholder="${form.age} > 18" required />
+                    </div>
+                     <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Note</AlertTitle>
+                        <AlertDescription>
+                           The 'then' and 'else' branches for this component must be edited in the Raw JSON view.
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            )
+        }
+        
+        if (isSwitchComponent) {
+            return (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="value">Variable to Switch On</Label>
+                        <Input id="value" value={localComponent.value || ''} onChange={(e) => updateField('value', e.target.value)} placeholder="${form.choice}" required />
+                    </div>
+                     <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Note</AlertTitle>
+                        <AlertDescription>
+                           The 'cases' for this component must be edited in the Raw JSON view.
+                        </AlertDescription>
+                    </Alert>
+                </div>
+            )
+        }
 
         if (isNavigationListComponent) {
             return (
@@ -1431,4 +1469,3 @@ export default function CreateMetaFlowPage() {
         </Suspense>
     );
 }
-

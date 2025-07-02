@@ -52,6 +52,21 @@ const FlowComponent = ({ component, formData, setFormData }: { component: any, f
                     ))}
                 </div>
             );
+        case 'If':
+            return (
+                <div className="p-2 border-l-2 border-dashed border-blue-500 my-2">
+                    <p className="text-xs text-blue-600 font-mono italic">IF: {component.condition}</p>
+                    <div className="pl-4 border-l border-blue-200 ml-2">
+                        {component.then?.map((c: any, i: number) => <FlowComponent key={i} component={c} formData={formData} setFormData={setFormData} />)}
+                    </div>
+                </div>
+            );
+        case 'Switch':
+             return (
+                <div className="p-2 border-l-2 border-dashed border-purple-500 my-2">
+                    <p className="text-xs text-purple-600 font-mono italic">SWITCH: {component.value}</p>
+                </div>
+            );
         default: return null;
     }
 }
@@ -144,4 +159,3 @@ export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
         </Card>
     );
 }
-
