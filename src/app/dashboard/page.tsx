@@ -6,11 +6,10 @@ import { getProjects } from "@/app/actions";
 import { ProjectCard } from "@/components/wabasimplify/project-card";
 import { FileText, PlusCircle } from "lucide-react";
 import type { WithId } from "mongodb";
-import { SyncProjectsButton } from "@/components/wabasimplify/sync-projects-button";
-import { SubscribeAllButton } from "@/components/wabasimplify/subscribe-all-button";
 import { ProjectSearch } from "@/components/wabasimplify/project-search";
 import { Button } from "@/components/ui/button";
 import type { Project } from "@/lib/definitions";
+import { SyncProjectsDialog } from "@/components/wabasimplify/sync-projects-dialog";
 
 export const dynamic = 'force-dynamic';
 
@@ -38,8 +37,7 @@ export default async function SelectProjectPage({
                     </p>
                 </div>
                  <div className="flex flex-wrap items-center gap-2">
-                    <SubscribeAllButton />
-                    <SyncProjectsButton />
+                    <SyncProjectsDialog />
                 </div>
             </div>
 

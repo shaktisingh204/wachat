@@ -1605,18 +1605,34 @@ export async function handleRunCron(): Promise<{ message?: string; error?: strin
     }
 }
 
-export async function handleSyncWabas(): Promise<{ message?: string; error?: string }> {
-    const businessId = process.env.META_MAIN_BUSINESS_ID;
-    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
-    const apiVersion = 'v22.0';
-    const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
-
-    if (!businessId || !accessToken) {
-        return { error: 'Business ID and Access Token must be configured in environment variables.' };
+export async function handleSyncWabas(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'Authentication required.' };
     }
+
+    const accessToken = formData.get('accessToken') as string;
+    if (!accessToken) {
+        return { error: 'Access Token is required.' };
+    }
+    
+    const apiVersion = 'v22.0';
     
     try {
         const { db } = await connectToDatabase();
+        
+        // 1. Get user's business ID
+        const businessesResponse = await axios.get(`https://graph.facebook.com/${apiVersion}/me/businesses`, {
+            params: { access_token: accessToken }
+        });
+        
+        const businesses = businessesResponse.data?.data;
+        if (!businesses || businesses.length === 0) {
+            return { error: "No Meta Business Accounts found for this token. Ensure the token has the 'business_management' permission." };
+        }
+        const businessId = businesses[0].id; // Use the first business account found
+
+        // 2. Get all WABAs for that business
         let allWabas: MetaWaba[] = [];
         let nextUrl: string | undefined = `https://graph.facebook.com/${apiVersion}/${businessId}/client_whatsapp_business_accounts?access_token=${accessToken}&limit=100`;
 
@@ -1639,7 +1655,10 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
         if (allWabas.length === 0) {
             return { message: 'No client WhatsApp Business Accounts found to sync.' };
         }
+        
+        const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
 
+        // 3. Prepare bulk operations with ownership transfer
         const bulkOps = await Promise.all(allWabas.map(async (waba) => {
             const phoneNumbersResponse = await fetch(
                 `https://graph.facebook.com/${apiVersion}/${waba.id}/phone_numbers?access_token=${accessToken}&fields=verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput`
@@ -1657,26 +1676,33 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
             })) : [];
 
             const projectDoc = {
+                userId: new ObjectId(session.user._id),
                 name: waba.name,
                 wabaId: waba.id,
                 accessToken: accessToken,
                 phoneNumbers: phoneNumbers,
                 createdAt: new Date(),
                 messagesPerSecond: 1000,
+                planId: defaultPlan?._id,
+                credits: defaultPlan?.signupCredits || 0,
             };
 
             return {
                 updateOne: {
                     filter: { wabaId: waba.id },
                     update: { 
-                        $set: {
+                        $set: { // Always update these fields, including the owner
                             name: projectDoc.name,
                             accessToken: projectDoc.accessToken,
-                            phoneNumbers: projectDoc.phoneNumbers
+                            phoneNumbers: projectDoc.phoneNumbers,
+                            userId: projectDoc.userId, // This transfers or confirms ownership
                         },
-                        $setOnInsert: {
+                        $setOnInsert: { // Only set these fields on creation
+                             wabaId: projectDoc.wabaId,
                              createdAt: projectDoc.createdAt,
                              messagesPerSecond: projectDoc.messagesPerSecond,
+                             planId: projectDoc.planId,
+                             credits: projectDoc.credits,
                         }
                     },
                     upsert: true,
@@ -1688,14 +1714,14 @@ export async function handleSyncWabas(): Promise<{ message?: string; error?: str
             const result = await db.collection('projects').bulkWrite(bulkOps);
             const syncedCount = result.upsertedCount + result.modifiedCount;
             revalidatePath('/dashboard');
-            return { message: `Successfully synced ${syncedCount} projects from Meta.` };
+            return { message: `Successfully synced ${syncedCount} project(s) and assigned them to you.` };
         } else {
             return { message: "No new projects to sync." };
         }
 
     } catch (e: any) {
         console.error('Project sync from Meta failed:', e);
-        return { error: e.message || 'An unexpected error occurred during project sync.' };
+        return { error: getErrorMessage(e) || 'An unexpected error occurred during project sync.' };
     }
 }
 
