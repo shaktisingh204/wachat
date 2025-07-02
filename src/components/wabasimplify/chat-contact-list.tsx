@@ -34,6 +34,14 @@ export function ChatContactList({ contacts, selectedContactId, onSelectContact, 
         </div>
     );
     
+    const getStatusVariant = (status: 'new' | 'open' | 'resolved' | undefined): 'default' | 'secondary' | 'outline' => {
+        switch(status) {
+            case 'open': return 'default';
+            case 'resolved': return 'secondary';
+            default: return 'outline';
+        }
+    }
+
     return (
         <div className="h-full flex flex-col overflow-hidden">
             <div className="p-4 border-b flex items-center justify-between flex-shrink-0">
@@ -63,7 +71,12 @@ export function ChatContactList({ contacts, selectedContactId, onSelectContact, 
                                     <AvatarFallback>{contact.name.charAt(0).toUpperCase()}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 overflow-hidden">
-                                    <p className="font-semibold truncate">{contact.name}</p>
+                                    <div className="flex items-center justify-between">
+                                        <p className="font-semibold truncate">{contact.name}</p>
+                                        {contact.status && contact.status !== 'new' && (
+                                            <Badge variant={getStatusVariant(contact.status)} className="capitalize text-xs h-5">{contact.status}</Badge>
+                                        )}
+                                    </div>
                                     <p className="text-sm text-muted-foreground truncate">{contact.lastMessage}</p>
                                 </div>
                                 {contact.lastMessageTimestamp && (

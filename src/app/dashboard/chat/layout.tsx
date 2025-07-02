@@ -28,7 +28,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
             </Button>
         </div>
       </div>
-      <div className="flex-1 overflow-hidden p-0 md:p-0 lg:p-0">
+      <div className="flex-1 overflow-hidden">
           {children}
       </div>
     </div>

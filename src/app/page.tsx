@@ -161,18 +161,16 @@ export default function HomePage() {
               <Check className="h-8 w-8 text-green-500 absolute top-8 right-0 animate-fade-in-up" style={{animationDelay: '1.5s'}}/>
 
               {/* Phone Mockup */}
-               <div className="w-full max-w-sm bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl z-10">
+               <div key={animationKey} className="w-full max-w-sm bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl z-10">
                 <div 
-                    key={animationKey}
                     className="h-[700px] bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
-                    style={{backgroundImage: "url('https://placehold.co/400x800.png')"}}
-                    data-ai-hint="dark gaming pattern"
+                    style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}
                 >
                    <div className="absolute inset-0 bg-black/5"></div>
                    {/* Header */}
                    <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                       <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
-                      <div className="flex-1 flex flex-col justify-center">
+                      <div className="flex-1 flex flex-col">
                           <div className="flex items-center gap-1.5">
                             <p className="font-semibold">Wachat</p>
                             <svg viewBox="0 0 18 18" width="16" height="16" className="text-green-400 flex-shrink-0">
@@ -335,14 +333,13 @@ export default function HomePage() {
                                 <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-800 rounded-b-lg"></div>
                                 <div 
                                     className="h-full bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
-                                    style={{backgroundImage: "url('https://placehold.co/400x800.png')"}}
-                                    data-ai-hint="dark gaming pattern"
+                                    style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}
                                 >
                                     <div className="absolute inset-0 bg-black/5"></div>
                                     {/* Header */}
                                     <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                         <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
-                                        <div className="flex-1 flex flex-col justify-center">
+                                        <div className="flex-1 flex flex-col">
                                             <div className="flex items-center gap-1.5">
                                             <p className="font-semibold">Wachat</p>
                                             <svg viewBox="0 0 18 18" width="16" height="16" className="text-green-400 flex-shrink-0">
