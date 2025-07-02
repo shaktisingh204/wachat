@@ -92,12 +92,12 @@ export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
     
     const layout = currentScreen.layout;
     const safeLayoutChildren = layout?.children?.filter(Boolean) || [];
-    const mainContainer = safeLayoutChildren.find((c: any) => c && c.type === 'Form');
+    const mainContainer = safeLayoutChildren.find((c: any) => c && (c.type === 'Form' || c.type === 'NavigationList'));
     
     let renderableComponents: any[] = [];
     let footerComponent: any = null;
 
-    if (mainContainer) {
+    if (mainContainer && mainContainer.type === 'Form') {
         renderableComponents = mainContainer.children?.filter(Boolean) || [];
         footerComponent = renderableComponents.find(c => c && c.type === 'Footer');
     } else {
@@ -144,3 +144,4 @@ export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
         </Card>
     );
 }
+

@@ -250,18 +250,39 @@ const FormSchema = z.object({
 });
 
 const NavigationListItemSchema = z.object({
-  id: z.string(),
-  "main-content": z.object({ title: z.string(), description: z.string().optional() }),
-  "on-click-action": ActionSchema.optional(),
+    id: z.string().describe("A unique string identifier for this list item."),
+    "main-content": z.object({
+        title: z.string().max(30).describe("The main title of the list item."),
+        description: z.string().max(20).optional().describe("A short description shown below the title."),
+        metadata: z.string().max(80).optional().describe("Additional metadata, e.g., price or status."),
+    }),
+    start: z.object({
+        image: z.string().describe("Use the placeholder 'base64_image_placeholder' for images."),
+        "alt-text": z.string().describe("Accessibility text for the image."),
+    }).optional(),
+    end: z.object({
+        title: z.string().max(10).optional().describe("Text for the end section."),
+        description: z.string().max(10).optional().describe("Description for the end section."),
+        metadata: z.string().max(10).optional().describe("Metadata for the end section."),
+    }).optional(),
+    badge: z.string().max(15).optional().describe("A badge to highlight this item. Only one item per list can have a badge."),
+    tags: z.array(z.string().max(15)).max(3).optional().describe("Up to three short tags for categorization."),
+    "on-click-action": ActionSchema.optional().describe("Action to perform when this specific item is clicked."),
 });
 
 const NavigationListSchema = z.object({
-  type: z.literal('NavigationList'),
-  name: z.string(),
-  label: z.string(),
-  "list-items": z.union([z.string().describe("A dynamic variable like '${data.insurances}'"), z.array(NavigationListItemSchema)]),
-  "on-click-action": ActionSchema.optional(),
+    type: z.literal('NavigationList'),
+    name: z.string().describe("A unique name for the navigation list component."),
+    label: z.string().max(80).optional().describe("A title shown above the list."),
+    description: z.string().max(300).optional().describe("A description shown below the label."),
+    "media-size": z.enum(['regular', 'large']).optional().describe("The size of the media in list items. Default is 'regular'."),
+    "list-items": z.union([
+        z.string().describe("A dynamic variable from a previous screen holding an array of items, e.g., '${data.insurances}'."),
+        z.array(NavigationListItemSchema).min(1).max(20).describe("An array of 1 to 20 list item objects.")
+    ]),
+    "on-click-action": ActionSchema.optional().describe("A default action for all list items. Cannot be used if items have their own on-click-action.")
 });
+
 
 const ScreenLayoutChildSchema = z.union([
     FormSchema, 

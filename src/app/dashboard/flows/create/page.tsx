@@ -209,6 +209,36 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         updateField('allowed-mime-types', types.length > 0 ? types : undefined);
     };
 
+    const handleListItemChange = (itemIndex: number, field: string, value: any, parentField?: string) => {
+        const newItems = [...(localComponent['list-items'] || [])];
+        if (parentField) {
+            newItems[itemIndex] = {
+                ...newItems[itemIndex],
+                [parentField]: {
+                    ...(newItems[itemIndex][parentField] || {}),
+                    [field]: value
+                }
+            };
+        } else {
+            newItems[itemIndex] = { ...newItems[itemIndex], [field]: value };
+        }
+        updateField('list-items', newItems);
+    };
+
+    const handleListItemActionChange = (itemIndex: number, field: 'name' | 'payload' | 'next' | 'url', value: any) => {
+        const newAction = { ...((localComponent['list-items'] || [])[itemIndex]['on-click-action'] || {}), [field]: value };
+        handleListItemChange(itemIndex, 'on-click-action', newAction);
+    };
+    
+    const addListItem = () => {
+        const newItems = [...(localComponent['list-items'] || []), { id: `item_${Date.now()}`, "main-content": { title: "New Item" } }];
+        updateField('list-items', newItems);
+    };
+    
+    const removeListItem = (itemIndex: number) => {
+        const newItems = (localComponent['list-items'] || []).filter((_: any, i: number) => i !== itemIndex);
+        updateField('list-items', newItems);
+    };
 
     const renderProperties = () => {
         const isTextComponent = ['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(localComponent?.type);
@@ -225,6 +255,63 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         const isOptInComponent = localComponent?.type === 'OptIn';
         const isFooterComponent = localComponent?.type === 'Footer';
         const isEmbeddedLinkComponent = localComponent?.type === 'EmbeddedLink';
+        const isNavigationListComponent = localComponent?.type === 'NavigationList';
+
+        if (isNavigationListComponent) {
+            return (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Name (unique identifier)</Label>
+                        <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="label">Label (optional, max 80 chars)</Label>
+                        <Input id="label" value={localComponent.label || ''} onChange={(e) => updateField('label', e.target.value)} maxLength={80} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="description">Description (optional, max 300 chars)</Label>
+                        <Textarea id="description" value={localComponent.description || ''} onChange={(e) => updateField('description', e.target.value)} maxLength={300} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>List Items</Label>
+                        <div className="space-y-3 p-2 border rounded-md max-h-72 overflow-y-auto">
+                            {(localComponent['list-items'] || []).map((item: any, index: number) => (
+                                <Accordion key={item.id} type="single" collapsible className="w-full bg-background rounded-md border">
+                                    <AccordionItem value="item1" className="border-b-0">
+                                        <AccordionTrigger className="p-3 text-sm">
+                                            <span className="truncate flex-1 text-left">{item['main-content']?.title || `Item ${index + 1}`}</span>
+                                            <Button type="button" variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); removeListItem(index); }}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                        </AccordionTrigger>
+                                        <AccordionContent className="p-3 pt-0 space-y-4">
+                                            <div className="space-y-2"><Label>ID</Label><Input value={item.id} onChange={(e) => handleListItemChange(index, 'id', e.target.value)} required/></div>
+                                            <div className="p-2 border rounded-md space-y-2">
+                                                <Label className="text-xs font-semibold">Main Content</Label>
+                                                <Input placeholder="Title (max 30)" value={item['main-content']?.title || ''} onChange={(e) => handleListItemChange(index, 'title', e.target.value, 'main-content')} maxLength={30} />
+                                                <Input placeholder="Description (max 20)" value={item['main-content']?.description || ''} onChange={(e) => handleListItemChange(index, 'description', e.target.value, 'main-content')} maxLength={20} />
+                                                <Input placeholder="Metadata (max 80)" value={item['main-content']?.metadata || ''} onChange={(e) => handleListItemChange(index, 'metadata', e.target.value, 'main-content')} maxLength={80} />
+                                            </div>
+                                             <div className="p-2 border rounded-md space-y-2">
+                                                <Label className="text-xs font-semibold">On-Click Action</Label>
+                                                <Select value={item['on-click-action']?.name || ''} onValueChange={(val) => handleListItemActionChange(index, 'name', val)}>
+                                                    <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="navigate">Navigate</SelectItem>
+                                                        <SelectItem value="data_exchange">Data Exchange</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                {item['on-click-action']?.name === 'navigate' && <Input placeholder="Next Screen ID" value={item['on-click-action']?.next?.name || ''} onChange={(e) => handleListItemActionChange(index, 'next', { type: 'screen', name: e.target.value })}/>}
+                                                {item['on-click-action']?.name === 'data_exchange' && <Textarea placeholder='Payload (JSON)' className="font-mono text-xs" value={item['on-click-action']?.payload ? JSON.stringify(item['on-click-action'].payload, null, 2) : ''} onChange={(e) => { try { handleListItemActionChange(index, 'payload', e.target.value ? JSON.parse(e.target.value) : undefined) } catch {} }}/>}/>
+                                            </div>
+                                        </AccordionContent>
+                                    </AccordionItem>
+                                </Accordion>
+                            ))}
+                        </div>
+                        <Button type="button" variant="outline" className="w-full" onClick={addListItem}><Plus className="mr-2 h-4 w-4"/>Add List Item</Button>
+                    </div>
+                </div>
+            );
+        }
 
         if (isEmbeddedLinkComponent) {
             return (
@@ -1124,11 +1211,11 @@ function CreateMetaFlowPageContent() {
         const newFlowData = JSON.parse(JSON.stringify(flowData));
         const screen = newFlowData.screens.find((s:any) => s.id === selectedScreenId);
         if (screen) {
-            const form = screen.layout.children.find((c:any) => c.type === 'Form');
-            if (form) {
-                const componentIndex = form.children.findIndex((c:any) => c.name === updatedComponent.name);
+            const container = screen.layout.children.find((c:any) => c.type === 'Form' || c.type === 'NavigationList');
+            if (container) {
+                const componentIndex = container.children?.findIndex((c:any) => c.name === updatedComponent.name) ?? -1;
                 if (componentIndex > -1) {
-                    form.children[componentIndex] = updatedComponent;
+                    container.children[componentIndex] = updatedComponent;
                 }
             }
         }
@@ -1180,12 +1267,12 @@ function CreateMetaFlowPageContent() {
         const newFlowData = JSON.parse(JSON.stringify(flowData));
         const screen = newFlowData.screens.find((s:any) => s.id === selectedScreenId);
         if (screen) {
-            let form = screen.layout.children.find((c:any) => c.type === 'Form');
-            if (!form) {
-                form = { type: 'Form', name: `${selectedScreenId}_FORM`, children: [] };
-                screen.layout.children.push(form);
+            let container = screen.layout.children.find((c:any) => c.type === 'Form');
+            if (!container) {
+                container = { type: 'Form', name: `${selectedScreenId}_FORM`, children: [] };
+                screen.layout.children.push(container);
             }
-            form.children.push(newComponent);
+            container.children.push(newComponent);
             setFlowData(newFlowData);
         }
     };
@@ -1195,9 +1282,9 @@ function CreateMetaFlowPageContent() {
         const newFlowData = JSON.parse(JSON.stringify(flowData));
         const screen = newFlowData.screens.find((s:any) => s.id === selectedScreenId);
         if (screen) {
-            const form = screen.layout.children.find((c:any) => c.type === 'Form');
-            if (form) {
-                form.children = form.children.filter((c:any) => c.name !== componentName);
+            const container = screen.layout.children.find((c:any) => c.type === 'Form' || c.type === 'NavigationList');
+            if (container) {
+                container.children = container.children.filter((c:any) => c.name !== componentName);
                 setFlowData(newFlowData);
             }
         }
