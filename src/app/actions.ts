@@ -65,6 +65,7 @@ import type {
     UpdateProjectSettingsState,
     InitiatePaymentResult,
     AdminUserView,
+    KanbanData,
 } from '@/lib/definitions';
 
 
@@ -3691,6 +3692,37 @@ export async function getContactsForProject(
     } catch (e) {
         console.error("Failed to get contacts for project:", e);
         return { contacts: [], total: 0 };
+    }
+}
+
+export async function getKanbanData(projectId: string): Promise<{ project: WithId<Project> | null, contacts: KanbanData }> {
+    const defaultData = { project: null, contacts: { new: [], open: [], resolved: [] } };
+    const project = await getProjectById(projectId);
+    if (!project) return defaultData;
+    
+    try {
+        const { db } = await connectToDatabase();
+        const contacts = await db.collection<Contact>('contacts')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ lastMessageTimestamp: -1 })
+            .toArray();
+
+        const groupedContacts = contacts.reduce((acc, contact) => {
+            const status = contact.status || 'new';
+            if (!acc[status]) {
+                acc[status] = [];
+            }
+            acc[status].push(contact);
+            return acc;
+        }, { new: [], open: [], resolved: [] } as KanbanData);
+        
+        return {
+            project: JSON.parse(JSON.stringify(project)),
+            contacts: JSON.parse(JSON.stringify(groupedContacts))
+        };
+    } catch (e) {
+        console.error("Failed to get Kanban data:", e);
+        return defaultData;
     }
 }
 

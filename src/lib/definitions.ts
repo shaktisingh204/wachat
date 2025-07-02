@@ -550,3 +550,9 @@ export type InitiatePaymentResult = {
   redirectUrl?: string;
   error?: string;
 }
+
+export type KanbanData = {
+    new: WithId<Contact>[];
+    open: WithId<Contact>[];
+    resolved: WithId<Contact>[];
+};
