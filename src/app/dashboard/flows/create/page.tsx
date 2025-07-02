@@ -65,7 +65,8 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
     const updateField = (key: string, value: any) => {
         setLocalComponent((prev: any) => ({...prev, [key]: value}));
     };
-
+    
+    // Guard against rendering with a null component state
     if (!component || !localComponent) return null;
 
     return (
@@ -77,7 +78,8 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                 <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
                     {Object.keys(component).map(key => {
                         const value = localComponent[key];
-                        if (key === 'type' || key === 'name') return null;
+                        // Don't allow editing type or auto-generated name
+                        if (key === 'type' || (key === 'name' && value?.startsWith(component.type.toLowerCase()))) return null; 
                         return (
                             <div key={key} className="space-y-2">
                                 <Label htmlFor={key}>{key}</Label>
@@ -195,9 +197,6 @@ function CreateMetaFlowPage() {
                 try {
                     const parsedFlow = JSON.parse(result.flowJson);
                     setFlowName(parsedFlow.name || 'ai_generated_flow');
-                    if(parsedFlow.name) delete parsedFlow.name;
-                    if(parsedFlow.description) delete parsedFlow.description;
-                    if (!parsedFlow.version) parsedFlow.version = '7.1';
                     setFlowData(parsedFlow);
                     toast({ title: "Flow Generated!", description: "The AI has created your flow. Review and save it." });
                 } catch (e) {
@@ -344,9 +343,7 @@ function CreateMetaFlowPage() {
             let targets: string[] = [];
             if (!Array.isArray(components)) return targets;
 
-            for (const component of components) {
-                if (!component) continue;
-
+            for (const component of components.filter(Boolean)) {
                 const action = component['on-click-action'] || component['on-select-action'];
                 if (action?.name === 'navigate' && action.next?.name) {
                     targets.push(action.next.name);
@@ -417,6 +414,7 @@ function CreateMetaFlowPage() {
             <input type="hidden" name="projectId" value={projectId || ''}/>
             <input type="hidden" name="flowId" value={flowId || ''}/>
             <input type="hidden" name="metaId" value={existingFlow?.metaId || ''}/>
+            <input type="hidden" name="flowName" value={flowName} />
             <input type="hidden" name="category" value={category} />
             <input type="hidden" name="flow_data" value={flowContentJson} />
 
@@ -435,8 +433,8 @@ function CreateMetaFlowPage() {
                             <CardHeader><CardTitle>1. General Details</CardTitle></CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="flowNameInput">Flow Name</Label>
-                                    <Input id="flowNameInput" name="flowName" value={flowName} onChange={e => setFlowName(e.target.value)} placeholder="e.g., lead_capture_flow" required/>
+                                    <Label htmlFor="flowNameInput">Flow Name (for Meta)</Label>
+                                    <Input id="flowNameInput" name="flowNameInput" value={flowName} onChange={e => setFlowName(e.target.value)} placeholder="e.g., lead_capture_flow" required/>
                                     <p className="text-xs text-muted-foreground">Lowercase letters and underscores only.</p>
                                 </div>
                                 <div className="space-y-2">
@@ -573,3 +571,4 @@ export default function CreateMetaFlowPageWrapper() {
     </Suspense>
   )
 }
+

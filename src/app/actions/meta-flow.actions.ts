@@ -104,8 +104,8 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
         return { error: 'Category and Flow Data are required.' };
     }
     
-    let payload: any = null;
-    let payloadString: string | undefined = undefined;
+    let apiPayload: any = null;
+    let apiPayloadString: string | undefined = undefined;
 
     try {
         const flow_data = JSON.parse(flowDataStr);
@@ -119,8 +119,8 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
                 flow_json: flowDataStr,
                 access_token: accessToken,
             };
-            payload = updatePayload;
-            payloadString = JSON.stringify(payload, null, 2);
+            apiPayload = updatePayload;
+            apiPayloadString = JSON.stringify(apiPayload, null, 2);
 
             const updateResponse = await axios.post(`https://graph.facebook.com/v22.0/${metaId}`, updatePayload);
 
@@ -150,7 +150,7 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
             );
 
             revalidatePath('/dashboard/flows');
-            return { message: `Flow "${flowName}" ${shouldPublish ? 'updated and published' : 'updated'} successfully!`, payload: payloadString };
+            return { message: `Flow "${flowName}" ${shouldPublish ? 'updated and published' : 'updated'} successfully!`, payload: apiPayloadString };
             
         } else {
             // ----- CREATE LOGIC -----
@@ -161,8 +161,8 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
                 flow_json: flowDataStr,
                 access_token: accessToken,
             };
-            payload = createPayload;
-            payloadString = JSON.stringify(payload, null, 2);
+            apiPayload = createPayload;
+            apiPayloadString = JSON.stringify(apiPayload, null, 2);
 
             const createUrl = `https://graph.facebook.com/v22.0/${wabaId}/flows`;
             const createResponse = await axios.post(createUrl, createPayload);
@@ -197,17 +197,17 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
             await db.collection('meta_flows').insertOne(newFlow as any);
 
             revalidatePath('/dashboard/flows');
-            return { message: `Meta Flow "${flowName}" created successfully!`, payload: payloadString };
+            return { message: `Meta Flow "${flowName}" created successfully!`, payload: apiPayloadString };
         }
 
     } catch (e: any) {
-        if (payload) {
-            payloadString = JSON.stringify(payload, null, 2);
+        if (apiPayload) {
+            apiPayloadString = JSON.stringify(apiPayload, null, 2);
         }
         if (e instanceof SyntaxError) {
-            return { error: 'Invalid JSON format for flow data.', payload: payloadString };
+            return { error: 'Invalid JSON format for flow data.', payload: apiPayloadString };
         }
-        return { error: getErrorMessage(e) || 'An unexpected error occurred.', payload: payloadString };
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.', payload: apiPayloadString };
     }
 }
 
@@ -298,3 +298,4 @@ export async function handleSyncMetaFlows(projectId: string): Promise<{ message?
         return { error: e.message || 'An unexpected error occurred during flow sync.' };
     }
 }
+

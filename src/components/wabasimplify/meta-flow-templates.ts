@@ -37,7 +37,6 @@ export const declarativeFlowComponents: { type: DeclarativeUIComponent['type'], 
     { type: 'RadioButtonsGroup', label: 'Radio Buttons' },
     { type: 'CheckboxGroup', label: 'Checkboxes' },
     { type: 'ChipsSelector', label: 'Chips Selector' },
-    { type: 'Switch', label: 'Switch (Toggle)' },
     { type: 'DatePicker', label: 'Date Picker' },
     { type: 'CalendarPicker', label: 'Calendar' },
     { type: 'PhotoPicker', label: 'Photo Picker' },
@@ -54,4 +53,3 @@ export const declarativeFlowComponents: { type: DeclarativeUIComponent['type'], 
     { type: 'Switch', label: 'Switch Block' },
 ];
 
-    
