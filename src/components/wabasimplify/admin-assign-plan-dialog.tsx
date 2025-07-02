@@ -20,35 +20,6 @@ import { updateUserPlanByAdmin } from '@/app/actions';
 import type { AdminUserView, Plan } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
-function SubmitButton() {
-  const [isPending, startTransition] = useTransition();
-  const { toast } = useToast();
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const userId = formData.get('userId') as string;
-    const planId = formData.get('planId') as string;
-
-    startTransition(async () => {
-      const result = await updateUserPlanByAdmin(userId, planId);
-      if (result.success) {
-        toast({ title: 'Success!', description: `Plan successfully assigned.` });
-        const button = document.getElementById(`close-dialog-${userId}`);
-        button?.click();
-      } else {
-        toast({ title: 'Error', description: result.error, variant: 'destructive' });
-      }
-    });
-  };
-
-  return (
-    <Button type="submit" disabled={isPending}>
-      {isPending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
-      Assign Plan
-    </Button>
-  );
-}
 
 interface AdminAssignPlanDialogProps {
   user: AdminUserView;
@@ -58,17 +29,20 @@ interface AdminAssignPlanDialogProps {
 export function AdminAssignPlanDialog({ user, allPlans }: AdminAssignPlanDialogProps) {
   const [open, setOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(user.plan?._id.toString() || '');
+  const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await updateUserPlanByAdmin(user._id.toString(), selectedPlan);
-    if (result.success) {
-      toast({ title: 'Success!', description: `Plan successfully assigned to ${user.name}.` });
-      setOpen(false);
-    } else {
-      toast({ title: 'Error', description: result.error, variant: 'destructive' });
-    }
+    startTransition(async () => {
+        const result = await updateUserPlanByAdmin(user._id.toString(), selectedPlan);
+        if (result.success) {
+        toast({ title: 'Success!', description: `Plan successfully assigned to ${user.name}.` });
+        setOpen(false);
+        } else {
+        toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        }
+    });
   };
 
 
@@ -82,7 +56,6 @@ export function AdminAssignPlanDialog({ user, allPlans }: AdminAssignPlanDialogP
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
-          <input type="hidden" name="userId" value={user._id.toString()} />
           <DialogHeader>
             <DialogTitle>Assign Plan to {user.name}</DialogTitle>
             <DialogDescription>
@@ -106,7 +79,10 @@ export function AdminAssignPlanDialog({ user, allPlans }: AdminAssignPlanDialogP
           </div>
           <DialogFooter>
             <Button id={`close-dialog-${user._id.toString()}`} type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit">Assign Plan</Button>
+             <Button type="submit" disabled={isPending}>
+              {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
+              Assign Plan
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
