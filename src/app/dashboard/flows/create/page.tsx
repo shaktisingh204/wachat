@@ -27,6 +27,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const createFlowInitialState = { message: null, error: null, payload: null };
 
@@ -170,9 +171,10 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         const isCarouselComponent = localComponent?.type === 'ImageCarousel';
         const isTextInputComponent = localComponent?.type === 'TextInput';
         const isTextAreaComponent = localComponent?.type === 'TextArea';
-        const isDropdownComponent = localComponent?.type === 'Dropdown';
+        const isSelectionComponent = ['Dropdown', 'RadioButtonsGroup'].includes(localComponent?.type);
 
-        if (isDropdownComponent) {
+
+        if (isSelectionComponent) {
             return (
                 <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
@@ -195,7 +197,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                                         <Input placeholder="ID (e.g., us)" value={opt.id} onChange={(e) => handleDataSourceChange(index, 'id', e.target.value)} />
                                         <Input placeholder="Title (e.g., USA)" value={opt.title} onChange={(e) => handleDataSourceChange(index, 'title', e.target.value)} />
                                         <Input className="col-span-2" placeholder="Description (optional)" value={opt.description || ''} onChange={(e) => handleDataSourceChange(index, 'description', e.target.value)} />
-                                        <Input className="col-span-2" placeholder="Metadata (optional, e.g. icon)" value={opt.metadata || ''} onChange={(e) => handleDataSourceChange(index, 'metadata', e.target.value)} />
+                                        {localComponent.type === 'Dropdown' && <Input className="col-span-2" placeholder="Metadata (optional, e.g. icon)" value={opt.metadata || ''} onChange={(e) => handleDataSourceChange(index, 'metadata', e.target.value)} />}
                                     </div>
                                     <div className="flex items-center space-x-2 mt-2"><Switch checked={opt.enabled !== false} onCheckedChange={(val) => handleDataSourceChange(index, 'enabled', val)} /><Label>Enabled</Label></div>
                                 </div>
@@ -220,6 +222,28 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                             )}
                         </div>
                     </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="error-message">Error Message</Label>
+                        <Input id="error-message" value={localComponent['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
+                    </div>
+                     <div className="flex items-center space-x-2">
+                        <Switch id="required" checked={localComponent.required || false} onCheckedChange={(val) => updateField('required', val)} />
+                        <Label htmlFor="required">Required</Label>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="visible">Visible</Label>
+                        <Input id="visible" value={localComponent.visible === undefined ? '' : String(localComponent.visible)} onChange={e => handleDynamicBoolChange('visible', e.target.value)} placeholder="true, false, or ${...}" />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="enabled">Enabled</Label>
+                        <Input id="enabled" value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} onChange={e => handleDynamicBoolChange('enabled', e.target.value)} placeholder="true, false, or ${...}" />
+                    </div>
+                     {localComponent.type === 'Dropdown' && (
+                        <div className="space-y-2">
+                            <Label htmlFor="init-value">Initial Value (optional)</Label>
+                            <Input id="init-value" value={localComponent['init-value'] || ''} onChange={(e) => updateField('init-value', e.target.value)} placeholder="ID of a default option" />
+                        </div>
+                     )}
                 </div>
             )
         }
