@@ -204,6 +204,11 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         updateField('include-days', currentDays.length > 0 ? currentDays : undefined);
     };
 
+    const handleAllowedMimeTypesChange = (value: string) => {
+        const types = value.split(',').map(s => s.trim()).filter(Boolean);
+        updateField('allowed-mime-types', types.length > 0 ? types : undefined);
+    };
+
 
     const renderProperties = () => {
         const isTextComponent = ['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(localComponent?.type);
@@ -216,7 +221,73 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         const isDatePickerComponent = localComponent?.type === 'DatePicker';
         const isCalendarPickerComponent = localComponent?.type === 'CalendarPicker';
         const isPhotoPickerComponent = localComponent?.type === 'PhotoPicker';
+        const isDocumentPickerComponent = localComponent?.type === 'DocumentPicker';
 
+        if (isDocumentPickerComponent) {
+            return (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Name (unique identifier)</Label>
+                        <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="label">Label (Header Text, max 80 chars)</Label>
+                        <Input id="label" value={localComponent.label || ''} onChange={(e) => updateField('label', e.target.value)} required maxLength={80} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="description">Description (optional, max 300 chars)</Label>
+                        <Textarea id="description" value={localComponent.description || ''} onChange={(e) => updateField('description', e.target.value)} maxLength={300} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="min-uploaded-documents">Min Docs</Label>
+                            <Input id="min-uploaded-documents" type="number" value={localComponent['min-uploaded-documents'] ?? ''} onChange={e => updateField('min-uploaded-documents', e.target.value ? parseInt(e.target.value) : undefined)} min="0" max="30" />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="max-uploaded-documents">Max Docs</Label>
+                            <Input id="max-uploaded-documents" type="number" value={localComponent['max-uploaded-documents'] ?? ''} onChange={e => updateField('max-uploaded-documents', e.target.value ? parseInt(e.target.value) : undefined)} min="1" max="30" />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="max-file-size-kb">Max File Size (KB)</Label>
+                        <Input id="max-file-size-kb" type="number" value={localComponent['max-file-size-kb'] ?? ''} onChange={e => updateField('max-file-size-kb', e.target.value ? parseInt(e.target.value) : undefined)} max="25600" />
+                        <p className="text-xs text-muted-foreground">Default is 25600KB (25MB).</p>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="allowed-mime-types">Allowed MIME Types (comma-separated)</Label>
+                        <Textarea id="allowed-mime-types" value={(localComponent['allowed-mime-types'] || []).join(', ')} onChange={e => handleAllowedMimeTypesChange(e.target.value)} placeholder="application/pdf, image/jpeg" />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="error-message">Error Message</Label>
+                        <Input id="error-message" value={localComponent['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Switch id="enabled" checked={localComponent.enabled !== false} onCheckedChange={(val) => updateField('enabled', val)} />
+                        <Label htmlFor="enabled">Enabled</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Switch id="visible" checked={localComponent.visible !== false} onCheckedChange={(val) => updateField('visible', val)} />
+                        <Label htmlFor="visible">Visible</Label>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>On-Select Action (optional)</Label>
+                        <div className="p-3 border rounded-lg space-y-3">
+                            <Select value={localComponent['on-select-action']?.name || ''} onValueChange={(val) => handleActionChange('on-select-action', 'name', val)}>
+                                <SelectTrigger><SelectValue placeholder="No Action"/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="">No Action</SelectItem>
+                                    <SelectItem value="data_exchange">Data Exchange</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {localComponent['on-select-action']?.name === 'data_exchange' && (
+                                <Textarea placeholder='Payload (JSON)' className="font-mono text-xs" value={localComponent['on-select-action'].payload ? JSON.stringify(localComponent['on-select-action'].payload, null, 2) : ''} onChange={(e) => { try { handleActionChange('on-select-action', 'payload', e.target.value ? JSON.parse(e.target.value) : undefined) } catch {} }}/>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
         if (isPhotoPickerComponent) {
             return (
                 <div className="space-y-4">

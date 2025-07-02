@@ -183,7 +183,20 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
         "error-message": z.union([z.string(), z.record(z.string())]).optional(),
         "on-select-action": ActionSchema.optional()
     }),
-    z.object({ type: z.literal('DocumentPicker'), name: z.string(), label: z.string(), required: z.boolean().optional(), "min-uploaded-documents": z.number().optional(), "max-uploaded-documents": z.number().optional() }),
+    z.object({ 
+        type: z.literal('DocumentPicker'), 
+        name: z.string(), 
+        label: z.string().max(80),
+        description: z.string().max(300).optional(),
+        "min-uploaded-documents": z.number().min(0).max(30).optional(),
+        "max-uploaded-documents": z.number().min(1).max(30).optional(),
+        "max-file-size-kb": z.number().max(25600).optional(),
+        "allowed-mime-types": z.array(z.string()).optional().describe("Array of strings specifying permitted mime types, e.g. 'application/pdf', 'image/jpeg'."),
+        enabled: z.union([z.boolean(), z.string()]).optional(),
+        visible: z.union([z.boolean(), z.string()]).optional(),
+        "error-message": z.union([z.string(), z.record(z.string())]).optional(),
+        "on-select-action": ActionSchema.optional()
+    }),
     z.object({ 
         type: z.literal('ImageCarousel'), 
         name: z.string(), 
