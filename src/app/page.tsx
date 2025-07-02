@@ -286,7 +286,7 @@ export default function HomePage() {
                 
                 <div className="grid grid-cols-1 gap-16 xl:gap-24">
                     {/* Flow Builder Mockup */}
-                    <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+                    <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12" key={`showcase-1-${animationKey}`}>
                         <div className="lg:w-1/3 space-y-4 text-center lg:text-left">
                             <h3 className="text-2xl font-bold font-headline">No-Code Flow Builder</h3>
                             <p className="text-muted-foreground">
@@ -327,7 +327,7 @@ export default function HomePage() {
                         </div>
                     </div>
                     {/* Declarative Flow UI Builder Mockup */}
-                    <div className="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-12">
+                    <div className="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-12" key={`showcase-2-${animationKey}`}>
                         <div className="lg:w-1/3 space-y-4 text-center lg:text-left">
                             <h3 className="text-2xl font-bold font-headline">Interactive Flow UI Builder</h3>
                             <p className="text-muted-foreground">
@@ -345,7 +345,7 @@ export default function HomePage() {
                                     {/* Header */}
                                     <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                         <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
-                                        <div className="flex-1 flex flex-col">
+                                        <div className="flex-1 flex flex-col justify-center">
                                             <div className="flex items-center gap-1.5">
                                             <p className="font-semibold">Wachat</p>
                                             <svg viewBox="0 0 18 18" width="16" height="16" className="text-green-400 flex-shrink-0">
@@ -367,7 +367,7 @@ export default function HomePage() {
                                         </div>
                                     </div>
                                     {/* Animated Meta Flow Overlay */}
-                                    <div key={animationKey} className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0 }}>
+                                    <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0 }}>
                                         <div className="bg-slate-100 h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '0.8s' }}>
                                             <div className="p-2 border-b text-center font-semibold text-sm">
                                                 Order Products
@@ -391,7 +391,7 @@ export default function HomePage() {
                         </div>
                     </div>
                      {/* Kanban Board Mockup */}
-                    <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+                    <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12" key={`showcase-3-${animationKey}`}>
                         <div className="lg:w-1/3 space-y-4 text-center lg:text-left">
                             <h3 className="text-2xl font-bold font-headline">Visualize Your Workflow</h3>
                             <p className="text-muted-foreground">
@@ -410,7 +410,7 @@ export default function HomePage() {
                                             <p className="text-xs text-muted-foreground">Interested in the new collection.</p>
                                         </div>
                                         {/* The card that will animate */}
-                                        <div key={animationKey} className="bg-card p-3 rounded-md shadow animate-kanban-drag relative z-10">
+                                        <div className="bg-card p-3 rounded-md shadow animate-kanban-drag relative z-10">
                                             <p className="font-semibold text-sm">David Chen</p>
                                             <p className="text-xs text-muted-foreground">Where is my order #1234?</p>
                                         </div>
