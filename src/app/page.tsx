@@ -5,7 +5,9 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
-import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList } from 'lucide-react';
+import {
+  Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck
+} from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -157,7 +159,7 @@ export default function HomePage() {
                 </Button>
               </div>
             </div>
-             <div key={animationKey} className="relative mt-8 flex justify-center">
+            <div key={animationKey} className="relative mt-8 flex justify-center">
               {/* Doodles */}
               <Zap className="h-8 w-8 text-yellow-400 absolute top-0 -left-4 animate-fade-in-up" style={{animationDelay: '0.5s'}} />
               <AtSign className="h-6 w-6 text-red-400 absolute top-16 -right-8 animate-fade-in-up" style={{animationDelay: '0.7s'}}/>
@@ -167,78 +169,106 @@ export default function HomePage() {
               <Check className="h-8 w-8 text-green-500 absolute top-8 right-0 animate-fade-in-up" style={{animationDelay: '1.5s'}}/>
 
               {/* Phone Mockup */}
-               <div className="w-full max-w-sm bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl z-10">
+               <div className="relative w-80 h-[580px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-900 rounded-b-lg z-20"></div>
                 <div 
-                    className="h-[700px] bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
+                    className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
                     style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}
                 >
                    <div className="absolute inset-0 bg-black/5"></div>
                    {/* Header */}
-                   <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
-                      <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
-                      <div className="flex-1 flex flex-col justify-center">
-                          <div className="flex items-center gap-1.5">
-                            <p className="font-semibold">Wachat</p>
-                            <svg viewBox="0 0 18 18" width="16" height="16" className="text-green-400 flex-shrink-0">
-                                <path d="M9 18A9 9 0 1 1 9 0a9 9 0 0 1 0 18ZM12.12 6.36l-4.5 4.5a.9.9 0 0 1-1.28 0l-2.25-2.25a.9.9 0 1 1 1.28-1.28l1.61 1.61 3.86-3.86a.9.9 0 0 1 1.28 1.28Z" fill="currentColor"></path>
-                            </svg>
-                          </div>
-                          <p className="text-xs opacity-80">tap here for contact info</p>
-                      </div>
-                   </div>
+                   <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                        <ArrowLeft className="h-5 w-5 opacity-90" />
+                        <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
+                        <div className="flex-1">
+                            <p className="font-semibold text-[15px]">Wachat</p>
+                            <p className="text-xs opacity-80">online</p>
+                        </div>
+                        <div className="flex items-center gap-4">
+                            <Video className="h-5 w-5 opacity-90" />
+                            <Phone className="h-5 w-5 opacity-90" />
+                            <MoreVertical className="h-5 w-5 opacity-90" />
+                        </div>
+                    </div>
                    {/* Chat */}
                    <div className="flex-1 p-3 space-y-3 overflow-y-auto">
                         {/* 1. User says Hi */}
                         <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '1s' }}>
-                            <div className="bg-slate-700 text-white rounded-lg p-2 text-sm max-w-xs shadow">Hi</div>
+                            <div className="bg-[#202C33] text-white rounded-lg rounded-tl-none p-2 text-sm max-w-xs shadow">
+                                <p>Hi</p>
+                                <div className="text-right text-[10px] text-white/60 mt-1">10:00 AM</div>
+                            </div>
                         </div>
                         {/* 2. Bot auto-reply */}
                         <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '2.5s' }}>
-                            <div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow">Welcome to Wachat! How can I help you today? Type "Start flow" to see our product showcase.</div>
+                            <div className="bg-[#005C4B] text-white rounded-lg rounded-tr-none p-2 text-sm max-w-xs shadow">
+                                <p>Welcome to Wachat! How can I help you today? Type "Start flow" to see our product showcase.</p>
+                                 <div className="text-right text-[10px] text-[#A3E9D5] mt-1 flex items-center justify-end gap-1"><span>10:01 AM</span><CheckCheck className="h-4 w-4 text-[#A3E9D5]" /></div>
+                            </div>
                         </div>
                         {/* 3. User says Start flow */}
                         <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '4s' }}>
-                            <div className="bg-slate-700 text-white rounded-lg p-2 text-sm max-w-xs shadow">Start flow</div>
+                            <div className="bg-[#202C33] text-white rounded-lg rounded-tl-none p-2 text-sm max-w-xs shadow">
+                                <p>Start flow</p>
+                                <div className="text-right text-[10px] text-white/60 mt-1">10:02 AM</div>
+                            </div>
                         </div>
                         {/* 4. Flow Welcome */}
                         <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '5s' }}>
-                            <div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow">Welcome to the product showcase! Here is our latest item, fresh from our API.</div>
+                            <div className="bg-[#005C4B] text-white rounded-lg rounded-tr-none p-2 text-sm max-w-xs shadow">
+                                <p>Welcome to the product showcase! Here is our latest item, fresh from our API.</p>
+                                <div className="text-right text-[10px] text-[#A3E9D5] mt-1 flex items-center justify-end gap-1"><span>10:02 AM</span><CheckCheck className="h-4 w-4 text-[#A3E9D5]" /></div>
+                            </div>
                         </div>
                         {/* 5. Flow Image */}
                         <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '6s' }}>
-                            <div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow">
+                            <div className="bg-[#005C4B] text-white rounded-lg rounded-tr-none p-1 text-sm max-w-xs shadow">
                                 <Image src="https://placehold.co/600x400.png" alt="product" width={200} height={150} className="rounded-md" data-ai-hint="sneaker product photo" />
-                                <p className="pt-1">Our new Super Sneakers are now in stock!</p>
+                                <div className="p-1.5">
+                                    <p className="pt-1">Our new Super Sneakers are now in stock!</p>
+                                    <div className="text-right text-[10px] text-[#A3E9D5] mt-1 flex items-center justify-end gap-1"><span>10:02 AM</span><CheckCheck className="h-4 w-4 text-[#A3E9D5]" /></div>
+                                </div>
                             </div>
                         </div>
                         {/* 6. Flow Template with Button */}
                         <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '7.5s' }}>
-                            <div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow space-y-2">
+                            <div className="bg-[#005C4B] text-white rounded-lg rounded-tr-none p-2 text-sm max-w-xs shadow">
                                 <p>Ready to see more? Open our interactive order form to browse the full catalog!</p>
-                                <div className="w-full bg-slate-600/50 text-sky-300 hover:bg-slate-600/60 shadow-none border-t border-white/20 rounded-b-lg -m-2 mt-2 p-2 text-center font-medium">
-                                    🛒 Order Now
-                                </div>
+                                <div className="w-full bg-black/20 text-center rounded-md p-2 mt-2 font-medium text-base">🛒 Order Now</div>
+                                <div className="text-right text-[10px] text-[#A3E9D5] mt-1 flex items-center justify-end gap-1"><span>10:03 AM</span><CheckCheck className="h-4 w-4 text-[#A3E9D5]" /></div>
                             </div>
                         </div>
                    </div>
+                   {/* Input Footer */}
+                   <div className="bg-[#1F2C33] p-2 flex items-center gap-2 mt-auto z-10">
+                        <div className="bg-[#2A3942] rounded-full flex-1 flex items-center px-3">
+                            <Smile className="h-5 w-5 text-gray-400" />
+                            <Input className="bg-transparent border-none text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-10" placeholder="Message" />
+                            <Paperclip className="h-5 w-5 text-gray-400" />
+                            <Camera className="h-5 w-5 text-gray-400 ml-2" />
+                        </div>
+                        <div className="bg-[#00A884] h-10 w-10 rounded-full flex items-center justify-center">
+                            <Mic className="h-5 w-5 text-white" />
+                        </div>
+                    </div>
                    {/* Meta Flow Overlay */}
                    <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '8.5s', opacity: 0 }}>
-                      <div className="bg-slate-100 h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '8.5s' }}>
-                        <div className="p-2 border-b text-center font-semibold text-sm">
+                      <div className="bg-[#F0F2F5] h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '8.5s' }}>
+                        <div className="p-2 border-b text-center font-semibold text-sm bg-white rounded-t-2xl">
                           Order Products
                         </div>
                         <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-                          <p className="font-semibold">Summer Collection</p>
+                          <p className="font-semibold text-gray-800">Summer Collection</p>
                           <div className="flex gap-3 border rounded-lg p-3 bg-white">
                             <Image src="https://placehold.co/80x80.png" alt="product" width={80} height={80} className="rounded-md" data-ai-hint="shirt product"/>
-                            <div><p className="font-medium">Cool T-Shirt</p><p className="text-sm text-muted-foreground">$25.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
+                            <div><p className="font-medium text-gray-800">Cool T-Shirt</p><p className="text-sm text-muted-foreground">$25.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
                           </div>
                           <div className="flex gap-3 border rounded-lg p-3 bg-white">
                              <Image src="https://placehold.co/80x80.png" alt="product" width={80} height={80} className="rounded-md" data-ai-hint="sunglasses product"/>
-                            <div><p className="font-medium">Sunglasses</p><p className="text-sm text-muted-foreground">$40.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
+                            <div><p className="font-medium text-gray-800">Sunglasses</p><p className="text-sm text-muted-foreground">$40.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
                           </div>
                         </div>
-                        <div className="p-3 border-t bg-white"><Button className="w-full bg-primary">View Cart (2)</Button></div>
+                        <div className="p-3 border-t bg-white"><Button className="w-full bg-[#008069] hover:bg-[#008069]/90">View Cart (2)</Button></div>
                       </div>
                    </div>
                 </div>
@@ -335,32 +365,28 @@ export default function HomePage() {
                             </p>
                         </div>
                         <div className="lg:w-2/3 flex justify-center w-full">
-                             <div className="relative w-80 h-[580px] bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl">
-                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-800 rounded-b-lg"></div>
+                            <div className="relative w-80 h-[580px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-900 rounded-b-lg z-20"></div>
                                 <div 
-                                    className="h-full bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
+                                    className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
                                     style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}
                                 >
                                     <div className="absolute inset-0 bg-black/5"></div>
                                     {/* Header */}
-                                    <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                                    <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                                        <ArrowLeft className="h-5 w-5 opacity-90" />
                                         <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
-                                        <div className="flex-1 flex flex-col justify-center">
-                                            <div className="flex items-center gap-1.5">
-                                            <p className="font-semibold">Wachat</p>
-                                            <svg viewBox="0 0 18 18" width="16" height="16" className="text-green-400 flex-shrink-0">
-                                                <path d="M9 18A9 9 0 1 1 9 0a9 9 0 0 1 0 18ZM12.12 6.36l-4.5 4.5a.9.9 0 0 1-1.28 0l-2.25-2.25a.9.9 0 1 1 1.28-1.28l1.61 1.61 3.86-3.86a.9.9 0 0 1 1.28 1.28Z" fill="currentColor"></path>
-                                            </svg>
-                                            </div>
-                                            <p className="text-xs opacity-80">tap here for contact info</p>
+                                        <div className="flex-1">
+                                            <p className="font-semibold text-[15px]">Wachat</p>
+                                            <p className="text-xs opacity-80">online</p>
                                         </div>
                                     </div>
                                     {/* Static Chat BG */}
                                     <div className="flex-1 p-3 space-y-3 overflow-y-auto">
                                         <div className="flex justify-end">
-                                            <div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow space-y-2">
+                                            <div className="bg-[#005C4B] text-white rounded-lg rounded-tr-none p-2 text-sm max-w-xs shadow">
                                                 <p>Ready to see more? Open our interactive order form to browse the full catalog!</p>
-                                                <div className="w-full bg-slate-600/50 text-sky-300 shadow-none border-t border-white/20 rounded-b-lg -m-2 mt-2 p-2 text-center font-medium">
+                                                <div className="w-full bg-black/20 text-center rounded-md p-2 mt-2 font-medium text-base">
                                                     🛒 Start Your Order
                                                 </div>
                                             </div>
@@ -368,26 +394,26 @@ export default function HomePage() {
                                     </div>
                                     {/* Animated Meta Flow Overlay */}
                                     <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0 }}>
-                                        <div className="bg-slate-100 h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '0.8s' }}>
-                                            <div className="p-2 border-b text-center font-semibold text-sm">
+                                        <div className="bg-[#F0F2F5] h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '0.8s' }}>
+                                            <div className="p-2 border-b text-center font-semibold text-sm bg-white rounded-t-2xl">
                                                 Order Products
                                             </div>
                                             <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-                                                <p className="font-semibold">Summer Collection</p>
+                                                <p className="font-semibold text-gray-800">Summer Collection</p>
                                                 <div className="flex gap-3 border rounded-lg p-3 bg-white">
                                                     <Image src="https://placehold.co/80x80.png" alt="product" width={80} height={80} className="rounded-md" data-ai-hint="shirt product"/>
-                                                    <div><p className="font-medium">Cool T-Shirt</p><p className="text-sm text-muted-foreground">$25.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
+                                                    <div><p className="font-medium text-gray-800">Cool T-Shirt</p><p className="text-sm text-muted-foreground">$25.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
                                                 </div>
                                                 <div className="flex gap-3 border rounded-lg p-3 bg-white">
                                                     <Image src="https://placehold.co/80x80.png" alt="product" width={80} height={80} className="rounded-md" data-ai-hint="sunglasses product"/>
-                                                    <div><p className="font-medium">Sunglasses</p><p className="text-sm text-muted-foreground">$40.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
+                                                    <div><p className="font-medium text-gray-800">Sunglasses</p><p className="text-sm text-muted-foreground">$40.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
                                                 </div>
                                             </div>
-                                            <div className="p-3 border-t bg-white"><Button className="w-full bg-primary">View Cart (2)</Button></div>
+                                            <div className="p-3 border-t bg-white"><Button className="w-full bg-[#008069] hover:bg-[#008069]/90">View Cart (2)</Button></div>
                                         </div>
                                     </div>
                                 </div>
-                             </div>
+                            </div>
                         </div>
                     </div>
                      {/* Kanban Board Mockup */}
@@ -439,7 +465,7 @@ export default function HomePage() {
         <section className="py-16 md:py-24">
             <div className="container mx-auto">
                 <div className="text-center space-y-4 mb-16">
-                    <h2 className="text-3xl md:text-4xl font-bold font-headline">And So Much More...</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold font-headline">A Complete Toolkit for WhatsApp</h2>
                     <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
                         Wachat is packed with features designed to handle every aspect of your customer communication.
                     </p>
@@ -448,18 +474,23 @@ export default function HomePage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-24">
                     {/* Agent Collaboration */}
                     <div className="flex flex-col sm:flex-row items-center gap-8" key={`showcase-4-${animationKey}`}>
-                        <div className="w-64 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[540px] bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl">
-                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-800 rounded-b-lg"></div>
-                                <div className="h-full bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
-                                    <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                        <div className="w-80 h-auto flex-shrink-0">
+                            <div className="relative w-full h-[580px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-900 rounded-b-lg z-20"></div>
+                                <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
+                                    <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                                        <ArrowLeft className="h-5 w-5 opacity-90" />
                                         <Avatar><AvatarFallback>S</AvatarFallback></Avatar>
-                                        <p className="font-semibold text-sm">Sarah (Agent)</p>
+                                        <div className="flex-1"><p className="font-semibold text-[15px]">Sarah (Agent)</p><p className="text-xs opacity-80">online</p></div>
                                     </div>
                                     <div className="flex-1 p-3 space-y-3 overflow-y-auto">
-                                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-slate-700 text-white rounded-lg p-2 text-sm max-w-xs shadow">I need help with my recent order.</div></div>
-                                        <div className="bg-purple-900/50 text-purple-200 text-xs text-center italic p-2 rounded-lg animate-fade-in-up" style={{ animationDelay: '1.5s' }}>Conversation assigned to Sarah</div>
-                                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '2.5s' }}><div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow">Hi! I'm Sarah, I can help with that. What is your order number?</div></div>
+                                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-[#202C33] text-white rounded-lg rounded-tl-none p-2 text-sm max-w-xs shadow">I need help with my recent order.</div></div>
+                                        <div className="bg-[#182229] rounded-md px-2 py-1 text-xs text-[#8696A0] text-center self-center shadow animate-fade-in-up" style={{ animationDelay: '1.5s' }}>Conversation assigned to Sarah</div>
+                                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '2.5s' }}><div className="bg-[#005C4B] text-white rounded-lg rounded-tr-none p-2 text-sm max-w-xs shadow">Hi! I'm Sarah, I can help with that. What is your order number?</div></div>
+                                    </div>
+                                    <div className="bg-[#1F2C33] p-2 flex items-center gap-2 mt-auto z-10">
+                                        <div className="bg-[#2A3942] rounded-full flex-1 flex items-center px-3"><Smile className="h-5 w-5 text-gray-400" /><Input className="bg-transparent border-none text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-10" placeholder="Message" /><Paperclip className="h-5 w-5 text-gray-400" /></div>
+                                        <div className="bg-[#00A884] h-10 w-10 rounded-full flex items-center justify-center"><Mic className="h-5 w-5 text-white" /></div>
                                     </div>
                                 </div>
                             </div>
@@ -473,17 +504,22 @@ export default function HomePage() {
 
                     {/* Auto Replies */}
                     <div className="flex flex-col sm:flex-row-reverse items-center gap-8" key={`showcase-5-${animationKey}`}>
-                         <div className="w-64 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[540px] bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl">
-                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-800 rounded-b-lg"></div>
-                                <div className="h-full bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
-                                    <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                         <div className="w-80 h-auto flex-shrink-0">
+                            <div className="relative w-full h-[580px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-900 rounded-b-lg z-20"></div>
+                                <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
+                                    <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                                        <ArrowLeft className="h-5 w-5 opacity-90" />
                                         <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
-                                        <p className="font-semibold text-sm">Wachat</p>
+                                        <div className="flex-1"><p className="font-semibold text-[15px]">Wachat</p><p className="text-xs opacity-80">online</p></div>
                                     </div>
                                     <div className="flex-1 p-3 space-y-3 overflow-y-auto">
-                                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-slate-700 text-white rounded-lg p-2 text-sm max-w-xs shadow">What are your hours?</div></div>
-                                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '1.5s' }}><div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow">Hi there! We are open from 9 AM to 6 PM, Monday to Friday.</div></div>
+                                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-[#202C33] text-white rounded-lg rounded-tl-none p-2 text-sm max-w-xs shadow">What are your hours?</div></div>
+                                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '1.5s' }}><div className="bg-[#005C4B] text-white rounded-lg rounded-tr-none p-2 text-sm max-w-xs shadow">Hi there! We are open from 9 AM to 6 PM, Monday to Friday.</div></div>
+                                    </div>
+                                    <div className="bg-[#1F2C33] p-2 flex items-center gap-2 mt-auto z-10">
+                                        <div className="bg-[#2A3942] rounded-full flex-1 flex items-center px-3"><Smile className="h-5 w-5 text-gray-400" /><Input className="bg-transparent border-none text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-10" placeholder="Message" /><Paperclip className="h-5 w-5 text-gray-400" /></div>
+                                        <div className="bg-[#00A884] h-10 w-10 rounded-full flex items-center justify-center"><Mic className="h-5 w-5 text-white" /></div>
                                     </div>
                                 </div>
                             </div>
@@ -497,17 +533,22 @@ export default function HomePage() {
 
                     {/* AI Chat */}
                      <div className="flex flex-col sm:flex-row items-center gap-8" key={`showcase-6-${animationKey}`}>
-                        <div className="w-64 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[540px] bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl">
-                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-800 rounded-b-lg"></div>
-                                <div className="h-full bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
-                                    <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                        <div className="w-80 h-auto flex-shrink-0">
+                            <div className="relative w-full h-[580px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-900 rounded-b-lg z-20"></div>
+                                <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
+                                    <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                                        <ArrowLeft className="h-5 w-5 opacity-90" />
                                         <Avatar><AvatarFallback>A</AvatarFallback></Avatar>
-                                        <p className="font-semibold text-sm">AI Assistant</p>
+                                        <div className="flex-1"><p className="font-semibold text-[15px]">AI Assistant</p><p className="text-xs opacity-80">online</p></div>
                                     </div>
                                     <div className="flex-1 p-3 space-y-3 overflow-y-auto">
-                                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-slate-700 text-white rounded-lg p-2 text-sm max-w-xs shadow">Do you offer vegan options?</div></div>
-                                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '1.5s' }}><div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow">Yes, we do! Our Garden Delight pizza is 100% vegan. Would you like to see the full menu?</div></div>
+                                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-[#202C33] text-white rounded-lg rounded-tl-none p-2 text-sm max-w-xs shadow">Do you offer vegan options?</div></div>
+                                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '1.5s' }}><div className="bg-[#005C4B] text-white rounded-lg rounded-tr-none p-2 text-sm max-w-xs shadow">Yes, we do! Our Garden Delight pizza is 100% vegan. Would you like to see the full menu?</div></div>
+                                    </div>
+                                    <div className="bg-[#1F2C33] p-2 flex items-center gap-2 mt-auto z-10">
+                                        <div className="bg-[#2A3942] rounded-full flex-1 flex items-center px-3"><Smile className="h-5 w-5 text-gray-400" /><Input className="bg-transparent border-none text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-10" placeholder="Message" /><Paperclip className="h-5 w-5 text-gray-400" /></div>
+                                        <div className="bg-[#00A884] h-10 w-10 rounded-full flex items-center justify-center"><Mic className="h-5 w-5 text-white" /></div>
                                     </div>
                                 </div>
                             </div>
@@ -521,23 +562,32 @@ export default function HomePage() {
                     
                     {/* Canned Messages */}
                     <div className="flex flex-col sm:flex-row-reverse items-center gap-8" key={`showcase-8-${animationKey}`}>
-                         <div className="w-64 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[540px] bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl">
-                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-800 rounded-b-lg"></div>
-                                <div className="h-full bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
-                                    <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                         <div className="w-80 h-auto flex-shrink-0">
+                            <div className="relative w-full h-[580px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-900 rounded-b-lg z-20"></div>
+                                <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
+                                    <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                                        <ArrowLeft className="h-5 w-5 opacity-90" />
                                         <Avatar><AvatarFallback>J</AvatarFallback></Avatar>
-                                        <p className="font-semibold text-sm">John (Agent)</p>
+                                        <div className="flex-1"><p className="font-semibold text-[15px]">John (Agent)</p><p className="text-xs opacity-80">online</p></div>
                                     </div>
                                     <div className="flex-1 p-3 space-y-3 overflow-y-auto">
-                                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-slate-700 text-white rounded-lg p-2 text-sm max-w-xs shadow">What's your refund policy?</div></div>
-                                        <div className="bg-card p-2 rounded-md shadow-lg text-card-foreground absolute bottom-16 left-3 right-3 z-20 animate-fade-in-up" style={{ animationDelay: '1.5s', opacity: 0 }}>
-                                            <p className="font-bold text-sm">/refund_policy</p>
-                                            <p className="text-xs text-muted-foreground">We offer a 30-day money-back guarantee...</p>
-                                        </div>
+                                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-[#202C33] text-white rounded-lg rounded-tl-none p-2 text-sm max-w-xs shadow">What's your refund policy?</div></div>
                                     </div>
-                                    <div className="absolute bottom-3 left-3 right-3 h-10 bg-card rounded-full z-10 flex items-center px-4 animate-fade-in-up" style={{ animationDelay: '1s', opacity: 0}}>
-                                        <p className="text-sm text-card-foreground">/refund</p>
+                                    <div className="bg-card p-2 rounded-md shadow-lg text-card-foreground absolute bottom-16 left-3 right-3 z-20 animate-fade-in-up" style={{ animationDelay: '1.5s', opacity: 0 }}>
+                                        <p className="font-bold text-sm">/refund_policy</p>
+                                        <p className="text-xs text-muted-foreground">We offer a 30-day money-back guarantee...</p>
+                                    </div>
+                                    <div className="bg-[#1F2C33] p-2 flex items-center gap-2 mt-auto z-10">
+                                        <div className="bg-[#2A3942] rounded-full flex-1 flex items-center px-3">
+                                            <Smile className="h-5 w-5 text-gray-400" />
+                                            <div className="text-white text-sm pl-2 animate-fade-in" style={{animationDelay: '1s', opacity: 0}}>/refund</div>
+                                            <Input className="bg-transparent border-none text-white focus-visible:ring-0 focus-visible:ring-offset-0 h-10 flex-1" />
+                                            <Paperclip className="h-5 w-5 text-gray-400" />
+                                        </div>
+                                        <div className="bg-[#00A884] h-10 w-10 rounded-full flex items-center justify-center">
+                                            <Send className="h-5 w-5 text-white" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -551,17 +601,22 @@ export default function HomePage() {
                     
                     {/* Compliance */}
                      <div className="flex flex-col sm:flex-row items-center gap-8" key={`showcase-7-${animationKey}`}>
-                         <div className="w-64 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[540px] bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl">
-                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-800 rounded-b-lg"></div>
-                                <div className="h-full bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
-                                    <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                         <div className="w-80 h-auto flex-shrink-0">
+                            <div className="relative w-full h-[580px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                                <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-900 rounded-b-lg z-20"></div>
+                                <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
+                                    <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                                        <ArrowLeft className="h-5 w-5 opacity-90" />
                                         <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
-                                        <p className="font-semibold text-sm">Wachat</p>
+                                        <div className="flex-1"><p className="font-semibold text-[15px]">Wachat</p><p className="text-xs opacity-80">online</p></div>
                                     </div>
                                     <div className="flex-1 p-3 space-y-3 overflow-y-auto">
-                                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-slate-700 text-white rounded-lg p-2 text-sm max-w-xs shadow">STOP</div></div>
-                                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '1.5s' }}><div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow">You have been unsubscribed from our messages. Text START to subscribe again.</div></div>
+                                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-[#202C33] text-white rounded-lg rounded-tl-none p-2 text-sm max-w-xs shadow">STOP</div></div>
+                                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '1.5s' }}><div className="bg-[#005C4B] text-white rounded-lg rounded-tr-none p-2 text-sm max-w-xs shadow">You have been unsubscribed from our messages. Text START to subscribe again.</div></div>
+                                    </div>
+                                    <div className="bg-[#1F2C33] p-2 flex items-center gap-2 mt-auto z-10">
+                                        <div className="bg-[#2A3942] rounded-full flex-1 flex items-center px-3"><Smile className="h-5 w-5 text-gray-400" /><Input className="bg-transparent border-none text-white placeholder:text-gray-400 focus-visible:ring-0 focus-visible:ring-offset-0 h-10" placeholder="Message" /><Paperclip className="h-5 w-5 text-gray-400" /></div>
+                                        <div className="bg-[#00A884] h-10 w-10 rounded-full flex items-center justify-center"><Mic className="h-5 w-5 text-white" /></div>
                                     </div>
                                 </div>
                             </div>
