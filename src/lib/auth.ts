@@ -1,3 +1,4 @@
+
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
@@ -40,6 +41,31 @@ export function verifySessionToken(token: string): SessionPayload | null {
     } catch (error) {
         // Log the error for debugging but don't expose details
         console.error("JWT verification failed:", (error as Error).message);
+        return null;
+    }
+}
+
+// --- Admin Session ---
+
+export interface AdminSessionPayload {
+    role: 'admin';
+    loggedInAt: number;
+    expires: number;
+}
+
+export function createAdminSessionToken(): string {
+    const expires = Date.now() + 1 * 24 * 60 * 60 * 1000; // 1 day for admin
+    const sessionPayload: AdminSessionPayload = { role: 'admin', loggedInAt: Date.now(), expires };
+    return jwt.sign(sessionPayload, getJwtSecret(), { expiresIn: '1d' });
+}
+
+export function verifyAdminSessionToken(token: string): AdminSessionPayload | null {
+    try {
+        const secret = getJwtSecret();
+        const decoded = jwt.verify(token, secret);
+        return decoded as AdminSessionPayload;
+    } catch (error) {
+        console.error("Admin JWT verification failed:", (error as Error).message);
         return null;
     }
 }

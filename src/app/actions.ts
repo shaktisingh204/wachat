@@ -17,7 +17,7 @@ import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { intelligentTranslate } from '@/ai/flows/intelligent-translate-flow';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { hashPassword, comparePassword, createSessionToken, verifySessionToken } from '@/lib/auth';
+import { hashPassword, comparePassword, createSessionToken, verifySessionToken, createAdminSessionToken, verifyAdminSessionToken } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import { premadeTemplates } from '@/lib/premade-templates';
@@ -120,6 +120,21 @@ export async function getSession(): Promise<{ user: (Omit<User, 'password' | 'pl
     }
 }
 
+export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
+    const cookieStore = cookies();
+    const sessionToken = cookieStore.get('admin_session')?.value;
+    if (!sessionToken) {
+        return { isAdmin: false };
+    }
+
+    const payload = verifyAdminSessionToken(sessionToken);
+    if (payload && payload.role === 'admin') {
+        return { isAdmin: true };
+    }
+
+    return { isAdmin: false };
+}
+
 
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
   if (!topic) {
@@ -192,6 +207,9 @@ export async function getAllProjectsForAdmin(
     page: number = 1,
     limit: number = 10
 ): Promise<{ projects: WithId<Project>[], total: number }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { projects: [], total: 0 };
+    
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<Project> = {};
@@ -215,7 +233,9 @@ export async function getAllProjectsForAdmin(
 
 export async function getProjectById(projectId: string): Promise<WithId<Project> | null> {
     const session = await getSession();
-    if (!session?.user) {
+    const { isAdmin } = await getAdminSession();
+
+    if (!session?.user && !isAdmin) {
         return null;
     }
     try {
@@ -232,16 +252,23 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
             return null;
         }
         
-        // Security Check: Is the user the owner OR an agent on this project?
-        const isOwner = project.userId.toString() === session.user._id.toString();
-        const isAgent = project.agents?.some(agent => agent.userId.toString() === session.user._id.toString());
+        if (isAdmin) {
+            return JSON.parse(JSON.stringify(project));
+        }
 
-        if (!isOwner && !isAgent) {
-             console.error(`User ${session.user._id} attempted to access project ${projectId} but does not have permission.`);
-             return null;
+        // Security Check for non-admins: Is the user the owner OR an agent on this project?
+        if (session?.user) {
+            const isOwner = project.userId.toString() === session.user._id.toString();
+            const isAgent = project.agents?.some(agent => agent.userId.toString() === session.user._id.toString());
+
+            if (isOwner || isAgent) {
+                return JSON.parse(JSON.stringify(project));
+            }
         }
         
-        return JSON.parse(JSON.stringify(project));
+        console.error(`User does not have permission to access project ${projectId}.`);
+        return null;
+
     } catch (error: any) {
         console.error("Exception in getProjectById:", error);
         return null;
@@ -312,6 +339,9 @@ export async function getAllBroadcasts(
     page: number = 1,
     limit: number = 20,
 ): Promise<{ broadcasts: WithId<any>[], total: number }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { broadcasts: [], total: 0 };
+    
     try {
         const { db } = await connectToDatabase();
         const skip = (page - 1) * limit;
@@ -1784,6 +1814,9 @@ export async function handleReprocessWebhook(logId: string): Promise<{ message?:
 }
 
 export async function handleClearProcessedLogs(): Promise<{ message?: string; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+
     try {
         const { db } = await connectToDatabase();
         const result = await db.collection('webhook_logs').deleteMany({ processed: true });
@@ -1798,6 +1831,9 @@ export async function handleClearProcessedLogs(): Promise<{ message?: string; er
 }
 
 export async function handleSubscribeAllProjects(): Promise<{ message?: string; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+    
     const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
     const apiVersion = 'v22.0';
     const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
@@ -2121,10 +2157,9 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
 
     const { db } = await connectToDatabase();
     
-    const [contact, template, project] = await Promise.all([
+    const [contact, template] = await Promise.all([
         db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) }),
         db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId) }),
-        db.collection<Project>('projects').findOne({ 'contacts._id': new ObjectId(contactId) })
     ]);
     
     if (!contact) return { error: 'Contact not found.' };
@@ -2283,6 +2318,9 @@ export async function getFlowLogs(
     limit: number = 20,
     query?: string
 ): Promise<{ logs: Omit<WithId<FlowLog>, 'entries'>[], total: number }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { logs: [], total: 0 };
+
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<FlowLog> = {};
@@ -2315,6 +2353,9 @@ export async function getFlowLogs(
 }
 
 export async function getFlowLogById(logId: string): Promise<WithId<FlowLog> | null> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return null;
+
     if (!ObjectId.isValid(logId)) return null;
     try {
         const { db } = await connectToDatabase();
@@ -2339,6 +2380,9 @@ export async function getPaymentGatewaySettings(): Promise<WithId<PaymentGateway
 }
 
 export async function savePaymentGatewaySettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+
     const settings: Omit<PaymentGatewaySettings, '_id'> = {
         merchantId: formData.get('merchantId') as string,
         saltKey: formData.get('saltKey') as string,
@@ -2598,6 +2642,22 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
     redirect('/dashboard');
 }
 
+export async function handleAdminLogin(prevState: any, formData: FormData): Promise<{ error?: string }> {
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@wachat.com';
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        const adminSessionToken = createAdminSessionToken();
+        cookies().set('admin_session', adminSessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+        redirect('/admin/dashboard');
+    }
+
+    return { error: 'Invalid admin credentials.' };
+}
+
 export async function handleSignup(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
@@ -2643,6 +2703,11 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
 export async function handleLogout() {
     cookies().delete('session');
     redirect('/login');
+}
+
+export async function handleAdminLogout() {
+    cookies().delete('admin_session');
+    redirect('/admin-login');
 }
 
 export async function handleUpdateUserProfile(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
@@ -2729,6 +2794,9 @@ export async function getPlanById(planId: string): Promise<WithId<Plan> | null> 
 }
 
 export async function savePlan(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+
     const planId = formData.get('planId') as string;
     const isNew = planId === 'new';
 
@@ -2802,6 +2870,9 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
 }
 
 export async function deletePlan(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+
     const planId = formData.get('planId') as string;
     if (!planId || !ObjectId.isValid(planId)) {
         return { error: 'Invalid Plan ID.' };
@@ -2886,13 +2957,10 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
 }
 
 export async function handleDeleteProject(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+    
     const projectId = formData.get('projectId') as string;
-
-    // A real app should have a robust role-based check here.
-    const session = await getSession();
-    if (session?.user?.email !== 'admin@wachat.com') {
-        return { error: 'You do not have permission to delete projects.' };
-    }
     
     if (!projectId || !ObjectId.isValid(projectId)) {
         return { error: 'Invalid Project ID provided.' };
@@ -3931,6 +3999,9 @@ export async function getLibraryTemplates(): Promise<LibraryTemplate[]> {
 }
 
 export async function saveLibraryTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+    
     try {
         const templateData: LibraryTemplate = {
             name: formData.get('name') as string,
@@ -3960,6 +4031,9 @@ export async function saveLibraryTemplate(prevState: any, formData: FormData): P
 }
 
 export async function deleteLibraryTemplate(id: string): Promise<{ message?: string; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+
     if (!ObjectId.isValid(id)) return { error: 'Invalid template ID.' };
 
     try {
@@ -3987,6 +4061,9 @@ export async function getTemplateCategories(): Promise<WithId<TemplateCategory>[
 }
 
 export async function saveTemplateCategory(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+
     const name = formData.get('name') as string;
     const description = formData.get('description') as string;
     if (!name) return { error: 'Category name is required.' };
@@ -4005,6 +4082,9 @@ export async function saveTemplateCategory(prevState: any, formData: FormData): 
 }
 
 export async function deleteTemplateCategory(id: string): Promise<{ message?: string; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+    
     if (!ObjectId.isValid(id)) return { error: 'Invalid category ID.' };
     try {
         const { db } = await connectToDatabase();
@@ -4028,6 +4108,9 @@ export async function getUsersForAdmin(
     limit: number = 10,
     query?: string
 ): Promise<{ users: AdminUserView[], total: number }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { users: [], total: 0 };
+
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<User> = {};
@@ -4079,11 +4162,12 @@ export async function getUsersForAdmin(
 }
 
 export async function updateUserCreditsByAdmin(userId: string, credits: number): Promise<{ success: boolean, error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { success: false, error: 'Permission denied.' };
+
     if (!ObjectId.isValid(userId) || isNaN(credits) || credits < 0) {
         return { success: false, error: 'Invalid user ID or credit amount.' };
     }
-
-    // A real app should have a robust role-based check here to ensure only an admin can call this.
     
     try {
         const { db } = await connectToDatabase();
@@ -4103,11 +4187,8 @@ export async function updateUserCreditsByAdmin(userId: string, credits: number):
 }
 
 export async function updateUserPlanByAdmin(userId: string, planId: string): Promise<{ success: boolean, error?: string }> {
-    const session = await getSession();
-    // In a real app, you'd check for an admin role from the session, not a hardcoded email.
-    if (session?.user?.email !== 'admin@wachat.com') {
-        return { success: false, error: 'Permission denied.' };
-    }
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { success: false, error: 'Permission denied.' };
 
     if (!ObjectId.isValid(userId) || !ObjectId.isValid(planId)) {
         return { success: false, error: 'Invalid user or plan ID.' };

@@ -5,43 +5,53 @@ import type { NextRequest } from 'next/server'
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const sessionToken = request.cookies.get('session')?.value
-
-  const isPublicPath =
-    pathname === '/' ||
-    pathname.startsWith('/login') ||
-    pathname.startsWith('/signup') ||
-    pathname.startsWith('/admin-login') ||
-    pathname.startsWith('/api/webhooks') ||
-    pathname.startsWith('/api/cron') ||
-    pathname.startsWith('/api/payment'); // Allow payment callbacks to be public
+  const adminSessionToken = request.cookies.get('admin_session')?.value
 
   const isAuthPath = pathname.startsWith('/login') || pathname.startsWith('/signup')
+  const isAdminAuthPath = pathname.startsWith('/admin-login')
 
-  // If a user has a session token
+  const publicPaths = [
+    '/',
+    '/terms-and-conditions',
+    '/privacy-policy',
+  ];
+
+  const isApiRoute = pathname.startsWith('/api/');
+
+  // Determine if the path is public
+  const isPublicPath = 
+    publicPaths.includes(pathname) ||
+    isAuthPath ||
+    isAdminAuthPath ||
+    isApiRoute;
+
+  // 1. Admin Session Management
+  if (adminSessionToken) {
+    // If admin is logged in and tries to access admin login page, redirect to admin dashboard
+    if (isAdminAuthPath) {
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+    }
+  } else {
+    // If admin is not logged in and tries to access protected admin routes, redirect to admin login
+    if (pathname.startsWith('/admin/dashboard')) {
+      return NextResponse.redirect(new URL('/admin-login', request.url))
+    }
+  }
+
+  // 2. User Session Management
   if (sessionToken) {
-    // and they are trying to access an auth page, redirect them to the dashboard.
+    // If user is logged in and tries to access login/signup pages, redirect to dashboard
     if (isAuthPath) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
-    // Otherwise, allow them to proceed. The actual validation will happen in the layout.
-    return NextResponse.next()
-  }
-
-  // If a user does not have a session token
-  if (!sessionToken) {
-    // and they are trying to access a protected page (not public)
-    if (!isPublicPath) {
-      // but allow access to the admin area for now (it has its own login)
-      if (pathname.startsWith('/admin')) {
-        return NextResponse.next();
-      }
-      // redirect them to the login page.
+  } else {
+    // If user is not logged in and tries to access a protected route
+    if (!isPublicPath && !pathname.startsWith('/admin')) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
-    // Otherwise, allow access to the public page.
-    return NextResponse.next()
   }
 
+  // 3. Allow request to proceed if no redirect conditions are met
   return NextResponse.next()
 }
 

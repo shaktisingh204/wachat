@@ -30,7 +30,7 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from 
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, Bell, CreditCard, GitFork, BookCopy } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { handleLogout } from '@/app/actions';
+import { handleAdminLogout } from '@/app/actions';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -75,7 +75,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-                <form action={handleLogout} className="w-full">
+                <form action={handleAdminLogout} className="w-full">
                     <SidebarMenuButton asChild tooltip="Logout">
                         <button type="submit" className="w-full">
                             <LogOut className="h-4 w-4" />
@@ -112,7 +112,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuSeparator />
                  <DropdownMenuItem asChild>
-                    <form action={handleLogout} className="w-full">
+                    <form action={handleAdminLogout} className="w-full">
                         <button type="submit" className="flex items-center w-full">
                             <LogOut className="mr-2 h-4 w-4" />
                             <span>Logout</span>
