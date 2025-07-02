@@ -13,7 +13,7 @@ import { Skeleton } from '../ui/skeleton';
 import { Button } from '../ui/button';
 import { ArrowLeft, Info, LoaderCircle, Check } from 'lucide-react';
 import { ContactInfoPanel } from './contact-info-panel';
-import { useToast } from '../hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 import { handleUpdateContactStatus } from '@/app/actions';
 
 
