@@ -62,7 +62,7 @@ const FlowComponent = ({ component, formData, setFormData }: { component: any, f
                 </div>
             );
         case 'Switch':
-             return (
+            return (
                 <div className="p-2 border-l-2 border-dashed border-purple-500 my-2">
                     <p className="text-xs text-purple-600 font-mono italic">SWITCH: {component.value}</p>
                 </div>
