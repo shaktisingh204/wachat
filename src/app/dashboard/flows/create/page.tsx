@@ -99,14 +99,18 @@ function AddComponentDialog({ isOpen, onOpenChange, onAddComponent }: { isOpen: 
 }
 
 const generateScreenId = () => {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     let result = 'SCREEN_';
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const charactersLength = characters.length;
     for (let i = 0; i < 8; i++) {
-        result += chars.charAt(Math.floor(Math.random() * chars.length));
+        result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
     return result;
 };
 
+const inputComponentTypes: DeclarativeUIComponent['type'][] = [
+    'TextInput', 'TextArea', 'DatePicker', 'CalendarPicker', 'Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'ChipsSelector', 'PhotoPicker', 'DocumentPicker', 'OptIn', 'Switch'
+];
 
 function CreateMetaFlowPageContent() {
     const router = useRouter();
@@ -220,10 +224,20 @@ function CreateMetaFlowPageContent() {
     
     const addComponent = (type: DeclarativeUIComponent['type']) => {
         if (!selectedScreenId) return;
-        const newComponent: any = { type, name: `${type.toLowerCase()}_${Date.now()}` };
+
+        const isInputComponent = inputComponentTypes.some(t => type === t);
+        const newComponent: any = { type };
+        
+        if (isInputComponent) {
+            newComponent.name = `${type.toLowerCase()}_${Date.now()}`;
+        }
+        
         // Set defaults based on type
-        if (type.startsWith('Text')) newComponent.text = `New ${type}`;
-        else newComponent.label = `New ${type}`;
+        if (type.startsWith('Text')) {
+            newComponent.text = `New ${type}`;
+        } else if (type !== 'Footer' && type !== 'If' && type !== 'Switch' && type !== 'Image') {
+             newComponent.label = `New ${type}`;
+        }
         
         const newFlowData = JSON.parse(JSON.stringify(flowData));
         const screen = newFlowData.screens.find((s:any) => s.id === selectedScreenId);
