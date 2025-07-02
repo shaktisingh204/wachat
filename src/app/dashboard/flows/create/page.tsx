@@ -6,7 +6,7 @@ import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, AlertCircle, Server, Check } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, AlertCircle, Server, Check, ChevronsUpDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -29,6 +29,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { cn } from '@/lib/utils';
+
 
 const createFlowInitialState = { message: null, error: null, payload: null };
 
@@ -57,6 +60,7 @@ function PageSkeleton() {
         </div>
     );
 }
+
 
 function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChange }: { component: any, onSave: (newComponent: any) => void, onCancel: () => void, isOpen: boolean, onOpenChange: (open: boolean) => void }) {
     const [localComponent, setLocalComponent] = useState<any>(null);
@@ -98,20 +102,6 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
             return {...prev, [parentKey]: newParent};
         });
-    };
-    
-    const handleDynamicBoolChange = (key: 'visible' | 'enabled', value: string) => {
-        let finalValue: any = value;
-        const lowerValue = value.toLowerCase().trim();
-
-        if (lowerValue === 'true') {
-            finalValue = true;
-        } else if (lowerValue === 'false') {
-            finalValue = false;
-        } else if (value.trim() === '') {
-            finalValue = undefined;
-        }
-        updateField(key, finalValue);
     };
     
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>, index?: number) => {
@@ -239,6 +229,38 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         const newItems = (localComponent['list-items'] || []).filter((_: any, i: number) => i !== itemIndex);
         updateField('list-items', newItems);
     };
+    
+    const DynamicBooleanInput = ({ label, value, onChange, placeholder = "e.g. ${data.is_visible}" }: { label: string, value: any, onChange: (newValue: any) => void, placeholder?: string }) => {
+        const currentMode = typeof value === 'boolean' ? 'boolean' : 'dynamic';
+        
+        return (
+            <div className="space-y-2 rounded-lg border p-3">
+                <Label className="font-semibold">{label}</Label>
+                <RadioGroup 
+                    value={currentMode} 
+                    onValueChange={(newMode) => {
+                        if (newMode === 'boolean') {
+                            onChange(true); // default to true
+                        } else {
+                            onChange(undefined); // clear for dynamic input
+                        }
+                    }} 
+                    className="flex gap-4"
+                >
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="boolean" id={`${label}-bool`} /><Label htmlFor={`${label}-bool`} className="font-normal">Set Value</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="dynamic" id={`${label}-dyn`} /><Label htmlFor={`${label}-dyn`} className="font-normal">Dynamic</Label></div>
+                </RadioGroup>
+                {currentMode === 'boolean' ? (
+                     <RadioGroup value={String(value)} onValueChange={(val) => onChange(val === 'true')} className="flex gap-4 pt-2">
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="true" id={`${label}-true`} /><Label htmlFor={`${label}-true`} className="font-normal">True</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="false" id={`${label}-false`} /><Label htmlFor={`${label}-false`} className="font-normal">False</Label></div>
+                     </RadioGroup>
+                ) : (
+                    <Input value={value || ''} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="mt-2" />
+                )}
+            </div>
+        );
+    }
 
     const renderProperties = () => {
         const isTextComponent = ['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(localComponent?.type);
@@ -358,10 +380,11 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Label htmlFor="text">Link Text (max 25 chars)</Label>
                         <Input id="text" value={localComponent.text || ''} onChange={(e) => updateField('text', e.target.value)} required maxLength={25} />
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="visible">Visible</Label>
-                        <Input id="visible" value={localComponent.visible === undefined ? '' : String(localComponent.visible)} onChange={e => handleDynamicBoolChange('visible', e.target.value)} placeholder="true, false, or ${...}" />
-                    </div>
+                     <DynamicBooleanInput 
+                        label="Visible"
+                        value={localComponent.visible}
+                        onChange={(val) => updateField('visible', val)}
+                    />
                     <div className="space-y-2">
                         <Label>On-Click Action (Required)</Label>
                         <div className="p-3 border rounded-lg space-y-3">
@@ -404,10 +427,11 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                          <Input placeholder="Right Caption" value={localComponent['right-caption'] || ''} onChange={e => updateField('right-caption', e.target.value)} maxLength={15} />
                     </div>
                     <Separator />
-                     <div className="space-y-2">
-                        <Label htmlFor="enabled">Enabled</Label>
-                        <Input id="enabled" value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} onChange={e => handleDynamicBoolChange('enabled', e.target.value)} placeholder="true, false, or ${...}" />
-                    </div>
+                     <DynamicBooleanInput 
+                        label="Enabled"
+                        value={localComponent.enabled}
+                        onChange={(val) => updateField('enabled', val)}
+                    />
                     <div className="space-y-2">
                         <Label>On-Click Action (Required)</Label>
                         <div className="p-3 border rounded-lg space-y-3">
@@ -442,20 +466,10 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Label htmlFor="label">Label</Label>
                         <Input id="label" value={localComponent.label || ''} onChange={(e) => updateField('label', e.target.value)} required maxLength={120} />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="flex items-center space-x-2">
-                            <Switch id="required" checked={localComponent.required || false} onCheckedChange={(val) => updateField('required', val)} />
-                            <Label htmlFor="required">Required</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <Switch id="init-value" checked={localComponent['init-value'] || false} onCheckedChange={(val) => updateField('init-value', val)} />
-                            <Label htmlFor="init-value">Initially Checked</Label>
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="visible">Visible</Label>
-                        <Input id="visible" value={localComponent.visible === undefined ? '' : String(localComponent.visible)} onChange={e => handleDynamicBoolChange('visible', e.target.value)} placeholder="true, false, or ${...}" />
-                    </div>
+                    
+                    <DynamicBooleanInput label="Required" value={localComponent.required} onChange={v => updateField('required', v)} />
+                    <DynamicBooleanInput label="Initially Checked" value={localComponent['init-value']} onChange={v => updateField('init-value', v)} />
+                    <DynamicBooleanInput label="Visible" value={localComponent.visible} onChange={v => updateField('visible', v)} />
                     
                     <Separator />
 
@@ -556,14 +570,8 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Label htmlFor="error-message">Error Message</Label>
                         <Input id="error-message" value={localComponent['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <Switch id="enabled" checked={localComponent.enabled !== false} onCheckedChange={(val) => updateField('enabled', val)} />
-                        <Label htmlFor="enabled">Enabled</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <Switch id="visible" checked={localComponent.visible !== false} onCheckedChange={(val) => updateField('visible', val)} />
-                        <Label htmlFor="visible">Visible</Label>
-                    </div>
+                    <DynamicBooleanInput label="Enabled" value={localComponent.enabled} onChange={v => updateField('enabled', v)} />
+                    <DynamicBooleanInput label="Visible" value={localComponent.visible} onChange={v => updateField('visible', v)} />
                     <div className="space-y-2">
                         <Label>On-Select Action (optional)</Label>
                         <div className="p-3 border rounded-lg space-y-3">
@@ -628,14 +636,9 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Label htmlFor="error-message">Error Message</Label>
                         <Input id="error-message" value={localComponent['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <Switch id="enabled" checked={localComponent.enabled !== false} onCheckedChange={(val) => updateField('enabled', val)} />
-                        <Label htmlFor="enabled">Enabled</Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                        <Switch id="visible" checked={localComponent.visible !== false} onCheckedChange={(val) => updateField('visible', val)} />
-                        <Label htmlFor="visible">Visible</Label>
-                    </div>
+                    <DynamicBooleanInput label="Enabled" value={localComponent.enabled} onChange={v => updateField('enabled', v)} />
+                    <DynamicBooleanInput label="Visible" value={localComponent.visible} onChange={v => updateField('visible', v)} />
+
                     <div className="space-y-2">
                         <Label>On-Select Action (optional)</Label>
                         <div className="p-3 border rounded-lg space-y-3">
@@ -708,7 +711,6 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                            <div className="space-y-2"><Label htmlFor="max-days">Max Days in Range</Label><Input id="max-days" type="number" value={localComponent['max-days'] ?? ''} onChange={e => updateField('max-days', e.target.value ? parseInt(e.target.value) : undefined)}/></div>
                         </div>
                      )}
-
                 </div>
             )
         }
@@ -750,10 +752,11 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Label htmlFor="unavailable-dates">Unavailable Dates (comma-separated)</Label>
                         <Textarea id="unavailable-dates" value={(localComponent['unavailable-dates'] || []).join(', ')} onChange={e => handleUnavailableDatesChange(e.target.value)} placeholder="2024-12-25, 2025-01-01" />
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <Switch id="required" checked={localComponent.required || false} onCheckedChange={(val) => updateField('required', val)} />
-                        <Label htmlFor="required">Required</Label>
-                    </div>
+                    
+                    <DynamicBooleanInput label="Required" value={localComponent.required} onChange={v => updateField('required', v)} />
+                    <DynamicBooleanInput label="Visible" value={localComponent.visible} onChange={v => updateField('visible', v)} />
+                    <DynamicBooleanInput label="Enabled" value={localComponent.enabled} onChange={v => updateField('enabled', v)} />
+                    
                      <div className="space-y-2">
                         <Label>On-Select Action (optional)</Label>
                         <div className="p-3 border rounded-lg space-y-3">
@@ -768,14 +771,6 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                                 <Textarea placeholder='Payload (JSON)' className="font-mono text-xs" value={localComponent['on-select-action'].payload ? JSON.stringify(localComponent['on-select-action'].payload, null, 2) : ''} onChange={(e) => { try { handleActionChange('on-select-action', 'payload', e.target.value ? JSON.parse(e.target.value) : undefined) } catch {} }}/>
                             )}
                         </div>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="visible">Visible</Label>
-                        <Input id="visible" value={localComponent.visible === undefined ? '' : String(localComponent.visible)} onChange={e => handleDynamicBoolChange('visible', e.target.value)} placeholder="true, false, or ${...}" />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="enabled">Enabled</Label>
-                        <Input id="enabled" value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} onChange={e => handleDynamicBoolChange('enabled', e.target.value)} placeholder="true, false, or ${...}" />
                     </div>
                 </div>
             );
@@ -834,10 +829,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Label htmlFor="error-message">Error Message</Label>
                         <Input id="error-message" value={localComponent['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
                     </div>
-                     <div className="flex items-center space-x-2">
-                        <Switch id="required" checked={localComponent.required || false} onCheckedChange={(val) => updateField('required', val)} />
-                        <Label htmlFor="required">Required</Label>
-                    </div>
+                     <DynamicBooleanInput label="Required" value={localComponent.required} onChange={v => updateField('required', v)} />
                 </div>
              )
         }
@@ -907,18 +899,9 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Label htmlFor="error-message">Error Message</Label>
                         <Input id="error-message" value={localComponent['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
                     </div>
-                     <div className="flex items-center space-x-2">
-                        <Switch id="required" checked={localComponent.required || false} onCheckedChange={(val) => updateField('required', val)} />
-                        <Label htmlFor="required">Required</Label>
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="visible">Visible</Label>
-                        <Input id="visible" value={localComponent.visible === undefined ? '' : String(localComponent.visible)} onChange={e => handleDynamicBoolChange('visible', e.target.value)} placeholder="true, false, or ${...}" />
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="enabled">Enabled</Label>
-                        <Input id="enabled" value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} onChange={e => handleDynamicBoolChange('enabled', e.target.value)} placeholder="true, false, or ${...}" />
-                    </div>
+                    <DynamicBooleanInput label="Required" value={localComponent.required} onChange={v => updateField('required', v)} />
+                    <DynamicBooleanInput label="Visible" value={localComponent.visible} onChange={v => updateField('visible', v)} />
+                    <DynamicBooleanInput label="Enabled" value={localComponent.enabled} onChange={v => updateField('enabled', v)} />
                      {localComponent.type === 'Dropdown' && (
                         <div className="space-y-2">
                             <Label htmlFor="init-value">Initial Value (optional)</Label>
@@ -1061,25 +1044,16 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Label htmlFor="text">Text</Label>
                         <Textarea id="text" value={localComponent.text || ''} onChange={e => updateField('text', e.target.value)} />
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="visible">Visible (optional)</Label>
-                        <Input 
-                            id="visible" 
-                            value={localComponent.visible === undefined ? '' : String(localComponent.visible)} 
-                            onChange={e => handleDynamicBoolChange('visible', e.target.value)} 
-                            placeholder="true, false, or ${...}" 
-                        />
-                        <p className="text-xs text-muted-foreground">Enter `true`, `false`, or a dynamic expression like `${'{form.show_field}'}`.</p>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="enabled">Enabled (optional)</Label>
-                        <Input 
-                            id="enabled" 
-                            value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} 
-                            onChange={e => handleDynamicBoolChange('enabled', e.target.value)} 
-                            placeholder="true, false, or ${...}" 
-                        />
-                    </div>
+                    <DynamicBooleanInput 
+                        label="Visible"
+                        value={localComponent.visible}
+                        onChange={(val) => updateField('visible', val)}
+                    />
+                    <DynamicBooleanInput 
+                        label="Enabled"
+                        value={localComponent.enabled}
+                        onChange={(val) => updateField('enabled', val)}
+                    />
                 </div>
             );
         }
@@ -1132,22 +1106,13 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                             <Input id="max-length" type="number" value={localComponent['max-length'] ?? ''} onChange={e => updateField('max-length', e.target.value ? parseInt(e.target.value) : undefined)} />
                         </div>
                     </div>
-                    <div className="flex items-center space-x-2">
-                        <Switch id="required" checked={localComponent.required || false} onCheckedChange={(val) => updateField('required', val)} />
-                        <Label htmlFor="required">Required</Label>
-                    </div>
+                    <DynamicBooleanInput label="Required" value={localComponent.required} onChange={v => updateField('required', v)} />
                     <div className="space-y-2">
                         <Label htmlFor="init-value">Initial Value (optional)</Label>
                         <Input id="init-value" value={localComponent['init-value'] || ''} onChange={(e) => updateField('init-value', e.target.value)} />
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="visible">Visible</Label>
-                        <Input id="visible" value={localComponent.visible === undefined ? '' : String(localComponent.visible)} onChange={e => handleDynamicBoolChange('visible', e.target.value)} placeholder="true, false, or ${...}" />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="enabled">Enabled</Label>
-                        <Input id="enabled" value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} onChange={e => handleDynamicBoolChange('enabled', e.target.value)} placeholder="true, false, or ${...}" />
-                    </div>
+                    <DynamicBooleanInput label="Visible" value={localComponent.visible} onChange={v => updateField('visible', v)} />
+                    <DynamicBooleanInput label="Enabled" value={localComponent.enabled} onChange={v => updateField('enabled', v)} />
                 </div>
             );
         }
@@ -1243,17 +1208,18 @@ function CreateMetaFlowPageContent() {
         }
     }, [state, router, toast]);
     
-    //... (other functions remain the same)
-
     const updateComponent = (updatedComponent: any) => {
         const newFlowData = JSON.parse(JSON.stringify(flowData));
         const screen = newFlowData.screens.find((s:any) => s.id === selectedScreenId);
         if (screen) {
-            const container = screen.layout.children.find((c:any) => c.type === 'Form' || c.type === 'NavigationList');
+            let container = screen.layout.children.find((c:any) => c.type === 'Form' || c.type === 'NavigationList');
             if (container) {
-                const componentIndex = container.children?.findIndex((c:any) => c.name === updatedComponent.name) ?? -1;
+                if (!container.children) container.children = [];
+                const componentIndex = container.children.findIndex((c:any) => c.name === updatedComponent.name);
                 if (componentIndex > -1) {
                     container.children[componentIndex] = updatedComponent;
+                } else {
+                     container.children.push(updatedComponent);
                 }
             }
         }
@@ -1310,6 +1276,7 @@ function CreateMetaFlowPageContent() {
                 container = { type: 'Form', name: `${selectedScreenId}_FORM`, children: [] };
                 screen.layout.children.push(container);
             }
+            if (!container.children) container.children = [];
             container.children.push(newComponent);
             setFlowData(newFlowData);
         }
@@ -1431,10 +1398,21 @@ function CreateMetaFlowPageContent() {
                                                 ))}
                                                 <Popover>
                                                     <PopoverTrigger asChild><Button variant="outline" className="w-full"><Plus className="mr-2 h-4 w-4"/>Add Component</Button></PopoverTrigger>
-                                                    <PopoverContent className="w-56 p-2">
-                                                        <ScrollArea className="h-72">
-                                                            {declarativeFlowComponents.map(c => <Button key={c.type} variant="ghost" className="w-full justify-start" onClick={() => addComponent(c.type)}>{c.label}</Button>)}
-                                                        </ScrollArea>
+                                                    <PopoverContent className="w-64 p-1">
+                                                        <Accordion type="multiple" className="w-full">
+                                                          {declarativeFlowComponents.map(category => (
+                                                            <AccordionItem key={category.name} value={category.name}>
+                                                              <AccordionTrigger>{category.name}</AccordionTrigger>
+                                                              <AccordionContent>
+                                                                <div className="flex flex-col items-start">
+                                                                  {category.components.map(c => (
+                                                                    <Button key={c.type} variant="ghost" className="w-full justify-start" onClick={() => addComponent(c.type)}>{c.label}</Button>
+                                                                  ))}
+                                                                </div>
+                                                              </AccordionContent>
+                                                            </AccordionItem>
+                                                          ))}
+                                                        </Accordion>
                                                     </PopoverContent>
                                                 </Popover>
                                             </>
