@@ -1681,6 +1681,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
                 userId: new ObjectId(session.user._id),
                 name: waba.name,
                 wabaId: waba.id,
+                businessId: businessId,
                 accessToken: accessToken,
                 phoneNumbers: phoneNumbers,
                 createdAt: new Date(),
@@ -1693,18 +1694,20 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
                 updateOne: {
                     filter: { wabaId: waba.id },
                     update: { 
-                        $set: { // Always update these fields, including the owner
+                        $set: { 
                             name: projectDoc.name,
                             accessToken: projectDoc.accessToken,
                             phoneNumbers: projectDoc.phoneNumbers,
-                            userId: projectDoc.userId, // This transfers or confirms ownership
+                            userId: projectDoc.userId,
+                            businessId: projectDoc.businessId,
                         },
-                        $setOnInsert: { // Only set these fields on creation
+                        $setOnInsert: {
                              wabaId: projectDoc.wabaId,
                              createdAt: projectDoc.createdAt,
                              messagesPerSecond: projectDoc.messagesPerSecond,
                              planId: projectDoc.planId,
                              credits: projectDoc.credits,
+                             businessId: projectDoc.businessId,
                         }
                     },
                     upsert: true,
@@ -3005,11 +3008,25 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
     }
 
     try {
-        const response = await fetch(`https://graph.facebook.com/v22.0/${wabaId}?fields=name&access_token=${accessToken}`);
-        const data = await response.json();
+        // Fetch project name AND business ID concurrently
+        const [projectDetailsResponse, businessesResponse] = await Promise.all([
+            fetch(`https://graph.facebook.com/v22.0/${wabaId}?fields=name&access_token=${accessToken}`),
+            fetch(`https://graph.facebook.com/v22.0/me/businesses?access_token=${accessToken}`)
+        ]);
 
-        if (data.error) {
-            return { error: `Meta API Error: ${data.error.message}` };
+        const projectData = await projectDetailsResponse.json();
+        const businessesData = await businessesResponse.json();
+
+        if (projectData.error) {
+            return { error: `Meta API Error (fetching project name): ${projectData.error.message}` };
+        }
+        if (businessesData.error) {
+            return { error: `Meta API Error (fetching business ID): ${businessesData.error.message}` };
+        }
+
+        const businessId = businessesData.data?.[0]?.id;
+        if (!businessId) {
+            return { error: "Could not find a Meta Business Account associated with this token." };
         }
 
         const { db } = await connectToDatabase();
@@ -3023,9 +3040,10 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
         
         const newProject: Omit<Project, '_id'> = {
             userId: new ObjectId(session.user._id),
-            name: data.name,
+            name: projectData.name,
             wabaId: wabaId,
             appId: appId,
+            businessId: businessId,
             accessToken: accessToken,
             phoneNumbers: [],
             createdAt: new Date(),
@@ -3042,7 +3060,7 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
 
         revalidatePath('/dashboard');
         
-        return { message: `Project "${data.name}" created successfully!` };
+        return { message: `Project "${projectData.name}" created successfully!` };
 
     } catch (e: any) {
         console.error('Project creation failed:', e);
@@ -4367,4 +4385,5 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
 }
 
     
+
 
