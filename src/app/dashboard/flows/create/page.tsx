@@ -113,10 +113,10 @@ function CreateMetaFlowPage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [existingFlow, setExistingFlow] = useState<WithId<MetaFlow> | null>(null);
-    const [flowData, setFlowData] = useState<any>({ version: '7.1', name: '', screens: [], description: '', routing_model: {} });
+    const [flowData, setFlowData] = useState<any>({ version: '7.1', name: 'new_flow', screens: [], description: '', routing_model: {} });
     
     const [category, setCategory] = useState('OTHER');
-    const [flowJson, setFlowJson] = useState('');
+    const [flowContentJson, setFlowContentJson] = useState('');
     const [aiPrompt, setAiPrompt] = useState('');
     const [isGenerating, startGeneratingTransition] = useTransition();
     const [shouldPublish, setShouldPublish] = useState(true);
@@ -137,7 +137,7 @@ function CreateMetaFlowPage() {
             getMetaFlowById(flowId).then(data => {
                 if (data) {
                     setExistingFlow(data);
-                    const flowContent = data.flow_data || {};
+                    const flowContent = { name: data.name, description: data.description || '', ...data.flow_data };
                     if (!flowContent.version) flowContent.version = '7.1';
                     setFlowData(flowContent);
                     setCategory(data.categories[0] || 'OTHER');
@@ -149,7 +149,7 @@ function CreateMetaFlowPage() {
             setFlowData({
                 version: '7.1',
                 name: 'new_flow',
-                description: 'A new flow created in Wachat.',
+                description: '',
                 routing_model: {},
                 screens: [{
                     id: 'SCREENA',
@@ -335,11 +335,14 @@ function CreateMetaFlowPage() {
     }
     
     useEffect(() => {
-        const newJson = JSON.stringify(flowData, null, 2);
-        if (newJson !== flowJson) {
-            setFlowJson(newJson);
+        if (flowData) {
+            const { name, description, ...content } = flowData;
+            const newJson = JSON.stringify(content, null, 2);
+             if (newJson !== flowContentJson) {
+                setFlowContentJson(newJson);
+            }
         }
-    }, [flowData, flowJson]);
+    }, [flowData, flowContentJson]);
 
     useEffect(() => {
         if (!flowData?.screens || !Array.isArray(flowData.screens)) return;
@@ -426,7 +429,7 @@ function CreateMetaFlowPage() {
             <input type="hidden" name="flowId" value={flowId || ''}/>
             <input type="hidden" name="metaId" value={existingFlow?.metaId || ''}/>
             <input type="hidden" name="category" value={category} />
-            <input type="hidden" name="flow_data" value={flowJson} />
+            <input type="hidden" name="flow_data" value={flowContentJson} />
 
             <div>
                 <Button variant="ghost" asChild className="mb-4 -ml-4">
@@ -444,7 +447,7 @@ function CreateMetaFlowPage() {
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="flowNameInput">Flow Name</Label>
-                                    <Input id="flowNameInput" value={flowData.name || ''} onChange={e => updateFlowField('name', e.target.value)} placeholder="e.g., lead_capture_flow" required/>
+                                    <Input id="flowNameInput" name="flowName" value={flowData.name || ''} onChange={e => updateFlowField('name', e.target.value)} placeholder="e.g., lead_capture_flow" required/>
                                     <p className="text-xs text-muted-foreground">Lowercase letters and underscores only.</p>
                                 </div>
                                 <div className="space-y-2">
@@ -503,10 +506,10 @@ function CreateMetaFlowPage() {
                                                     <Input
                                                         id={`screen-id-${screen.id}`}
                                                         value={screen.id}
-                                                        onChange={e => updateScreenField(screenIndex, 'id', e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''))}
+                                                        onChange={e => updateScreenField(screenIndex, 'id', e.target.value.toUpperCase().replace(/[^A-Z]/g, ''))}
                                                         className="font-mono"
                                                     />
-                                                    <p className="text-xs text-muted-foreground">Unique ID for this screen. Only uppercase letters, numbers and underscores are allowed.</p>
+                                                    <p className="text-xs text-muted-foreground">Unique ID for this screen. Uppercase letters only.</p>
                                                 </div>
                                                 <div className="flex items-center justify-end gap-6 text-sm">
                                                     <div className="flex items-center gap-2"><Label htmlFor={`terminal-${screen.id}`}>Terminal Screen</Label><Switch id={`terminal-${screen.id}`} checked={!!screen.terminal} onCheckedChange={(val) => updateScreenField(screenIndex, 'terminal', val)}/></div>
@@ -539,14 +542,14 @@ function CreateMetaFlowPage() {
                 </ScrollArea>
                 
                 <div className="lg:sticky top-6">
-                    <MetaFlowPreview flowJson={flowJson} />
+                    <MetaFlowPreview flowJson={flowContentJson} />
                 </div>
             </div>
 
             <Accordion type="single" collapsible>
                 <AccordionItem value="json-preview">
                     <AccordionTrigger><div className="flex items-center gap-2"><FileJson className="h-4 w-4"/> View Generated JSON</div></AccordionTrigger>
-                    <AccordionContent><pre className="p-4 bg-muted/50 rounded-md text-xs font-mono max-h-96 overflow-y-auto">{flowJson}</pre></AccordionContent>
+                    <AccordionContent><pre className="p-4 bg-muted/50 rounded-md text-xs font-mono max-h-96 overflow-y-auto">{flowContentJson}</pre></AccordionContent>
                 </AccordionItem>
             </Accordion>
              

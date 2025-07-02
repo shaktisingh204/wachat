@@ -88,8 +88,10 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
     const projectId = formData.get('projectId') as string;
     const flowId = formData.get('flowId') as string | null;
     const metaId = formData.get('metaId') as string | null;
+    const flowName = formData.get('flowName') as string;
 
     if (!projectId) return { error: 'Project ID is missing.' };
+    if (!flowName) return { error: 'Flow Name is required.' };
 
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: "Access denied." };
@@ -107,17 +109,12 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
 
     try {
         const flow_data = JSON.parse(flowDataStr);
-
-        if (!flow_data.name) {
-            return { error: 'Flow name is missing from the flow data JSON.' };
-        }
-        
         const accessToken = hasAccess.accessToken;
 
         if (flowId && metaId) {
             // ----- UPDATE LOGIC -----
             const updatePayload = {
-                name: flow_data.name,
+                name: flowName,
                 categories: [category],
                 flow_json: flowDataStr,
                 access_token: accessToken,
@@ -139,7 +136,7 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
             const finalFlowData = await axios.get(`https://graph.facebook.com/v22.0/${metaId}?fields=status&access_token=${accessToken}`);
 
             const updatedFlowInDb = {
-                name: flow_data.name, 
+                name: flowName, 
                 categories: [category], 
                 flow_data, 
                 updatedAt: new Date(),
@@ -153,13 +150,13 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
             );
 
             revalidatePath('/dashboard/flows');
-            return { message: `Flow "${flow_data.name}" ${shouldPublish ? 'updated and published' : 'updated'} successfully!`, payload: payloadString };
+            return { message: `Flow "${flowName}" ${shouldPublish ? 'updated and published' : 'updated'} successfully!`, payload: payloadString };
             
         } else {
             // ----- CREATE LOGIC -----
             const wabaId = hasAccess.wabaId;
             const createPayload = {
-                name: flow_data.name,
+                name: flowName,
                 categories: [category],
                 flow_json: flowDataStr,
                 access_token: accessToken,
@@ -185,7 +182,7 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
             const finalFlowData = await axios.get(`https://graph.facebook.com/v22.0/${newMetaFlowId}?fields=status,json_version&access_token=${accessToken}`);
 
             const newFlow: Omit<MetaFlow, '_id'> = {
-                name: flow_data.name,
+                name: flowName,
                 projectId: new ObjectId(projectId),
                 metaId: newMetaFlowId,
                 categories: [category],
@@ -200,7 +197,7 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
             await db.collection('meta_flows').insertOne(newFlow as any);
 
             revalidatePath('/dashboard/flows');
-            return { message: `Meta Flow "${flow_data.name}" created successfully!`, payload: payloadString };
+            return { message: `Meta Flow "${flowName}" created successfully!`, payload: payloadString };
         }
 
     } catch (e: any) {
