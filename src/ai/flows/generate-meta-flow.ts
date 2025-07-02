@@ -86,7 +86,7 @@ const DataDefinitionSchema = z.object({
 
 
 const ScreenSchema = z.object({
-  id: z.string().regex(/^[A-Z]+$/, "Screen ID must be uppercase letters only.").describe("A unique identifier for the screen, e.g., 'SURVEYSTART'. Must be uppercase letters only."),
+  id: z.string().regex(/^[A-Z_0-9]+$/, "Screen ID must be uppercase letters, numbers, and underscores only.").describe("A unique identifier for the screen, e.g., 'SURVEY_START'. Must be uppercase letters, numbers, and underscores only."),
   title: z.string().describe("The title of the screen."),
   layout: z.object({
       type: z.literal('SingleColumnLayout'),
@@ -127,27 +127,31 @@ const prompt = ai.definePrompt({
 
 The output must strictly adhere to the provided JSON schema.
 
-RULES:
-1.  **Top-Level Structure**: The root must contain 'version', 'name', 'routing_model', and 'screens'.
-2.  **Screen Structure**: Each screen has an 'id' (uppercase letters only, e.g., 'WELCOMESCREEN'), 'title', and a 'layout'. The layout must be a 'SingleColumnLayout' containing a 'children' array. This array usually contains a single 'Form' or a single 'NavigationList'.
-3.  **Form Structure**: A 'Form' component contains a 'children' array where all the inputs, text, and the final 'Footer' go.
+**CRITICAL RULES:**
+1.  **Strict Schema Adherence**: Only include properties explicitly defined in the schema for each component. DO NOT add extraneous properties. For example:
+    -   \`TextHeading\`, \`TextSubheading\`, \`TextBody\`, and \`TextCaption\` components ONLY have a \`text\` and optional \`visible\` property. DO NOT add a \`name\` property to them.
+    -   Input components like \`TextInput\` and \`Dropdown\` MUST have a \`name\` property.
+2.  **Top-Level Structure**: The root object MUST contain 'version', 'name', 'routing_model', and 'screens'.
+3.  **Screen Structure**: Each screen in the 'screens' array requires:
+    -   \`id\`: An ID with only uppercase letters, numbers, and underscores (e.g., 'WELCOME_SCREEN', 'SURVEY_PAGE_1').
+    -   \`title\`: A string for the screen title.
+    -   \`layout\`: A 'SingleColumnLayout' object containing a 'children' array. This array usually holds a single 'Form' or a 'NavigationList'.
 4.  **Navigation Model**:
-    -   The 'routing_model' at the root of the JSON defines all possible paths. For each screen ID, list the IDs of all screens it can navigate to. E.g., {'SCREENA': ['SCREENB'], 'SCREENB': ['FINALSCREEN']}.
-    -   Inside a screen, navigation is triggered by a 'Footer' component's 'on-click-action' or a 'NavigationList' item's action.
-    -   Use: 'on-click-action': { 'name': 'navigate', 'next': { 'type': 'screen', 'name': 'TARGETSCREENID' } }.
-    -   The FINAL screen in a path must have its 'terminal' property set to true and its footer action must be 'name': 'complete'.
-5.  **Data Handling**:
-    -   To pass data between screens, use a 'payload' in the navigation action. E.g., 'payload': {'user_name': '\${form.name_input}'}.
-    -   The receiving screen must define this data in its 'data' property. E.g., 'data': {'user_name': { 'type': 'string', '__example__': 'John Doe' } }.
-    -   Use '\${form.component_name}' to access user input from the current screen.
-    -   Use '\${data.variable_name}' to access data passed from a previous screen.
-6.  **Component Variety**: Use a variety of the available components based on the user's prompt (e.g., TextInput, DatePicker, Dropdown, RadioButtonsGroup).
-7.  **Full Experience**: Create at least 2-3 screens for an interactive flow (e.g., a welcome screen, one or more data collection screens, and a final thank you/confirmation screen).
+    -   The \`routing_model\` defines all possible navigation paths. For each screen ID, list the IDs of all screens it can navigate to. Example: \`{'SCREEN_A': ['SCREEN_B'], 'SCREEN_B': ['FINAL_SCREEN'], 'FINAL_SCREEN': []}\`.
+    -   Navigation is triggered by \`on-click-action\` (on \`Footer\`, \`EmbeddedLink\`, or \`NavigationList\` items).
+    -   Use the format: \`{ "name": "navigate", "next": { "type": "screen", "name": "TARGET_ID" } }\`.
+5.  **Final Screens**: The final screen in any path must have \`terminal: true\`. Its footer action must be \`{ "name": "complete" }\`.
+6.  **Data Handling**:
+    -   To pass data, use a \`payload\` in the navigation action: \`payload: { "user_name": "\${form.name_input}" }\`.
+    -   The receiving screen must define this data in its \`data\` property: \`data: { "user_name": { "type": "string" } }\`.
+    -   Use \`\${form.component_name}\` to access input from the current screen's form.
+    -   Use \`\${data.variable_name}\` to access data passed from a previous screen.
+7.  **Full Experience**: Create a logical, multi-screen flow (at least 2-3 screens) that fulfills the user's request.
 
 User Request: "{{{prompt}}}"
 Flow Category: "{{{category}}}"
 
-Generate the full Flow JSON now.`,
+Generate the full, valid Flow JSON now.`,
 });
 
 const generateMetaFlowFlow = ai.defineFlow(
@@ -159,6 +163,7 @@ const generateMetaFlowFlow = ai.defineFlow(
   async (input) => {
     const { output } = await prompt(input);
     const flow_json = {
+        version: "7.1",
         name: output?.name || 'ai_generated_flow',
         ...output
     };
