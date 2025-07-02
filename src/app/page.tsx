@@ -9,6 +9,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
+import { Select, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 
 const features = [
@@ -178,6 +181,81 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
+
+        {/* Visual Automation Section */}
+        <section id="visual-automation" className="py-16 md:py-24 bg-background">
+          <div className="container mx-auto">
+            <div className="text-center space-y-4 mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold font-headline">Visual Automation at Your Fingertips</h2>
+              <p className="max-w-3xl mx-auto text-lg text-muted-foreground">
+                Craft powerful conversational journeys with our two distinct visual builders, designed for every business need.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              
+              {/* Flow Builder UI Mockup */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold text-center">No-Code Flow Builder</h3>
+                <p className="text-muted-foreground text-center max-w-md mx-auto">Visually map out complex conversation logic with branching, conditions, and API calls. Perfect for support bots and drip campaigns.</p>
+                <div className="relative p-6 border rounded-xl bg-card shadow-lg h-[400px] lg:h-[450px] overflow-hidden group">
+                    {/* Animated UI representation */}
+                    <div className="absolute top-8 left-6 w-32 h-12 bg-green-200 rounded-md flex items-center justify-center text-green-800 text-sm font-semibold animate-fade-in-up" style={{ animationDelay: '0.1s' }}>Start</div>
+                    <div className="absolute top-28 left-40 w-48 h-16 bg-blue-200 rounded-md flex items-center justify-center text-blue-800 text-sm font-semibold p-2 text-center animate-fade-in-up" style={{ animationDelay: '0.3s' }}>Send Message</div>
+                    <div className="absolute top-24 right-6 w-36 h-20 bg-purple-200 rounded-md flex items-center justify-center text-purple-800 text-sm font-semibold p-2 text-center animate-fade-in-up" style={{ animationDelay: '0.5s' }}>Condition</div>
+                    <div className="absolute bottom-8 left-1/2 -translate-x-1/2 w-40 h-16 bg-orange-200 rounded-md flex items-center justify-center text-orange-800 text-sm font-semibold p-2 text-center animate-fade-in-up" style={{ animationDelay: '0.7s' }}>Call API</div>
+
+                    {/* SVG Lines for connections */}
+                    <svg className="absolute top-0 left-0 w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M152 72 C 200 72, 200 132, 252 132" stroke="hsl(var(--border))" strokeWidth="2" className="stroke-dash animate-draw" style={{ animationDelay: '0.2s' }}/>
+                        <path d="M340 148 C 360 148, 360 92, 380 92" stroke="hsl(var(--border))" strokeWidth="2" className="stroke-dash animate-draw" style={{ animationDelay: '0.6s' }}/>
+                        <path d="M290 236 C 290 260, 240 260, 240 292" stroke="hsl(var(--border))" strokeWidth="2" className="stroke-dash animate-draw" style={{ animationDelay: '0.8s' }}/>
+                    </svg>
+                </div>
+              </div>
+
+              {/* Meta Flow UI Mockup */}
+              <div className="space-y-4">
+                <h3 className="text-2xl font-semibold text-center">Declarative UI Builder</h3>
+                <p className="text-muted-foreground text-center max-w-md mx-auto">Build rich, native forms and multi-step experiences that open directly inside WhatsApp for higher conversion rates.</p>
+                <div className="relative p-6 border rounded-xl bg-card shadow-lg h-[400px] lg:h-[450px] flex justify-center items-center">
+                    {/* Animated Phone Preview */}
+                    <div className="w-56 h-[400px] bg-gray-800 rounded-2xl p-2 shadow-2xl">
+                        <div className="h-full bg-white rounded-lg flex flex-col">
+                            <div className="bg-gray-100 p-2 text-xs font-mono text-gray-500 flex justify-between">
+                                <span>9:41 AM</span>
+                                <span>📶 LTE</span>
+                            </div>
+                            <div className="bg-gray-100 p-2 flex items-center gap-2 border-b border-gray-200 flex-shrink-0">
+                                <div className="h-6 w-6 rounded-full bg-green-500"></div>
+                                <p className="font-semibold text-xs text-gray-800">Your Business</p>
+                            </div>
+                            <div className="flex-1 p-3 space-y-2 overflow-y-auto">
+                                <div className="p-2 bg-gray-200 rounded-lg text-xs max-w-[80%]">Welcome! Tap below to book an appointment.</div>
+                                <div className="flex justify-end">
+                                    <div className="p-2 bg-blue-500 text-white rounded-lg text-xs max-w-[80%]">Book Now</div>
+                                </div>
+                            </div>
+                            {/* The animated flow part */}
+                            <div className="absolute inset-0 bg-black/30 flex flex-col justify-end">
+                                <div className="bg-white rounded-t-xl h-[80%] flex flex-col animate-slide-in-up">
+                                    <div className="p-2 border-b text-center font-semibold text-sm">Book Appointment</div>
+                                    <div className="flex-1 p-3 space-y-3 overflow-auto">
+                                        <div className="animate-fade-in-up" style={{animationDelay: '0.2s'}}><Label className="text-xs">Your Name</Label><Input className="h-8 text-xs" placeholder="John Doe"/></div>
+                                        <div className="animate-fade-in-up" style={{animationDelay: '0.4s'}}><Label className="text-xs">Select Service</Label><Select><SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Choose a service..."/></SelectTrigger></Select></div>
+                                        <div className="animate-fade-in-up" style={{animationDelay: '0.6s'}}><Label className="text-xs">Preferred Date</Label><Input type="date" className="h-8 text-xs"/></div>
+                                    </div>
+                                    <div className="p-3 border-t"><Button className="w-full h-9 bg-green-600 hover:bg-green-700 text-sm animate-fade-in-up" style={{animationDelay: '0.8s'}}>Confirm Booking</Button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
 
         {/* How It Works Section */}
         <section className="py-16">
