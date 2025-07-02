@@ -84,7 +84,7 @@ export async function getMetaFlowById(flowId: string): Promise<WithId<MetaFlow> 
     }
 }
 
-export async function saveMetaFlow(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+export async function saveMetaFlow(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, payload?: string }> {
     const projectId = formData.get('projectId') as string;
     const flowId = formData.get('flowId') as string | null;
     const metaId = formData.get('metaId') as string | null;
@@ -101,10 +101,15 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
     if (!category || !flowDataStr) {
         return { error: 'Category and Flow Data are required.' };
     }
+    
+    let payload: any = null;
+    let payloadString: string | undefined = undefined;
 
     try {
         const flow_data = JSON.parse(flowDataStr);
-        const name = flow_data.name; // Get name from inside the JSON
+        const name = flow_data.name; 
+        const description = flow_data.description;
+
         if (!name) {
             return { error: 'Flow name is missing from the flow data JSON.' };
         }
@@ -119,6 +124,8 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
                 flow_json: JSON.stringify(flow_data),
                 access_token: accessToken,
             };
+            payload = updatePayload;
+            payloadString = JSON.stringify(payload, null, 2);
 
             const updateResponse = await axios.post(`https://graph.facebook.com/v22.0/${metaId}`, updatePayload);
 
@@ -145,7 +152,7 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
             );
 
             revalidatePath('/dashboard/flows');
-            return { message: `Flow "${name}" ${shouldPublish ? 'updated and published' : 'updated'} successfully!` };
+            return { message: `Flow "${name}" ${shouldPublish ? 'updated and published' : 'updated'} successfully!`, payload: payloadString };
             
         } else {
             // ----- CREATE LOGIC -----
@@ -156,6 +163,8 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
                 flow_json: JSON.stringify(flow_data),
                 access_token: accessToken,
             };
+            payload = createPayload;
+            payloadString = JSON.stringify(payload, null, 2);
 
             const createUrl = `https://graph.facebook.com/v22.0/${wabaId}/flows`;
             const createResponse = await axios.post(createUrl, createPayload);
@@ -190,14 +199,17 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
             await db.collection('meta_flows').insertOne(newFlow as any);
 
             revalidatePath('/dashboard/flows');
-            return { message: `Meta Flow "${name}" created successfully!` };
+            return { message: `Meta Flow "${name}" created successfully!`, payload: payloadString };
         }
 
     } catch (e: any) {
-        if (e instanceof SyntaxError) {
-            return { error: 'Invalid JSON format for flow data.' };
+        if (payload) {
+            payloadString = JSON.stringify(payload, null, 2);
         }
-        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+        if (e instanceof SyntaxError) {
+            return { error: 'Invalid JSON format for flow data.', payload: payloadString };
+        }
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.', payload: payloadString };
     }
 }
 

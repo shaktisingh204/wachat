@@ -5,7 +5,7 @@ import { Suspense, useActionState, useEffect, useState, useTransition, useCallba
 import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Wand2, Settings, AlertCircle } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Wand2, Settings, AlertCircle, Server } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -27,7 +27,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
-const createFlowInitialState = { message: null, error: null };
+const createFlowInitialState = { message: null, error: null, payload: null };
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
@@ -120,6 +120,7 @@ function CreateMetaFlowPage() {
     const [aiPrompt, setAiPrompt] = useState('');
     const [isGenerating, startGeneratingTransition] = useTransition();
     const [shouldPublish, setShouldPublish] = useState(true);
+    const [lastApiPayload, setLastApiPayload] = useState<string | null>(null);
     
     const [editingComponent, setEditingComponent] = useState<{ screenIndex: number, componentIndex: number, component: any } | null>(null);
 
@@ -151,7 +152,7 @@ function CreateMetaFlowPage() {
                 description: 'A new flow created in Wachat.',
                 routing_model: {},
                 screens: [{
-                    id: 'SCREEN_A',
+                    id: 'SCREENA',
                     title: 'Welcome Screen',
                     layout: {
                         type: 'SingleColumnLayout',
@@ -176,6 +177,9 @@ function CreateMetaFlowPage() {
         }
         if (state?.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+        if (state?.payload) {
+            setLastApiPayload(state.payload);
         }
     }, [state, toast, router]);
 
@@ -277,7 +281,7 @@ function CreateMetaFlowPage() {
         do {
             let suffix = '';
             let num = counter;
-            if (num === 0) {
+            if (num === 0 && !existingIds.includes('SCREENA')) {
                 suffix = 'A';
             } else {
                  while (num >= 0) {
@@ -286,7 +290,7 @@ function CreateMetaFlowPage() {
                     if (num < 0) break;
                 }
             }
-            newId = `SCREEN_${suffix}`;
+            newId = `SCREEN${suffix}`;
             counter++;
         } while (existingIds.includes(newId));
 
@@ -545,7 +549,19 @@ function CreateMetaFlowPage() {
                     <AccordionContent><pre className="p-4 bg-muted/50 rounded-md text-xs font-mono max-h-96 overflow-y-auto">{flowJson}</pre></AccordionContent>
                 </AccordionItem>
             </Accordion>
-            
+             
+            <Accordion type="single" collapsible>
+                <AccordionItem value="api-payload-preview">
+                    <AccordionTrigger disabled={!lastApiPayload}>
+                        <div className="flex items-center gap-2"><Server className="h-4 w-4"/> View Last API Payload</div>
+                    </AccordionTrigger>
+                    <AccordionContent>
+                        <pre className="p-4 bg-muted/50 rounded-md text-xs font-mono max-h-96 overflow-y-auto">
+                            {lastApiPayload || 'Submit the flow to see the payload that was sent to Meta.'}
+                        </pre>
+                    </AccordionContent>
+                </AccordionItem>
+            </Accordion>
              <ComponentEditorDialog 
                 isOpen={!!editingComponent}
                 onOpenChange={(open) => !open && setEditingComponent(null)}
