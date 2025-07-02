@@ -321,7 +321,7 @@ export default function HomePage() {
                             </div>
                         </div>
                     </div>
-                    {/* Declarative UI Builder Mockup */}
+                    {/* Declarative Flow UI Builder Mockup */}
                     <div className="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-12">
                         <div className="lg:w-1/3 space-y-4 text-center lg:text-left">
                             <h3 className="text-2xl font-bold font-headline">Declarative Flow UI Builder</h3>
@@ -330,32 +330,60 @@ export default function HomePage() {
                             </p>
                         </div>
                         <div className="lg:w-2/3 flex justify-center">
-                            <div className="relative w-80 h-[580px] bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl">
+                             <div className="relative w-80 h-[580px] bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl">
                                 <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-800 rounded-b-lg"></div>
-                                <div className="h-full bg-slate-100 rounded-[2rem] flex flex-col">
-                                    <div className="p-2 border-b text-center font-semibold text-sm">
-                                        Book Appointment
-                                    </div>
-                                    <div className="flex-1 p-4 space-y-4 overflow-y-auto">
-                                        <div className="space-y-1">
-                                            <Label htmlFor="name-mockup">Your Name</Label>
-                                            <Input id="name-mockup" placeholder="John Doe" />
-                                        </div>
-                                        <div className="space-y-1">
-                                            <Label htmlFor="service-mockup">Select Service</Label>
-                                            <Select>
-                                                <SelectTrigger id="service-mockup"><SelectValue placeholder="Choose a service..."/></SelectTrigger>
-                                                <SelectContent><SelectItem value="consult">Consultation</SelectItem></SelectContent>
-                                            </Select>
-                                        </div>
-                                         <div className="space-y-1">
-                                            <Label htmlFor="date-mockup">Preferred Date</Label>
-                                            <Input id="date-mockup" type="date" />
+                                <div 
+                                    className="h-full bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
+                                    style={{backgroundImage: "url('https://placehold.co/400x800.png')"}}
+                                    data-ai-hint="dark gaming pattern"
+                                >
+                                    <div className="absolute inset-0 bg-black/5"></div>
+                                    {/* Header */}
+                                    <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                                        <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
+                                        <div className="flex-1 flex flex-col justify-center">
+                                            <div className="flex items-center gap-1.5">
+                                            <p className="font-semibold">Wachat</p>
+                                            <svg viewBox="0 0 18 18" width="16" height="16" className="text-green-400 flex-shrink-0">
+                                                <path d="M9 18A9 9 0 1 1 9 0a9 9 0 0 1 0 18ZM12.12 6.36l-4.5 4.5a.9.9 0 0 1-1.28 0l-2.25-2.25a.9.9 0 1 1 1.28-1.28l1.61 1.61 3.86-3.86a.9.9 0 0 1 1.28 1.28Z" fill="currentColor"></path>
+                                            </svg>
+                                            </div>
+                                            <p className="text-xs opacity-80">tap here for contact info</p>
                                         </div>
                                     </div>
-                                    <div className="p-3 border-t"><Button className="w-full">Confirm Booking</Button></div>
+                                    {/* Static Chat BG */}
+                                    <div className="flex-1 p-3 space-y-3 overflow-y-auto">
+                                        <div className="flex justify-end">
+                                            <div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow space-y-2">
+                                                <p>Ready to see more? Open our interactive order form to browse the full catalog!</p>
+                                                <div className="w-full bg-slate-600/50 text-sky-300 shadow-none border-t border-white/20 rounded-b-lg -m-2 mt-2 p-2 text-center font-medium">
+                                                    🛒 Order Now
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {/* Animated Meta Flow Overlay */}
+                                    <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0 }}>
+                                        <div className="bg-slate-100 h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '0.8s' }}>
+                                            <div className="p-2 border-b text-center font-semibold text-sm">
+                                                Order Products
+                                            </div>
+                                            <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+                                                <p className="font-semibold">Summer Collection</p>
+                                                <div className="flex gap-3 border rounded-lg p-3 bg-white">
+                                                    <Image src="https://placehold.co/80x80.png" alt="product" width={80} height={80} className="rounded-md" data-ai-hint="shirt product"/>
+                                                    <div><p className="font-medium">Cool T-Shirt</p><p className="text-sm text-muted-foreground">$25.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
+                                                </div>
+                                                <div className="flex gap-3 border rounded-lg p-3 bg-white">
+                                                    <Image src="https://placehold.co/80x80.png" alt="product" width={80} height={80} className="rounded-md" data-ai-hint="sunglasses product"/>
+                                                    <div><p className="font-medium">Sunglasses</p><p className="text-sm text-muted-foreground">$40.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
+                                                </div>
+                                            </div>
+                                            <div className="p-3 border-t bg-white"><Button className="w-full bg-primary">View Cart (2)</Button></div>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
+                             </div>
                         </div>
                     </div>
                 </div>
