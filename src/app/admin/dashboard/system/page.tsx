@@ -42,7 +42,7 @@ export default async function SystemHealthPage() {
 
             <Separator />
 
-             <Card className="border-destructive card-gradient">
+             <Card className="border-destructive card-gradient card-gradient-orange">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-destructive">
                          <AlertTriangle className="h-5 w-5" />

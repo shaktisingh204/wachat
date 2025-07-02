@@ -37,7 +37,7 @@ export default function SignupPage() {
         <div className="flex justify-center mb-6">
           <WachatLogo className="w-48 h-auto" />
         </div>
-        <Card>
+        <Card className="card-gradient card-gradient-green">
           <CardHeader>
             <CardTitle>Create an Account</CardTitle>
             <CardDescription>Enter your details to get started.</CardDescription>

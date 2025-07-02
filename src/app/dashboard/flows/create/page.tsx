@@ -118,7 +118,7 @@ function CreateMetaFlowPageContent() {
     const [flowName, setFlowName] = useState('New Interactive Flow');
     const [category, setCategory] = useState('');
     const [publishOnSave, setPublishOnSave] = useState(true);
-    const [flowData, setFlowData] = useState<any>({ version: '4.0', screens: [], routing_model: {} });
+    const [flowData, setFlowData] = useState<any>({ version: '7.1', screens: [], routing_model: {} });
     const [flowId, setFlowId] = useState<string | null>(null);
     const [metaId, setMetaId] = useState<string | null>(null);
     const [isLoading, startLoadingTransition] = useTransition();
@@ -142,7 +142,7 @@ function CreateMetaFlowPageContent() {
                 if (fetchedFlow) {
                     setFlowName(fetchedFlow.name);
                     setCategory(fetchedFlow.categories?.[0] || '');
-                    setFlowData(fetchedFlow.flow_data || { version: '4.0', screens: [], routing_model: {} });
+                    setFlowData(fetchedFlow.flow_data || { version: '7.1', screens: [], routing_model: {} });
                     setMetaId(fetchedFlow.metaId);
                     if (fetchedFlow.flow_data?.screens?.[0]) {
                         setSelectedScreenId(fetchedFlow.flow_data.screens[0].id);

@@ -37,7 +37,7 @@ export default function LoginPage() {
         <div className="flex justify-center mb-6">
           <WachatLogo className="w-48 h-auto" />
         </div>
-        <Card>
+        <Card className="card-gradient card-gradient-blue">
           <CardHeader>
             <CardTitle>Sign In</CardTitle>
             <CardDescription>Enter your credentials to access your dashboard.</CardDescription>

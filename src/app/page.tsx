@@ -213,7 +213,7 @@ export default async function HomePage() {
                 </div>
                 <div className="flex flex-wrap justify-center gap-6">
                     {testimonials.map((testimonial, index) => (
-                        <Card key={index} className="w-full max-w-sm flex flex-col">
+                        <Card key={index} className="w-full max-w-sm flex flex-col card-gradient card-gradient-blue">
                             <CardHeader>
                                 <Quote className="h-8 w-8 text-primary/30"/>
                             </CardHeader>

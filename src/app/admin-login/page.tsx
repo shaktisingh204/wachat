@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -37,7 +38,7 @@ export default function AdminLoginPage() {
         <div className="flex justify-center mb-6">
           <WachatLogo className="w-48 h-auto" />
         </div>
-        <Card>
+        <Card className="card-gradient card-gradient-blue">
           <CardHeader>
             <CardTitle>Admin Sign In</CardTitle>
             <CardDescription>Enter your administrator credentials.</CardDescription>

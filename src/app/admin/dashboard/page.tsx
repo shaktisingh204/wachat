@@ -93,7 +93,7 @@ export default async function AdminDashboardPage({
              <p className="text-xs text-muted-foreground">Last 30 days</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="card-gradient card-gradient-purple">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">API Error Rate</CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
