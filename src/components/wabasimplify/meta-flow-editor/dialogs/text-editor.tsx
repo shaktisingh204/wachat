@@ -3,7 +3,7 @@
 
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { DynamicBooleanInput } from './dynamic-boolean-input';
+import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 
 interface TextEditorProps {
   component: any;

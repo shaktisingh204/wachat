@@ -7,13 +7,13 @@ import { DataSourceEditor } from '../shared/data-source-editor';
 import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';
 
-interface CheckboxGroupEditorProps {
+interface ChipsSelectorEditorProps {
   component: any;
   updateField: (key: string, value: any) => void;
   updateAction: (action: any) => void;
 }
 
-export function CheckboxGroupEditor({ component, updateField, updateAction }: CheckboxGroupEditorProps) {
+export function ChipsSelectorEditor({ component, updateField, updateAction }: ChipsSelectorEditorProps) {
     
     return (
         <div className="space-y-6">
@@ -27,7 +27,7 @@ export function CheckboxGroupEditor({ component, updateField, updateAction }: Ch
             </div>
             
             <DataSourceEditor
-                label="Checkbox Items"
+                label="Chip Items"
                 dataSource={component['data-source'] || []}
                 updateDataSource={(newDataSource) => updateField('data-source', newDataSource)}
             />

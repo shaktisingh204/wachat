@@ -14,6 +14,12 @@ import { DropdownEditor } from './dialogs/dropdown-editor';
 import { RadioButtonsEditor } from './dialogs/radio-buttons-editor';
 import { CheckboxGroupEditor } from './dialogs/checkbox-group-editor';
 import { ImageEditor } from './dialogs/image-editor';
+import { ChipsSelectorEditor } from './dialogs/chips-selector-editor';
+import { DatePickerEditor } from './dialogs/date-picker-editor';
+import { CalendarPickerEditor } from './dialogs/calendar-picker-editor';
+import { PhotoPickerEditor } from './dialogs/photo-picker-editor';
+import { DocumentPickerEditor } from './dialogs/document-picker-editor';
+import { OptInEditor } from './dialogs/opt-in-editor';
 
 
 interface ComponentEditorProps {
@@ -87,6 +93,24 @@ export function ComponentEditor({ component, onSave, isOpen, onOpenChange, allSc
 
       case 'CheckboxGroup':
         return <CheckboxGroupEditor component={localComponent} updateField={updateField} updateAction={(action) => updateAction(action, 'on-select-action')} />;
+      
+      case 'ChipsSelector':
+        return <ChipsSelectorEditor component={localComponent} updateField={updateField} updateAction={(action) => updateAction(action, 'on-select-action')} />;
+
+      case 'DatePicker':
+        return <DatePickerEditor component={localComponent} updateField={updateField} />;
+        
+      case 'CalendarPicker':
+        return <CalendarPickerEditor component={localComponent} updateField={updateField} />;
+        
+      case 'PhotoPicker':
+        return <PhotoPickerEditor component={localComponent} updateField={updateField} />;
+        
+      case 'DocumentPicker':
+        return <DocumentPickerEditor component={localComponent} updateField={updateField} />;
+
+      case 'OptIn':
+        return <OptInEditor component={localComponent} updateField={updateField} />;
 
       case 'Image':
         return <ImageEditor component={localComponent} updateField={updateField} updateAction={updateAction} />;
