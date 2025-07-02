@@ -192,7 +192,7 @@ export default async function HomePage() {
         </section>
 
         {/* Visual Automation Section */}
-        <section id="visual-automation" className="py-16 md:py-24 bg-background">
+        <section id="visual-automation" className="py-16 md:py-24 bg-background overflow-hidden">
           <div className="container mx-auto">
             <div className="text-center space-y-4 mb-16">
               <h2 className="text-3xl md:text-4xl font-bold font-headline">Visual Automation at Your Fingertips</h2>
@@ -201,7 +201,7 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="flex flex-col gap-16 items-center">
+            <div className="flex flex-col gap-24 items-center">
               
               {/* Flow Builder UI Mockup */}
               <div className="space-y-4 w-full">
@@ -232,34 +232,44 @@ export default async function HomePage() {
               <div className="space-y-4 w-full">
                 <h3 className="text-2xl font-semibold text-center">Declarative Flow UI Builder</h3>
                 <p className="text-muted-foreground text-center max-w-md mx-auto">Build rich, native forms and multi-step experiences that open directly inside WhatsApp for higher conversion rates.</p>
-                <div className="relative p-6 border rounded-xl bg-card shadow-lg h-[400px] lg:h-[450px] flex justify-center items-center">
-                    {/* Animated Phone Preview */}
-                    <div className="w-64 h-[420px] bg-gray-800 rounded-3xl p-2 shadow-2xl">
-                        <div className="h-full bg-white rounded-2xl flex flex-col">
-                            <div className="bg-gray-100 p-2 text-xs font-mono text-gray-500 flex justify-between">
-                                <span>9:41 AM</span>
-                                <span>📶 LTE</span>
+                <div className="relative mt-8">
+                    <div className="relative p-6 border rounded-xl bg-card shadow-lg h-[450px] flex justify-center items-center w-full max-w-sm mx-auto">
+                        {/* Decorative elements */}
+                        <div className="absolute -top-8 -left-12 w-24 h-24 bg-primary/10 rounded-full -z-10 animate-fade-in-up"></div>
+                        <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-accent/10 rounded-full -z-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}></div>
+                        
+                        <Card className="absolute top-12 -left-28 bg-card p-3 rounded-lg shadow-lg animate-fade-in-up w-48 text-left" style={{ animationDelay: '0.4s' }}>
+                            <p className="text-xs font-semibold">"This is incredible!"</p>
+                            <p className="text-xs text-muted-foreground">- Mark T.</p>
+                        </Card>
+                        
+                        <Card className="absolute bottom-16 -right-32 bg-card p-3 rounded-lg shadow-lg animate-fade-in-up w-52 text-left" style={{ animationDelay: '0.6s' }}>
+                            <div className="flex items-center gap-1">
+                                {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 text-yellow-400 fill-yellow-400" />)}
                             </div>
-                            <div className="bg-gray-100 p-2 flex items-center gap-2 border-b border-gray-200 flex-shrink-0">
-                                <div className="h-6 w-6 rounded-full bg-primary/20"></div>
-                                <p className="font-semibold text-xs text-gray-800">Your Business</p>
-                            </div>
-                            <div className="flex-1 p-3 space-y-2 overflow-y-auto">
-                                <div className="p-2 bg-gray-200 rounded-lg text-xs max-w-[80%]">Welcome! Tap below to book an appointment.</div>
-                                <div className="flex justify-end">
-                                    <div className="p-2 bg-blue-500 text-white rounded-lg text-xs max-w-[80%]">Book Now</div>
-                                </div>
-                            </div>
-                            {/* The animated flow part */}
-                            <div className="absolute inset-0 bg-black/30 flex flex-col justify-end">
-                                <div className="bg-background rounded-t-2xl h-[80%] flex flex-col animate-slide-in-up">
-                                    <div className="p-2 border-b text-center font-semibold text-sm">Book Appointment</div>
-                                    <div className="flex-1 p-3 space-y-3 overflow-auto">
-                                        <div className="animate-fade-in-up" style={{animationDelay: '0.2s'}}><Label className="text-xs">Your Name</Label><Input className="h-8 text-xs" placeholder="John Doe"/></div>
-                                        <div className="animate-fade-in-up" style={{animationDelay: '0.4s'}}><Label className="text-xs">Select Service</Label><Select><SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Choose a service..."/></SelectTrigger></Select></div>
-                                        <div className="animate-fade-in-up" style={{animationDelay: '0.6s'}}><Label className="text-xs">Preferred Date</Label><Input type="date" className="h-8 text-xs"/></div>
+                            <p className="text-xs font-semibold mt-1">Saved us hours of work.</p>
+                        </Card>
+
+                        {/* Phone Mockup */}
+                        <div className="w-64 h-[420px] bg-gray-800 rounded-3xl p-2 shadow-2xl z-10">
+                            <div className="h-full bg-white rounded-2xl flex flex-col relative overflow-hidden">
+                                <div className="flex-1 p-3 space-y-2 overflow-y-auto">
+                                    <div className="p-2 bg-gray-200 rounded-lg text-xs max-w-[80%]">Welcome! Tap below to book an appointment.</div>
+                                    <div className="flex justify-end">
+                                        <div className="p-2 bg-blue-500 text-white rounded-lg text-xs max-w-[80%]">Book Now</div>
                                     </div>
-                                    <div className="p-3 border-t"><Button className="w-full h-9 bg-primary hover:bg-primary/90 text-primary-foreground text-sm animate-fade-in-up" style={{animationDelay: '0.8s'}}>Confirm Booking</Button></div>
+                                </div>
+                                {/* The animated flow part */}
+                                <div className="absolute inset-0 bg-black/30 flex flex-col justify-end">
+                                    <div className="bg-background rounded-t-xl h-full flex flex-col animate-slide-in-up">
+                                        <div className="p-2 border-b text-center font-semibold text-sm flex-shrink-0">Book Appointment</div>
+                                        <div className="flex-1 p-3 space-y-3 overflow-auto">
+                                            <div className="animate-fade-in-up" style={{animationDelay: '0.2s'}}><Label className="text-xs">Your Name</Label><Input className="h-8 text-xs" placeholder="John Doe"/></div>
+                                            <div className="animate-fade-in-up" style={{animationDelay: '0.4s'}}><Label className="text-xs">Select Service</Label><Select><SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Choose a service..."/></SelectTrigger></Select></div>
+                                            <div className="animate-fade-in-up" style={{animationDelay: '0.6s'}}><Label className="text-xs">Preferred Date</Label><Input type="date" className="h-8 text-xs"/></div>
+                                        </div>
+                                        <div className="p-3 border-t flex-shrink-0"><Button className="w-full h-9 bg-primary hover:bg-primary/90 text-primary-foreground text-sm animate-fade-in-up" style={{animationDelay: '0.8s'}}>Confirm Booking</Button></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
