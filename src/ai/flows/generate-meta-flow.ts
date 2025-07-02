@@ -132,21 +132,22 @@ The output must strictly adhere to the provided JSON schema.
     -   \`TextHeading\`, \`TextSubheading\`, \`TextBody\`, and \`TextCaption\` components ONLY have a \`text\` and optional \`visible\` property. DO NOT add a \`name\` property to them.
     -   Input components like \`TextInput\` and \`Dropdown\` MUST have a \`name\` property.
 2.  **Top-Level Structure**: The root object MUST contain 'version', 'name', 'routing_model', and 'screens'.
-3.  **Screen Structure**: Each screen in the 'screens' array requires:
+3.  **Name and Description**: Generate a descriptive 'name' (e.g., 'appointment_booking', 'lead_gen_v2') and a helpful 'description' for the flow based on the user's request.
+4.  **Screen Structure**: Each screen in the 'screens' array requires:
     -   \`id\`: An ID with only uppercase letters, numbers, and underscores (e.g., 'WELCOME_SCREEN', 'SURVEY_PAGE_1').
     -   \`title\`: A string for the screen title.
     -   \`layout\`: A 'SingleColumnLayout' object containing a 'children' array. This array usually holds a single 'Form' or a 'NavigationList'.
-4.  **Navigation Model**:
+5.  **Navigation Model**:
     -   The \`routing_model\` defines all possible navigation paths. For each screen ID, list the IDs of all screens it can navigate to. Example: \`{'SCREEN_A': ['SCREEN_B'], 'SCREEN_B': ['FINAL_SCREEN'], 'FINAL_SCREEN': []}\`.
     -   Navigation is triggered by \`on-click-action\` (on \`Footer\`, \`EmbeddedLink\`, or \`NavigationList\` items).
     -   Use the format: \`{ "name": "navigate", "next": { "type": "screen", "name": "TARGET_ID" } }\`.
-5.  **Final Screens**: The final screen in any path must have \`terminal: true\`. Its footer action must be \`{ "name": "complete" }\`.
-6.  **Data Handling**:
+6.  **Final Screens**: The final screen in any path must have \`terminal: true\`. Its footer action must be \`{ "name": "complete" }\`.
+7.  **Data Handling**:
     -   To pass data, use a \`payload\` in the navigation action: \`payload: { "user_name": "\${form.name_input}" }\`.
     -   The receiving screen must define this data in its \`data\` property: \`data: { "user_name": { "type": "string" } }\`.
     -   Use \`\${form.component_name}\` to access input from the current screen's form.
     -   Use \`\${data.variable_name}\` to access data passed from a previous screen.
-7.  **Full Experience**: Create a logical, multi-screen flow (at least 2-3 screens) that fulfills the user's request.
+8.  **Full Experience**: Create a logical, multi-screen flow (at least 2-3 screens) that fulfills the user's request.
 
 User Request: "{{{prompt}}}"
 Flow Category: "{{{category}}}"
@@ -162,11 +163,14 @@ const generateMetaFlowFlow = ai.defineFlow(
   },
   async (input) => {
     const { output } = await prompt(input);
-    const flow_json = {
-        version: "7.1",
-        name: output?.name || 'ai_generated_flow',
-        ...output
-    };
-    return flow_json;
+    if (!output) {
+        throw new Error("AI failed to generate a flow. The output was empty.");
+    }
+    // The AI is now responsible for generating the full object.
+    // We just ensure the version is correct before returning.
+    output.version = "7.1"; 
+    return output;
   }
 );
+
+    
