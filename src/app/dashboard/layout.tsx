@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -257,14 +258,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </DropdownMenu>
           </div>
         </header>
-        <div className="flex-1 flex flex-col h-full overflow-hidden">
-           <main className={cn(
+        <main className={cn(
             "flex-1 flex flex-col h-full",
             isChatPage ? "overflow-hidden" : "p-4 md:p-6 lg:p-8 overflow-y-auto"
-            )}>
-              {children}
-          </main>
-        </div>
+        )}>
+            {children}
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

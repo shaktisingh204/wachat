@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type BusinessCapabilities = {
@@ -311,7 +312,7 @@ export type Contact = {
     };
     isOptedOut?: boolean;
     hasReceivedWelcome?: boolean;
-    status?: 'new' | 'open' | 'resolved';
+    status?: string;
     assignedAgentId?: string;
     tagIds?: string[];
 }
@@ -551,8 +552,7 @@ export type InitiatePaymentResult = {
   error?: string;
 }
 
-export type KanbanData = {
-    new: WithId<Contact>[];
-    open: WithId<Contact>[];
-    resolved: WithId<Contact>[];
+export type KanbanColumnData = {
+    name: string;
+    contacts: WithId<Contact>[];
 };

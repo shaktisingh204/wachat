@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -9,9 +10,9 @@ import type { WithId, Contact } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
 
 interface KanbanColumnProps {
-    title: 'New' | 'Open' | 'Resolved';
+    title: string;
     contacts: WithId<Contact>[];
-    onDrop: (contactId: string, newStatus: 'new' | 'open' | 'resolved') => void;
+    onDrop: (contactId: string, newStatus: string) => void;
 }
 
 export function KanbanColumn({ title, contacts, onDrop }: KanbanColumnProps) {
@@ -30,7 +31,7 @@ export function KanbanColumn({ title, contacts, onDrop }: KanbanColumnProps) {
         e.preventDefault();
         setIsOver(false);
         const contactId = e.dataTransfer.getData('contactId');
-        onDrop(contactId, title.toLowerCase() as 'new' | 'open' | 'resolved');
+        onDrop(contactId, title);
     };
     
     return (
@@ -44,8 +45,8 @@ export function KanbanColumn({ title, contacts, onDrop }: KanbanColumnProps) {
             onDrop={handleDrop}
         >
             <CardHeader className="flex-shrink-0">
-                <CardTitle className="flex items-center gap-2">
-                    <span>{title}</span>
+                <CardTitle className="flex items-center gap-2 capitalize">
+                    <span>{title.replace(/_/g, ' ')}</span>
                     <span className="text-sm font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">{contacts.length}</span>
                 </CardTitle>
             </CardHeader>

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import type { WithId } from 'mongodb';
@@ -34,12 +35,12 @@ export function ChatContactList({ contacts, selectedContactId, onSelectContact, 
         </div>
     );
     
-    const getStatusVariant = (status: 'new' | 'open' | 'resolved' | undefined): 'default' | 'secondary' | 'outline' => {
-        switch(status) {
-            case 'open': return 'default';
-            case 'resolved': return 'secondary';
-            default: return 'outline';
-        }
+    const getStatusVariant = (status: string | undefined): 'default' | 'secondary' | 'outline' => {
+        if (!status) return 'outline';
+        const lowerStatus = status.toLowerCase();
+        if (lowerStatus === 'open') return 'default';
+        if (lowerStatus === 'resolved') return 'secondary';
+        return 'outline'; // for 'new' and any custom statuses
     }
 
     return (
@@ -74,7 +75,7 @@ export function ChatContactList({ contacts, selectedContactId, onSelectContact, 
                                     <div className="flex items-center justify-between">
                                         <p className="font-semibold truncate">{contact.name}</p>
                                         {contact.status && (
-                                            <Badge variant={getStatusVariant(contact.status)} className="capitalize text-xs h-5">{contact.status}</Badge>
+                                            <Badge variant={getStatusVariant(contact.status)} className="capitalize text-xs h-5">{contact.status.replace(/_/g, ' ')}</Badge>
                                         )}
                                     </div>
                                     <p className="text-sm text-muted-foreground truncate">{contact.lastMessage}</p>

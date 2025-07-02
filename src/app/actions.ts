@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -65,7 +66,7 @@ import type {
     UpdateProjectSettingsState,
     InitiatePaymentResult,
     AdminUserView,
-    KanbanData,
+    KanbanColumnData,
 } from '@/lib/definitions';
 
 
@@ -3695,8 +3696,8 @@ export async function getContactsForProject(
     }
 }
 
-export async function getKanbanData(projectId: string): Promise<{ project: WithId<Project> | null, contacts: KanbanData }> {
-    const defaultData = { project: null, contacts: { new: [], open: [], resolved: [] } };
+export async function getKanbanData(projectId: string): Promise<{ project: WithId<Project> | null, columns: KanbanColumnData[] }> {
+    const defaultData = { project: null, columns: [] };
     const project = await getProjectById(projectId);
     if (!project) return defaultData;
     
@@ -3707,18 +3708,30 @@ export async function getKanbanData(projectId: string): Promise<{ project: WithI
             .sort({ lastMessageTimestamp: -1 })
             .toArray();
 
-        const groupedContacts = contacts.reduce((acc, contact) => {
-            const status = contact.status || 'new';
-            if (!acc[status]) {
-                acc[status] = [];
-            }
-            acc[status].push(contact);
-            return acc;
-        }, { new: [], open: [], resolved: [] } as KanbanData);
+        const defaultColumns = ['new', 'open', 'resolved'];
+        const statusSet = new Set<string>(defaultColumns);
+        contacts.forEach(c => c.status && statusSet.add(c.status));
+
+        const columns = Array.from(statusSet).map(status => ({
+            name: status,
+            contacts: contacts.filter(c => (c.status || 'new') === status),
+        }));
+
+        // Ensure default columns are always present and in order
+        const finalColumns: KanbanColumnData[] = [];
+        const columnMap = new Map(columns.map(c => [c.name, c]));
+
+        for (const defaultCol of defaultColumns) {
+            finalColumns.push(columnMap.get(defaultCol) || { name: defaultCol, contacts: [] });
+            columnMap.delete(defaultCol);
+        }
         
+        // Add any remaining custom columns
+        finalColumns.push(...Array.from(columnMap.values()));
+
         return {
             project: JSON.parse(JSON.stringify(project)),
-            contacts: JSON.parse(JSON.stringify(groupedContacts))
+            columns: JSON.parse(JSON.stringify(finalColumns))
         };
     } catch (e) {
         console.error("Failed to get Kanban data:", e);
@@ -4354,3 +4367,4 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
 }
 
     
+

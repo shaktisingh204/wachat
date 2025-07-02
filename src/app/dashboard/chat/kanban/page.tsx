@@ -1,4 +1,5 @@
 
+
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { KanbanBoard } from '@/components/wabasimplify/kanban-board';

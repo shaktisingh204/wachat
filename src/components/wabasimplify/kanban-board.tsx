@@ -1,14 +1,17 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
 import { getKanbanData, handleUpdateContactStatus } from '@/app/actions';
-import type { WithId, Contact, Project, KanbanData } from '@/lib/definitions';
+import type { WithId, Contact, Project, KanbanColumnData } from '@/lib/definitions';
 import { KanbanColumn } from './kanban-column';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Plus } from 'lucide-react';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
 
 function KanbanPageSkeleton() {
     return (
@@ -20,39 +23,84 @@ function KanbanPageSkeleton() {
     );
 }
 
+function AddList({ onAddList }: { onAddList: (name: string) => void }) {
+    const [isAdding, setIsAdding] = useState(false);
+    const [listName, setListName] = useState('');
+
+    const handleAdd = () => {
+        if (listName.trim()) {
+            onAddList(listName.trim());
+            setListName('');
+            setIsAdding(false);
+        }
+    };
+
+    if (!isAdding) {
+        return (
+            <Button
+                variant="outline"
+                className="w-72 flex-shrink-0 h-12"
+                onClick={() => setIsAdding(true)}
+            >
+                <Plus className="mr-2 h-4 w-4" /> Add another list
+            </Button>
+        );
+    }
+
+    return (
+        <div className="w-72 flex-shrink-0 p-2 bg-muted rounded-lg h-fit">
+            <Input
+                placeholder="Enter list title..."
+                value={listName}
+                onChange={(e) => setListName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+                autoFocus
+            />
+            <div className="mt-2 flex items-center gap-2">
+                <Button onClick={handleAdd}>Add list</Button>
+                <Button variant="ghost" onClick={() => setIsAdding(false)}>Cancel</Button>
+            </div>
+        </div>
+    );
+}
+
 export function KanbanBoard() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
-    const [boardData, setBoardData] = useState<KanbanData>({ new: [], open: [], resolved: [] });
+    const [boardData, setBoardData] = useState<KanbanColumnData[]>([]);
     const [isLoading, startLoadingTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
 
+    const fetchData = () => {
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        if (storedProjectId) {
+            startLoadingTransition(async () => {
+                const data = await getKanbanData(storedProjectId);
+                if (data.project) setProject(data.project);
+                if (data.columns) setBoardData(data.columns);
+            });
+        }
+    }
+
     useEffect(() => {
         setIsClient(true);
+        fetchData();
     }, []);
+    
+    const handleAddList = (name: string) => {
+        // Optimistically add the new column to the UI
+        setBoardData(prev => [...prev, { name, contacts: [] }]);
+        // A contact must be moved into it for it to be persisted.
+    };
 
-    useEffect(() => {
-        if (isClient) {
-            const storedProjectId = localStorage.getItem('activeProjectId');
-            if (storedProjectId) {
-                startLoadingTransition(async () => {
-                    const data = await getKanbanData(storedProjectId);
-                    if (data.project) setProject(data.project);
-                    if (data.contacts) setBoardData(data.contacts);
-                });
-            }
-        }
-    }, [isClient]);
-
-    const handleDrop = async (contactId: string, newStatus: 'new' | 'open' | 'resolved') => {
+    const handleDrop = async (contactId: string, newStatus: string) => {
         let movedContact: WithId<Contact> | undefined;
-        let originalStatus: keyof KanbanData | undefined;
+        let originalStatus: string | undefined;
 
-        for (const key in boardData) {
-            const statusKey = key as keyof KanbanData;
-            const contact = boardData[statusKey].find(c => c._id.toString() === contactId);
+        for (const col of boardData) {
+            const contact = col.contacts.find(c => c._id.toString() === contactId);
             if (contact) {
-                movedContact = { ...contact }; // Create a copy
-                originalStatus = statusKey;
+                movedContact = { ...contact };
+                originalStatus = col.name;
                 break;
             }
         }
@@ -62,16 +110,27 @@ export function KanbanBoard() {
         }
 
         // Optimistic UI update
-        const newBoardData = { ...boardData };
-        newBoardData[originalStatus] = newBoardData[originalStatus].filter(c => c._id.toString() !== contactId);
-        movedContact.status = newStatus;
-        newBoardData[newStatus] = [movedContact, ...newBoardData[newStatus]];
+        const newBoardData = boardData.map(col => {
+            if (col.name === originalStatus) {
+                return { ...col, contacts: col.contacts.filter(c => c._id.toString() !== contactId) };
+            }
+            if (col.name === newStatus) {
+                movedContact!.status = newStatus;
+                return { ...col, contacts: [movedContact!, ...col.contacts] };
+            }
+            return col;
+        });
+
+        // If dropping into a newly created (and thus empty) column
+        if (!newBoardData.some(c => c.name === newStatus)) {
+            newBoardData.push({ name: newStatus, contacts: [movedContact] });
+        }
+        
         setBoardData(newBoardData);
         
         const result = await handleUpdateContactStatus(contactId, newStatus, movedContact.assignedAgentId || '');
         if (!result.success) {
-            const revertedData = { ...boardData };
-            setBoardData(revertedData);
+            fetchData(); // Revert on failure
         }
     };
 
@@ -95,10 +154,11 @@ export function KanbanBoard() {
     
     return (
         <ScrollArea className="h-full w-full">
-            <div className="flex h-full p-4 gap-4">
-                <KanbanColumn title="New" contacts={boardData.new} onDrop={handleDrop} />
-                <KanbanColumn title="Open" contacts={boardData.open} onDrop={handleDrop} />
-                <KanbanColumn title="Resolved" contacts={boardData.resolved} onDrop={handleDrop} />
+            <div className="flex h-full p-4 gap-4 items-start">
+                {boardData.map(column => (
+                    <KanbanColumn key={column.name} title={column.name} contacts={column.contacts} onDrop={handleDrop} />
+                ))}
+                 <AddList onAddList={handleAddList} />
             </div>
             <ScrollBar orientation="horizontal" />
         </ScrollArea>
