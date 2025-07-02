@@ -574,7 +574,8 @@ function SettingsPageContent() {
                 setMessagesPerSecond(projectData.messagesPerSecond || 1000);
             }
             if (sessionData?.user) {
-                setUser(sessionData.user);
+                const userWithPlan = { ...sessionData.user, plan: projectData?.plan };
+                setUser(userWithPlan as any);
             }
         });
     } else if (isClient && !activeProjectId) {
@@ -620,7 +621,7 @@ function SettingsPageContent() {
     );
   }
   
-  const planFeatures = user.plan?.features;
+  const planFeatures = project.plan?.features;
 
   return (
      <div className="flex flex-col gap-8">

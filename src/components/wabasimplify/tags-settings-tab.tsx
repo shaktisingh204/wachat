@@ -20,7 +20,8 @@ export function TagsSettingsTab({ project }: TagsSettingsTabProps) {
     const [isSaving, startSavingTransition] = useTransition();
 
     useEffect(() => {
-        setTags(project.tags || []);
+        // Create a deep copy to avoid direct state mutation issues with the color picker
+        setTags(JSON.parse(JSON.stringify(project.tags || [])));
     }, [project.tags]);
 
     const handleAddTag = () => {
@@ -40,8 +41,6 @@ export function TagsSettingsTab({ project }: TagsSettingsTabProps) {
 
     const handleSaveChanges = () => {
         startSavingTransition(async () => {
-            // Filter out empty tags and ensure new tags get a real ID if needed.
-            // For now, we assume frontend generates a temporary one. The backend could formalize this.
             const validTags = tags.filter(tag => tag.name.trim() !== '');
             const result = await saveProjectTags(project._id.toString(), validTags);
             if (result.success) {

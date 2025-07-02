@@ -492,6 +492,12 @@ export type MetaWabasResponse = {
     }
 };
 
+export type VariableMapping = {
+    var: string; // e.g., '1', '2'
+    mode: 'file' | 'manual';
+    value: string; // column name or static value
+};
+
 export type BroadcastJob = {
     _id: ObjectId;
     projectId: ObjectId;
@@ -516,6 +522,7 @@ export type BroadcastJob = {
     errorCount?: number;
     messagesPerSecond?: number;
     projectMessagesPerSecond?: number;
+    variableMappings?: VariableMapping[];
 };
 
 export type AdminUserView = Omit<User, 'password'>;
@@ -542,5 +549,3 @@ export type InitiatePaymentResult = {
   redirectUrl?: string;
   error?: string;
 }
-
-    

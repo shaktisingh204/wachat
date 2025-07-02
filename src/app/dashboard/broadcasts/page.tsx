@@ -227,7 +227,7 @@ function BroadcastPageSkeleton() {
 }
 
 export default function BroadcastPage() {
-  const [project, setProject] = useState<(Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers'> & { metaFlows?: WithId<MetaFlow>[] }) | null>(null);
+  const [project, setProject] = useState<WithId<Project> | null>(null);
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
   const [isRefreshing, startRefreshTransition] = useTransition();
@@ -247,7 +247,7 @@ export default function BroadcastPage() {
     startRefreshTransition(async () => {
         try {
             const [projectData, templatesData, historyData] = await Promise.all([
-                getProjectForBroadcast(projectId),
+                getProjectById(projectId), // Use getProjectById to get full project data
                 getTemplates(projectId),
                 getBroadcasts(projectId, page, BROADCASTS_PER_PAGE),
             ]);
@@ -384,7 +384,7 @@ export default function BroadcastPage() {
         {isLoadingData ? (
             <Skeleton className="h-64 w-full"/>
         ) : (
-            <BroadcastForm templates={templates} project={project} metaFlows={project?.metaFlows || []} />
+            <BroadcastForm templates={templates} project={project} />
         )}
 
         <Card className="card-gradient card-gradient-blue">
