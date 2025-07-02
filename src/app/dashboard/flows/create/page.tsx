@@ -222,6 +222,94 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         const isCalendarPickerComponent = localComponent?.type === 'CalendarPicker';
         const isPhotoPickerComponent = localComponent?.type === 'PhotoPicker';
         const isDocumentPickerComponent = localComponent?.type === 'DocumentPicker';
+        const isOptInComponent = localComponent?.type === 'OptIn';
+
+        if (isOptInComponent) {
+            return (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Name (unique identifier)</Label>
+                        <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="label">Label</Label>
+                        <Input id="label" value={localComponent.label || ''} onChange={(e) => updateField('label', e.target.value)} required maxLength={120} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="flex items-center space-x-2">
+                            <Switch id="required" checked={localComponent.required || false} onCheckedChange={(val) => updateField('required', val)} />
+                            <Label htmlFor="required">Required</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Switch id="init-value" checked={localComponent['init-value'] || false} onCheckedChange={(val) => updateField('init-value', val)} />
+                            <Label htmlFor="init-value">Initially Checked</Label>
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="visible">Visible</Label>
+                        <Input id="visible" value={localComponent.visible === undefined ? '' : String(localComponent.visible)} onChange={e => handleDynamicBoolChange('visible', e.target.value)} placeholder="true, false, or ${...}" />
+                    </div>
+                    
+                    <Separator />
+
+                    <div className="space-y-2">
+                        <Label>On-Click Action (for "Read more" link)</Label>
+                        <div className="p-3 border rounded-lg space-y-3">
+                            <Select value={localComponent['on-click-action']?.name || ''} onValueChange={(val) => handleActionChange('on-click-action', 'name', val)}>
+                                <SelectTrigger><SelectValue placeholder="No Action"/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="">No Action</SelectItem>
+                                    <SelectItem value="navigate">Navigate</SelectItem>
+                                    <SelectItem value="open_url">Open URL</SelectItem>
+                                    <SelectItem value="data_exchange">Data Exchange</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {localComponent['on-click-action']?.name === 'navigate' && (
+                                 <Input placeholder="Next Screen ID" value={localComponent['on-click-action']?.next?.name || ''} onChange={(e) => handleActionChange('on-click-action', 'next', { type: 'screen', name: e.target.value })}/>
+                            )}
+                            {localComponent['on-click-action']?.name === 'open_url' && (
+                                 <Input placeholder="https://example.com" value={localComponent['on-click-action']?.url || ''} onChange={(e) => handleActionChange('on-click-action', 'url', e.target.value)}/>
+                            )}
+                            {localComponent['on-click-action']?.name === 'data_exchange' && (
+                                <Textarea placeholder='Payload (JSON)' className="font-mono text-xs" value={localComponent['on-click-action'].payload ? JSON.stringify(localComponent['on-click-action'].payload, null, 2) : ''} onChange={(e) => { try { handleActionChange('on-click-action', 'payload', e.target.value ? JSON.parse(e.target.value) : undefined) } catch {} }}/>
+                            )}
+                        </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                        <Label>On-Select Action</Label>
+                         <div className="p-3 border rounded-lg space-y-3">
+                            <Select value={localComponent['on-select-action']?.name || ''} onValueChange={(val) => handleActionChange('on-select-action', 'name', val)}>
+                                <SelectTrigger><SelectValue placeholder="No Action"/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="">No Action</SelectItem>
+                                    <SelectItem value="data_exchange">Data Exchange</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {localComponent['on-select-action']?.name === 'data_exchange' && (
+                                <Textarea placeholder='Payload (JSON)' className="font-mono text-xs" value={localComponent['on-select-action'].payload ? JSON.stringify(localComponent['on-select-action'].payload, null, 2) : ''} onChange={(e) => { try { handleActionChange('on-select-action', 'payload', e.target.value ? JSON.parse(e.target.value) : undefined) } catch {} }}/>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>On-Unselect Action</Label>
+                        <div className="p-3 border rounded-lg space-y-3">
+                            <Select value={localComponent['on-unselect-action']?.name || ''} onValueChange={(val) => handleActionChange('on-unselect-action', 'name', val)}>
+                                <SelectTrigger><SelectValue placeholder="No Action"/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="">No Action</SelectItem>
+                                    <SelectItem value="data_exchange">Data Exchange</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {localComponent['on-unselect-action']?.name === 'data_exchange' && (
+                                <Textarea placeholder='Payload (JSON)' className="font-mono text-xs" value={localComponent['on-unselect-action'].payload ? JSON.stringify(localComponent['on-unselect-action'].payload, null, 2) : ''} onChange={(e) => { try { handleActionChange('on-unselect-action', 'payload', e.target.value ? JSON.parse(e.target.value) : undefined) } catch {} }}/>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
         if (isDocumentPickerComponent) {
             return (

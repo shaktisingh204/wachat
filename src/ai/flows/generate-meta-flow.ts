@@ -207,7 +207,17 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
         "aspect-ratio": z.enum(['16:9', '4:3']).optional(),
         "scale-type": z.enum(['cover', 'contain']).optional()
     }),
-    z.object({ type: z.literal('OptIn'), name: z.string(), label: z.string(), required: z.boolean().optional() }),
+    z.object({
+        type: z.literal('OptIn'),
+        name: z.string(),
+        label: z.string(),
+        required: z.boolean().optional(),
+        visible: z.union([z.boolean(), z.string()]).optional(),
+        "init-value": z.boolean().optional(),
+        "on-click-action": ActionSchema.optional(),
+        "on-select-action": ActionSchema.optional(),
+        "on-unselect-action": ActionSchema.optional()
+    }),
     z.object({ 
         type: z.literal('Image'), 
         src: z.string().describe("Use the placeholder 'base64_image_placeholder' for images."), 
