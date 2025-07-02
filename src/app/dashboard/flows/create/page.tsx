@@ -122,7 +122,19 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="aspect-ratio">Aspect Ratio (optional)</Label>
-                                    <Input id="aspect-ratio" type="number" step="0.1" value={localComponent['aspect-ratio'] || ''} onChange={e => updateField('aspect-ratio', e.target.value ? parseFloat(e.target.value) : undefined)} />
+                                    <Select
+                                        value={String(localComponent['aspect-ratio'] || '')}
+                                        onValueChange={v => updateField('aspect-ratio', v ? parseFloat(v) : undefined)}
+                                    >
+                                        <SelectTrigger id="aspect-ratio"><SelectValue placeholder="Default"/></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="">Default</SelectItem>
+                                            <SelectItem value="1.777">16:9 (Widescreen)</SelectItem>
+                                            <SelectItem value="1.333">4:3 (Standard)</SelectItem>
+                                            <SelectItem value="1">1:1 (Square)</SelectItem>
+                                            <SelectItem value="1.5">3:2</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="scale-type">Scale Type (optional)</Label>
@@ -138,6 +150,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         </div>
                     ) : (
                         Object.keys(component).map(key => {
+                            if (!localComponent) return null;
                             const value = localComponent[key];
                             // Don't allow editing type or auto-generated name
                             if (key === 'type' || (key === 'name' && value?.startsWith(component.type.toLowerCase()))) return null; 
@@ -651,5 +664,3 @@ export default function CreateMetaFlowPageWrapper() {
     </Suspense>
   )
 }
-
-    
