@@ -110,7 +110,7 @@ export default function HomePage() {
   const [animationKey, setAnimationKey] = React.useState(0);
 
   React.useEffect(() => {
-    const animationDuration = 11000;
+    const animationDuration = 10000;
     const timer = setInterval(() => {
         setAnimationKey(prevKey => prevKey + 1);
     }, animationDuration);
@@ -169,7 +169,7 @@ export default function HomePage() {
               <Check className="h-8 w-8 text-green-500 absolute top-8 right-0 animate-fade-in-up" style={{animationDelay: '1.5s'}}/>
 
               {/* Phone Mockup */}
-               <div className="relative w-80 h-[600px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+               <div className="relative w-[340px] h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                 <div 
                     className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
                     style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}
@@ -367,7 +367,7 @@ export default function HomePage() {
                             </p>
                         </div>
                         <div className="lg:w-2/3 flex justify-center w-full">
-                            <div className="relative w-80 h-[600px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                            <div className="relative w-[340px] h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                                 <div 
                                     className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
                                     style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}
@@ -475,8 +475,8 @@ export default function HomePage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-24">
                     {/* Agent Collaboration */}
                     <div className="flex flex-col sm:flex-row items-center gap-8" key={`showcase-4-${animationKey}`}>
-                        <div className="w-80 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[600px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                        <div className="w-[340px] h-auto flex-shrink-0">
+                            <div className="relative w-full h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                                 <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                                     <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                         <ArrowLeft className="h-5 w-5 opacity-90" />
@@ -504,8 +504,8 @@ export default function HomePage() {
 
                     {/* Auto Replies */}
                     <div className="flex flex-col sm:flex-row-reverse items-center gap-8" key={`showcase-5-${animationKey}`}>
-                         <div className="w-80 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[600px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                         <div className="w-[340px] h-auto flex-shrink-0">
+                            <div className="relative w-full h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                                 <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                                     <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                         <ArrowLeft className="h-5 w-5 opacity-90" />
@@ -532,8 +532,8 @@ export default function HomePage() {
 
                     {/* AI Chat */}
                      <div className="flex flex-col sm:flex-row items-center gap-8" key={`showcase-6-${animationKey}`}>
-                        <div className="w-80 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[600px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                        <div className="w-[340px] h-auto flex-shrink-0">
+                            <div className="relative w-full h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                                 <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                                     <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                         <ArrowLeft className="h-5 w-5 opacity-90" />
@@ -560,8 +560,8 @@ export default function HomePage() {
                     
                     {/* Canned Messages */}
                     <div className="flex flex-col sm:flex-row-reverse items-center gap-8" key={`showcase-8-${animationKey}`}>
-                         <div className="w-80 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[600px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                         <div className="w-[340px] h-auto flex-shrink-0">
+                            <div className="relative w-full h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                                 <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                                     <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                         <ArrowLeft className="h-5 w-5 opacity-90" />
@@ -598,8 +598,8 @@ export default function HomePage() {
                     
                     {/* Compliance */}
                      <div className="flex flex-col sm:flex-row items-center gap-8" key={`showcase-7-${animationKey}`}>
-                         <div className="w-80 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[600px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                         <div className="w-[340px] h-auto flex-shrink-0">
+                            <div className="relative w-full h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                                 <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                                     <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                         <ArrowLeft className="h-5 w-5 opacity-90" />
