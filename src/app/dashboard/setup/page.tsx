@@ -35,7 +35,7 @@ export default function SetupPage() {
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
-        <Card className="flex flex-col">
+        <Card className="flex flex-col text-center card-gradient card-gradient-green">
             <CardHeader>
                 <CardTitle>Guided Setup (Recommended)</CardTitle>
                 <CardDescription>Use the secure pop-up to connect your account in a few clicks.</CardDescription>

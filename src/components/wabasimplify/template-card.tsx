@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState } from 'react';
@@ -6,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Languages, Edit, FilePlus2, ShoppingCart, View } from 'lucide-react';
+import { Languages, Edit, FilePlus2, ShoppingCart, View, FileText } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ import {
 } from '@/components/ui/dialog';
 import type { WithId } from 'mongodb';
 import type { Template } from '@/lib/definitions';
+import { cn } from '@/lib/utils';
 
 interface TemplateCardProps {
   template: WithId<Template>;
@@ -73,10 +75,12 @@ export const TemplateCard = React.memo(function TemplateCard({ template }: Templ
   
   const isMarketingCarousel = template.type === 'MARKETING_CAROUSEL';
   const isProductCarousel = template.type === 'CATALOG_MESSAGE';
+  
+  const cardGradientClass = isMarketingCarousel ? 'card-gradient-purple' : isProductCarousel ? 'card-gradient-orange' : 'card-gradient-green';
 
   return (
     <>
-      <Card className="flex flex-col">
+      <Card className={cn("flex flex-col card-gradient transition-transform hover:-translate-y-1", cardGradientClass)}>
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg font-headline break-all">{template.name}</CardTitle>
@@ -106,8 +110,15 @@ export const TemplateCard = React.memo(function TemplateCard({ template }: Templ
             </div>
           </div>
           <CardDescription className="flex items-center pt-2 text-xs">
-            <Languages className="h-4 w-4 mr-2" />
-            {isProductCarousel ? 'Interactive Product Message' : template.language}
+            {isProductCarousel ? (
+                 <ShoppingCart className="h-4 w-4 mr-2"/>
+            ) : isMarketingCarousel ? (
+                 <View className="h-4 w-4 mr-2"/>
+            ) : (
+                 <FileText className="h-4 w-4 mr-2"/>
+            )}
+            
+            {isProductCarousel ? 'Interactive Product Message' : isMarketingCarousel ? 'Marketing Carousel' : `Category: ${template.category}`}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex-grow">

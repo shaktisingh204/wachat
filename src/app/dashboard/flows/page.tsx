@@ -28,6 +28,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { SyncMetaFlowsButton } from '@/components/wabasimplify/sync-meta-flows-button';
 import { MetaFlowToTemplateDialog } from '@/components/wabasimplify/meta-flow-to-template-dialog';
+import { cn } from '@/lib/utils';
 
 
 function MetaFlowCard({ flow, onDelete }: { flow: WithId<MetaFlow>, onDelete: (flowId: string, metaId: string) => void }) {
@@ -48,7 +49,7 @@ function MetaFlowCard({ flow, onDelete }: { flow: WithId<MetaFlow>, onDelete: (f
     };
 
     return (
-        <Card className="flex flex-col">
+        <Card className={cn("flex flex-col card-gradient card-gradient-blue transition-transform hover:-translate-y-1")}>
             <CardHeader>
                 <div className="flex justify-between items-start">
                     <CardTitle className="text-base">{flow.name}</CardTitle>

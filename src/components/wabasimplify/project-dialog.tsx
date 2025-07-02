@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useActionState } from 'react';
@@ -71,7 +72,7 @@ export function CreateProjectDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Card className="flex flex-col text-center hover:shadow-lg hover:border-primary transition-all cursor-pointer">
+        <Card className="flex flex-col text-center hover:shadow-lg hover:border-primary transition-all cursor-pointer card-gradient card-gradient-purple">
             <CardHeader>
                 <CardTitle>Manual Setup</CardTitle>
                 <CardDescription>Enter your credentials directly if you are an advanced user.</CardDescription>

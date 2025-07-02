@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -9,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessagesSquare, CheckCircle, XCircle, Send, AlertCircle, CheckCheck, Eye } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 const AnalyticsChart = dynamic(
   () => import('@/components/wabasimplify/analytics-chart').then(mod => mod.AnalyticsChart),
@@ -27,6 +29,19 @@ type DashboardStats = {
   totalRead: number;
   totalCampaigns: number;
 };
+
+const StatCard = ({ title, value, icon: Icon, description, gradientClass }: { title: string, value: string | number, icon: React.ElementType, description?: string, gradientClass?: string }) => (
+    <Card className={cn("card-gradient", gradientClass)}>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">{title}</CardTitle>
+            <Icon className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+            <div className="text-2xl font-bold">{typeof value === 'number' ? value.toLocaleString() : value}</div>
+            {description && <p className="text-xs text-muted-foreground">{description}</p>}
+        </CardContent>
+    </Card>
+);
 
 function StatCardSkeleton() {
     return (
@@ -99,66 +114,12 @@ export default function DashboardOverviewPage() {
             </>
         ) : stats ? (
             <>
-                <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Campaigns</CardTitle>
-                    <Send className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalCampaigns.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">All-time broadcasts initiated.</p>
-                </CardContent>
-                </Card>
-                <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Queued</CardTitle>
-                    <MessagesSquare className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalMessages.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">All-time messages queued for sending.</p>
-                </CardContent>
-                </Card>
-                <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Sent</CardTitle>
-                    <CheckCircle className="h-4 w-4 text-primary" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalSent.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">{sentPercentage}% of queued messages sent.</p>
-                </CardContent>
-                </Card>
-                <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Delivered</CardTitle>
-                    <CheckCheck className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalDelivered.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">{deliveredPercentage}% of sent messages delivered.</p>
-                </CardContent>
-                </Card>
-                <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Read</CardTitle>
-                    <Eye className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalRead.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">{readPercentage}% of delivered messages read.</p>
-                </CardContent>
-                </Card>
-                <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">Total Failed</CardTitle>
-                    <XCircle className="h-4 w-4 text-destructive" />
-                </CardHeader>
-                <CardContent>
-                    <div className="text-2xl font-bold">{stats.totalFailed.toLocaleString()}</div>
-                    <p className="text-xs text-muted-foreground">Messages that failed to send.</p>
-                </CardContent>
-                </Card>
+                <StatCard title="Total Campaigns" value={stats.totalCampaigns} icon={Send} description="All-time broadcasts initiated." gradientClass="card-gradient-purple" />
+                <StatCard title="Total Queued" value={stats.totalMessages} icon={MessagesSquare} description="All-time messages queued for sending." gradientClass="card-gradient-blue" />
+                <StatCard title="Total Sent" value={stats.totalSent} icon={CheckCircle} description={`${sentPercentage}% of queued messages sent.`} gradientClass="card-gradient-green" />
+                <StatCard title="Total Delivered" value={stats.totalDelivered} icon={CheckCheck} description={`${deliveredPercentage}% of sent messages delivered.`} />
+                <StatCard title="Total Read" value={stats.totalRead} icon={Eye} description={`${readPercentage}% of delivered messages read.`} />
+                <StatCard title="Total Failed" value={stats.totalFailed} icon={XCircle} />
             </>
         ) : (
              <div className="col-span-full">
