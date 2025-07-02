@@ -513,7 +513,7 @@ export type BroadcastJob = {
 };
 
 export type AdminUserView = Omit<User, 'password'> & {
-    plan?: Pick<Plan, 'name'>;
+    plan: WithId<Plan> | null;
 };
 
 // Form state types

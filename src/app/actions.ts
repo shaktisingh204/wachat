@@ -3986,9 +3986,6 @@ export async function getUsersForAdmin(
             {
                 $project: {
                     password: 0,
-                    'planInfo.features': 0,
-                    'planInfo.messageCosts': 0,
-                    'planInfo.createdAt': 0,
                 }
             }
         ];
@@ -4031,6 +4028,35 @@ export async function updateUserCreditsByAdmin(userId: string, credits: number):
         return { success: false, error: 'An unexpected database error occurred.' };
     }
 }
+
+export async function updateUserPlanByAdmin(userId: string, planId: string): Promise<{ success: boolean, error?: string }> {
+    const session = await getSession();
+    // In a real app, you'd check for an admin role from the session, not a hardcoded email.
+    if (session?.user?.email !== 'admin@wachat.com') {
+        return { success: false, error: 'Permission denied.' };
+    }
+
+    if (!ObjectId.isValid(userId) || !ObjectId.isValid(planId)) {
+        return { success: false, error: 'Invalid user or plan ID.' };
+    }
+    
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('users').updateOne(
+            { _id: new ObjectId(userId) },
+            { $set: { planId: new ObjectId(planId) } }
+        );
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'User not found.' };
+        }
+        revalidatePath('/admin/dashboard/users');
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to update user plan:", error);
+        return { success: false, error: 'An unexpected database error occurred.' };
+    }
+}
+
 
 // --- TAGS ACTIONS ---
 export async function saveProjectTags(projectId: string, tags: Tag[]): Promise<{ success: boolean; error?: string }> {
