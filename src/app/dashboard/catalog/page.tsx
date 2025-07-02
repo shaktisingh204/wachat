@@ -1,0 +1,131 @@
+
+'use client';
+
+import { useEffect, useState, useTransition, useCallback } from 'react';
+import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
+import { getCatalogs, connectCatalogToWaba } from '@/app/actions/catalog.actions';
+import { getProjectById } from '@/app/actions';
+import type { Catalog, Project } from '@/lib/definitions';
+import type { WithId } from 'mongodb';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2 } from 'lucide-react';
+import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
+import { CreateCatalogDialog } from '@/components/wabasimplify/create-catalog-dialog';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+
+
+function CatalogCard({ catalog, project, onConnect }: { catalog: WithId<Catalog>, project: WithId<Project> | null, onConnect: (catalogId: string) => void }) {
+    const isConnected = project?.connectedCatalogId === catalog.metaCatalogId;
+    return (
+        <Card className={cn("flex flex-col card-gradient card-gradient-purple transition-all", isConnected && "border-2 border-primary")}>
+            <CardHeader>
+                <div className="flex justify-between items-start">
+                    <CardTitle className="text-base">{catalog.name}</CardTitle>
+                    {isConnected && <Badge>Connected</Badge>}
+                </div>
+                <CardDescription className="font-mono text-xs break-all pt-2">
+                    ID: {catalog.metaCatalogId}
+                </CardDescription>
+            </CardHeader>
+             <CardContent className="flex-grow">
+                <p className="text-xs text-muted-foreground">Created: {new Date(catalog.createdAt).toLocaleDateString()}</p>
+             </CardContent>
+             <CardFooter className="flex justify-end gap-2">
+                <Button variant="outline" size="sm" asChild>
+                    <Link href={`https://business.facebook.com/commerce/${catalog.metaCatalogId}/catalog/items`} target="_blank">
+                        <Link2 className="mr-2 h-4 w-4"/>
+                        Manage in Meta
+                    </Link>
+                </Button>
+                <Button size="sm" onClick={() => onConnect(catalog.metaCatalogId)} disabled={isConnected}>
+                    Connect
+                </Button>
+             </CardFooter>
+        </Card>
+    );
+}
+
+
+export default function CatalogsPage() {
+    const [catalogs, setCatalogs] = useState<WithId<Catalog>[]>([]);
+    const [project, setProject] = useState<WithId<Project> | null>(null);
+    const [isLoading, startLoadingTransition] = useTransition();
+    const [projectId, setProjectId] = useState<string | null>(null);
+    const { toast } = useToast();
+
+    const fetchData = useCallback(() => {
+        if (!projectId) return;
+        startLoadingTransition(async () => {
+            const [catalogsData, projectData] = await Promise.all([
+                getCatalogs(projectId),
+                getProjectById(projectId),
+            ]);
+            setCatalogs(catalogsData);
+            setProject(projectData);
+        });
+    }, [projectId]);
+
+    useEffect(() => {
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        setProjectId(storedProjectId);
+    }, []);
+
+    useEffect(() => {
+        if (projectId) {
+            fetchData();
+        }
+    }, [projectId, fetchData]);
+    
+    const handleConnectCatalog = async (catalogId: string) => {
+        if (!projectId) return;
+        const result = await connectCatalogToWaba(projectId, catalogId);
+        if (result.error) {
+            toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        } else {
+            toast({ title: 'Success', description: result.message });
+            fetchData();
+        }
+    }
+
+    return (
+        <div className="flex flex-col gap-8">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Product Catalogs</h1>
+                    <p className="text-muted-foreground">Manage your product catalogs for use in interactive messages.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <SyncCatalogsButton projectId={projectId} onSyncComplete={fetchData}/>
+                    <CreateCatalogDialog projectId={projectId} onCatalogCreated={fetchData}/>
+                </div>
+            </div>
+
+            {!projectId ? (
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>No Project Selected</AlertTitle>
+                    <AlertDescription>Please select a project from the main dashboard to manage catalogs.</AlertDescription>
+                </Alert>
+            ) : isLoading ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}
+                </div>
+            ) : catalogs.length > 0 ? (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {catalogs.map(catalog => <CatalogCard key={catalog._id.toString()} catalog={catalog} project={project} onConnect={handleConnectCatalog} />)}
+                </div>
+            ) : (
+                <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
+                    <ServerCog className="mx-auto h-12 w-12" />
+                    <h3 className="mt-4 text-lg font-semibold">No Catalogs Found</h3>
+                    <p className="mt-1 text-sm">Click "Sync with Meta" to fetch your existing catalogs, or create a new one.</p>
+                </div>
+            )}
+        </div>
+    );
+}

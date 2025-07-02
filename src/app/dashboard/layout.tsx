@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -49,6 +48,7 @@ import {
   LoaderCircle,
   Megaphone,
   ServerCog,
+  ShoppingBag,
 } from 'lucide-react';
 import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -274,8 +274,8 @@ const allMenuItems = [
   { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, featureKey: 'liveChat' },
   { href: '/dashboard/contacts', label: 'Contacts', icon: Users, featureKey: 'contacts' },
   { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, featureKey: 'campaigns' },
-  { href: '/dashboard/whatsapp-ads', label: 'WhatsApp Ads', icon: Megaphone, featureKey: 'whatsappAds' },
   { href: '/dashboard/templates', label: 'Templates', icon: FileText, featureKey: 'templates' },
+  { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, featureKey: 'catalog' },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'flowBuilder' },
   { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, featureKey: 'metaFlows' },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, featureKey: 'numbers' },
@@ -284,3 +284,5 @@ const allMenuItems = [
   { href: '/dashboard/billing', label: 'Billing', icon: CreditCard, featureKey: 'billing' },
   { href: '/dashboard/notifications', label: 'Notifications', icon: History, featureKey: 'notifications' },
 ];
+
+    

@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type BusinessCapabilities = {
@@ -104,6 +103,7 @@ export type Project = {
     userId: ObjectId;
     name: string;
     wabaId: string;
+    businessId?: string;
     appId?: string;
     accessToken: string;
     phoneNumbers: PhoneNumber[];
@@ -124,6 +124,7 @@ export type Project = {
     tags?: Tag[];
     planId?: ObjectId;
     credits?: number;
+    connectedCatalogId?: string;
     plan?: WithId<Plan>; // populated by aggregate
 };
 
@@ -555,4 +556,28 @@ export type InitiatePaymentResult = {
 export type KanbanColumnData = {
     name: string;
     contacts: WithId<Contact>[];
+};
+
+export type Catalog = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    metaCatalogId: string;
+    name: string;
+    createdAt: Date;
+};
+
+export type Product = {
+    _id: ObjectId;
+    catalogId: ObjectId;
+    projectId: ObjectId;
+    metaProductId: string;
+    retailerId: string;
+    name: string;
+    description: string;
+    price: string;
+    currency: string;
+    imageUrl?: string;
+    availability: string;
+    condition: string;
+    createdAt: Date;
 };
