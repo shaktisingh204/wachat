@@ -86,7 +86,7 @@ const DataDefinitionSchema = z.object({
 
 
 const ScreenSchema = z.object({
-  id: z.string().describe("A unique identifier for the screen, e.g., 'SURVEY_START'."),
+  id: z.string().regex(/^[A-Z]+$/, "Screen ID must be uppercase letters only.").describe("A unique identifier for the screen, e.g., 'SURVEYSTART'. Must be uppercase letters only."),
   title: z.string().describe("The title of the screen."),
   layout: z.object({
       type: z.literal('SingleColumnLayout'),
@@ -104,7 +104,7 @@ const FlowJSONSchema = z.object({
   data_api_version: z.literal("3.0").optional(),
   name: z.string().describe("The name of the flow."),
   description: z.string().optional().describe("A brief description of the flow."),
-  routing_model: z.record(z.array(z.string())).describe("Defines the navigation paths between screens, e.g., {'SCREEN_1': ['SCREEN_2', 'FINAL_SCREEN']}."),
+  routing_model: z.record(z.array(z.string())).describe("Defines the navigation paths between screens, e.g., {'SCREENA': ['SCREENB', 'FINALSCREEN']}."),
   screens: z.array(ScreenSchema).describe("An array of all screens that make up the flow. MUST contain at least one screen."),
 });
 
@@ -129,12 +129,12 @@ The output must strictly adhere to the provided JSON schema.
 
 RULES:
 1.  **Top-Level Structure**: The root must contain 'version', 'name', 'routing_model', and 'screens'.
-2.  **Screen Structure**: Each screen has an 'id', 'title', and a 'layout'. The layout must be a 'SingleColumnLayout' containing a 'children' array. This array usually contains a single 'Form' or a single 'NavigationList'.
+2.  **Screen Structure**: Each screen has an 'id' (uppercase letters only, e.g., 'WELCOMESCREEN'), 'title', and a 'layout'. The layout must be a 'SingleColumnLayout' containing a 'children' array. This array usually contains a single 'Form' or a single 'NavigationList'.
 3.  **Form Structure**: A 'Form' component contains a 'children' array where all the inputs, text, and the final 'Footer' go.
 4.  **Navigation Model**:
-    -   The 'routing_model' at the root of the JSON defines all possible paths. For each screen ID, list the IDs of all screens it can navigate to. E.g., {'SCREEN_1': ['SCREEN_2'], 'SCREEN_2': ['FINAL_SCREEN']}.
+    -   The 'routing_model' at the root of the JSON defines all possible paths. For each screen ID, list the IDs of all screens it can navigate to. E.g., {'SCREENA': ['SCREENB'], 'SCREENB': ['FINALSCREEN']}.
     -   Inside a screen, navigation is triggered by a 'Footer' component's 'on-click-action' or a 'NavigationList' item's action.
-    -   Use: 'on-click-action': { 'name': 'navigate', 'next': { 'type': 'screen', 'name': 'TARGET_SCREEN_ID' } }.
+    -   Use: 'on-click-action': { 'name': 'navigate', 'next': { 'type': 'screen', 'name': 'TARGETSCREENID' } }.
     -   The FINAL screen in a path must have its 'terminal' property set to true and its footer action must be 'name': 'complete'.
 5.  **Data Handling**:
     -   To pass data between screens, use a 'payload' in the navigation action. E.g., 'payload': {'user_name': '\${form.name_input}'}.
@@ -165,5 +165,3 @@ const generateMetaFlowFlow = ai.defineFlow(
     return flow_json;
   }
 );
-
-    

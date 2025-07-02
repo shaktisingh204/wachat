@@ -112,7 +112,7 @@ function CreateMetaFlowPage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [existingFlow, setExistingFlow] = useState<WithId<MetaFlow> | null>(null);
-    const [flowData, setFlowData] = useState<any>({ name: '', screens: [], description: '', routing_model: {} });
+    const [flowData, setFlowData] = useState<any>({ version: '7.1', name: '', screens: [], description: '', routing_model: {} });
     
     const [category, setCategory] = useState('OTHER');
     const [flowJson, setFlowJson] = useState('');
@@ -131,6 +131,7 @@ function CreateMetaFlowPage() {
                 if (data) {
                     setExistingFlow(data);
                     const flowContent = data.flow_data || {};
+                    if (!flowContent.version) flowContent.version = '7.1';
                     setFlowData(flowContent);
                     setCategory(data.categories[0] || 'OTHER');
                     setShouldPublish(data.status === 'PUBLISHED');
@@ -139,17 +140,18 @@ function CreateMetaFlowPage() {
             });
         } else {
             setFlowData({
+                version: '7.1',
                 name: 'new_flow_' + Math.floor(Math.random() * 1000),
                 description: '',
                 routing_model: {},
                 screens: [{
-                    id: 'SCREEN_1',
+                    id: 'SCREENA',
                     title: 'Welcome Screen',
                     layout: {
                         type: 'SingleColumnLayout',
                         children: [{
                             type: 'Form',
-                            name: 'form_screen_1',
+                            name: 'form_screen_a',
                             children: [{ type: 'TextBody', text: 'This is the start of your flow.' }, { type: 'Footer', label: 'Finish', 'on-click-action': { name: 'complete' } }]
                         }]
                     },
@@ -183,6 +185,7 @@ function CreateMetaFlowPage() {
             } else if (result.flowJson) {
                 try {
                     const parsedFlow = JSON.parse(result.flowJson);
+                    parsedFlow.version = '7.1';
                     setFlowData(parsedFlow);
                     toast({ title: "Flow Generated!", description: "The AI has created your flow. Review and save it." });
                 } catch (e) {
@@ -200,18 +203,9 @@ function CreateMetaFlowPage() {
     }, []);
 
     const updateScreenField = useCallback((screenIndex: number, field: string, value: any) => {
-        setFlowData(prev => {
+        setFlowData((prev: any) => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
-            const oldId = newScreens[screenIndex].id;
             newScreens[screenIndex][field] = value;
-
-            if (field === 'title') {
-                const newId = value.toUpperCase().replace(/\s+/g, '_').replace(/[^A-Z0-9_]/g, '');
-                if (newId && newId !== oldId) {
-                    newScreens[screenIndex].id = newId;
-                }
-            }
-            
             return { ...prev, screens: newScreens };
         });
     }, []);
@@ -256,24 +250,38 @@ function CreateMetaFlowPage() {
             const screenToUpdate = newScreens[screenIndex];
             const formContainer = screenToUpdate.layout.children.find((c: any) => c.type === 'Form');
             if (formContainer) {
-                formContainer.children = (formContainer.children || []).filter((_: any, i: number) => i !== componentIndex);
+                formContainer.children = (formContainer.children || []).filter((_: any, i: number) => i !== componentIndex).filter(Boolean);
             } else {
-                 screenToUpdate.layout.children = (screenToUpdate.layout.children || []).filter((_: any, i: number) => i !== componentIndex);
+                 screenToUpdate.layout.children = (screenToUpdate.layout.children || []).filter((_: any, i: number) => i !== componentIndex).filter(Boolean);
             }
             return { ...prev, screens: newScreens };
         });
     };
     
     const addNewScreen = () => {
-        const newScreenId = `SCREEN_${flowData.screens.length + 1}`;
+        const existingIds = flowData.screens.map((s: any) => s.id);
+        let newId = '';
+        let counter = 0;
+        // Find a unique letter suffix (A, B, ..., Z, AA, AB, ...)
+        do {
+            let suffix = '';
+            let num = counter;
+            while (num >= 0) {
+                suffix = String.fromCharCode(65 + (num % 26)) + suffix;
+                num = Math.floor(num / 26) - 1;
+            }
+            newId = `SCREEN${suffix}`;
+            counter++;
+        } while (existingIds.includes(newId));
+
         const newScreen = {
-            id: newScreenId,
-            title: `New Screen ${flowData.screens.length + 1}`,
+            id: newId,
+            title: `Screen ${newId.replace('SCREEN', '')}`,
             layout: {
                 type: 'SingleColumnLayout',
                 children: [{
-                    type: 'Form', name: `form_${newScreenId}`,
-                    children: [{ type: 'Footer', label: 'Submit', 'on-click-action': { name: 'complete' } }]
+                    type: 'Form', name: `form_${newId}`,
+                    children: [{ type: 'TextBody', text: 'This is a new screen.' }, { type: 'Footer', label: 'Submit', 'on-click-action': { name: 'complete' } }]
                 }]
             },
             terminal: true,
@@ -452,6 +460,16 @@ function CreateMetaFlowPage() {
                                                 </div>
                                             </AccordionTrigger>
                                             <AccordionContent className="pt-4 space-y-4">
+                                                <div className="space-y-2">
+                                                    <Label htmlFor={`screen-id-${screen.id}`}>Screen ID</Label>
+                                                    <Input
+                                                        id={`screen-id-${screen.id}`}
+                                                        value={screen.id}
+                                                        onChange={e => updateScreenField(screenIndex, 'id', e.target.value.toUpperCase().replace(/[^A-Z]/g, ''))}
+                                                        className="font-mono"
+                                                    />
+                                                    <p className="text-xs text-muted-foreground">Unique ID for this screen. Only uppercase letters are allowed.</p>
+                                                </div>
                                                 <div className="flex items-center justify-end gap-6 text-sm">
                                                     <div className="flex items-center gap-2"><Label htmlFor={`terminal-${screen.id}`}>Terminal Screen</Label><Switch id={`terminal-${screen.id}`} checked={!!screen.terminal} onCheckedChange={(val) => updateScreenField(screenIndex, 'terminal', val)}/></div>
                                                     <div className="flex items-center gap-2"><Label htmlFor={`success-${screen.id}`}>Success Screen</Label><Switch id={`success-${screen.id}`} checked={!!screen.success} onCheckedChange={(val) => updateScreenField(screenIndex, 'success', val)}/></div>
