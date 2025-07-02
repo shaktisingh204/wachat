@@ -10,7 +10,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
+    <div className="flex flex-col flex-1 h-full">
       <div className="flex-shrink-0 p-4 border-b flex items-center justify-between">
         <h1 className="text-3xl font-bold font-headline">Live Chat</h1>
         <div className="flex items-center gap-2">
@@ -28,7 +28,7 @@ export default function ChatLayout({ children }: { children: React.ReactNode }) 
             </Button>
         </div>
       </div>
-      <div className="flex-1 overflow-hidden">
+      <div className="flex-1 overflow-hidden h-full">
           {children}
       </div>
     </div>

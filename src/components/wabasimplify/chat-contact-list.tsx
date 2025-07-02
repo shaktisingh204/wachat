@@ -73,7 +73,7 @@ export function ChatContactList({ contacts, selectedContactId, onSelectContact, 
                                 <div className="flex-1 overflow-hidden">
                                     <div className="flex items-center justify-between">
                                         <p className="font-semibold truncate">{contact.name}</p>
-                                        {contact.status && contact.status !== 'new' && (
+                                        {contact.status && (
                                             <Badge variant={getStatusVariant(contact.status)} className="capitalize text-xs h-5">{contact.status}</Badge>
                                         )}
                                     </div>

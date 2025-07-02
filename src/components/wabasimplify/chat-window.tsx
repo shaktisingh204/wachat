@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import type { Contact, AnyMessage, Project, Template } from '@/lib/definitions';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -11,8 +11,11 @@ import { ChatMessage } from './chat-message';
 import { ChatMessageInput } from './chat-message-input';
 import { Skeleton } from '../ui/skeleton';
 import { Button } from '../ui/button';
-import { ArrowLeft, Info, LoaderCircle } from 'lucide-react';
+import { ArrowLeft, Info, LoaderCircle, Check } from 'lucide-react';
 import { ContactInfoPanel } from './contact-info-panel';
+import { useToast } from '../hooks/use-toast';
+import { handleUpdateContactStatus } from '@/app/actions';
+
 
 interface ChatWindowProps {
     project: WithId<Project>;
@@ -45,10 +48,24 @@ function MessageListSkeleton() {
 export function ChatWindow({ project, contact, conversation, templates, isLoading, onBack, onContactUpdate }: ChatWindowProps) {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
+    const { toast } = useToast();
+    const [isUpdatingStatus, startStatusUpdateTransition] = useTransition();
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
     }, [conversation]);
+    
+    const handleMarkResolved = () => {
+        startStatusUpdateTransition(async () => {
+            const result = await handleUpdateContactStatus(contact._id.toString(), 'resolved', contact.assignedAgentId || '');
+            if (result.success) {
+                toast({ title: 'Success', description: 'Conversation marked as resolved.' });
+                onContactUpdate({ ...contact, status: 'resolved' });
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
+    };
 
     return (
         <>
@@ -73,10 +90,18 @@ export function ChatWindow({ project, contact, conversation, templates, isLoadin
                             <p className="text-sm text-muted-foreground">{contact.waId}</p>
                         </div>
                     </div>
-                     <Button variant="ghost" size="icon" onClick={() => setIsInfoPanelOpen(true)}>
-                        <Info className="h-5 w-5" />
-                        <span className="sr-only">Contact Info</span>
-                    </Button>
+                     <div className="flex items-center gap-2">
+                        {contact.status !== 'resolved' && (
+                            <Button variant="outline" size="sm" onClick={handleMarkResolved} disabled={isUpdatingStatus}>
+                                {isUpdatingStatus ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Check className="mr-2 h-4 w-4" />}
+                                Mark as Resolved
+                            </Button>
+                        )}
+                         <Button variant="ghost" size="icon" onClick={() => setIsInfoPanelOpen(true)}>
+                            <Info className="h-5 w-5" />
+                            <span className="sr-only">Contact Info</span>
+                        </Button>
+                    </div>
                 </div>
                 
                 <ScrollArea className="flex-1 bg-background/50" viewportClassName="scroll-container">

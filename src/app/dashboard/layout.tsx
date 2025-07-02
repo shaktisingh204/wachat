@@ -208,7 +208,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset className="flex flex-col">
+      <SidebarInset className="flex flex-col h-full">
         <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
           <div className="flex items-center gap-4">
             <SidebarTrigger />
@@ -257,10 +257,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </DropdownMenu>
           </div>
         </header>
-        <div className="flex flex-1 min-h-0">
+        <div className="flex-1 flex flex-col h-full overflow-hidden">
            <main className={cn(
-            "flex-1 flex flex-col",
-            isChatPage ? "" : "p-4 md:p-6 lg:p-8 overflow-y-auto"
+            "flex-1 flex flex-col h-full",
+            isChatPage ? "overflow-hidden" : "p-4 md:p-6 lg:p-8 overflow-y-auto"
             )}>
               {children}
           </main>
