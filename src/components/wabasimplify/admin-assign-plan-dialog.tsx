@@ -16,28 +16,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { updateUserPlanByAdmin } from '@/app/actions';
-import type { AdminUserView, Plan } from '@/lib/definitions';
+import { updateProjectPlanByAdmin } from '@/app/actions';
+import type { Plan } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 
 
 interface AdminAssignPlanDialogProps {
-  user: AdminUserView;
+  projectId: string;
+  projectName: string;
+  currentPlanId?: string;
   allPlans: WithId<Plan>[];
 }
 
-export function AdminAssignPlanDialog({ user, allPlans }: AdminAssignPlanDialogProps) {
+export function AdminAssignPlanDialog({ projectId, projectName, currentPlanId, allPlans }: AdminAssignPlanDialogProps) {
   const [open, setOpen] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState(user.plan?._id.toString() || '');
+  const [selectedPlan, setSelectedPlan] = useState(currentPlanId || '');
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
-        const result = await updateUserPlanByAdmin(user._id.toString(), selectedPlan);
+        const result = await updateProjectPlanByAdmin(projectId, selectedPlan);
         if (result.success) {
-        toast({ title: 'Success!', description: `Plan successfully assigned to ${user.name}.` });
+        toast({ title: 'Success!', description: `Plan successfully assigned to ${projectName}.` });
         setOpen(false);
         } else {
         toast({ title: 'Error', description: result.error, variant: 'destructive' });
@@ -57,9 +59,9 @@ export function AdminAssignPlanDialog({ user, allPlans }: AdminAssignPlanDialogP
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Assign Plan to {user.name}</DialogTitle>
+            <DialogTitle>Assign Plan to {projectName}</DialogTitle>
             <DialogDescription>
-              Select a new subscription plan for this user. This will override their current plan.
+              Select a new subscription plan for this project. This will override its current plan.
             </DialogDescription>
           </DialogHeader>
           <div className="py-6">
@@ -78,7 +80,7 @@ export function AdminAssignPlanDialog({ user, allPlans }: AdminAssignPlanDialogP
             </Select>
           </div>
           <DialogFooter>
-            <Button id={`close-dialog-${user._id.toString()}`} type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button id={`close-dialog-${projectId}`} type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
              <Button type="submit" disabled={isPending}>
               {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Assign Plan

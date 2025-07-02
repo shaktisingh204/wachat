@@ -16,14 +16,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, Edit } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { updateUserCreditsByAdmin } from '@/app/actions';
+import { updateProjectCreditsByAdmin } from '@/app/actions';
 
 interface AdminUpdateCreditsButtonProps {
-  userId: string;
+  projectId: string;
   currentCredits: number;
 }
 
-export function AdminUpdateCreditsButton({ userId, currentCredits }: AdminUpdateCreditsButtonProps) {
+export function AdminUpdateCreditsButton({ projectId, currentCredits }: AdminUpdateCreditsButtonProps) {
   const [open, setOpen] = useState(false);
   const [credits, setCredits] = useState(currentCredits);
   const [isPending, startTransition] = useTransition();
@@ -32,7 +32,7 @@ export function AdminUpdateCreditsButton({ userId, currentCredits }: AdminUpdate
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     startTransition(async () => {
-      const result = await updateUserCreditsByAdmin(userId, credits);
+      const result = await updateProjectCreditsByAdmin(projectId, credits);
       if (result.success) {
         toast({ title: 'Success!', description: `Credits updated.` });
         setOpen(false);

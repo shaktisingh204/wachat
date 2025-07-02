@@ -172,7 +172,12 @@ export default async function AdminDashboardPage({
                         <TableCell>{project.wabaId}</TableCell>
                         <TableCell className="text-right">
                            <AdminUpdateCreditsButton projectId={project._id.toString()} currentCredits={project.credits || 0} />
-                           <AdminAssignPlanDialog projectId={project._id.toString()} currentPlanId={project.planId?.toString()} allPlans={allPlans} />
+                           <AdminAssignPlanDialog
+                             projectId={project._id.toString()}
+                             projectName={project.name}
+                             currentPlanId={project.planId?.toString()}
+                             allPlans={allPlans}
+                           />
                            <AdminDeleteProjectButton projectId={project._id.toString()} projectName={project.name} />
                         </TableCell>
                     </TableRow>
