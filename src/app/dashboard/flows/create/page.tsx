@@ -66,7 +66,28 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
     if (!component || !localComponent) return null; 
 
     const updateField = (key: string, value: any) => {
-        setLocalComponent((prev: any) => ({...prev, [key]: value}));
+        setLocalComponent((prev: any) => {
+            if (value === undefined) {
+                const newState = {...prev};
+                delete newState[key];
+                return newState;
+            }
+            return {...prev, [key]: value};
+        });
+    };
+    
+    const handleDynamicBoolChange = (key: 'visible' | 'enabled', value: string) => {
+        let finalValue: any = value;
+        const lowerValue = value.toLowerCase().trim();
+
+        if (lowerValue === 'true') {
+            finalValue = true;
+        } else if (lowerValue === 'false') {
+            finalValue = false;
+        } else if (value.trim() === '') {
+            finalValue = undefined;
+        }
+        updateField(key, finalValue);
     };
     
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,6 +106,8 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
             reader.readAsDataURL(file);
         }
     };
+    
+    const isTextComponent = ['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(component?.type);
 
     return (
          <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -145,6 +168,33 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                                         </SelectContent>
                                     </Select>
                                 </div>
+                            </div>
+                        </div>
+                    ) : isTextComponent ? (
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="text">Text</Label>
+                                <Textarea id="text" value={localComponent.text || ''} onChange={e => updateField('text', e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="visible">Visible</Label>
+                                <Input 
+                                    id="visible" 
+                                    value={localComponent.visible === undefined ? '' : String(localComponent.visible)} 
+                                    onChange={e => handleDynamicBoolChange('visible', e.target.value)} 
+                                    placeholder="true, false, or ${...}" 
+                                />
+                                <p className="text-xs text-muted-foreground">Enter `true`, `false`, or a dynamic expression like `${'{form.show_field}'}`.</p>
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="enabled">Enabled</Label>
+                                <Input 
+                                    id="enabled" 
+                                    value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} 
+                                    onChange={e => handleDynamicBoolChange('enabled', e.target.value)} 
+                                    placeholder="true, false, or ${...}" 
+                                />
+                                <p className="text-xs text-muted-foreground">Enter `true`, `false`, or a dynamic expression like `${'{form.enable_field}'}`.</p>
                             </div>
                         </div>
                     ) : (
@@ -350,7 +400,7 @@ function CreateMetaFlowPage() {
                     if (num < 0) break;
                 }
             }
-            newId = `SCREEN${suffix}`;
+            newId = `SCREEN_${suffix}`;
             counter++;
         } while (existingIds.includes(newId));
 
@@ -482,7 +532,6 @@ function CreateMetaFlowPage() {
             <input type="hidden" name="projectId" value={projectId || ''}/>
             <input type="hidden" name="flowId" value={flowId || ''}/>
             <input type="hidden" name="metaId" value={existingFlow?.metaId || ''}/>
-            <input type="hidden" name="category" value={category} />
             <input type="hidden" name="flow_data" value={flowContentJson} />
             <input type="hidden" name="flowName" value={flowName} />
 
@@ -508,7 +557,7 @@ function CreateMetaFlowPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Category</Label>
-                                    <Select value={category} onValueChange={setCategory}>
+                                    <Select name="category" value={category} onValueChange={setCategory}>
                                         <SelectTrigger><SelectValue/></SelectTrigger>
                                         <SelectContent>{flowCategories.map(c=><SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
                                     </Select>
