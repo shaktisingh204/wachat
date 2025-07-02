@@ -327,26 +327,23 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
     }
 }
 
-export async function getProjectForBroadcast(projectId: string): Promise<(Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers'> & { metaFlows?: WithId<MetaFlow>[] }) | null> {
+export async function getProjectForBroadcast(projectId: string): Promise<(Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers' | 'tags' | 'optInOutSettings'>)> {
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return null;
 
     try {
         const { db } = await connectToDatabase();
-        const [project, metaFlows] = await Promise.all([
-            db.collection('projects').findOne(
-                { _id: new ObjectId(projectId) },
-                { projection: { name: 1, phoneNumbers: 1, optInOutSettings: 1 } }
-            ),
-            getMetaFlows(projectId)
-        ]);
+        const project = await db.collection('projects').findOne(
+            { _id: new ObjectId(projectId) },
+            { projection: { name: 1, phoneNumbers: 1, optInOutSettings: 1, tags: 1 } }
+        );
         
         if (!project) {
             console.error("Project not found for ID:", projectId);
             return null;
         }
         
-        return JSON.parse(JSON.stringify({ ...project, metaFlows }));
+        return JSON.parse(JSON.stringify(project));
     } catch (error: any) {
         console.error("Exception in getProjectForBroadcast:", error);
         return null;
@@ -677,6 +674,8 @@ export async function handleStartBroadcast(
     const phoneNumberId = formData.get('phoneNumberId') as string;
     const broadcastType = formData.get('broadcastType') as 'template' | 'flow';
     const mediaSource = formData.get('mediaSource') as 'url' | 'file';
+    const audienceType = formData.get('audienceType') as 'file' | 'tags';
+    const tagIds = formData.getAll('tagIds') as string[];
 
     if (!projectId) {
       return { error: 'No project selected. Please go to the dashboard and select a project first.' };
@@ -693,8 +692,14 @@ export async function handleStartBroadcast(
 
     const accessToken = project.accessToken;
 
-    const contactFile = formData.get('csvFile') as File;
-    if (!contactFile || contactFile.size === 0) return { error: 'Please upload a contact file.' };
+    let contactFileName = 'From Tags';
+    if(audienceType === 'file') {
+        const contactFile = formData.get('csvFile') as File;
+        if (!contactFile || contactFile.size === 0) return { error: 'Please upload a contact file.' };
+        contactFileName = contactFile.name;
+    } else {
+        if(!tagIds || tagIds.length === 0) return { error: 'Please select at least one contact tag.'};
+    }
     
     let broadcastJobData: Omit<WithId<BroadcastJob>, '_id'>;
     const projectObjectId = new ObjectId(projectId);
@@ -716,7 +721,7 @@ export async function handleStartBroadcast(
             status: 'QUEUED',
             createdAt: new Date(),
             contactCount: 0,
-            fileName: contactFile.name,
+            fileName: contactFileName,
             category: 'UTILITY', 
         };
 
@@ -759,6 +764,8 @@ export async function handleStartBroadcast(
             }
         }
         
+        const variableMappings = (JSON.parse(formData.get('variableMappings') as string || '[]')) as any[];
+
         broadcastJobData = {
             projectId: projectObjectId,
             broadcastType: 'template',
@@ -769,12 +776,13 @@ export async function handleStartBroadcast(
             status: 'QUEUED',
             createdAt: new Date(),
             contactCount: 0,
-            fileName: contactFile.name,
+            fileName: contactFileName,
             components: template.components,
             language: template.language,
             headerImageUrl: headerImageUrl,
             headerMediaId: headerMediaId,
             category: template.category,
+            variableMappings: variableMappings
         };
     }
 
@@ -782,29 +790,51 @@ export async function handleStartBroadcast(
     broadcastId = broadcastResult.insertedId;
 
     let contactCount = 0;
+    
+    if (audienceType === 'tags') {
+        const contactsFromTags = await db.collection('contacts').find({
+            projectId: projectObjectId,
+            tagIds: { $in: tagIds },
+            ...(project.optInOutSettings?.enabled ? { isOptedOut: { $ne: true } } : {})
+        }).toArray();
 
-    if (contactFile.name.endsWith('.csv')) {
-        const nodeStream = Readable.fromWeb(contactFile.stream() as any);
-        contactCount = await processStreamedContacts(nodeStream, db, broadcastId, project);
-    } else if (contactFile.name.endsWith('.xlsx')) {
-        const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
-        const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
-        const sheetName = workbook.SheetNames[0];
-        if (!sheetName) {
-            throw new Error('The XLSX file contains no sheets.');
+        if (contactsFromTags.length > 0) {
+            const contactsToInsert = contactsFromTags.map(c => ({
+                broadcastId,
+                phone: c.waId,
+                variables: c.variables || {},
+                status: 'PENDING' as const,
+                createdAt: new Date()
+            }));
+            await db.collection('broadcast_contacts').insertMany(contactsToInsert);
+            contactCount = contactsToInsert.length;
         }
-        const worksheet = workbook.Sheets[sheetName];
-        const csvData = XLSX.utils.sheet_to_csv(worksheet);
-        
-        contactCount = await processStreamedContacts(csvData, db, broadcastId, project);
-    } else {
-        await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-        return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
+
+    } else { // audienceType is 'file'
+        const contactFile = formData.get('csvFile') as File;
+        if (contactFile.name.endsWith('.csv')) {
+            const nodeStream = Readable.fromWeb(contactFile.stream() as any);
+            contactCount = await processStreamedContacts(nodeStream, db, broadcastId, project);
+        } else if (contactFile.name.endsWith('.xlsx')) {
+            const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
+            const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            if (!sheetName) {
+                throw new Error('The XLSX file contains no sheets.');
+            }
+            const worksheet = workbook.Sheets[sheetName];
+            const csvData = XLSX.utils.sheet_to_csv(worksheet);
+            contactCount = await processStreamedContacts(csvData, db, broadcastId, project);
+        } else {
+            await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+            return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
+        }
     }
+
 
     if (contactCount === 0) {
         await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-        return { error: 'No valid contacts with phone numbers found in the first column of the file.' };
+        return { error: 'No valid contacts with phone numbers found to send to.' };
     }
     
     await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount } });
@@ -818,7 +848,7 @@ export async function handleStartBroadcast(
         await db.collection('broadcasts').deleteOne({ _id: broadcastId });
         await db.collection('broadcast_contacts').deleteMany({ broadcastId: broadcastId });
     }
-    return { error: e.message || 'An unexpected error occurred while processing the broadcast.' };
+    return { error: getErrorMessage(e) || 'An unexpected error occurred while processing the broadcast.' };
   }
 }
 
@@ -1042,43 +1072,37 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
     }
 }
 
-async function getMediaHandleForTemplate(file: File | null, url: string | null, accessToken: string, appId: string): Promise<{ handle: string | null; error?: string; debugInfo: string }> {
-    let debugInfo = "";
-    if (!file && !url) return { handle: null, debugInfo };
+async function getMediaHandleForTemplate(file: File | null, url: string | null, accessToken: string, appId: string): Promise<{ handle: string | null; error?: string; }> {
+    if (!file && !url) return { handle: null };
 
     try {
         let mediaData: Buffer;
         let fileType: string;
-        let fileName: string;
         let fileLength: number;
 
         if (file && file.size > 0) {
             mediaData = Buffer.from(await file.arrayBuffer());
             fileType = file.type;
-            fileName = file.name;
             fileLength = file.size;
         } else if (url) {
             const mediaResponse = await axios.get(url, { responseType: 'arraybuffer' });
             mediaData = Buffer.from(mediaResponse.data);
             fileType = mediaResponse.headers['content-type'] || 'application/octet-stream';
-            fileName = url.split('/').pop()?.split('?')[0] || 'sample';
             fileLength = mediaData.length;
         } else {
-            return { handle: null, debugInfo: "No file or URL provided." };
+            return { handle: null };
         }
 
         const sessionUrl = `https://graph.facebook.com/v22.0/${appId}/uploads?file_length=${fileLength}&file_type=${fileType}&access_token=${accessToken}`;
         const sessionResponse = await axios.post(sessionUrl, {});
-        debugInfo += `SESSION: ${sessionUrl.replace(accessToken, '<TOKEN>')} -> ${JSON.stringify(sessionResponse.data)}\n`;
         const uploadSessionId = sessionResponse.data.id;
 
         const uploadUrl = `https://graph.facebook.com/v22.0/${uploadSessionId}`;
         const uploadResponse = await axios.post(uploadUrl, mediaData, { headers: { Authorization: `OAuth ${accessToken}` } });
-        debugInfo += `UPLOAD: ${uploadUrl} -> ${JSON.stringify(uploadResponse.data)}\n`;
-        return { handle: uploadResponse.data.h, debugInfo };
+        return { handle: uploadResponse.data.h };
     } catch (uploadError: any) {
         const errorMessage = getErrorMessage(uploadError);
-        return { handle: null, error: `Media upload failed: ${errorMessage}`, debugInfo };
+        return { handle: null, error: `Media upload failed: ${errorMessage}` };
     }
 }
   
@@ -1187,7 +1211,7 @@ export async function handleCreateTemplate(
                     if (card.headerFormat !== 'NONE' && file && file.size > 0) {
                         return await getMediaHandleForTemplate(file, null, accessToken, appId);
                     }
-                    return { handle: null, error: null, debugInfo: '' };
+                    return { handle: null, error: null };
                 })
             );
             
@@ -2180,6 +2204,9 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
 export async function handleSendTemplateMessage(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const contactId = formData.get('contactId') as string;
     const templateId = formData.get('templateId') as string;
+    const mediaSource = formData.get('mediaSource') as 'url' | 'file';
+    const headerMediaUrl = formData.get('headerMediaUrl') as string | null;
+    const headerMediaFile = formData.get('headerMediaFile') as File;
 
     if (!ObjectId.isValid(contactId) || !ObjectId.isValid(templateId)) {
         return { error: 'Invalid ID provided.' };
@@ -2200,7 +2227,8 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
     
     const phoneNumberId = contact.phoneNumberId;
     const waId = contact.waId;
-    const accessToken = hasAccess.accessToken;
+    const { accessToken, appId } = hasAccess;
+    if (!appId) return { error: 'Project App ID is not configured.' };
 
     try {
         const getVars = (text: string): number[] => {
@@ -2215,18 +2243,30 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
         
         const headerComponent = template.components?.find(c => c.type === 'HEADER');
         if (headerComponent) {
-            const headerMediaUrl = formData.get('headerMediaUrl') as string | null;
-            if (headerMediaUrl) {
-                const format = headerComponent.format?.toUpperCase();
-                let parameter;
+            let mediaId: string | null = null;
+
+            if (mediaSource === 'file' && headerMediaFile && headerMediaFile.size > 0) {
+                 const form = new FormData();
+                form.append('file', Buffer.from(await headerMediaFile.arrayBuffer()), { filename: headerMediaFile.name, contentType: headerMediaFile.type });
+                form.append('messaging_product', 'whatsapp');
+                const uploadResponse = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
+                mediaId = uploadResponse.data.id;
+            }
+
+            const format = headerComponent.format?.toUpperCase();
+            let parameter;
+            if (mediaId) {
+                if (format === 'IMAGE') parameter = { type: 'image', image: { id: mediaId } };
+                else if (format === 'VIDEO') parameter = { type: 'video', video: { id: mediaId } };
+                else if (format === 'DOCUMENT') parameter = { type: 'document', document: { id: mediaId } };
+            } else if (headerMediaUrl) {
                 if (format === 'IMAGE') parameter = { type: 'image', image: { link: headerMediaUrl } };
                 else if (format === 'VIDEO') parameter = { type: 'video', video: { link: headerMediaUrl } };
                 else if (format === 'DOCUMENT') parameter = { type: 'document', document: { link: headerMediaUrl } };
-                
-                if (parameter) {
-                    payloadComponents.push({ type: 'header', parameters: [parameter] });
-                }
-            } else if (headerComponent.format === 'TEXT' && headerComponent.text) {
+            }
+            
+            if (parameter) {
+                payloadComponents.push({ type: 'header', parameters: [parameter] });
             }
         }
         

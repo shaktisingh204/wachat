@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useActionState, useEffect, useRef, useMemo } from 'react';
+import { useActionState, useEffect, useRef, useMemo, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
   Dialog,
@@ -13,12 +14,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LoaderCircle, Send } from 'lucide-react';
+import { LoaderCircle, Send, UploadCloud, Link as LinkIcon } from 'lucide-react';
 import { handleSendTemplateMessage } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Contact, Template } from '@/lib/definitions';
 import { ScrollArea } from '../ui/scroll-area';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 
 const initialState = {
   message: null,
@@ -47,7 +49,8 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
   const [state, formAction] = useActionState(handleSendTemplateMessage, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
-
+  const [mediaSource, setMediaSource] = useState<'url' | 'file'>('url');
+  
   const hasMediaHeader = useMemo(() => 
     template.components?.some(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format)), 
     [template.components]
@@ -60,6 +63,13 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
     return uniqueVars.sort((a, b) => a - b);
   }, [template.components, template.body]);
 
+  const defaultUrl = useMemo(() => {
+    if (template.headerSampleUrl && !template.headerSampleUrl.includes('graph.facebook.com')) {
+      return template.headerSampleUrl;
+    }
+    return '';
+  }, [template.headerSampleUrl]);
+
   useEffect(() => {
     if (state.message) {
       toast({ title: 'Success', description: state.message });
@@ -69,11 +79,18 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
       toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }
   }, [state, toast, onOpenChange]);
+  
+  useEffect(() => {
+    if (!isOpen) {
+      formRef.current?.reset();
+      setMediaSource('url');
+    }
+  }, [isOpen]);
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <form action={formAction} ref={formRef}>
+        <form ref={formRef} action={formAction}>
           <input type="hidden" name="contactId" value={contact._id.toString()} />
           <input type="hidden" name="templateId" value={template._id.toString()} />
           
@@ -87,18 +104,30 @@ export function SendTemplateDialog({ isOpen, onOpenChange, contact, template }: 
           <ScrollArea className="max-h-[60vh] -mx-6 my-4 px-6">
             <div className="space-y-4">
               {hasMediaHeader && (
-                <div className="space-y-2">
-                  <Label htmlFor="headerMediaUrl">Header Media URL</Label>
-                  <Input 
-                    id="headerMediaUrl" 
-                    name="headerMediaUrl" 
-                    type="url" 
-                    placeholder="https://example.com/image.png"
-                    required 
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    A public URL to the media is required for this template.
-                  </p>
+                <div className="space-y-3 p-3 border rounded-md">
+                   <Label>Header Media</Label>
+                   <RadioGroup name="mediaSource" value={mediaSource} onValueChange={(v) => setMediaSource(v as any)} className="flex gap-4">
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="source-url" /><Label htmlFor="source-url" className="font-normal flex items-center gap-1"><LinkIcon className="h-4 w-4"/>Use URL</Label></div>
+                        <div className="flex items-center space-x-2"><RadioGroupItem value="file" id="source-file" /><Label htmlFor="source-file" className="font-normal flex items-center gap-1"><UploadCloud className="h-4 w-4"/>Upload File</Label></div>
+                   </RadioGroup>
+                   {mediaSource === 'url' ? (
+                        <Input 
+                            id="headerMediaUrl" 
+                            name="headerMediaUrl" 
+                            type="url" 
+                            placeholder="https://example.com/image.png"
+                            defaultValue={defaultUrl}
+                            required 
+                        />
+                   ) : (
+                        <Input
+                            id="headerMediaFile"
+                            name="headerMediaFile"
+                            type="file"
+                            accept="image/*,video/*,application/pdf"
+                            required
+                        />
+                   )}
                 </div>
               )}
 

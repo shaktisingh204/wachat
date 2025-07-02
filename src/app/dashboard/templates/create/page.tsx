@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
@@ -54,10 +55,8 @@ function CreateTemplatePageContent() {
       if (templateJson) {
         try {
           const templateData = JSON.parse(templateJson);
-          if (action === 'clone') {
-            // When cloning, remove the original header sample URL
-            // to force the user to provide a new one.
-            delete templateData.headerSampleUrl;
+           if (action === 'clone' && templateData.headerSampleUrl?.includes('graph.facebook.com')) {
+              delete templateData.headerSampleUrl;
           }
           setInitialTemplate(templateData);
         } catch (e) {
