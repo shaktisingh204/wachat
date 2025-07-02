@@ -153,7 +153,7 @@ export function WebhookLogs() {
     };
     
     return (
-        <Card>
+        <Card className="card-gradient card-gradient-purple">
             <CardHeader>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>

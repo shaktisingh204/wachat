@@ -28,7 +28,7 @@ const CONTACTS_PER_PAGE = 20;
 
 function ContactsPageSkeleton() {
     return (
-        <Card>
+        <Card className="card-gradient card-gradient-green">
             <CardHeader>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
@@ -196,7 +196,7 @@ export default function ContactsPage() {
             ) : isLoadingData ? (
                 <ContactsPageSkeleton />
             ) : (
-                <Card>
+                <Card className="card-gradient card-gradient-green">
                     <CardHeader>
                         <div className="flex flex-wrap items-center justify-between gap-4">
                             <div>

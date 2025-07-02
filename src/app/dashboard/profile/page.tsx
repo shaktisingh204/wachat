@@ -189,8 +189,8 @@ export default function ProfilePage() {
                 <p className="text-muted-foreground">View and manage your account settings.</p>
             </div>
              <div className="grid md:grid-cols-2 gap-8 items-start">
-                <Card><ProfileForm user={user} /></Card>
-                <Card><PasswordForm /></Card>
+                <Card className="card-gradient card-gradient-green"><ProfileForm user={user} /></Card>
+                <Card className="card-gradient card-gradient-blue"><PasswordForm /></Card>
             </div>
         </div>
     )

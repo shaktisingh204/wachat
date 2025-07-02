@@ -97,7 +97,7 @@ export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
     }
 
   return (
-    <Card>
+    <Card className="card-gradient card-gradient-green">
         <CardHeader>
             <CardTitle>Webhook Details</CardTitle>
             <CardDescription>

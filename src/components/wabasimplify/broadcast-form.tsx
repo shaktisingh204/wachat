@@ -83,7 +83,7 @@ export function BroadcastForm({ templates, project, metaFlows }: BroadcastFormPr
 
   if (!project) {
     return (
-        <Card>
+        <Card className="card-gradient card-gradient-green">
             <CardHeader>
                 <CardTitle>No Project Selected</CardTitle>
             </CardHeader>
@@ -111,7 +111,7 @@ export function BroadcastForm({ templates, project, metaFlows }: BroadcastFormPr
   const publishedFlows = metaFlows.filter(f => f.status?.toUpperCase() === 'PUBLISHED');
 
   return (
-    <Card>
+    <Card className="card-gradient card-gradient-green">
       <form ref={formRef} action={formAction}>
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <CardHeader>

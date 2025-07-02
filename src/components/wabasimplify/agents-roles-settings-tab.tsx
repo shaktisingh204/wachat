@@ -69,7 +69,7 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
     };
     
     return (
-        <Card>
+        <Card className="card-gradient card-gradient-green">
             <CardHeader>
                 <CardTitle>Agents & Roles</CardTitle>
                 <CardDescription>Manage agents and their roles for this project.</CardDescription>

@@ -342,31 +342,28 @@ const prompt = ai.definePrompt({
   name: 'generateMetaFlowPrompt_v7.1_declarative',
   input: { schema: GenerateMetaFlowInputSchema },
   output: { schema: GenerateMetaFlowOutputSchema },
-  prompt: `You are an expert in creating interactive WhatsApp Flows using Meta's latest **declarative** Flow JSON format (v7.1). Your task is to generate a complete, multi-screen Flow JSON object based on the user's request.
-
-The output must strictly adhere to the provided JSON schema.
+  prompt: `You are an expert in creating interactive WhatsApp Flows using Meta's latest **declarative** Flow JSON format (v7.1). Your task is to generate a complete, multi-screen Flow JSON object based on the user's request. The output must strictly adhere to the provided JSON schema.
 
 **CRITICAL RULES:**
-1.  **Strict Schema Adherence**: Only include properties explicitly defined in the schema for each component. DO NOT add extraneous properties. For example:
+1.  **Top-Level Structure**: The root object MUST contain 'version', 'name', 'routing_model', and 'screens'.
+2.  **Name and Version**: The 'version' MUST be "7.1". The 'name' MUST be a lowercase, snake_cased string (e.g., 'appointment_booking'). Generate a descriptive 'name' and a helpful 'description' for the flow.
+3.  **Screen IDs**: Each screen ID MUST be unique and contain ONLY uppercase letters, numbers, and underscores (e.g., 'WELCOME_SCREEN', 'SURVEY_PAGE_1'). The regex is /^[A-Z_0-9]+$/ .
+4.  **Strict Schema Adherence**: Only include properties explicitly defined in the schema for each component. DO NOT add extraneous properties. For example:
     -   \`TextHeading\`, \`TextSubheading\`, \`TextBody\`, and \`TextCaption\` components ONLY have a \`text\` and optional \`visible\` property. DO NOT add a \`name\` property to them.
     -   Input components like \`TextInput\` and \`Dropdown\` MUST have a \`name\` property.
-2.  **Top-Level Structure**: The root object MUST contain 'version', 'name', 'routing_model', and 'screens'.
-3.  **Name and Description**: Generate a descriptive 'name' (e.g., 'appointment_booking', 'lead_gen_v2') and a helpful 'description' for the flow based on the user's request.
-4.  **Screen Structure**: Each screen in the 'screens' array requires:
-    -   \`id\`: An ID with only uppercase letters, numbers, and underscores (e.g., 'WELCOME_SCREEN', 'SURVEY_PAGE_1').
-    -   \`title\`: A string for the screen title.
+5.  **Screen Structure**: Each screen in the 'screens' array requires an \`id\`, \`title\`, and a \`layout\`.
     -   \`layout\`: A 'SingleColumnLayout' object containing a 'children' array. This array usually holds a single 'Form' or a 'NavigationList'.
-5.  **Navigation Model**:
+6.  **Navigation**:
     -   The \`routing_model\` defines all possible navigation paths. For each screen ID, list the IDs of all screens it can navigate to. Example: \`{'SCREEN_A': ['SCREEN_B'], 'SCREEN_B': ['FINAL_SCREEN'], 'FINAL_SCREEN': []}\`.
     -   Navigation is triggered by \`on-click-action\` (on \`Footer\`, \`EmbeddedLink\`, or \`NavigationList\` items).
     -   Use the format: \`{ "name": "navigate", "next": { "type": "screen", "name": "TARGET_ID" } }\`.
-6.  **Final Screens**: The final screen in any path must have \`terminal: true\`. Its footer action must be \`{ "name": "complete" }\`.
-7.  **Data Handling**:
-    -   To pass data, use a \`payload\` in the navigation action: \`payload: { "user_name": "\${form.name_input}" }\`.
+7.  **Final Screens**: The final screen in any path must have \`terminal: true\`. Its footer's on-click-action must be \`{ "name": "complete" }\`.
+8.  **Data Handling**:
+    -   To pass data between screens, use a \`payload\` in the navigation action: \`payload: { "user_name": "\${form.name_input}" }\`.
     -   The receiving screen must define this data in its \`data\` property: \`data: { "user_name": { "type": "string" } }\`.
     -   Use \`\${form.component_name}\` to access input from the current screen's form.
     -   Use \`\${data.variable_name}\` to access data passed from a previous screen.
-8.  **Full Experience**: Create a logical, multi-screen flow (at least 2-3 screens) that fulfills the user's request.
+9.  **Full Experience**: Create a logical, multi-screen flow (at least 2-3 screens) that fulfills the user's request.
 
 User Request: "{{{prompt}}}"
 Flow Category: "{{{category}}}"

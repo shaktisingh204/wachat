@@ -20,7 +20,7 @@ export default async function SystemHealthPage() {
                 </p>
             </div>
 
-            <Card>
+            <Card className="card-gradient card-gradient-green">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <ShieldCheck className="h-5 w-5" />
@@ -42,7 +42,7 @@ export default async function SystemHealthPage() {
 
             <Separator />
 
-             <Card className="border-destructive">
+             <Card className="border-destructive card-gradient">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-destructive">
                          <AlertTriangle className="h-5 w-5" />
@@ -59,5 +59,3 @@ export default async function SystemHealthPage() {
         </div>
     );
 }
-
-    

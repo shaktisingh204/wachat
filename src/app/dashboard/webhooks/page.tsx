@@ -27,7 +27,7 @@ export default function WebhooksPage() {
 
             <WebhookInfo webhookPath={webhookPath} verifyToken={verifyToken} />
             
-            <Card>
+            <Card className="card-gradient card-gradient-orange">
                 <CardHeader>
                     <CardTitle>How to Use This Information</CardTitle>
                 </CardHeader>

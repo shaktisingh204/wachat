@@ -105,7 +105,7 @@ export default async function AdminDashboardPage({
         </Card>
       </div>
       
-      <Card>
+      <Card className="card-gradient card-gradient-purple">
         <CardHeader>
           <CardTitle>Platform Insights</CardTitle>
           <CardDescription>View key metrics over different time periods.</CardDescription>
@@ -139,7 +139,7 @@ export default async function AdminDashboardPage({
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="card-gradient card-gradient-blue">
         <CardHeader>
           <CardTitle>All Projects</CardTitle>
           <CardDescription>Total projects found: {total.toLocaleString()}</CardDescription>

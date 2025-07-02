@@ -17,6 +17,7 @@ import { ArrowLeft, RefreshCw, Check, CheckCheck, XCircle, FileText, Clock, User
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Papa from 'papaparse';
+import { cn } from '@/lib/utils';
 
 
 type Broadcast = {
@@ -238,7 +239,7 @@ export default function BroadcastReportPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-            <Card>
+            <Card className="card-gradient card-gradient-blue">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Contacts</CardTitle>
                     <Users className="h-4 w-4 text-muted-foreground" />
@@ -247,7 +248,7 @@ export default function BroadcastReportPage() {
                     <div className="text-2xl font-bold">{broadcast.contactCount}</div>
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="card-gradient card-gradient-green">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Sent</CardTitle>
                     <Send className="h-4 w-4 text-muted-foreground" />
@@ -256,7 +257,7 @@ export default function BroadcastReportPage() {
                     <div className="text-2xl font-bold">{broadcast.successCount ?? 0}</div>
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="card-gradient card-gradient-purple">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Delivered</CardTitle>
                     <CheckCheck className="h-4 w-4 text-muted-foreground" />
@@ -265,7 +266,7 @@ export default function BroadcastReportPage() {
                     <div className="text-2xl font-bold">{broadcast.deliveredCount ?? 0}</div>
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="card-gradient card-gradient-blue">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Read</CardTitle>
                     <Eye className="h-4 w-4 text-muted-foreground" />
@@ -274,7 +275,7 @@ export default function BroadcastReportPage() {
                     <div className="text-2xl font-bold">{broadcast.readCount ?? 0}</div>
                 </CardContent>
             </Card>
-            <Card>
+            <Card className="card-gradient card-gradient-orange">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Failed</CardTitle>
                     <AlertTriangle className="h-4 w-4 text-muted-foreground" />
@@ -285,7 +286,7 @@ export default function BroadcastReportPage() {
             </Card>
         </div>
 
-        <Card>
+        <Card className="card-gradient card-gradient-blue">
             <CardHeader>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>

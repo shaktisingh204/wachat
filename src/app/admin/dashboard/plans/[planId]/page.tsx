@@ -105,7 +105,7 @@ export default function PlanEditorPage() {
                 <p className="text-muted-foreground">Configure the details, limits, and features for this plan.</p>
             </div>
             
-            <Card>
+            <Card className="card-gradient card-gradient-green">
                 <CardHeader>
                     <CardTitle>Basic Details</CardTitle>
                 </CardHeader>
@@ -169,7 +169,7 @@ export default function PlanEditorPage() {
             </Card>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <Card>
+                <Card className="card-gradient card-gradient-blue">
                     <CardHeader><CardTitle>Feature Limits</CardTitle><CardDescription>Set to 0 for unlimited.</CardDescription></CardHeader>
                     <CardContent className="space-y-3">
                         <div className="space-y-2"><Label htmlFor="projectLimit">Project Limit</Label><Input id="projectLimit" name="projectLimit" type="number" defaultValue={plan?.projectLimit ?? 5} required min="0"/></div>
@@ -181,7 +181,7 @@ export default function PlanEditorPage() {
                         <div className="space-y-2"><Label htmlFor="cannedMessageLimit">Canned Messages Limit</Label><Input id="cannedMessageLimit" name="cannedMessageLimit" type="number" defaultValue={plan?.cannedMessageLimit ?? 25} required min="0"/></div>
                     </CardContent>
                 </Card>
-                <Card>
+                <Card className="card-gradient card-gradient-purple">
                     <CardHeader><CardTitle>Enabled Features</CardTitle></CardHeader>
                     <CardContent className="space-y-3">
                         <div className="grid grid-cols-2 gap-3">

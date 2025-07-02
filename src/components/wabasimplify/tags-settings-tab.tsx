@@ -53,7 +53,7 @@ export function TagsSettingsTab({ project }: TagsSettingsTabProps) {
     };
 
     return (
-        <Card>
+        <Card className="card-gradient card-gradient-green">
             <CardHeader>
                 <CardTitle>Tags & Labels</CardTitle>
                 <CardDescription>Create and manage colored tags to organize your contacts.</CardDescription>

@@ -43,7 +43,7 @@ export function PhonePeSettingsForm({ settings }: { settings: WithId<PaymentGate
 
     return (
         <form action={formAction}>
-            <Card>
+            <Card className="card-gradient card-gradient-orange">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <WaPayIcon className="h-5 w-5" />

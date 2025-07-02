@@ -124,7 +124,7 @@ export default function ProjectInformationPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <Card>
+                <Card className="card-gradient card-gradient-green">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Briefcase className="h-5 w-5" />
@@ -155,7 +155,7 @@ export default function ProjectInformationPage() {
                     </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="card-gradient card-gradient-blue">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Banknote className="h-5 w-5" />

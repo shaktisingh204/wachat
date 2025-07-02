@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition, useMemo } from 'react';
@@ -64,7 +63,7 @@ export default function AdminTemplateLibraryPage() {
 
             <Separator />
 
-            <Card>
+            <Card className="card-gradient card-gradient-purple">
                 <CardHeader>
                     <CardTitle>Custom Library Templates</CardTitle>
                     <CardDescription>Templates you have added to the library. These can be deleted.</CardDescription>
@@ -92,7 +91,7 @@ export default function AdminTemplateLibraryPage() {
                 </CardContent>
             </Card>
 
-            <Card>
+            <Card className="card-gradient card-gradient-blue">
                 <CardHeader>
                     <CardTitle>Pre-made Templates</CardTitle>
                     <CardDescription>Core templates included with the application. These cannot be deleted.</CardDescription>
