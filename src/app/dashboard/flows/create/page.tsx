@@ -171,7 +171,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         const isCarouselComponent = localComponent?.type === 'ImageCarousel';
         const isTextInputComponent = localComponent?.type === 'TextInput';
         const isTextAreaComponent = localComponent?.type === 'TextArea';
-        const isSelectionComponent = ['Dropdown', 'RadioButtonsGroup'].includes(localComponent?.type);
+        const isSelectionComponent = ['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup'].includes(localComponent?.type);
 
 
         if (isSelectionComponent) {
@@ -205,6 +205,19 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         </div>
                         <Button type="button" variant="outline" size="sm" onClick={addDataSourceOption} className="w-full"><Plus className="mr-2 h-4 w-4"/>Add Option</Button>
                     </div>
+
+                    {localComponent.type === 'CheckboxGroup' && (
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="min-selected-items">Min Selected</Label>
+                                <Input id="min-selected-items" type="number" value={localComponent['min-selected-items'] ?? ''} onChange={e => updateField('min-selected-items', e.target.value ? parseInt(e.target.value) : undefined)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="max-selected-items">Max Selected</Label>
+                                <Input id="max-selected-items" type="number" value={localComponent['max-selected-items'] ?? ''} onChange={e => updateField('max-selected-items', e.target.value ? parseInt(e.target.value) : undefined)} />
+                            </div>
+                        </div>
+                    )}
 
                     <div className="space-y-2">
                         <Label>On-Select Action (optional)</Label>
@@ -597,7 +610,7 @@ function CreateMetaFlowPage() {
         if (supportedNameComponents.includes(componentType)) {
             newComponent.name = `${componentType.toLowerCase()}_${Date.now()}`;
         }
-        if (['TextInput', 'TextArea', 'DatePicker', 'Dropdown', 'RadioButtonsGroup', 'PhotoPicker', 'DocumentPicker'].includes(componentType)) {
+        if (['TextInput', 'TextArea', 'DatePicker', 'Dropdown', 'RadioButtonsGroup', 'PhotoPicker', 'DocumentPicker', 'CheckboxGroup'].includes(componentType)) {
             newComponent.label = `New ${componentType}`;
         }
         if (['TextSubheading', 'TextBody', 'TextCaption', 'TextHeading'].includes(componentType)) {
