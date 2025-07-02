@@ -59,6 +59,12 @@ const features = [
     title: 'Kanban Chat View',
     description: 'Organize conversations visually with a drag-and-drop Kanban board to track leads and support tickets.',
     gradient: 'card-gradient-purple',
+  },
+  {
+    icon: <ShoppingBag className="h-8 w-8 text-primary" />,
+    title: 'Product Catalogs',
+    description: 'Showcase your products directly within WhatsApp using interactive catalog messages.',
+    gradient: 'card-gradient-orange',
   }
 ];
 
@@ -169,7 +175,7 @@ export default function HomePage() {
               <Check className="h-8 w-8 text-green-500 absolute top-8 right-0 animate-fade-in-up" style={{animationDelay: '1.5s'}}/>
 
               {/* Phone Mockup */}
-               <div className="relative w-80 h-[640px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+               <div className="relative w-[340px] h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                 <div 
                     className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
                     style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}
@@ -367,7 +373,7 @@ export default function HomePage() {
                             </p>
                         </div>
                         <div className="lg:w-2/3 flex justify-center w-full">
-                            <div className="relative w-80 h-[640px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                            <div className="relative w-[340px] h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                                 <div 
                                     className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
                                     style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}
@@ -475,8 +481,8 @@ export default function HomePage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-12 gap-y-24">
                     {/* Agent Collaboration */}
                     <div className="flex flex-col sm:flex-row items-center gap-8" key={`showcase-4-${animationKey}`}>
-                        <div className="w-80 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[640px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                        <div className="w-[340px] h-auto flex-shrink-0">
+                            <div className="relative w-full h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                                 <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                                     <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                         <ArrowLeft className="h-5 w-5 opacity-90" />
@@ -504,8 +510,8 @@ export default function HomePage() {
 
                     {/* Auto Replies */}
                     <div className="flex flex-col sm:flex-row-reverse items-center gap-8" key={`showcase-5-${animationKey}`}>
-                         <div className="w-80 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[640px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                         <div className="w-[340px] h-auto flex-shrink-0">
+                            <div className="relative w-full h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                                 <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                                     <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                         <ArrowLeft className="h-5 w-5 opacity-90" />
@@ -532,8 +538,8 @@ export default function HomePage() {
 
                     {/* AI Chat */}
                      <div className="flex flex-col sm:flex-row items-center gap-8" key={`showcase-6-${animationKey}`}>
-                        <div className="w-80 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[640px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                        <div className="w-[340px] h-auto flex-shrink-0">
+                            <div className="relative w-full h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                                 <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                                     <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                         <ArrowLeft className="h-5 w-5 opacity-90" />
@@ -559,9 +565,9 @@ export default function HomePage() {
                     </div>
                     
                     {/* Canned Messages */}
-                    <div className="flex flex-col sm:flex-row-reverse items-center gap-8" key={`showcase-8-${animationKey}`}>
-                         <div className="w-80 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[640px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                    <div className="flex flex-col sm:flex-row-reverse items-center gap-8" key={`showcase-7-${animationKey}`}>
+                         <div className="w-[340px] h-auto flex-shrink-0">
+                            <div className="relative w-full h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                                 <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                                     <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                         <ArrowLeft className="h-5 w-5 opacity-90" />
@@ -597,9 +603,9 @@ export default function HomePage() {
                     </div>
                     
                     {/* Compliance */}
-                     <div className="flex flex-col sm:flex-row items-center gap-8" key={`showcase-7-${animationKey}`}>
-                         <div className="w-80 h-auto flex-shrink-0">
-                            <div className="relative w-full h-[640px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                     <div className="flex flex-col sm:flex-row items-center gap-8" key={`showcase-8-${animationKey}`}>
+                         <div className="w-[340px] h-auto flex-shrink-0">
+                            <div className="relative w-full h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
                                 <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                                     <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                         <ArrowLeft className="h-5 w-5 opacity-90" />
@@ -621,6 +627,58 @@ export default function HomePage() {
                             <Shield className="h-8 w-8 text-primary"/>
                             <h3 className="text-2xl font-bold font-headline">Built-in Compliance Tools</h3>
                             <p className="text-muted-foreground">Easily manage opt-ins and opt-outs to stay compliant with WhatsApp policies and respect customer preferences.</p>
+                        </div>
+                    </div>
+
+                    {/* Product Catalog Showcase */}
+                    <div className="flex flex-col sm:flex-row-reverse items-center gap-8" key={`showcase-9-${animationKey}`}>
+                         <div className="w-[340px] h-auto flex-shrink-0">
+                            <div className="relative w-full h-[660px] bg-slate-900 rounded-[2.5rem] p-1.5 shadow-2xl ring-4 ring-slate-800">
+                                <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
+                                    <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                                        <ArrowLeft className="h-5 w-5 opacity-90" />
+                                        <Avatar><AvatarFallback>E</AvatarFallback></Avatar>
+                                        <div className="flex-1"><p className="font-semibold text-[15px]">Ecoshop</p><p className="text-xs opacity-80">online</p></div>
+                                    </div>
+                                    <div className="flex-1 p-3 space-y-3 overflow-y-auto">
+                                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-[#202C33] text-white rounded-lg rounded-tl-none p-2 text-sm max-w-xs shadow">Do you have any new arrivals?</div></div>
+                                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '1.5s' }}>
+                                            <div className="bg-[#005C4B] text-white rounded-lg rounded-tr-none p-2 text-sm max-w-xs shadow">
+                                                <p>Yes we do! Check out our latest collection by tapping the button below.</p>
+                                                <div className="w-full bg-black/20 text-center rounded-md p-2 mt-2 font-medium text-base">
+                                                    🛍️ View Products
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '2.5s', opacity: 0 }}>
+                                      <div className="bg-white h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '2.8s' }}>
+                                        <div className="p-2 border-b text-center font-semibold text-sm">
+                                          Our Collection
+                                        </div>
+                                        <div className="flex-1 p-2 space-y-2 overflow-y-auto">
+                                          <div className="flex gap-3 border rounded-lg p-2 bg-white">
+                                            <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="eco-friendly bottle"/>
+                                            <div><p className="font-medium text-gray-800 text-sm">Eco Water Bottle</p><p className="text-xs text-muted-foreground">$15.00</p></div>
+                                          </div>
+                                           <div className="flex gap-3 border rounded-lg p-2 bg-white">
+                                            <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="bamboo toothbrush"/>
+                                            <div><p className="font-medium text-gray-800 text-sm">Bamboo Toothbrush Set</p><p className="text-xs text-muted-foreground">$8.00</p></div>
+                                          </div>
+                                          <div className="flex gap-3 border rounded-lg p-2 bg-white">
+                                            <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="tote bag"/>
+                                            <div><p className="font-medium text-gray-800 text-sm">Reusable Tote Bag</p><p className="text-xs text-muted-foreground">$12.00</p></div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                   </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="space-y-4 text-center sm:text-left">
+                            <ShoppingBag className="h-8 w-8 text-primary"/>
+                            <h3 className="text-2xl font-bold font-headline">Interactive Product Catalogs</h3>
+                            <p className="text-muted-foreground">Let customers browse and purchase your products directly in chat with rich, interactive catalog messages.</p>
                         </div>
                     </div>
                 </div>
