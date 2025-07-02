@@ -27,8 +27,34 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
     z.object({ type: z.literal('TextSubheading'), text: z.string(), visible: z.union([z.boolean(), z.string()]).optional(), enabled: z.union([z.boolean(), z.string()]).optional() }),
     z.object({ type: z.literal('TextBody'), text: z.string(), visible: z.union([z.boolean(), z.string()]).optional(), enabled: z.union([z.boolean(), z.string()]).optional() }),
     z.object({ type: z.literal('TextCaption'), text: z.string(), visible: z.union([z.boolean(), z.string()]).optional(), enabled: z.union([z.boolean(), z.string()]).optional() }),
-    z.object({ type: z.literal('TextInput'), name: z.string(), label: z.string(), "helper-text": z.string().optional(), required: z.boolean().optional(), "input-type": z.enum(['text', 'email', 'password', 'phone', 'number']).optional(), "max-length": z.number().optional() }),
-    z.object({ type: z.literal('TextArea'), name: z.string(), label: z.string(), "helper-text": z.string().optional(), required: z.boolean().optional(), "max-length": z.number().optional() }),
+    z.object({ 
+        type: z.literal('TextInput'), 
+        name: z.string(), 
+        label: z.string(), 
+        "helper-text": z.string().optional(), 
+        "input-type": z.enum(['text', 'email', 'password', 'phone', 'number']).optional(), 
+        required: z.boolean().optional(),
+        placeholder: z.string().optional(),
+        "min-length": z.number().optional(),
+        "max-length": z.number().optional(),
+        "error-message": z.string().optional(),
+        visible: z.union([z.boolean(), z.string()]).optional(),
+        enabled: z.union([z.boolean(), z.string()]).optional(),
+        "init-value": z.string().optional()
+    }),
+    z.object({ 
+        type: z.literal('TextArea'), 
+        name: z.string(), 
+        label: z.string(), 
+        "helper-text": z.string().optional(), 
+        required: z.boolean().optional(), 
+        "max-length": z.number().optional(),
+        placeholder: z.string().optional(),
+        "min-length": z.number().optional(),
+        "error-message": z.string().optional(),
+        visible: z.union([z.boolean(), z.string()]).optional(),
+        enabled: z.union([z.boolean(), z.string()]).optional(),
+    }),
     z.object({ type: z.literal('Dropdown'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })), required: z.boolean().optional(), "on-select-action": ActionSchema.optional() }),
     z.object({ type: z.literal('RadioButtonsGroup'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })), required: z.boolean().optional() }),
     z.object({ type: z.literal('CheckboxGroup'), name: z.string(), label: z.string(), "data-source": z.array(z.object({ id: z.string(), title: z.string() })), required: z.boolean().optional() }),
@@ -54,7 +80,7 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
         type: z.literal('Image'), 
         src: z.string().describe("Use the placeholder 'base64_image_placeholder' for images."), 
         "alt-text": z.string(), 
-        visible: z.boolean().optional(),
+        visible: z.union([z.boolean(), z.string()]).optional(),
         width: z.number().optional(),
         height: z.number().optional(),
         "scale-type": z.enum(['cover', 'contain']).optional(),
@@ -194,5 +220,3 @@ const generateMetaFlowFlow = ai.defineFlow(
     return output;
   }
 );
-
-    

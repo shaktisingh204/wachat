@@ -26,6 +26,7 @@ import type { MetaFlow } from '@/lib/definitions';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
 
 const createFlowInitialState = { message: null, error: null, payload: null };
 
@@ -69,7 +70,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
     const updateField = (key: string, value: any) => {
         setLocalComponent((prev: any) => {
-            if (value === undefined) {
+            if (value === undefined || value === '') {
                 const newState = {...prev};
                 delete newState[key];
                 return newState;
@@ -135,10 +136,238 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         updateField('images', newImages);
     };
 
-    const isTextComponent = ['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(component?.type);
-    const isImageComponent = component?.type === 'Image';
-    const isCarouselComponent = component?.type === 'ImageCarousel';
+    const renderProperties = () => {
+        const isTextComponent = ['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(component?.type);
+        const isImageComponent = component?.type === 'Image';
+        const isCarouselComponent = component?.type === 'ImageCarousel';
+        const isTextInputComponent = component?.type === 'TextInput';
 
+        if (isImageComponent) {
+            return (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="image-upload">Upload Image</Label>
+                        <Input id="image-upload" type="file" accept="image/png, image/jpeg" onChange={handleImageUpload} />
+                        {isUploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
+                        {localComponent.src && localComponent.src.startsWith('data:image') && (
+                            <Image src={localComponent.src} alt="preview" width={200} height={112} className="mt-2 max-h-40 w-auto rounded-md border" />
+                        )}
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="alt-text">Alt Text (Required)</Label>
+                        <Input id="alt-text" value={localComponent['alt-text'] || ''} onChange={e => updateField('alt-text', e.target.value)} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="width">Width (optional)</Label>
+                            <Input id="width" type="number" value={localComponent.width || ''} onChange={e => updateField('width', e.target.value ? parseInt(e.target.value) : undefined)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="height">Height (optional)</Label>
+                            <Input id="height" type="number" value={localComponent.height || ''} onChange={e => updateField('height', e.target.value ? parseInt(e.target.value) : undefined)} />
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="aspect-ratio">Aspect Ratio (optional)</Label>
+                            <Select
+                                value={String(localComponent['aspect-ratio'] || '')}
+                                onValueChange={v => updateField('aspect-ratio', v ? parseFloat(v) : undefined)}
+                            >
+                                <SelectTrigger id="aspect-ratio"><SelectValue placeholder="Default"/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="">Default</SelectItem>
+                                    <SelectItem value="1.777">16:9 (Widescreen)</SelectItem>
+                                    <SelectItem value="1.333">4:3 (Standard)</SelectItem>
+                                    <SelectItem value="1">1:1 (Square)</SelectItem>
+                                    <SelectItem value="1.5">3:2</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="scale-type">Scale Type (optional)</Label>
+                            <Select value={localComponent['scale-type'] || 'contain'} onValueChange={v => updateField('scale-type', v)}>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="contain">Contain</SelectItem>
+                                    <SelectItem value="cover">Cover</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        if (isCarouselComponent) {
+             return (
+                <div className="space-y-4">
+                     <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="carousel-aspect-ratio">Aspect Ratio</Label>
+                            <Select value={localComponent['aspect-ratio'] || '16:9'} onValueChange={v => updateField('aspect-ratio', v)}>
+                                <SelectTrigger id="carousel-aspect-ratio"><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="16:9">16:9 (Widescreen)</SelectItem>
+                                    <SelectItem value="4:3">4:3 (Standard)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="carousel-scale-type">Scale Type</Label>
+                            <Select value={localComponent['scale-type'] || 'contain'} onValueChange={v => updateField('scale-type', v)}>
+                                <SelectTrigger id="carousel-scale-type"><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="contain">Contain</SelectItem>
+                                    <SelectItem value="cover">Cover</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <Separator />
+                     <div className="space-y-3">
+                        <Label>Images (Max 3)</Label>
+                        {(localComponent.images || []).map((img: any, index: number) => (
+                            <div key={index} className="p-3 border rounded-lg space-y-2 relative bg-background">
+                                <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeCarouselImage(index)}>
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                                <div className="space-y-2">
+                                    <Label htmlFor={`carousel-img-upload-${index}`}>Upload Image {index + 1}</Label>
+                                    <Input id={`carousel-img-upload-${index}`} type="file" accept="image/png, image/jpeg" onChange={e => handleImageUpload(e, index)} />
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor={`carousel-alt-text-${index}`}>Alt Text {index + 1}</Label>
+                                    <Input id={`carousel-alt-text-${index}`} value={img['alt-text'] || ''} onChange={e => handleCarouselImageChange(index, 'alt-text', e.target.value)} />
+                                </div>
+                                 {img.src && img.src.startsWith('data:image') && (
+                                    <Image src={img.src} alt="preview" width={150} height={84} className="mt-2 rounded-md border" />
+                                )}
+                            </div>
+                        ))}
+                        {(localComponent.images?.length || 0) < 3 && (
+                            <Button type="button" variant="outline" className="w-full" onClick={addCarouselImage}>
+                                <Plus className="mr-2 h-4 w-4" /> Add Image
+                            </Button>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        if (isTextComponent) {
+            return (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="text">Text</Label>
+                        <Textarea id="text" value={localComponent.text || ''} onChange={e => updateField('text', e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="visible">Visible (optional)</Label>
+                        <Input 
+                            id="visible" 
+                            value={localComponent.visible === undefined ? '' : String(localComponent.visible)} 
+                            onChange={e => handleDynamicBoolChange('visible', e.target.value)} 
+                            placeholder="true, false, or ${...}" 
+                        />
+                        <p className="text-xs text-muted-foreground">Enter `true`, `false`, or a dynamic expression like `${'{form.show_field}'}`.</p>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="enabled">Enabled (optional)</Label>
+                        <Input 
+                            id="enabled" 
+                            value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} 
+                            onChange={e => handleDynamicBoolChange('enabled', e.target.value)} 
+                            placeholder="true, false, or ${...}" 
+                        />
+                        <p className="text-xs text-muted-foreground">Enter `true`, `false`, or a dynamic expression like `${'{form.enable_field}'}`.</p>
+                    </div>
+                </div>
+            );
+        }
+        
+        if (isTextInputComponent) {
+            return (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Name (unique identifier)</Label>
+                        <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="label">Label (shown to user)</Label>
+                        <Input id="label" value={localComponent.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="placeholder">Placeholder</Label>
+                        <Input id="placeholder" value={localComponent.placeholder || ''} onChange={(e) => updateField('placeholder', e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="helper-text">Helper Text</Label>
+                        <Input id="helper-text" value={localComponent['helper-text'] || ''} onChange={(e) => updateField('helper-text', e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="error-message">Error Message</Label>
+                        <Input id="error-message" value={localComponent['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="input-type">Input Type</Label>
+                        <Select value={localComponent['input-type'] || 'text'} onValueChange={(v) => updateField('input-type', v)}>
+                            <SelectTrigger id="input-type"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="text">Text</SelectItem>
+                                <SelectItem value="number">Number</SelectItem>
+                                <SelectItem value="email">Email</SelectItem>
+                                <SelectItem value="password">Password</SelectItem>
+                                <SelectItem value="phone">Phone</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="min-length">Min Length</Label>
+                            <Input id="min-length" type="number" value={localComponent['min-length'] ?? ''} onChange={e => updateField('min-length', e.target.value ? parseInt(e.target.value) : undefined)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="max-length">Max Length</Label>
+                            <Input id="max-length" type="number" value={localComponent['max-length'] ?? ''} onChange={e => updateField('max-length', e.target.value ? parseInt(e.target.value) : undefined)} />
+                        </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Switch id="required" checked={localComponent.required || false} onCheckedChange={(val) => updateField('required', val)} />
+                        <Label htmlFor="required">Required</Label>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="visible">Visible</Label>
+                        <Input id="visible" value={localComponent.visible === undefined ? '' : String(localComponent.visible)} onChange={e => handleDynamicBoolChange('visible', e.target.value)} placeholder="true, false, or ${...}" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="enabled">Enabled</Label>
+                        <Input id="enabled" value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} onChange={e => handleDynamicBoolChange('enabled', e.target.value)} placeholder="true, false, or ${...}" />
+                    </div>
+                </div>
+            );
+        }
+
+        // Generic fallback for other components
+        return Object.keys(component).map(key => {
+            if (!localComponent) return null;
+            const value = localComponent[key];
+            if (key === 'type' || (key === 'name' && typeof value === 'string' && value.startsWith(component.type.toLowerCase()))) return null; 
+            return (
+                <div key={key} className="space-y-2">
+                    <Label htmlFor={key}>{key}</Label>
+                    {typeof value === 'boolean' ? (
+                        <Switch id={key} checked={value} onCheckedChange={(val) => updateField(key, val)} />
+                    ) : typeof value === 'object' && value !== null ? (
+                        <Textarea id={key} value={JSON.stringify(value, null, 2)} onChange={e => { try { updateField(key, JSON.parse(e.target.value)) } catch(err) { /* ignore parse error */}}} className="font-mono text-xs h-32"/>
+                    ) : (
+                        <Input id={key} value={value ?? ''} onChange={e => updateField(key, e.target.value)} />
+                    )}
+                </div>
+            )
+        });
+    };
+    
     return (
          <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-2xl">
@@ -147,157 +376,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                 </DialogHeader>
                 <ScrollArea className="max-h-[60vh] -mx-6 px-6">
                 <div className="py-4 space-y-4">
-                    {isImageComponent ? (
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="image-upload">Upload Image</Label>
-                                <Input id="image-upload" type="file" accept="image/png, image/jpeg" onChange={handleImageUpload} />
-                                {isUploading && <p className="text-sm text-muted-foreground">Uploading...</p>}
-                                {localComponent.src && localComponent.src.startsWith('data:image') && (
-                                    <Image src={localComponent.src} alt="preview" width={200} height={112} className="mt-2 max-h-40 w-auto rounded-md border" />
-                                )}
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="alt-text">Alt Text (Required)</Label>
-                                <Input id="alt-text" value={localComponent['alt-text'] || ''} onChange={e => updateField('alt-text', e.target.value)} />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="width">Width (optional)</Label>
-                                    <Input id="width" type="number" value={localComponent.width || ''} onChange={e => updateField('width', e.target.value ? parseInt(e.target.value) : undefined)} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="height">Height (optional)</Label>
-                                    <Input id="height" type="number" value={localComponent.height || ''} onChange={e => updateField('height', e.target.value ? parseInt(e.target.value) : undefined)} />
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="aspect-ratio">Aspect Ratio (optional)</Label>
-                                    <Select
-                                        value={String(localComponent['aspect-ratio'] || '')}
-                                        onValueChange={v => updateField('aspect-ratio', v ? parseFloat(v) : undefined)}
-                                    >
-                                        <SelectTrigger id="aspect-ratio"><SelectValue placeholder="Default"/></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="">Default</SelectItem>
-                                            <SelectItem value="1.777">16:9 (Widescreen)</SelectItem>
-                                            <SelectItem value="1.333">4:3 (Standard)</SelectItem>
-                                            <SelectItem value="1">1:1 (Square)</SelectItem>
-                                            <SelectItem value="1.5">3:2</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="scale-type">Scale Type (optional)</Label>
-                                    <Select value={localComponent['scale-type'] || 'contain'} onValueChange={v => updateField('scale-type', v)}>
-                                        <SelectTrigger><SelectValue/></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="contain">Contain</SelectItem>
-                                            <SelectItem value="cover">Cover</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </div>
-                    ) : isCarouselComponent ? (
-                        <div className="space-y-4">
-                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="carousel-aspect-ratio">Aspect Ratio</Label>
-                                    <Select value={localComponent['aspect-ratio'] || '16:9'} onValueChange={v => updateField('aspect-ratio', v)}>
-                                        <SelectTrigger id="carousel-aspect-ratio"><SelectValue/></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="16:9">16:9 (Widescreen)</SelectItem>
-                                            <SelectItem value="4:3">4:3 (Standard)</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="carousel-scale-type">Scale Type</Label>
-                                    <Select value={localComponent['scale-type'] || 'contain'} onValueChange={v => updateField('scale-type', v)}>
-                                        <SelectTrigger id="carousel-scale-type"><SelectValue/></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="contain">Contain</SelectItem>
-                                            <SelectItem value="cover">Cover</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                            <Separator />
-                             <div className="space-y-3">
-                                <Label>Images (Max 3)</Label>
-                                {(localComponent.images || []).map((img: any, index: number) => (
-                                    <div key={index} className="p-3 border rounded-lg space-y-2 relative bg-background">
-                                        <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeCarouselImage(index)}>
-                                            <Trash2 className="h-4 w-4 text-destructive" />
-                                        </Button>
-                                        <div className="space-y-2">
-                                            <Label htmlFor={`carousel-img-upload-${index}`}>Upload Image {index + 1}</Label>
-                                            <Input id={`carousel-img-upload-${index}`} type="file" accept="image/png, image/jpeg" onChange={e => handleImageUpload(e, index)} />
-                                        </div>
-                                         <div className="space-y-2">
-                                            <Label htmlFor={`carousel-alt-text-${index}`}>Alt Text {index + 1}</Label>
-                                            <Input id={`carousel-alt-text-${index}`} value={img['alt-text'] || ''} onChange={e => handleCarouselImageChange(index, 'alt-text', e.target.value)} />
-                                        </div>
-                                         {img.src && img.src.startsWith('data:image') && (
-                                            <Image src={img.src} alt="preview" width={150} height={84} className="mt-2 rounded-md border" />
-                                        )}
-                                    </div>
-                                ))}
-                                {(localComponent.images?.length || 0) < 3 && (
-                                    <Button type="button" variant="outline" className="w-full" onClick={addCarouselImage}>
-                                        <Plus className="mr-2 h-4 w-4" /> Add Image
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                    ) : isTextComponent ? (
-                        <div className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="text">Text</Label>
-                                <Textarea id="text" value={localComponent.text || ''} onChange={e => updateField('text', e.target.value)} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="visible">Visible</Label>
-                                <Input 
-                                    id="visible" 
-                                    value={localComponent.visible === undefined ? '' : String(localComponent.visible)} 
-                                    onChange={e => handleDynamicBoolChange('visible', e.target.value)} 
-                                    placeholder="true, false, or ${...}" 
-                                />
-                                <p className="text-xs text-muted-foreground">Enter `true`, `false`, or a dynamic expression like `${'{form.show_field}'}`.</p>
-                            </div>
-                             <div className="space-y-2">
-                                <Label htmlFor="enabled">Enabled</Label>
-                                <Input 
-                                    id="enabled" 
-                                    value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} 
-                                    onChange={e => handleDynamicBoolChange('enabled', e.target.value)} 
-                                    placeholder="true, false, or ${...}" 
-                                />
-                                <p className="text-xs text-muted-foreground">Enter `true`, `false`, or a dynamic expression like `${'{form.enable_field}'}`.</p>
-                            </div>
-                        </div>
-                    ) : (
-                        Object.keys(component).map(key => {
-                            if (!localComponent) return null;
-                            const value = localComponent[key];
-                            if (key === 'type' || (key === 'name' && value?.startsWith(component.type.toLowerCase()))) return null; 
-                            return (
-                                <div key={key} className="space-y-2">
-                                    <Label htmlFor={key}>{key}</Label>
-                                    {typeof value === 'boolean' ? (
-                                        <Switch id={key} checked={value} onCheckedChange={(val) => updateField(key, val)} />
-                                    ) : typeof value === 'object' && value !== null ? (
-                                        <Textarea id={key} value={JSON.stringify(value, null, 2)} onChange={e => { try { updateField(key, JSON.parse(e.target.value)) } catch(err) { /* ignore parse error */}}} className="font-mono text-xs h-32"/>
-                                    ) : (
-                                        <Input id={key} value={value ?? ''} onChange={e => updateField(key, e.target.value)} />
-                                    )}
-                                </div>
-                            )
-                        })
-                    )}
+                    {renderProperties()}
                 </div>
                 </ScrollArea>
                 <DialogFooter>
