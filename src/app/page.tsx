@@ -163,6 +163,7 @@ export default function HomePage() {
               {/* Phone Mockup */}
                <div className="w-full max-w-sm bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl z-10">
                 <div 
+                    key={animationKey}
                     className="h-[700px] bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
                     style={{backgroundImage: "url('https://placehold.co/400x800.png')"}}
                     data-ai-hint="dark gaming pattern"
@@ -182,7 +183,7 @@ export default function HomePage() {
                       </div>
                    </div>
                    {/* Chat */}
-                   <div className="flex-1 p-3 space-y-3 overflow-y-auto" key={animationKey}>
+                   <div className="flex-1 p-3 space-y-3 overflow-y-auto">
                         {/* 1. User says Hi */}
                         <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '1s' }}>
                             <div className="bg-slate-700 text-white rounded-lg p-2 text-sm max-w-xs shadow">Hi</div>
