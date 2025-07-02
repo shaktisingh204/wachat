@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -960,6 +961,10 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
                 if (value.event === 'DISABLED_UPDATE' && value.ban_info?.waba_ban_state) {
                     message = `Account status updated: ${value.ban_info.waba_ban_state}. Ban date: ${value.ban_info.waba_ban_date || 'N/A'}`;
                     await db.collection('projects').updateOne({ _id: project._id }, { $set: { banState: value.ban_info.waba_ban_state } });
+                } else if (value.event === 'ACCOUNT_VIOLATION' && value.violation_info?.violation_type) {
+                    message = `Account violation detected: ${value.violation_info.violation_type}. Please check your account quality.`;
+                    link = `https://business.facebook.com/settings/wa/${project.wabaId}`;
+                    await db.collection('projects').updateOne({ _id: project._id }, { $set: { violationType: value.violation_info.violation_type, violationTimestamp: new Date() } });
                 } else if (value.review_status) {
                     message = `Your business account has been updated. Review status: ${value.review_status?.toUpperCase() || 'N/A'}`;
                     await db.collection('projects').updateOne({ _id: project._id }, { $set: { reviewStatus: value.review_status } });

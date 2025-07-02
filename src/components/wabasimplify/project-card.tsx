@@ -82,6 +82,11 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                 <div className="flex justify-between items-start gap-2">
                     <CardTitle className="text-base leading-tight">{project.name}</CardTitle>
                     <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                        {project.violationType && (
+                             <Badge variant="destructive" className="capitalize">
+                                Violation: {project.violationType}
+                            </Badge>
+                        )}
                         {project.banState && (
                             <Badge variant="destructive" className="capitalize">
                                 {project.banState.replace(/_/g, ' ')}

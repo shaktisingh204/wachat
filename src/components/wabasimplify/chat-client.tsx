@@ -34,11 +34,11 @@ export function ChatClient() {
 
     const [isLoading, startLoadingTransition] = useTransition();
     const [loadingConversation, startConversationLoadTransition] = useTransition();
+    const [isPolling, startPollingTransition] = useTransition();
     
     const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState<string>('');
     const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
     const [isClient, setIsClient] = useState(false);
-    const [isPolling, startPollingTransition] = useTransition();
     const { toast } = useToast();
 
     // Pagination state for contacts
