@@ -54,6 +54,7 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
         "error-message": z.string().optional(),
         visible: z.union([z.boolean(), z.string()]).optional(),
         enabled: z.union([z.boolean(), z.string()]).optional(),
+        "init-value": z.string().optional(),
     }),
     z.object({ 
         type: z.literal('Dropdown'), 
@@ -88,6 +89,7 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
         visible: z.union([z.boolean(), z.string()]).optional(),
         enabled: z.union([z.boolean(), z.string()]).optional(),
         "error-message": z.string().optional(),
+        "init-value": z.string().optional(),
     }),
     z.object({ 
         type: z.literal('CheckboxGroup'), 
@@ -106,6 +108,7 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
         visible: z.union([z.boolean(), z.string()]).optional(),
         enabled: z.union([z.boolean(), z.string()]).optional(),
         "error-message": z.string().optional(),
+        "init-value": z.array(z.string()).optional(),
     }),
     z.object({ 
         type: z.literal('ChipsSelector'), 
@@ -143,7 +146,27 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
         "error-message": z.string().optional(),
         "on-select-action": ActionSchema.optional()
     }),
-    z.object({ type: z.literal('CalendarPicker'), name: z.string(), label: z.union([z.string(), z.object({ "start-date": z.string(), "end-date": z.string() })]), mode: z.enum(['single', 'range']), "on-select-action": ActionSchema.optional() }),
+    z.object({ 
+        type: z.literal('CalendarPicker'), 
+        name: z.string(), 
+        label: z.union([z.string(), z.object({ "start-date": z.string(), "end-date": z.string() })]), 
+        mode: z.enum(['single', 'range']).optional(), 
+        "on-select-action": ActionSchema.optional(),
+        title: z.string().optional().describe('Title for range mode'),
+        description: z.string().optional().describe('Description for range mode'),
+        "helper-text": z.union([z.string(), z.object({ "start-date": z.string(), "end-date": z.string() })]).optional(),
+        required: z.union([z.boolean(), z.object({ "start-date": z.boolean(), "end-date": z.boolean() })]).optional(),
+        "min-date": z.string().optional().describe('Minimum selectable date, "YYYY-MM-DD"'), 
+        "max-date": z.string().optional().describe('Maximum selectable date, "YYYY-MM-DD"'),
+        "unavailable-dates": z.array(z.string()).optional().describe('Array of unavailable dates, "YYYY-MM-DD"'),
+        "include-days": z.array(z.enum(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"])).optional(),
+        "min-days": z.number().optional().describe('Minimum days in range'),
+        "max-days": z.number().optional().describe('Maximum days in range'),
+        "init-value": z.union([z.string(), z.object({ "start-date": z.string(), "end-date": z.string() })]).optional(),
+        visible: z.union([z.boolean(), z.string()]).optional(),
+        enabled: z.union([z.boolean(), z.string()]).optional(),
+        "error-message": z.union([z.string(), z.object({ "start-date": z.string(), "end-date": z.string() })]).optional(),
+    }),
     z.object({ type: z.literal('Footer'), label: z.string(), "on-click-action": ActionSchema }),
     z.object({ type: z.literal('EmbeddedLink'), text: z.string(), "on-click-action": ActionSchema, visible: z.boolean().optional() }),
     z.object({ type: z.literal('PhotoPicker'), name: z.string(), label: z.string(), required: z.boolean().optional(), "min-uploaded-photos": z.number().optional(), "max-uploaded-photos": z.number().optional() }),
@@ -303,5 +326,3 @@ const generateMetaFlowFlow = ai.defineFlow(
     return output;
   }
 );
-
-  

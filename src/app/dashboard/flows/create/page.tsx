@@ -6,7 +6,7 @@ import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, AlertCircle, Server } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, AlertCircle, Server, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -78,6 +78,25 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                 return newState;
             }
             return {...prev, [key]: value};
+        });
+    };
+
+    const updateNestedField = (parentKey: string, childKey: string, value: any) => {
+        setLocalComponent((prev: any) => {
+            const newParent = {...(prev[parentKey] || {})};
+            if (value === undefined || value === '') {
+                delete newParent[childKey];
+            } else {
+                newParent[childKey] = value;
+            }
+
+            if(Object.keys(newParent).length === 0) {
+                 const newState = {...prev};
+                 delete newState[parentKey];
+                 return newState;
+            }
+
+            return {...prev, [parentKey]: newParent};
         });
     };
     
@@ -175,6 +194,16 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         updateField('unavailable-dates', dates.length > 0 ? dates : undefined);
     };
 
+    const handleIncludeDaysChange = (day: string, checked: boolean) => {
+        let currentDays: string[] = localComponent['include-days'] || [];
+        if (checked) {
+            currentDays = [...currentDays, day];
+        } else {
+            currentDays = currentDays.filter(d => d !== day);
+        }
+        updateField('include-days', currentDays.length > 0 ? currentDays : undefined);
+    };
+
 
     const renderProperties = () => {
         const isTextComponent = ['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(localComponent?.type);
@@ -185,6 +214,65 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         const isSelectionComponent = ['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup'].includes(localComponent?.type);
         const isChipsSelectorComponent = localComponent?.type === 'ChipsSelector';
         const isDatePickerComponent = localComponent?.type === 'DatePicker';
+        const isCalendarPickerComponent = localComponent?.type === 'CalendarPicker';
+        
+        if (isCalendarPickerComponent) {
+            const mode = localComponent.mode || 'single';
+            return (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Name (unique identifier)</Label>
+                        <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
+                    </div>
+                     <div className="space-y-2">
+                        <Label>Mode</Label>
+                        <RadioGroup value={mode} onValueChange={(v) => updateField('mode', v)} className="flex gap-4 pt-1">
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="single" id="mode-single"/><Label htmlFor="mode-single" className="font-normal">Single Date</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="range" id="mode-range"/><Label htmlFor="mode-range" className="font-normal">Date Range</Label></div>
+                        </RadioGroup>
+                    </div>
+
+                    {mode === 'range' && (
+                        <>
+                        <div className="space-y-2">
+                            <Label htmlFor="title">Title</Label>
+                            <Input id="title" value={localComponent.title || ''} onChange={e => updateField('title', e.target.value)} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="description">Description</Label>
+                            <Textarea id="description" value={localComponent.description || ''} onChange={e => updateField('description', e.target.value)} />
+                        </div>
+                        </>
+                    )}
+                    
+                     <div className="space-y-2">
+                        <Label>Label(s)</Label>
+                        {mode === 'single' ? (
+                            <Input value={typeof localComponent.label === 'string' ? localComponent.label : ''} onChange={e => updateField('label', e.target.value)} required />
+                        ) : (
+                            <div className="grid grid-cols-2 gap-3">
+                                <Input placeholder="Start Date Label" value={localComponent.label?.['start-date'] || ''} onChange={e => updateNestedField('label', 'start-date', e.target.value)} />
+                                <Input placeholder="End Date Label" value={localComponent.label?.['end-date'] || ''} onChange={e => updateNestedField('label', 'end-date', e.target.value)} />
+                            </div>
+                        )}
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2"><Label htmlFor="min-date">Min Date</Label><Input id="min-date" type="date" value={localComponent['min-date'] || ''} onChange={e => updateField('min-date', e.target.value)}/></div>
+                        <div className="space-y-2"><Label htmlFor="max-date">Max Date</Label><Input id="max-date" type="date" value={localComponent['max-date'] || ''} onChange={e => updateField('max-date', e.target.value)}/></div>
+                    </div>
+                    <div className="space-y-2"><Label>Days of Week Included</Label><div className="flex flex-wrap gap-x-4 gap-y-2">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => <div key={day} className="flex items-center space-x-2"><Checkbox id={`day-${day}`} checked={(localComponent['include-days'] || []).includes(day)} onCheckedChange={checked => handleIncludeDaysChange(day, !!checked)}/><Label htmlFor={`day-${day}`} className="font-normal">{day}</Label></div>)}</div></div>
+
+                     {mode === 'range' && (
+                        <div className="grid grid-cols-2 gap-4">
+                           <div className="space-y-2"><Label htmlFor="min-days">Min Days in Range</Label><Input id="min-days" type="number" value={localComponent['min-days'] ?? ''} onChange={e => updateField('min-days', e.target.value ? parseInt(e.target.value) : undefined)}/></div>
+                           <div className="space-y-2"><Label htmlFor="max-days">Max Days in Range</Label><Input id="max-days" type="number" value={localComponent['max-days'] ?? ''} onChange={e => updateField('max-days', e.target.value ? parseInt(e.target.value) : undefined)}/></div>
+                        </div>
+                     )}
+
+                </div>
+            )
+        }
 
         if (isDatePickerComponent) {
             return (
@@ -393,6 +481,18 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Input id="enabled" value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} onChange={e => handleDynamicBoolChange('enabled', e.target.value)} placeholder="true, false, or ${...}" />
                     </div>
                      {localComponent.type === 'Dropdown' && (
+                        <div className="space-y-2">
+                            <Label htmlFor="init-value">Initial Value (optional)</Label>
+                            <Input id="init-value" value={localComponent['init-value'] || ''} onChange={(e) => updateField('init-value', e.target.value)} placeholder="ID of a default option" />
+                        </div>
+                     )}
+                     {localComponent.type === 'CheckboxGroup' && (
+                        <div className="space-y-2">
+                            <Label htmlFor="init-value">Initial Values (optional)</Label>
+                            <Input id="init-value" value={Array.isArray(localComponent['init-value']) ? localComponent['init-value'].join(', ') : ''} onChange={e => handleInitValueChange(e.target.value)} placeholder="Comma-separated IDs" />
+                        </div>
+                     )}
+                     {localComponent.type === 'RadioButtonsGroup' && (
                         <div className="space-y-2">
                             <Label htmlFor="init-value">Initial Value (optional)</Label>
                             <Input id="init-value" value={localComponent['init-value'] || ''} onChange={(e) => updateField('init-value', e.target.value)} placeholder="ID of a default option" />
@@ -647,4 +747,286 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         </Dialog>
     );
 }
-//... rest of the component
+
+function CreateMetaFlowPageContent() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const { toast } = useToast();
+    const [state, formAction] = useActionState(saveMetaFlow, createFlowInitialState);
+
+    const [projectId, setProjectId] = useState<string | null>(null);
+    const [flowName, setFlowName] = useState('New Interactive Flow');
+    const [category, setCategory] = useState('');
+    const [publishOnSave, setPublishOnSave] = useState(true);
+    const [flowData, setFlowData] = useState<any>({ screens: [], routing_model: {} });
+    const [flowId, setFlowId] = useState<string | null>(null);
+    const [metaId, setMetaId] = useState<string | null>(null);
+    const [isLoading, startLoadingTransition] = useTransition();
+
+    const [selectedScreenId, setSelectedScreenId] = useState<string | null>(null);
+    const [editingComponent, setEditingComponent] = useState<any>(null);
+    const [isComponentEditorOpen, setIsComponentEditorOpen] = useState(false);
+
+    const isEditing = !!flowId;
+
+    useEffect(() => {
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        setProjectId(storedProjectId);
+
+        const flowIdParam = searchParams.get('flowId');
+        if (flowIdParam) {
+            setFlowId(flowIdParam);
+            startLoadingTransition(async () => {
+                const fetchedFlow = await getMetaFlowById(flowIdParam);
+                if (fetchedFlow) {
+                    setFlowName(fetchedFlow.name);
+                    setCategory(fetchedFlow.categories?.[0] || '');
+                    setFlowData(fetchedFlow.flow_data || { screens: [], routing_model: {} });
+                    setMetaId(fetchedFlow.metaId);
+                    if (fetchedFlow.flow_data?.screens?.[0]) {
+                        setSelectedScreenId(fetchedFlow.flow_data.screens[0].id);
+                    }
+                } else {
+                    toast({ title: 'Error', description: 'Could not load the requested flow.', variant: 'destructive' });
+                    router.push('/dashboard/flows');
+                }
+            });
+        }
+    }, [searchParams, router, toast]);
+
+    useEffect(() => {
+        if (state.message) {
+            toast({ title: 'Success!', description: state.message });
+            router.push('/dashboard/flows');
+        }
+        if (state.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, router, toast]);
+    
+    //... (other functions remain the same)
+
+    const updateComponent = (updatedComponent: any) => {
+        const newFlowData = JSON.parse(JSON.stringify(flowData));
+        const screen = newFlowData.screens.find((s:any) => s.id === selectedScreenId);
+        if (screen) {
+            const form = screen.layout.children.find((c:any) => c.type === 'Form');
+            if (form) {
+                const componentIndex = form.children.findIndex((c:any) => c.name === updatedComponent.name);
+                if (componentIndex > -1) {
+                    form.children[componentIndex] = updatedComponent;
+                }
+            }
+        }
+        setFlowData(newFlowData);
+        closeComponentEditor();
+    };
+
+    const addScreen = () => {
+        const newScreenId = `SCREEN_${flowData.screens.length + 1}_${Date.now()}`.slice(0, 50);
+        const newScreen = {
+            id: newScreenId,
+            title: 'New Screen',
+            layout: {
+                type: 'SingleColumnLayout',
+                children: [
+                    { type: 'Form', name: `${newScreenId}_FORM`, children: [] }
+                ]
+            }
+        };
+        const newFlowData = { ...flowData };
+        newFlowData.screens = [...newFlowData.screens, newScreen];
+        if (!newFlowData.routing_model[newScreenId]) {
+            newFlowData.routing_model[newScreenId] = [];
+        }
+        setFlowData(newFlowData);
+        setSelectedScreenId(newScreenId);
+    };
+    
+    const removeScreen = (screenId: string) => {
+        const newFlowData = { ...flowData };
+        newFlowData.screens = newFlowData.screens.filter((s:any) => s.id !== screenId);
+        delete newFlowData.routing_model[screenId];
+        Object.keys(newFlowData.routing_model).forEach(key => {
+            newFlowData.routing_model[key] = newFlowData.routing_model[key].filter((id:string) => id !== screenId);
+        });
+        setFlowData(newFlowData);
+        if (selectedScreenId === screenId) {
+            setSelectedScreenId(newFlowData.screens[0]?.id || null);
+        }
+    };
+    
+    const addComponent = (type: DeclarativeUIComponent['type']) => {
+        if (!selectedScreenId) return;
+        const newComponent: any = { type, name: `${type.toLowerCase()}_${Date.now()}` };
+        // Set defaults based on type
+        if (type.startsWith('Text')) newComponent.text = `New ${type}`;
+        else newComponent.label = `New ${type}`;
+        
+        const newFlowData = JSON.parse(JSON.stringify(flowData));
+        const screen = newFlowData.screens.find((s:any) => s.id === selectedScreenId);
+        if (screen) {
+            let form = screen.layout.children.find((c:any) => c.type === 'Form');
+            if (!form) {
+                form = { type: 'Form', name: `${selectedScreenId}_FORM`, children: [] };
+                screen.layout.children.push(form);
+            }
+            form.children.push(newComponent);
+            setFlowData(newFlowData);
+        }
+    };
+
+    const removeComponent = (componentName: string) => {
+        if (!selectedScreenId) return;
+        const newFlowData = JSON.parse(JSON.stringify(flowData));
+        const screen = newFlowData.screens.find((s:any) => s.id === selectedScreenId);
+        if (screen) {
+            const form = screen.layout.children.find((c:any) => c.type === 'Form');
+            if (form) {
+                form.children = form.children.filter((c:any) => c.name !== componentName);
+                setFlowData(newFlowData);
+            }
+        }
+    };
+
+    const openComponentEditor = (component: any) => {
+        setEditingComponent(component);
+        setIsComponentEditorOpen(true);
+    };
+    
+    const closeComponentEditor = () => {
+        setEditingComponent(null);
+        setIsComponentEditorOpen(false);
+    };
+
+    if (isLoading) {
+        return <PageSkeleton />;
+    }
+
+    const currentScreenForEditor = flowData.screens?.find((s: any) => s.id === selectedScreenId);
+    
+    return (
+        <Suspense fallback={<PageSkeleton />}>
+            {editingComponent && <ComponentEditorDialog component={editingComponent} onSave={updateComponent} onCancel={closeComponentEditor} isOpen={isComponentEditorOpen} onOpenChange={setIsComponentEditorOpen} />}
+
+            <form action={formAction}>
+                 {projectId && <input type="hidden" name="projectId" value={projectId} />}
+                {flowId && <input type="hidden" name="flowId" value={flowId} />}
+                {metaId && <input type="hidden" name="metaId" value={metaId} />}
+                <input type="hidden" name="flow_data" value={JSON.stringify(flowData, null, 2)} />
+                <input type="hidden" name="publish" value={publishOnSave ? 'on' : 'off'} />
+
+                <div className="space-y-6">
+                    <div>
+                        <Button variant="ghost" asChild className="mb-2 -ml-4">
+                            <Link href="/dashboard/flows"><ChevronLeft className="mr-2 h-4 w-4" />Back to Flows</Link>
+                        </Button>
+                        <h1 className="text-3xl font-bold font-headline">{isEditing ? 'Edit Meta Flow' : 'Create New Meta Flow'}</h1>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                        <div className="space-y-6">
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>Flow Configuration</CardTitle>
+                                </CardHeader>
+                                <CardContent className="space-y-4">
+                                     <div className="space-y-2">
+                                        <Label htmlFor="flowName">Flow Name</Label>
+                                        <Input id="flowName" name="flowName" value={flowName} onChange={(e) => setFlowName(e.target.value)} required />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="category">Category</Label>
+                                        <Select name="category" value={category} onValueChange={setCategory} required>
+                                            <SelectTrigger id="category"><SelectValue placeholder="Select a category..."/></SelectTrigger>
+                                            <SelectContent>{declarativeFlowComponents.map(cat => <SelectItem key={cat.type} value={cat.type}>{cat.label}</SelectItem>)}</SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <Switch id="publishOnSave" checked={publishOnSave} onCheckedChange={setPublishOnSave} />
+                                        <Label htmlFor="publishOnSave">Publish immediately after saving</Label>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            <Accordion type="single" collapsible defaultValue="screens">
+                                <AccordionItem value="screens">
+                                    <AccordionTrigger className="text-base font-semibold">Screens</AccordionTrigger>
+                                    <AccordionContent className="space-y-2">
+                                        {flowData.screens?.map((screen: any) => (
+                                             <div key={screen.id} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
+                                                <Button variant={selectedScreenId === screen.id ? 'default' : 'ghost'} className="flex-1 justify-start" onClick={() => setSelectedScreenId(screen.id)}>{screen.title || screen.id}</Button>
+                                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeScreen(screen.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                            </div>
+                                        ))}
+                                        <Button variant="outline" className="w-full" onClick={addScreen}><Plus className="mr-2 h-4 w-4"/>Add Screen</Button>
+                                    </AccordionContent>
+                                </AccordionItem>
+                                 <AccordionItem value="settings">
+                                    <AccordionTrigger className="text-base font-semibold">Screen Settings</AccordionTrigger>
+                                    <AccordionContent className="space-y-4">
+                                       {currentScreenForEditor ? (
+                                        <>
+                                            <div className="space-y-2"><Label>Screen ID</Label><Input value={currentScreenForEditor.id} readOnly disabled/></div>
+                                            <div className="space-y-2"><Label>Screen Title</Label><Input value={currentScreenForEditor.title} onChange={e => {
+                                                const newFlowData = {...flowData};
+                                                const screen = newFlowData.screens.find((s:any) => s.id === selectedScreenId);
+                                                if(screen) screen.title = e.target.value;
+                                                setFlowData(newFlowData);
+                                            }}/></div>
+                                        </>
+                                       ) : <p className="text-sm text-muted-foreground">Select a screen to see its settings.</p>}
+                                    </AccordionContent>
+                                </AccordionItem>
+                                <AccordionItem value="components">
+                                     <AccordionTrigger className="text-base font-semibold">Components</AccordionTrigger>
+                                     <AccordionContent className="space-y-2">
+                                        {currentScreenForEditor ? (
+                                            <>
+                                                {(currentScreenForEditor.layout.children.find((c:any) => c.type === 'Form')?.children || []).map((comp:any, index:number) => (
+                                                     <div key={comp.name || index} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
+                                                         <p className="flex-1 text-sm">{comp.label || comp.text || comp.name || comp.type}</p>
+                                                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openComponentEditor(comp)}><Settings className="h-4 w-4"/></Button>
+                                                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => removeComponent(comp.name)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                                     </div>
+                                                ))}
+                                                <Popover>
+                                                    <PopoverTrigger asChild><Button variant="outline" className="w-full"><Plus className="mr-2 h-4 w-4"/>Add Component</Button></PopoverTrigger>
+                                                    <PopoverContent className="w-56 p-2">
+                                                        <ScrollArea className="h-72">
+                                                            {declarativeFlowComponents.map(c => <Button key={c.type} variant="ghost" className="w-full justify-start" onClick={() => addComponent(c.type)}>{c.label}</Button>)}
+                                                        </ScrollArea>
+                                                    </PopoverContent>
+                                                </Popover>
+                                            </>
+                                        ): <p className="text-sm text-muted-foreground">Select a screen to add components.</p>}
+                                     </AccordionContent>
+                                </AccordionItem>
+                                <AccordionItem value="json">
+                                    <AccordionTrigger className="text-base font-semibold">Raw JSON</AccordionTrigger>
+                                    <AccordionContent><Textarea value={JSON.stringify(flowData, null, 2)} onChange={(e) => { try { const parsed = JSON.parse(e.target.value); setFlowData(parsed); } catch(err) {/* ignore */} }} className="h-96 font-mono text-xs" /></AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+
+                             <div className="flex justify-end pt-4">
+                                <SubmitButton isEditing={isEditing} />
+                            </div>
+                        </div>
+
+                        <div className="hidden lg:block">
+                            <MetaFlowPreview flowJson={JSON.stringify(flowData)} />
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </Suspense>
+    );
+}
+
+export default function CreateMetaFlowPage() {
+    return (
+        <Suspense fallback={<PageSkeleton />}>
+            <CreateMetaFlowPageContent />
+        </Suspense>
+    );
+}
