@@ -4,7 +4,7 @@
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { DataSourceEditor } from '../shared/data-source-editor';
-import { DynamicBooleanInput } from '../shared/dynamic-boolean-input';
+import { DynamicBooleanInput } from './dynamic-boolean-input';
 import { ActionEditor } from '../shared/action-editor';
 
 interface RadioButtonsEditorProps {
