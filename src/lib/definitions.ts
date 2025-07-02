@@ -531,8 +531,6 @@ export type AdminUserView = Omit<User, 'password'>;
 export type CreateTemplateState = {
     message?: string | null;
     error?: string | null;
-    payload?: string | null;
-    debugInfo?: string | null;
 };
 
 export type BroadcastState = {

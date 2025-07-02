@@ -1086,8 +1086,6 @@ export async function handleCreateTemplate(
     prevState: CreateTemplateState,
     formData: FormData
   ): Promise<CreateTemplateState> {
-    let payloadString: string | null = null;
-    let debugInfo: string = "";
 
     const cleanText = (text: string | null | undefined): string => {
         if (!text) return '';
@@ -1193,14 +1191,12 @@ export async function handleCreateTemplate(
                 })
             );
             
-            let accumulatedDebugInfo = '';
             const finalCards = [];
 
             for (let i = 0; i < cardsData.length; i++) {
                 const card = cardsData[i];
                 const uploadResult = mediaUploadResults[i];
-                accumulatedDebugInfo += `CARD ${i}:\n${uploadResult.debugInfo}\n`;
-                if(uploadResult.error) return { error: `Card ${i+1} media error: ${uploadResult.error}`, debugInfo: accumulatedDebugInfo };
+                if(uploadResult.error) return { error: `Card ${i+1} media error: ${uploadResult.error}` };
 
                 const cardComponents: any[] = [];
                 if (uploadResult.handle && card.headerFormat !== 'NONE') {
@@ -1215,7 +1211,6 @@ export async function handleCreateTemplate(
             }
             
             payload.components.push({ type: 'CAROUSEL', cards: finalCards });
-            debugInfo = accumulatedDebugInfo;
             
         } else { 
             const bodyText = cleanText(formData.get('body') as string);
@@ -1245,9 +1240,8 @@ export async function handleCreateTemplate(
                     headerComponent.text = headerText;
                     if (headerText.match(/{{\s*(\d+)\s*}}/g)) headerComponent.example = { header_text: ['example_header_var'] };
                 } else {
-                    const { handle, error, debugInfo: mediaDebug } = await getMediaHandleForTemplate(headerSampleFile, headerSampleUrl, accessToken, appId);
-                    debugInfo = mediaDebug;
-                    if(error) return { error, debugInfo };
+                    const { handle, error } = await getMediaHandleForTemplate(headerSampleFile, headerSampleUrl, accessToken, appId);
+                    if(error) return { error };
                     if(handle) headerComponent.example = { header_handle: [handle] };
                 }
                 payload.components.push(headerComponent);
@@ -1264,8 +1258,6 @@ export async function handleCreateTemplate(
             }
         }
     
-        payloadString = JSON.stringify(payload, null, 2);
-    
         const response = await fetch(
             `https://graph.facebook.com/v22.0/${wabaId}/message_templates`,
             {
@@ -1280,18 +1272,16 @@ export async function handleCreateTemplate(
     
         const responseText = await response.text();
         const responseData = responseText ? JSON.parse(responseText) : null;
-
-        debugInfo += `\n--- FINAL SUBMISSION ---\nPayload: ${payloadString}\nResponse Status: ${response.status}\nResponse Body: ${JSON.stringify(responseData, null, 2)}\n`;
     
         if (!response.ok) {
             console.error('Meta Template Creation Error:', responseData?.error || responseText);
             const errorMessage = responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error creating template.';
-            return { error: `API Error: ${errorMessage}`, payload: payloadString, debugInfo };
+            return { error: `API Error: ${errorMessage}` };
         }
 
         const newMetaTemplateId = responseData?.id;
         if (!newMetaTemplateId) {
-            return { error: 'Template created on Meta, but no ID was returned. Please sync manually.', payload: payloadString, debugInfo };
+            return { error: 'Template created on Meta, but no ID was returned. Please sync manually.' };
         }
 
         const templateToInsert = {
@@ -1306,15 +1296,15 @@ export async function handleCreateTemplate(
         revalidatePath('/dashboard/templates');
     
         const message = `Template "${name}" submitted successfully!`;
-        return { message, payload: payloadString, debugInfo };
+        return { message };
   
     } catch (e: any) {
         console.error('Error in handleCreateTemplate:', e);
-        return { error: e.message || 'An unexpected error occurred.', payload: payloadString, debugInfo };
+        return { error: e.message || 'An unexpected error occurred.' };
     }
 }
 
-export async function handleCreateFlowTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; payload?: string }> {
+export async function handleCreateFlowTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const flowId = formData.get('flowId') as string; 
     
@@ -1355,8 +1345,6 @@ export async function handleCreateFlowTemplate(prevState: any, formData: FormDat
         ]
     };
 
-    const payloadString = JSON.stringify(payload, null, 2);
-
     try {
         const { wabaId, accessToken } = project;
         const response = await axios.post(
@@ -1371,7 +1359,7 @@ export async function handleCreateFlowTemplate(prevState: any, formData: FormDat
 
         const newMetaTemplateId = response.data?.id;
         if (!newMetaTemplateId) {
-            return { error: 'Template created on Meta, but no ID was returned. Please sync manually.', payload: payloadString };
+            return { error: 'Template created on Meta, but no ID was returned. Please sync manually.' };
         }
 
         const { db } = await connectToDatabase();
@@ -1390,11 +1378,11 @@ export async function handleCreateFlowTemplate(prevState: any, formData: FormDat
         await db.collection('templates').insertOne(templateToInsert as any);
         revalidatePath('/dashboard/templates');
 
-        return { message: `Template "${templateName}" created successfully and is now pending approval.`, payload: payloadString };
+        return { message: `Template "${templateName}" created successfully and is now pending approval.` };
 
     } catch (e: any) {
         console.error('Error creating flow template:', e);
-        return { error: getErrorMessage(e) || 'An unexpected error occurred.', payload: payloadString };
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
 }
 
@@ -2639,7 +2627,7 @@ export async function getTransactionStatus(transactionId: string): Promise<WithI
     if (!ObjectId.isValid(transactionId)) return null;
     
     try {
-        const { db } await connectToDatabase();
+        const { db } = await connectToDatabase();
         const transaction = await db.collection<Transaction>('transactions').findOne({
             _id: new ObjectId(transactionId),
             userId: new ObjectId(session.user._id)
@@ -3527,7 +3515,7 @@ export async function saveCannedMessageAction(prevState: any, formData: FormData
 export async function deleteCannedMessage(id: string): Promise<{ success: boolean; error?: string }> {
     if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } await connectToDatabase();
+        const { db } = await connectToDatabase();
         await db.collection('canned_messages').deleteOne({ _id: new ObjectId(id) });
         revalidatePath('/dashboard/settings');
         return { success: true };
@@ -4006,7 +3994,7 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
 
 export async function getLibraryTemplates(): Promise<LibraryTemplate[]> {
     try {
-        const { db } await connectToDatabase();
+        const { db } = await connectToDatabase();
         const customTemplates = await db.collection<LibraryTemplate>('library_templates').find({}).sort({ name: 1 }).toArray();
         const allTemplates = [...premadeTemplates, ...customTemplates];
         return JSON.parse(JSON.stringify(allTemplates));
@@ -4049,7 +4037,7 @@ export async function saveLibraryTemplate(prevState: any, formData: FormData): P
 }
 
 export async function deleteLibraryTemplate(id: string): Promise<{ message?: string; error?: string }> {
-    const { isAdmin } await getAdminSession();
+    const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { error: 'Permission denied.' };
 
     if (!ObjectId.isValid(id)) return { error: 'Invalid template ID.' };
