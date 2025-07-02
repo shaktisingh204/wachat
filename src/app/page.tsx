@@ -201,10 +201,10 @@ export default async function HomePage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div className="flex flex-col gap-16 items-center">
               
               {/* Flow Builder UI Mockup */}
-              <div className="space-y-4">
+              <div className="space-y-4 w-full">
                 <h3 className="text-2xl font-semibold text-center">No-Code Flow Builder</h3>
                 <p className="text-muted-foreground text-center max-w-md mx-auto">Visually map out complex conversation logic with branching, conditions, and API calls. Perfect for support bots and drip campaigns.</p>
                 <div className="relative p-6 border rounded-xl bg-card shadow-lg h-[400px] lg:h-[450px] overflow-hidden group">
@@ -229,7 +229,7 @@ export default async function HomePage() {
               </div>
 
               {/* Declarative Flow UI Builder Mockup */}
-              <div className="space-y-4">
+              <div className="space-y-4 w-full">
                 <h3 className="text-2xl font-semibold text-center">Declarative Flow UI Builder</h3>
                 <p className="text-muted-foreground text-center max-w-md mx-auto">Build rich, native forms and multi-step experiences that open directly inside WhatsApp for higher conversion rates.</p>
                 <div className="relative p-6 border rounded-xl bg-card shadow-lg h-[400px] lg:h-[450px] flex justify-center items-center">
