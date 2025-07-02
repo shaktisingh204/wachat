@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
-import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Play, ArrowRightLeft, ToggleRight, ServerCog, Megaphone } from 'lucide-react';
+import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Play, ArrowRightLeft, ToggleRight, ServerCog, Megaphone, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -50,21 +50,6 @@ const features = [
     description: 'Create and manage "Click to WhatsApp" ad campaigns directly from the dashboard to drive new leads.',
     gradient: 'card-gradient-green',
   }
-];
-
-const steps = [
-  {
-    title: 'Connect Your Account',
-    description: 'Securely connect your WhatsApp Business Account using our guided setup process in minutes.',
-  },
-  {
-    title: 'Create & Configure',
-    description: 'Design message templates, build automated conversational flows, and upload your contact lists.',
-  },
-  {
-    title: 'Launch & Engage',
-    description: 'Start your broadcast campaigns and watch your customer engagement grow with our powerful tools.',
-  },
 ];
 
 const testimonials = [
@@ -246,7 +231,6 @@ export default async function HomePage() {
                 <p className="text-muted-foreground text-center max-w-md mx-auto">Build rich, native forms and multi-step experiences that open directly inside WhatsApp for higher conversion rates.</p>
                 <div className="relative mt-8">
                     <div className="relative p-6 border rounded-xl bg-card shadow-lg h-[450px] flex justify-center items-center w-full max-w-sm mx-auto">
-                        {/* Decorative elements */}
                         <div className="absolute -top-8 -left-12 w-24 h-24 bg-primary/10 rounded-full -z-10 animate-fade-in-up"></div>
                         <div className="absolute -bottom-12 -right-12 w-32 h-32 bg-accent/10 rounded-full -z-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}></div>
                         
@@ -292,32 +276,73 @@ export default async function HomePage() {
           </div>
         </section>
 
-
-        {/* How It Works Section */}
-        <section className="py-16">
+        {/* Live Action Section */}
+        <section className="py-16 md:py-24 bg-muted">
           <div className="container mx-auto">
-            <div className="text-center space-y-4 mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold font-headline">Get Started in 3 Easy Steps</h2>
-              <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
-                Connecting your business to Wachat is simple and secure.
+             <div className="text-center space-y-4 mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold font-headline">See It All In Action</h2>
+              <p className="max-w-3xl mx-auto text-lg text-muted-foreground">
+                From the first touchpoint to the final sale, see how Wachat streamlines your entire customer conversation in one seamless flow.
               </p>
             </div>
-            <div className="relative grid grid-cols-1 md:grid-cols-3 gap-y-10 md:gap-x-8">
-              {steps.map((step, index) => (
-                <div key={index} className="relative flex flex-col items-center text-center space-y-3 px-4">
-                   <div className="z-10 h-16 w-16 flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-2xl border-8 border-background">
-                    {index + 1}
+
+            <div className="relative flex justify-center">
+              {/* Doodles */}
+              <Zap className="h-8 w-8 text-yellow-400 absolute top-0 -left-4 animate-fade-in-up" style={{animationDelay: '0.5s'}} />
+              <AtSign className="h-6 w-6 text-red-400 absolute top-16 -right-8 animate-fade-in-up" style={{animationDelay: '0.7s'}}/>
+              <Pencil className="h-7 w-7 text-blue-400 absolute bottom-24 -left-12 animate-fade-in-up" style={{animationDelay: '0.9s'}}/>
+              <ShoppingBag className="h-9 w-9 text-green-500 absolute bottom-8 -right-4 animate-fade-in-up" style={{animationDelay: '1.1s'}}/>
+              <MessageCircle className="h-5 w-5 text-purple-400 absolute top-3/4 left-0 animate-fade-in-up" style={{animationDelay: '1.3s'}}/>
+              <Check className="h-8 w-8 text-green-500 absolute top-8 right-0 animate-fade-in-up" style={{animationDelay: '1.5s'}}/>
+
+              {/* Phone Mockup */}
+              <div className="w-full max-w-sm bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl z-10">
+                <div className="h-[700px] bg-[#E5DDD5] rounded-[2rem] flex flex-col relative overflow-hidden [background-image:url('https://placehold.co/400x800.png')] bg-center bg-cover" data-ai-hint="chat background">
+                   <div className="absolute inset-0 bg-black/5"></div>
+                   {/* Header */}
+                   <div className="bg-[#008069] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                      <Avatar><AvatarFallback>A</AvatarFallback></Avatar>
+                      <div className="flex-1"><p className="font-semibold">Acme Inc.</p><p className="text-xs opacity-80">tap here for contact info</p></div>
                    </div>
-                  <h3 className="text-xl font-semibold mt-2">{step.title}</h3>
-                  <p className="text-muted-foreground">{step.description}</p>
+                   {/* Chat */}
+                   <div className="flex-1 p-3 space-y-3 overflow-y-auto">
+                      <div className="flex justify-start"><div className="bg-white rounded-lg p-2 text-sm max-w-xs shadow">Hi, I'm interested in your products.</div></div>
+                      <div className="flex justify-end"><div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow">Thanks for your message! This is an auto-reply.</div></div>
+                      <div className="flex justify-end"><div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow">You can find our latest offers here: [link] (Canned Reply)</div></div>
+                      <div className="flex justify-end"><div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow">It looks like you're asking about pricing. Our standard plan is $49/mo. (Flow Builder Reply)</div></div>
+                      <div className="flex justify-end">
+                        <div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow space-y-2">
+                          <p>Ready to order? Open our interactive order form to get started!</p>
+                          <Button className="w-full bg-white text-green-600 hover:bg-white/90 shadow-none border-t border-black/10 rounded-t-none -m-2 mt-2">🛒 Start Your Order</Button>
+                        </div>
+                      </div>
+                   </div>
+                   {/* Meta Flow Overlay */}
+                   <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20">
+                      <div className="bg-slate-100 h-[90%] rounded-t-2xl flex flex-col">
+                        <div className="p-3 border-b text-center font-semibold">Order Products</div>
+                        <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+                          <p className="font-semibold">Summer Collection</p>
+                          <div className="flex gap-3 border rounded-lg p-3 bg-white">
+                            <Image src="https://placehold.co/80x80.png" alt="product" width={80} height={80} className="rounded-md" data-ai-hint="shirt product"/>
+                            <div><p className="font-medium">Cool T-Shirt</p><p className="text-sm text-muted-foreground">$25.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
+                          </div>
+                          <div className="flex gap-3 border rounded-lg p-3 bg-white">
+                             <Image src="https://placehold.co/80x80.png" alt="product" width={80} height={80} className="rounded-md" data-ai-hint="sunglasses product"/>
+                            <div><p className="font-medium">Sunglasses</p><p className="text-sm text-muted-foreground">$40.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
+                          </div>
+                        </div>
+                        <div className="p-3 border-t bg-white"><Button className="w-full bg-primary">View Cart (2)</Button></div>
+                      </div>
+                   </div>
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </section>
 
         {/* Testimonials Section */}
-        <section className="py-16 bg-muted">
+        <section className="py-16">
             <div className="container mx-auto">
                 <div className="text-center space-y-4 mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Loved by Businesses Worldwide</h2>
@@ -351,7 +376,7 @@ export default async function HomePage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-16">
+        <section className="py-16 bg-muted">
             <div className="container max-w-3xl mx-auto">
                  <div className="text-center space-y-4 mb-10">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Frequently Asked Questions</h2>
