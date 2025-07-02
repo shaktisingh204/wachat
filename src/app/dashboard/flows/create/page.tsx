@@ -57,16 +57,16 @@ function PageSkeleton() {
 }
 
 function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChange }: { component: any, onSave: (newComponent: any) => void, onCancel: () => void, isOpen: boolean, onOpenChange: (open: boolean) => void }) {
-    const [localComponent, setLocalComponent] = useState(component);
+    const [localComponent, setLocalComponent] = useState<any>(null);
     const [isUploading, setIsUploading] = useState(false);
 
     useEffect(() => {
-        if(component) {
-            setLocalComponent(component);
+        if (component) {
+            setLocalComponent(JSON.parse(JSON.stringify(component)));
         }
     }, [component]);
     
-    if (!component || !localComponent) return null; 
+    if (!localComponent) return null; 
 
     const updateField = (key: string, value: any) => {
         setLocalComponent((prev: any) => {
@@ -136,12 +136,93 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         updateField('images', newImages);
     };
 
+    const handleDataSourceChange = (index: number, field: string, value: string | boolean) => {
+        const newDataSource = [...(localComponent['data-source'] || [])];
+        newDataSource[index] = { ...newDataSource[index], [field]: value };
+        updateField('data-source', newDataSource);
+    };
+    
+    const addDataSourceOption = () => {
+        const newDataSource = [...(localComponent['data-source'] || []), { id: `opt_${Date.now()}`, title: 'New Option', enabled: true }];
+        updateField('data-source', newDataSource);
+    };
+    
+    const removeDataSourceOption = (index: number) => {
+        const newDataSource = (localComponent['data-source'] || []).filter((_: any, i: number) => i !== index);
+        updateField('data-source', newDataSource);
+    };
+    
+    const handleActionChange = (actionName: string, field: 'name' | 'payload' | 'next' | 'url', value: any) => {
+        const newAction = { ...(localComponent[actionName] || {}), [field]: value };
+        if (field === 'name' && value !== 'navigate') {
+            delete newAction.next;
+        }
+        if (field === 'name' && value !== 'open_url') {
+            delete newAction.url;
+        }
+        updateField(actionName, newAction);
+    };
+
+
     const renderProperties = () => {
-        const isTextComponent = ['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(component?.type);
-        const isImageComponent = component?.type === 'Image';
-        const isCarouselComponent = component?.type === 'ImageCarousel';
-        const isTextInputComponent = component?.type === 'TextInput';
-        const isTextAreaComponent = component?.type === 'TextArea';
+        const isTextComponent = ['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(localComponent?.type);
+        const isImageComponent = localComponent?.type === 'Image';
+        const isCarouselComponent = localComponent?.type === 'ImageCarousel';
+        const isTextInputComponent = localComponent?.type === 'TextInput';
+        const isTextAreaComponent = localComponent?.type === 'TextArea';
+        const isDropdownComponent = localComponent?.type === 'Dropdown';
+
+        if (isDropdownComponent) {
+            return (
+                <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Name (unique identifier)</Label>
+                            <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="label">Label (shown to user)</Label>
+                            <Input id="label" value={localComponent.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Data Source (Options)</Label>
+                        <div className="space-y-3 max-h-48 overflow-y-auto border p-2 rounded-md bg-background">
+                            {(localComponent['data-source'] || []).map((opt: any, index: number) => (
+                                <div key={opt.id} className="p-3 border rounded-lg bg-muted/50 relative">
+                                    <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeDataSourceOption(index)}><Trash2 className="h-3 w-3 text-destructive"/></Button>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <Input placeholder="ID (e.g., us)" value={opt.id} onChange={(e) => handleDataSourceChange(index, 'id', e.target.value)} />
+                                        <Input placeholder="Title (e.g., USA)" value={opt.title} onChange={(e) => handleDataSourceChange(index, 'title', e.target.value)} />
+                                        <Input className="col-span-2" placeholder="Description (optional)" value={opt.description || ''} onChange={(e) => handleDataSourceChange(index, 'description', e.target.value)} />
+                                        <Input className="col-span-2" placeholder="Metadata (optional, e.g. icon)" value={opt.metadata || ''} onChange={(e) => handleDataSourceChange(index, 'metadata', e.target.value)} />
+                                    </div>
+                                    <div className="flex items-center space-x-2 mt-2"><Switch checked={opt.enabled !== false} onCheckedChange={(val) => handleDataSourceChange(index, 'enabled', val)} /><Label>Enabled</Label></div>
+                                </div>
+                            ))}
+                        </div>
+                        <Button type="button" variant="outline" size="sm" onClick={addDataSourceOption} className="w-full"><Plus className="mr-2 h-4 w-4"/>Add Option</Button>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>On-Select Action (optional)</Label>
+                        <div className="p-3 border rounded-lg space-y-3">
+                            <Select value={localComponent['on-select-action']?.name || ''} onValueChange={(val) => handleActionChange('on-select-action', 'name', val)}>
+                                <SelectTrigger><SelectValue placeholder="No Action"/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="">No Action</SelectItem>
+                                    <SelectItem value="data_exchange">Data Exchange</SelectItem>
+                                    <SelectItem value="navigate">Navigate</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {localComponent['on-select-action']?.name === 'data_exchange' && (
+                                <Textarea placeholder='Payload (JSON)' className="font-mono text-xs" value={JSON.stringify(localComponent['on-select-action'].payload, null, 2) || ''} onChange={(e) => { try { handleActionChange('on-select-action', 'payload', JSON.parse(e.target.value)) } catch {} }}/>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )
+        }
 
         if (isImageComponent) {
             return (
@@ -170,7 +251,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="aspect-ratio">Aspect Ratio (optional)</Label>
+                            <Label htmlFor="aspect-ratio">Aspect Ratio</Label>
                             <Select
                                 value={String(localComponent['aspect-ratio'] || '')}
                                 onValueChange={v => updateField('aspect-ratio', v ? parseFloat(v) : undefined)}
@@ -186,9 +267,9 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="scale-type">Scale Type (optional)</Label>
+                            <Label htmlFor="scale-type">Scale Type</Label>
                             <Select value={localComponent['scale-type'] || 'contain'} onValueChange={v => updateField('scale-type', v)}>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectTrigger id="scale-type"><SelectValue/></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="contain">Contain</SelectItem>
                                     <SelectItem value="cover">Cover</SelectItem>
@@ -352,30 +433,25 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         }
 
         // Generic fallback for other components
-        return Object.keys(component).map(key => {
-            if (!localComponent) return null;
-            const value = localComponent[key];
-            if (key === 'type' || (key === 'name' && typeof value === 'string' && value.startsWith(component.type.toLowerCase()))) return null; 
-            return (
-                <div key={key} className="space-y-2">
-                    <Label htmlFor={key}>{key}</Label>
-                    {typeof value === 'boolean' ? (
-                        <Switch id={key} checked={value} onCheckedChange={(val) => updateField(key, val)} />
-                    ) : typeof value === 'object' && value !== null ? (
-                        <Textarea id={key} value={JSON.stringify(value, null, 2)} onChange={e => { try { updateField(key, JSON.parse(e.target.value)) } catch(err) { /* ignore parse error */}}} className="font-mono text-xs h-32"/>
-                    ) : (
-                        <Input id={key} value={value ?? ''} onChange={e => updateField(key, e.target.value)} />
-                    )}
-                </div>
-            )
-        });
+        return (
+             <div className="space-y-2">
+                <Label htmlFor="generic-json">Component JSON</Label>
+                <Textarea 
+                    id="generic-json" 
+                    value={JSON.stringify(localComponent, null, 2)} 
+                    onChange={e => { try { setLocalComponent(JSON.parse(e.target.value)) } catch(err) { /* ignore parse error on type */}}} 
+                    className="font-mono text-xs h-64"
+                />
+                 <p className="text-xs text-muted-foreground">Advanced: Edit the raw JSON for this component.</p>
+            </div>
+        );
     };
     
     return (
          <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-2xl">
                 <DialogHeader>
-                    <DialogTitle>Edit Component: {component.type}</DialogTitle>
+                    <DialogTitle>Edit Component: {localComponent.type}</DialogTitle>
                 </DialogHeader>
                 <ScrollArea className="max-h-[60vh] -mx-6 px-6">
                 <div className="py-4 space-y-4">
