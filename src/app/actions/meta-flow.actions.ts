@@ -94,17 +94,21 @@ export async function saveMetaFlow(prevState: any, formData: FormData): Promise<
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: "Access denied." };
     
-    const name = formData.get('name') as string;
     const category = formData.get('category') as string;
     const flowDataStr = formData.get('flow_data') as string;
     const shouldPublish = formData.get('publish') === 'on';
     
-    if (!name || !category || !flowDataStr) {
-        return { error: 'Name, Category, and Flow Data are required.' };
+    if (!category || !flowDataStr) {
+        return { error: 'Category and Flow Data are required.' };
     }
 
     try {
         const flow_data = JSON.parse(flowDataStr);
+        const name = flow_data.name; // Get name from inside the JSON
+        if (!name) {
+            return { error: 'Flow name is missing from the flow data JSON.' };
+        }
+        
         const accessToken = hasAccess.accessToken;
 
         if (flowId && metaId) {

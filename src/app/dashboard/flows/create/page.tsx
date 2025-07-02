@@ -147,11 +147,11 @@ function CreateMetaFlowPage() {
         } else {
             setFlowData({
                 version: '7.1',
-                name: 'new_flow_' + Math.floor(Math.random() * 1000),
-                description: '',
+                name: 'new_flow',
+                description: 'A new flow created in Wachat.',
                 routing_model: {},
                 screens: [{
-                    id: 'SCREEN_1',
+                    id: 'SCREEN_A',
                     title: 'Welcome Screen',
                     layout: {
                         type: 'SingleColumnLayout',
@@ -422,7 +422,6 @@ function CreateMetaFlowPage() {
             <input type="hidden" name="flowId" value={flowId || ''}/>
             <input type="hidden" name="metaId" value={existingFlow?.metaId || ''}/>
             <input type="hidden" name="category" value={category} />
-            <input type="hidden" name="name" value={flowData?.name} />
             <input type="hidden" name="flow_data" value={flowJson} />
 
             <div>

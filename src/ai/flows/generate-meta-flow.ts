@@ -102,8 +102,8 @@ const ScreenSchema = z.object({
 const FlowJSONSchema = z.object({
   version: z.literal("7.1"),
   data_api_version: z.literal("3.0").optional(),
-  name: z.string().describe("The name of the flow."),
-  description: z.string().optional().describe("A brief description of the flow."),
+  name: z.string().describe("A descriptive name for the flow, e.g., 'appointment_booking' or 'lead_gen_v2'."),
+  description: z.string().optional().describe("A brief, user-friendly description of what the flow does."),
   routing_model: z.record(z.array(z.string())).describe("Defines the navigation paths between screens, e.g., {'SCREENA': ['SCREENB', 'FINALSCREEN']}."),
   screens: z.array(ScreenSchema).describe("An array of all screens that make up the flow. MUST contain at least one screen."),
 });
