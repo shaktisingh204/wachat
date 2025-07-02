@@ -66,7 +66,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         setLocalComponent((prev: any) => ({...prev, [key]: value}));
     };
 
-    if (!component) return null;
+    if (!component || !localComponent) return null;
 
     return (
          <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -77,7 +77,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                 <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
                     {Object.keys(component).map(key => {
                         const value = localComponent[key];
-                        if (key === 'type' || key === 'name') return null; // Don't allow editing type or name
+                        if (key === 'type' || key === 'name') return null;
                         return (
                             <div key={key} className="space-y-2">
                                 <Label htmlFor={key}>{key}</Label>
@@ -113,7 +113,7 @@ function CreateMetaFlowPage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [existingFlow, setExistingFlow] = useState<WithId<MetaFlow> | null>(null);
-    const [flowData, setFlowData] = useState<any>({ version: '7.1', name: 'new_flow', screens: [], description: '', routing_model: {} });
+    const [flowData, setFlowData] = useState<any>({ version: '7.1', screens: [], routing_model: {} });
     
     const [category, setCategory] = useState('OTHER');
     const [flowContentJson, setFlowContentJson] = useState('');
@@ -123,6 +123,8 @@ function CreateMetaFlowPage() {
     const [lastApiPayload, setLastApiPayload] = useState<string | null>(null);
     
     const [editingComponent, setEditingComponent] = useState<{ screenIndex: number, componentIndex: number, component: any } | null>(null);
+    
+    const [flowName, setFlowName] = useState('new_flow');
 
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -137,9 +139,8 @@ function CreateMetaFlowPage() {
             getMetaFlowById(flowId).then(data => {
                 if (data) {
                     setExistingFlow(data);
-                    const flowContent = { name: data.name, description: data.description || '', ...data.flow_data };
-                    if (!flowContent.version) flowContent.version = '7.1';
-                    setFlowData(flowContent);
+                    setFlowName(data.name);
+                    setFlowData(data.flow_data || { version: '7.1', screens: [], routing_model: {} });
                     setCategory(data.categories[0] || 'OTHER');
                     setShouldPublish(data.status === 'PUBLISHED');
                 }
@@ -148,9 +149,7 @@ function CreateMetaFlowPage() {
         } else {
             setFlowData({
                 version: '7.1',
-                name: 'new_flow',
-                description: '',
-                routing_model: {},
+                routing_model: { SCREENA: [] },
                 screens: [{
                     id: 'SCREENA',
                     title: 'Welcome Screen',
@@ -195,6 +194,9 @@ function CreateMetaFlowPage() {
             } else if (result.flowJson) {
                 try {
                     const parsedFlow = JSON.parse(result.flowJson);
+                    setFlowName(parsedFlow.name || 'ai_generated_flow');
+                    if(parsedFlow.name) delete parsedFlow.name;
+                    if(parsedFlow.description) delete parsedFlow.description;
                     if (!parsedFlow.version) parsedFlow.version = '7.1';
                     setFlowData(parsedFlow);
                     toast({ title: "Flow Generated!", description: "The AI has created your flow. Review and save it." });
@@ -204,13 +206,6 @@ function CreateMetaFlowPage() {
             }
         });
     };
-
-    const updateFlowField = useCallback((field: 'name' | 'description', value: any) => {
-        setFlowData(prev => {
-            if (JSON.stringify(prev[field]) === JSON.stringify(value)) return prev;
-            return { ...prev, [field]: value };
-        });
-    }, []);
 
     const updateScreenField = useCallback((screenIndex: number, field: string, value: any) => {
         setFlowData((prev: any) => {
@@ -243,8 +238,7 @@ function CreateMetaFlowPage() {
         setFlowData((prev: any) => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
-            const safeLayoutChildren = screenToUpdate.layout?.children?.filter(Boolean) || [];
-            const formContainer = safeLayoutChildren.find((c: any) => c && c.type === 'Form');
+            const formContainer = screenToUpdate.layout?.children?.find((c: any) => c && c.type === 'Form');
             
             if (formContainer) {
                  if (!formContainer.children) formContainer.children = [];
@@ -261,8 +255,7 @@ function CreateMetaFlowPage() {
         setFlowData((prev: any) => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
-            const safeLayoutChildren = screenToUpdate.layout?.children?.filter(Boolean) || [];
-            const formContainer = safeLayoutChildren.find((c: any) => c && c.type === 'Form');
+            const formContainer = screenToUpdate.layout?.children?.find((c: any) => c && c.type === 'Form');
 
             if (formContainer && formContainer.children) {
                 formContainer.children = formContainer.children.filter((_: any, i: number) => i !== componentIndex);
@@ -321,8 +314,7 @@ function CreateMetaFlowPage() {
         if (!editingComponent) return;
         setFlowData(prev => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
-            const safeLayoutChildren = newScreens[editingComponent.screenIndex].layout?.children?.filter(Boolean) || [];
-            const formContainer = safeLayoutChildren.find((c: any) => c && c.type === 'Form');
+            const formContainer = newScreens[editingComponent.screenIndex].layout?.children?.find((c: any) => c && c.type === 'Form');
 
             if (formContainer && formContainer.children) {
                 formContainer.children[editingComponent.componentIndex] = updatedComponent;
@@ -336,8 +328,7 @@ function CreateMetaFlowPage() {
     
     useEffect(() => {
         if (flowData) {
-            const { name, description, ...content } = flowData;
-            const newJson = JSON.stringify(content, null, 2);
+            const newJson = JSON.stringify(flowData, null, 2);
              if (newJson !== flowContentJson) {
                 setFlowContentJson(newJson);
             }
@@ -404,10 +395,8 @@ function CreateMetaFlowPage() {
             newRoutingModel[screen.id] = [...new Set(targets)];
         });
 
-        if (JSON.stringify(newRoutingModel) !== JSON.stringify(flowData.routing_model || {})) {
-            updateFlowField('routing_model', newRoutingModel);
-        }
-    }, [flowData?.screens, flowData?.routing_model, updateFlowField]);
+        setFlowData(prev => ({...prev, routing_model: newRoutingModel}));
+    }, [flowData?.screens]);
     
     if (isLoading) return <PageSkeleton />;
 
@@ -436,7 +425,7 @@ function CreateMetaFlowPage() {
                   <Link href="/dashboard/flows"><ChevronLeft className="mr-2 h-4 w-4" />Back to Meta Flows</Link>
                 </Button>
                 <h1 className="text-3xl font-bold font-headline">{isEditing ? 'Edit Meta Flow' : 'Create New Meta Flow'}</h1>
-                <p className="text-muted-foreground mt-2">{isEditing ? `Editing flow: ${existingFlow?.name}` : 'Build interactive forms and experiences for your customers.'}</p>
+                <p className="text-muted-foreground mt-2">{isEditing ? `Editing flow: ${flowName}` : 'Build interactive forms and experiences for your customers.'}</p>
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
@@ -447,7 +436,7 @@ function CreateMetaFlowPage() {
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="flowNameInput">Flow Name</Label>
-                                    <Input id="flowNameInput" name="flowName" value={flowData.name || ''} onChange={e => updateFlowField('name', e.target.value)} placeholder="e.g., lead_capture_flow" required/>
+                                    <Input id="flowNameInput" name="flowName" value={flowName} onChange={e => setFlowName(e.target.value)} placeholder="e.g., lead_capture_flow" required/>
                                     <p className="text-xs text-muted-foreground">Lowercase letters and underscores only.</p>
                                 </div>
                                 <div className="space-y-2">
@@ -488,9 +477,8 @@ function CreateMetaFlowPage() {
                             <CardContent>
                                 <Accordion type="multiple" className="w-full space-y-4" defaultValue={['item-0']}>
                                     {(flowData.screens || []).map((screen: any, screenIndex: number) => {
-                                        const safeLayoutChildren = screen.layout?.children?.filter(Boolean) || [];
-                                        const formContainer = safeLayoutChildren.find((c: any) => c && c.type === 'Form');
-                                        const componentsToRender = formContainer ? (formContainer.children || []) : safeLayoutChildren;
+                                        const formContainer = screen.layout?.children?.find((c: any) => c && c.type === 'Form');
+                                        const componentsToRender = formContainer ? (formContainer.children || []) : (screen.layout?.children || []);
                                         
                                         return (
                                         <AccordionItem value={`item-${screenIndex}`} key={screen.id} className="border rounded-md px-4">
@@ -506,10 +494,10 @@ function CreateMetaFlowPage() {
                                                     <Input
                                                         id={`screen-id-${screen.id}`}
                                                         value={screen.id}
-                                                        onChange={e => updateScreenField(screenIndex, 'id', e.target.value.toUpperCase().replace(/[^A-Z]/g, ''))}
+                                                        onChange={e => updateScreenField(screenIndex, 'id', e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, ''))}
                                                         className="font-mono"
                                                     />
-                                                    <p className="text-xs text-muted-foreground">Unique ID for this screen. Uppercase letters only.</p>
+                                                    <p className="text-xs text-muted-foreground">Unique ID for this screen. Uppercase letters, numbers, and underscores only.</p>
                                                 </div>
                                                 <div className="flex items-center justify-end gap-6 text-sm">
                                                     <div className="flex items-center gap-2"><Label htmlFor={`terminal-${screen.id}`}>Terminal Screen</Label><Switch id={`terminal-${screen.id}`} checked={!!screen.terminal} onCheckedChange={(val) => updateScreenField(screenIndex, 'terminal', val)}/></div>
