@@ -1,4 +1,7 @@
 
+'use client';
+
+import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
@@ -92,7 +95,17 @@ const faqs = [
     }
 ]
 
-export default async function HomePage() {
+export default function HomePage() {
+  const [animationKey, setAnimationKey] = React.useState(0);
+
+  React.useEffect(() => {
+    const animationDuration = 15000; // total animation time is ~10s, add 5s pause
+    const timer = setInterval(() => {
+        setAnimationKey(prevKey => prevKey + 1);
+    }, animationDuration);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       {/* Header */}
@@ -146,43 +159,55 @@ export default async function HomePage() {
 
               {/* Phone Mockup */}
                <div className="w-full max-w-sm bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl z-10">
-                <div className="h-[700px] bg-[#E5DDD5] rounded-[2rem] flex flex-col relative overflow-hidden [background-image:url('https://placehold.co/400x800.png')] bg-center bg-cover" data-ai-hint="chat background">
+                <div 
+                    className="h-[700px] bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
+                    style={{backgroundImage: "url('https://placehold.co/400x800.png')"}}
+                    data-ai-hint="dark gaming pattern"
+                >
                    <div className="absolute inset-0 bg-black/5"></div>
                    {/* Header */}
-                   <div className="bg-[#008069] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
-                      <Avatar><AvatarFallback>A</AvatarFallback></Avatar>
-                      <div className="flex-1"><p className="font-semibold">Acme Inc.</p><p className="text-xs opacity-80">tap here for contact info</p></div>
+                   <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
+                      <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
+                      <div className="flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <p className="font-semibold">Wachat</p>
+                            <svg viewBox="0 0 18 18" width="16" height="16" className="text-green-400 flex-shrink-0">
+                                <path d="M9 18A9 9 0 1 1 9 0a9 9 0 0 1 0 18ZM12.12 6.36l-4.5 4.5a.9.9 0 0 1-1.28 0l-2.25-2.25a.9.9 0 1 1 1.28-1.28l1.61 1.61 3.86-3.86a.9.9 0 0 1 1.28 1.28Z" fill="currentColor"></path>
+                            </svg>
+                          </div>
+                          <p className="text-xs opacity-80">tap here for contact info</p>
+                      </div>
                    </div>
                    {/* Chat */}
-                   <div className="flex-1 p-3 space-y-3 overflow-y-auto">
+                   <div className="flex-1 p-3 space-y-3 overflow-y-auto" key={animationKey}>
                         {/* 1. User says Hi */}
                         <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '1s' }}>
-                            <div className="bg-white rounded-lg p-2 text-sm max-w-xs shadow">Hi</div>
+                            <div className="bg-slate-700 text-white rounded-lg p-2 text-sm max-w-xs shadow">Hi</div>
                         </div>
                         {/* 2. Bot auto-reply */}
                         <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '2.5s' }}>
-                            <div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow">Welcome to Acme Inc! How can I help you today? Type "Start flow" to see our product showcase.</div>
+                            <div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow">Welcome to Wachat! How can I help you today? Type "Start flow" to see our product showcase.</div>
                         </div>
                         {/* 3. User says Start flow */}
                         <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '4s' }}>
-                            <div className="bg-white rounded-lg p-2 text-sm max-w-xs shadow">Start flow</div>
+                            <div className="bg-slate-700 text-white rounded-lg p-2 text-sm max-w-xs shadow">Start flow</div>
                         </div>
                         {/* 4. Flow Welcome */}
                         <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '5s' }}>
-                            <div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow">Welcome to the product showcase! Here is our latest item, fresh from our API.</div>
+                            <div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow">Welcome to the product showcase! Here is our latest item, fresh from our API.</div>
                         </div>
                         {/* 5. Flow Image */}
                         <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '6s' }}>
-                            <div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow">
+                            <div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow">
                                 <Image src="https://placehold.co/600x400.png" alt="product" width={200} height={150} className="rounded-md" data-ai-hint="sneaker product photo" />
                                 <p className="pt-1">Our new Super Sneakers are now in stock!</p>
                             </div>
                         </div>
                         {/* 6. Flow Template with Button */}
                         <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '7.5s' }}>
-                            <div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow space-y-2">
+                            <div className="bg-[#005C4B] text-white rounded-lg p-2 text-sm max-w-xs shadow space-y-2">
                                 <p>Ready to see more? Open our interactive order form to browse the full catalog!</p>
-                                <div className="w-full bg-white/80 text-green-600 hover:bg-white/90 shadow-none border-t border-black/10 rounded-b-lg -m-2 mt-2 p-2 text-center font-medium">
+                                <div className="w-full bg-slate-600/50 text-sky-300 hover:bg-slate-600/60 shadow-none border-t border-white/20 rounded-b-lg -m-2 mt-2 p-2 text-center font-medium">
                                     🛒 Order Now
                                 </div>
                             </div>
@@ -330,4 +355,3 @@ export default async function HomePage() {
       </footer>
     </div>
   );
-}
