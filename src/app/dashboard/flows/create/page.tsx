@@ -223,6 +223,50 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         const isPhotoPickerComponent = localComponent?.type === 'PhotoPicker';
         const isDocumentPickerComponent = localComponent?.type === 'DocumentPicker';
         const isOptInComponent = localComponent?.type === 'OptIn';
+        const isFooterComponent = localComponent?.type === 'Footer';
+
+        if (isFooterComponent) {
+            return (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="label">Button Label (max 35 chars)</Label>
+                        <Input id="label" value={localComponent.label || ''} onChange={(e) => updateField('label', e.target.value)} required maxLength={35} />
+                    </div>
+                    <Separator />
+                    <div className="space-y-2">
+                         <Label>Captions (optional, max 15 chars each)</Label>
+                         <p className="text-xs text-muted-foreground">You can use either a center caption OR left/right captions, but not all three.</p>
+                         <Input placeholder="Left Caption" value={localComponent['left-caption'] || ''} onChange={e => updateField('left-caption', e.target.value)} maxLength={15} />
+                         <Input placeholder="Center Caption" value={localComponent['center-caption'] || ''} onChange={e => updateField('center-caption', e.target.value)} maxLength={15} />
+                         <Input placeholder="Right Caption" value={localComponent['right-caption'] || ''} onChange={e => updateField('right-caption', e.target.value)} maxLength={15} />
+                    </div>
+                    <Separator />
+                     <div className="space-y-2">
+                        <Label htmlFor="enabled">Enabled</Label>
+                        <Input id="enabled" value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} onChange={e => handleDynamicBoolChange('enabled', e.target.value)} placeholder="true, false, or ${...}" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>On-Click Action (Required)</Label>
+                        <div className="p-3 border rounded-lg space-y-3">
+                            <Select value={localComponent['on-click-action']?.name || ''} onValueChange={(val) => handleActionChange('on-click-action', 'name', val)}>
+                                <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="complete">Complete Flow</SelectItem>
+                                    <SelectItem value="navigate">Navigate</SelectItem>
+                                    <SelectItem value="data_exchange">Data Exchange</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {localComponent['on-click-action']?.name === 'navigate' && (
+                                 <Input placeholder="Next Screen ID" value={localComponent['on-click-action']?.next?.name || ''} onChange={(e) => handleActionChange('on-click-action', 'next', { type: 'screen', name: e.target.value })}/>
+                            )}
+                            {(localComponent['on-click-action']?.name === 'data_exchange' || localComponent['on-click-action']?.name === 'complete') && (
+                                <Textarea placeholder='Payload (JSON)' className="font-mono text-xs" value={localComponent['on-click-action']?.payload ? JSON.stringify(localComponent['on-click-action'].payload, null, 2) : ''} onChange={(e) => { try { handleActionChange('on-click-action', 'payload', e.target.value ? JSON.parse(e.target.value) : undefined) } catch {} }}/>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
         if (isOptInComponent) {
             return (

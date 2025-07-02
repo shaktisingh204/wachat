@@ -167,7 +167,15 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
         enabled: z.union([z.boolean(), z.string()]).optional(),
         "error-message": z.union([z.string(), z.object({ "start-date": z.string(), "end-date": z.string() })]).optional(),
     }),
-    z.object({ type: z.literal('Footer'), label: z.string(), "on-click-action": ActionSchema }),
+    z.object({
+        type: z.literal('Footer'),
+        label: z.string().max(35),
+        "on-click-action": ActionSchema,
+        "left-caption": z.string().max(15).optional(),
+        "center-caption": z.string().max(15).optional(),
+        "right-caption": z.string().max(15).optional(),
+        enabled: z.union([z.boolean(), z.string()]).optional()
+    }),
     z.object({ type: z.literal('EmbeddedLink'), text: z.string(), "on-click-action": ActionSchema, visible: z.boolean().optional() }),
     z.object({ 
         type: z.literal('PhotoPicker'), 
