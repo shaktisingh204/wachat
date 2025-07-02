@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
-import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play } from 'lucide-react';
+import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -14,7 +14,6 @@ import { cn } from '@/lib/utils';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-
 
 const features = [
   {
@@ -45,15 +44,22 @@ const features = [
     icon: <ServerCog className="h-8 w-8 text-primary" />,
     title: 'Interactive Flows',
     description: 'Build rich, native forms and UI screens that open directly inside WhatsApp, boosting conversion rates.',
-    gradient: 'card-gradient-blue',
+    gradient: 'card-gradient-green',
   },
   {
     icon: <Megaphone className="h-8 w-8 text-primary" />,
     title: 'WhatsApp Ads',
     description: 'Create and manage "Click to WhatsApp" ad campaigns directly from the dashboard to drive new leads.',
-    gradient: 'card-gradient-green',
+    gradient: 'card-gradient-blue',
+  },
+  {
+    icon: <LayoutGrid className="h-8 w-8 text-primary" />,
+    title: 'Kanban Chat View',
+    description: 'Organize conversations visually with a drag-and-drop Kanban board to track leads and support tickets.',
+    gradient: 'card-gradient-purple',
   }
 ];
+
 
 const testimonials = [
     {
@@ -151,7 +157,7 @@ export default function HomePage() {
                 </Button>
               </div>
             </div>
-             <div className="relative mt-8 flex justify-center">
+             <div key={animationKey} className="relative mt-8 flex justify-center">
               {/* Doodles */}
               <Zap className="h-8 w-8 text-yellow-400 absolute top-0 -left-4 animate-fade-in-up" style={{animationDelay: '0.5s'}} />
               <AtSign className="h-6 w-6 text-red-400 absolute top-16 -right-8 animate-fade-in-up" style={{animationDelay: '0.7s'}}/>
@@ -161,7 +167,7 @@ export default function HomePage() {
               <Check className="h-8 w-8 text-green-500 absolute top-8 right-0 animate-fade-in-up" style={{animationDelay: '1.5s'}}/>
 
               {/* Phone Mockup */}
-               <div key={animationKey} className="w-full max-w-sm bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl z-10">
+               <div className="w-full max-w-sm bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl z-10">
                 <div 
                     className="h-[700px] bg-slate-900 rounded-[2rem] flex flex-col relative overflow-hidden bg-center bg-cover" 
                     style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}
@@ -250,7 +256,7 @@ export default function HomePage() {
                 Everything you need to scale your customer communication on WhatsApp.
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {features.map((feature, index) => (
                 <Card key={index} className={cn("text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 flex flex-col card-gradient", feature.gradient)}>
                   <CardHeader className="items-center">
@@ -268,8 +274,54 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* Showcase Section: Kanban */}
+        <section id="kanban-showcase" className="py-16">
+            <div className="container mx-auto">
+                <div className="text-center space-y-4 mb-16">
+                    <h2 className="text-3xl md:text-4xl font-bold font-headline">Visualize Your Workflow</h2>
+                    <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
+                        Drag and drop conversations through your pipeline. From new lead to resolved ticket, never lose track of a customer again.
+                    </p>
+                </div>
+                
+                {/* Kanban Board Mockup */}
+                <div className="relative h-[450px] w-full max-w-4xl mx-auto p-4 md:p-6 rounded-lg bg-muted/50 overflow-hidden border">
+                    <div className="flex h-full gap-4">
+                        {/* Column 1: New */}
+                        <div className="w-1/3 bg-background/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
+                            <h3 className="font-semibold px-2 text-foreground">New Leads (2)</h3>
+                            {/* Static Card */}
+                            <div className="bg-card p-3 rounded-md shadow">
+                                <p className="font-semibold text-sm">Aisha Ahmed</p>
+                                <p className="text-xs text-muted-foreground">Interested in the new collection.</p>
+                            </div>
+                            {/* The card that will animate */}
+                            <div className="bg-card p-3 rounded-md shadow animate-kanban-drag relative z-10">
+                                <p className="font-semibold text-sm">David Chen</p>
+                                <p className="text-xs text-muted-foreground">Where is my order #1234?</p>
+                            </div>
+                        </div>
+
+                        {/* Column 2: Open */}
+                        <div className="w-1/3 bg-background/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
+                            <h3 className="font-semibold px-2 text-foreground">Open Tickets (1)</h3>
+                            <div className="bg-card p-3 rounded-md shadow">
+                                <p className="font-semibold text-sm">Maria Garcia</p>
+                                <p className="text-xs text-muted-foreground">Follow-up on quote required.</p>
+                            </div>
+                        </div>
+                        
+                        {/* Column 3: Resolved */}
+                        <div className="w-1/3 bg-background/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
+                            <h3 className="font-semibold px-2 text-foreground">Resolved (0)</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         {/* Showcase Section */}
-        <section id="showcase" className="py-16 md:py-24">
+        <section id="showcase" className="py-16 md:py-24 bg-muted">
             <div className="container mx-auto">
                 <div className="text-center space-y-4 mb-16">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Visual Automation at Your Fingertips</h2>
@@ -287,8 +339,8 @@ export default function HomePage() {
                                 Visually map out complex conversation logic with branching, conditions, and API calls. Perfect for support bots and drip campaigns.
                             </p>
                         </div>
-                        <div className="lg:w-2/3 p-8 rounded-lg bg-muted/50 w-full">
-                            <div className="relative h-96 w-full">
+                        <div className="lg:w-2/3 p-4 rounded-lg bg-background/30 w-full">
+                            <div className="relative h-96 w-full overflow-hidden">
                                 {/* SVG for lines */}
                                 <svg className="absolute top-0 left-0 w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M110 50 C 150 50, 150 100, 210 100" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw-long" style={{animationDelay: '0.5s'}}/>
@@ -390,7 +442,7 @@ export default function HomePage() {
 
 
         {/* Testimonials Section */}
-        <section className="py-16 bg-muted">
+        <section className="py-16">
             <div className="container mx-auto">
                 <div className="text-center space-y-4 mb-12">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Loved by Businesses Worldwide</h2>
@@ -424,7 +476,7 @@ export default function HomePage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="py-16">
+        <section className="py-16 bg-muted">
             <div className="container max-w-3xl mx-auto">
                  <div className="text-center space-y-4 mb-10">
                     <h2 className="text-3xl md:text-4xl font-bold font-headline">Frequently Asked Questions</h2>
@@ -443,7 +495,7 @@ export default function HomePage() {
         </section>
         
         {/* Final CTA Section */}
-        <section className="py-16 bg-muted">
+        <section className="py-16">
             <div className="container mx-auto">
                 <div className="relative overflow-hidden bg-primary text-primary-foreground rounded-lg p-8 md:p-12 text-center space-y-4">
                      <div className="absolute -bottom-16 -right-16 w-48 h-48 bg-white/10 rounded-full"></div>
