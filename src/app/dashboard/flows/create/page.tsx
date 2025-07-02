@@ -170,6 +170,11 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         updateField('init-value', arrayValue.length > 0 ? arrayValue : undefined);
     };
 
+    const handleUnavailableDatesChange = (value: string) => {
+        const dates = value.split(',').map(s => s.trim()).filter(Boolean);
+        updateField('unavailable-dates', dates.length > 0 ? dates : undefined);
+    };
+
 
     const renderProperties = () => {
         const isTextComponent = ['TextHeading', 'TextSubheading', 'TextBody', 'TextCaption'].includes(localComponent?.type);
@@ -179,6 +184,75 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         const isTextAreaComponent = localComponent?.type === 'TextArea';
         const isSelectionComponent = ['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup'].includes(localComponent?.type);
         const isChipsSelectorComponent = localComponent?.type === 'ChipsSelector';
+        const isDatePickerComponent = localComponent?.type === 'DatePicker';
+
+        if (isDatePickerComponent) {
+            return (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Name (unique identifier)</Label>
+                        <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="label">Label (shown to user)</Label>
+                        <Input id="label" value={localComponent.label || ''} onChange={(e) => updateField('label', e.target.value)} required />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="helper-text">Helper Text</Label>
+                        <Input id="helper-text" value={localComponent['helper-text'] || ''} onChange={(e) => updateField('helper-text', e.target.value)} />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="error-message">Error Message</Label>
+                        <Input id="error-message" value={localComponent['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                         <div className="space-y-2">
+                            <Label htmlFor="min-date">Min Date</Label>
+                            <Input id="min-date" type="date" value={localComponent['min-date'] || ''} onChange={e => updateField('min-date', e.target.value)} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="max-date">Max Date</Label>
+                            <Input id="max-date" type="date" value={localComponent['max-date'] || ''} onChange={e => updateField('max-date', e.target.value)} />
+                        </div>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="init-value">Initial Value (Date)</Label>
+                        <Input id="init-value" type="date" value={localComponent['init-value'] || ''} onChange={e => updateField('init-value', e.target.value)} />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="unavailable-dates">Unavailable Dates (comma-separated)</Label>
+                        <Textarea id="unavailable-dates" value={(localComponent['unavailable-dates'] || []).join(', ')} onChange={e => handleUnavailableDatesChange(e.target.value)} placeholder="2024-12-25, 2025-01-01" />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <Switch id="required" checked={localComponent.required || false} onCheckedChange={(val) => updateField('required', val)} />
+                        <Label htmlFor="required">Required</Label>
+                    </div>
+                     <div className="space-y-2">
+                        <Label>On-Select Action (optional)</Label>
+                        <div className="p-3 border rounded-lg space-y-3">
+                            <Select value={localComponent['on-select-action']?.name || ''} onValueChange={(val) => handleActionChange('on-select-action', 'name', val)}>
+                                <SelectTrigger><SelectValue placeholder="No Action"/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="">No Action</SelectItem>
+                                    <SelectItem value="data_exchange">Data Exchange</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {localComponent['on-select-action']?.name === 'data_exchange' && (
+                                <Textarea placeholder='Payload (JSON)' className="font-mono text-xs" value={localComponent['on-select-action'].payload ? JSON.stringify(localComponent['on-select-action'].payload, null, 2) : ''} onChange={(e) => { try { handleActionChange('on-select-action', 'payload', e.target.value ? JSON.parse(e.target.value) : undefined) } catch {} }}/>
+                            )}
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="visible">Visible</Label>
+                        <Input id="visible" value={localComponent.visible === undefined ? '' : String(localComponent.visible)} onChange={e => handleDynamicBoolChange('visible', e.target.value)} placeholder="true, false, or ${...}" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="enabled">Enabled</Label>
+                        <Input id="enabled" value={localComponent.enabled === undefined ? '' : String(localComponent.enabled)} onChange={e => handleDynamicBoolChange('enabled', e.target.value)} placeholder="true, false, or ${...}" />
+                    </div>
+                </div>
+            );
+        }
 
         if (isChipsSelectorComponent) {
              return (
@@ -298,7 +372,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                                 </SelectContent>
                             </Select>
                             {localComponent['on-select-action']?.name === 'data_exchange' && (
-                                <Textarea placeholder='Payload (JSON)' className="font-mono text-xs" value={JSON.stringify(localComponent['on-select-action'].payload, null, 2) || ''} onChange={(e) => { try { handleActionChange('on-select-action', 'payload', JSON.parse(e.target.value)) } catch {} }}/>
+                                <Textarea placeholder='Payload (JSON)' className="font-mono text-xs" value={localComponent['on-select-action'].payload ? JSON.stringify(localComponent['on-select-action'].payload, null, 2) : ''} onChange={(e) => { try { handleActionChange('on-select-action', 'payload', e.target.value ? JSON.parse(e.target.value) : undefined) } catch {} }}/>
                             )}
                         </div>
                     </div>
@@ -466,7 +540,6 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                             onChange={e => handleDynamicBoolChange('enabled', e.target.value)} 
                             placeholder="true, false, or ${...}" 
                         />
-                        <p className="text-xs text-muted-foreground">Enter `true`, `false`, or a dynamic expression like `${'{form.enable_field}'}`.</p>
                     </div>
                 </div>
             );
