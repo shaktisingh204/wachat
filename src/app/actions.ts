@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -24,8 +23,6 @@ import { premadeTemplates } from '@/lib/premade-templates';
 import { getMetaFlows } from './actions/meta-flow.actions';
 import { getErrorMessage } from '@/lib/utils';
 import type {
-    PlanFeaturePermissions,
-    PlanMessageCosts,
     Plan,
     User,
     Invitation,
@@ -34,8 +31,6 @@ import type {
     Notification,
     NotificationWithProject,
     Contact,
-    IncomingMessage,
-    OutgoingMessage,
     AnyMessage,
     LibraryTemplate,
     TemplateCategory,
@@ -47,7 +42,6 @@ import type {
     Project, 
     Template, 
     PhoneNumber, 
-    PhoneNumberProfile, 
     AutoReplySettings, 
     Flow, 
     FlowNode, 
@@ -55,7 +49,6 @@ import type {
     OptInOutSettings, 
     UserAttribute, 
     Agent, 
-    GeneralReplyRule, 
     MetaFlow, 
     AdCampaign, 
     Tag,
@@ -75,7 +68,7 @@ import type {
 } from '@/lib/definitions';
 
 
-export async function getSession(): Promise<{ user: (Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null, credits?: number }) } | null> {
+export async function getSession(): Promise<{ user: Omit<User, 'password'> } | null> {
     const cookieStore = cookies();
     const sessionToken = cookieStore.get('session')?.value;
     if (!sessionToken) {
@@ -98,22 +91,7 @@ export async function getSession(): Promise<{ user: (Omit<User, 'password' | 'pl
             return null;
         }
 
-        let userPlan: WithId<Plan> | null = null;
-        if (user.planId && ObjectId.isValid(user.planId)) {
-            userPlan = await db.collection<Plan>('plans').findOne({ _id: new ObjectId(user.planId) });
-        } else {
-            // If user has no plan, assign the default plan
-            const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
-            if (defaultPlan) {
-                await db.collection('users').updateOne({ _id: user._id }, { $set: { planId: defaultPlan._id } });
-                user.planId = defaultPlan._id;
-                userPlan = defaultPlan;
-            }
-        }
-
-        const userWithPlan = { ...user, plan: userPlan, credits: user.credits || 0 };
-
-        return { user: JSON.parse(JSON.stringify(userWithPlan)) };
+        return { user: JSON.parse(JSON.stringify(user)) };
     } catch (error) {
         console.error("Error fetching session user from DB:", error);
         return null;
@@ -170,7 +148,32 @@ export async function getProjects(query?: string): Promise<WithId<Project>[]> {
             filter.name = { $regex: query, $options: 'i' }; // case-insensitive regex search
         }
         
-        const projects = await db.collection('projects').find(filter).sort({ name: 1 }).toArray();
+        const projects = await db.collection('projects').aggregate([
+            { $match: filter },
+            { $sort: { name: 1 } },
+            {
+                $lookup: {
+                    from: 'plans',
+                    localField: 'planId',
+                    foreignField: '_id',
+                    as: 'planInfo'
+                }
+            },
+            {
+                $unwind: { path: '$planInfo', preserveNullAndEmptyArrays: true }
+            },
+            {
+                $addFields: {
+                    plan: '$planInfo'
+                }
+            },
+            {
+                $project: {
+                    planInfo: 0
+                }
+            }
+        ]).toArray();
+
         return JSON.parse(JSON.stringify(projects));
     } catch (error) {
         console.error("Failed to fetch projects for user:", error);
@@ -219,7 +222,33 @@ export async function getAllProjectsForAdmin(
         const skip = (page - 1) * limit;
 
         const [projects, total] = await Promise.all([
-            db.collection('projects').find(filter).sort({ name: 1 }).skip(skip).limit(limit).toArray(),
+            db.collection('projects').aggregate([
+                { $match: filter },
+                { $sort: { name: 1 } },
+                { $skip: skip },
+                { $limit: limit },
+                 {
+                    $lookup: {
+                        from: 'plans',
+                        localField: 'planId',
+                        foreignField: '_id',
+                        as: 'planInfo'
+                    }
+                },
+                {
+                    $unwind: { path: '$planInfo', preserveNullAndEmptyArrays: true }
+                },
+                {
+                    $addFields: {
+                        plan: '$planInfo'
+                    }
+                },
+                {
+                    $project: {
+                        planInfo: 0
+                    }
+                }
+            ]).toArray(),
             db.collection('projects').countDocuments(filter)
         ]);
         
@@ -244,9 +273,33 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
             return null;
         }
         const { db } = await connectToDatabase();
-        const project = await db.collection<Project>('projects').findOne({ 
-            _id: new ObjectId(projectId)
-        });
+        
+        const projectResult = await db.collection<Project>('projects').aggregate([
+            { $match: { _id: new ObjectId(projectId) } },
+            {
+                $lookup: {
+                    from: 'plans',
+                    localField: 'planId',
+                    foreignField: '_id',
+                    as: 'planInfo'
+                }
+            },
+            {
+                $unwind: { path: '$planInfo', preserveNullAndEmptyArrays: true }
+            },
+            {
+                $addFields: {
+                    plan: '$planInfo'
+                }
+            },
+            {
+                $project: {
+                    planInfo: 0
+                }
+            }
+        ]).toArray();
+
+        const project = projectResult[0] as WithId<Project> | undefined;
 
         if (!project) {
             return null;
@@ -256,7 +309,6 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
             return JSON.parse(JSON.stringify(project));
         }
 
-        // Security Check for non-admins: Is the user the owner OR an agent on this project?
         if (session?.user) {
             const isOwner = project.userId.toString() === session.user._id.toString();
             const isAgent = project.agents?.some(agent => agent.userId.toString() === session.user._id.toString());
@@ -276,7 +328,7 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
 }
 
 export async function getProjectForBroadcast(projectId: string): Promise<(Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers'> & { metaFlows?: WithId<MetaFlow>[] }) | null> {
-    const hasAccess = await getProjectById(projectId); // Still need security check
+    const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return null;
 
     try {
@@ -284,7 +336,7 @@ export async function getProjectForBroadcast(projectId: string): Promise<(Pick<W
         const [project, metaFlows] = await Promise.all([
             db.collection('projects').findOne(
                 { _id: new ObjectId(projectId) },
-                { projection: { name: 1, phoneNumbers: 1 } }
+                { projection: { name: 1, phoneNumbers: 1, optInOutSettings: 1 } }
             ),
             getMetaFlows(projectId)
         ]);
@@ -438,7 +490,6 @@ export async function getBroadcastById(broadcastId: string) {
         const broadcast = await db.collection('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
         if (!broadcast) return null;
         
-        // Check if the user has access to the project associated with this broadcast
         const hasAccess = await getProjectById(broadcast.projectId.toString());
         if (!hasAccess) return null;
 
@@ -601,7 +652,7 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
 
                 if (contactsToInsert.length > 0) {
                     await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false }).catch(err => {
-                        if (err.code !== 11000) { // 11000 is duplicate key error, which we can ignore
+                        if (err.code !== 11000) { 
                             console.warn("Bulk insert for broadcast contacts failed.", err.code);
                         }
                     });
@@ -659,17 +710,17 @@ export async function handleStartBroadcast(
             projectId: projectObjectId,
             broadcastType: 'flow',
             metaFlowId: new ObjectId(metaFlowId),
-            templateName: flow.name, // Using templateName field to store flow name for consistency
+            templateName: flow.name, 
             phoneNumberId,
             accessToken,
             status: 'QUEUED',
             createdAt: new Date(),
             contactCount: 0,
             fileName: contactFile.name,
-            category: 'UTILITY', // Flows are typically utility/service messages
+            category: 'UTILITY', 
         };
 
-    } else { // Default to template
+    } else { 
         const templateId = formData.get('templateId') as string;
         if (!templateId) return { error: 'Please select a message template.' };
         if (!ObjectId.isValid(templateId)) return { error: 'Invalid Template ID.' };
@@ -698,7 +749,7 @@ export async function handleStartBroadcast(
                 if (!mediaId) return { error: 'Failed to upload media to Meta. No ID returned.' };
                 headerMediaId = mediaId;
 
-            } else { // mediaSource is 'url'
+            } else { 
                 const overrideUrl = formData.get('headerImageUrl') as string | null;
                 if (overrideUrl && overrideUrl.trim() !== '') {
                     headerImageUrl = overrideUrl.trim();
@@ -853,10 +904,8 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
     }
     
     try {
-        // --- 1. Handle Profile Picture Upload ---
         const profilePictureFile = formData.get('profilePicture') as File;
         if (profilePictureFile && profilePictureFile.size > 0) {
-            // Step 1a: Create Upload Session
             const sessionFormData = new FormData();
             sessionFormData.append('file_length', profilePictureFile.size.toString());
             sessionFormData.append('file_type', profilePictureFile.type);
@@ -865,7 +914,6 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
             const sessionResponse = await axios.post(`https://graph.facebook.com/v22.0/${appId}/uploads`, sessionFormData);
             const uploadSessionId = sessionResponse.data.id;
             
-            // Step 1b: Upload file data
             const fileData = await profilePictureFile.arrayBuffer();
             const uploadResponse = await axios.post(`https://graph.facebook.com/v22.0/${uploadSessionId}`, Buffer.from(fileData), {
                 headers: { 'Authorization': `OAuth ${accessToken}`, 'Content-Type': profilePictureFile.type },
@@ -873,7 +921,6 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
             });
             const handle = uploadResponse.data.h;
 
-            // Step 1c: Update profile picture with handle
             await axios.post(
                 `https://graph.facebook.com/v22.0/${phoneNumberId}/whatsapp_business_profile`,
                 { messaging_product: "whatsapp", profile_picture_handle: handle },
@@ -881,9 +928,8 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
             );
         }
 
-        // --- 2. Handle Text Fields Update ---
         const profilePayload: any = { messaging_product: 'whatsapp' };
-        const fields: (keyof PhoneNumberProfile)[] = ['about', 'address', 'description', 'email', 'vertical'];
+        const fields: (keyof NonNullable<PhoneNumber['profile']>)[] = ['about', 'address', 'description', 'email', 'vertical'];
         let hasTextFields = false;
 
         fields.forEach(field => {
@@ -908,8 +954,7 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
             );
         }
         
-        // --- 3. Re-sync and return ---
-        await handleSyncPhoneNumbers(projectId); // Re-sync to get the latest data, including new profile_picture_url
+        await handleSyncPhoneNumbers(projectId); 
         revalidatePath('/dashboard/numbers');
         return { message: 'Phone number profile updated successfully!' };
 
@@ -1063,7 +1108,6 @@ export async function handleCreateTemplate(
         const { db } = await connectToDatabase();
         const templateType = formData.get('templateType') as string;
 
-        // --- Logic for Carousel (Catalog Message) Templates ---
         if (templateType === 'CATALOG_MESSAGE') {
             const name = formData.get('templateName') as string;
             const catalogId = formData.get('catalogId') as string;
@@ -1082,13 +1126,12 @@ export async function handleCreateTemplate(
             const carouselTemplateData = {
                 type: 'CATALOG_MESSAGE',
                 name,
-                category: 'INTERACTIVE', // Internal type, not for Meta
+                category: 'INTERACTIVE', 
                 status: 'LOCAL',
                 language: 'multi',
                 projectId: new ObjectId(projectId),
                 components: [
                     { type: 'BODY', text: bodyText },
-                    // Store carousel-specific data in a dedicated component for easy retrieval
                     { 
                         type: 'CATALOG_MESSAGE_ACTION',
                         headerText,
@@ -1174,7 +1217,7 @@ export async function handleCreateTemplate(
             payload.components.push({ type: 'CAROUSEL', cards: finalCards });
             debugInfo = accumulatedDebugInfo;
             
-        } else { // Standard Template
+        } else { 
             const bodyText = cleanText(formData.get('body') as string);
             const footerText = cleanText(formData.get('footer') as string);
             const buttonsJson = formData.get('buttons') as string;
@@ -1273,7 +1316,7 @@ export async function handleCreateTemplate(
 
 export async function handleCreateFlowTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; payload?: string }> {
     const projectId = formData.get('projectId') as string;
-    const flowId = formData.get('flowId') as string; // This is the Meta Flow ID
+    const flowId = formData.get('flowId') as string; 
     
     const templateName = formData.get('templateName') as string;
     const language = formData.get('language') as string;
@@ -1475,7 +1518,7 @@ export async function handleRequeueBroadcast(
             accessToken: originalBroadcast.accessToken,
             status: 'QUEUED' as const,
             createdAt: new Date(),
-            contactCount: 0, // will be updated
+            contactCount: 0, 
             fileName: `Requeue of ${originalBroadcast.fileName}`,
             components: newTemplate.components,
             language: newTemplate.language,
@@ -1941,7 +1984,7 @@ export async function handleAddNewContact(prevState: any, formData: FormData): P
     const projectId = formData.get('projectId') as string;
     const phoneNumberId = formData.get('phoneNumberId') as string;
     const name = formData.get('name') as string;
-    const waId = (formData.get('waId') as string).replace(/\D/g, ''); // Remove non-digit characters
+    const waId = (formData.get('waId') as string).replace(/\D/g, ''); 
 
     if (!projectId || !phoneNumberId || !name || !waId) {
         return { error: 'All fields are required.' };
@@ -2081,7 +2124,6 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
         let messageType: OutgoingMessage['type'] = 'text';
 
         if (mediaFile && mediaFile.size > 0) {
-            // Step 1: Upload the media file to get a media ID
             const form = new FormData();
             form.append('file', Buffer.from(await mediaFile.arrayBuffer()), {
                 filename: mediaFile.name,
@@ -2100,7 +2142,6 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
                 return { error: 'Failed to upload media to Meta. No ID returned.' };
             }
 
-            // Step 2: Construct the message payload with the media ID
             const detectedMediaType = mediaFile.type.split('/')[0];
 
             if (detectedMediaType === 'image') {
@@ -2184,7 +2225,6 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
 
         const payloadComponents: any[] = [];
         
-        // Header
         const headerComponent = template.components?.find(c => c.type === 'HEADER');
         if (headerComponent) {
             const headerMediaUrl = formData.get('headerMediaUrl') as string | null;
@@ -2199,11 +2239,9 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
                     payloadComponents.push({ type: 'header', parameters: [parameter] });
                 }
             } else if (headerComponent.format === 'TEXT' && headerComponent.text) {
-                // Handle text header variables if any
             }
         }
         
-        // Body
         const bodyComponent = template.components?.find(c => c.type === 'BODY');
         const bodyText = bodyComponent?.text || template.body;
         if (bodyText) {
@@ -2275,7 +2313,7 @@ export async function findOrCreateContact(projectId: string, phoneNumberId: stri
         const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
             { waId, projectId: new ObjectId(projectId) },
             { 
-                $set: { phoneNumberId }, // Ensure phone number is updated if they message a new one
+                $set: { phoneNumberId }, 
                 $setOnInsert: {
                     waId,
                     projectId: new ObjectId(projectId),
@@ -2311,8 +2349,6 @@ export async function markConversationAsRead(contactId: string): Promise<{ succe
     return { success: false };
   }
 }
-
-// --- ADMIN FLOW LOG ACTIONS ---
 
 export async function getFlowLogs(
     page: number = 1,
@@ -2368,7 +2404,6 @@ export async function getFlowLogById(logId: string): Promise<WithId<FlowLog> | n
     }
 }
 
-// --- PAYMENT GATEWAY ACTIONS ---
 export async function getPaymentGatewaySettings(): Promise<WithId<PaymentGatewaySettings> | null> {
     try {
         const { db } = await connectToDatabase();
@@ -2411,26 +2446,29 @@ export async function savePaymentGatewaySettings(prevState: any, formData: FormD
     }
 }
 
-export async function handleInitiatePayment(planId: string): Promise<InitiatePaymentResult> {
+export async function handleInitiatePayment(data: { planId: string, projectId: string }): Promise<InitiatePaymentResult> {
     const session = await getSession();
     if (!session?.user) {
         return { error: 'You must be logged in to purchase a plan.' };
     }
+    const { planId, projectId } = data;
 
-    if (!ObjectId.isValid(planId)) {
-        return { error: 'Invalid plan selected.' };
+    if (!ObjectId.isValid(planId) || !ObjectId.isValid(projectId)) {
+        return { error: 'Invalid plan or project selected.' };
     }
 
     const { db } = await connectToDatabase();
     try {
-        const [plan, pgSettings] = await Promise.all([
+        const [plan, project] = await Promise.all([
             getPlanById(planId),
-            getPaymentGatewaySettings()
+            getProjectById(projectId)
         ]);
         
         if (!plan) return { error: 'Selected plan not found.' };
-        if (!pgSettings) return { error: 'Payment gateway is not configured. Please contact support.' };
+        if (!project) return { error: 'Project not found.' };
 
+        const pgSettings = await getPaymentGatewaySettings();
+        if (!pgSettings) return { error: 'Payment gateway is not configured. Please contact support.' };
         const { merchantId, saltKey, saltIndex, environment } = pgSettings;
         if (!merchantId || !saltKey || !saltIndex) {
             return { error: 'Payment gateway credentials are not fully configured.' };
@@ -2439,19 +2477,20 @@ export async function handleInitiatePayment(planId: string): Promise<InitiatePay
         const now = new Date();
         const newTransaction: Omit<Transaction, '_id'> = {
             userId: new ObjectId(session.user._id),
+            projectId: new ObjectId(projectId),
             planId: new ObjectId(planId),
-            amount: plan.price * 100, // Amount in paise
+            amount: plan.price * 100,
             status: 'PENDING',
             provider: 'phonepe',
             createdAt: now,
             updatedAt: now,
             type: 'PLAN',
-            description: `Upgrade to ${plan.name} Plan`,
+            description: `Upgrade ${project.name} to ${plan.name} Plan`,
         };
         const transactionResult = await db.collection('transactions').insertOne(newTransaction as any);
         const merchantTransactionId = transactionResult.insertedId.toString();
 
-        const data = {
+        const paymentData = {
             merchantId: merchantId,
             merchantTransactionId: merchantTransactionId,
             merchantUserId: session.user._id.toString(),
@@ -2459,13 +2498,13 @@ export async function handleInitiatePayment(planId: string): Promise<InitiatePay
             redirectUrl: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard/payment/${merchantTransactionId}`,
             redirectMode: 'POST',
             callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/payment/callback`,
-            mobileNumber: '9999999999', // Placeholder as per PhonePe docs for non-mobile payments
+            mobileNumber: '9999999999', 
             paymentInstrument: {
                 type: 'PAY_PAGE',
             },
         };
 
-        const payload = JSON.stringify(data);
+        const payload = JSON.stringify(paymentData);
         const payloadBase64 = Buffer.from(payload).toString('base64');
         const apiEndpoint = '/pg/v1/pay';
 
@@ -2497,14 +2536,14 @@ export async function handleInitiatePayment(planId: string): Promise<InitiatePay
     }
 }
 
-export async function handleInitiateCreditPurchase(data: {credits: number, amount: number}): Promise<InitiatePaymentResult> {
+export async function handleInitiateCreditPurchase(data: {credits: number, amount: number, projectId: string}): Promise<InitiatePaymentResult> {
     const session = await getSession();
     if (!session?.user) {
         return { error: 'You must be logged in to purchase credits.' };
     }
-    const { credits, amount } = data;
-    if (!credits || !amount || credits <= 0 || amount <= 0) {
-        return { error: 'Invalid credit or amount value.' };
+    const { credits, amount, projectId } = data;
+    if (!credits || !amount || credits <= 0 || amount <= 0 || !ObjectId.isValid(projectId)) {
+        return { error: 'Invalid credit, amount, or project value.' };
     }
 
     const { db } = await connectToDatabase();
@@ -2520,7 +2559,8 @@ export async function handleInitiateCreditPurchase(data: {credits: number, amoun
         const now = new Date();
         const newTransaction: Omit<Transaction, '_id'> = {
             userId: new ObjectId(session.user._id),
-            amount: amount * 100, // Amount in paise
+            projectId: new ObjectId(projectId),
+            amount: amount * 100, 
             status: 'PENDING',
             provider: 'phonepe',
             createdAt: now,
@@ -2599,7 +2639,7 @@ export async function getTransactionStatus(transactionId: string): Promise<WithI
     if (!ObjectId.isValid(transactionId)) return null;
     
     try {
-        const { db } = await connectToDatabase();
+        const { db } await connectToDatabase();
         const transaction = await db.collection<Transaction>('transactions').findOne({
             _id: new ObjectId(transactionId),
             userId: new ObjectId(session.user._id)
@@ -2611,7 +2651,6 @@ export async function getTransactionStatus(transactionId: string): Promise<WithI
     }
 }
 
-// --- AUTH ACTIONS ---
 export async function handleLogin(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
@@ -2680,16 +2719,11 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
 
         const hashedPassword = await hashPassword(password);
         
-        // Find the default plan
-        const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
-
         const newUser: Omit<User, '_id'> = {
             name,
             email,
             password: hashedPassword,
             createdAt: new Date(),
-            planId: defaultPlan?._id, // Assign default plan ID
-            credits: defaultPlan?.signupCredits || 0, // Assign signup credits from default plan
         };
 
         await db.collection('users').insertOne(newUser as any);
@@ -2770,7 +2804,6 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
     }
 }
 
-// --- PLAN MANAGEMENT ACTIONS ---
 export async function getPlans(filter?: Filter<Plan>): Promise<WithId<Plan>[]> {
     try {
         const { db } = await connectToDatabase();
@@ -2802,7 +2835,7 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
     const isNew = planId === 'new';
 
     try {
-        const features: PlanFeaturePermissions = {
+        const features = {
             campaigns: formData.get('campaigns') === 'on',
             liveChat: formData.get('liveChat') === 'on',
             contacts: formData.get('contacts') === 'on',
@@ -2851,7 +2884,6 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
         const { db } = await connectToDatabase();
         
         if (planData.isDefault) {
-            // Ensure no other plan is default
             await db.collection('plans').updateMany({ _id: { $ne: isNew ? new ObjectId() : new ObjectId(planId) } }, { $set: { isDefault: false } });
         }
 
@@ -2899,8 +2931,6 @@ export async function deletePlan(prevState: any, formData: FormData): Promise<{ 
     }
 }
 
-// --- PROJECT MANAGEMENT ---
-
 export async function handleCreateProject(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
     if (!session?.user) {
@@ -2929,6 +2959,8 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
         if(existingProject) {
             return { error: 'A project with this WABA ID already exists.'};
         }
+
+        const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
         
         const newProject: Omit<Project, '_id'> = {
             userId: new ObjectId(session.user._id),
@@ -2939,6 +2971,8 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
             phoneNumbers: [],
             createdAt: new Date(),
             messagesPerSecond: 1000,
+            planId: defaultPlan?._id,
+            credits: defaultPlan?.signupCredits || 0,
         };
 
         const result = await db.collection('projects').insertOne(newProject as any);
@@ -3010,6 +3044,7 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
     try {
         const { db } = await connectToDatabase();
         const bulkOps: any[] = [];
+        const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
 
         for (const wabaId of wabaIds) {
             const wabaDetailsResponse = await fetch(`https://graph.facebook.com/v22.0/${wabaId}?fields=name,id&access_token=${accessToken}`);
@@ -3027,6 +3062,8 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
                 accessToken: accessToken,
                 createdAt: new Date(),
                 messagesPerSecond: 1000,
+                planId: defaultPlan?._id,
+                credits: defaultPlan?.signupCredits || 0,
             };
 
             bulkOps.push({
@@ -3057,8 +3094,6 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
 }
 
 
-// --- AGENT & INVITATION MANAGEMENT ---
-
 export async function handleInviteAgent(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const projectId = formData.get('projectId') as string;
     const email = formData.get('email') as string;
@@ -3072,14 +3107,14 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
 
     try {
         const { db } = await connectToDatabase();
-        const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
+        const project = await getProjectById(projectId);
 
         if (!project || project.userId.toString() !== session.user._id.toString()) {
             return { error: 'Project not found or you are not the owner.' };
         }
         
-        const plan = await db.collection('plans').findOne({ _id: new ObjectId(session.user.plan?._id) });
-        if (!plan) return { error: 'Could not determine your plan limits.' };
+        if (!project.plan) return { error: 'Could not determine your plan limits.' };
+        const plan = project.plan;
 
         const currentAgentCount = project.agents?.length || 0;
         if (currentAgentCount >= (plan.agentLimit || 0)) {
@@ -3102,7 +3137,7 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
         const newInvitation: Omit<Invitation, '_id'> = {
             projectId: project._id,
             projectName: project.name,
-            inviterId: session.user._id,
+            inviterId: new ObjectId(session.user._id),
             inviterName: session.user.name,
             inviteeEmail: email,
             role,
@@ -3206,8 +3241,6 @@ export async function handleRespondToInvite(invitationId: string, accepted: bool
     }
 }
 
-
-// --- NOTIFICATION ACTIONS ---
 
 export async function getAllNotifications(
     page: number = 1,
@@ -3334,15 +3367,13 @@ export async function markAllNotificationsAsRead(): Promise<{ success: boolean, 
     }
 }
 
-// --- SETTINGS ACTIONS ---
 export async function handleUpdateAutoReplySettings(prevState: any, formData: FormData) {
     const projectId = formData.get('projectId') as string;
     const replyType = formData.get('replyType') as keyof AutoReplySettings;
     if (!projectId || !replyType) return { error: 'Missing required data.' };
 
-    const session = await getSession();
     const hasAccess = await getProjectById(projectId);
-    if (!hasAccess || hasAccess.userId.toString() !== session?.user?._id.toString()) return { error: "Access denied." };
+    if (!hasAccess) return { error: "Access denied." };
 
     let updatePayload: any = { enabled: formData.get('enabled') === 'on' };
 
@@ -3353,8 +3384,8 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
         const repliesJSON = formData.get('replies') as string;
         try {
             updatePayload.replies = repliesJSON ? JSON.parse(repliesJSON) : [];
-            delete updatePayload.message; // old field
-            delete updatePayload.context; // old field
+            delete updatePayload.message; 
+            delete updatePayload.context; 
         } catch (e) {
             return { error: 'Invalid format for replies data.' };
         }
@@ -3371,7 +3402,7 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
     if (replyType === 'aiAssistant') {
         updatePayload.context = formData.get('context');
         updatePayload.autoTranslate = formData.get('autoTranslate') === 'on';
-        delete updatePayload.message; // 'message' is not part of aiAssistant schema
+        delete updatePayload.message;
     }
     
     try {
@@ -3455,7 +3486,6 @@ export async function handleSaveUserAttributes(prevState: any, formData: FormDat
     }
 }
 
-// --- Canned Message Actions ---
 export async function saveCannedMessageAction(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Authentication required.' };
@@ -3497,7 +3527,7 @@ export async function saveCannedMessageAction(prevState: any, formData: FormData
 export async function deleteCannedMessage(id: string): Promise<{ success: boolean; error?: string }> {
     if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } = await connectToDatabase();
+        const { db } await connectToDatabase();
         await db.collection('canned_messages').deleteOne({ _id: new ObjectId(id) });
         revalidatePath('/dashboard/settings');
         return { success: true };
@@ -3516,7 +3546,6 @@ export async function getCannedMessages(projectId: string): Promise<WithId<Canne
     }
 }
 
-// --- CHAT & CONTACT ACTIONS ---
 export async function handleUpdateContactDetails(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const contactId = formData.get('contactId') as string;
     const variablesJSON = formData.get('variables') as string;
@@ -3552,7 +3581,6 @@ export async function handleUpdateContactStatus(contactId: string, status: strin
         const contact = await db.collection('contacts').findOne({ _id: new ObjectId(contactId) });
         if (!contact) return { success: false, error: 'Contact not found' };
 
-        // Security Check: Is user owner or agent on this project?
         const project = await getProjectById(contact.projectId.toString());
         if (!project) return { success: false, error: 'Access denied' };
         
@@ -3722,7 +3750,6 @@ export async function getInitialChatData(projectId: string, phoneId: string | nu
 }
 
 
-// --- FLOW ACTIONS ---
 export async function getFlowsForProject(projectId: string): Promise<WithId<Flow>[]> {
     if (!ObjectId.isValid(projectId)) return [];
     const hasAccess = await getProjectById(projectId);
@@ -3746,7 +3773,6 @@ export async function getFlowById(flowId: string): Promise<WithId<Flow> | null> 
     try {
         const { db } = await connectToDatabase();
         const flow = await db.collection<Flow>('flows').findOne({ _id: new ObjectId(flowId) });
-        // Add security check here if needed
         return flow ? JSON.parse(JSON.stringify(flow)) : null;
     } catch (e) {
         return null;
@@ -3814,8 +3840,6 @@ export async function getFlowBuilderPageData(projectId: string): Promise<{
     return { flows, initialFlow };
 }
     
-// --- ADS MANAGEMENT ACTIONS ---
-
 export async function handleUpdateMarketingSettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const adAccountId = formData.get('adAccountId') as string;
@@ -3871,7 +3895,7 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
     }
 
     const campaignName = formData.get('campaignName') as string;
-    const dailyBudget = Number(formData.get('dailyBudget')) * 100; // Convert to cents
+    const dailyBudget = Number(formData.get('dailyBudget')) * 100; 
     const adMessage = formData.get('adMessage') as string;
     const adPhoneNumberId = formData.get('adPhoneNumber') as string;
 
@@ -3890,7 +3914,6 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
     try {
         const apiVersion = 'v22.0';
 
-        // Step 1: Create Campaign
         const campaignResponse = await axios.post(
             `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/campaigns`,
             {
@@ -3904,7 +3927,6 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
         const campaignId = campaignResponse.data.id;
         if (!campaignId) throw new Error('Failed to create campaign, no ID returned.');
 
-        // Step 2: Create Ad Set
         const adSetResponse = await axios.post(
             `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/adsets`,
             {
@@ -3912,7 +3934,7 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
                 campaign_id: campaignId,
                 daily_budget: dailyBudget,
                 billing_event: 'IMPRESSIONS',
-                optimization_goal: 'REPLIES', // Use REPLIES for CTM
+                optimization_goal: 'REPLIES', 
                 promoted_object: {
                     page_id: facebookPageId,
                 },
@@ -3927,7 +3949,6 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
         const adSetId = adSetResponse.data.id;
         if (!adSetId) throw new Error('Failed to create ad set, no ID returned.');
 
-        // Step 3: Create Ad Creative
         const creativeResponse = await axios.post(
             `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/adcreatives`,
             {
@@ -3948,7 +3969,6 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
         const creativeId = creativeResponse.data.id;
         if (!creativeId) throw new Error('Failed to create ad creative, no ID returned.');
 
-        // Step 4: Create Ad
         const adResponse = await axios.post(
             `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/ads`,
             {
@@ -3962,12 +3982,11 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
         const adId = adResponse.data.id;
         if (!adId) throw new Error('Failed to create ad, no ID returned.');
 
-        // Step 5: Save to DB
         const newAdCampaign: Omit<AdCampaign, '_id'> = {
             projectId: new ObjectId(projectId),
             name: campaignName,
             status: 'PAUSED',
-            dailyBudget: dailyBudget / 100, // Store in currency units
+            dailyBudget: dailyBudget / 100, 
             metaCampaignId: campaignId,
             metaAdSetId: adSetId,
             metaAdCreativeId: creativeId,
@@ -3985,17 +4004,15 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
     }
 }
 
-// --- TEMPLATE LIBRARY ACTIONS ---
-
 export async function getLibraryTemplates(): Promise<LibraryTemplate[]> {
     try {
-        const { db } = await connectToDatabase();
+        const { db } await connectToDatabase();
         const customTemplates = await db.collection<LibraryTemplate>('library_templates').find({}).sort({ name: 1 }).toArray();
         const allTemplates = [...premadeTemplates, ...customTemplates];
         return JSON.parse(JSON.stringify(allTemplates));
     } catch (e) {
         console.error("Failed to fetch library templates:", e);
-        return premadeTemplates; // Fallback to static templates on error
+        return premadeTemplates; 
     }
 }
 
@@ -4032,7 +4049,7 @@ export async function saveLibraryTemplate(prevState: any, formData: FormData): P
 }
 
 export async function deleteLibraryTemplate(id: string): Promise<{ message?: string; error?: string }> {
-    const { isAdmin } = await getAdminSession();
+    const { isAdmin } await getAdminSession();
     if (!isAdmin) return { error: 'Permission denied.' };
 
     if (!ObjectId.isValid(id)) return { error: 'Invalid template ID.' };
@@ -4089,7 +4106,6 @@ export async function deleteTemplateCategory(id: string): Promise<{ message?: st
     if (!ObjectId.isValid(id)) return { error: 'Invalid category ID.' };
     try {
         const { db } = await connectToDatabase();
-        // Potential improvement: Check if any library templates use this category before deleting.
         const result = await db.collection('template_categories').deleteOne({ _id: new ObjectId(id) });
         if (result.deletedCount === 0) {
             return { error: 'Could not find the category to delete.' };
@@ -4101,8 +4117,6 @@ export async function deleteTemplateCategory(id: string): Promise<{ message?: st
         return { error: 'Failed to delete category.' };
     }
 }
-
-// --- ADMIN USER MANAGEMENT ---
 
 export async function getUsersForAdmin(
     page: number = 1,
@@ -4130,17 +4144,6 @@ export async function getUsersForAdmin(
             { $skip: skip },
             { $limit: limit },
             {
-                $lookup: {
-                    from: 'plans',
-                    localField: 'planId',
-                    foreignField: '_id',
-                    as: 'planInfo'
-                }
-            },
-            {
-                $unwind: { path: '$planInfo', preserveNullAndEmptyArrays: true }
-            },
-            {
                 $project: {
                     password: 0,
                 }
@@ -4151,10 +4154,8 @@ export async function getUsersForAdmin(
             db.collection<User>('users').aggregate(usersPipeline).toArray(),
             db.collection('users').countDocuments(filter)
         ]);
-
-        const typedUsers: AdminUserView[] = users.map(u => ({ ...u, plan: u.planInfo as any }));
-
-        return { users: JSON.parse(JSON.stringify(typedUsers)), total };
+        
+        return { users: JSON.parse(JSON.stringify(users)), total };
 
     } catch (error) {
         console.error("Failed to fetch users for admin:", error);
@@ -4162,58 +4163,57 @@ export async function getUsersForAdmin(
     }
 }
 
-export async function updateUserCreditsByAdmin(userId: string, credits: number): Promise<{ success: boolean, error?: string }> {
+export async function updateProjectCreditsByAdmin(projectId: string, credits: number): Promise<{ success: boolean, error?: string }> {
     const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { success: false, error: 'Permission denied.' };
 
-    if (!ObjectId.isValid(userId) || isNaN(credits) || credits < 0) {
-        return { success: false, error: 'Invalid user ID or credit amount.' };
+    if (!ObjectId.isValid(projectId) || isNaN(credits) || credits < 0) {
+        return { success: false, error: 'Invalid project ID or credit amount.' };
     }
     
     try {
         const { db } = await connectToDatabase();
-        const result = await db.collection('users').updateOne(
-            { _id: new ObjectId(userId) },
+        const result = await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
             { $set: { credits: credits } }
         );
         if (result.matchedCount === 0) {
-            return { success: false, error: 'User not found.' };
+            return { success: false, error: 'Project not found.' };
         }
-        revalidatePath('/admin/dashboard/users');
+        revalidatePath('/admin/dashboard');
         return { success: true };
     } catch (error) {
-        console.error("Failed to update user credits:", error);
+        console.error("Failed to update project credits:", error);
         return { success: false, error: 'An unexpected database error occurred.' };
     }
 }
 
-export async function updateUserPlanByAdmin(userId: string, planId: string): Promise<{ success: boolean, error?: string }> {
+export async function updateProjectPlanByAdmin(projectId: string, planId: string): Promise<{ success: boolean, error?: string }> {
     const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { success: false, error: 'Permission denied.' };
 
-    if (!ObjectId.isValid(userId) || !ObjectId.isValid(planId)) {
-        return { success: false, error: 'Invalid user or plan ID.' };
+    if (!ObjectId.isValid(projectId) || !ObjectId.isValid(planId)) {
+        return { success: false, error: 'Invalid project or plan ID.' };
     }
     
     try {
         const { db } = await connectToDatabase();
-        const result = await db.collection('users').updateOne(
-            { _id: new ObjectId(userId) },
+        const result = await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
             { $set: { planId: new ObjectId(planId) } }
         );
         if (result.matchedCount === 0) {
-            return { success: false, error: 'User not found.' };
+            return { success: false, error: 'Project not found.' };
         }
-        revalidatePath('/admin/dashboard/users');
+        revalidatePath('/admin/dashboard');
         return { success: true };
     } catch (error) {
-        console.error("Failed to update user plan:", error);
+        console.error("Failed to update project plan:", error);
         return { success: false, error: 'An unexpected database error occurred.' };
     }
 }
 
 
-// --- TAGS ACTIONS ---
 export async function saveProjectTags(projectId: string, tags: Tag[]): Promise<{ success: boolean; error?: string }> {
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { success: false, error: 'Access denied.' };
@@ -4238,7 +4238,6 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
         return { success: false, error: 'Invalid contact ID.' };
     }
     
-    // Security check: ensure user has access to this contact's project
     const { db } = await connectToDatabase();
     const contact = await db.collection('contacts').findOne({ _id: new ObjectId(contactId) });
     if (!contact) {
@@ -4259,3 +4258,5 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
         return { success: false, error: 'Failed to update tags.' };
     }
 }
+
+    

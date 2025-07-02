@@ -1,8 +1,5 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
-
-// --- From dashboard/page.tsx and actions.ts ---
 
 export type BusinessCapabilities = {
     max_daily_conversation_per_phone: number;
@@ -102,6 +99,7 @@ export type Tag = {
 };
 
 export type Project = {
+    _id: ObjectId;
     userId: ObjectId;
     name: string;
     wabaId: string;
@@ -120,6 +118,9 @@ export type Project = {
     adAccountId?: string;
     facebookPageId?: string;
     tags?: Tag[];
+    planId?: ObjectId;
+    credits?: number;
+    plan?: WithId<Plan>; // populated by aggregate
 };
 
 export type Template = {
@@ -175,11 +176,11 @@ export type AdCampaign = {
 export type MetaFlow = {
     name: string;
     projectId: ObjectId;
-    metaId: string; // The ID from Meta
+    metaId: string; 
     status: string;
     json_version?: string;
     categories: string[];
-    flow_data: any; // Storing the raw JSON structure from Meta
+    flow_data: any; 
     createdAt: Date;
     updatedAt: Date;
 };
@@ -208,7 +209,7 @@ export type PlanMessageCosts = {
     marketing: number;
     utility: number;
     authentication: number;
-    service?: number; // Added service for conversations
+    service?: number;
 };
 
 export type Plan = {
@@ -237,8 +238,6 @@ export type User = {
     email: string;
     password?: string;
     createdAt: Date;
-    planId?: ObjectId;
-    credits?: number;
 };
 
 export type Invitation = {
@@ -256,11 +255,12 @@ export type Invitation = {
 export type Transaction = {
     _id: ObjectId;
     userId: ObjectId;
+    projectId?: ObjectId;
     type: 'PLAN' | 'CREDITS';
     description: string;
     planId?: ObjectId;
     credits?: number;
-    amount: number; // in paise
+    amount: number; 
     status: 'PENDING' | 'SUCCESS' | 'FAILED';
     provider: 'phonepe';
     providerTransactionId?: string;
@@ -273,8 +273,8 @@ export type BroadcastAttempt = {
     phone: string;
     status: 'PENDING' | 'SENT' | 'FAILED' | 'DELIVERED' | 'READ';
     sentAt?: Date;
-    messageId?: string; // a successful send from Meta
-    error?: string; // a failed send reason
+    messageId?: string; 
+    error?: string; 
 };
 
 export type Notification = {
@@ -292,8 +292,8 @@ export type NotificationWithProject = Notification & { projectName?: string };
 
 export type Contact = {
     projectId: ObjectId;
-    waId: string; // The user's WhatsApp ID
-    phoneNumberId: string; // The business phone number they are talking to
+    waId: string; 
+    phoneNumberId: string; 
     name: string;
     lastMessage?: string;
     lastMessageTimestamp?: Date;
@@ -321,7 +321,7 @@ export type IncomingMessage = {
     wamid: string;
     messageTimestamp: Date;
     type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'sticker' | 'unknown' | 'interactive';
-    content: any; // The raw message object from Meta
+    content: any;
     isRead: boolean;
     createdAt: Date;
 }
@@ -334,7 +334,7 @@ export type OutgoingMessage = {
     wamid: string;
     messageTimestamp: Date;
     type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive' | 'template';
-    content: any; // The payload sent to Meta
+    content: any;
     status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
     statusTimestamps: {
         sent?: Date;
@@ -416,7 +416,6 @@ export type WebhookLog = {
     error?: string;
 };
 
-// --- Types moved from actions.ts to fix build error ---
 
 export type MetaPhoneNumber = {
     id: string;
@@ -519,11 +518,9 @@ export type BroadcastJob = {
     projectMessagesPerSecond?: number;
 };
 
-export type AdminUserView = Omit<User, 'password'> & {
-    plan: WithId<Plan> | null;
-};
+export type AdminUserView = Omit<User, 'password'>;
 
-// Form state types
+
 export type CreateTemplateState = {
     message?: string | null;
     error?: string | null;
@@ -545,3 +542,5 @@ export type InitiatePaymentResult = {
   redirectUrl?: string;
   error?: string;
 }
+
+    
