@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
-import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Play, ArrowRightLeft, ToggleRight } from 'lucide-react';
+import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Play, ArrowRightLeft, ToggleRight, ServerCog, Megaphone } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -17,27 +17,39 @@ const features = [
   {
     icon: <Send className="h-8 w-8 text-primary" />,
     title: 'Campaign Management',
-    description: 'Launch targeted broadcast campaigns to thousands of contacts with detailed, real-time analytics and delivery reports.',
+    description: 'Launch targeted broadcast campaigns with detailed, real-time analytics and delivery reports.',
     gradient: 'card-gradient-green',
   },
   {
     icon: <GitBranch className="h-8 w-8 text-primary" />,
     title: 'No-Code Flow Builder',
-    description: 'Design powerful, automated conversational flows with our intuitive drag-and-drop builder. No coding required.',
-     gradient: 'card-gradient-blue',
+    description: 'Design powerful, automated conversational flows with our intuitive drag-and-drop builder.',
+    gradient: 'card-gradient-blue',
   },
   {
     icon: <MessageSquare className="h-8 w-8 text-primary" />,
     title: 'Unified Live Chat',
-    description: 'Engage with your customers in real-time through a multi-agent live chat interface, complete with translation tools.',
-     gradient: 'card-gradient-purple',
+    description: 'Engage with your customers in real-time through a multi-agent live chat interface.',
+    gradient: 'card-gradient-purple',
   },
   {
     icon: <Bot className="h-8 w-8 text-primary" />,
     title: 'AI-Powered Replies',
     description: 'Leverage AI to handle common queries, provide instant support, and translate messages automatically.',
-     gradient: 'card-gradient-orange',
+    gradient: 'card-gradient-orange',
   },
+  {
+    icon: <ServerCog className="h-8 w-8 text-primary" />,
+    title: 'Interactive Flows',
+    description: 'Build rich, native forms and UI screens that open directly inside WhatsApp, boosting conversion rates.',
+    gradient: 'card-gradient-blue',
+  },
+  {
+    icon: <Megaphone className="h-8 w-8 text-primary" />,
+    title: 'WhatsApp Ads',
+    description: 'Create and manage "Click to WhatsApp" ad campaigns directly from the dashboard to drive new leads.',
+    gradient: 'card-gradient-green',
+  }
 ];
 
 const steps = [
@@ -173,9 +185,9 @@ export default async function HomePage() {
                 Everything you need to scale your customer communication on WhatsApp.
               </p>
             </div>
-            <div className="flex flex-wrap justify-center gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {features.map((feature, index) => (
-                <Card key={index} className={cn("text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 w-full max-w-sm flex flex-col card-gradient", feature.gradient)}>
+                <Card key={index} className={cn("text-center hover:shadow-lg hover:-translate-y-2 transition-transform duration-300 flex flex-col card-gradient", feature.gradient)}>
                   <CardHeader className="items-center">
                     <div className="p-4 bg-primary/10 rounded-full">
                         {feature.icon}
