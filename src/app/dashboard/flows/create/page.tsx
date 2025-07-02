@@ -6,7 +6,7 @@ import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, AlertCircle, Server, Check, ChevronsUpDown } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, AlertCircle, Server, Check, ChevronsUpDown, Switch as SwitchIcon, GitBranch, MessageSquare, Image as ImageIcon, CaseSensitive, Calendar, List, Link as LinkIcon, Hand, Footprints, MousePointerClick, FileUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -40,7 +40,7 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const buttonText = isEditing ? 'Update Flow' : 'Save & Publish Flow';
     return (
         <Button type="submit" disabled={pending} size="lg">
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <FileUp className="mr-2 h-4 w-4" />}
             {buttonText}
         </Button>
     );
@@ -283,7 +283,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
         if (isIfComponent) {
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="condition">Condition Expression</Label>
                         <Input id="condition" value={localComponent.condition || ''} onChange={(e) => updateField('condition', e.target.value)} placeholder="${form.age} > 18" required />
@@ -301,7 +301,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         
         if (isSwitchComponent) {
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="value">Variable to Switch On</Label>
                         <Input id="value" value={localComponent.value || ''} onChange={(e) => updateField('value', e.target.value)} placeholder="${form.choice}" required />
@@ -319,7 +319,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
         if (isNavigationListComponent) {
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="name">Name (unique identifier)</Label>
                         <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
@@ -375,7 +375,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
         if (isEmbeddedLinkComponent) {
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="text">Link Text (max 25 chars)</Label>
                         <Input id="text" value={localComponent.text || ''} onChange={(e) => updateField('text', e.target.value)} required maxLength={25} />
@@ -413,13 +413,13 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
         if (isFooterComponent) {
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="label">Button Label (max 35 chars)</Label>
                         <Input id="label" value={localComponent.label || ''} onChange={(e) => updateField('label', e.target.value)} required maxLength={35} />
                     </div>
                     <Separator />
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                          <Label>Captions (optional, max 15 chars each)</Label>
                          <p className="text-xs text-muted-foreground">You can use either a center caption OR left/right captions, but not all three.</p>
                          <Input placeholder="Left Caption" value={localComponent['left-caption'] || ''} onChange={e => updateField('left-caption', e.target.value)} maxLength={15} />
@@ -434,7 +434,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                     />
                     <div className="space-y-2">
                         <Label>On-Click Action (Required)</Label>
-                        <div className="p-3 border rounded-lg space-y-3">
+                        <div className="p-3 border rounded-lg space-y-4">
                             <Select value={localComponent['on-click-action']?.name || ''} onValueChange={(val) => handleActionChange('on-click-action', 'name', val)}>
                                 <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
                                 <SelectContent>
@@ -457,7 +457,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
         if (isOptInComponent) {
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="name">Name (unique identifier)</Label>
                         <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
@@ -534,7 +534,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
         if (isDocumentPickerComponent) {
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="name">Name (unique identifier)</Label>
                         <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
@@ -547,7 +547,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Label htmlFor="description">Description (optional, max 300 chars)</Label>
                         <Textarea id="description" value={localComponent.description || ''} onChange={(e) => updateField('description', e.target.value)} maxLength={300} />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="min-uploaded-documents">Min Docs</Label>
                             <Input id="min-uploaded-documents" type="number" value={localComponent['min-uploaded-documents'] ?? ''} onChange={e => updateField('min-uploaded-documents', e.target.value ? parseInt(e.target.value) : undefined)} min="0" max="30" />
@@ -593,7 +593,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         
         if (isPhotoPickerComponent) {
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="name">Name (unique identifier)</Label>
                         <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
@@ -617,7 +617,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="min-uploaded-photos">Min Photos</Label>
                             <Input id="min-uploaded-photos" type="number" value={localComponent['min-uploaded-photos'] ?? ''} onChange={e => updateField('min-uploaded-photos', e.target.value ? parseInt(e.target.value) : undefined)} min="0" max="30" />
@@ -661,7 +661,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         if (isCalendarPickerComponent) {
             const mode = localComponent.mode || 'single';
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="name">Name (unique identifier)</Label>
                         <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
@@ -692,21 +692,21 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         {mode === 'single' ? (
                             <Input value={typeof localComponent.label === 'string' ? localComponent.label : ''} onChange={e => updateField('label', e.target.value)} required />
                         ) : (
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-2 gap-6">
                                 <Input placeholder="Start Date Label" value={localComponent.label?.['start-date'] || ''} onChange={e => updateNestedField('label', 'start-date', e.target.value)} />
                                 <Input placeholder="End Date Label" value={localComponent.label?.['end-date'] || ''} onChange={e => updateNestedField('label', 'end-date', e.target.value)} />
                             </div>
                         )}
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2"><Label htmlFor="min-date">Min Date</Label><Input id="min-date" type="date" value={localComponent['min-date'] || ''} onChange={e => updateField('min-date', e.target.value)}/></div>
                         <div className="space-y-2"><Label htmlFor="max-date">Max Date</Label><Input id="max-date" type="date" value={localComponent['max-date'] || ''} onChange={e => updateField('max-date', e.target.value)}/></div>
                     </div>
                     <div className="space-y-2"><Label>Days of Week Included</Label><div className="flex flex-wrap gap-x-4 gap-y-2">{['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => <div key={day} className="flex items-center space-x-2"><Checkbox id={`day-${day}`} checked={(localComponent['include-days'] || []).includes(day)} onCheckedChange={checked => handleIncludeDaysChange(day, !!checked)}/><Label htmlFor={`day-${day}`} className="font-normal">{day}</Label></div>)}</div></div>
 
                      {mode === 'range' && (
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-6">
                            <div className="space-y-2"><Label htmlFor="min-days">Min Days in Range</Label><Input id="min-days" type="number" value={localComponent['min-days'] ?? ''} onChange={e => updateField('min-days', e.target.value ? parseInt(e.target.value) : undefined)}/></div>
                            <div className="space-y-2"><Label htmlFor="max-days">Max Days in Range</Label><Input id="max-days" type="number" value={localComponent['max-days'] ?? ''} onChange={e => updateField('max-days', e.target.value ? parseInt(e.target.value) : undefined)}/></div>
                         </div>
@@ -717,7 +717,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
         if (isDatePickerComponent) {
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="name">Name (unique identifier)</Label>
                         <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
@@ -734,7 +734,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Label htmlFor="error-message">Error Message</Label>
                         <Input id="error-message" value={localComponent['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-6">
                          <div className="space-y-2">
                             <Label htmlFor="min-date">Min Date</Label>
                             <Input id="min-date" type="date" value={localComponent['min-date'] || ''} onChange={e => updateField('min-date', e.target.value)} />
@@ -778,8 +778,8 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
         if (isChipsSelectorComponent) {
              return (
-                <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="name">Name (unique identifier)</Label>
                             <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
@@ -810,7 +810,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Button type="button" variant="outline" size="sm" onClick={addDataSourceOption} className="w-full"><Plus className="mr-2 h-4 w-4"/>Add Chip</Button>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="min-selected-items">Min Selected</Label>
                             <Input id="min-selected-items" type="number" value={localComponent['min-selected-items'] ?? ''} onChange={e => updateField('min-selected-items', e.target.value ? parseInt(e.target.value) : undefined)} />
@@ -836,8 +836,8 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
         if (isSelectionComponent) {
             return (
-                <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-6">
+                    <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="name">Name (unique identifier)</Label>
                             <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
@@ -867,7 +867,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                     </div>
 
                     {localComponent.type === 'CheckboxGroup' && (
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-6">
                             <div className="space-y-2">
                                 <Label htmlFor="min-selected-items">Min Selected</Label>
                                 <Input id="min-selected-items" type="number" value={localComponent['min-selected-items'] ?? ''} onChange={e => updateField('min-selected-items', e.target.value ? parseInt(e.target.value) : undefined)} />
@@ -926,7 +926,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
         if (isImageComponent) {
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="image-upload">Upload Image</Label>
                         <Input id="image-upload" type="file" accept="image/png, image/jpeg" onChange={handleImageUpload} />
@@ -939,7 +939,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Label htmlFor="alt-text">Alt Text (Required)</Label>
                         <Input id="alt-text" value={localComponent['alt-text'] || ''} onChange={e => updateField('alt-text', e.target.value)} />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="width">Width (optional)</Label>
                             <Input id="width" type="number" value={localComponent.width || ''} onChange={e => updateField('width', e.target.value ? parseInt(e.target.value) : undefined)} />
@@ -949,7 +949,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                             <Input id="height" type="number" value={localComponent.height || ''} onChange={e => updateField('height', e.target.value ? parseInt(e.target.value) : undefined)} />
                         </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="aspect-ratio">Aspect Ratio</Label>
                             <Select
@@ -983,8 +983,8 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
         if (isCarouselComponent) {
              return (
-                <div className="space-y-4">
-                     <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-6">
+                     <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="carousel-aspect-ratio">Aspect Ratio</Label>
                             <Select value={localComponent['aspect-ratio'] || '16:9'} onValueChange={v => updateField('aspect-ratio', v)}>
@@ -1039,7 +1039,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
 
         if (isTextComponent) {
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="text">Text</Label>
                         <Textarea id="text" value={localComponent.text || ''} onChange={e => updateField('text', e.target.value)} />
@@ -1060,7 +1060,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         
         if (isTextInputComponent || isTextAreaComponent) {
             return (
-                <div className="space-y-4">
+                <div className="space-y-6">
                     <div className="space-y-2">
                         <Label htmlFor="name">Name (unique identifier)</Label>
                         <Input id="name" value={localComponent.name || ''} onChange={(e) => updateField('name', e.target.value)} required />
@@ -1096,7 +1096,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                             </Select>
                         </div>
                     )}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="min-length">Min Length</Label>
                             <Input id="min-length" type="number" value={localComponent['min-length'] ?? ''} onChange={e => updateField('min-length', e.target.value ? parseInt(e.target.value) : undefined)} />
@@ -1139,7 +1139,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                     <DialogTitle>Edit Component: {localComponent.type}</DialogTitle>
                 </DialogHeader>
                 <ScrollArea className="max-h-[60vh] -mx-6 px-6">
-                <div className="py-4 space-y-4">
+                <div className="py-4 space-y-6">
                     {renderProperties()}
                 </div>
                 </ScrollArea>
@@ -1333,10 +1333,10 @@ function CreateMetaFlowPageContent() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                         <div className="space-y-6">
                             <Card>
-                                <CardHeader>
+                                <CardHeader className="p-6">
                                     <CardTitle>Flow Configuration</CardTitle>
                                 </CardHeader>
-                                <CardContent className="space-y-4">
+                                <CardContent className="space-y-4 p-6">
                                      <div className="space-y-2">
                                         <Label htmlFor="flowName">Flow Name</Label>
                                         <Input id="flowName" name="flowName" value={flowName} onChange={(e) => setFlowName(e.target.value)} required />
@@ -1348,7 +1348,7 @@ function CreateMetaFlowPageContent() {
                                             <SelectContent>{flowCategories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>)}</SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="flex items-center space-x-2">
+                                    <div className="flex items-center space-x-2 pt-2">
                                         <Switch id="publishOnSave" checked={publishOnSave} onCheckedChange={setPublishOnSave} />
                                         <Label htmlFor="publishOnSave">Publish immediately after saving</Label>
                                     </div>
@@ -1357,8 +1357,8 @@ function CreateMetaFlowPageContent() {
 
                             <Accordion type="single" collapsible defaultValue="screens">
                                 <AccordionItem value="screens">
-                                    <AccordionTrigger className="text-base font-semibold">Screens</AccordionTrigger>
-                                    <AccordionContent className="space-y-2">
+                                    <AccordionTrigger className="text-base font-semibold px-4 py-3">Screens</AccordionTrigger>
+                                    <AccordionContent className="space-y-3 p-2">
                                         {flowData.screens?.map((screen: any) => (
                                              <div key={screen.id} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
                                                 <Button variant={selectedScreenId === screen.id ? 'default' : 'ghost'} className="flex-1 justify-start" onClick={() => setSelectedScreenId(screen.id)}>{screen.title || screen.id}</Button>
@@ -1369,8 +1369,8 @@ function CreateMetaFlowPageContent() {
                                     </AccordionContent>
                                 </AccordionItem>
                                  <AccordionItem value="settings">
-                                    <AccordionTrigger className="text-base font-semibold">Screen Settings</AccordionTrigger>
-                                    <AccordionContent className="space-y-4">
+                                    <AccordionTrigger className="text-base font-semibold px-4 py-3">Screen Settings</AccordionTrigger>
+                                    <AccordionContent className="space-y-6 p-4">
                                        {currentScreenForEditor ? (
                                         <>
                                             <div className="space-y-2"><Label>Screen ID</Label><Input value={currentScreenForEditor.id} readOnly disabled/></div>
@@ -1385,11 +1385,11 @@ function CreateMetaFlowPageContent() {
                                     </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="components">
-                                     <AccordionTrigger className="text-base font-semibold">Components</AccordionTrigger>
-                                     <AccordionContent className="space-y-2">
+                                     <AccordionTrigger className="text-base font-semibold px-4 py-3">Components</AccordionTrigger>
+                                     <AccordionContent className="space-y-3 p-2">
                                         {currentScreenForEditor ? (
                                             <>
-                                                {(currentScreenForEditor.layout.children.find((c:any) => c.type === 'Form')?.children || []).map((comp:any, index:number) => (
+                                                {(currentScreenForEditor.layout.children.find((c:any) => c.type === 'Form' || c.type === 'NavigationList')?.children || []).map((comp:any, index:number) => (
                                                      <div key={comp.name || index} className="flex items-center gap-2 p-2 rounded-md hover:bg-muted">
                                                          <p className="flex-1 text-sm">{comp.label || comp.text || comp.name || comp.type}</p>
                                                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openComponentEditor(comp)}><Settings className="h-4 w-4"/></Button>
@@ -1416,12 +1416,12 @@ function CreateMetaFlowPageContent() {
                                                     </PopoverContent>
                                                 </Popover>
                                             </>
-                                        ): <p className="text-sm text-muted-foreground">Select a screen to add components.</p>}
+                                        ): <p className="text-sm text-muted-foreground p-4">Select a screen to add components.</p>}
                                      </AccordionContent>
                                 </AccordionItem>
                                 <AccordionItem value="json">
-                                    <AccordionTrigger className="text-base font-semibold">Raw JSON</AccordionTrigger>
-                                    <AccordionContent><Textarea value={JSON.stringify(flowData, null, 2)} onChange={(e) => { try { const parsed = JSON.parse(e.target.value); setFlowData(parsed); } catch(err) {/* ignore */} }} className="h-96 font-mono text-xs" /></AccordionContent>
+                                    <AccordionTrigger className="text-base font-semibold px-4 py-3">Raw JSON</AccordionTrigger>
+                                    <AccordionContent className="p-2"><Textarea value={JSON.stringify(flowData, null, 2)} onChange={(e) => { try { const parsed = JSON.parse(e.target.value); setFlowData(parsed); } catch(err) {/* ignore */} }} className="h-96 font-mono text-xs" /></AccordionContent>
                                 </AccordionItem>
                             </Accordion>
 
