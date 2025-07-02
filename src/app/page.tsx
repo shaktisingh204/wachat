@@ -145,7 +145,7 @@ export default async function HomePage() {
               <Check className="h-8 w-8 text-green-500 absolute top-8 right-0 animate-fade-in-up" style={{animationDelay: '1.5s'}}/>
 
               {/* Phone Mockup */}
-              <div className="w-full max-w-sm bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl z-10">
+               <div className="w-full max-w-sm bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl z-10">
                 <div className="h-[700px] bg-[#E5DDD5] rounded-[2rem] flex flex-col relative overflow-hidden [background-image:url('https://placehold.co/400x800.png')] bg-center bg-cover" data-ai-hint="chat background">
                    <div className="absolute inset-0 bg-black/5"></div>
                    {/* Header */}
@@ -155,21 +155,45 @@ export default async function HomePage() {
                    </div>
                    {/* Chat */}
                    <div className="flex-1 p-3 space-y-3 overflow-y-auto">
-                      <div className="flex justify-start"><div className="bg-white rounded-lg p-2 text-sm max-w-xs shadow">Hi, I'm interested in your products.</div></div>
-                      <div className="flex justify-end"><div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow">Thanks for your message! This is an auto-reply.</div></div>
-                      <div className="flex justify-end"><div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow">You can find our latest offers here: [link] (Canned Reply)</div></div>
-                      <div className="flex justify-end"><div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow">It looks like you're asking about pricing. Our standard plan is $49/mo. (Flow Builder Reply)</div></div>
-                      <div className="flex justify-end">
-                        <div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow space-y-2">
-                          <p>Ready to order? Open our interactive order form to get started!</p>
-                          <Button className="w-full bg-white text-green-600 hover:bg-white/90 shadow-none border-t border-black/10 rounded-t-none -m-2 mt-2">🛒 Start Your Order</Button>
+                        {/* 1. User says Hi */}
+                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '1s' }}>
+                            <div className="bg-white rounded-lg p-2 text-sm max-w-xs shadow">Hi</div>
                         </div>
-                      </div>
+                        {/* 2. Bot auto-reply */}
+                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '2.5s' }}>
+                            <div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow">Welcome to Acme Inc! How can I help you today? Type "Start flow" to see our product showcase.</div>
+                        </div>
+                        {/* 3. User says Start flow */}
+                        <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '4s' }}>
+                            <div className="bg-white rounded-lg p-2 text-sm max-w-xs shadow">Start flow</div>
+                        </div>
+                        {/* 4. Flow Welcome */}
+                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '5s' }}>
+                            <div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow">Welcome to the product showcase! Here is our latest item, fresh from our API.</div>
+                        </div>
+                        {/* 5. Flow Image */}
+                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '6s' }}>
+                            <div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow">
+                                <Image src="https://placehold.co/600x400.png" alt="product" width={200} height={150} className="rounded-md" data-ai-hint="sneaker product photo" />
+                                <p className="pt-1">Our new Super Sneakers are now in stock!</p>
+                            </div>
+                        </div>
+                        {/* 6. Flow Template with Button */}
+                        <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '7.5s' }}>
+                            <div className="bg-[#DCF8C6] rounded-lg p-2 text-sm max-w-xs shadow space-y-2">
+                                <p>Ready to see more? Open our interactive order form to browse the full catalog!</p>
+                                <div className="w-full bg-white/80 text-green-600 hover:bg-white/90 shadow-none border-t border-black/10 rounded-b-lg -m-2 mt-2 p-2 text-center font-medium">
+                                    🛒 Order Now
+                                </div>
+                            </div>
+                        </div>
                    </div>
                    {/* Meta Flow Overlay */}
-                   <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20">
-                      <div className="bg-slate-100 h-[90%] rounded-t-2xl flex flex-col">
-                        <div className="p-3 border-b text-center font-semibold">Order Products</div>
+                   <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '8.5s', opacity: 0 }}>
+                      <div className="bg-slate-100 h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '8.5s' }}>
+                        <div className="p-2 border-b text-center font-semibold text-sm">
+                          Order Products
+                        </div>
                         <div className="flex-1 p-4 space-y-4 overflow-y-auto">
                           <p className="font-semibold">Summer Collection</p>
                           <div className="flex gap-3 border rounded-lg p-3 bg-white">
