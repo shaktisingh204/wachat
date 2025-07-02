@@ -176,7 +176,7 @@ export default function HomePage() {
                    {/* Header */}
                    <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                       <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
-                      <div className="flex-1 flex flex-col">
+                      <div className="flex-1 flex flex-col justify-center">
                           <div className="flex items-center gap-1.5">
                             <p className="font-semibold">Wachat</p>
                             <svg viewBox="0 0 18 18" width="16" height="16" className="text-green-400 flex-shrink-0">
@@ -274,59 +274,13 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* Showcase Section: Kanban */}
-        <section id="kanban-showcase" className="py-16">
-            <div className="container mx-auto">
-                <div className="text-center space-y-4 mb-16">
-                    <h2 className="text-3xl md:text-4xl font-bold font-headline">Visualize Your Workflow</h2>
-                    <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
-                        Drag and drop conversations through your pipeline. From new lead to resolved ticket, never lose track of a customer again.
-                    </p>
-                </div>
-                
-                {/* Kanban Board Mockup */}
-                <div className="relative h-[450px] w-full max-w-4xl mx-auto p-4 md:p-6 rounded-lg bg-muted/50 overflow-hidden border">
-                    <div className="flex h-full gap-4">
-                        {/* Column 1: New */}
-                        <div className="w-1/3 bg-background/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
-                            <h3 className="font-semibold px-2 text-foreground">New Leads (2)</h3>
-                            {/* Static Card */}
-                            <div className="bg-card p-3 rounded-md shadow">
-                                <p className="font-semibold text-sm">Aisha Ahmed</p>
-                                <p className="text-xs text-muted-foreground">Interested in the new collection.</p>
-                            </div>
-                            {/* The card that will animate */}
-                            <div className="bg-card p-3 rounded-md shadow animate-kanban-drag relative z-10">
-                                <p className="font-semibold text-sm">David Chen</p>
-                                <p className="text-xs text-muted-foreground">Where is my order #1234?</p>
-                            </div>
-                        </div>
-
-                        {/* Column 2: Open */}
-                        <div className="w-1/3 bg-background/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
-                            <h3 className="font-semibold px-2 text-foreground">Open Tickets (1)</h3>
-                            <div className="bg-card p-3 rounded-md shadow">
-                                <p className="font-semibold text-sm">Maria Garcia</p>
-                                <p className="text-xs text-muted-foreground">Follow-up on quote required.</p>
-                            </div>
-                        </div>
-                        
-                        {/* Column 3: Resolved */}
-                        <div className="w-1/3 bg-background/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
-                            <h3 className="font-semibold px-2 text-foreground">Resolved (0)</h3>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         {/* Showcase Section */}
         <section id="showcase" className="py-16 md:py-24 bg-muted">
             <div className="container mx-auto">
                 <div className="text-center space-y-4 mb-16">
-                    <h2 className="text-3xl md:text-4xl font-bold font-headline">Visual Automation at Your Fingertips</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold font-headline">One Platform, Complete Control</h2>
                     <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
-                        From simple bots to complex interactive forms, build it all without writing a single line of code.
+                        From visual automations to conversation management, see how Wachat puts you in control of the entire customer journey.
                     </p>
                 </div>
                 
@@ -375,12 +329,12 @@ export default function HomePage() {
                     {/* Declarative Flow UI Builder Mockup */}
                     <div className="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-12">
                         <div className="lg:w-1/3 space-y-4 text-center lg:text-left">
-                            <h3 className="text-2xl font-bold font-headline">Declarative Flow UI Builder</h3>
+                            <h3 className="text-2xl font-bold font-headline">Interactive Flow UI Builder</h3>
                             <p className="text-muted-foreground">
                                 Build rich, native forms and multi-step experiences that open directly inside WhatsApp for higher conversion rates.
                             </p>
                         </div>
-                        <div className="lg:w-2/3 flex justify-center">
+                        <div className="lg:w-2/3 flex justify-center w-full">
                              <div className="relative w-80 h-[580px] bg-slate-800 rounded-[2.5rem] p-3 shadow-2xl">
                                 <div className="absolute top-3 left-1/2 -translate-x-1/2 h-5 w-1/3 bg-slate-800 rounded-b-lg"></div>
                                 <div 
@@ -413,7 +367,7 @@ export default function HomePage() {
                                         </div>
                                     </div>
                                     {/* Animated Meta Flow Overlay */}
-                                    <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0 }}>
+                                    <div key={animationKey} className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0 }}>
                                         <div className="bg-slate-100 h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '0.8s' }}>
                                             <div className="p-2 border-b text-center font-semibold text-sm">
                                                 Order Products
@@ -436,10 +390,50 @@ export default function HomePage() {
                              </div>
                         </div>
                     </div>
+                     {/* Kanban Board Mockup */}
+                    <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12">
+                        <div className="lg:w-1/3 space-y-4 text-center lg:text-left">
+                            <h3 className="text-2xl font-bold font-headline">Visualize Your Workflow</h3>
+                            <p className="text-muted-foreground">
+                                Drag and drop conversations through your pipeline. From new lead to resolved ticket, never lose track of a customer again.
+                            </p>
+                        </div>
+                        <div className="lg:w-2/3 p-4 rounded-lg bg-background/30 w-full">
+                            <div className="relative h-[450px] w-full overflow-hidden">
+                                <div className="flex h-full gap-4">
+                                    {/* Column 1: New */}
+                                    <div className="w-1/3 bg-background/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
+                                        <h3 className="font-semibold px-2 text-foreground">New Leads (2)</h3>
+                                        {/* Static Card */}
+                                        <div className="bg-card p-3 rounded-md shadow">
+                                            <p className="font-semibold text-sm">Aisha Ahmed</p>
+                                            <p className="text-xs text-muted-foreground">Interested in the new collection.</p>
+                                        </div>
+                                        {/* The card that will animate */}
+                                        <div key={animationKey} className="bg-card p-3 rounded-md shadow animate-kanban-drag relative z-10">
+                                            <p className="font-semibold text-sm">David Chen</p>
+                                            <p className="text-xs text-muted-foreground">Where is my order #1234?</p>
+                                        </div>
+                                    </div>
+                                    {/* Column 2: Open */}
+                                    <div className="w-1/3 bg-background/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
+                                        <h3 className="font-semibold px-2 text-foreground">Open Tickets (1)</h3>
+                                        <div className="bg-card p-3 rounded-md shadow">
+                                            <p className="font-semibold text-sm">Maria Garcia</p>
+                                            <p className="text-xs text-muted-foreground">Follow-up on quote required.</p>
+                                        </div>
+                                    </div>
+                                    {/* Column 3: Resolved */}
+                                    <div className="w-1/3 bg-background/50 rounded-lg p-2 md:p-3 flex flex-col gap-3">
+                                        <h3 className="font-semibold px-2 text-foreground">Resolved (0)</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
-
 
         {/* Testimonials Section */}
         <section className="py-16">
