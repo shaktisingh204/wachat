@@ -76,6 +76,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                 <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
                     {Object.keys(component).map(key => {
                         const value = localComponent[key];
+                        if (key === 'type' || key === 'name') return null; // Don't allow editing type or name
                         return (
                             <div key={key} className="space-y-2">
                                 <Label htmlFor={key}>{key}</Label>
@@ -142,13 +143,13 @@ function CreateMetaFlowPage() {
                 description: '',
                 routing_model: {},
                 screens: [{
-                    id: 'screen_1',
+                    id: 'SCREEN_1',
                     title: 'Welcome Screen',
                     layout: {
                         type: 'SingleColumnLayout',
                         children: [{
                             type: 'Form',
-                            name: 'form_1',
+                            name: 'form_screen_1',
                             children: [{ type: 'TextBody', text: 'This is the start of your flow.' }, { type: 'Footer', label: 'Finish', 'on-click-action': { name: 'complete' } }]
                         }]
                     },
@@ -191,24 +192,33 @@ function CreateMetaFlowPage() {
         });
     };
 
-    const updateFlowField = useCallback((field: 'name' | 'description' | 'routing_model', value: any) => {
+    const updateFlowField = useCallback((field: 'name' | 'description', value: any) => {
         setFlowData(prev => {
             if (JSON.stringify(prev[field]) === JSON.stringify(value)) return prev;
             return { ...prev, [field]: value };
         });
     }, []);
 
-    const updateScreenField = (screenIndex: number, field: string, value: any) => {
+    const updateScreenField = useCallback((screenIndex: number, field: string, value: any) => {
         setFlowData(prev => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
+            const oldId = newScreens[screenIndex].id;
             newScreens[screenIndex][field] = value;
+
+            if (field === 'title') {
+                const newId = value.toUpperCase().replace(/\s+/g, '_').replace(/[^A-Z0-9_]/g, '');
+                if (newId && newId !== oldId) {
+                    newScreens[screenIndex].id = newId;
+                }
+            }
+            
             return { ...prev, screens: newScreens };
         });
-    };
+    }, []);
     
     const addComponentToScreen = (screenIndex: number, componentType: DeclarativeUIComponent['type']) => {
         const newComponent: any = { type: componentType };
-        // Basic default properties for new components
+        // Add name only to components that support it
         const supportedNameComponents = ['TextInput', 'TextArea', 'DatePicker', 'CalendarPicker', 'Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'ChipsSelector', 'PhotoPicker', 'DocumentPicker', 'ImageCarousel', 'OptIn', 'NavigationList'];
         if (supportedNameComponents.includes(componentType)) {
             newComponent.name = `${componentType.toLowerCase()}_${Date.now()}`;
@@ -216,10 +226,10 @@ function CreateMetaFlowPage() {
         if (['TextInput', 'TextArea', 'DatePicker', 'Dropdown', 'RadioButtonsGroup', 'PhotoPicker', 'DocumentPicker'].includes(componentType)) {
             newComponent.label = `New ${componentType}`;
         }
-        if (['TextSubheading', 'TextBody', 'TextCaption'].includes(componentType)) {
+        if (['TextSubheading', 'TextBody', 'TextCaption', 'TextHeading'].includes(componentType)) {
             newComponent.text = `New ${componentType}`;
         }
-        if (['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup'].includes(componentType)) {
+        if (['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'ChipsSelector'].includes(componentType)) {
             newComponent['data-source'] = [{ id: `opt_${Date.now()}`, title: 'Option 1' }];
         }
         if (componentType === 'Footer') {
@@ -227,7 +237,7 @@ function CreateMetaFlowPage() {
             newComponent['on-click-action'] = { name: 'complete' };
         }
 
-        setFlowData(prev => {
+        setFlowData((prev: any) => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
             if (screenToUpdate.layout.children.find((c: any) => c.type === 'Form')) {
@@ -241,21 +251,21 @@ function CreateMetaFlowPage() {
     };
     
     const removeComponentFromScreen = (screenIndex: number, componentIndex: number) => {
-        setFlowData(prev => {
+        setFlowData((prev: any) => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
             const formContainer = screenToUpdate.layout.children.find((c: any) => c.type === 'Form');
             if (formContainer) {
-                formContainer.children.splice(componentIndex, 1);
+                formContainer.children = (formContainer.children || []).filter((_: any, i: number) => i !== componentIndex);
             } else {
-                 screenToUpdate.layout.children.splice(componentIndex, 1);
+                 screenToUpdate.layout.children = (screenToUpdate.layout.children || []).filter((_: any, i: number) => i !== componentIndex);
             }
             return { ...prev, screens: newScreens };
         });
     };
     
     const addNewScreen = () => {
-        const newScreenId = `screen_${Date.now()}`;
+        const newScreenId = `SCREEN_${flowData.screens.length + 1}`;
         const newScreen = {
             id: newScreenId,
             title: `New Screen ${flowData.screens.length + 1}`,
@@ -318,7 +328,7 @@ function CreateMetaFlowPage() {
                     targets.push(action.next.name);
                 }
 
-                if (component.type === 'If') {
+                if (component.type === 'If' && component.then) {
                     targets = [...targets, ...findNavTargets(component.then)];
                     if (component.else) {
                         targets = [...targets, ...findNavTargets(component.else)];
