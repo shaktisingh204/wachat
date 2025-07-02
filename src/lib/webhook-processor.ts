@@ -897,6 +897,27 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
     if (message.type === 'interactive') {
         lastMessageText = message.interactive?.button_reply?.title || '[Interactive Reply]';
     }
+
+    // Fetch media and convert to data URI if present
+    if ((message.type === 'image' || message.type === 'video' || message.type === 'audio' || message.type === 'document') && message[message.type]?.id) {
+        try {
+            const mediaInfoResponse = await axios.get(`https://graph.facebook.com/v22.0/${message[message.type].id}`, {
+                headers: { 'Authorization': `Bearer ${project.accessToken}` }
+            });
+
+            if (mediaInfoResponse.data.url) {
+                const mediaDownloadResponse = await axios.get(mediaInfoResponse.data.url, {
+                    headers: { 'Authorization': `Bearer ${project.accessToken}` },
+                    responseType: 'arraybuffer'
+                });
+                const mimeType = mediaInfoResponse.data.mime_type;
+                const base64 = Buffer.from(mediaDownloadResponse.data, 'binary').toString('base64');
+                message[message.type].url = `data:${mimeType};base64,${base64}`;
+            }
+        } catch (e: any) {
+            console.error(`Failed to fetch and process media for incoming message ${message[message.type].id}:`, e.message);
+        }
+    }
     
     const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
         { waId: senderWaId, projectId: project._id },

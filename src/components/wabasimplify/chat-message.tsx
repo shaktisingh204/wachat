@@ -66,14 +66,12 @@ function MediaContent({ message }: { message: AnyMessage }) {
 
     if (!media && type !== 'unsupported') return <div className="text-sm text-muted-foreground italic">[Unsupported message content]</div>;
     
-    const url = media.link;
+    const url = media.url || media.link;
     const caption = media.caption || '';
     const fileName = media.filename || 'download';
-    
-    const isDataUri = url && url.startsWith('data:');
 
     if (type === 'image') {
-        if (isDataUri) {
+        if (url) {
             return (
                 <div className="space-y-2">
                     <a href={url} target="_blank" rel="noopener noreferrer" className="block relative aspect-video w-64 bg-muted rounded-lg overflow-hidden">
@@ -91,7 +89,7 @@ function MediaContent({ message }: { message: AnyMessage }) {
     }
 
     if (type === 'document') {
-        if (isDataUri) {
+        if (url) {
             return (
                 <a href={url} target="_blank" rel="noopener noreferrer" download={fileName} className="flex items-center gap-3 p-3 rounded-lg bg-background/50 hover:bg-background transition-colors max-w-xs">
                     <FileIcon className="h-8 w-8 text-primary flex-shrink-0" />
