@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
@@ -54,7 +53,13 @@ function CreateTemplatePageContent() {
       const templateJson = localStorage.getItem('templateToAction');
       if (templateJson) {
         try {
-          setInitialTemplate(JSON.parse(templateJson));
+          const templateData = JSON.parse(templateJson);
+          if (action === 'clone') {
+            // When cloning, remove the original header sample URL
+            // to force the user to provide a new one.
+            delete templateData.headerSampleUrl;
+          }
+          setInitialTemplate(templateData);
         } catch (e) {
           console.error("Failed to parse template data from localStorage", e);
         }
