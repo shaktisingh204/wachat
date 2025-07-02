@@ -6,7 +6,7 @@ import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, Server, Check, ChevronsUpDown, Switch as SwitchIcon, GitBranch, MessageSquare, Image as ImageIcon, CaseSensitive, Calendar, List, Link as LinkIcon, Hand, Footprints, MousePointerClick, FileUp, Heading1 } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, Server, Check, ChevronsUpDown, Switch as SwitchIcon, GitBranch, MessageSquare, Image as ImageIcon, CaseSensitive, Calendar, List, Link as LinkIcon, Hand, Footprints, MousePointerClick, FileUp, Heading1, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -22,6 +22,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { WithId } from 'mongodb';
 import type { MetaFlow } from '@/lib/definitions';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { ComponentEditor } from '@/components/wabasimplify/meta-flow-editor/component-editor';
 
 
@@ -96,6 +98,15 @@ function AddComponentDialog({ isOpen, onOpenChange, onAddComponent }: { isOpen: 
     );
 }
 
+const generateScreenId = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    let result = 'SCREEN_';
+    for (let i = 0; i < 8; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+};
+
 
 function CreateMetaFlowPageContent() {
     const router = useRouter();
@@ -131,7 +142,7 @@ function CreateMetaFlowPageContent() {
                 if (fetchedFlow) {
                     setFlowName(fetchedFlow.name);
                     setCategory(fetchedFlow.categories?.[0] || '');
-                    setFlowData(fetchedFlow.flow_data || { screens: [], routing_model: {} });
+                    setFlowData(fetchedFlow.flow_data || { version: '4.0', screens: [], routing_model: {} });
                     setMetaId(fetchedFlow.metaId);
                     if (fetchedFlow.flow_data?.screens?.[0]) {
                         setSelectedScreenId(fetchedFlow.flow_data.screens[0].id);
@@ -174,7 +185,7 @@ function CreateMetaFlowPageContent() {
     };
 
     const addScreen = () => {
-        const newScreenId = `SCREEN_${flowData.screens.length + 1}`;
+        const newScreenId = generateScreenId();
         const newScreen = {
             id: newScreenId,
             title: 'New Screen',
@@ -259,7 +270,7 @@ function CreateMetaFlowPageContent() {
     
     return (
         <Suspense fallback={<PageSkeleton />}>
-            {editingComponent && <ComponentEditor component={editingComponent} onSave={updateComponent} isOpen={isComponentEditorOpen} onOpenChange={setIsComponentEditorOpen} />}
+            {editingComponent && <ComponentEditor component={editingComponent} onSave={updateComponent} isOpen={isComponentEditorOpen} onOpenChange={setIsComponentEditorOpen} allScreens={flowData?.screens || []} />}
             <AddComponentDialog isOpen={isAddComponentOpen} onOpenChange={setIsAddComponentOpen} onAddComponent={addComponent} />
 
             <form action={formAction}>
