@@ -168,7 +168,7 @@ export default function HomePage() {
                    {/* Header */}
                    <div className="bg-[#1F2C33] text-white p-3 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                       <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
-                      <div className="flex-1 flex flex-col">
+                      <div className="flex-1 flex flex-col justify-center">
                           <div className="flex items-center gap-1.5">
                             <p className="font-semibold">Wachat</p>
                             <svg viewBox="0 0 18 18" width="16" height="16" className="text-green-400 flex-shrink-0">
@@ -355,5 +355,4 @@ export default function HomePage() {
       </footer>
     </div>
   );
-
-    
+}
