@@ -62,13 +62,13 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         setLocalComponent(component);
     }, [component]);
     
+    // Guard against rendering with a null component state
+    if (!component || !localComponent) return null;
+
     const updateField = (key: string, value: any) => {
         setLocalComponent((prev: any) => ({...prev, [key]: value}));
     };
     
-    // Guard against rendering with a null component state
-    if (!component || !localComponent) return null;
-
     return (
          <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-2xl">
@@ -126,7 +126,7 @@ function CreateMetaFlowPage() {
     
     const [editingComponent, setEditingComponent] = useState<{ screenIndex: number, componentIndex: number, component: any } | null>(null);
     
-    const [flowName, setFlowName] = useState('new_flow');
+    const [flowName, setFlowName] = useState('');
 
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -149,17 +149,18 @@ function CreateMetaFlowPage() {
                 setIsLoading(false);
             });
         } else {
+            setFlowName('new_flow');
             setFlowData({
                 version: '7.1',
-                routing_model: { SCREENA: [] },
+                routing_model: { SCREEN_1: [] },
                 screens: [{
-                    id: 'SCREENA',
+                    id: 'SCREEN_1',
                     title: 'Welcome Screen',
                     layout: {
                         type: 'SingleColumnLayout',
                         children: [{
                             type: 'Form',
-                            name: 'form_screen_a',
+                            name: 'form_screen_1',
                             children: [{ type: 'TextBody', text: 'This is the start of your flow.' }, { type: 'Footer', label: 'Finish', 'on-click-action': { name: 'complete' } }]
                         }]
                     },
@@ -198,7 +199,7 @@ function CreateMetaFlowPage() {
                     const parsedFlow = JSON.parse(result.flowJson);
                     setFlowName(parsedFlow.name || 'ai_generated_flow');
                     setFlowData(parsedFlow);
-                    toast({ title: "Flow Generated!", description: "The AI has created your flow. Review and save it." });
+                    toast({ title: "Flow Generated!", description: "The AI has created your new flow. Review and save it." });
                 } catch (e) {
                      toast({ title: "AI Generation Error", description: "The AI returned invalid JSON. Please try again.", variant: "destructive" });
                 }
@@ -209,6 +210,19 @@ function CreateMetaFlowPage() {
     const updateScreenField = useCallback((screenIndex: number, field: string, value: any) => {
         setFlowData((prev: any) => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
+            
+            if (field === 'id' && value !== newScreens[screenIndex].id) {
+                const oldId = newScreens[screenIndex].id;
+                newScreens[screenIndex][field] = value;
+                // This is a simplistic update for routing_model. A real app might need more robust logic.
+                const newRoutingModel = { ...prev.routing_model };
+                if (newRoutingModel[oldId]) {
+                    newRoutingModel[value] = newRoutingModel[oldId];
+                    delete newRoutingModel[oldId];
+                }
+                return { ...prev, screens: newScreens, routing_model: newRoutingModel };
+            }
+
             newScreens[screenIndex][field] = value;
             return { ...prev, screens: newScreens };
         });
@@ -255,10 +269,10 @@ function CreateMetaFlowPage() {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
             const formContainer = screenToUpdate.layout?.children?.find((c: any) => c && c.type === 'Form');
-
-            if (formContainer && formContainer.children) {
+    
+            if (formContainer && Array.isArray(formContainer.children)) {
                 formContainer.children = formContainer.children.filter((_: any, i: number) => i !== componentIndex);
-            } else if (screenToUpdate.layout.children) {
+            } else if (Array.isArray(screenToUpdate.layout.children)) {
                  screenToUpdate.layout.children = screenToUpdate.layout.children.filter((_: any, i: number) => i !== componentIndex);
             }
             return { ...prev, screens: newScreens };
@@ -273,14 +287,15 @@ function CreateMetaFlowPage() {
         do {
             let suffix = '';
             let num = counter;
-            if (num === 0 && !existingIds.includes('SCREENA')) {
-                suffix = 'A';
+            if (num === 0 && !existingIds.includes('SCREEN_A')) {
+                suffix = '_A';
             } else {
                  while (num >= 0) {
                     suffix = String.fromCharCode(65 + (num % 26)) + suffix;
                     num = Math.floor(num / 26) - 1;
                     if (num < 0) break;
                 }
+                 suffix = `_${suffix}`;
             }
             newId = `SCREEN${suffix}`;
             counter++;
@@ -434,7 +449,7 @@ function CreateMetaFlowPage() {
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="flowNameInput">Flow Name (for Meta)</Label>
-                                    <Input id="flowNameInput" name="flowNameInput" value={flowName} onChange={e => setFlowName(e.target.value)} placeholder="e.g., lead_capture_flow" required/>
+                                    <Input id="flowNameInput" value={flowName} onChange={e => setFlowName(e.target.value)} placeholder="e.g., lead_capture_flow" required/>
                                     <p className="text-xs text-muted-foreground">Lowercase letters and underscores only.</p>
                                 </div>
                                 <div className="space-y-2">
@@ -571,4 +586,5 @@ export default function CreateMetaFlowPageWrapper() {
     </Suspense>
   )
 }
+
 

@@ -52,22 +52,30 @@ export async function getMetaFlowById(flowId: string): Promise<WithId<MetaFlow> 
         }
 
         const metaFlowData = metaResponse.data;
-        const flowJsonResponse = await axios.get(
-            `https://graph.facebook.com/v22.0/${localFlow.metaId}/assets?access_token=${project.accessToken}`
-        );
-
-        const flow_json = flowJsonResponse.data.data?.[0]?.asset_content;
         
-        // Update local DB with fresh data from Meta
         const updateData: Partial<MetaFlow> = {
             name: metaFlowData.name,
             categories: metaFlowData.categories || [],
             status: metaFlowData.status,
             json_version: metaFlowData.json_version,
-            flow_data: flow_json ? JSON.parse(flow_json) : {},
             updatedAt: new Date(),
         };
+        
+        // Fetch the flow JSON content separately
+        try {
+            const flowJsonResponse = await axios.get(
+                `https://graph.facebook.com/v22.0/${localFlow.metaId}/assets?access_token=${project.accessToken}`
+            );
+            const flow_json_str = flowJsonResponse.data.data?.[0]?.asset_content;
 
+            if (flow_json_str) {
+                updateData.flow_data = JSON.parse(flow_json_str);
+            }
+        } catch(e) {
+            console.warn(`Could not fetch assets for flow ${localFlow.metaId}. Local flow data will be preserved. Reason: ${getErrorMessage(e)}`);
+        }
+        
+        // Update local DB with fresh data from Meta
         await db.collection('meta_flows').updateOne(
             { _id: new ObjectId(flowId) },
             { $set: updateData }
@@ -78,6 +86,7 @@ export async function getMetaFlowById(flowId: string): Promise<WithId<MetaFlow> 
 
     } catch (e) {
         console.error("Error fetching or syncing Meta Flow by ID:", getErrorMessage(e));
+        // Fallback to local DB on any catastrophic failure
         const { db } = await connectToDatabase();
         const flow = await db.collection<MetaFlow>('meta_flows').findOne({ _id: new ObjectId(flowId) });
         return flow ? JSON.parse(JSON.stringify(flow)) : null;
@@ -298,4 +307,5 @@ export async function handleSyncMetaFlows(projectId: string): Promise<{ message?
         return { error: e.message || 'An unexpected error occurred during flow sync.' };
     }
 }
+
 
