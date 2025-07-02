@@ -116,7 +116,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                     <DialogTitle>Edit Component: {component.type}</DialogTitle>
                 </DialogHeader>
                 <ScrollArea className="max-h-[60vh] -mx-6 px-6">
-                <div className="py-4 space-y-4 px-6">
+                <div className="py-4 space-y-4">
                     {component.type === 'Image' ? (
                         <div className="space-y-4">
                             <div className="space-y-2">
@@ -201,7 +201,6 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         Object.keys(component).map(key => {
                             if (!localComponent) return null;
                             const value = localComponent[key];
-                            // Don't allow editing type or auto-generated name
                             if (key === 'type' || (key === 'name' && value?.startsWith(component.type.toLowerCase()))) return null; 
                             return (
                                 <div key={key} className="space-y-2">
@@ -532,8 +531,9 @@ function CreateMetaFlowPage() {
             <input type="hidden" name="projectId" value={projectId || ''}/>
             <input type="hidden" name="flowId" value={flowId || ''}/>
             <input type="hidden" name="metaId" value={existingFlow?.metaId || ''}/>
-            <input type="hidden" name="flow_data" value={flowContentJson} />
+            
             <input type="hidden" name="flowName" value={flowName} />
+            <input type="hidden" name="flow_data" value={flowContentJson} />
 
 
             <div>
