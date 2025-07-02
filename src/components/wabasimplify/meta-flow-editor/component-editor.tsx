@@ -5,16 +5,26 @@ import { useEffect, useState } from 'react';
 import { BaseEditorDialog } from './dialogs/base-editor-dialog';
 import { TextInputEditor } from './dialogs/text-input-editor';
 import { TextEditor } from './dialogs/text-editor';
-// ... more imports will go here as other editors are created
+import { FooterEditor } from './dialogs/footer-editor';
+import { EmbeddedLinkEditor } from './dialogs/embedded-link-editor';
+import { NavigationListEditor } from './dialogs/navigation-list-editor';
+import { IfEditor } from './dialogs/if-editor';
+import { SwitchEditor } from './dialogs/switch-editor';
+import { DropdownEditor } from './dialogs/dropdown-editor';
+import { RadioButtonsEditor } from './dialogs/radio-buttons-editor';
+import { CheckboxGroupEditor } from './dialogs/checkbox-group-editor';
+import { ImageEditor } from './dialogs/image-editor';
+
 
 interface ComponentEditorProps {
   component: any | null;
   onSave: (newComponent: any) => void;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  allScreens: any[];
 }
 
-export function ComponentEditor({ component, onSave, isOpen, onOpenChange }: ComponentEditorProps) {
+export function ComponentEditor({ component, onSave, isOpen, onOpenChange, allScreens }: ComponentEditorProps) {
   const [localComponent, setLocalComponent] = useState<any>(null);
 
   useEffect(() => {
@@ -28,7 +38,7 @@ export function ComponentEditor({ component, onSave, isOpen, onOpenChange }: Com
   }
 
   const updateField = (key: string, value: any) => {
-    if (value === undefined || value === '') {
+    if ((value === undefined || value === '') && typeof value !== 'boolean') {
         const newState = {...localComponent};
         delete newState[key];
         setLocalComponent(newState);
@@ -36,6 +46,10 @@ export function ComponentEditor({ component, onSave, isOpen, onOpenChange }: Com
         setLocalComponent((prev: any) => ({ ...prev, [key]: value }));
     }
   };
+
+  const updateAction = (action: any, actionType: 'on-click-action' | 'on-select-action' = 'on-click-action') => {
+    setLocalComponent((prev: any) => ({ ...prev, [actionType]: action }));
+  }
 
   const renderEditorContent = () => {
     switch (localComponent.type) {
@@ -47,10 +61,36 @@ export function ComponentEditor({ component, onSave, isOpen, onOpenChange }: Com
       
       case 'TextInput':
       case 'TextArea':
+      case 'PhoneNumber':
         return <TextInputEditor component={localComponent} updateField={updateField} />;
 
-      // ... other cases for other components will be added here
+      case 'Footer':
+        return <FooterEditor component={localComponent} updateField={updateField} updateAction={updateAction} allScreens={allScreens} />;
+
+      case 'EmbeddedLink':
+        return <EmbeddedLinkEditor component={localComponent} updateField={updateField} updateAction={updateAction} allScreens={allScreens} />;
+
+      case 'NavigationList':
+        return <NavigationListEditor component={localComponent} updateField={updateField} />;
       
+      case 'If':
+        return <IfEditor component={localComponent} updateField={updateField} />;
+      
+      case 'Switch':
+        return <SwitchEditor component={localComponent} updateField={updateField} />;
+      
+      case 'Dropdown':
+        return <DropdownEditor component={localComponent} updateField={updateField} updateAction={(action) => updateAction(action, 'on-select-action')} />;
+
+      case 'RadioButtonsGroup':
+        return <RadioButtonsEditor component={localComponent} updateField={updateField} updateAction={(action) => updateAction(action, 'on-select-action')} />;
+
+      case 'CheckboxGroup':
+        return <CheckboxGroupEditor component={localComponent} updateField={updateField} updateAction={(action) => updateAction(action, 'on-select-action')} />;
+
+      case 'Image':
+        return <ImageEditor component={localComponent} updateField={updateField} updateAction={updateAction} />;
+
       default:
         return <p>Editor for component type '{localComponent.type}' not implemented yet.</p>;
     }

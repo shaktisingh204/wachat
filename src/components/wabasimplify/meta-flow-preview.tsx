@@ -7,9 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { MoreVertical, ArrowLeft } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import Image from 'next/image';
 
 const FlowComponent = ({ component, formData, setFormData }: { component: any, formData: Record<string, any>, setFormData: React.Dispatch<React.SetStateAction<Record<string, any>>> }) => {
     const name = component.name;
@@ -39,6 +41,8 @@ const FlowComponent = ({ component, formData, setFormData }: { component: any, f
             return <div className="space-y-1 w-full"><Label htmlFor={name} className="text-sm font-medium">{component.label}</Label><Input id={name} name={name} type="date" value={value} onChange={e => handleChange(e.target.value)} className="bg-gray-50"/></div>;
         case 'RadioButtonsGroup':
             return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><RadioGroup name={name} value={value} onValueChange={handleChange}>{(component['data-source'] || []).map((opt: any) => <div key={opt.id} className="flex items-center space-x-2"><RadioGroupItem value={opt.id} id={`${name}-${opt.id}`}/><Label htmlFor={`${name}-${opt.id}`} className="font-normal text-sm">{opt.title}</Label></div>)}</RadioGroup></div>;
+        case 'CheckboxGroup':
+            return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><div className="space-y-1">{(component['data-source'] || []).map((opt: any) => <div key={opt.id} className="flex items-center space-x-2"><Checkbox id={`${name}-${opt.id}`}/><Label htmlFor={`${name}-${opt.id}`} className="font-normal text-sm">{opt.title}</Label></div>)}</div></div>;
         case 'Dropdown':
             return <div className="w-full space-y-2"><Label className="text-sm font-medium">{component.label}</Label><Select onValueChange={handleChange}><SelectTrigger className="w-full bg-gray-50"><SelectValue placeholder="Select an option"/></SelectTrigger><SelectContent>{(component['data-source'] || []).map((opt: any) => <SelectItem key={opt.id} value={opt.id}>{opt.title}</SelectItem>)}</SelectContent></Select></div>;
         case 'NavigationList':
@@ -50,6 +54,16 @@ const FlowComponent = ({ component, formData, setFormData }: { component: any, f
                             <p className="text-xs text-muted-foreground">{item['main-content']?.description}</p>
                         </div>
                     ))}
+                </div>
+            );
+        case 'Image':
+             return (
+                <div className="space-y-1 w-full">
+                    {component.src ? (
+                        <Image src={component.src} alt={component['alt-text'] || 'flow-image'} width={300} height={200} className="rounded-md object-cover"/>
+                    ) : (
+                        <div className="h-24 bg-gray-100 rounded-md flex items-center justify-center text-muted-foreground text-sm">Image Preview</div>
+                    )}
                 </div>
             );
         case 'If':
@@ -67,6 +81,8 @@ const FlowComponent = ({ component, formData, setFormData }: { component: any, f
                     <p className="text-xs text-purple-600 font-mono italic">SWITCH: {component.value}</p>
                 </div>
             );
+        case 'EmbeddedLink':
+            return <Button variant="link" className="p-0 h-auto justify-start text-sm">{component.text}</Button>
         default: return null;
     }
 }
