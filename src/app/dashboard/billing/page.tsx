@@ -1,4 +1,5 @@
 
+
 import { Check, X, History } from 'lucide-react';
 import type { Metadata } from 'next';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,15 +25,17 @@ const PlanFeature = ({ children, included }: { children: React.ReactNode, includ
 );
 
 const creditPacks = [
-    { credits: 5000, amount: 500, description: 'Starter Pack' },
-    { credits: 12000, amount: 1000, description: 'Growth Pack' },
-    { credits: 30000, amount: 2500, description: 'Business Pack' },
+    { credits: 5000, amount: 500, description: 'Starter Pack', gradient: 'card-gradient-blue' },
+    { credits: 12000, amount: 1000, description: 'Growth Pack', gradient: 'card-gradient-green' },
+    { credits: 30000, amount: 2500, description: 'Business Pack', gradient: 'card-gradient-purple' },
 ];
 
 export default async function BillingPage() {
     const session = await getSession();
     const plans = await getPlans({ isPublic: true });
     const userPlanId = session?.user?.plan?._id;
+
+    const gradientClasses = ['card-gradient-purple', 'card-gradient-blue', 'card-gradient-green'];
 
     return (
         <div className="flex flex-col gap-8">
@@ -56,7 +59,7 @@ export default async function BillingPage() {
                 </CardHeader>
                 <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
                     {creditPacks.map(pack => (
-                        <Card key={pack.credits} className="flex flex-col text-center">
+                        <Card key={pack.credits} className={cn("flex flex-col text-center card-gradient", pack.gradient)}>
                             <CardHeader>
                                 <CardTitle>{pack.credits.toLocaleString()} Credits</CardTitle>
                                 <CardDescription>{pack.description}</CardDescription>
@@ -79,8 +82,8 @@ export default async function BillingPage() {
                 <p className="text-muted-foreground">Unlock more features and increase your limits by upgrading your plan.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-                {plans.map(plan => (
-                    <Card key={plan._id.toString()} className={cn("flex flex-col", userPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
+                {plans.map((plan, index) => (
+                    <Card key={plan._id.toString()} className={cn("flex flex-col card-gradient", gradientClasses[index % gradientClasses.length], userPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
                         <CardHeader className="flex-grow">
                             <CardTitle>{plan.name}</CardTitle>
                             <div className="text-4xl font-bold pt-4">{plan.currency || 'INR'} {plan.price} <span className="text-sm font-normal text-muted-foreground">/ month</span></div>

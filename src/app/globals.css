@@ -87,6 +87,32 @@ body {
   }
 }
 
+@layer components {
+    .card-gradient {
+      @apply relative overflow-hidden;
+    }
+    .card-gradient::before {
+      content: '';
+      @apply absolute inset-0 opacity-[0.15] z-0;
+    }
+    .card-gradient-blue::before {
+      @apply bg-gradient-to-br from-blue-400 via-blue-200 to-sky-100;
+    }
+    .card-gradient-purple::before {
+      @apply bg-gradient-to-br from-purple-400 via-purple-200 to-violet-100;
+    }
+    .card-gradient-green::before {
+      @apply bg-gradient-to-br from-green-400 via-green-200 to-emerald-100;
+    }
+    .card-gradient-orange::before {
+      @apply bg-gradient-to-br from-orange-400 via-orange-200 to-amber-100;
+    }
+    .card-gradient > * {
+      @apply relative z-10;
+    }
+}
+
+
 .scroll-container {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE/Edge */

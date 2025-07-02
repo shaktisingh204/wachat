@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Phone, Calendar } from 'lucide-react';
 import { SubscribeProjectButton } from './subscribe-project-button';
+import { cn } from '@/lib/utils';
 
 interface ProjectCardProps {
     project: any;
@@ -73,7 +75,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
     const throughputLevel = project.phoneNumbers?.[0]?.throughput?.level;
 
     return (
-        <Card className="flex flex-col hover:shadow-lg hover:border-primary transition-all">
+        <Card className={cn("flex flex-col hover:shadow-lg hover:border-primary transition-all card-gradient card-gradient-purple")}>
             <CardHeader className="flex-grow">
                 <div className="flex justify-between items-start gap-2">
                     <CardTitle className="text-base leading-tight">{project.name}</CardTitle>

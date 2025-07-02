@@ -20,6 +20,7 @@ import { Button } from '@/components/ui/button';
 import { ProjectSearch } from '@/components/wabasimplify/project-search';
 import { AdminDeleteProjectButton } from '@/components/wabasimplify/admin-delete-project-button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { cn } from '@/lib/utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,8 +30,8 @@ export const metadata: Metadata = {
 
 const PROJECTS_PER_PAGE = 10;
 
-const StatCard = ({ title, value, icon: Icon }: { title: string, value: string, icon: React.ElementType }) => (
-    <Card>
+const StatCard = ({ title, value, icon: Icon, gradientClass }: { title: string, value: string, icon: React.ElementType, gradientClass?: string }) => (
+    <Card className={cn(gradientClass)}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{title}</CardTitle>
             <Icon className="h-4 w-4 text-muted-foreground" />
@@ -62,7 +63,7 @@ export default async function AdminDashboardPage({
       </div>
 
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+        <Card className="card-gradient card-gradient-blue">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
             <Briefcase className="h-4 w-4 text-muted-foreground" />
@@ -72,7 +73,7 @@ export default async function AdminDashboardPage({
             <p className="text-xs text-muted-foreground">Total projects created on the platform.</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="card-gradient card-gradient-green">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active WABAs</CardTitle>
             <CheckSquare className="h-4 w-4 text-muted-foreground" />
@@ -82,7 +83,7 @@ export default async function AdminDashboardPage({
             <p className="text-xs text-muted-foreground">+120 since last month</p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="card-gradient card-gradient-orange">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">System Uptime</CardTitle>
              <Server className="h-4 w-4 text-muted-foreground" />
@@ -117,22 +118,22 @@ export default async function AdminDashboardPage({
               <TabsTrigger value="30d">30 Days</TabsTrigger>
             </TabsList>
             <TabsContent value="24h" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <StatCard title="Total Chats" value="1,205" icon={MessageSquare} />
-              <StatCard title="Campaigns Sent" value="89" icon={Send} />
-              <StatCard title="Flowbuilder Triggers" value="3,450" icon={GitFork} />
-              <StatCard title="Meta Flows Used" value="1,890" icon={ServerCog} />
+              <StatCard title="Total Chats" value="1,205" icon={MessageSquare} gradientClass="card-gradient card-gradient-blue" />
+              <StatCard title="Campaigns Sent" value="89" icon={Send} gradientClass="card-gradient card-gradient-green" />
+              <StatCard title="Flowbuilder Triggers" value="3,450" icon={GitFork} gradientClass="card-gradient card-gradient-purple" />
+              <StatCard title="Meta Flows Used" value="1,890" icon={ServerCog} gradientClass="card-gradient card-gradient-orange" />
             </TabsContent>
             <TabsContent value="7d" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Chats" value="9,820" icon={MessageSquare} />
-                <StatCard title="Campaigns Sent" value="621" icon={Send} />
-                <StatCard title="Flowbuilder Triggers" value="25,102" icon={GitFork} />
-                <StatCard title="Meta Flows Used" value="14,331" icon={ServerCog} />
+                <StatCard title="Total Chats" value="9,820" icon={MessageSquare} gradientClass="card-gradient card-gradient-blue" />
+                <StatCard title="Campaigns Sent" value="621" icon={Send} gradientClass="card-gradient card-gradient-green" />
+                <StatCard title="Flowbuilder Triggers" value="25,102" icon={GitFork} gradientClass="card-gradient card-gradient-purple" />
+                <StatCard title="Meta Flows Used" value="14,331" icon={ServerCog} gradientClass="card-gradient card-gradient-orange" />
             </TabsContent>
             <TabsContent value="30d" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Chats" value="45,231" icon={MessageSquare} />
-                <StatCard title="Campaigns Sent" value="2,845" icon={Send} />
-                <StatCard title="Flowbuilder Triggers" value="112,899" icon={GitFork} />
-                <StatCard title="Meta Flows Used" value="65,443" icon={ServerCog} />
+                <StatCard title="Total Chats" value="45,231" icon={MessageSquare} gradientClass="card-gradient card-gradient-blue" />
+                <StatCard title="Campaigns Sent" value="2,845" icon={Send} gradientClass="card-gradient card-gradient-green" />
+                <StatCard title="Flowbuilder Triggers" value="112,899" icon={GitFork} gradientClass="card-gradient card-gradient-purple" />
+                <StatCard title="Meta Flows Used" value="65,443" icon={ServerCog} gradientClass="card-gradient card-gradient-orange" />
             </TabsContent>
           </Tabs>
         </CardContent>
