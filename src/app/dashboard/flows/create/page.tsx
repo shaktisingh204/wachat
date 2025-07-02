@@ -224,6 +224,44 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         const isDocumentPickerComponent = localComponent?.type === 'DocumentPicker';
         const isOptInComponent = localComponent?.type === 'OptIn';
         const isFooterComponent = localComponent?.type === 'Footer';
+        const isEmbeddedLinkComponent = localComponent?.type === 'EmbeddedLink';
+
+        if (isEmbeddedLinkComponent) {
+            return (
+                <div className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="text">Link Text (max 25 chars)</Label>
+                        <Input id="text" value={localComponent.text || ''} onChange={(e) => updateField('text', e.target.value)} required maxLength={25} />
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="visible">Visible</Label>
+                        <Input id="visible" value={localComponent.visible === undefined ? '' : String(localComponent.visible)} onChange={e => handleDynamicBoolChange('visible', e.target.value)} placeholder="true, false, or ${...}" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>On-Click Action (Required)</Label>
+                        <div className="p-3 border rounded-lg space-y-3">
+                            <Select value={localComponent['on-click-action']?.name || ''} onValueChange={(val) => handleActionChange('on-click-action', 'name', val)}>
+                                <SelectTrigger><SelectValue placeholder="Select an action..."/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="navigate">Navigate</SelectItem>
+                                    <SelectItem value="data_exchange">Data Exchange</SelectItem>
+                                    <SelectItem value="open_url">Open URL</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            {localComponent['on-click-action']?.name === 'navigate' && (
+                                 <Input placeholder="Next Screen ID" value={localComponent['on-click-action']?.next?.name || ''} onChange={(e) => handleActionChange('on-click-action', 'next', { type: 'screen', name: e.target.value })}/>
+                            )}
+                            {localComponent['on-click-action']?.name === 'open_url' && (
+                                <Input placeholder="https://example.com" value={localComponent['on-click-action']?.url || ''} onChange={(e) => handleActionChange('on-click-action', 'url', e.target.value)}/>
+                            )}
+                            {(localComponent['on-click-action']?.name === 'data_exchange') && (
+                                <Textarea placeholder='Payload (JSON)' className="font-mono text-xs" value={localComponent['on-click-action']?.payload ? JSON.stringify(localComponent['on-click-action'].payload, null, 2) : ''} onChange={(e) => { try { handleActionChange('on-click-action', 'payload', e.target.value ? JSON.parse(e.target.value) : undefined) } catch {} }}/>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        }
 
         if (isFooterComponent) {
             return (
@@ -1306,3 +1344,4 @@ export default function CreateMetaFlowPage() {
         </Suspense>
     );
 }
+

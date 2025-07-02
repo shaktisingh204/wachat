@@ -1,5 +1,4 @@
 
-
 export type DeclarativeUIComponent = {
     type: 'TextHeading' | 'TextSubheading' | 'TextBody' | 'TextCaption' | 'TextInput' | 'TextArea' | 'DatePicker' | 'CalendarPicker' | 'Dropdown' | 'RadioButtonsGroup' | 'CheckboxGroup' | 'ChipsSelector' | 'PhotoPicker' | 'DocumentPicker' | 'Image' | 'ImageCarousel' | 'OptIn' | 'EmbeddedLink' | 'Footer' | 'If' | 'Switch' | 'NavigationList';
     name?: string;
@@ -54,3 +53,4 @@ export const declarativeFlowComponents: { type: DeclarativeUIComponent['type'], 
 ];
 
   
+

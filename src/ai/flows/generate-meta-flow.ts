@@ -176,7 +176,7 @@ const FormComponentSchema: z.ZodType<any> = z.lazy(() => z.union([
         "right-caption": z.string().max(15).optional(),
         enabled: z.union([z.boolean(), z.string()]).optional()
     }),
-    z.object({ type: z.literal('EmbeddedLink'), text: z.string(), "on-click-action": ActionSchema, visible: z.boolean().optional() }),
+    z.object({ type: z.literal('EmbeddedLink'), text: z.string().max(25), "on-click-action": ActionSchema, visible: z.boolean().optional() }),
     z.object({ 
         type: z.literal('PhotoPicker'), 
         name: z.string(), 
@@ -370,3 +370,4 @@ const generateMetaFlowFlow = ai.defineFlow(
     return output;
   }
 );
+
