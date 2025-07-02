@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button';
 import { WachatLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
-import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Play, ArrowRightLeft } from 'lucide-react';
+import { Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Play, ArrowRightLeft, ToggleRight } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -98,12 +98,13 @@ const faqs = [
     }
 ]
 
-const FlowNode = ({ icon, title, position, delay }: { icon: React.ReactNode, title: string, position: string, delay: string }) => (
+const FlowNode = ({ icon, title, position, delay, children }: { icon: React.ReactNode, title: string, position: string, delay: string, children?: React.ReactNode }) => (
     <Card className={cn("absolute w-40 animate-fade-in-up", position)} style={{ animationDelay: delay }}>
         <CardHeader className="flex flex-row items-center gap-3 p-3">
             {icon}
             <CardTitle className="text-sm font-medium">{title}</CardTitle>
         </CardHeader>
+        {children && <CardContent className="p-3 pt-0">{children}</CardContent>}
     </Card>
 );
 
@@ -207,15 +208,22 @@ export default async function HomePage() {
                 <h3 className="text-2xl font-semibold text-center">No-Code Flow Builder</h3>
                 <p className="text-muted-foreground text-center max-w-md mx-auto">Visually map out complex conversation logic with branching, conditions, and API calls. Perfect for support bots and drip campaigns.</p>
                 <div className="relative p-6 border rounded-xl bg-card shadow-lg h-[400px] lg:h-[450px] overflow-hidden group">
-                    <FlowNode icon={<Play className="h-5 w-5 text-muted-foreground" />} title="Start" position="top-8 left-6" delay="0.1s" />
-                    <FlowNode icon={<MessageSquare className="h-5 w-5 text-muted-foreground" />} title="Send Message" position="top-36 left-48" delay="0.3s" />
-                    <FlowNode icon={<GitBranch className="h-5 w-5 text-muted-foreground" />} title="Condition" position="top-24 right-6" delay="0.5s" />
-                    <FlowNode icon={<ArrowRightLeft className="h-5 w-5 text-muted-foreground" />} title="Call API" position="bottom-8 left-1/2 -translate-x-1/2" delay="0.7s" />
+                    <FlowNode icon={<Play className="h-5 w-5 text-muted-foreground" />} title="Start Flow" position="top-40 left-6" delay="0.1s" />
+                    <FlowNode icon={<MessageSquare className="h-5 w-5 text-muted-foreground" />} title="Welcome Message" position="top-40 left-52" delay="0.3s" />
+                    <FlowNode icon={<ToggleRight className="h-5 w-5 text-muted-foreground" />} title="Main Menu" position="top-40 left-[27rem]" delay="0.5s">
+                        <div className="space-y-1 text-xs text-center text-muted-foreground">
+                            <div className="bg-background rounded-sm py-1 border">Check Balance</div>
+                            <div className="bg-background rounded-sm py-1 border">Talk to Agent</div>
+                        </div>
+                    </FlowNode>
+                    <FlowNode icon={<ArrowRightLeft className="h-5 w-5 text-muted-foreground" />} title="Check Balance API" position="top-20 left-[46rem]" delay="0.7s" />
+                    <FlowNode icon={<MessageSquare className="h-5 w-5 text-muted-foreground" />} title="Connect to Agent" position="bottom-20 left-[46rem]" delay="0.9s" />
 
                     <svg className="absolute top-0 left-0 w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M184 76 C 220 76, 220 152, 256 152" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.2s' }}/>
-                        <path d="M352 160 C 370 160, 370 104, 388 104" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.6s' }}/>
-                        <path d="M256 220 C 256 250, 220 250, 220 280" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.8s' }}/>
+                        <path d="M184 190 L 208 190" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.2s' }}/>
+                        <path d="M368 190 L 432 190" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.4s' }}/>
+                        <path d="M592 185 C 664 185, 664 110, 736 110" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.6s' }}/>
+                        <path d="M592 235 C 664 235, 664 340, 736 340" stroke="hsl(var(--border))" strokeWidth="2" className="animate-draw" style={{ animationDelay: '0.8s' }}/>
                     </svg>
                 </div>
               </div>
