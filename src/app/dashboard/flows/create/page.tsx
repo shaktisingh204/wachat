@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { saveMetaFlow, getMetaFlowById } from '@/app/actions/meta-flow.actions';
-import { declarativeFlowComponents, type DeclarativeUIComponent } from '@/components/wabasimplify/meta-flow-templates';
+import { declarativeFlowComponents, flowCategories, type DeclarativeUIComponent } from '@/components/wabasimplify/meta-flow-templates';
 import { MetaFlowPreview } from '@/components/wabasimplify/meta-flow-preview';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -1345,7 +1345,7 @@ function CreateMetaFlowPageContent() {
                                         <Label htmlFor="category">Category</Label>
                                         <Select name="category" value={category} onValueChange={setCategory} required>
                                             <SelectTrigger id="category"><SelectValue placeholder="Select a category..."/></SelectTrigger>
-                                            <SelectContent>{declarativeFlowComponents.map(cat => <SelectItem key={cat.type} value={cat.type}>{cat.label}</SelectItem>)}</SelectContent>
+                                            <SelectContent>{flowCategories.map(cat => <SelectItem key={cat.id} value={cat.id}>{cat.name}</SelectItem>)}</SelectContent>
                                         </Select>
                                     </div>
                                     <div className="flex items-center space-x-2">
