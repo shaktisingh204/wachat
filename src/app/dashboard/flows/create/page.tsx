@@ -141,6 +141,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
         const isImageComponent = component?.type === 'Image';
         const isCarouselComponent = component?.type === 'ImageCarousel';
         const isTextInputComponent = component?.type === 'TextInput';
+        const isTextAreaComponent = component?.type === 'TextArea';
 
         if (isImageComponent) {
             return (
@@ -286,7 +287,7 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
             );
         }
         
-        if (isTextInputComponent) {
+        if (isTextInputComponent || isTextAreaComponent) {
             return (
                 <div className="space-y-4">
                     <div className="space-y-2">
@@ -309,19 +310,21 @@ function ComponentEditorDialog({ component, onSave, onCancel, isOpen, onOpenChan
                         <Label htmlFor="error-message">Error Message</Label>
                         <Input id="error-message" value={localComponent['error-message'] || ''} onChange={(e) => updateField('error-message', e.target.value)} />
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="input-type">Input Type</Label>
-                        <Select value={localComponent['input-type'] || 'text'} onValueChange={(v) => updateField('input-type', v)}>
-                            <SelectTrigger id="input-type"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="text">Text</SelectItem>
-                                <SelectItem value="number">Number</SelectItem>
-                                <SelectItem value="email">Email</SelectItem>
-                                <SelectItem value="password">Password</SelectItem>
-                                <SelectItem value="phone">Phone</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    {isTextInputComponent && (
+                        <div className="space-y-2">
+                            <Label htmlFor="input-type">Input Type</Label>
+                            <Select value={localComponent['input-type'] || 'text'} onValueChange={(v) => updateField('input-type', v)}>
+                                <SelectTrigger id="input-type"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="text">Text</SelectItem>
+                                    <SelectItem value="number">Number</SelectItem>
+                                    <SelectItem value="email">Email</SelectItem>
+                                    <SelectItem value="password">Password</SelectItem>
+                                    <SelectItem value="phone">Phone</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label htmlFor="min-length">Min Length</Label>
@@ -840,3 +843,5 @@ export default function CreateMetaFlowPageWrapper() {
     </Suspense>
   )
 }
+
+  
