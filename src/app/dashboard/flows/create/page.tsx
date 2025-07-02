@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, useActionState, useEffect, useState, useTransition } from 'react';
+import { Suspense, useActionState, useEffect, useState, useTransition, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -111,7 +111,7 @@ function CreateMetaFlowPage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [existingFlow, setExistingFlow] = useState<WithId<MetaFlow> | null>(null);
-    const [flowData, setFlowData] = useState<any>({ name: '', screens: [], description: '' });
+    const [flowData, setFlowData] = useState<any>({ name: '', screens: [], description: '', routing_model: {} });
     
     const [category, setCategory] = useState('OTHER');
     const [flowJson, setFlowJson] = useState('');
@@ -191,9 +191,12 @@ function CreateMetaFlowPage() {
         });
     };
 
-    const updateFlowField = (field: 'name' | 'description' | 'routing_model', value: any) => {
-        setFlowData(prev => ({ ...prev, [field]: value }));
-    };
+    const updateFlowField = useCallback((field: 'name' | 'description' | 'routing_model', value: any) => {
+        setFlowData(prev => {
+            if (JSON.stringify(prev[field]) === JSON.stringify(value)) return prev;
+            return { ...prev, [field]: value };
+        });
+    }, []);
 
     const updateScreenField = (screenIndex: number, field: string, value: any) => {
         setFlowData(prev => {
@@ -206,13 +209,15 @@ function CreateMetaFlowPage() {
     const addComponentToScreen = (screenIndex: number, componentType: DeclarativeUIComponent['type']) => {
         const newComponent: any = { type: componentType };
         // Basic default properties for new components
-        if (componentType === 'TextSubheading' || componentType === 'TextBody' || componentType === 'TextCaption') {
+        const supportedNameComponents = ['TextInput', 'TextArea', 'DatePicker', 'CalendarPicker', 'Dropdown', 'RadioButtonsGroup', 'CheckboxGroup', 'ChipsSelector', 'PhotoPicker', 'DocumentPicker', 'ImageCarousel', 'OptIn', 'NavigationList'];
+        if (supportedNameComponents.includes(componentType)) {
+            newComponent.name = `${componentType.toLowerCase()}_${Date.now()}`;
+        }
+        if (['TextInput', 'TextArea', 'DatePicker', 'Dropdown', 'RadioButtonsGroup', 'PhotoPicker', 'DocumentPicker'].includes(componentType)) {
+            newComponent.label = `New ${componentType}`;
+        }
+        if (['TextSubheading', 'TextBody', 'TextCaption'].includes(componentType)) {
             newComponent.text = `New ${componentType}`;
-        } else {
-             newComponent.name = `${componentType.toLowerCase()}_${Date.now()}`;
-            if (['TextInput', 'TextArea', 'DatePicker', 'Dropdown', 'RadioButtonsGroup', 'PhotoPicker', 'DocumentPicker'].includes(componentType)) {
-                newComponent.label = `New ${componentType}`;
-            }
         }
         if (['Dropdown', 'RadioButtonsGroup', 'CheckboxGroup'].includes(componentType)) {
             newComponent['data-source'] = [{ id: `opt_${Date.now()}`, title: 'Option 1' }];
@@ -225,8 +230,9 @@ function CreateMetaFlowPage() {
         setFlowData(prev => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
-            if (screenToUpdate.layout.children[0]?.type === 'Form') {
-                screenToUpdate.layout.children[0].children.push(newComponent);
+            if (screenToUpdate.layout.children.find((c: any) => c.type === 'Form')) {
+                 const formIndex = screenToUpdate.layout.children.findIndex((c: any) => c.type === 'Form');
+                 screenToUpdate.layout.children[formIndex].children.push(newComponent);
             } else {
                  screenToUpdate.layout.children.push(newComponent);
             }
@@ -238,9 +244,9 @@ function CreateMetaFlowPage() {
         setFlowData(prev => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
             const screenToUpdate = newScreens[screenIndex];
-            const formOrLayout = screenToUpdate.layout.children[0];
-            if (formOrLayout?.type === 'Form') {
-                formOrLayout.children.splice(componentIndex, 1);
+            const formContainer = screenToUpdate.layout.children.find((c: any) => c.type === 'Form');
+            if (formContainer) {
+                formContainer.children.splice(componentIndex, 1);
             } else {
                  screenToUpdate.layout.children.splice(componentIndex, 1);
             }
@@ -277,9 +283,9 @@ function CreateMetaFlowPage() {
         if (!editingComponent) return;
         setFlowData(prev => {
             const newScreens = JSON.parse(JSON.stringify(prev.screens));
-            const formOrLayout = newScreens[editingComponent.screenIndex].layout.children[0];
-            if (formOrLayout.type === 'Form') {
-                formOrLayout.children[editingComponent.componentIndex] = updatedComponent;
+            const formContainer = newScreens[editingComponent.screenIndex].layout.children.find((c: any) => c.type === 'Form');
+            if (formContainer) {
+                formContainer.children[editingComponent.componentIndex] = updatedComponent;
             } else {
                 newScreens[editingComponent.screenIndex].layout.children[editingComponent.componentIndex] = updatedComponent;
             }
@@ -294,6 +300,71 @@ function CreateMetaFlowPage() {
             setFlowJson(newJson);
         }
     }, [flowData, flowJson]);
+
+    useEffect(() => {
+        if (!flowData?.screens || !Array.isArray(flowData.screens)) return;
+
+        const newRoutingModel: Record<string, string[]> = {};
+
+        const findNavTargets = (components: any[]): string[] => {
+            let targets: string[] = [];
+            if (!Array.isArray(components)) return targets;
+
+            for (const component of components) {
+                if (!component) continue;
+
+                const action = component['on-click-action'] || component['on-select-action'];
+                if (action?.name === 'navigate' && action.next?.name) {
+                    targets.push(action.next.name);
+                }
+
+                if (component.type === 'If') {
+                    targets = [...targets, ...findNavTargets(component.then)];
+                    if (component.else) {
+                        targets = [...targets, ...findNavTargets(component.else)];
+                    }
+                } else if (component.type === 'Switch' && component.cases) {
+                    Object.values(component.cases).forEach((caseComponents: any) => {
+                        targets = [...targets, ...findNavTargets(caseComponents)];
+                    });
+                } else if (component.children) {
+                    targets = [...targets, ...findNavTargets(component.children)];
+                }
+            }
+            return targets;
+        };
+
+        flowData.screens.forEach((screen: any) => {
+            if (!screen || !screen.id) return;
+
+            let targets: string[] = [];
+            if (screen.layout?.children) {
+                targets = findNavTargets(screen.layout.children);
+            }
+            
+            const navList = screen.layout?.children?.find((c: any) => c.type === 'NavigationList');
+            if (navList) {
+                const compAction = navList['on-click-action'];
+                if (compAction?.name === 'navigate' && compAction.next?.name) {
+                    targets.push(compAction.next.name);
+                }
+                if (Array.isArray(navList['list-items'])) {
+                    navList['list-items'].forEach((item: any) => {
+                        const itemAction = item['on-click-action'];
+                        if (itemAction?.name === 'navigate' && itemAction.next?.name) {
+                            targets.push(itemAction.next.name);
+                        }
+                    });
+                }
+            }
+
+            newRoutingModel[screen.id] = [...new Set(targets)];
+        });
+
+        if (JSON.stringify(newRoutingModel) !== JSON.stringify(flowData.routing_model || {})) {
+            updateFlowField('routing_model', newRoutingModel);
+        }
+    }, [flowData?.screens, flowData?.routing_model, updateFlowField]);
     
     if (isLoading) return <PageSkeleton />;
 
@@ -331,10 +402,6 @@ function CreateMetaFlowPage() {
                                         <SelectTrigger><SelectValue/></SelectTrigger>
                                         <SelectContent>{flowCategories.map(c=><SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}</SelectContent>
                                     </Select>
-                                </div>
-                                 <div className="space-y-2">
-                                    <Label htmlFor="routingModel">Routing Model (JSON)</Label>
-                                    <Textarea id="routingModel" value={JSON.stringify(flowData.routing_model || {}, null, 2)} onChange={e => {try { updateFlowField('routing_model', JSON.parse(e.target.value)) } catch(err) {}}} className="font-mono text-xs h-24"/>
                                 </div>
                                 <div className="flex items-center space-x-2 pt-2">
                                     <Switch id="publish" name="publish" checked={shouldPublish} onCheckedChange={setShouldPublish} />
@@ -380,7 +447,7 @@ function CreateMetaFlowPage() {
                                                     <div className="flex items-center gap-2"><Label htmlFor={`success-${screen.id}`}>Success Screen</Label><Switch id={`success-${screen.id}`} checked={!!screen.success} onCheckedChange={(val) => updateScreenField(screenIndex, 'success', val)}/></div>
                                                 </div>
                                                 <h4 className="font-semibold text-sm">Components</h4>
-                                                {(screen.layout.children[0]?.children || screen.layout.children).filter(Boolean).map((component: any, compIndex: number) => (
+                                                {(screen.layout.children.find((c: any) => c.type === 'Form')?.children || screen.layout.children).filter(Boolean).map((component: any, compIndex: number) => (
                                                     <div key={component.name || compIndex} className="p-3 border rounded-lg space-y-2 relative bg-background">
                                                         <div className="flex justify-between items-center">
                                                             <p className="text-sm font-medium text-muted-foreground">{component.type}</p>
