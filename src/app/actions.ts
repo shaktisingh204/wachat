@@ -646,16 +646,17 @@ export async function handleStartBroadcast(
     if (!contactFile || contactFile.size === 0) return { error: 'Please upload a contact file.' };
     
     let broadcastJobData: Omit<WithId<BroadcastJob>, '_id'>;
+    const projectObjectId = new ObjectId(projectId);
 
     if(broadcastType === 'flow') {
         const metaFlowId = formData.get('metaFlowId') as string;
         if (!metaFlowId) return { error: 'Please select a Meta Flow.' };
         if (!ObjectId.isValid(metaFlowId)) return { error: 'Invalid Meta Flow ID.' };
-        const flow = await db.collection('meta_flows').findOne({ _id: new ObjectId(metaFlowId), projectId: project._id });
+        const flow = await db.collection('meta_flows').findOne({ _id: new ObjectId(metaFlowId), projectId: projectObjectId });
         if (!flow) return { error: 'Selected flow not found for this project.' };
 
         broadcastJobData = {
-            projectId: new ObjectId(projectId),
+            projectId: projectObjectId,
             broadcastType: 'flow',
             metaFlowId: new ObjectId(metaFlowId),
             templateName: flow.name, // Using templateName field to store flow name for consistency
@@ -673,7 +674,7 @@ export async function handleStartBroadcast(
         if (!templateId) return { error: 'Please select a message template.' };
         if (!ObjectId.isValid(templateId)) return { error: 'Invalid Template ID.' };
 
-        const template = await db.collection('templates').findOne({ _id: new ObjectId(templateId), projectId: project._id });
+        const template = await db.collection('templates').findOne({ _id: new ObjectId(templateId), projectId: projectObjectId });
         if (!template) return { error: 'Selected template not found for this project.' };
 
         let headerMediaId: string | undefined = undefined;
@@ -708,7 +709,7 @@ export async function handleStartBroadcast(
         }
         
         broadcastJobData = {
-            projectId: new ObjectId(projectId),
+            projectId: projectObjectId,
             broadcastType: 'template',
             templateId: new ObjectId(templateId),
             templateName: template.name,
@@ -4207,7 +4208,7 @@ export async function updateUserPlanByAdmin(userId: string, planId: string): Pro
         return { success: true };
     } catch (error) {
         console.error("Failed to update user plan:", error);
-        return { success: false, error: 'An unexpected error occurred.' };
+        return { success: false, error: 'An unexpected database error occurred.' };
     }
 }
 
