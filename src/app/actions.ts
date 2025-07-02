@@ -21,8 +21,6 @@ import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import { premadeTemplates } from '@/lib/premade-templates';
 import { getMetaFlows } from './actions/meta-flow.actions';
-import { generateMetaFlow } from '@/ai/flows/generate-meta-flow';
-import { generateFlowBuilderFlow } from '@/ai/flows/generate-flow-builder-flow';
 import { getErrorMessage } from '@/lib/utils';
 import type {
     PlanFeaturePermissions,
@@ -135,33 +133,6 @@ export async function handleSuggestContent(topic: string): Promise<{ suggestions
     return { error: e.message || 'Failed to generate suggestions. Please try again.' };
   }
 }
-
-export async function handleGenerateMetaFlow(prompt: string, category: string): Promise<{ flowJson?: string; error?: string }> {
-    if (!prompt || !category) {
-        return { error: 'Prompt and category are required to generate a flow.' };
-    }
-    try {
-        const result = await generateMetaFlow({ prompt, category });
-        return { flowJson: JSON.stringify(result, null, 2) };
-    } catch (e: any) {
-        console.error('AI Meta Flow generation failed:', e);
-        return { error: e.message || 'An unexpected error occurred during AI generation.' };
-    }
-}
-
-export async function handleGenerateFlowBuilderFlow(prompt: string): Promise<{ nodes?: FlowNode[], edges?: FlowEdge[], error?: string }> {
-    if (!prompt) {
-        return { error: 'Prompt cannot be empty.' };
-    }
-    try {
-        const result = await generateFlowBuilderFlow({ prompt });
-        return { nodes: result.nodes, edges: result.edges };
-    } catch (e: any) {
-        console.error('AI Flow Builder generation failed:', e);
-        return { error: e.message || 'An unexpected error occurred during AI generation.' };
-    }
-}
-
 
 export async function getProjects(query?: string): Promise<WithId<Project>[]> {
     const session = await getSession();

@@ -6,7 +6,7 @@ import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Wand2, Settings, AlertCircle, Server } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, AlertCircle, Server } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -15,7 +15,6 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { saveMetaFlow, getMetaFlowById } from '@/app/actions/meta-flow.actions';
-import { handleGenerateMetaFlow } from '@/app/actions';
 import { flowCategories, declarativeFlowComponents, type DeclarativeUIComponent } from '@/components/wabasimplify/meta-flow-templates';
 import { MetaFlowPreview } from '@/components/wabasimplify/meta-flow-preview';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -195,8 +194,6 @@ function CreateMetaFlowPage() {
     
     const [category, setCategory] = useState('OTHER');
     const [flowContentJson, setFlowContentJson] = useState('');
-    const [aiPrompt, setAiPrompt] = useState('');
-    const [isGenerating, startGeneratingTransition] = useTransition();
     const [shouldPublish, setShouldPublish] = useState(true);
     const [lastApiPayload, setLastApiPayload] = useState<string | null>(null);
     
@@ -260,28 +257,6 @@ function CreateMetaFlowPage() {
             setLastApiPayload(state.payload);
         }
     }, [state, toast, router]);
-
-    const handleGenerateByAi = () => {
-        if (!aiPrompt) {
-            toast({ title: "Error", description: "Please enter a description for the AI.", variant: "destructive" });
-            return;
-        }
-        startGeneratingTransition(async () => {
-            const result = await handleGenerateMetaFlow(aiPrompt, category);
-            if (result.error) {
-                toast({ title: "AI Generation Failed", description: result.error, variant: "destructive" });
-            } else if (result.flowJson) {
-                try {
-                    const parsedFlow = JSON.parse(result.flowJson);
-                    setFlowName(parsedFlow.name || 'ai_generated_flow');
-                    setFlowData(parsedFlow);
-                    toast({ title: "Flow Generated!", description: "The AI has created your new flow. Review and save it." });
-                } catch (e) {
-                     toast({ title: "AI Generation Error", description: "The AI returned invalid JSON. Please try again.", variant: "destructive" });
-                }
-            }
-        });
-    };
 
     const updateScreenField = useCallback((screenIndex: number, field: string, value: any) => {
         setFlowData((prev: any) => {
@@ -507,9 +482,10 @@ function CreateMetaFlowPage() {
             <input type="hidden" name="projectId" value={projectId || ''}/>
             <input type="hidden" name="flowId" value={flowId || ''}/>
             <input type="hidden" name="metaId" value={existingFlow?.metaId || ''}/>
-            <input type="hidden" name="flowName" value={flowName} />
             <input type="hidden" name="category" value={category} />
             <input type="hidden" name="flow_data" value={flowContentJson} />
+            <input type="hidden" name="flowName" value={flowName} />
+
 
             <div>
                 <Button variant="ghost" asChild className="mb-4 -ml-4">
@@ -541,20 +517,6 @@ function CreateMetaFlowPage() {
                                     <Switch id="publish" name="publish" checked={shouldPublish} onCheckedChange={setShouldPublish} />
                                     <Label htmlFor="publish">Publish this flow</Label>
                                 </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card className="bg-primary/5 border-primary/20">
-                            <CardHeader>
-                                <div className="flex items-center gap-2"><Wand2 className="h-5 w-5 text-primary"/><CardTitle>AI Assistant</CardTitle></div>
-                                <CardDescription>Describe the flow you want to create, and the AI will generate it for you.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <Textarea id="ai-prompt" value={aiPrompt} onChange={e => setAiPrompt(e.target.value)} placeholder="e.g., A two-screen survey asking for feedback and then a rating."/>
-                                <Button type="button" onClick={handleGenerateByAi} disabled={isGenerating}>
-                                    {isGenerating ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Wand2 className="mr-2 h-4 w-4" />}
-                                    Generate with AI
-                                </Button>
                             </CardContent>
                         </Card>
 
