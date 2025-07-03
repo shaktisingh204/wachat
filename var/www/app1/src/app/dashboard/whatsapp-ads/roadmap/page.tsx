@@ -6,8 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
 import { Check, Route } from 'lucide-react';
 import type { Metadata } from 'next';
 
