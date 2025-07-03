@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
 import {
-  Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Clock, Tags, Type, Wifi
+  Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Type, Wifi, Clock
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { WhatsAppIcon, FacebookIcon as FacebookAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
 const AppShowcase = ({ title, description, children, className }: { title: React.ReactNode, description: string, children: React.ReactNode, className?: string }) => (
     <div className={cn("space-y-8 animate-fade-in", className)}>
@@ -27,20 +28,6 @@ const AppShowcase = ({ title, description, children, className }: { title: React
             {children}
         </div>
     </div>
-);
-
-const FeatureCard = ({ icon: Icon, title, description, gradient }: { icon: React.ElementType, title: string, description: string, gradient?: string }) => (
-    <Card className={cn("hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient", gradient)}>
-        <CardHeader className="items-center">
-            <div className="p-4 bg-primary/10 rounded-full">
-                <Icon className="h-8 w-8 text-primary" />
-            </div>
-        </CardHeader>
-        <CardContent className="space-y-2 flex-grow text-center">
-            <h3 className="text-xl font-semibold">{title}</h3>
-            <p className="text-muted-foreground">{description}</p>
-        </CardContent>
-    </Card>
 );
 
 const OverviewFeatureCard = ({ icon: Icon, title, description, gradient }: { icon: React.ElementType, title: string, description: string, gradient?: string }) => (
@@ -56,7 +43,6 @@ const OverviewFeatureCard = ({ icon: Icon, title, description, gradient }: { ico
         </CardContent>
     </Card>
 );
-
 
 const ComingSoonCard = ({ title, icon: Icon }: { title: string, icon: React.ElementType }) => (
      <Card className="hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col items-center justify-center text-center p-6 bg-muted/50 opacity-70">
@@ -155,7 +141,7 @@ const WhatsAppShowcase = () => {
                 <div className="container mx-auto px-4">
                     <div className="text-center space-y-4 mb-12"><h2 className="text-3xl md:text-4xl font-bold font-headline">Powerful Tools for Growth</h2><p className="max-w-2xl mx-auto text-lg text-muted-foreground">Everything you need to scale your customer communication on WhatsApp.</p></div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {features.map((feature, index) => <FeatureCard key={index} {...feature} />)}
+                        {features.map((feature, index) => <OverviewFeatureCard key={index} {...feature} />)}
                     </div>
                 </div>
             </section>
@@ -614,7 +600,7 @@ export default function HomePage() {
       case 'whatsapp':
         return <WhatsAppShowcase />;
       case 'facebook':
-        return <AppShowcase title="Facebook Integration" description="Connect your Facebook assets for seamless ad management."><FeatureCard icon={Megaphone} title="Facebook Ads" description="Create and manage 'Click to WhatsApp' ad campaigns directly from the dashboard." gradient="card-gradient-blue" /><ComingSoonCard title="Audience Management" icon={Users} /><ComingSoonCard title="Page Post Sync" icon={Newspaper} /><ComingSoonCard title="Lead Form Integration" icon={FileText} /></AppShowcase>;
+        return <AppShowcase title="Facebook Integration" description="Connect your Facebook assets for seamless ad management."><OverviewFeatureCard icon={Megaphone} title="Facebook Ads" description="Create and manage 'Click to WhatsApp' ad campaigns directly from the dashboard." gradient="card-gradient-blue" /><ComingSoonCard title="Audience Management" icon={Users} /><ComingSoonCard title="Page Post Sync" icon={Newspaper} /><ComingSoonCard title="Lead Form Integration" icon={FileText} /></AppShowcase>;
       case 'instagram':
         return <AppShowcase title="Instagram Tools" description="Manage your Instagram presence alongside your other channels."><ComingSoonCard title="Instagram DM Inbox" icon={MessageSquare} /><ComingSoonCard title="Story Replies" icon={Repeat} /><ComingSoonCard title="Post Comments" icon={Quote} /><ComingSoonCard title="Reels Management" icon={Video} /></AppShowcase>;
       case 'url-shortener':
@@ -695,7 +681,7 @@ export default function HomePage() {
                     <CardContent className="flex-grow space-y-2">
                         <p className="text-muted-foreground text-sm">Update the destination of your URL codes at any time without reprinting.</p>
                          <div className="p-3 bg-background/50 rounded-md mt-2 flex items-center justify-center gap-4">
-                            <Image src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=example" alt="QR Code" width={80} height={80} />
+                            <Image src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=example" alt="QR Code" width={80} height={80} data-ai-hint="qr code" />
                             <Pencil className="h-8 w-8 text-muted-foreground" />
                         </div>
                     </CardContent>
@@ -705,7 +691,7 @@ export default function HomePage() {
                     <CardContent className="flex-grow space-y-2">
                         <p className="text-muted-foreground text-sm">Track how many people scan your dynamic QR codes with detailed analytics.</p>
                          <div className="p-3 bg-background/50 rounded-md mt-2 flex items-center justify-center gap-4">
-                            <Image src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=example" alt="QR Code" width={80} height={80} />
+                            <Image src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=example" alt="QR Code" width={80} height={80} data-ai-hint="qr code"/>
                             <BarChart className="h-8 w-8 text-muted-foreground" />
                         </div>
                     </CardContent>
@@ -716,7 +702,7 @@ export default function HomePage() {
                         <p className="text-muted-foreground text-sm">Add your brand's logo to the center of your QR code for a professional touch.</p>
                         <div className="p-3 bg-background/50 rounded-md mt-2 flex items-center justify-center">
                              <div className="relative">
-                                <Image src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=example" alt="QR Code" width={100} height={100} />
+                                <Image src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=example" alt="QR Code" width={100} height={100} data-ai-hint="qr code" />
                                 <div className="absolute inset-0 flex items-center justify-center">
                                     <div className="bg-white p-1 rounded-full"><SabNodeLogo className="h-5 w-5"/></div>
                                 </div>
