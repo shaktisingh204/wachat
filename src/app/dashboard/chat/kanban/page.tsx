@@ -23,7 +23,7 @@ function KanbanPageSkeleton() {
 export default function KanbanPage() {
     return (
         <div className="h-full flex flex-col">
-            <Suspense fallback={<KanbanPageSkeleton />}>
+            <Suspense class="h-full" fallback={<KanbanPageSkeleton />}>
                 <KanbanBoard />
             </Suspense>
         </div>
