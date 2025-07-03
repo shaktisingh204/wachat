@@ -1,11 +1,9 @@
 
-
 'use client';
 
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import type { WithId } from 'mongodb';
-import type { Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -27,7 +25,7 @@ function SaveButton() {
     )
 }
 
-export function UrlShortenerSettingsTab({ project }: { project: WithId<Project> }) {
+export function UrlShortenerSettingsTab() {
     const { toast } = useToast();
     
     // Dummy action for now as these are placeholders

@@ -1,11 +1,11 @@
 
 'use client';
 
-import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
+import { useEffect, useState, useTransition, useActionState, useRef, useMemo, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
 import { createShortUrl, getShortUrls, deleteShortUrl } from '@/app/actions/url-shortener.actions';
-import { getProjectById } from '@/app/actions';
-import type { WithId, ShortUrl, Project, Tag } from '@/lib/definitions';
+import { getSession } from '@/app/actions';
+import type { WithId, ShortUrl, User, Tag } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -84,7 +84,7 @@ function DeleteButton({ urlId, onDeleted }: { urlId: string, onDeleted: () => vo
     );
 }
 
-function TagsSelector({ projectTags, onSelectionChange }: { projectTags: Tag[], onSelectionChange: (tagIds: string[]) => void }) {
+function TagsSelector({ userTags, onSelectionChange }: { userTags: Tag[], onSelectionChange: (tagIds: string[]) => void }) {
     const [open, setOpen] = useState(false);
     const [selectedTags, setSelectedTags] = useState<string[]>([]);
     
@@ -102,7 +102,7 @@ function TagsSelector({ projectTags, onSelectionChange }: { projectTags: Tag[], 
                 <Button variant="outline" role="combobox" className="w-full justify-between">
                     <span className="truncate">
                         {selectedTags.length > 0
-                            ? selectedTags.map(id => projectTags.find(t => t._id === id)?.name).filter(Boolean).join(', ')
+                            ? selectedTags.map(id => userTags.find(t => t._id === id)?.name).filter(Boolean).join(', ')
                             : "Select tags..."
                         }
                     </span>
@@ -115,7 +115,7 @@ function TagsSelector({ projectTags, onSelectionChange }: { projectTags: Tag[], 
                     <CommandList>
                         <CommandEmpty>No tags found. Manage tags in settings.</CommandEmpty>
                         <CommandGroup>
-                             {projectTags.map((tag) => (
+                             {userTags.map((tag) => (
                                 <CommandItem
                                     key={tag._id}
                                     value={tag.name}
@@ -144,11 +144,10 @@ function ShortenerPageSkeleton() {
 }
 
 export default function UrlShortenerPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
+    const [user, setUser] = useState<(Omit<User, 'password'> & { _id: string }) | null>(null);
     const [urls, setUrls] = useState<WithId<ShortUrl>[]>([]);
     const [isLoading, startLoadingTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
-    const [projectId, setProjectId] = useState<string | null>(null);
     const { toast } = useToast();
     const [state, formAction] = useActionState(createShortUrl, initialState);
     const formRef = useRef<HTMLFormElement>(null);
@@ -157,28 +156,20 @@ export default function UrlShortenerPage() {
     const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
     const fetchUrls = useCallback(() => {
-        if (!projectId) return;
         startLoadingTransition(async () => {
-            const [projectData, urlData] = await Promise.all([
-                getProjectById(projectId),
-                getShortUrls(projectId),
+            const [userData, urlData] = await Promise.all([
+                getSession(),
+                getShortUrls(),
             ]);
-            setProject(projectData);
+            setUser(userData?.user || null);
             setUrls(urlData);
         });
-    }, [projectId]);
-
-    useEffect(() => {
-        setIsClient(true);
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
     }, []);
 
     useEffect(() => {
-        if (projectId) {
-            fetchUrls();
-        }
-    }, [projectId, fetchUrls]);
+        setIsClient(true);
+        fetchUrls();
+    }, [fetchUrls]);
 
     useEffect(() => {
         if (state.message) {
@@ -199,13 +190,13 @@ export default function UrlShortenerPage() {
 
     if (!isClient) return <ShortenerPageSkeleton />;
 
-    if (!projectId) {
+    if (!user) {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
+                <AlertTitle>Not Logged In</AlertTitle>
                 <AlertDescription>
-                    Please select a project from the main dashboard to use the URL Shortener.
+                    Please log in to use the URL Shortener.
                 </AlertDescription>
             </Alert>
         );
@@ -231,7 +222,6 @@ export default function UrlShortenerPage() {
 
                 <Card className="card-gradient card-gradient-blue">
                     <form action={formAction} ref={formRef}>
-                        <input type="hidden" name="projectId" value={projectId} />
                         <input type="hidden" name="tagIds" value={selectedTagIds.join(',')} />
                         <CardHeader>
                             <CardTitle>Create a new short link</CardTitle>
@@ -249,12 +239,12 @@ export default function UrlShortenerPage() {
                             </div>
                             <div className="space-y-2">
                                 <Label>Tags (Optional)</Label>
-                                <TagsSelector projectTags={project?.tags || []} onSelectionChange={setSelectedTagIds} />
+                                <TagsSelector userTags={user?.tags || []} onSelectionChange={setSelectedTagIds} />
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-between items-center">
                             <SubmitButton />
-                            <BulkImportDialog projectId={projectId} onImportComplete={fetchUrls} />
+                            <BulkImportDialog onImportComplete={fetchUrls} />
                         </CardFooter>
                     </form>
                 </Card>
@@ -292,7 +282,7 @@ export default function UrlShortenerPage() {
                                              <TableCell>
                                                 <div className="flex flex-wrap gap-1">
                                                     {(url.tagIds || []).map(tagId => {
-                                                        const tag = project?.tags?.find(t => t._id === tagId);
+                                                        const tag = user?.tags?.find(t => t._id === tagId);
                                                         return tag ? (
                                                             <Badge key={tagId} className="rounded-sm" style={{ backgroundColor: tag.color, color: '#fff' }}>
                                                                 {tag.name}

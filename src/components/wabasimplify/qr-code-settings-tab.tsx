@@ -2,8 +2,7 @@
 'use client';
 
 import type { WithId } from 'mongodb';
-import type { Project } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -11,7 +10,7 @@ import { Switch } from '@/components/ui/switch';
 import { BookOpen } from 'lucide-react';
 import { Separator } from '../ui/separator';
 
-export function QrCodeSettingsTab({ project }: { project: WithId<Project> }) {
+export function QrCodeSettingsTab() {
     return (
         <Card className="card-gradient card-gradient-purple">
             <CardHeader>

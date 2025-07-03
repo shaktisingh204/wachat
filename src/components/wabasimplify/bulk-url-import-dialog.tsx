@@ -42,11 +42,10 @@ function SubmitButton() {
 }
 
 interface BulkImportDialogProps {
-    projectId: string;
     onImportComplete: () => void;
 }
 
-export function BulkImportDialog({ projectId, onImportComplete }: BulkImportDialogProps) {
+export function BulkImportDialog({ onImportComplete }: BulkImportDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(handleBulkCreateShortUrls, initialState);
   const { toast } = useToast();
@@ -74,7 +73,6 @@ export function BulkImportDialog({ projectId, onImportComplete }: BulkImportDial
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
-            <input type="hidden" name="projectId" value={projectId} />
             <DialogHeader>
                 <DialogTitle>Bulk Import URLs</DialogTitle>
                 <DialogDescription>
