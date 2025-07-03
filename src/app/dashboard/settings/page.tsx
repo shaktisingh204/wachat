@@ -27,7 +27,7 @@ import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-s
 import { useRouter } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { TagsSettingsTab } from '@/components/wabasimplify/tags-settings-tab';
-
+import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/feature-lock';
 
 const updateSettingsInitialState = { message: null, error: null };
 const updateAutoReplyInitialState = { message: null, error: null };
@@ -483,34 +483,6 @@ function UserAttributesForm({ project, user }: { project: WithId<Project>, user:
     </form>
   );
 }
-
-function FeatureLock({ isAllowed, children }: { isAllowed: boolean; children: React.ReactNode }) {
-    if (isAllowed) {
-        return <>{children}</>;
-    }
-
-    return (
-        <div className="relative blur-sm pointer-events-none opacity-50">
-            {children}
-        </div>
-    );
-}
-
-function FeatureLockOverlay({ isAllowed, featureName }: { isAllowed: boolean; featureName: string }) {
-    if (isAllowed) return null;
-
-    return (
-        <div className="absolute inset-0 bg-background/80 z-10 flex flex-col items-center justify-center gap-4 p-4 text-center rounded-lg">
-            <Lock className="h-12 w-12 text-muted-foreground"/>
-            <h3 className="text-xl font-bold">'{featureName}' is a Premium Feature</h3>
-            <p className="text-muted-foreground">This feature is not included in your current plan.</p>
-            <Button asChild>
-                <Link href="/dashboard/billing">Upgrade Plan</Link>
-            </Button>
-        </div>
-    )
-}
-
 
 function SettingsPageContent() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
