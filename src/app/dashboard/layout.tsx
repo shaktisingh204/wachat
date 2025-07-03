@@ -156,47 +156,50 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <SidebarProvider>
-      <div className="hidden md:flex h-screen w-20 flex-shrink-0 flex-col items-center gap-4 border-r bg-card py-4">
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <button
-                onClick={() => setActiveApp('whatsapp')}
-                className={cn(
-                    'p-3 rounded-lg transition-colors',
-                    activeApp === 'whatsapp'
-                    ? 'bg-[#25D366] text-white'
-                    : 'bg-card text-[#25D366] hover:bg-accent'
-                )}
-                >
-                <WhatsAppIcon className="h-6 w-6" />
-                </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">WhatsApp Tools</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-            <TooltipTrigger asChild>
-                <button
-                onClick={() => setActiveApp('facebook')}
-                className={cn(
-                    'p-3 rounded-lg transition-colors',
-                    activeApp === 'facebook'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-card text-blue-600 hover:bg-accent'
-                )}
-                >
-                <FacebookIcon className="h-6 w-6" />
-                </button>
-            </TooltipTrigger>
-            <TooltipContent side="right">Facebook Manager</TooltipContent>
-        </Tooltip>
-        <div className="p-2 rounded-lg hover:bg-muted">
-          <Users className="h-6 w-6 text-muted-foreground" />
-        </div>
-        <div className="p-2 rounded-lg hover:bg-muted">
-          <Settings className="h-6 w-6 text-muted-foreground" />
+      <div className="fixed top-2 left-2 bottom-2 z-20 hidden md:flex">
+        <div className="flex h-full flex-col items-center gap-4 rounded-lg border bg-card py-4 shadow-md">
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <button
+                    onClick={() => setActiveApp('whatsapp')}
+                    className={cn(
+                        'p-3 mx-2 rounded-lg transition-colors',
+                        activeApp === 'whatsapp'
+                        ? 'bg-[#25D366] text-white'
+                        : 'bg-card text-[#25D366] hover:bg-accent'
+                    )}
+                    >
+                    <WhatsAppIcon className="h-6 w-6" />
+                    </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">WhatsApp Tools</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <button
+                    onClick={() => setActiveApp('facebook')}
+                    className={cn(
+                        'p-3 mx-2 rounded-lg transition-colors',
+                        activeApp === 'facebook'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-card text-blue-600 hover:bg-accent'
+                    )}
+                    >
+                    <FacebookIcon className="h-6 w-6" />
+                    </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Facebook Manager</TooltipContent>
+            </Tooltip>
         </div>
       </div>
-      <Sidebar className="md:left-20">
+      <Sidebar
+        variant="floating"
+        sideOffset="calc(5rem + 1rem)"
+        innerClassName={cn(
+          'transition-colors',
+          activeApp === 'whatsapp' ? 'bg-emerald-50 dark:bg-emerald-950/20' : 'bg-sky-50 dark:bg-sky-950/20'
+        )}
+      >
         <SidebarHeader className="p-4">
            <div className="flex items-center gap-2">
               <WachatBrandLogo className="size-8 shrink-0" />
@@ -279,7 +282,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset className="flex flex-col h-full">
+      <SidebarInset sideOffset="calc(5rem + 1rem)">
         <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
           <div className="flex items-center gap-4">
             <SidebarTrigger />
