@@ -229,6 +229,9 @@ const Sidebar = React.forwardRef<
     return (
       <div
         ref={ref}
+        style={{
+          marginLeft: 8,
+        }}
         className="group hidden md:block text-sidebar-foreground"
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
