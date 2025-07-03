@@ -38,23 +38,23 @@ import {
   Briefcase,
   ChevronDown,
   FileText,
-  Bot,
   Phone,
   Webhook,
   History,
-  Bell,
   LogOut,
-  ClipboardList,
   CreditCard,
   LoaderCircle,
   Megaphone,
   ServerCog,
   ShoppingBag,
   Newspaper,
+  Clapperboard,
+  Heart,
+  Route,
+  Wrench,
 } from 'lucide-react';
-import { WachatBrandLogo, FacebookIcon, WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { WachatBrandLogo, FacebookIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { getProjectCount, getSession, handleLogout } from '@/app/actions';
 import { type Plan, type WithId } from '@/lib/definitions';
 
@@ -87,10 +87,19 @@ const wachatMenuItems = [
 ];
 
 const facebookMenuItems = [
-    { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'facebookAds' },
-    { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'facebookAudiences' },
-    { href: '/dashboard/facebook/posts', label: 'Page Posts', icon: Newspaper, featureKey: 'facebookPosts' },
-    { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, featureKey: 'facebookSettings' },
+    { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/posts', label: 'Page Posts', icon: Newspaper, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/setup', label: 'Setup Guide', icon: Wrench, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/roadmap', label: 'Roadmap', icon: Route, featureKey: 'whatsappAds' },
+    { href: '/dashboard/settings?tab=marketing', label: 'Settings', icon: Settings, featureKey: 'settingsMarketing' },
+];
+
+const instagramMenuItems = [
+    { href: '/dashboard/instagram/feed', label: 'Feed', icon: LayoutDashboard, featureKey: 'instagramFeed' },
+    { href: '/dashboard/instagram/stories', label: 'Stories', icon: Clapperboard, featureKey: 'instagramStories' },
+    { href: '/dashboard/instagram/reels', label: 'Reels', icon: Heart, featureKey: 'instagramReels' },
+    { href: '/dashboard/instagram/messages', label: 'Messages', icon: MessageSquare, featureKey: 'instagramMessages' },
 ];
 
 
@@ -152,7 +161,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
   const planFeatures = sessionUser?.plan?.features;
   
-  const currentMenuItems = activeApp === 'whatsapp' ? wachatMenuItems : facebookMenuItems;
+  const currentMenuItems = activeApp === 'whatsapp' ? wachatMenuItems : activeApp === 'facebook' ? facebookMenuItems : instagramMenuItems;
 
   return (
     <div data-theme={activeApp}>
@@ -190,6 +199,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </button>
                 </TooltipTrigger>
                 <TooltipContent side="right">Facebook Manager</TooltipContent>
+            </Tooltip>
+             <Tooltip>
+                <TooltipTrigger asChild>
+                    <button
+                    onClick={() => setActiveApp('instagram')}
+                    className={cn(
+                        'p-3 mx-2 rounded-lg transition-colors',
+                        activeApp === 'instagram'
+                        ? 'bg-instagram text-white'
+                        : 'bg-card text-instagram hover:bg-accent'
+                    )}
+                    >
+                    <InstagramIcon className="h-6 w-6" />
+                    </button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Instagram Manager</TooltipContent>
             </Tooltip>
         </div>
       </div>
@@ -279,8 +304,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset sideOffset="calc(4rem + 8px)" className="flex flex-col p-2 gap-2">
-        <header className="flex items-center justify-between p-3 border bg-card rounded-lg sticky top-2 z-10 shrink-0">
+      <SidebarInset sideOffset="calc(4rem + 8px)" className="flex flex-col p-2 gap-2 h-screen">
+        <header className="flex items-center justify-between p-3 border bg-card rounded-lg shrink-0 sticky top-2 z-10">
           <div className="flex items-center gap-2">
             <SidebarTrigger />
             <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
