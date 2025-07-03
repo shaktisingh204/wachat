@@ -1,25 +1,94 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useTransition, useState } from 'react';
 import type { WithId } from 'mongodb';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { BookOpen, Key, Link2, LoaderCircle } from 'lucide-react';
+import { BookOpen, Key, Link2, LoaderCircle, Info, Trash2, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { addCustomDomain, getCustomDomains, verifyCustomDomain, deleteCustomDomain } from '@/app/actions/url-shortener.actions';
+import type { CustomDomain } from '@/lib/definitions';
+import { useFormStatus } from 'react-dom';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+
+
+const addDomainInitialState = { success: undefined, error: undefined };
+
+function AddDomainButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Add Domain
+        </Button>
+    )
+}
+
+function VerifyButton({ domainId }: { domainId: string }) {
+    const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
+    
+    const onVerify = () => {
+        startTransition(async () => {
+            const result = await verifyCustomDomain(domainId);
+            if (result.success) {
+                toast({ title: "Domain Verified!", description: "You can now use this domain for your short links."});
+            } else {
+                toast({ title: "Verification Failed", description: result.error, variant: 'destructive'});
+            }
+        });
+    };
+
+    return <Button onClick={onVerify} size="sm" disabled={isPending}>{isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Verify</Button>;
+}
+
+function DeleteButton({ domainId }: { domainId: string }) {
+    const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
+
+    const onDelete = () => {
+        startTransition(async () => {
+            const result = await deleteCustomDomain(domainId);
+            if (!result.success) {
+                toast({ title: "Error", description: result.error, variant: "destructive"});
+            }
+        });
+    }
+
+    return <Button variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}</Button>;
+}
+
 
 export default function UrlShortenerSettingsPage() {
     const { toast } = useToast();
-    const formRef = useRef<HTMLFormElement>(null);
+    const addFormRef = useRef<HTMLFormElement>(null);
+    const [domains, setDomains] = useState<WithId<CustomDomain>[]>([]);
+    const [isLoading, startLoadingTransition] = useTransition();
+    const [addState, addAction] = useActionState(addCustomDomain, addDomainInitialState);
+    const { copy } = useCopyToClipboard();
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        toast({ title: "Coming Soon!", description: "Custom domain support is under development." });
-    };
+     useEffect(() => {
+        startLoadingTransition(async () => {
+            const data = await getCustomDomains();
+            setDomains(data);
+        });
+    }, [addState]);
+
+    useEffect(() => {
+        if (addState.success) {
+            toast({ title: 'Domain Added', description: 'Please add the TXT record to your DNS provider to verify ownership.' });
+            addFormRef.current?.reset();
+        }
+        if (addState.error) {
+            toast({ title: 'Error', description: addState.error, variant: 'destructive' });
+        }
+    }, [addState, toast]);
 
     return (
         <div className="flex flex-col gap-8">
@@ -28,30 +97,70 @@ export default function UrlShortenerSettingsPage() {
                 <p className="text-muted-foreground">Configure custom domains and developer settings for your short links.</p>
             </div>
             
-            <form onSubmit={handleSubmit} ref={formRef}>
-                <Card className="card-gradient card-gradient-blue">
-                    <CardHeader>
-                        <CardTitle>Custom Domains</CardTitle>
-                        <CardDescription>Use your own domain for branded short links (e.g., links.mybrand.com).</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <Alert>
-                            <Link2 className="h-4 w-4" />
-                            <AlertTitle>Feature Coming Soon!</AlertTitle>
-                            <AlertDescription>
-                                The ability to add and verify custom domains is currently under development.
-                            </AlertDescription>
-                        </Alert>
-                        <div className="space-y-2">
-                            <Label htmlFor="customDomain">Your Domain</Label>
-                            <div className="flex gap-2">
-                                <Input id="customDomain" name="customDomain" placeholder="e.g., links.mybrand.com" disabled />
-                                <Button type="submit" disabled>Add Domain</Button>
-                            </div>
+            <Card className="card-gradient card-gradient-blue">
+                <CardHeader>
+                    <CardTitle>Custom Domains</CardTitle>
+                    <CardDescription>Use your own domain for branded short links (e.g., links.mybrand.com).</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <form action={addAction} ref={addFormRef} className="space-y-2">
+                        <Label htmlFor="hostname">Your Domain</Label>
+                        <div className="flex gap-2">
+                            <Input id="hostname" name="hostname" placeholder="e.g., links.mybrand.com" required />
+                            <AddDomainButton />
                         </div>
-                    </CardContent>
-                </Card>
-            </form>
+                    </form>
+
+                    <Separator />
+                     <div className="space-y-4">
+                        {isLoading ? (
+                            <Skeleton className="h-24 w-full" />
+                        ) : domains.length > 0 ? (
+                            domains.map(domain => (
+                                <div key={domain._id.toString()} className="p-4 border rounded-lg space-y-4">
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex items-center gap-2">
+                                            <p className="font-semibold">{domain.hostname}</p>
+                                            {domain.verified ? (
+                                                <Badge><CheckCircle className="mr-1 h-3 w-3" /> Verified</Badge>
+                                            ) : (
+                                                <Badge variant="secondary">Unverified</Badge>
+                                            )}
+                                        </div>
+                                        <DeleteButton domainId={domain._id.toString()} />
+                                    </div>
+                                    {!domain.verified && (
+                                        <div className="p-3 bg-muted/50 rounded-md text-sm space-y-3">
+                                            <p className="text-muted-foreground">To verify this domain, add the following TXT record to your DNS settings:</p>
+                                            <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
+                                                <span className="text-muted-foreground">Type:</span> <span>TXT</span>
+                                                <span className="text-muted-foreground">Host:</span> <span>@ or {domain.hostname}</span>
+                                                <span className="text-muted-foreground">Value:</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="break-all">{domain.verificationCode}</span>
+                                                    <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy(domain.verificationCode)}><Key className="h-3 w-3"/></Button>
+                                                </div>
+                                            </div>
+                                             <div className="flex justify-end pt-2">
+                                                <VerifyButton domainId={domain._id.toString()} />
+                                             </div>
+                                        </div>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-sm text-center text-muted-foreground py-4">No custom domains added yet.</p>
+                        )}
+                    </div>
+                    <Alert>
+                        <Info className="h-4 w-4" />
+                        <AlertTitle>DNS Configuration Required</AlertTitle>
+                        <AlertDescription>
+                            After verifying, you must point your custom domain to our servers using a CNAME record. This step is handled with your domain provider (e.g., GoDaddy, Namecheap). This functionality is not implemented in this prototype.
+                        </AlertDescription>
+                    </Alert>
+                </CardContent>
+            </Card>
             
             <Card className="card-gradient card-gradient-purple">
                 <CardHeader>

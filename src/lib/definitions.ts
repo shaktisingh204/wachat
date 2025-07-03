@@ -99,6 +99,13 @@ export type Tag = {
     color: string;
 };
 
+export type CustomDomain = {
+    _id: ObjectId;
+    hostname: string;
+    verified: boolean;
+    verificationCode: string;
+};
+
 export type Project = {
     _id: ObjectId;
     userId: ObjectId;
@@ -258,6 +265,7 @@ export type User = {
     password?: string;
     createdAt: Date;
     tags?: Tag[];
+    customDomains?: CustomDomain[];
 };
 
 export type Invitation = {
@@ -600,6 +608,7 @@ export type Product = {
 export type ShortUrl = {
     _id: ObjectId;
     userId: ObjectId;
+    domainId?: string;
     originalUrl: string;
     shortCode: string;
     clickCount: number;

@@ -2,9 +2,9 @@
 
 import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
-import { createShortUrl, getShortUrls, deleteShortUrl } from '@/app/actions/url-shortener.actions';
+import { createShortUrl, getShortUrls, deleteShortUrl, getCustomDomains } from '@/app/actions/url-shortener.actions';
 import { getSession } from '@/app/actions';
-import type { WithId, ShortUrl, User, Tag } from '@/lib/definitions';
+import type { WithId, ShortUrl, User, Tag, CustomDomain } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -34,6 +34,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { DatePicker } from '@/components/ui/date-picker';
 import Link from 'next/link';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const initialState = {
   message: null,
@@ -146,6 +147,7 @@ function ShortenerPageSkeleton() {
 export default function UrlShortenerPage() {
     const [user, setUser] = useState<(Omit<User, 'password'> & { _id: string, tags?: Tag[] }) | null>(null);
     const [urls, setUrls] = useState<WithId<ShortUrl>[]>([]);
+    const [domains, setDomains] = useState<WithId<CustomDomain>[]>([]);
     const [isLoading, startLoadingTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
     const { toast } = useToast();
@@ -163,7 +165,8 @@ export default function UrlShortenerPage() {
                 getShortUrls(),
             ]);
             setUser(userData?.user || null);
-            setUrls(urlData);
+            setUrls(urlData.urls);
+            setDomains(urlData.domains);
         });
     }, []);
 
@@ -185,9 +188,16 @@ export default function UrlShortenerPage() {
         }
     }, [state, toast, fetchUrls]);
     
-    const getShortUrl = (shortCode: string) => {
+    const getShortUrl = (url: WithId<ShortUrl>) => {
         if (typeof window === 'undefined') return '';
-        return `${window.location.origin}/s/${shortCode}`;
+        const domain = domains.find(d => d._id.toString() === url.domainId)?.hostname || window.location.origin;
+        const protocol = domain.startsWith('http') ? '' : 'https://';
+        
+        if(domain.startsWith('http')) {
+            return `${domain}/s/${url.shortCode}`;
+        }
+        
+        return url.domainId ? `${protocol}${domain}/${url.shortCode}` : `${domain}/s/${url.shortCode}`;
     }
 
     if (!isClient) return <ShortenerPageSkeleton />;
@@ -203,6 +213,8 @@ export default function UrlShortenerPage() {
             </Alert>
         );
     }
+    
+    const verifiedDomains = domains.filter(d => d.verified);
 
     return (
         <>
@@ -240,7 +252,7 @@ export default function UrlShortenerPage() {
                                     <Input id="alias" name="alias" placeholder="e.g., summer-sale" />
                                 </div>
                             </div>
-                            <div className="grid md:grid-cols-2 gap-4">
+                            <div className="grid md:grid-cols-3 gap-4">
                                 <div className="space-y-2">
                                     <Label>Tags (Optional)</Label>
                                     <TagsSelector userTags={user?.tags || []} onSelectionChange={setSelectedTagIds} />
@@ -248,6 +260,20 @@ export default function UrlShortenerPage() {
                                 <div className="space-y-2">
                                     <Label>Expiration Date (Optional)</Label>
                                     <DatePicker date={expiresAt} setDate={setExpiresAt} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Custom Domain (Optional)</Label>
+                                    <Select name="domainId">
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Default" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="">Default Domain</SelectItem>
+                                            {verifiedDomains.map(d => (
+                                                <SelectItem key={d._id.toString()} value={d._id.toString()}>{d.hostname}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
                                 </div>
                             </div>
                         </CardContent>
@@ -279,9 +305,9 @@ export default function UrlShortenerPage() {
                                     : urls.length > 0 ? urls.map(url => (
                                         <TableRow key={url._id.toString()}>
                                             <TableCell className="font-mono text-sm">
-                                                <a href={getShortUrl(url.shortCode)} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
-                                                    {getShortUrl(url.shortCode)}
-                                                    <Copy className="h-3 w-3 inline-block ml-1 cursor-pointer" onClick={(e) => { e.preventDefault(); copy(getShortUrl(url.shortCode)); }}/>
+                                                <a href={getShortUrl(url)} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
+                                                    {getShortUrl(url).replace(/^https?:\/\//, '')}
+                                                    <Copy className="h-3 w-3 inline-block ml-1 cursor-pointer" onClick={(e) => { e.preventDefault(); copy(getShortUrl(url)); }}/>
                                                 </a>
                                             </TableCell>
                                             <TableCell className="text-muted-foreground truncate max-w-[200px]">{url.originalUrl}</TableCell>
@@ -289,9 +315,9 @@ export default function UrlShortenerPage() {
                                             <TableCell>{url.clickCount}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button asChild variant="ghost" size="icon">
-                                                    <Link href={`/dashboard/url-shortener/${url._id.toString()}`}><BarChart2 className="h-4 w-4"/></Link>
+                                                    <Link href={`/dashboard/url-shortener/${url._id.toString()}`}><BarChart className="h-4 w-4"/></Link>
                                                 </Button>
-                                                <Button variant="ghost" size="icon" onClick={() => setSelectedUrlForQr(getShortUrl(url.shortCode))}><QrCode className="h-4 w-4"/></Button>
+                                                <Button variant="ghost" size="icon" onClick={() => setSelectedUrlForQr(getShortUrl(url))}><QrCode className="h-4 w-4"/></Button>
                                                 <DeleteButton urlId={url._id.toString()} onDeleted={fetchUrls} />
                                             </TableCell>
                                         </TableRow>

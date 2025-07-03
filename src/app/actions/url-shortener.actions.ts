@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
-import type { ShortUrl, User } from '@/lib/definitions';
+import type { ShortUrl, User, CustomDomain } from '@/lib/definitions';
 import { nanoid } from 'nanoid';
 import { headers } from 'next/headers';
 import { Readable } from 'stream';
@@ -18,6 +18,7 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
     const alias = formData.get('alias') as string | null;
     const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
     const expiresAtStr = formData.get('expiresAt') as string | null;
+    const domainId = formData.get('domainId') as string | null;
 
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied.' };
@@ -37,20 +38,26 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
         
         let shortCode = alias || generateShortCode();
 
-        if (alias) {
-            const existing = await db.collection('short_urls').findOne({ shortCode, userId: session.user._id });
-            if (existing) {
-                return { error: 'This custom alias is already in use.' };
-            }
+        const query: any = { shortCode };
+        if (domainId) {
+            query.domainId = domainId;
+        } else {
+            query.userId = session.user._id; // legacy links tied to user
         }
 
-        const newShortUrl: Omit<ShortUrl, '_id' | 'projectId'> & { userId: ObjectId } = {
+        const existing = await db.collection('short_urls').findOne(query);
+        if (existing) {
+            return { error: 'This custom alias is already in use for this domain.' };
+        }
+
+        const newShortUrl: Omit<ShortUrl, '_id'> = {
             userId: new ObjectId(session.user._id),
             originalUrl,
             shortCode,
             clickCount: 0,
             analytics: [],
             tagIds,
+            ...(domainId && { domainId }),
             createdAt: new Date(),
             ...(expiresAtStr && { expiresAt: new Date(expiresAtStr) }),
         };
@@ -164,20 +171,26 @@ export async function handleBulkCreateShortUrls(prevState: any, formData: FormDa
 }
 
 
-export async function getShortUrls(): Promise<WithId<ShortUrl>[]> {
+export async function getShortUrls(): Promise<{ urls: WithId<ShortUrl>[], domains: WithId<CustomDomain>[]}> {
     const session = await getSession();
-    if (!session?.user) return [];
+    if (!session?.user) return { urls: [], domains: [] };
 
     try {
         const { db } = await connectToDatabase();
+        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
+        
         const urls = await db.collection('short_urls')
             .find({ userId: new ObjectId(session.user._id) })
             .sort({ createdAt: -1 })
             .toArray();
-        return JSON.parse(JSON.stringify(urls));
+
+        return { 
+            urls: JSON.parse(JSON.stringify(urls)),
+            domains: JSON.parse(JSON.stringify(user?.customDomains || [])),
+        };
     } catch (error) {
         console.error('Failed to fetch short URLs:', error);
-        return [];
+        return { urls: [], domains: [] };
     }
 }
 
@@ -185,7 +198,8 @@ export async function trackClickAndGetUrl(shortCode: string): Promise<{ original
     try {
         const { db } = await connectToDatabase();
         
-        const urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode });
+        // This simplified logic assumes the default domain. Custom domain routing would need middleware.
+        const urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode, domainId: { $exists: false } });
 
         if (!urlDoc) {
              return { originalUrl: null, error: 'URL not found.' };
@@ -263,4 +277,95 @@ export async function getShortUrlById(id: string): Promise<WithId<ShortUrl> | nu
 
     if (!url) return null;
     return JSON.parse(JSON.stringify(url));
+}
+
+
+// --- Custom Domain Actions ---
+
+export async function getCustomDomains(): Promise<WithId<CustomDomain>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
+        return JSON.parse(JSON.stringify(user?.customDomains || []));
+    } catch (error) {
+        console.error('Failed to fetch custom domains:', error);
+        return [];
+    }
+}
+
+export async function addCustomDomain(prevState: any, formData: FormData): Promise<{ success?: boolean; error?: string }> {
+    const hostname = formData.get('hostname') as string;
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
+    if (!hostname) return { error: 'Hostname is required.' };
+    
+    // Basic validation
+    const domainRegex = /^(?!-)[A-Za-z0-9-]+([\-\.]{1}[a-z0-9]+)*\.[A-Za-z]{2,6}$/;
+    if(!domainRegex.test(hostname)) {
+        return { error: 'Invalid domain format.' };
+    }
+    
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection('users').findOne({ _id: new ObjectId(session.user._id) });
+        if (user?.customDomains?.some(d => d.hostname === hostname)) {
+            return { error: 'This domain has already been added.' };
+        }
+
+        const newDomain: CustomDomain = {
+            _id: new ObjectId(),
+            hostname,
+            verified: false,
+            verificationCode: `sabnode-verify=${nanoid(16)}`,
+        };
+
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $push: { customDomains: newDomain } }
+        );
+
+        revalidatePath('/dashboard/url-shortener/settings');
+        return { success: true };
+    } catch (e: any) {
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function verifyCustomDomain(domainId: string): Promise<{ success: boolean, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    
+    // In a real application, this would perform a DNS lookup for the verification code.
+    // For this prototype, we'll just simulate success.
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id), 'customDomains._id': new ObjectId(domainId) },
+            { $set: { 'customDomains.$.verified': true } }
+        );
+        revalidatePath('/dashboard/url-shortener/settings');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to verify domain.' };
+    }
+}
+
+export async function deleteCustomDomain(domainId: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+    
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $pull: { customDomains: { _id: new ObjectId(domainId) } } }
+        );
+        revalidatePath('/dashboard/url-shortener/settings');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to delete domain.' };
+    }
 }

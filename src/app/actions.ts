@@ -23,6 +23,9 @@ import { createHash } from 'crypto';
 import { premadeTemplates } from '@/lib/premade-templates';
 import { getMetaFlows } from './actions/meta-flow.actions';
 import { getErrorMessage } from '@/lib/utils';
+export * from './actions/url-shortener.actions';
+export * from './actions/qr-code.actions';
+
 import type {
     Plan,
     User,
@@ -2833,6 +2836,7 @@ export async function handleUpdateUserProfile(prevState: any, formData: FormData
         );
         revalidatePath('/dashboard/profile');
         revalidatePath('/dashboard/url-shortener');
+        revalidatePath('/dashboard/settings');
         return { message: 'Profile updated successfully.' };
     } catch (e: any) {
         return { error: 'Failed to update profile.' };
@@ -2909,27 +2913,10 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
     const isNew = planId === 'new';
 
     try {
-        const features = {
-            campaigns: formData.get('campaigns') === 'on',
-            liveChat: formData.get('liveChat') === 'on',
-            contacts: formData.get('contacts') === 'on',
-            templates: formData.get('templates') === 'on',
-            flowBuilder: formData.get('flowBuilder') === 'on',
-            metaFlows: formData.get('metaFlows') === 'on',
-            whatsappAds: formData.get('whatsappAds') === 'on',
-            webhooks: formData.get('webhooks') === 'on',
-            settingsBroadcast: formData.get('settingsBroadcast') === 'on',
-            settingsAutoReply: formData.get('settingsAutoReply') === 'on',
-            settingsMarketing: formData.get('settingsMarketing') === 'on',
-            settingsTemplateLibrary: formData.get('settingsTemplateLibrary') === 'on',
-            settingsCannedMessages: formData.get('settingsCannedMessages') === 'on',
-            settingsAgentsRoles: formData.get('settingsAgentsRoles') === 'on',
-            settingsCompliance: formData.get('settingsCompliance') === 'on',
-            settingsUserAttributes: formData.get('settingsUserAttributes') === 'on',
-            apiAccess: formData.get('apiAccess') === 'on',
-            urlShortener: formData.get('urlShortener') === 'on',
-            qrCodeMaker: formData.get('qrCodeMaker') === 'on',
-        };
+        const features: Partial<PlanFeaturePermissions> = {};
+        for(const key of Object.keys(planFeaturesDefaults)) {
+            features[key as keyof PlanFeaturePermissions] = formData.get(key) === 'on';
+        }
 
         const planData: Omit<Plan, '_id' | 'createdAt'> = {
             name: formData.get('name') as string,
@@ -2950,7 +2937,7 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
                 utility: Number(formData.get('cost_utility')),
                 authentication: Number(formData.get('cost_authentication')),
             },
-            features: features,
+            features: features as PlanFeaturePermissions,
         };
 
         if (!planData.name || isNaN(planData.price)) {
@@ -4012,6 +3999,14 @@ export async function getFlowBuilderPageData(projectId: string): Promise<{
     return { flows, initialFlow };
 }
     
+const planFeaturesDefaults = {
+    overview: true, campaigns: true, liveChat: true, contacts: true, templates: true, catalog: false, flowBuilder: true,
+    metaFlows: true, whatsappAds: false, webhooks: true, settingsBroadcast: true, settingsAutoReply: true,
+    settingsMarketing: false, settingsTemplateLibrary: true, settingsCannedMessages: true, settingsAgentsRoles: true,
+    settingsCompliance: true, settingsUserAttributes: true, apiAccess: false,
+    urlShortener: true, qrCodeMaker: true, numbers: true, billing: true, notifications: true,
+    instagramFeed: false, instagramStories: false, instagramReels: false, instagramMessages: false
+};
 
 export async function getLibraryTemplates(): Promise<LibraryTemplate[]> {
     try {
@@ -4270,6 +4265,7 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
 }
 
     
+
 
 
 
