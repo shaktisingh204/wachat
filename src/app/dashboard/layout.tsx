@@ -50,6 +50,7 @@ import {
   Megaphone,
   ServerCog,
   ShoppingBag,
+  Newspaper,
 } from 'lucide-react';
 import { WachatBrandLogo, FacebookIcon, WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -68,6 +69,30 @@ function FullPageSkeleton() {
       </div>
     );
 }
+
+const wachatMenuItems = [
+  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, featureKey: 'overview' },
+  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, featureKey: 'liveChat' },
+  { href: '/dashboard/contacts', label: 'Contacts', icon: Users, featureKey: 'contacts' },
+  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, featureKey: 'campaigns' },
+  { href: '/dashboard/templates', label: 'Templates', icon: FileText, featureKey: 'templates' },
+  { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, featureKey: 'catalog' },
+  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'flowBuilder' },
+  { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, featureKey: 'metaFlows' },
+  { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, featureKey: 'numbers' },
+  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, featureKey: 'webhooks' },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings, featureKey: 'settings' },
+  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard, featureKey: 'billing' },
+  { href: '/dashboard/notifications', label: 'Notifications', icon: History, featureKey: 'notifications' },
+];
+
+const facebookMenuItems = [
+    { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'facebookAds' },
+    { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'facebookAudiences' },
+    { href: '/dashboard/facebook/posts', label: 'Page Posts', icon: Newspaper, featureKey: 'facebookPosts' },
+    { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, featureKey: 'facebookSettings' },
+];
+
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -126,6 +151,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const hasNoProjects = projectCount === 0;
   const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
   const planFeatures = sessionUser?.plan?.features;
+  
+  const currentMenuItems = activeApp === 'whatsapp' ? wachatMenuItems : facebookMenuItems;
 
   return (
     <SidebarProvider>
@@ -137,8 +164,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 className={cn(
                     'p-3 rounded-lg transition-colors',
                     activeApp === 'whatsapp'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card text-primary hover:bg-accent'
+                    ? 'bg-[#25D366] text-white'
+                    : 'bg-card text-[#25D366] hover:bg-accent'
                 )}
                 >
                 <WhatsAppIcon className="h-6 w-6" />
@@ -178,7 +205,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {allMenuItems.map((item) => {
+            {currentMenuItems.map((item) => {
               const isAllowed = !planFeatures ? true : (planFeatures as any)[item.featureKey] ?? true;
               const isDisabled = (hasNoProjects && !isSetupPage) || !isAllowed;
               
@@ -311,19 +338,3 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </SidebarProvider>
   );
 }
-
-const allMenuItems = [
-  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, featureKey: 'overview' },
-  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, featureKey: 'liveChat' },
-  { href: '/dashboard/contacts', label: 'Contacts', icon: Users, featureKey: 'contacts' },
-  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, featureKey: 'campaigns' },
-  { href: '/dashboard/templates', label: 'Templates', icon: FileText, featureKey: 'templates' },
-  { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, featureKey: 'catalog' },
-  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'flowBuilder' },
-  { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, featureKey: 'metaFlows' },
-  { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, featureKey: 'numbers' },
-  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, featureKey: 'webhooks' },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings, featureKey: 'settings' },
-  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard, featureKey: 'billing' },
-  { href: '/dashboard/notifications', label: 'Notifications', icon: History, featureKey: 'notifications' },
-];
