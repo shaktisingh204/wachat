@@ -82,8 +82,6 @@ const wachatMenuItems = [
   { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, featureKey: 'catalog' },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'flowBuilder' },
   { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, featureKey: 'metaFlows' },
-  { href: '/dashboard/url-shortener', label: 'URL Shortener', icon: LinkIcon, featureKey: 'urlShortener' },
-  { href: '/dashboard/qr-code-maker', label: 'QR Code Maker', icon: QrCode, featureKey: 'qrCodeMaker' },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, featureKey: 'numbers' },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, featureKey: 'webhooks' },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings, featureKey: 'settings' },
@@ -105,6 +103,16 @@ const instagramMenuItems = [
     { href: '/dashboard/instagram/stories', label: 'Stories', icon: Clapperboard, featureKey: 'instagramStories' },
     { href: '/dashboard/instagram/reels', label: 'Reels', icon: Heart, featureKey: 'instagramReels' },
     { href: '/dashboard/instagram/messages', label: 'Messages', icon: MessageSquare, featureKey: 'instagramMessages' },
+];
+
+const urlShortenerMenuItems = [
+    { href: '/dashboard/url-shortener', label: 'Shortener', icon: LinkIcon, featureKey: 'urlShortener' },
+    { href: '/dashboard/url-shortener/settings', label: 'Settings', icon: Settings, featureKey: 'urlShortener' },
+];
+
+const qrCodeMakerMenuItems = [
+    { href: '/dashboard/qr-code-maker', label: 'QR Maker', icon: QrCode, featureKey: 'qrCodeMaker' },
+    { href: '/dashboard/qr-code-maker/settings', label: 'Settings', icon: Settings, featureKey: 'qrCodeMaker' },
 ];
 
 
@@ -183,7 +191,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       ? facebookMenuItems
       : activeApp === 'instagram'
       ? instagramMenuItems
-      : wachatMenuItems; // Default to wachat menu items for whatsapp, url-shortener, etc.
+      : activeApp === 'url-shortener'
+      ? urlShortenerMenuItems
+      : activeApp === 'qr-code-maker'
+      ? qrCodeMakerMenuItems
+      : wachatMenuItems; 
 
   return (
     <div data-theme={activeApp}>

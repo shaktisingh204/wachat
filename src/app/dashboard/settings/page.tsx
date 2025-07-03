@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
@@ -28,8 +27,6 @@ import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-s
 import { useRouter } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { TagsSettingsTab } from '@/components/wabasimplify/tags-settings-tab';
-import { UrlShortenerSettingsTab } from '@/components/wabasimplify/url-shortener-settings-tab';
-import { QrCodeSettingsTab } from '@/components/wabasimplify/qr-code-settings-tab';
 
 
 const updateSettingsInitialState = { message: null, error: null };
@@ -612,8 +609,6 @@ function SettingsPageContent() {
               <TabsTrigger value="compliance"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
               <TabsTrigger value="attributes"><Users className="mr-2 h-4 w-4" />User Attributes</TabsTrigger>
               <TabsTrigger value="tags"><Tags className="mr-2 h-4 w-4" />Tags & Labels</TabsTrigger>
-              <TabsTrigger value="url-shortener"><LinkIcon className="mr-2 h-4 w-4" />URL Shortener</TabsTrigger>
-              <TabsTrigger value="qr-code-maker"><QrCode className="mr-2 h-4 w-4" />QR Code Maker</TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
         </ScrollArea>
@@ -716,20 +711,6 @@ function SettingsPageContent() {
           <TabsContent value="tags" className="mt-6 relative">
             <FeatureLockOverlay isAllowed={true} featureName="Tags" />
             <TagsSettingsTab project={project} />
-          </TabsContent>
-          
-          <TabsContent value="url-shortener" className="mt-6 relative">
-            <FeatureLockOverlay isAllowed={!!planFeatures?.urlShortener} featureName="URL Shortener Settings" />
-            <FeatureLock isAllowed={!!planFeatures?.urlShortener}>
-                <UrlShortenerSettingsTab project={project} />
-            </FeatureLock>
-          </TabsContent>
-
-           <TabsContent value="qr-code-maker" className="mt-6 relative">
-            <FeatureLockOverlay isAllowed={!!planFeatures?.qrCodeMaker} featureName="QR Code Maker" />
-            <FeatureLock isAllowed={!!planFeatures?.qrCodeMaker}>
-                <QrCodeSettingsTab project={project} />
-            </FeatureLock>
           </TabsContent>
 
         </Tabs>
