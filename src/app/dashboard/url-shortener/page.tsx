@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useEffect, useState, useTransition, useActionState, useRef, useMemo, useCallback } from 'react';
+import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
 import { createShortUrl, getShortUrls, deleteShortUrl } from '@/app/actions/url-shortener.actions';
 import { getSession } from '@/app/actions';
@@ -13,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Link as LinkIcon, LoaderCircle, Copy, BarChart2, Trash2, QrCode, ChevronsUpDown, Check } from 'lucide-react';
+import { AlertCircle, Link as LinkIcon, LoaderCircle, Copy, BarChart, Trash2, QrCode, ChevronsUpDown, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
@@ -33,7 +32,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-
+import { DatePicker } from '@/components/ui/date-picker';
+import Link from 'next/link';
 
 const initialState = {
   message: null,
@@ -154,6 +154,7 @@ export default function UrlShortenerPage() {
     const { copy } = useCopyToClipboard();
     const [selectedUrlForQr, setSelectedUrlForQr] = useState<string | null>(null);
     const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+    const [expiresAt, setExpiresAt] = useState<Date | undefined>();
 
     const fetchUrls = useCallback(() => {
         startLoadingTransition(async () => {
@@ -176,6 +177,7 @@ export default function UrlShortenerPage() {
             toast({ title: "Success", description: state.message });
             formRef.current?.reset();
             setSelectedTagIds([]);
+            setExpiresAt(undefined);
             fetchUrls();
         }
         if (state.error) {
@@ -223,6 +225,7 @@ export default function UrlShortenerPage() {
                 <Card className="card-gradient card-gradient-blue">
                     <form action={formAction} ref={formRef}>
                         <input type="hidden" name="tagIds" value={selectedTagIds.join(',')} />
+                        <input type="hidden" name="expiresAt" value={expiresAt?.toISOString() || ''} />
                         <CardHeader>
                             <CardTitle>Create a new short link</CardTitle>
                         </CardHeader>
@@ -237,9 +240,15 @@ export default function UrlShortenerPage() {
                                     <Input id="alias" name="alias" placeholder="e.g., summer-sale" />
                                 </div>
                             </div>
-                            <div className="space-y-2">
-                                <Label>Tags (Optional)</Label>
-                                <TagsSelector userTags={user?.tags || []} onSelectionChange={setSelectedTagIds} />
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Tags (Optional)</Label>
+                                    <TagsSelector userTags={user?.tags || []} onSelectionChange={setSelectedTagIds} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Expiration Date (Optional)</Label>
+                                    <DatePicker date={expiresAt} setDate={setExpiresAt} />
+                                </div>
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-between items-center">
@@ -260,46 +269,34 @@ export default function UrlShortenerPage() {
                                     <TableRow>
                                         <TableHead>Short URL</TableHead>
                                         <TableHead>Destination</TableHead>
-                                        <TableHead>Tags</TableHead>
+                                        <TableHead>Expires</TableHead>
                                         <TableHead>Clicks</TableHead>
-                                        <TableHead>Created</TableHead>
                                         <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {isLoading ? <TableRow><TableCell colSpan={6}><Skeleton className="h-10 w-full"/></TableCell></TableRow>
+                                    {isLoading ? <TableRow><TableCell colSpan={5}><Skeleton className="h-10 w-full"/></TableCell></TableRow>
                                     : urls.length > 0 ? urls.map(url => (
                                         <TableRow key={url._id.toString()}>
-                                            <TableCell className="font-mono text-sm flex items-center gap-2">
-                                                <a href={getShortUrl(url.shortCode)} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                            <TableCell className="font-mono text-sm">
+                                                <a href={getShortUrl(url.shortCode)} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline flex items-center gap-1">
                                                     {getShortUrl(url.shortCode)}
+                                                    <Copy className="h-3 w-3 inline-block ml-1 cursor-pointer" onClick={(e) => { e.preventDefault(); copy(getShortUrl(url.shortCode)); }}/>
                                                 </a>
-                                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => copy(getShortUrl(url.shortCode))}>
-                                                    <Copy className="h-4 w-4"/>
-                                                </Button>
                                             </TableCell>
-                                            <TableCell className="text-muted-foreground truncate max-w-xs">{url.originalUrl}</TableCell>
-                                             <TableCell>
-                                                <div className="flex flex-wrap gap-1">
-                                                    {(url.tagIds || []).map(tagId => {
-                                                        const tag = user?.tags?.find(t => t._id === tagId);
-                                                        return tag ? (
-                                                            <Badge key={tagId} className="rounded-sm" style={{ backgroundColor: tag.color, color: '#fff' }}>
-                                                                {tag.name}
-                                                            </Badge>
-                                                        ) : null;
-                                                    })}
-                                                </div>
-                                            </TableCell>
+                                            <TableCell className="text-muted-foreground truncate max-w-[200px]">{url.originalUrl}</TableCell>
+                                            <TableCell>{url.expiresAt ? new Date(url.expiresAt).toLocaleDateString() : 'Never'}</TableCell>
                                             <TableCell>{url.clickCount}</TableCell>
-                                            <TableCell>{new Date(url.createdAt).toLocaleDateString()}</TableCell>
                                             <TableCell className="text-right">
+                                                <Button asChild variant="ghost" size="icon">
+                                                    <Link href={`/dashboard/url-shortener/${url._id.toString()}`}><BarChart2 className="h-4 w-4"/></Link>
+                                                </Button>
                                                 <Button variant="ghost" size="icon" onClick={() => setSelectedUrlForQr(getShortUrl(url.shortCode))}><QrCode className="h-4 w-4"/></Button>
                                                 <DeleteButton urlId={url._id.toString()} onDeleted={fetchUrls} />
                                             </TableCell>
                                         </TableRow>
                                     ))
-                                    : <TableRow><TableCell colSpan={6} className="text-center h-24">No links created yet.</TableCell></TableRow>}
+                                    : <TableRow><TableCell colSpan={5} className="text-center h-24">No links created yet.</TableCell></TableRow>}
                                 </TableBody>
                             </Table>
                         </div>

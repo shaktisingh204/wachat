@@ -611,6 +611,7 @@ export type ShortUrl = {
     }[];
     tagIds?: string[];
     createdAt: Date;
+    expiresAt?: Date | null;
 };
 
 export type QrCode = {
@@ -629,5 +630,6 @@ export type QrCode = {
     tagIds?: string[];
     createdAt: Date;
 };
+
 
 

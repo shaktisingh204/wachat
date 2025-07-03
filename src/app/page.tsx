@@ -58,7 +58,7 @@ const OverviewShowcase = () => (
     <AppShowcase title="Welcome to SabNode" description="An all-in-one platform for your messaging and marketing needs. Select a tool on the right to learn more.">
         <FeatureCard icon={Send} title="WhatsApp Campaigns" description="Launch targeted broadcast campaigns with detailed, real-time analytics." gradient="card-gradient-green" />
         <FeatureCard icon={Megaphone} title="Facebook Ads" description="Create and manage 'Click to WhatsApp' ad campaigns directly from the dashboard." gradient="card-gradient-blue" />
-        <FeatureCard icon={LinkIcon} title="URL Shortener" description="Create branded, trackable short links for your campaigns." gradient="card-gradient-purple" />
+        <FeatureCard icon={LinkIcon} title="URL Shortener" description="Create branded, trackable short links with expiration dates and detailed analytics." gradient="card-gradient-purple" />
         <FeatureCard icon={QrCode} title="QR Code Generator" description="Generate custom QR codes for URLs, Wi-Fi, contact cards, and more." gradient="card-gradient-orange" />
     </AppShowcase>
 );
@@ -602,7 +602,7 @@ export default function HomePage() {
       case 'instagram':
         return <AppShowcase title="Instagram Tools" description="Manage your Instagram presence alongside your other channels."><ComingSoonCard title="Instagram DM Inbox" icon={MessageSquare} /><ComingSoonCard title="Story Replies" icon={Repeat} /><ComingSoonCard title="Post Comments" icon={Quote} /><ComingSoonCard title="Reels Management" icon={Video} /></AppShowcase>;
       case 'url-shortener':
-         return <AppShowcase title="URL Shortener" description="Create, manage, and track short links."><FeatureCard icon={LinkIcon} title="Easy Shortening" description="Create custom, branded short links with optional aliases and tags." gradient="card-gradient-purple" /><ComingSoonCard title="Custom Domains" icon={Shield} /><ComingSoonCard title="Detailed Analytics" icon={BarChart} /><ComingSoonCard title="Link Expiration" icon={Clock} /></AppShowcase>;
+         return <AppShowcase title="URL Shortener" description="Create, manage, and track short links."><FeatureCard icon={LinkIcon} title="Easy Shortening" description="Create custom, branded short links with optional aliases and expiration dates." gradient="card-gradient-purple" /><FeatureCard icon={BarChart} title="Detailed Analytics" description="Track every click with detailed logs including timestamp, referrer, and user agent." gradient="card-gradient-blue" /><ComingSoonCard title="Custom Domains" icon={Shield} /><ComingSoonCard title="Link Expiration" icon={Clock} /></AppShowcase>;
       case 'qr-code-maker':
           return <AppShowcase title="QR Code Generator" description="Generate and manage dynamic QR codes."><FeatureCard icon={QrCode} title="Multi-Type Codes" description="Generate codes for URLs, Wi-Fi, contact cards, pre-filled SMS messages, and more." gradient="card-gradient-orange" /><ComingSoonCard title="Dynamic QR Codes" icon={Pencil} /><ComingSoonCard title="Scan Analytics" icon={BarChart} /><ComingSoonCard title="Logo Embedding" icon={Star} /></AppShowcase>;
       case 'overview':

@@ -17,6 +17,7 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
     const originalUrl = formData.get('originalUrl') as string;
     const alias = formData.get('alias') as string | null;
     const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
+    const expiresAtStr = formData.get('expiresAt') as string | null;
 
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied.' };
@@ -51,6 +52,7 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
             analytics: [],
             tagIds,
             createdAt: new Date(),
+            ...(expiresAtStr && { expiresAt: new Date(expiresAtStr) }),
         };
 
         await db.collection('short_urls').insertOne(newShortUrl as any);
@@ -183,13 +185,22 @@ export async function trackClickAndGetUrl(shortCode: string): Promise<{ original
     try {
         const { db } = await connectToDatabase();
         
+        const urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode });
+
+        if (!urlDoc) {
+             return { originalUrl: null, error: 'URL not found.' };
+        }
+        if (urlDoc.expiresAt && new Date() > new Date(urlDoc.expiresAt)) {
+             return { originalUrl: null, error: 'This link has expired.' };
+        }
+        
         const headerList = headers();
         const userAgent = headerList.get('user-agent');
         const referrer = headerList.get('referer');
         const ip = headerList.get('x-forwarded-for') || headerList.get('x-real-ip');
 
-        const updateResult = await db.collection<ShortUrl>('short_urls').findOneAndUpdate(
-            { shortCode },
+        await db.collection<ShortUrl>('short_urls').updateOne(
+            { _id: urlDoc._id },
             { 
                 $inc: { clickCount: 1 },
                 $push: { 
@@ -203,18 +214,11 @@ export async function trackClickAndGetUrl(shortCode: string): Promise<{ original
                         $slice: -100 // Keep only the last 100 clicks for analytics
                     }
                 }
-            },
-            {
-                returnDocument: 'after',
-                projection: { originalUrl: 1 }
             }
         );
 
-        if (updateResult) {
-            return { originalUrl: updateResult.originalUrl };
-        } else {
-            return { originalUrl: null, error: 'URL not found.' };
-        }
+        return { originalUrl: urlDoc.originalUrl };
+
     } catch (e: any) {
         console.error('Error tracking click:', e);
         return { originalUrl: null, error: 'Database error.' };
@@ -238,15 +242,25 @@ export async function deleteShortUrl(id: string): Promise<{ success: boolean; er
         const { db } = await connectToDatabase();
         await db.collection('short_urls').deleteOne({ _id: new ObjectId(id) });
         revalidatePath('/dashboard/url-shortener');
+        revalidatePath(`/dashboard/url-shortener/${id}`);
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message || 'An unexpected error occurred.' };
     }
 }
 
-async function getShortUrlById(id: string): Promise<WithId<ShortUrl> | null> {
+export async function getShortUrlById(id: string): Promise<WithId<ShortUrl> | null> {
+    if (!ObjectId.isValid(id)) return null;
+    
+    const session = await getSession();
+    if (!session?.user) return null;
+
     const { db } = await connectToDatabase();
-    const url = await db.collection<ShortUrl>('short_urls').findOne({ _id: new ObjectId(id) });
+    const url = await db.collection<ShortUrl>('short_urls').findOne({ 
+        _id: new ObjectId(id),
+        userId: new ObjectId(session.user._id) 
+    });
+
     if (!url) return null;
-    return url;
+    return JSON.parse(JSON.stringify(url));
 }
