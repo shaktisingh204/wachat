@@ -195,7 +195,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
       <Sidebar
         variant="floating"
-        sideOffset="calc(4rem + 8px)" // 4rem is width of app rail, 8px is the gap
+        sideOffset="calc(4rem + 8px)"
       >
         <SidebarHeader className="p-4">
            <div className="flex items-center gap-2">
@@ -339,4 +339,3 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
-
