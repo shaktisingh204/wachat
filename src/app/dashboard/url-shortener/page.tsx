@@ -3,7 +3,8 @@
 
 import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
-import { createShortUrl, getShortUrls, deleteShortUrl, getProjectById } from '@/app/actions/url-shortener.actions';
+import { createShortUrl, getShortUrls, deleteShortUrl } from '@/app/actions/url-shortener.actions';
+import { getProjectById } from '@/app/actions';
 import type { WithId, ShortUrl, Project, Tag } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
