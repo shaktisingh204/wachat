@@ -635,7 +635,12 @@ export type QrCode = {
         eccLevel: string;
         size: number;
     };
-    scanCount: number;
+    logoDataUri?: string;
+    shortUrlId?: ObjectId;
     tagIds?: string[];
     createdAt: Date;
+};
+
+export type QrCodeWithShortUrl = WithId<QrCode> & {
+    shortUrl?: WithId<ShortUrl> | null;
 };

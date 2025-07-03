@@ -485,15 +485,15 @@ const WhatsAppShowcase = () => {
                                             </div>
                                         </div>
                                         <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '2.5s', opacity: 0 }}>
-                                        <div className="bg-white h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '2.8s' }}>
-                                            <div className="p-2 border-b text-center font-semibold text-sm">
-                                            Our Collection
-                                            </div>
-                                            <div className="flex-1 p-2 space-y-2 overflow-y-auto">
-                                            <div className="flex gap-3 border rounded-lg p-2 bg-white">
-                                                <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="eco-friendly bottle"/>
-                                                <div><p className="font-medium text-gray-800 text-sm">Eco Water Bottle</p><p className="text-xs text-muted-foreground">$15.00</p></div>
-                                            </div>
+                                      <div className="bg-white h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '2.8s' }}>
+                                        <div className="p-2 border-b text-center font-semibold text-sm">
+                                          Our Collection
+                                        </div>
+                                        <div className="flex-1 p-2 space-y-2 overflow-y-auto">
+                                          <div className="flex gap-3 border rounded-lg p-2 bg-white">
+                                            <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="eco-friendly bottle"/>
+                                            <div><p className="font-medium text-gray-800 text-sm">Eco Water Bottle</p><p className="text-xs text-muted-foreground">$15.00</p></div>
+                                          </div>
                                            <div className="flex gap-3 border rounded-lg p-2 bg-white">
                                             <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="bamboo toothbrush"/>
                                             <div><p className="font-medium text-gray-800 text-sm">Bamboo Toothbrush Set</p><p className="text-xs text-muted-foreground">$8.00</p></div>
@@ -605,7 +605,7 @@ export default function HomePage() {
       case 'url-shortener':
          return <AppShowcase title="URL Shortener" description="Create, manage, and track short links."><FeatureCard icon={LinkIcon} title="Easy Shortening" description="Create custom, branded short links with optional aliases and expiration dates." gradient="card-gradient-purple" /><FeatureCard icon={BarChart} title="Detailed Analytics" description="Track every click with detailed logs including timestamp, referrer, and user agent." gradient="card-gradient-blue" /><FeatureCard title="Custom Domains" icon={Shield} description="Use your own domain for branded links." gradient="card-gradient-green" /><FeatureCard title="Link Expiration" icon={Clock} description="Set links to expire automatically on a specific date." gradient="card-gradient-orange" /></AppShowcase>;
       case 'qr-code-maker':
-          return <AppShowcase title="QR Code Generator" description="Generate and manage dynamic QR codes."><FeatureCard icon={QrCode} title="Multi-Type Codes" description="Generate codes for URLs, Wi-Fi, contact cards, pre-filled SMS messages, and more." gradient="card-gradient-orange" /><ComingSoonCard title="Dynamic QR Codes" icon={Pencil} /><ComingSoonCard title="Scan Analytics" icon={BarChart} /><ComingSoonCard title="Logo Embedding" icon={Star} /></AppShowcase>;
+          return <AppShowcase title="QR Code Generator" description="Generate and manage dynamic QR codes."><FeatureCard icon={QrCode} title="Multi-Type Codes" description="Generate codes for URLs, Wi-Fi, contact cards, pre-filled SMS messages, and more." gradient="card-gradient-orange" /><FeatureCard icon={Pencil} title="Dynamic QR Codes" description="Update the destination of your URL-based QR codes at any time without reprinting." gradient="card-gradient-purple" /><FeatureCard icon={BarChart} title="Scan Analytics" description="Track how many people scan your dynamic QR codes with detailed analytics." gradient="card-gradient-blue" /><FeatureCard icon={Star} title="Logo Embedding" description="Add your brand's logo to the center of your QR code for a professional touch (visual preview)." gradient="card-gradient-green" /></AppShowcase>;
       case 'overview':
       default:
         return <OverviewShowcase />;

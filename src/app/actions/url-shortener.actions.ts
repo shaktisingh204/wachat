@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -13,7 +14,7 @@ import * as XLSX from 'xlsx';
 
 const generateShortCode = (length = 7) => nanoid(length);
 
-export async function createShortUrl(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function createShortUrl(prevState: any, formData: FormData): Promise<{ message?: string; error?: string, shortUrlId?: string }> {
     const originalUrl = formData.get('originalUrl') as string;
     const alias = formData.get('alias') as string | null;
     const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
@@ -62,10 +63,11 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
             ...(expiresAtStr && { expiresAt: new Date(expiresAtStr) }),
         };
 
-        await db.collection('short_urls').insertOne(newShortUrl as any);
+        const result = await db.collection('short_urls').insertOne(newShortUrl as any);
+        const insertedId = result.insertedId;
 
         revalidatePath('/dashboard/url-shortener');
-        return { message: 'Short URL created successfully!' };
+        return { message: 'Short URL created successfully!', shortUrlId: insertedId.toString() };
 
     } catch (e: any) {
         if (e.code === 11000) { 
