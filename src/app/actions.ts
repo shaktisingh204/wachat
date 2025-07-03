@@ -3703,6 +3703,7 @@ export async function handleUpdateContactStatus(contactId: string, status: strin
         await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: update });
         
         revalidatePath('/dashboard/chat');
+        revalidatePath('/dashboard/chat/kanban');
         return { success: true };
 
     } catch (e: any) {
@@ -3755,34 +3756,42 @@ export async function getKanbanData(projectId: string): Promise<{ project: WithI
             .sort({ lastMessageTimestamp: -1 })
             .toArray();
 
-        const defaultColumns = ['new', 'open', 'resolved'];
-        const statusSet = new Set<string>(defaultColumns);
-        contacts.forEach(c => c.status && statusSet.add(c.status));
+        const defaultStatuses = ['new', 'open', 'resolved'];
+        const customStatuses = project.kanbanStatuses || [];
+        const allStatuses = [...new Set([...defaultStatuses, ...customStatuses])];
 
-        const columns = Array.from(statusSet).map(status => ({
+        const columns = allStatuses.map(status => ({
             name: status,
             contacts: contacts.filter(c => (c.status || 'new') === status),
         }));
 
-        // Ensure default columns are always present and in order
-        const finalColumns: KanbanColumnData[] = [];
-        const columnMap = new Map(columns.map(c => [c.name, c]));
-
-        for (const defaultCol of defaultColumns) {
-            finalColumns.push(columnMap.get(defaultCol) || { name: defaultCol, contacts: [] });
-            columnMap.delete(defaultCol);
-        }
-        
-        // Add any remaining custom columns
-        finalColumns.push(...Array.from(columnMap.values()));
-
         return {
             project: JSON.parse(JSON.stringify(project)),
-            columns: JSON.parse(JSON.stringify(finalColumns))
+            columns: JSON.parse(JSON.stringify(columns))
         };
     } catch (e) {
         console.error("Failed to get Kanban data:", e);
         return defaultData;
+    }
+}
+
+export async function saveKanbanStatuses(projectId: string, statuses: string[]): Promise<{ success: boolean; error?: string }> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { success: false, error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const defaultStatuses = ['new', 'open', 'resolved'];
+        const customStatuses = statuses.filter(s => !defaultStatuses.includes(s));
+        
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { kanbanStatuses: customStatuses } }
+        );
+        revalidatePath('/dashboard/chat/kanban');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to save Kanban lists.' };
     }
 }
 
@@ -4414,6 +4423,7 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
 }
 
     
+
 
 
 

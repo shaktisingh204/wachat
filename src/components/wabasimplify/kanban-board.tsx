@@ -3,7 +3,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getKanbanData, handleUpdateContactStatus } from '@/app/actions';
+import { getKanbanData, handleUpdateContactStatus, saveKanbanStatuses } from '@/app/actions';
 import type { WithId, Contact, Project, KanbanColumnData } from '@/lib/definitions';
 import { KanbanColumn } from './kanban-column';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -12,6 +12,7 @@ import { AlertCircle, Plus } from 'lucide-react';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Button } from '../ui/button';
 import { Input } from '../ui/input';
+import { useToast } from '@/hooks/use-toast';
 
 function KanbanPageSkeleton() {
     return (
@@ -69,6 +70,7 @@ export function KanbanBoard() {
     const [boardData, setBoardData] = useState<KanbanColumnData[]>([]);
     const [isLoading, startLoadingTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
+    const { toast } = useToast();
 
     const fetchData = () => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -87,12 +89,24 @@ export function KanbanBoard() {
     }, []);
     
     const handleAddList = (name: string) => {
-        // Optimistically add the new column to the UI
-        setBoardData(prev => [...prev, { name, contacts: [] }]);
-        // A contact must be moved into it for it to be persisted.
+        if (!project) return;
+        const newBoardData = [...boardData, { name, contacts: [] }];
+        setBoardData(newBoardData);
+
+        const allStatusNames = newBoardData.map(col => col.name);
+        startLoadingTransition(async () => {
+            const result = await saveKanbanStatuses(project._id.toString(), allStatusNames);
+            if (!result.success) {
+                toast({ title: "Error", description: "Could not save new list.", variant: "destructive" });
+                fetchData(); // Revert on failure
+            } else {
+                 toast({ title: "Success", description: `List "${name}" added.`});
+            }
+        });
     };
 
     const handleDrop = async (contactId: string, newStatus: string) => {
+        if (!project) return;
         let movedContact: WithId<Contact> | undefined;
         let originalStatus: string | undefined;
 
@@ -109,7 +123,6 @@ export function KanbanBoard() {
             return;
         }
 
-        // Optimistic UI update
         const newBoardData = boardData.map(col => {
             if (col.name === originalStatus) {
                 return { ...col, contacts: col.contacts.filter(c => c._id.toString() !== contactId) };
@@ -120,16 +133,12 @@ export function KanbanBoard() {
             }
             return col;
         });
-
-        // If dropping into a newly created (and thus empty) column
-        if (!newBoardData.some(c => c.name === newStatus)) {
-            newBoardData.push({ name: newStatus, contacts: [movedContact] });
-        }
         
         setBoardData(newBoardData);
         
         const result = await handleUpdateContactStatus(contactId, newStatus, movedContact.assignedAgentId || '');
         if (!result.success) {
+            toast({ title: "Error", description: "Could not update contact status.", variant: "destructive" });
             fetchData(); // Revert on failure
         }
     };

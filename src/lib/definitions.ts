@@ -126,6 +126,7 @@ export type Project = {
     credits?: number;
     connectedCatalogId?: string;
     hasCatalogManagement?: boolean;
+    kanbanStatuses?: string[];
     plan?: WithId<Plan>; // populated by aggregate
 };
 
