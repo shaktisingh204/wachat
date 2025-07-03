@@ -1,5 +1,4 @@
 
-
 'use client';
 import * as React from 'react';
 
@@ -40,6 +39,7 @@ export const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
         <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
     </svg>
 );
+
 
 export const WachatSidebarTopLogo = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" {...props}>

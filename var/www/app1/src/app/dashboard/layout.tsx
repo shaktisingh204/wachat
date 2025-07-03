@@ -41,7 +41,6 @@ import {
   Phone,
   Webhook,
   History,
-  Bell,
   LogOut,
   CreditCard,
   LoaderCircle,
