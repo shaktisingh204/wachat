@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -10,8 +9,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { MessagesSquare, CheckCircle, XCircle, Send, AlertCircle, CheckCheck, Eye } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
-
-export const dynamic = 'force-dynamic';
 
 const AnalyticsChart = dynamic(
   () => import('@/components/wabasimplify/analytics-chart').then(mod => mod.AnalyticsChart),
