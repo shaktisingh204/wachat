@@ -13,7 +13,7 @@ export default function QrCodeMakerPage() {
                     QR Code Maker
                 </h1>
                 <p className="text-muted-foreground mt-2">
-                    Generate QR codes to launch WhatsApp conversations or link to your website.
+                    Create and customize QR codes for URLs, text, Wi-Fi credentials, and more.
                 </p>
             </div>
             <QrCodeGenerator />
