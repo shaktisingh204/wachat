@@ -257,6 +257,7 @@ export type User = {
     email: string;
     password?: string;
     createdAt: Date;
+    tags?: Tag[];
 };
 
 export type Invitation = {
@@ -598,7 +599,7 @@ export type Product = {
 
 export type ShortUrl = {
     _id: ObjectId;
-    projectId: ObjectId;
+    userId: ObjectId;
     originalUrl: string;
     shortCode: string;
     clickCount: number;
@@ -614,13 +615,19 @@ export type ShortUrl = {
 
 export type QrCode = {
     _id: ObjectId;
-    projectId: ObjectId;
+    userId: ObjectId;
+    name: string;
     dataType: 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi';
     data: any;
-    qrString: string;
-    isDynamic: boolean;
+    config: {
+        color: string;
+        bgColor: string;
+        eccLevel: string;
+        size: number;
+    };
     scanCount: number;
+    tagIds?: string[];
     createdAt: Date;
-    expiresAt?: Date;
-    password?: string;
 };
+
+

@@ -1,43 +1,120 @@
 
+
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useActionState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Download, QrCode, Link, Type, Mail, Phone, MessageSquare, Wifi, Upload } from 'lucide-react';
+import { Download, QrCode, Link, Type, Mail, Phone, MessageSquare, Wifi, Save, LoaderCircle, Check, ChevronsUpDown } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '../ui/separator';
 import { BulkCreateQrDialog } from './bulk-qr-create-dialog';
+import { createQrCode } from '@/app/actions/qr-code.actions';
+import type { User, Tag } from '@/lib/definitions';
+import { useToast } from '@/hooks/use-toast';
+import { useFormStatus } from 'react-dom';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
+import { cn } from '@/lib/utils';
+import { Badge } from '../ui/badge';
 
 type QrDataType = 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi';
 
-export function QrCodeGenerator() {
+const initialState = { message: null, error: null };
+
+function TagsSelector({ userTags, onSelectionChange }: { userTags: Tag[], onSelectionChange: (tagIds: string[]) => void }) {
+    const [open, setOpen] = useState(false);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    
+    const handleSelect = (tagId: string) => {
+        const newSelected = selectedTags.includes(tagId)
+            ? selectedTags.filter(id => id !== tagId)
+            : [...selectedTags, tagId];
+        setSelectedTags(newSelected);
+        onSelectionChange(newSelected);
+    };
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" className="w-full justify-between">
+                    <span className="truncate">
+                        {selectedTags.length > 0
+                            ? selectedTags.map(id => userTags.find(t => t._id === id)?.name).filter(Boolean).join(', ')
+                            : "Select tags..."
+                        }
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <Command>
+                    <CommandInput placeholder="Search tags..." />
+                    <CommandList>
+                        <CommandEmpty>No tags found. Manage tags in settings.</CommandEmpty>
+                        <CommandGroup>
+                             {userTags.map((tag) => (
+                                <CommandItem
+                                    key={tag._id}
+                                    value={tag.name}
+                                    onSelect={() => handleSelect(tag._id)}
+                                >
+                                    <Check className={cn("mr-2 h-4 w-4", selectedTags.includes(tag._id) ? "opacity-100" : "opacity-0")} />
+                                    <span className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: tag.color }} />
+                                    <span>{tag.name}</span>
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
+    )
+}
+
+function SubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Save QR Code
+        </Button>
+    )
+}
+
+
+export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id: string, tags?: Tag[] } }) {
     const [activeTab, setActiveTab] = useState<QrDataType>('url');
     const [formData, setFormData] = useState({
-        url: 'https://wachat.com',
-        text: 'Hello, World!',
-        email: '',
-        emailSubject: '',
-        emailBody: '',
-        phone: '',
-        sms: '',
-        smsMessage: '',
-        wifiSsid: '',
-        wifiPassword: '',
-        wifiEncryption: 'WPA',
+        url: 'https://wachat.com', text: 'Hello, World!', email: '', emailSubject: '',
+        emailBody: '', phone: '', sms: '', smsMessage: '', wifiSsid: '',
+        wifiPassword: '', wifiEncryption: 'WPA',
     });
 
     const [qrConfig, setQrConfig] = useState({
-        color: '000000',
-        bgColor: 'FFFFFF',
-        eccLevel: 'L', // L, M, Q, H
-        size: 250,
+        color: '000000', bgColor: 'FFFFFF', eccLevel: 'L', size: 250,
     });
+
+    const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
+    const [state, formAction] = useActionState(createQrCode, initialState);
+    const { toast } = useToast();
+    const formRef = useRef<HTMLFormElement>(null);
+
+     useEffect(() => {
+        if (state.message) {
+            toast({ title: "Success", description: state.message });
+            formRef.current?.reset();
+            setSelectedTagIds([]);
+        }
+        if (state.error) {
+            toast({ title: "Error", description: state.error, variant: "destructive" });
+        }
+    }, [state, toast]);
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -57,20 +134,13 @@ export function QrCodeGenerator() {
 
     const qrDataString = useMemo(() => {
         switch (activeTab) {
-            case 'url':
-                return formData.url;
-            case 'text':
-                return formData.text;
-            case 'email':
-                return `mailto:${formData.email}?subject=${encodeURIComponent(formData.emailSubject)}&body=${encodeURIComponent(formData.emailBody)}`;
-            case 'phone':
-                return `tel:${formData.phone}`;
-            case 'sms':
-                return `smsto:${formData.sms}:${encodeURIComponent(formData.smsMessage)}`;
-            case 'wifi':
-                return `WIFI:T:${formData.wifiEncryption};S:${formData.wifiSsid};P:${formData.wifiPassword};;`;
-            default:
-                return '';
+            case 'url': return formData.url;
+            case 'text': return formData.text;
+            case 'email': return `mailto:${formData.email}?subject=${encodeURIComponent(formData.emailSubject)}&body=${encodeURIComponent(formData.emailBody)}`;
+            case 'phone': return `tel:${formData.phone}`;
+            case 'sms': return `smsto:${formData.sms}:${encodeURIComponent(formData.smsMessage)}`;
+            case 'wifi': return `WIFI:T:${formData.wifiEncryption};S:${formData.wifiSsid};P:${formData.wifiPassword};;`;
+            default: return '';
         }
     }, [activeTab, formData]);
 
@@ -98,56 +168,73 @@ export function QrCodeGenerator() {
     }
 
     return (
-        <Card className="card-gradient card-gradient-green">
-            <CardHeader>
-                <CardTitle>Generate a QR Code</CardTitle>
-                <CardDescription>Select a content type and enter your data to create a scannable QR code.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-                    <div className="space-y-4">
-                        <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as QrDataType)} className="w-full">
-                            <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto">
-                                <TabsTrigger value="url"><Link className="h-5 w-5 mx-auto"/>URL</TabsTrigger>
-                                <TabsTrigger value="text"><Type className="h-5 w-5 mx-auto"/>Text</TabsTrigger>
-                                <TabsTrigger value="email"><Mail className="h-5 w-5 mx-auto"/>Email</TabsTrigger>
-                                <TabsTrigger value="phone"><Phone className="h-5 w-5 mx-auto"/>Phone</TabsTrigger>
-                                <TabsTrigger value="sms"><MessageSquare className="h-5 w-5 mx-auto"/>SMS</TabsTrigger>
-                                <TabsTrigger value="wifi"><Wifi className="h-5 w-5 mx-auto"/>Wi-Fi</TabsTrigger>
-                            </TabsList>
-                            <TabsContent value={activeTab} className="mt-4">{renderInputFields()}</TabsContent>
-                        </Tabs>
-                         <Separator />
-                         <div className="space-y-4">
-                            <h3 className="font-medium text-lg">Customization</h3>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1"><Label htmlFor="color" className="text-sm">Dot Color</Label><Input id="color" type="color" value={`#${qrConfig.color}`} onChange={(e) => handleColorChange('color', e.target.value)} /></div>
-                                <div className="space-y-1"><Label htmlFor="bgColor" className="text-sm">Background Color</Label><Input id="bgColor" type="color" value={`#${qrConfig.bgColor}`} onChange={(e) => handleColorChange('bgColor', e.target.value)} /></div>
-                                <div className="space-y-1"><Label htmlFor="size" className="text-sm">Size (px)</Label><Input id="size" name="size" type="number" min="50" max="1000" value={qrConfig.size} onChange={handleConfigChange} /></div>
-                                <div className="space-y-1"><Label htmlFor="eccLevel" className="text-sm">Error Correction</Label><Select name="eccLevel" value={qrConfig.eccLevel} onValueChange={(val) => setQrConfig(p => ({...p, eccLevel: val}))}><SelectTrigger id="eccLevel"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="L">Low (L)</SelectItem><SelectItem value="M">Medium (M)</SelectItem><SelectItem value="Q">Quartile (Q)</SelectItem><SelectItem value="H">High (H)</SelectItem></SelectContent></Select></div>
-                            </div>
-                         </div>
-                    </div>
-                    <div className="flex flex-col items-center justify-center space-y-4">
-                        <div className="p-4 bg-white rounded-lg aspect-square w-full max-w-xs mx-auto">
-                            {qrDataString.trim() ? (
-                                <Image src={qrApiUrl} alt="Generated QR Code" width={250} height={250} data-ai-hint="qr code" />
-                            ) : (
-                                <div className="flex flex-col items-center justify-center text-muted-foreground text-center gap-2 h-full">
-                                    <QrCode className="h-16 w-16" />
-                                    <p>Enter data to generate a QR code</p>
+        <form action={formAction} ref={formRef}>
+            <input type="hidden" name="dataType" value={activeTab} />
+            <input type="hidden" name="data" value={JSON.stringify(formData)} />
+            <input type="hidden" name="config" value={JSON.stringify(qrConfig)} />
+            <input type="hidden" name="tagIds" value={selectedTagIds.join(',')} />
+            <Card className="card-gradient card-gradient-green">
+                <CardHeader>
+                    <CardTitle>Generate a QR Code</CardTitle>
+                    <CardDescription>Select a content type and enter your data to create a scannable QR code.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                        <div className="space-y-4">
+                            <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as QrDataType)} className="w-full">
+                                <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto">
+                                    <TabsTrigger value="url"><Link className="h-5 w-5 mx-auto"/>URL</TabsTrigger>
+                                    <TabsTrigger value="text"><Type className="h-5 w-5 mx-auto"/>Text</TabsTrigger>
+                                    <TabsTrigger value="email"><Mail className="h-5 w-5 mx-auto"/>Email</TabsTrigger>
+                                    <TabsTrigger value="phone"><Phone className="h-5 w-5 mx-auto"/>Phone</TabsTrigger>
+                                    <TabsTrigger value="sms"><MessageSquare className="h-5 w-5 mx-auto"/>SMS</TabsTrigger>
+                                    <TabsTrigger value="wifi"><Wifi className="h-5 w-5 mx-auto"/>Wi-Fi</TabsTrigger>
+                                </TabsList>
+                                <TabsContent value={activeTab} className="mt-4">{renderInputFields()}</TabsContent>
+                            </Tabs>
+                            <Separator />
+                            <div className="space-y-4">
+                                <h3 className="font-medium text-lg">Save & Customize</h3>
+                                <div className="space-y-2">
+                                    <Label htmlFor="name">Name</Label>
+                                    <Input id="name" name="name" placeholder="e.g., My Website QR Code" required />
                                 </div>
-                            )}
+                                <div className="space-y-2">
+                                    <Label>Tags (Optional)</Label>
+                                    <TagsSelector userTags={user?.tags || []} onSelectionChange={setSelectedTagIds} />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-1"><Label htmlFor="color" className="text-sm">Dot Color</Label><Input id="color" type="color" value={`#${qrConfig.color}`} onChange={(e) => handleColorChange('color', e.target.value)} /></div>
+                                    <div className="space-y-1"><Label htmlFor="bgColor" className="text-sm">Background Color</Label><Input id="bgColor" type="color" value={`#${qrConfig.bgColor}`} onChange={(e) => handleColorChange('bgColor', e.target.value)} /></div>
+                                    <div className="space-y-1"><Label htmlFor="size" className="text-sm">Size (px)</Label><Input id="size" name="size" type="number" min="50" max="1000" value={qrConfig.size} onChange={handleConfigChange} /></div>
+                                    <div className="space-y-1"><Label htmlFor="eccLevel" className="text-sm">Error Correction</Label><Select name="eccLevel" value={qrConfig.eccLevel} onValueChange={(val) => setQrConfig(p => ({...p, eccLevel: val}))}><SelectTrigger id="eccLevel"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="L">Low (L)</SelectItem><SelectItem value="M">Medium (M)</SelectItem><SelectItem value="Q">Quartile (Q)</SelectItem><SelectItem value="H">High (H)</SelectItem></SelectContent></Select></div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="flex gap-2 w-full max-w-xs">
-                             <Button onClick={handleDownload} disabled={!qrDataString.trim()} className="w-full">
-                                <Download className="mr-2 h-4 w-4" /> Download PNG
-                            </Button>
-                            <BulkCreateQrDialog />
+                        <div className="flex flex-col items-center justify-center space-y-4">
+                            <div className="p-4 bg-white rounded-lg aspect-square w-full max-w-xs mx-auto">
+                                {qrDataString.trim() ? (
+                                    <Image src={qrApiUrl} alt="Generated QR Code" width={250} height={250} data-ai-hint="qr code" />
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center text-muted-foreground text-center gap-2 h-full">
+                                        <QrCode className="h-16 w-16" />
+                                        <p>Enter data to generate a QR code</p>
+                                    </div>
+                                )}
+                            </div>
+                            <div className="flex gap-2 w-full max-w-xs">
+                                <Button onClick={handleDownload} disabled={!qrDataString.trim()} className="w-full" type="button">
+                                    <Download className="mr-2 h-4 w-4" /> Download PNG
+                                </Button>
+                                <BulkCreateQrDialog />
+                            </div>
                         </div>
                     </div>
-                </div>
-            </CardContent>
-        </Card>
+                </CardContent>
+                <CardFooter>
+                    <SubmitButton />
+                </CardFooter>
+            </Card>
+        </form>
     );
 }

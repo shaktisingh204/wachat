@@ -1,22 +1,31 @@
 
-'use client';
 
 import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
-import { QrCode } from 'lucide-react';
+import { getQrCodes, getSession } from '@/app/actions';
+import { SavedQrCodes } from '@/components/wabasimplify/saved-qr-codes';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle } from 'lucide-react';
 
-export default function QrCodeMakerPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function QrCodeMakerPage() {
+    const session = await getSession();
+    if (!session?.user) {
+        return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Authentication Error</AlertTitle>
+                <AlertDescription>You must be logged in to access this page.</AlertDescription>
+            </Alert>
+        );
+    }
+    
+    const qrCodes = await getQrCodes();
+
     return (
         <div className="flex flex-col gap-8">
-             <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <QrCode className="h-8 w-8"/>
-                    QR Code Maker
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    Create and customize QR codes for URLs, text, Wi-Fi credentials, and more.
-                </p>
-            </div>
-            <QrCodeGenerator />
+            <QrCodeGenerator user={session.user} />
+            <SavedQrCodes initialQrCodes={qrCodes} />
         </div>
     );
 }
