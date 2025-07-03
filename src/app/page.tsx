@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
 import {
-  Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Clock
+  Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Clock, Tags
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +16,8 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { WhatsAppIcon, FacebookIcon as FacebookAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Separator } from '@/components/ui/separator';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 
 const AppShowcase = ({ title, description, children, className }: { title: React.ReactNode, description: string, children: React.ReactNode, className?: string }) => (
     <div className={cn("space-y-8 animate-fade-in", className)}>
@@ -23,7 +25,7 @@ const AppShowcase = ({ title, description, children, className }: { title: React
             <h2 className="text-3xl md:text-4xl font-bold font-headline">{title}</h2>
             <p className="max-w-2xl mx-auto text-lg text-muted-foreground mt-2">{description}</p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {children}
         </div>
     </div>
@@ -43,6 +45,21 @@ const FeatureCard = ({ icon: Icon, title, description, gradient }: { icon: React
     </Card>
 );
 
+const OverviewFeatureCard = ({ icon: Icon, title, description, gradient }: { icon: React.ElementType, title: string, description: string, gradient?: string }) => (
+    <Card className={cn("hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient", gradient)}>
+        <CardHeader className="items-center">
+            <div className="p-4 bg-primary/10 rounded-full">
+                <Icon className="h-8 w-8 text-primary" />
+            </div>
+        </CardHeader>
+        <CardContent className="space-y-2 flex-grow text-center">
+            <h3 className="text-xl font-semibold">{title}</h3>
+            <p className="text-muted-foreground">{description}</p>
+        </CardContent>
+    </Card>
+);
+
+
 const ComingSoonCard = ({ title, icon: Icon }: { title: string, icon: React.ElementType }) => (
      <Card className="hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col items-center justify-center text-center p-6 bg-muted/50 opacity-70">
         <div className="p-4 bg-foreground/10 rounded-full mb-4">
@@ -57,10 +74,10 @@ const ComingSoonCard = ({ title, icon: Icon }: { title: string, icon: React.Elem
 
 const OverviewShowcase = () => (
     <AppShowcase title="Welcome to SabNode" description="An all-in-one platform for your messaging and marketing needs. Select a tool on the right to learn more.">
-        <FeatureCard icon={Send} title="WhatsApp Campaigns" description="Launch targeted broadcast campaigns with detailed, real-time analytics." gradient="card-gradient-green" />
-        <FeatureCard icon={Megaphone} title="Facebook Ads" description="Create and manage 'Click to WhatsApp' ad campaigns directly from the dashboard." gradient="card-gradient-blue" />
-        <FeatureCard icon={LinkIcon} title="URL Shortener" description="Create branded, trackable short links with expiration dates and detailed analytics." gradient="card-gradient-purple" />
-        <FeatureCard icon={QrCode} title="QR Code Generator" description="Generate custom QR codes for URLs, Wi-Fi, contact cards, and more." gradient="card-gradient-orange" />
+        <OverviewFeatureCard icon={Send} title="WhatsApp Campaigns" description="Launch targeted broadcast campaigns with detailed, real-time analytics." gradient="card-gradient-green" />
+        <OverviewFeatureCard icon={Megaphone} title="Facebook Ads" description="Create and manage 'Click to WhatsApp' ad campaigns directly from the dashboard." gradient="card-gradient-blue" />
+        <OverviewFeatureCard icon={LinkIcon} title="URL Shortener" description="Create branded, trackable short links with expiration dates and detailed analytics." gradient="card-gradient-purple" />
+        <OverviewFeatureCard icon={QrCode} title="QR Code Generator" description="Generate custom QR codes for URLs, Wi-Fi, contact cards, and more." gradient="card-gradient-orange" />
     </AppShowcase>
 );
 
@@ -603,19 +620,114 @@ export default function HomePage() {
       case 'instagram':
         return <AppShowcase title="Instagram Tools" description="Manage your Instagram presence alongside your other channels."><ComingSoonCard title="Instagram DM Inbox" icon={MessageSquare} /><ComingSoonCard title="Story Replies" icon={Repeat} /><ComingSoonCard title="Post Comments" icon={Quote} /><ComingSoonCard title="Reels Management" icon={Video} /></AppShowcase>;
       case 'url-shortener':
-         return <AppShowcase title="URL Shortener" description="Create, manage, and track short links with a powerful suite of tools.">
-            <FeatureCard icon={LinkIcon} title="Easy Shortening" description="Create custom, branded short links with optional aliases and expiration dates." gradient="card-gradient-purple" />
-            <FeatureCard icon={Shield} title="Custom Domains" description="Use your own domain for branded links, complete with DNS verification guidance." gradient="card-gradient-green" />
-            <FeatureCard icon={BarChart} title="Detailed Analytics" description="Track every click with detailed logs including timestamp, referrer, and user agent." gradient="card-gradient-blue" />
-            <FeatureCard icon={Clock} title="Link Expiration" description="Set links to expire automatically on a specific date to manage time-sensitive campaigns." gradient="card-gradient-orange" />
-        </AppShowcase>;
+         return (
+            <AppShowcase title="Powerful URL Shortener" description="Create, manage, and track short links with our enterprise-grade toolkit.">
+                <Card className="hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient card-gradient-purple">
+                    <CardHeader><CardTitle>Easy Shortening</CardTitle></CardHeader>
+                    <CardContent className="flex-grow space-y-2">
+                        <p className="text-muted-foreground text-sm">Create custom, branded short links with optional aliases and expiration dates.</p>
+                        <div className="p-3 bg-background/50 rounded-md mt-2 space-y-2">
+                            <Input defaultValue="https://your-long-url.com/..." disabled />
+                            <Button className="w-full" disabled>Shorten</Button>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient card-gradient-green">
+                    <CardHeader><CardTitle>Custom Domains</CardTitle></CardHeader>
+                    <CardContent className="flex-grow space-y-2">
+                        <p className="text-muted-foreground text-sm">Use your own domain for branded links, complete with DNS verification guidance.</p>
+                         <div className="p-3 bg-background/50 rounded-md mt-2 space-y-2">
+                            <Badge>links.mybrand.com</Badge>
+                            <Input value="promo-2024" disabled />
+                         </div>
+                    </CardContent>
+                </Card>
+                <Card className="hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient card-gradient-blue">
+                    <CardHeader><CardTitle>Detailed Analytics</CardTitle></CardHeader>
+                    <CardContent className="flex-grow space-y-2">
+                        <p className="text-muted-foreground text-sm">Track every click with detailed logs including timestamp, referrer, and user agent.</p>
+                        <div className="p-3 bg-background/50 rounded-md mt-2">
+                            <div className="flex justify-between items-center">
+                                <span className="font-bold text-2xl">1,234</span>
+                                <span className="text-sm text-muted-foreground">Total Clicks</span>
+                            </div>
+                            <div className="h-24 mt-2 bg-muted rounded-md flex items-end p-2 gap-1">
+                                <div className="w-1/4 h-[50%] bg-primary/50 rounded-t-sm"></div>
+                                <div className="w-1/4 h-[80%] bg-primary/50 rounded-t-sm"></div>
+                                <div className="w-1/4 h-[30%] bg-primary/50 rounded-t-sm"></div>
+                                <div className="w-1/4 h-[60%] bg-primary/50 rounded-t-sm"></div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+                 <Card className="hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient card-gradient-orange">
+                    <CardHeader><CardTitle>Tagging & Expiration</CardTitle></CardHeader>
+                    <CardContent className="flex-grow space-y-2">
+                        <p className="text-muted-foreground text-sm">Organize links with colored tags and set them to expire automatically.</p>
+                        <div className="p-3 bg-background/50 rounded-md mt-2 space-y-2">
+                             <div className="flex flex-wrap gap-2">
+                                <Badge style={{backgroundColor: '#4ade80'}}>Campaign A</Badge>
+                                <Badge style={{backgroundColor: '#60a5fa'}}>Social Media</Badge>
+                            </div>
+                            <div className="flex items-center gap-2 pt-2 text-sm text-muted-foreground">
+                                <Clock className="h-4 w-4" />
+                                <span>Expires: 31 Dec 2024</span>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </AppShowcase>
+        );
       case 'qr-code-maker':
-          return <AppShowcase title="QR Code Generator" description="Generate and manage dynamic, trackable QR codes.">
-            <FeatureCard icon={QrCode} title="Multi-Type Codes" description="Generate codes for URLs, Wi-Fi, contact cards, pre-filled SMS messages, and more." gradient="card-gradient-orange" />
-            <FeatureCard icon={Pencil} title="Dynamic QR Codes" description="Update the destination of your URL-based QR codes at any time without reprinting." gradient="card-gradient-purple" />
-            <FeatureCard icon={BarChart} title="Scan Analytics" description="Track how many people scan your dynamic QR codes with detailed analytics powered by our shortener." gradient="card-gradient-blue" />
-            <FeatureCard icon={Star} title="Logo Embedding" description="Add your brand's logo to the center of your QR code for a professional touch (visual preview)." gradient="card-gradient-green" />
-        </AppShowcase>;
+          return (
+            <AppShowcase title="Advanced QR Code Generator" description="Generate and manage dynamic, trackable QR codes for any use case.">
+                <Card className="hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient card-gradient-orange">
+                    <CardHeader><CardTitle>Multi-Type Codes</CardTitle></CardHeader>
+                    <CardContent className="flex-grow space-y-2">
+                        <p className="text-muted-foreground text-sm">Generate codes for URLs, Wi-Fi, contact cards, pre-filled SMS messages, and more.</p>
+                        <div className="p-3 bg-background/50 rounded-md mt-2 grid grid-cols-3 gap-2 text-center">
+                            <div className="p-2 bg-muted rounded"><LinkIcon className="h-5 w-5 mx-auto"/></div>
+                            <div className="p-2 bg-muted rounded"><Wifi className="h-5 w-5 mx-auto"/></div>
+                            <div className="p-2 bg-muted rounded"><Type className="h-5 w-5 mx-auto"/></div>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient card-gradient-purple">
+                    <CardHeader><CardTitle>Dynamic QR Codes</CardTitle></CardHeader>
+                    <CardContent className="flex-grow space-y-2">
+                        <p className="text-muted-foreground text-sm">Update the destination of your URL codes at any time without reprinting.</p>
+                         <div className="p-3 bg-background/50 rounded-md mt-2 flex items-center justify-center gap-4">
+                            <Image src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=example" alt="QR Code" width={80} height={80} />
+                            <Pencil className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient card-gradient-blue">
+                    <CardHeader><CardTitle>Scan Analytics</CardTitle></CardHeader>
+                    <CardContent className="flex-grow space-y-2">
+                        <p className="text-muted-foreground text-sm">Track how many people scan your dynamic QR codes with detailed analytics.</p>
+                         <div className="p-3 bg-background/50 rounded-md mt-2 flex items-center justify-center gap-4">
+                            <Image src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=example" alt="QR Code" width={80} height={80} />
+                            <BarChart className="h-8 w-8 text-muted-foreground" />
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card className="hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient card-gradient-green">
+                    <CardHeader><CardTitle>Logo Embedding</CardTitle></CardHeader>
+                    <CardContent className="flex-grow space-y-2">
+                        <p className="text-muted-foreground text-sm">Add your brand's logo to the center of your QR code for a professional touch.</p>
+                        <div className="p-3 bg-background/50 rounded-md mt-2 flex items-center justify-center">
+                             <div className="relative">
+                                <Image src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=example" alt="QR Code" width={100} height={100} />
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="bg-white p-1 rounded-full"><SabNodeLogo className="h-5 w-5"/></div>
+                                </div>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            </AppShowcase>
+        );
       case 'overview':
       default:
         return <OverviewShowcase />;
