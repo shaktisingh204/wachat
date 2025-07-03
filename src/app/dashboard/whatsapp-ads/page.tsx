@@ -1,285 +1,163 @@
+
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { useState, useEffect, useTransition, useCallback } from 'react';
+import { getProjectById } from '@/app/actions';
+import { getAdCampaigns, handleCreateWhatsAppAd } from '@/app/actions/facebook.actions';
+import type { WithId } from 'mongodb';
+import type { AdCampaign, Project } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarHeader,
-  SidebarContent,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
-  SidebarFooter,
-  SidebarTrigger,
-  SidebarInset,
-} from '@/components/ui/sidebar';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  LayoutDashboard,
-  MessageSquare,
-  Users,
-  Send,
-  GitFork,
-  Settings,
-  Briefcase,
-  ChevronDown,
-  FileText,
-  Bot,
-  Phone,
-  Webhook,
-  History,
-  Bell,
-  LogOut,
-  ClipboardList,
-  CreditCard,
-  LoaderCircle,
-  Megaphone,
-  ServerCog,
-  ShoppingBag,
-} from 'lucide-react';
-import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
-import { cn } from '@/lib/utils';
-import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { getProjectCount, getSession, handleLogout } from '@/app/actions';
-import { type Plan, type WithId } from '@/lib/definitions';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle, PlusCircle, Megaphone } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { CreateAdDialog } from '@/components/wabasimplify/create-ad-dialog';
+import Link from 'next/link';
 
-function FullPageSkeleton() {
+function AdsPageSkeleton() {
     return (
-      <div className="flex h-screen w-screen">
-        <div className="hidden md:block w-72 border-r p-2"><Skeleton className="h-full w-full"/></div>
-        <div className="flex-1 flex flex-col">
-            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
-            <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <Skeleton className="h-8 w-64" />
+                <Skeleton className="h-4 w-96 mt-2" />
+            </div>
+            <Skeleton className="h-10 w-32" />
         </div>
+        <Card>
+            <CardHeader><Skeleton className="h-6 w-1/3"/></CardHeader>
+            <CardContent><Skeleton className="h-48 w-full"/></CardContent>
+        </Card>
       </div>
     );
 }
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const router = useRouter();
-  const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string, credits?: number, plan?: WithId<Plan> } | null>(null);
-  const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
-  const [isClient, setIsClient] = React.useState(false);
-  const [isVerifying, setIsVerifying] = React.useState(true);
-  const [projectCount, setProjectCount] = React.useState<number | null>(null);
+export default function AdsManagerPage() {
+    const [campaigns, setCampaigns] = useState<WithId<AdCampaign>[]>([]);
+    const [project, setProject] = useState<WithId<Project> | null>(null);
+    const [isLoading, startLoadingTransition] = useTransition();
+    const [isClient, setIsClient] = useState(false);
+    const [projectId, setProjectId] = useState<string | null>(null);
+    const [isCreateAdOpen, setIsCreateAdOpen] = useState(false);
 
-  React.useEffect(() => {
-    setIsClient(true);
-  }, []);
+    const fetchData = useCallback(() => {
+        if (!projectId) return;
+        startLoadingTransition(async () => {
+            const [campaignsData, projectData] = await Promise.all([
+                getAdCampaigns(projectId),
+                getProjectById(projectId)
+            ]);
+            setCampaigns(campaignsData);
+            setProject(projectData);
+        });
+    }, [projectId]);
 
-  React.useEffect(() => {
-    if (!isClient) return;
+    useEffect(() => {
+        setIsClient(true);
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        setProjectId(storedProjectId);
+    }, []);
 
-    const isDashboardHome = pathname === '/dashboard';
+    useEffect(() => {
+        if (projectId) {
+            fetchData();
+        }
+    }, [projectId, fetchData]);
+    
+    const hasMarketingSetup = !!(project?.adAccountId && project.facebookPageId && project.accessToken);
 
-    if (isDashboardHome) {
-      localStorage.removeItem('activeProjectId');
-      localStorage.removeItem('activeProjectName');
-      setActiveProjectName('All Projects');
-    } else {
-      const name = localStorage.getItem('activeProjectName');
-      const id = localStorage.getItem('activeProjectId');
-      setActiveProjectName(name || (id ? 'Loading project...' : 'No Project Selected'));
+    if (!isClient || isLoading) {
+        return <AdsPageSkeleton />;
     }
 
-    getSession().then(session => {
-        if(session?.user) {
-            setSessionUser(session.user as any);
-            getProjectCount().then(count => {
-              setProjectCount(count);
-              if (count === 0 && pathname !== '/dashboard' && pathname !== '/dashboard/setup' && pathname !== '/dashboard/profile' && pathname !== '/dashboard/billing' && pathname !== '/dashboard/settings') {
-                  router.push('/dashboard/setup');
-              }
-               setIsVerifying(false);
-            });
-        } else {
-            router.push('/login');
-            setIsVerifying(false);
-        }
-    })
+    if (!projectId) {
+         return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>No Project Selected</AlertTitle>
+                <AlertDescription>
+                    Please select a project from the main dashboard to manage ads.
+                </AlertDescription>
+            </Alert>
+        );
+    }
 
-  }, [pathname, router, isClient]);
+    return (
+        <>
+            {project && (
+                <CreateAdDialog 
+                    isOpen={isCreateAdOpen} 
+                    onOpenChange={setIsCreateAdOpen}
+                    project={project}
+                    onAdCreated={fetchData}
+                />
+            )}
+             <div className="flex flex-col gap-8">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Megaphone/> Ads Manager</h1>
+                        <p className="text-muted-foreground">Create and manage your "Click to WhatsApp" ad campaigns.</p>
+                    </div>
+                    <Button onClick={() => setIsCreateAdOpen(true)} disabled={!hasMarketingSetup}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Create New Ad
+                    </Button>
+                </div>
 
-  const isChatPage = pathname.startsWith('/dashboard/chat');
-
-  if (!isClient || isVerifying) {
-      return <FullPageSkeleton />;
-  }
-
-  const hasNoProjects = projectCount === 0;
-  const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
-  const planFeatures = sessionUser?.plan?.features;
-
-  return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader className="p-4">
-           <div className="flex items-center gap-2">
-              <WachatBrandLogo className="size-8 shrink-0" />
-              <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Wachat</span>
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {allMenuItems.map((item) => {
-              const isAllowed = !planFeatures ? true : (planFeatures as any)[item.featureKey] ?? true;
-              const isDisabled = (hasNoProjects && !isSetupPage) || !isAllowed;
-              
-              let tooltipText = item.label;
-              if (hasNoProjects && !isSetupPage) {
-                tooltipText = `${item.label} (connect a project first)`;
-              } else if (!isAllowed) {
-                tooltipText = `${item.label} (Upgrade plan)`;
-              }
-
-              return (
-              <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                  asChild
-                  isActive={pathname.startsWith(item.href)}
-                  tooltip={tooltipText}
-                  disabled={isDisabled}
-                  aria-disabled={isDisabled}
-                >
-                  <Link href={isDisabled ? '#' : item.href} className={cn(isDisabled && 'pointer-events-none')}>
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            )})}
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-          <SidebarMenu>
-            <SidebarMenuItem>
-               <SidebarMenuButton asChild isActive={pathname === '/dashboard'} tooltip="All Projects">
-                <Link href="/dashboard">
-                  <Briefcase />
-                  <span>All Projects</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-             <SidebarMenuItem>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton asChild tooltip="My Account">
-                    <button>
-                      <Avatar className="size-7">
-                        <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                        <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                      </Avatar>
-                      <span className="sr-only">User Account</span>
-                    </button>
-                  </SidebarMenuButton>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent side="right" align="start">
-                  <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/dashboard/billing/history">Billing History</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/dashboard/settings">Settings</Link></DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <form action={handleLogout} className="w-full">
-                        <button type="submit" className="flex items-center w-full">
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span>Logout</span>
-                        </button>
-                    </form>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset className="flex flex-col h-full">
-        <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
-          <div className="flex items-center gap-4">
-            <SidebarTrigger />
-            <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
-                <Briefcase className="h-4 w-4" />
-                {!isClient ? (
-                    <Skeleton className="h-4 w-32" />
-                ) : (
-                    <span>{activeProjectName}</span>
+                {!hasMarketingSetup && (
+                    <Alert>
+                        <AlertCircle className="h-4 w-4" />
+                        <AlertTitle>Marketing Settings Required</AlertTitle>
+                        <AlertDescription>
+                            Please configure your Ad Account ID and Facebook Page ID in{' '}
+                            <Link href="/dashboard/settings?tab=marketing" className="font-semibold text-primary hover:underline">Settings &rarr; Marketing</Link>
+                            {' '}before you can create ads.
+                        </AlertDescription>
+                    </Alert>
                 )}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-             <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
-                <CreditCard className="h-4 w-4" />
-                <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
-              </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                    <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                  </Avatar>
-                  <span className="hidden md:inline">{sessionUser?.name || 'User'}</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/dashboard/billing/history">Billing History</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/dashboard/settings">Settings</Link></DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                    <form action={handleLogout} className="w-full">
-                        <button type="submit" className="flex items-center w-full">
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span>Logout</span>
-                        </button>
-                    </form>
-                  </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
-        <main className={cn(
-            "flex-1 flex flex-col h-full",
-            isChatPage ? "overflow-hidden" : "p-4 md:p-6 lg:p-8 overflow-y-auto"
-        )}>
-            {children}
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
-  );
-}
 
-const allMenuItems = [
-  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, featureKey: 'overview' },
-  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, featureKey: 'liveChat' },
-  { href: '/dashboard/contacts', label: 'Contacts', icon: Users, featureKey: 'contacts' },
-  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, featureKey: 'campaigns' },
-  { href: '/dashboard/templates', label: 'Templates', icon: FileText, featureKey: 'templates' },
-  { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, featureKey: 'catalog' },
-  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'flowBuilder' },
-  { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, featureKey: 'metaFlows' },
-  { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, featureKey: 'numbers' },
-  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, featureKey: 'webhooks' },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings, featureKey: 'settings' },
-  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard, featureKey: 'billing' },
-  { href: '/dashboard/notifications', label: 'Notifications', icon: History, featureKey: 'notifications' },
-];
+                <Card className="card-gradient card-gradient-blue">
+                    <CardHeader>
+                        <CardTitle>Your Campaigns</CardTitle>
+                        <CardDescription>A list of all ad campaigns created through Wachat.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="border rounded-md">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Campaign Name</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Daily Budget</TableHead>
+                                        <TableHead>Created At</TableHead>
+                                        <TableHead>Meta Campaign ID</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {campaigns.length > 0 ? (
+                                        campaigns.map((campaign) => (
+                                            <TableRow key={campaign._id.toString()}>
+                                                <TableCell className="font-medium">{campaign.name}</TableCell>
+                                                <TableCell><Badge variant={campaign.status === 'PAUSED' ? 'secondary' : 'default'}>{campaign.status}</Badge></TableCell>
+                                                <TableCell>${campaign.dailyBudget.toFixed(2)}</TableCell>
+                                                <TableCell>{new Date(campaign.createdAt).toLocaleDateString()}</TableCell>
+                                                <TableCell className="font-mono text-xs">{campaign.metaCampaignId}</TableCell>
+                                            </TableRow>
+                                        ))
+                                    ) : (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="h-24 text-center">No ad campaigns created yet.</TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        </>
+    );
+}

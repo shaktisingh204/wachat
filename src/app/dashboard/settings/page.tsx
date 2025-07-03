@@ -5,7 +5,8 @@
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
-import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects, GeneralReplyRule, handleUpdateMarketingSettings, Template } from '@/app/actions';
+import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects, GeneralReplyRule, Template } from '@/app/actions';
+import { handleUpdateMarketingSettings } from '@/app/actions/facebook.actions';
 import type { WithId } from 'mongodb';
 import type { Project, UserAttribute } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -522,7 +523,7 @@ function MarketingSettingsForm({ project }: { project: WithId<Project> }) {
     )
 }
 
-function FeatureLock({ isAllowed, featureName, children }: { isAllowed: boolean; featureName: string; children: React.ReactNode }) {
+function FeatureLock({ isAllowed, children }: { isAllowed: boolean; children: React.ReactNode }) {
     if (isAllowed) {
         return <>{children}</>;
     }
