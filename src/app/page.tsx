@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
 import {
-  Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Clock, Tags
+  Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Clock, Tags, Type, Wifi
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,8 +16,6 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { WhatsAppIcon, FacebookIcon as FacebookAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Separator } from '@/components/ui/separator';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 
 const AppShowcase = ({ title, description, children, className }: { title: React.ReactNode, description: string, children: React.ReactNode, className?: string }) => (
     <div className={cn("space-y-8 animate-fade-in", className)}>
