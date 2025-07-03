@@ -603,9 +603,19 @@ export default function HomePage() {
       case 'instagram':
         return <AppShowcase title="Instagram Tools" description="Manage your Instagram presence alongside your other channels."><ComingSoonCard title="Instagram DM Inbox" icon={MessageSquare} /><ComingSoonCard title="Story Replies" icon={Repeat} /><ComingSoonCard title="Post Comments" icon={Quote} /><ComingSoonCard title="Reels Management" icon={Video} /></AppShowcase>;
       case 'url-shortener':
-         return <AppShowcase title="URL Shortener" description="Create, manage, and track short links."><FeatureCard icon={LinkIcon} title="Easy Shortening" description="Create custom, branded short links with optional aliases and expiration dates." gradient="card-gradient-purple" /><FeatureCard icon={BarChart} title="Detailed Analytics" description="Track every click with detailed logs including timestamp, referrer, and user agent." gradient="card-gradient-blue" /><FeatureCard title="Custom Domains" icon={Shield} description="Use your own domain for branded links." gradient="card-gradient-green" /><FeatureCard title="Link Expiration" icon={Clock} description="Set links to expire automatically on a specific date." gradient="card-gradient-orange" /></AppShowcase>;
+         return <AppShowcase title="URL Shortener" description="Create, manage, and track short links with a powerful suite of tools.">
+            <FeatureCard icon={LinkIcon} title="Easy Shortening" description="Create custom, branded short links with optional aliases and expiration dates." gradient="card-gradient-purple" />
+            <FeatureCard icon={Shield} title="Custom Domains" description="Use your own domain for branded links, complete with DNS verification guidance." gradient="card-gradient-green" />
+            <FeatureCard icon={BarChart} title="Detailed Analytics" description="Track every click with detailed logs including timestamp, referrer, and user agent." gradient="card-gradient-blue" />
+            <FeatureCard icon={Clock} title="Link Expiration" description="Set links to expire automatically on a specific date to manage time-sensitive campaigns." gradient="card-gradient-orange" />
+        </AppShowcase>;
       case 'qr-code-maker':
-          return <AppShowcase title="QR Code Generator" description="Generate and manage dynamic QR codes."><FeatureCard icon={QrCode} title="Multi-Type Codes" description="Generate codes for URLs, Wi-Fi, contact cards, pre-filled SMS messages, and more." gradient="card-gradient-orange" /><FeatureCard icon={Pencil} title="Dynamic QR Codes" description="Update the destination of your URL-based QR codes at any time without reprinting." gradient="card-gradient-purple" /><FeatureCard icon={BarChart} title="Scan Analytics" description="Track how many people scan your dynamic QR codes with detailed analytics." gradient="card-gradient-blue" /><FeatureCard icon={Star} title="Logo Embedding" description="Add your brand's logo to the center of your QR code for a professional touch (visual preview)." gradient="card-gradient-green" /></AppShowcase>;
+          return <AppShowcase title="QR Code Generator" description="Generate and manage dynamic, trackable QR codes.">
+            <FeatureCard icon={QrCode} title="Multi-Type Codes" description="Generate codes for URLs, Wi-Fi, contact cards, pre-filled SMS messages, and more." gradient="card-gradient-orange" />
+            <FeatureCard icon={Pencil} title="Dynamic QR Codes" description="Update the destination of your URL-based QR codes at any time without reprinting." gradient="card-gradient-purple" />
+            <FeatureCard icon={BarChart} title="Scan Analytics" description="Track how many people scan your dynamic QR codes with detailed analytics powered by our shortener." gradient="card-gradient-blue" />
+            <FeatureCard icon={Star} title="Logo Embedding" description="Add your brand's logo to the center of your QR code for a professional touch (visual preview)." gradient="card-gradient-green" />
+        </AppShowcase>;
       case 'overview':
       default:
         return <OverviewShowcase />;
