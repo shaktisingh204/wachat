@@ -1,16 +1,15 @@
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
 import { getKanbanData, handleUpdateContactStatus, saveKanbanStatuses } from '@/app/actions';
 import type { WithId, Contact, Project, KanbanColumnData } from '@/lib/definitions';
-import { KanbanColumn } from './kanban-column';
+import { KanbanColumn } from '@/components/wabasimplify/kanban-column';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Plus } from 'lucide-react';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 
 function KanbanPageSkeleton() {
@@ -163,11 +162,13 @@ export function KanbanBoard() {
     return (
         <div className="h-full w-full">
             <ScrollArea className="h-full w-full">
-                <div className="flex h-full p-4 gap-4">
-                    {boardData.map(column => (
-                        <KanbanColumn key={column.name} title={column.name} contacts={column.contacts} onDrop={handleDrop} />
-                    ))}
-                    <AddList onAddList={handleAddList} />
+                 <div style={{minWidth: "100%", display: "table", height: '100%'}}>
+                    <div className="flex h-full w-max p-4 gap-4">
+                        {boardData.map(column => (
+                            <KanbanColumn key={column.name} title={column.name} contacts={column.contacts} onDrop={handleDrop} />
+                        ))}
+                        <AddList onAddList={handleAddList} />
+                    </div>
                 </div>
                 <ScrollBar orientation="horizontal" />
             </ScrollArea>
