@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -98,8 +99,8 @@ const WhatsAppShowcase = () => {
             {/* Hero Section */}
             <div className="container mx-auto px-4 grid justify-items-center text-center gap-8">
                 <div className="space-y-4 max-w-3xl">
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tighter">Streamline Your WhatsApp Business API Experience</h1>
-                    <p className="mx-auto text-lg text-muted-foreground">Manage campaigns, automate conversations, and engage customers effortlessly with SabNode. The all-in-one platform for your WhatsApp marketing and support needs.</p>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tighter">The Wachat Suite in SabNode</h1>
+                    <p className="mx-auto text-lg text-muted-foreground">Manage campaigns, automate conversations, and engage customers effortlessly. The all-in-one platform for your WhatsApp marketing and support needs.</p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Button size="lg" asChild><Link href="/signup">Get Started for Free <ArrowRight className="ml-2 h-5 w-5" /></Link></Button>
                         <Button size="lg" variant="outline" asChild><Link href="#features">Learn More <ChevronDown className="ml-2 h-5 w-5"/></Link></Button>
@@ -493,17 +494,17 @@ const WhatsAppShowcase = () => {
                                                 <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="eco-friendly bottle"/>
                                                 <div><p className="font-medium text-gray-800 text-sm">Eco Water Bottle</p><p className="text-xs text-muted-foreground">$15.00</p></div>
                                             </div>
-                                            <div className="flex gap-3 border rounded-lg p-2 bg-white">
-                                                <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="bamboo toothbrush"/>
-                                                <div><p className="font-medium text-gray-800 text-sm">Bamboo Toothbrush Set</p><p className="text-xs text-muted-foreground">$8.00</p></div>
-                                            </div>
-                                            <div className="flex gap-3 border rounded-lg p-2 bg-white">
-                                                <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="tote bag"/>
-                                                <div><p className="font-medium text-gray-800 text-sm">Reusable Tote Bag</p><p className="text-xs text-muted-foreground">$12.00</p></div>
-                                            </div>
-                                            </div>
+                                           <div className="flex gap-3 border rounded-lg p-2 bg-white">
+                                            <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="bamboo toothbrush"/>
+                                            <div><p className="font-medium text-gray-800 text-sm">Bamboo Toothbrush Set</p><p className="text-xs text-muted-foreground">$8.00</p></div>
+                                          </div>
+                                          <div className="flex gap-3 border rounded-lg p-2 bg-white">
+                                            <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="tote bag"/>
+                                            <div><p className="font-medium text-gray-800 text-sm">Reusable Tote Bag</p><p className="text-xs text-muted-foreground">$12.00</p></div>
+                                          </div>
                                         </div>
-                                    </div>
+                                      </div>
+                                   </div>
                                     </div>
                                 </div>
                             </div>
@@ -602,7 +603,7 @@ export default function HomePage() {
       case 'instagram':
         return <AppShowcase title="Instagram Tools" description="Manage your Instagram presence alongside your other channels."><ComingSoonCard title="Instagram DM Inbox" icon={MessageSquare} /><ComingSoonCard title="Story Replies" icon={Repeat} /><ComingSoonCard title="Post Comments" icon={Quote} /><ComingSoonCard title="Reels Management" icon={Video} /></AppShowcase>;
       case 'url-shortener':
-         return <AppShowcase title="URL Shortener" description="Create, manage, and track short links."><FeatureCard icon={LinkIcon} title="Easy Shortening" description="Create custom, branded short links with optional aliases and expiration dates." gradient="card-gradient-purple" /><FeatureCard icon={BarChart} title="Detailed Analytics" description="Track every click with detailed logs including timestamp, referrer, and user agent." gradient="card-gradient-blue" /><ComingSoonCard title="Custom Domains" icon={Shield} /><ComingSoonCard title="Link Expiration" icon={Clock} /></AppShowcase>;
+         return <AppShowcase title="URL Shortener" description="Create, manage, and track short links."><FeatureCard icon={LinkIcon} title="Easy Shortening" description="Create custom, branded short links with optional aliases and expiration dates." gradient="card-gradient-purple" /><FeatureCard icon={BarChart} title="Detailed Analytics" description="Track every click with detailed logs including timestamp, referrer, and user agent." gradient="card-gradient-blue" /><FeatureCard title="Custom Domains" icon={Shield} description="Use your own domain for branded links." gradient="card-gradient-green" /><FeatureCard title="Link Expiration" icon={Clock} description="Set links to expire automatically on a specific date." gradient="card-gradient-orange" /></AppShowcase>;
       case 'qr-code-maker':
           return <AppShowcase title="QR Code Generator" description="Generate and manage dynamic QR codes."><FeatureCard icon={QrCode} title="Multi-Type Codes" description="Generate codes for URLs, Wi-Fi, contact cards, pre-filled SMS messages, and more." gradient="card-gradient-orange" /><ComingSoonCard title="Dynamic QR Codes" icon={Pencil} /><ComingSoonCard title="Scan Analytics" icon={BarChart} /><ComingSoonCard title="Logo Embedding" icon={Star} /></AppShowcase>;
       case 'overview':

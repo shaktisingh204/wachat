@@ -630,6 +630,3 @@ export type QrCode = {
     tagIds?: string[];
     createdAt: Date;
 };
-
-
-
