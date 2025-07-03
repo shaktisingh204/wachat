@@ -4,7 +4,7 @@
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
-import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects, GeneralReplyRule, Template } from '@/app/actions';
+import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects, GeneralReplyRule, Template, handleUpdateUserProfile } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, UserAttribute } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
@@ -581,8 +581,6 @@ function SettingsPageContent() {
               <TabsTrigger value="compliance"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
               <TabsTrigger value="attributes"><Users className="mr-2 h-4 w-4" />User Attributes</TabsTrigger>
               <TabsTrigger value="tags"><Tags className="mr-2 h-4 w-4" />Tags & Labels</TabsTrigger>
-              <TabsTrigger value="url-shortener"><LinkIcon className="mr-2 h-4 w-4" />URL Shortener</TabsTrigger>
-              <TabsTrigger value="qr-code-maker"><QrCode className="mr-2 h-4 w-4" />QR Code Maker</TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
         </ScrollArea>
@@ -684,29 +682,7 @@ function SettingsPageContent() {
           
           <TabsContent value="tags" className="mt-6 relative">
             <FeatureLockOverlay isAllowed={true} featureName="Tags" />
-            <TagsSettingsTab project={project} />
-          </TabsContent>
-          
-          <TabsContent value="url-shortener" className="mt-6 relative">
-              <FeatureLockOverlay isAllowed={!!planFeatures?.urlShortener} featureName="URL Shortener Settings" />
-              <FeatureLock isAllowed={!!planFeatures?.urlShortener}>
-                 <Card>
-                    <CardHeader><CardTitle>URL Shortener Settings</CardTitle><CardDescription>Manage settings for the URL Shortener tool.</CardDescription></CardHeader>
-                    <CardContent><p className="text-sm text-muted-foreground">Advanced settings for your short links, such as custom domains and API keys, are managed in the URL Shortener app itself.</p></CardContent>
-                    <CardFooter><Button asChild><Link href="/dashboard/url-shortener/settings">Go to URL Shortener Settings</Link></Button></CardFooter>
-                </Card>
-              </FeatureLock>
-          </TabsContent>
-          
-          <TabsContent value="qr-code-maker" className="mt-6 relative">
-              <FeatureLockOverlay isAllowed={!!planFeatures?.qrCodeMaker} featureName="QR Code Maker Settings" />
-              <FeatureLock isAllowed={!!planFeatures?.qrCodeMaker}>
-                <Card>
-                    <CardHeader><CardTitle>QR Code Maker Settings</CardTitle><CardDescription>Manage settings for the QR Code Maker tool.</CardDescription></CardHeader>
-                    <CardContent><p className="text-sm text-muted-foreground">Advanced settings for your QR codes, such as dynamic URLs and analytics, are managed in the QR Code Maker app itself.</p></CardContent>
-                    <CardFooter><Button asChild><Link href="/dashboard/qr-code-maker/settings">Go to QR Code Maker Settings</Link></Button></CardFooter>
-                </Card>
-              </FeatureLock>
+            <TagsSettingsTab user={user} />
           </TabsContent>
 
         </Tabs>

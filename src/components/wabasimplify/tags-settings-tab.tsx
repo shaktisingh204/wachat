@@ -1,28 +1,49 @@
 
 'use client';
 
-import { useState, useEffect, useTransition } from 'react';
+import { useState, useEffect, useActionState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { saveProjectTags, type Project, type Tag } from '@/app/actions';
+import { handleUpdateUserProfile, type User, type Tag } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle, Plus, Save, Trash2 } from 'lucide-react';
+import { useFormStatus } from 'react-dom';
+
+const updateTagsInitialState = { message: null, error: null };
 
 interface TagsSettingsTabProps {
-  project: WithId<Project>;
+  user: (Omit<User, 'password'> & { _id: string, tags?: Tag[] });
 }
 
-export function TagsSettingsTab({ project }: TagsSettingsTabProps) {
+function SaveButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Save Tags
+        </Button>
+    )
+}
+
+export function TagsSettingsTab({ user }: TagsSettingsTabProps) {
     const { toast } = useToast();
     const [tags, setTags] = useState<Tag[]>([]);
-    const [isSaving, startSavingTransition] = useTransition();
+    const [state, formAction] = useActionState(handleUpdateUserProfile, updateTagsInitialState);
 
     useEffect(() => {
-        // Create a deep copy to avoid direct state mutation issues with the color picker
-        setTags(JSON.parse(JSON.stringify(project.tags || [])));
-    }, [project.tags]);
+        setTags(JSON.parse(JSON.stringify(user.tags || [])));
+    }, [user.tags]);
+
+    useEffect(() => {
+        if (state.message) {
+            toast({ title: 'Success', description: state.message });
+        }
+        if (state.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast]);
 
     const handleAddTag = () => {
         setTags(prev => [
@@ -39,61 +60,50 @@ export function TagsSettingsTab({ project }: TagsSettingsTabProps) {
         setTags(prev => prev.filter(tag => tag._id !== id));
     };
 
-    const handleSaveChanges = () => {
-        startSavingTransition(async () => {
-            const validTags = tags.filter(tag => tag.name.trim() !== '');
-            const result = await saveProjectTags(project._id.toString(), validTags);
-            if (result.success) {
-                toast({ title: 'Success', description: 'Tags have been saved successfully.' });
-            } else {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            }
-        });
-    };
-
     return (
-        <Card className="card-gradient card-gradient-green">
-            <CardHeader>
-                <CardTitle>Tags & Labels</CardTitle>
-                <CardDescription>Create and manage colored tags to organize your contacts.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-                <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 border-b font-medium text-sm text-muted-foreground">
-                    <span>Tag Name</span>
-                    <span className="text-center">Color</span>
-                    <span className="w-10"></span>
-                </div>
-                <div className="space-y-2">
-                    {tags.map(tag => (
-                        <div key={tag._id} className="grid grid-cols-[1fr,auto,auto] items-center gap-2">
-                            <Input
-                                value={tag.name}
-                                onChange={(e) => handleTagChange(tag._id, 'name', e.target.value)}
-                                placeholder="Enter tag name"
-                            />
-                            <Input
-                                type="color"
-                                value={tag.color}
-                                onChange={(e) => handleTagChange(tag._id, 'color', e.target.value)}
-                                className="h-9 w-14 p-1"
-                            />
-                            <Button variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
-                        </div>
-                    ))}
-                </div>
-                <Button variant="outline" className="w-full" onClick={handleAddTag}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Add Tag
-                </Button>
-            </CardContent>
-            <CardFooter>
-                <Button onClick={handleSaveChanges} disabled={isSaving}>
-                    {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-                    Save Changes
-                </Button>
-            </CardFooter>
-        </Card>
+        <form action={formAction}>
+            <input type="hidden" name="name" value={user.name} />
+            <input type="hidden" name="tags" value={JSON.stringify(tags.map(t => ({ name: t.name, color: t.color })).filter(t => t.name.trim()))} />
+            <Card className="card-gradient card-gradient-green">
+                <CardHeader>
+                    <CardTitle>Manage Your Tags</CardTitle>
+                    <CardDescription>Create and manage colored tags to organize your short links and QR codes.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="grid grid-cols-[1fr,auto,auto] items-center gap-2 p-2 border-b font-medium text-sm text-muted-foreground">
+                        <span>Tag Name</span>
+                        <span className="text-center">Color</span>
+                        <span className="w-10"></span>
+                    </div>
+                    <div className="space-y-2">
+                        {tags.map(tag => (
+                            <div key={tag._id} className="grid grid-cols-[1fr,auto,auto] items-center gap-2">
+                                <Input
+                                    value={tag.name}
+                                    onChange={(e) => handleTagChange(tag._id, 'name', e.target.value)}
+                                    placeholder="Enter tag name"
+                                />
+                                <Input
+                                    type="color"
+                                    value={tag.color}
+                                    onChange={(e) => handleTagChange(tag._id, 'color', e.target.value)}
+                                    className="h-9 w-14 p-1"
+                                />
+                                <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveTag(tag._id)}>
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                            </div>
+                        ))}
+                    </div>
+                    <Button type="button" variant="outline" className="w-full" onClick={handleAddTag}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add Tag
+                    </Button>
+                </CardContent>
+                <CardFooter>
+                    <SaveButton />
+                </CardFooter>
+            </Card>
+        </form>
     );
 }
