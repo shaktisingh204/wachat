@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2 } from 'lucide-react';
+import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat } from 'lucide-react';
 import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
 import { CreateCatalogDialog } from '@/components/wabasimplify/create-catalog-dialog';
 import { cn } from '@/lib/utils';
@@ -91,6 +91,8 @@ export default function CatalogsPage() {
             fetchData();
         }
     }
+    
+    const hasCatalogAccess = project?.hasCatalogManagement === true;
 
     return (
         <div className="flex flex-col gap-8">
@@ -99,10 +101,12 @@ export default function CatalogsPage() {
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag/> Product Catalogs</h1>
                     <p className="text-muted-foreground">Manage your product catalogs for use in interactive messages.</p>
                 </div>
-                <div className="flex items-center gap-2">
-                    <SyncCatalogsButton projectId={projectId} onSyncComplete={fetchData}/>
-                    <CreateCatalogDialog projectId={projectId} onCatalogCreated={fetchData}/>
-                </div>
+                 {hasCatalogAccess && (
+                    <div className="flex items-center gap-2">
+                        <SyncCatalogsButton projectId={projectId} onSyncComplete={fetchData}/>
+                        <CreateCatalogDialog projectId={projectId} onCatalogCreated={fetchData}/>
+                    </div>
+                )}
             </div>
 
             {!projectId ? (
@@ -111,6 +115,31 @@ export default function CatalogsPage() {
                     <AlertTitle>No Project Selected</AlertTitle>
                     <AlertDescription>Please select a project from the main dashboard to manage catalogs.</AlertDescription>
                 </Alert>
+            ) : !hasCatalogAccess ? (
+                <Card className="card-gradient card-gradient-orange text-center">
+                    <CardHeader>
+                        <div className="mx-auto bg-destructive text-destructive-foreground rounded-full h-16 w-16 flex items-center justify-center mb-4">
+                            <Lock className="h-8 w-8" />
+                        </div>
+                        <CardTitle>Catalog Management Locked</CardTitle>
+                        <CardDescription>
+                            This project was set up without catalog management permissions.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                         <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                            To use product catalogs, you need to re-authorize the application and grant the 'catalog_management' and 'business_management' permissions.
+                        </p>
+                    </CardContent>
+                    <CardFooter className="justify-center">
+                        <Button asChild>
+                            <Link href="/dashboard/setup">
+                                <Repeat className="mr-2 h-4 w-4" />
+                                Go to Setup to Re-authorize
+                            </Link>
+                        </Button>
+                    </CardFooter>
+                </Card>
             ) : isLoading ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-48 w-full" />)}

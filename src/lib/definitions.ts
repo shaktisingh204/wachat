@@ -125,6 +125,7 @@ export type Project = {
     planId?: ObjectId;
     credits?: number;
     connectedCatalogId?: string;
+    hasCatalogManagement?: boolean;
     plan?: WithId<Plan>; // populated by aggregate
 };
 

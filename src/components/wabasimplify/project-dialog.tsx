@@ -18,10 +18,11 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { PlusCircle, LoaderCircle, Key } from 'lucide-react';
+import { LoaderCircle, Key } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../ui/card';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Checkbox } from '../ui/checkbox';
 
 const initialState = {
   message: null,
@@ -95,7 +96,7 @@ export function CreateProjectDialog() {
               .
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
+          <div className="space-y-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="wabaId" className="text-right">Business ID</Label>
               <Input id="wabaId" name="wabaId" placeholder="WhatsApp Business Account ID" className="col-span-3" required />
@@ -107,6 +108,15 @@ export function CreateProjectDialog() {
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="accessToken" className="text-right">Access Token</Label>
               <Input id="accessToken" name="accessToken" type="password" placeholder="A permanent System User Token" className="col-span-3" required />
+            </div>
+            <div className="pt-2 pl-4">
+                <div className="flex items-center space-x-2">
+                    <Checkbox id="include-catalog-manual" name="includeCatalog" defaultChecked={true} />
+                    <Label htmlFor="include-catalog-manual" className="text-sm font-normal">
+                        Include permissions for Catalog Management
+                    </Label>
+                </div>
+                <p className="text-xs text-muted-foreground pl-6">Requires 'catalog_management' permission on your token.</p>
             </div>
           </div>
           <DialogFooter>

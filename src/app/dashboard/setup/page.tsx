@@ -1,17 +1,20 @@
+
+'use client';
+
+import { useState } from 'react';
 import { EmbeddedSignup } from '@/components/wabasimplify/embedded-signup';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import type { Metadata } from 'next';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { CreateProjectDialog } from '@/components/wabasimplify/project-dialog';
-
-export const metadata: Metadata = {
-  title: 'Setup | Wachat',
-};
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
 
 export default function SetupPage() {
   const appId = process.env.NEXT_PUBLIC_META_APP_ID;
   const configId = process.env.META_CONFIG_ID;
+  const [includeCatalog, setIncludeCatalog] = useState(true);
 
   if (!appId || !configId) {
     return (
@@ -41,11 +44,19 @@ export default function SetupPage() {
                 <CardDescription>Use the secure pop-up to connect your account in a few clicks.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow flex flex-col items-center justify-center text-center gap-6">
-                <EmbeddedSignup appId={appId} configId={configId} />
+                <EmbeddedSignup appId={appId} configId={configId} includeCatalog={includeCatalog} />
                 <p className="text-xs text-muted-foreground">
                     You will be redirected to Facebook to authorize the connection.
                 </p>
             </CardContent>
+            <CardFooter>
+                 <div className="flex items-center space-x-2">
+                    <Checkbox id="include-catalog" checked={includeCatalog} onCheckedChange={(checked) => setIncludeCatalog(!!checked)} />
+                    <Label htmlFor="include-catalog" className="text-sm font-normal">
+                        Include permissions for Catalog Management
+                    </Label>
+                </div>
+            </CardFooter>
         </Card>
         <CreateProjectDialog />
       </div>

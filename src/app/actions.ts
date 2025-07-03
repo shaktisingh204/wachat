@@ -1688,6 +1688,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
                 messagesPerSecond: 1000,
                 planId: defaultPlan?._id,
                 credits: defaultPlan?.signupCredits || 0,
+                hasCatalogManagement: true, // Assuming if they sync this way, they want catalog features.
             };
 
             return {
@@ -1700,6 +1701,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
                             phoneNumbers: projectDoc.phoneNumbers,
                             userId: projectDoc.userId,
                             businessId: projectDoc.businessId,
+                            hasCatalogManagement: projectDoc.hasCatalogManagement,
                         },
                         $setOnInsert: {
                              wabaId: projectDoc.wabaId,
@@ -1708,6 +1710,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
                              planId: projectDoc.planId,
                              credits: projectDoc.credits,
                              businessId: projectDoc.businessId,
+                             hasCatalogManagement: projectDoc.hasCatalogManagement,
                         }
                     },
                     upsert: true,
@@ -3002,31 +3005,31 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
     const wabaId = formData.get('wabaId') as string;
     const appId = formData.get('appId') as string;
     const accessToken = formData.get('accessToken') as string;
+    const includeCatalog = formData.get('includeCatalog') === 'on';
 
     if (!wabaId || !appId || !accessToken) {
         return { error: 'All fields are required.' };
     }
 
     try {
-        // Fetch project name AND business ID concurrently
-        const [projectDetailsResponse, businessesResponse] = await Promise.all([
-            fetch(`https://graph.facebook.com/v22.0/${wabaId}?fields=name&access_token=${accessToken}`),
-            fetch(`https://graph.facebook.com/v22.0/me/businesses?access_token=${accessToken}`)
-        ]);
-
+        let businessId: string | undefined = undefined;
+        if(includeCatalog) {
+            const businessesResponse = await axios.get(`https://graph.facebook.com/v22.0/me/businesses`, {
+                params: { access_token: accessToken }
+            });
+            const businesses = businessesResponse.data.data;
+            if (businesses && businesses.length > 0) {
+                businessId = businesses[0].id;
+            } else {
+                return { error: "Could not find a Meta Business Account associated with this token to enable Catalog features." };
+            }
+        }
+        
+        const projectDetailsResponse = await fetch(`https://graph.facebook.com/v22.0/${wabaId}?fields=name&access_token=${accessToken}`);
         const projectData = await projectDetailsResponse.json();
-        const businessesData = await businessesResponse.json();
 
         if (projectData.error) {
             return { error: `Meta API Error (fetching project name): ${projectData.error.message}` };
-        }
-        if (businessesData.error) {
-            return { error: `Meta API Error (fetching business ID): ${businessesData.error.message}` };
-        }
-
-        const businessId = businessesData.data?.[0]?.id;
-        if (!businessId) {
-            return { error: "Could not find a Meta Business Account associated with this token." };
         }
 
         const { db } = await connectToDatabase();
@@ -3050,6 +3053,7 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
             messagesPerSecond: 1000,
             planId: defaultPlan?._id,
             credits: defaultPlan?.signupCredits || 0,
+            hasCatalogManagement: includeCatalog,
         };
 
         const result = await db.collection('projects').insertOne(newProject as any);
@@ -3064,7 +3068,7 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
 
     } catch (e: any) {
         console.error('Project creation failed:', e);
-        return { error: e.message || 'An unexpected error occurred.' };
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
 }
 
@@ -3112,7 +3116,7 @@ export async function handleDeleteProject(prevState: any, formData: FormData): P
     }
 }
 
-export async function handleFacebookSetup(accessToken: string, wabaIds: string[]): Promise<{ success: boolean, count: number, error?: string }> {
+export async function handleFacebookSetup(accessToken: string, wabaIds: string[], includeCatalog: boolean): Promise<{ success: boolean, count: number, error?: string }> {
     const session = await getSession();
     if (!session?.user) {
         return { success: false, count: 0, error: 'You must be logged in.' };
@@ -3122,6 +3126,23 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
         const { db } = await connectToDatabase();
         const bulkOps: any[] = [];
         const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
+
+        let businessId: string | undefined = undefined;
+        if (includeCatalog) {
+            try {
+                const businessesResponse = await axios.get(`https://graph.facebook.com/v22.0/me/businesses`, {
+                    params: { access_token: accessToken }
+                });
+                const businesses = businessesResponse.data?.data;
+                if (businesses && businesses.length > 0) {
+                    businessId = businesses[0].id;
+                } else {
+                    console.warn("No Meta Business account found for token, cannot enable catalog management.");
+                }
+            } catch(e) {
+                console.warn("Failed to fetch business ID during guided setup:", getErrorMessage(e));
+            }
+        }
 
         for (const wabaId of wabaIds) {
             const wabaDetailsResponse = await fetch(`https://graph.facebook.com/v22.0/${wabaId}?fields=name,id&access_token=${accessToken}`);
@@ -3141,13 +3162,21 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
                 messagesPerSecond: 1000,
                 planId: defaultPlan?._id,
                 credits: defaultPlan?.signupCredits || 0,
+                businessId: businessId,
+                hasCatalogManagement: includeCatalog,
             };
 
             bulkOps.push({
                 updateOne: {
                     filter: { wabaId: wabaData.id },
                     update: { 
-                        $set: { name: projectDoc.name, accessToken: projectDoc.accessToken, userId: projectDoc.userId },
+                        $set: { 
+                            name: projectDoc.name, 
+                            accessToken: projectDoc.accessToken, 
+                            userId: projectDoc.userId,
+                            businessId: projectDoc.businessId,
+                            hasCatalogManagement: projectDoc.hasCatalogManagement,
+                        },
                         $setOnInsert: { ...projectDoc, phoneNumbers: [] }
                     },
                     upsert: true,
@@ -4385,5 +4414,6 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
 }
 
     
+
 
 

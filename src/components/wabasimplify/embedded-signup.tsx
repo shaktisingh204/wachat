@@ -19,9 +19,10 @@ declare global {
 interface EmbeddedSignupProps {
   appId: string;
   configId: string;
+  includeCatalog: boolean;
 }
 
-export function EmbeddedSignup({ appId, configId }: EmbeddedSignupProps) {
+export function EmbeddedSignup({ appId, configId, includeCatalog }: EmbeddedSignupProps) {
   const [sdkLoaded, setSdkLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
@@ -56,6 +57,11 @@ export function EmbeddedSignup({ appId, configId }: EmbeddedSignupProps) {
       toast({ title: 'SDK Not Loaded', description: 'Facebook SDK is still loading, please wait a moment.', variant: 'destructive' });
       return;
     }
+    
+    const scopes = ['whatsapp_business_management'];
+    if (includeCatalog) {
+        scopes.push('catalog_management', 'business_management');
+    }
 
     window.FB.login(
       function (response: any) {
@@ -81,7 +87,7 @@ export function EmbeddedSignup({ appId, configId }: EmbeddedSignupProps) {
               return;
           }
 
-          handleFacebookSetup(accessToken, grantedWabas).then(result => {
+          handleFacebookSetup(accessToken, grantedWabas, includeCatalog).then(result => {
              if (result.error) {
                 toast({ title: 'Setup Failed', description: result.error, variant: 'destructive' });
              }
@@ -99,7 +105,7 @@ export function EmbeddedSignup({ appId, configId }: EmbeddedSignupProps) {
       },
       {
         config_id: configId,
-        scope: 'whatsapp_business_management',
+        scope: scopes.join(','),
         extras: {
             setup: {
                 // Prefilled data can go here
