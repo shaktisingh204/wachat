@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useActionState, useState } from 'react';
@@ -50,6 +51,8 @@ const features: { id: keyof PlanFeaturePermissions, name: string }[] = [
     { id: 'settingsCompliance', name: 'Compliance Settings Tab' },
     { id: 'settingsUserAttributes', name: 'User Attributes Tab' },
     { id: 'apiAccess', name: 'API Access' },
+    { id: 'urlShortener', name: 'URL Shortener' },
+    { id: 'qrCodeMaker', name: 'QR Code Maker' },
 ];
 
 export default function PlanEditorPage() {

@@ -210,6 +210,8 @@ export type PlanFeaturePermissions = {
     settingsCompliance: boolean;
     settingsUserAttributes: boolean;
     apiAccess: boolean;
+    urlShortener: boolean;
+    qrCodeMaker: boolean;
 };
 
 export type PlanMessageCosts = {

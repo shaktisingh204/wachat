@@ -54,6 +54,8 @@ import {
   Route,
   Wrench,
   Facebook,
+  Link as LinkIcon,
+  QrCode,
 } from 'lucide-react';
 import { WachatBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -81,6 +83,8 @@ const wachatMenuItems = [
   { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, featureKey: 'catalog' },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'flowBuilder' },
   { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, featureKey: 'metaFlows' },
+  { href: '/dashboard/url-shortener', label: 'URL Shortener', icon: LinkIcon, featureKey: 'urlShortener' },
+  { href: '/dashboard/qr-code-maker', label: 'QR Code Maker', icon: QrCode, featureKey: 'qrCodeMaker' },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, featureKey: 'numbers' },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, featureKey: 'webhooks' },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings, featureKey: 'settings' },
@@ -366,5 +370,3 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
-
-    
