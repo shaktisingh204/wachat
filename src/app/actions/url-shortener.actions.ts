@@ -1,11 +1,10 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
-import type { ShortUrl } from '@/lib/definitions';
+import { getSession } from '@/app/actions';
+import type { ShortUrl, User } from '@/lib/definitions';
 import { nanoid } from 'nanoid';
 import { headers } from 'next/headers';
 import { Readable } from 'stream';
@@ -15,24 +14,22 @@ import * as XLSX from 'xlsx';
 const generateShortCode = (length = 7) => nanoid(length);
 
 export async function createShortUrl(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
     const originalUrl = formData.get('originalUrl') as string;
     const alias = formData.get('alias') as string | null;
-    const tagIds = (formData.get('tagIds') as string)?.split(',') || [];
+    const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
 
-    if (!projectId || !originalUrl) {
-        return { error: 'Project ID and Original URL are required.' };
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
+
+    if (!originalUrl) {
+        return { error: 'Original URL is required.' };
     }
 
-    // Basic URL validation
     try {
         new URL(originalUrl);
     } catch (_) {
         return { error: 'Invalid Original URL format.' };
     }
-
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: "Access denied." };
 
     try {
         const { db } = await connectToDatabase();
@@ -40,14 +37,14 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
         let shortCode = alias || generateShortCode();
 
         if (alias) {
-            const existing = await db.collection('short_urls').findOne({ shortCode, projectId: new ObjectId(projectId) });
+            const existing = await db.collection('short_urls').findOne({ shortCode, userId: session.user._id });
             if (existing) {
                 return { error: 'This custom alias is already in use.' };
             }
         }
 
-        const newShortUrl: Omit<ShortUrl, '_id'> = {
-            projectId: new ObjectId(projectId),
+        const newShortUrl: Omit<ShortUrl, '_id' | 'projectId'> & { userId: ObjectId } = {
+            userId: new ObjectId(session.user._id),
             originalUrl,
             shortCode,
             clickCount: 0,
@@ -62,14 +59,14 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
         return { message: 'Short URL created successfully!' };
 
     } catch (e: any) {
-        if (e.code === 11000) { // Handle rare nanoid collision
+        if (e.code === 11000) { 
             return { error: 'That short code is already taken, please try again.' };
         }
         return { error: e.message || 'An unexpected error occurred.' };
     }
 }
 
-async function processUrlStream(inputStream: NodeJS.ReadableStream | string, projectId: ObjectId): Promise<number> {
+async function processUrlStream(inputStream: NodeJS.ReadableStream | string, userId: ObjectId): Promise<number> {
     return new Promise<number>((resolve, reject) => {
         const urlRows: { url: string; alias?: string }[] = [];
         
@@ -96,7 +93,7 @@ async function processUrlStream(inputStream: NodeJS.ReadableStream | string, pro
                     const alias = (row[aliasColumnHeader as keyof typeof row] || '').trim() || null;
                     
                     return {
-                        projectId,
+                        userId,
                         originalUrl,
                         shortCode: alias || generateShortCode(),
                         clickCount: 0,
@@ -127,21 +124,20 @@ async function processUrlStream(inputStream: NodeJS.ReadableStream | string, pro
 };
 
 export async function handleBulkCreateShortUrls(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
     const urlFile = formData.get('urlFile') as File;
-
-    if (!projectId || !urlFile || urlFile.size === 0) {
-        return { error: 'Project ID and a file are required.' };
-    }
     
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: "Access denied." };
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied." };
+
+    if (!urlFile || urlFile.size === 0) {
+        return { error: 'A file is required.' };
+    }
 
     try {
         let createdCount = 0;
         if (urlFile.name.endsWith('.csv')) {
             const nodeStream = Readable.fromWeb(urlFile.stream() as any);
-            createdCount = await processUrlStream(nodeStream, new ObjectId(projectId));
+            createdCount = await processUrlStream(nodeStream, new ObjectId(session.user._id));
         } else if (urlFile.name.endsWith('.xlsx')) {
             const fileBuffer = Buffer.from(await urlFile.arrayBuffer());
             const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
@@ -149,7 +145,7 @@ export async function handleBulkCreateShortUrls(prevState: any, formData: FormDa
             if (!sheetName) throw new Error('The XLSX file contains no sheets.');
             const worksheet = workbook.Sheets[sheetName];
             const csvData = XLSX.utils.sheet_to_csv(worksheet);
-            createdCount = await processUrlStream(csvData, new ObjectId(projectId));
+            createdCount = await processUrlStream(csvData, new ObjectId(session.user._id));
         } else {
             return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
         }
@@ -166,15 +162,14 @@ export async function handleBulkCreateShortUrls(prevState: any, formData: FormDa
 }
 
 
-export async function getShortUrls(projectId: string): Promise<WithId<ShortUrl>[]> {
-    if (!ObjectId.isValid(projectId)) return [];
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
+export async function getShortUrls(): Promise<WithId<ShortUrl>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
         const urls = await db.collection('short_urls')
-            .find({ projectId: new ObjectId(projectId) })
+            .find({ userId: new ObjectId(session.user._id) })
             .sort({ createdAt: -1 })
             .toArray();
         return JSON.parse(JSON.stringify(urls));
@@ -227,12 +222,17 @@ export async function trackClickAndGetUrl(shortCode: string): Promise<{ original
 }
 
 export async function deleteShortUrl(id: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
     if (!ObjectId.isValid(id)) {
       return { success: false, error: 'Invalid URL ID.' };
     }
     
     const urlToDelete = await getShortUrlById(id);
     if (!urlToDelete) return { success: false, error: 'URL not found or access denied.' };
+    if (urlToDelete.userId.toString() !== session.user._id.toString()) {
+        return { success: false, error: 'Access denied.' };
+    }
     
     try {
         const { db } = await connectToDatabase();
@@ -248,9 +248,5 @@ async function getShortUrlById(id: string): Promise<WithId<ShortUrl> | null> {
     const { db } = await connectToDatabase();
     const url = await db.collection<ShortUrl>('short_urls').findOne({ _id: new ObjectId(id) });
     if (!url) return null;
-
-    const hasAccess = await getProjectById(url.projectId.toString());
-    if (!hasAccess) return null;
-
     return url;
 }

@@ -69,7 +69,7 @@ import type {
 } from '@/lib/definitions';
 
 
-export async function getSession(): Promise<{ user: Omit<User, 'password'> } | null> {
+export async function getSession(): Promise<{ user: Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null, tags?: Tag[] } } | null> {
     const sessionToken = cookies().get('session')?.value;
     if (!sessionToken) {
         return null;
@@ -2509,12 +2509,11 @@ export async function savePaymentGatewaySettings(prevState: any, formData: FormD
     }
 }
 
-export async function handleInitiatePayment(data: { planId: string, projectId: string }): Promise<InitiatePaymentResult> {
+export async function handleInitiatePayment(projectId: string, planId: string): Promise<InitiatePaymentResult> {
     const session = await getSession();
     if (!session?.user) {
         return { error: 'You must be logged in to purchase a plan.' };
     }
-    const { planId, projectId } = data;
 
     if (!ObjectId.isValid(planId) || !ObjectId.isValid(projectId)) {
         return { error: 'Invalid plan or project selected.' };
@@ -2599,14 +2598,13 @@ export async function handleInitiatePayment(data: { planId: string, projectId: s
     }
 }
 
-export async function handleInitiateCreditPurchase(data: {credits: number, amount: number, projectId: string}): Promise<InitiatePaymentResult> {
+export async function handleInitiateCreditPurchase(credits: number, amount: number, projectId?: string): Promise<InitiatePaymentResult> {
     const session = await getSession();
     if (!session?.user) {
         return { error: 'You must be logged in to purchase credits.' };
     }
-    const { credits, amount, projectId } = data;
-    if (!credits || !amount || credits <= 0 || amount <= 0 || !ObjectId.isValid(projectId)) {
-        return { error: 'Invalid credit, amount, or project value.' };
+    if (!credits || !amount || credits <= 0 || amount <= 0) {
+        return { error: 'Invalid credit or amount value.' };
     }
 
     const { db } = await connectToDatabase();
@@ -2622,7 +2620,7 @@ export async function handleInitiateCreditPurchase(data: {credits: number, amoun
         const now = new Date();
         const newTransaction: Omit<Transaction, '_id'> = {
             userId: new ObjectId(session.user._id),
-            projectId: new ObjectId(projectId),
+            ...(projectId && ObjectId.isValid(projectId) && { projectId: new ObjectId(projectId) }),
             amount: amount * 100, 
             status: 'PENDING',
             provider: 'phonepe',
@@ -2813,15 +2811,28 @@ export async function handleUpdateUserProfile(prevState: any, formData: FormData
     if (!session?.user) return { error: 'Authentication required.' };
 
     const name = formData.get('name') as string;
-    if (!name) return { error: 'Name is required.' };
+    const tagsJson = formData.get('tags') as string;
+
+    const updates: any = {};
+    if (name) updates.name = name;
+    if (tagsJson) {
+      try {
+        updates.tags = JSON.parse(tagsJson);
+      } catch (e) {
+        return { error: 'Invalid tags format.'};
+      }
+    }
+
+    if (Object.keys(updates).length === 0) return { error: 'No changes detected.' };
 
     try {
         const { db } = await connectToDatabase();
         await db.collection('users').updateOne(
             { _id: new ObjectId(session.user._id) },
-            { $set: { name } }
+            { $set: updates }
         );
         revalidatePath('/dashboard/profile');
+        revalidatePath('/dashboard/url-shortener');
         return { message: 'Profile updated successfully.' };
     } catch (e: any) {
         return { error: 'Failed to update profile.' };
@@ -2916,6 +2927,8 @@ export async function savePlan(prevState: any, formData: FormData): Promise<{ me
             settingsCompliance: formData.get('settingsCompliance') === 'on',
             settingsUserAttributes: formData.get('settingsUserAttributes') === 'on',
             apiAccess: formData.get('apiAccess') === 'on',
+            urlShortener: formData.get('urlShortener') === 'on',
+            qrCodeMaker: formData.get('qrCodeMaker') === 'on',
         };
 
         const planData: Omit<Plan, '_id' | 'createdAt'> = {
@@ -4212,19 +4225,18 @@ export async function updateProjectPlanByAdmin(projectId: string, planId: string
 }
 
 
-export async function saveProjectTags(projectId: string, tags: Tag[]): Promise<{ success: boolean; error?: string }> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { success: false, error: 'Access denied.' };
+export async function saveUserTags(tags: Tag[]): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
 
     try {
         const { db } = await connectToDatabase();
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
             { $set: { tags: tags } }
         );
         revalidatePath('/dashboard/settings');
-        revalidatePath('/dashboard/contacts');
-        revalidatePath('/dashboard/chat');
+        revalidatePath('/dashboard/url-shortener');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: 'Failed to save tags.' };
@@ -4258,6 +4270,7 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
 }
 
     
+
 
 
 

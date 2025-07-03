@@ -144,7 +144,7 @@ function ShortenerPageSkeleton() {
 }
 
 export default function UrlShortenerPage() {
-    const [user, setUser] = useState<(Omit<User, 'password'> & { _id: string }) | null>(null);
+    const [user, setUser] = useState<(Omit<User, 'password'> & { _id: string, tags?: Tag[] }) | null>(null);
     const [urls, setUrls] = useState<WithId<ShortUrl>[]>([]);
     const [isLoading, startLoadingTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);

@@ -7,7 +7,6 @@ export default async function ShortUrlRedirectPage({ params }: { params: { short
         notFound();
     }
     
-    // We don't need to check user session here, this should be public
     const { originalUrl, error } = await trackClickAndGetUrl(params.shortCode);
     
     if (error || !originalUrl) {

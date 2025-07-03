@@ -308,8 +308,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 tooltipText = `${item.label} (Upgrade plan)`;
               }
               
-              const isOverviewPage = item.href === '/dashboard' || item.href === '/dashboard/overview' || item.href === '/dashboard/facebook';
-              const isActive = isOverviewPage ? pathname === item.href : pathname.startsWith(item.href);
+               const isBasePage = 
+                    item.href === '/dashboard' ||
+                    item.href === '/dashboard/overview' ||
+                    item.href === '/dashboard/facebook' ||
+                    item.href === '/dashboard/instagram/feed' ||
+                    item.href === '/dashboard/url-shortener' ||
+                    item.href === '/dashboard/qr-code-maker';
+
+              const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
 
 
               return (
