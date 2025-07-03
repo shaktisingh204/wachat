@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={ptSans.variable}>
       <head />
-      <body className="font-body antialiased">
+      <body className="font-body antialiased px-4 sm:px-6 lg:px-8">
         {children}
         <Toaster />
       </body>
