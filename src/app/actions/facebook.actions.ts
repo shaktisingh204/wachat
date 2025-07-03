@@ -166,7 +166,7 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
         };
         await db.collection('ad_campaigns').insertOne(newAdCampaign as any);
 
-        revalidatePath('/dashboard/whatsapp-ads');
+        revalidatePath('/dashboard/facebook/ads');
         return { message: `Ad campaign "${campaignName}" created successfully! It is currently paused.` };
 
     } catch (e: any) {

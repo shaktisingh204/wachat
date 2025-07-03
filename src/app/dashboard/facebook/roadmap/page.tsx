@@ -1,7 +1,4 @@
 
-
-'use client';
-
 import {
   Card,
   CardContent,
@@ -12,6 +9,10 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Check, Route } from 'lucide-react';
 import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Facebook Ads Roadmap | Wachat',
+};
 
 const roadMapPhases = [
   { 
