@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { WachatLogo } from '@/components/wabasimplify/logo';
+import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, LoaderCircle } from 'lucide-react';
 import { handleLogin } from '@/app/actions';
@@ -35,7 +35,7 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-6">
-          <WachatLogo className="w-48 h-auto" />
+          <SabNodeLogo className="w-48 h-auto" />
         </div>
         <Card className="card-gradient card-gradient-blue">
           <CardHeader>

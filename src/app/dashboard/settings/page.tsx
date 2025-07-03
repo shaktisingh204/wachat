@@ -534,7 +534,7 @@ function SettingsPageContent() {
 
   useEffect(() => {
     if (isClient && activeProjectId) {
-        document.title = 'Project Settings | Wachat';
+        document.title = 'Project Settings | SabNode';
         startLoadingTransition(async () => {
             const [projectData, sessionData] = await Promise.all([
                 getProjectById(activeProjectId),

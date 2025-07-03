@@ -1,4 +1,5 @@
 
+
 import { getTransactionsForUser } from '@/app/actions';
 import type { Transaction } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -13,7 +14,7 @@ import { ChevronLeft, Receipt } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Billing History | Wachat',
+  title: 'Billing History | SabNode',
 };
 
 const getStatusVariant = (status: Transaction['status']) => {

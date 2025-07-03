@@ -126,7 +126,7 @@ export default function FacebookManagerPage() {
                 <Card className="text-center card-gradient card-gradient-green">
                     <CardHeader>
                         <CardTitle>Connect Your Facebook Page</CardTitle>
-                        <CardDescription>Use the secure pop-up to connect your account in a few clicks. This will allow Wachat to manage ads on your behalf.</CardDescription>
+                        <CardDescription>Use the secure pop-up to connect your account in a few clicks. This will allow SabNode to manage ads on your behalf.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <FacebookEmbeddedSignup

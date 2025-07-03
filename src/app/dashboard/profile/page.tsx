@@ -153,7 +153,7 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        document.title = "My Profile | Wachat";
+        document.title = "My Profile | SabNode";
         getSession().then(session => {
             if (session?.user) {
                 setUser(session.user);

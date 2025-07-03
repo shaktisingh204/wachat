@@ -13,13 +13,13 @@ export default function PrivacyPolicyPage() {
         </div>
         <Card>
           <CardHeader>
-            <CardTitle className="text-3xl font-bold font-headline">Privacy Policy for Wachat</CardTitle>
+            <CardTitle className="text-3xl font-bold font-headline">Privacy Policy for SabNode</CardTitle>
           </CardHeader>
           <CardContent className="prose prose-sm sm:prose-base lg:prose-lg xl:prose-xl dark:prose-invert max-w-none space-y-4 text-foreground/90">
             <p><strong>Last Updated:</strong> {new Date().toLocaleDateString()}</p>
             
             <h2 className="text-xl font-semibold">Introduction</h2>
-            <p>Welcome to Wachat ("we," "our," "us"). We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application, which integrates with the WhatsApp Business API via the Meta Platform.</p>
+            <p>Welcome to SabNode ("we," "our," "us"). We are committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our application, which integrates with the WhatsApp Business API via the Meta Platform.</p>
 
             <h2 className="text-xl font-semibold">Information We Collect</h2>
             <p>We may collect information about you in a variety of ways. The information we may collect via the Application depends on the content and materials you use, and includes:</p>

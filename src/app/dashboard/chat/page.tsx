@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Live Chat | Wachat',
+  title: 'Live Chat | SabNode',
 };
 
 function ChatPageSkeleton() {

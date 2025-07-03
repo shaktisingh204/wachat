@@ -68,7 +68,7 @@ export default function DashboardOverviewPage() {
 
   useEffect(() => {
     if (isClient) {
-      document.title = "Dashboard Overview | Wachat";
+      document.title = "Dashboard Overview | SabNode";
       const storedProjectId = localStorage.getItem('activeProjectId');
       setProjectId(storedProjectId);
       if (storedProjectId) {

@@ -27,7 +27,7 @@ import { AdminAssignPlanDialog } from '@/components/wabasimplify/admin-assign-pl
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Admin Dashboard | Wachat',
+  title: 'Admin Dashboard | SabNode',
 };
 
 const PROJECTS_PER_PAGE = 10;
@@ -62,7 +62,7 @@ export default async function AdminDashboardPage({
     <div className="flex flex-col gap-4">
       <div>
         <h1 className="text-3xl font-bold font-headline">Admin Dashboard</h1>
-        <p className="text-muted-foreground">High-level overview of the Wachat platform.</p>
+        <p className="text-muted-foreground">High-level overview of the SabNode platform.</p>
       </div>
 
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

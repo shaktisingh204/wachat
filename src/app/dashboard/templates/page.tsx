@@ -83,7 +83,7 @@ export default function TemplatesPage() {
 
   useEffect(() => {
     if (isClient) {
-        document.title = 'Message Templates | Wachat';
+        document.title = 'Message Templates | SabNode';
         if (activeProjectId) {
             fetchTemplates(activeProjectId);
         }

@@ -12,7 +12,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
 export const metadata: Metadata = {
-  title: 'Billing & Plans | Wachat',
+  title: 'Billing & Plans | SabNode',
 };
 export const dynamic = 'force-dynamic';
 

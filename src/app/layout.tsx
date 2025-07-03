@@ -4,8 +4,8 @@ import { Toaster } from "@/components/ui/toaster"
 import { PT_Sans } from 'next/font/google';
 
 export const metadata: Metadata = {
-  title: 'Wachat',
-  description: 'Streamline Your WhatsApp Business API Experience',
+  title: 'SabNode',
+  description: 'Your All-in-One Business Communication Platform',
 };
 
 const ptSans = PT_Sans({

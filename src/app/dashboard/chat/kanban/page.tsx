@@ -7,7 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'Chat Kanban | Wachat',
+  title: 'Chat Kanban | SabNode',
 };
 
 function KanbanPageSkeleton() {

@@ -1,7 +1,8 @@
+
 // This component is no longer used in the main layout but is kept for potential other uses.
 import * as React from 'react';
 
-export const WachatLogo = (props: React.SVGProps<SVGSVGElement>) => (
+export const SabNodeLogo = (props: React.SVGProps<SVGSVGElement>) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" {...props}>
     <text
       x="50%"
@@ -13,7 +14,7 @@ export const WachatLogo = (props: React.SVGProps<SVGSVGElement>) => (
       fontWeight="bold"
       fill="hsl(var(--primary))"
     >
-      Wachat
+      SabNode
     </text>
   </svg>
 );

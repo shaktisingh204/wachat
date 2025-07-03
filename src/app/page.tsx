@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import { Button } from '@/components/ui/button';
-import { WachatLogo } from '@/components/wabasimplify/logo';
+import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
 import {
   Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper
@@ -56,7 +56,7 @@ const ComingSoonCard = ({ title, icon: Icon }: { title: string, icon: React.Elem
 );
 
 const OverviewShowcase = () => (
-    <AppShowcase title="Welcome to Wachat" description="An all-in-one platform for your messaging and marketing needs. Select a tool on the right to learn more.">
+    <AppShowcase title="Welcome to SabNode" description="An all-in-one platform for your messaging and marketing needs. Select a tool on the right to learn more.">
         <FeatureCard icon={Send} title="WhatsApp Campaigns" description="Launch targeted broadcast campaigns with detailed, real-time analytics." gradient="card-gradient-green" />
         <FeatureCard icon={Megaphone} title="Facebook Ads" description="Create and manage 'Click to WhatsApp' ad campaigns directly from the dashboard." gradient="card-gradient-blue" />
         <FeatureCard icon={LinkIcon} title="URL Shortener" description="Create branded, trackable short links for your campaigns." gradient="card-gradient-purple" />
@@ -76,12 +76,12 @@ const WhatsAppShowcase = () => {
         { icon: Shield, title: 'Compliance Tools', description: 'Easily manage opt-ins and opt-outs with built-in compliance features.', gradient: 'card-gradient-blue' }
     ];
     const testimonials = [
-        { name: 'Maria Garcia', title: 'Marketing Manager, Bloom Co.', avatar: 'https://placehold.co/100x100.png', text: 'Wachat has revolutionized our customer outreach. The flow builder is incredibly intuitive, and we saw a 200% increase in engagement on our first campaign!', aiHint: 'woman portrait' },
+        { name: 'Maria Garcia', title: 'Marketing Manager, Bloom Co.', avatar: 'https://placehold.co/100x100.png', text: 'SabNode has revolutionized our customer outreach. The flow builder is incredibly intuitive, and we saw a 200% increase in engagement on our first campaign!', aiHint: 'woman portrait' },
         { name: 'David Chen', title: 'Support Lead, TechGear Inc.', avatar: 'https://placehold.co/100x100.png', text: "The unified live chat and AI auto-replies have cut our support response times in half. It's an essential tool for our team.", aiHint: 'man portrait' },
-        { name: 'Aisha Ahmed', title: 'Founder, The Artisan Box', avatar: 'https://placehold.co/100x100.png', text: "As a small business, Wachat gave us the power of a full marketing team. Sending templates and managing contacts has never been easier.", aiHint: 'woman face' }
+        { name: 'Aisha Ahmed', title: 'Founder, The Artisan Box', avatar: 'https://placehold.co/100x100.png', text: "As a small business, SabNode gave us the power of a full marketing team. Sending templates and managing contacts has never been easier.", aiHint: 'woman face' }
     ];
     const faqs = [
-        { question: 'Is Wachat an official WhatsApp product?', answer: 'No, Wachat is an independent application that uses the official WhatsApp Business API provided by Meta. We provide a user-friendly interface to access the powerful features of the API.' },
+        { question: 'Is SabNode an official WhatsApp product?', answer: 'No, SabNode is an independent application that uses the official WhatsApp Business API provided by Meta. We provide a user-friendly interface to access the powerful features of the API.' },
         { question: 'What do I need to get started?', answer: "You'll need a WhatsApp Business Account (WABA) and a phone number that is not currently being used by a personal WhatsApp account. Our embedded signup process will guide you through connecting your account." },
         { question: 'Can I use my existing WhatsApp number?', answer: "You cannot use a number that is currently active on the consumer WhatsApp app. You'll need to use a new number or migrate your existing business number to the WhatsApp Business API, which is a process we can help guide you through." },
         { question: 'Is there a free trial?', answer: 'Yes, you can sign up for free to explore the platform. Meta may have its own charges for sending messages, which are separate from our platform fees. Please refer to Meta\'s documentation for their latest pricing.' }
@@ -100,7 +100,7 @@ const WhatsAppShowcase = () => {
             <div className="container mx-auto px-4 grid justify-items-center text-center gap-8">
                 <div className="space-y-4 max-w-3xl">
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold font-headline tracking-tighter">Streamline Your WhatsApp Business API Experience</h1>
-                    <p className="mx-auto text-lg text-muted-foreground">Manage campaigns, automate conversations, and engage customers effortlessly with Wachat. The all-in-one platform for your WhatsApp marketing and support needs.</p>
+                    <p className="mx-auto text-lg text-muted-foreground">Manage campaigns, automate conversations, and engage customers effortlessly with SabNode. The all-in-one platform for your WhatsApp marketing and support needs.</p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <Button size="lg" asChild><Link href="/signup">Get Started for Free <ArrowRight className="ml-2 h-5 w-5" /></Link></Button>
                         <Button size="lg" variant="outline" asChild><Link href="#features">Learn More <ChevronDown className="ml-2 h-5 w-5"/></Link></Button>
@@ -111,8 +111,8 @@ const WhatsAppShowcase = () => {
                          <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                             <div className="absolute inset-0 bg-black/5"></div>
                             <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
-                                <ArrowLeft className="h-5 w-5 opacity-90" /><Avatar><AvatarFallback>W</AvatarFallback></Avatar>
-                                <div className="flex-1 flex flex-col items-start"><p className="font-semibold text-[15px]">Wachat</p><p className="text-xs opacity-80">online</p></div>
+                                <ArrowLeft className="h-5 w-5 opacity-90" /><Avatar><AvatarFallback>S</AvatarFallback></Avatar>
+                                <div className="flex-1 flex flex-col items-start"><p className="font-semibold text-[15px]">SabNode</p><p className="text-xs opacity-80">online</p></div>
                             </div>
                             <div className="flex-1 p-3 space-y-3 overflow-y-auto">
                                 <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '1s' }}><div className="bg-[#202C33] text-white rounded-lg rounded-tl-none p-2 text-sm max-w-xs shadow">Start flow</div></div>
@@ -151,7 +151,7 @@ const WhatsAppShowcase = () => {
                     <div className="text-center space-y-4 mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold font-headline">One Platform, Complete Control</h2>
                         <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
-                            From visual automations to conversation management, see how Wachat puts you in control of the entire customer journey.
+                            From visual automations to conversation management, see how SabNode puts you in control of the entire customer journey.
                         </p>
                     </div>
                     
@@ -215,9 +215,9 @@ const WhatsAppShowcase = () => {
                                         {/* Header */}
                                         <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                             <ArrowLeft className="h-5 w-5 opacity-90" />
-                                            <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
+                                            <Avatar><AvatarFallback>S</AvatarFallback></Avatar>
                                             <div className="flex-1 flex flex-col items-start">
-                                                <div className="flex items-center gap-1.5"><p className="font-semibold text-[15px]">Wachat</p><CheckCheck className="h-4 w-4 text-green-400" /></div>
+                                                <div className="flex items-center gap-1.5"><p className="font-semibold text-[15px]">SabNode</p><CheckCheck className="h-4 w-4 text-green-400" /></div>
                                                 <p className="text-xs opacity-80">tap here for contact info</p>
                                             </div>
                                         </div>
@@ -307,7 +307,7 @@ const WhatsAppShowcase = () => {
                     <div className="text-center space-y-4 mb-16">
                         <h2 className="text-3xl md:text-4xl font-bold font-headline">A Complete Toolkit for WhatsApp</h2>
                         <p className="max-w-2xl mx-auto text-lg text-muted-foreground">
-                            Wachat is packed with features designed to handle every aspect of your customer communication.
+                            SabNode is packed with features designed to handle every aspect of your customer communication.
                         </p>
                     </div>
                     
@@ -348,8 +348,8 @@ const WhatsAppShowcase = () => {
                                     <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                                         <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                             <ArrowLeft className="h-5 w-5 opacity-90" />
-                                            <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
-                                            <div className="flex-1"><p className="font-semibold text-[15px]">Wachat</p><p className="text-xs opacity-80">online</p></div>
+                                            <Avatar><AvatarFallback>S</AvatarFallback></Avatar>
+                                            <div className="flex-1"><p className="font-semibold text-[15px]">SabNode</p><p className="text-xs opacity-80">online</p></div>
                                         </div>
                                         <div className="flex-1 p-3 space-y-3 overflow-y-auto">
                                             <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-[#202C33] text-white rounded-lg rounded-tl-none p-2 text-sm max-w-xs shadow">What are your hours?</div></div>
@@ -442,8 +442,8 @@ const WhatsAppShowcase = () => {
                                     <div className="h-full bg-slate-900 rounded-[2.25rem] flex flex-col relative overflow-hidden bg-center bg-cover" style={{backgroundImage: "url('/images/chat-bg-dark.png')"}}>
                                         <div className="bg-[#1F2C33] text-white p-2.5 flex items-center gap-3 flex-shrink-0 z-10 shadow-md">
                                             <ArrowLeft className="h-5 w-5 opacity-90" />
-                                            <Avatar><AvatarFallback>W</AvatarFallback></Avatar>
-                                            <div className="flex-1"><p className="font-semibold text-[15px]">Wachat</p><p className="text-xs opacity-80">online</p></div>
+                                            <Avatar><AvatarFallback>S</AvatarFallback></Avatar>
+                                            <div className="flex-1"><p className="font-semibold text-[15px]">SabNode</p><p className="text-xs opacity-80">online</p></div>
                                         </div>
                                         <div className="flex-1 p-3 space-y-3 overflow-y-auto">
                                             <div className="flex justify-start animate-fade-in-up" style={{ animationDelay: '0.5s' }}><div className="bg-[#202C33] text-white rounded-lg rounded-tl-none p-2 text-sm max-w-xs shadow">STOP</div></div>
@@ -570,7 +570,7 @@ const WhatsAppShowcase = () => {
                         <div className="absolute -top-10 -left-10 w-32 h-32 bg-white/10 rounded-full"></div>
                         <h2 className="text-3xl md:text-4xl font-bold font-headline relative z-10">Ready to Supercharge Your WhatsApp?</h2>
                         <p className="max-w-xl mx-auto text-lg text-primary-foreground/80 relative z-10">
-                            Join hundreds of businesses growing with Wachat. Create your account and launch your first campaign in minutes.
+                            Join hundreds of businesses growing with SabNode. Create your account and launch your first campaign in minutes.
                         </p>
                         <Button size="lg" variant="secondary" asChild className="relative z-10">
                             <Link href="/signup">Sign Up Now <ArrowRight className="ml-2 h-5 w-5" /></Link>
@@ -587,7 +587,7 @@ export default function HomePage() {
 
   const appIcons = [
     { id: 'overview', icon: Home, label: 'Overview' },
-    { id: 'whatsapp', icon: WhatsAppIcon, label: 'WhatsApp Suite' },
+    { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat Suite' },
     { id: 'facebook', icon: FacebookAppIcon, label: 'Facebook Tools' },
     { id: 'instagram', icon: InstagramIcon, label: 'Instagram Tools' },
     { id: 'url-shortener', icon: LinkIcon, label: 'URL Shortener' },
@@ -616,7 +616,7 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 flex h-14 items-center">
-          <div className="mr-4 flex"><Link href="/" className="mr-6 flex items-center space-x-2"><WachatLogo className="h-8 w-auto" /></Link></div>
+          <div className="mr-4 flex"><Link href="/" className="mr-6 flex items-center space-x-2"><SabNodeLogo className="h-8 w-auto" /></Link></div>
           <div className="flex flex-1 items-center justify-end space-x-2"><Button variant="ghost" asChild><Link href="/login">Sign In</Link></Button><Button asChild><Link href="/signup">Sign Up</Link></Button></div>
         </div>
       </header>
@@ -629,7 +629,7 @@ export default function HomePage() {
         </div>
       </main>
       <footer className="border-t">
-        <div className="container mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4"><p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} Wachat. All rights reserved.</p><div className="flex gap-4"><Link href="/terms-and-conditions" className="text-sm text-muted-foreground hover:text-primary">Terms & Conditions</Link><Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link></div></div>
+        <div className="container mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4"><p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} SabNode. All rights reserved.</p><div className="flex gap-4"><Link href="/terms-and-conditions" className="text-sm text-muted-foreground hover:text-primary">Terms & Conditions</Link><Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link></div></div>
       </footer>
     </div>
   );

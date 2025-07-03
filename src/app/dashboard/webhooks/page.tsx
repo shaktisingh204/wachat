@@ -9,7 +9,7 @@ import { Lightbulb } from "lucide-react";
 export const dynamic = 'force-dynamic';
 
 export const metadata = {
-  title: "Webhooks | Wachat",
+  title: "Webhooks | SabNode",
 };
 
 export default function WebhooksPage() {

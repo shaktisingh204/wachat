@@ -47,7 +47,7 @@ function CreateTemplatePageContent() {
 
   useEffect(() => {
     if (isClient) {
-      document.title = `${action === 'edit' ? 'Edit' : action === 'clone' ? 'Clone' : 'Create'} Template | Wachat`;
+      document.title = `${action === 'edit' ? 'Edit' : action === 'clone' ? 'Clone' : 'Create'} Template | SabNode`;
       
       const storedProjectId = localStorage.getItem('activeProjectId');
       

@@ -13,7 +13,7 @@ import { ChevronLeft, AlertCircle, Wrench } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Marketing API Setup Guide | Wachat',
+  title: 'Marketing API Setup Guide | SabNode',
 };
 
 export default function MarketingApiSetupPage() {
@@ -100,14 +100,14 @@ export default function MarketingApiSetupPage() {
       
        <Card>
         <CardHeader>
-          <CardTitle>Phase 3: Connect to Wachat</CardTitle>
+          <CardTitle>Phase 3: Connect to SabNode</CardTitle>
           <CardDescription>
             Enter your Ad Account ID and Page ID in the settings.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <p className="text-sm">
-            Navigate to the <strong>Settings &rarr; Marketing</strong> tab in Wachat. Paste your <strong>Ad Account ID</strong> (e.g., `act_12345`) and your <strong>Facebook Page ID</strong> into the respective fields and save. Your access token is already saved with your project, so you don't need to re-enter it.
+            Navigate to the <strong>Settings &rarr; Marketing</strong> tab in SabNode. Paste your <strong>Ad Account ID</strong> (e.g., `act_12345`) and your <strong>Facebook Page ID</strong> into the respective fields and save. Your access token is already saved with your project, so you don't need to re-enter it.
           </p>
         </CardContent>
       </Card>

@@ -19,7 +19,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: 'User Management | Wachat',
+  title: 'User Management | SabNode',
 };
 
 const USERS_PER_PAGE = 10;

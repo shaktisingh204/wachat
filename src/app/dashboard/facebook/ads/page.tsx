@@ -122,7 +122,7 @@ export default function AdsManagerPage() {
                 <Card className="card-gradient card-gradient-blue">
                     <CardHeader>
                         <CardTitle>Your Campaigns</CardTitle>
-                        <CardDescription>A list of all ad campaigns created through Wachat.</CardDescription>
+                        <CardDescription>A list of all ad campaigns created through SabNode.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="border rounded-md">

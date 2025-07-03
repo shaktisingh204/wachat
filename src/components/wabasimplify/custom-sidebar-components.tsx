@@ -17,7 +17,7 @@ export const WaPayIcon = (props: React.SVGProps<SVGSVGElement>) => (
     </svg>
 );
 
-export const WachatBrandLogo = (props: React.SVGProps<SVGSVGElement>) => (
+export const SabNodeBrandLogo = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg" {...props}>
     <g fillRule="evenodd">
       <path fill="#29B6F6" d="m2.5 16.5 10 15 10-15z"/>

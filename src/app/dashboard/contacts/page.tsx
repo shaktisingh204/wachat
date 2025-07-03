@@ -129,7 +129,7 @@ export default function ContactsPage() {
 
     useEffect(() => {
         setIsClient(true);
-        document.title = 'Contacts | Wachat';
+        document.title = 'Contacts | SabNode';
         const storedProjectId = localStorage.getItem('activeProjectId');
         setActiveProjectId(storedProjectId);
     }, []);
