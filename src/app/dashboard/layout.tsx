@@ -126,6 +126,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   React.useEffect(() => {
     if (!isClient) return;
 
+    if (pathname.startsWith('/dashboard/facebook')) {
+        setActiveApp('facebook');
+    } else if (pathname.startsWith('/dashboard/instagram')) {
+        setActiveApp('instagram');
+    } else if (pathname.startsWith('/dashboard/url-shortener')) {
+        setActiveApp('url-shortener');
+    } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
+        setActiveApp('qr-code-maker');
+    } else {
+        setActiveApp('whatsapp');
+    }
+
     const isDashboardHome = pathname === '/dashboard';
 
     if (isDashboardHome) {
@@ -166,7 +178,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
   const planFeatures = sessionUser?.plan?.features;
   
-  const currentMenuItems = activeApp === 'whatsapp' ? wachatMenuItems : activeApp === 'facebook' ? facebookMenuItems : instagramMenuItems;
+  const currentMenuItems =
+    activeApp === 'facebook'
+      ? facebookMenuItems
+      : activeApp === 'instagram'
+      ? instagramMenuItems
+      : wachatMenuItems; // Default to wachat menu items for whatsapp, url-shortener, etc.
 
   return (
     <div data-theme={activeApp}>
@@ -175,8 +192,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex h-full w-16 flex-col items-center gap-4 rounded-lg border bg-card py-4 shadow-md">
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <button
-                    onClick={() => setActiveApp('whatsapp')}
+                    <Link
+                    href="/dashboard/overview"
                     className={cn(
                         'p-3 mx-2 rounded-lg transition-colors',
                         activeApp === 'whatsapp'
@@ -185,14 +202,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     )}
                     >
                     <WhatsAppIcon className="h-6 w-6" />
-                    </button>
+                    </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right">WhatsApp Tools</TooltipContent>
             </Tooltip>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <button
-                    onClick={() => setActiveApp('facebook')}
+                    <Link
+                    href="/dashboard/facebook"
                     className={cn(
                         'p-3 mx-2 rounded-lg transition-colors',
                         activeApp === 'facebook'
@@ -201,14 +218,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     )}
                     >
                     <FacebookAppIcon className="h-6 w-6" />
-                    </button>
+                    </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right">Facebook Manager</TooltipContent>
             </Tooltip>
              <Tooltip>
                 <TooltipTrigger asChild>
-                    <button
-                    onClick={() => setActiveApp('instagram')}
+                    <Link
+                    href="/dashboard/instagram/feed"
                     className={cn(
                         'p-3 mx-2 rounded-lg transition-colors',
                         activeApp === 'instagram'
@@ -217,9 +234,42 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     )}
                     >
                     <InstagramIcon className="h-6 w-6" />
-                    </button>
+                    </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right">Instagram Manager</TooltipContent>
+            </Tooltip>
+            <Separator className="w-2/3 my-1 bg-border/50"/>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                     <Link
+                        href="/dashboard/url-shortener"
+                        className={cn(
+                            'p-3 mx-2 rounded-lg transition-colors',
+                            activeApp === 'url-shortener'
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-card text-purple-600 hover:bg-accent'
+                        )}
+                        >
+                        <LinkIcon className="h-6 w-6" />
+                    </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">URL Shortener</TooltipContent>
+            </Tooltip>
+             <Tooltip>
+                <TooltipTrigger asChild>
+                     <Link
+                        href="/dashboard/qr-code-maker"
+                        className={cn(
+                            'p-3 mx-2 rounded-lg transition-colors',
+                            activeApp === 'qr-code-maker'
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-card text-orange-500 hover:bg-accent'
+                        )}
+                        >
+                        <QrCode className="h-6 w-6" />
+                    </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">QR Code Maker</TooltipContent>
             </Tooltip>
         </div>
       </div>

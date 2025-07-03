@@ -122,6 +122,34 @@ body {
     --sidebar-accent: 327 50% 22%;
     --sidebar-accent-foreground: 0 0% 100%;
   }
+
+  /* URL Shortener Theme */
+  [data-theme="url-shortener"] {
+    --sidebar-primary: 259 92% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 259 92% 95%;
+    --sidebar-accent-foreground: 259 92% 25%;
+  }
+  .dark [data-theme="url-shortener"] {
+    --sidebar-primary: 259 92% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 259 50% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+  }
+
+  /* QR Code Maker Theme */
+  [data-theme="qr-code-maker"] {
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 25 95% 95%;
+    --sidebar-accent-foreground: 25 95% 25%;
+  }
+  .dark [data-theme="qr-code-maker"] {
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 25 50% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+  }
 }
 
 @layer base {
