@@ -20,7 +20,7 @@ body {
     --secondary-foreground: 0 0% 100%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 132 41% 61%;
+    --accent: 210 40% 96.1%;
     --accent-foreground: 210 10% 23%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
@@ -33,17 +33,20 @@ body {
     --chart-4: 285.2 83.2% 53.3%;
     --chart-5: 350.2 83.2% 53.3%;
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 210 10% 23%;
-    --sidebar-primary: 134 61% 41%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 10% 90%;
-    --sidebar-accent-foreground: 210 10% 23%;
-    --sidebar-border: 214.3 31.8% 91.4%;
+    
+    /* Neutral Sidebar as default */
+    --sidebar-background: 220 13% 98%;
+    --sidebar-foreground: 220 10% 25%;
+    --sidebar-border: 220 13% 91%;
     --sidebar-ring: 134 61% 41%;
+    --sidebar-accent: 220 14% 93%;
+    --sidebar-accent-foreground: 220 10% 15%;
+    --sidebar-primary: 220 10% 25%;
+    --sidebar-primary-foreground: 0 0% 100%;
   }
+
   .dark {
-    --background: 210 10% 23%;
+    --background: 210 10% 15%;
     --foreground: 210 40% 98%;
     --card: 210 10% 23%;
     --card-foreground: 210 40% 98%;
@@ -55,26 +58,61 @@ body {
     --secondary-foreground: 0 0% 100%;
     --muted: 210 10% 28%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 132 41% 61%;
-    --accent-foreground: 210 10% 23%;
+    --accent: 210 10% 28%;
+    --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
     --border: 210 10% 28%;
     --input: 210 10% 28%;
     --ring: 134 61% 41%;
-    --chart-1: 134 61% 41%;
-    --chart-2: 140 50% 50%;
-    --chart-3: 150 40% 60%;
-    --chart-4: 285.2 83.2% 53.3%;
-    --chart-5: 350.2 83.2% 53.3%;
-    --sidebar-background: 210 10% 15%;
+
+    /* Neutral Sidebar for Dark Mode */
+    --sidebar-background: 220 10% 12%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 134 61% 41%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 10% 23%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 210 10% 23%;
+    --sidebar-border: 220 10% 20%;
     --sidebar-ring: 134 61% 41%;
+    --sidebar-accent: 220 10% 18%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-primary: 210 40% 98%;
+    --sidebar-primary-foreground: 220 10% 12%;
+  }
+
+  /* WhatsApp Theme Overrides */
+  [data-theme="whatsapp"] {
+    --sidebar-primary: 145 63% 49%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 145 63% 95%;
+    --sidebar-accent-foreground: 145 63% 15%;
+    --sidebar-background: 145 63% 98%;
+    --sidebar-border: 145 63% 92%;
+  }
+
+  .dark [data-theme="whatsapp"] {
+    --sidebar-primary: 145 63% 49%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 145 50% 25%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-background: 145 50% 15%;
+    --sidebar-border: 145 50% 20%;
+  }
+  
+  /* Facebook Theme Overrides */
+  [data-theme="facebook"] {
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 91% 95%;
+    --sidebar-accent-foreground: 217 91% 25%;
+    --sidebar-background: 217 91% 98%;
+    --sidebar-border: 217 91% 92%;
+  }
+
+  .dark [data-theme="facebook"] {
+    --sidebar-primary: 217 91% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 50% 25%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-background: 217 50% 15%;
+    --sidebar-border: 217 50% 20%;
   }
 }
 
