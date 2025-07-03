@@ -195,7 +195,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
       <Sidebar
         variant="floating"
-        sideOffset="5rem"
+        sideOffset="calc(4rem + 8px)" // 4rem is width of app rail, 8px is the gap
       >
         <SidebarHeader className="p-4">
            <div className="flex items-center gap-2">
@@ -279,9 +279,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset sideOffset="5rem">
-        <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
-          <div className="flex items-center gap-4">
+      <SidebarInset sideOffset="calc(4rem + 8px)" className="flex flex-col p-2 gap-2">
+        <header className="flex items-center justify-between p-3 border bg-card rounded-lg sticky top-2 z-10 shrink-0">
+          <div className="flex items-center gap-2">
             <SidebarTrigger />
             <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
                 <Briefcase className="h-4 w-4" />
@@ -329,7 +329,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </header>
         <main className={cn(
-            "flex-1 flex flex-col h-full",
+            "flex-1 flex flex-col h-full rounded-lg border bg-card",
             isChatPage ? "overflow-hidden" : "p-4 md:p-6 lg:p-8 overflow-y-auto"
         )}>
             {children}
@@ -339,3 +339,4 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+
