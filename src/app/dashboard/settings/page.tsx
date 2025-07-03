@@ -8,7 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects, GeneralReplyRule, Template } from '@/app/actions';
 import { handleUpdateMarketingSettings } from '@/app/actions/facebook.actions';
 import type { WithId } from 'mongodb';
-import type { Project, UserAttribute } from '@/app/actions';
+import type { Project, UserAttribute } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -656,7 +656,7 @@ function SettingsPageContent() {
 
           <TabsContent value="broadcast" className="mt-6 relative">
             <FeatureLockOverlay isAllowed={!!planFeatures?.settingsBroadcast} featureName="Broadcast Settings" />
-            <FeatureLock isAllowed={!!planFeatures?.settingsBroadcast} featureName="Broadcast Settings">
+            <FeatureLock isAllowed={!!planFeatures?.settingsBroadcast}>
                 <form action={formAction}>
                 <input type="hidden" name="projectId" value={project._id.toString()} />
                 <Card>
@@ -679,7 +679,7 @@ function SettingsPageContent() {
 
           <TabsContent value="auto-reply" className="mt-6 space-y-6 relative">
             <FeatureLockOverlay isAllowed={!!planFeatures?.settingsAutoReply} featureName="Auto-Reply Settings" />
-            <FeatureLock isAllowed={!!planFeatures?.settingsAutoReply} featureName="Auto-Reply Settings">
+            <FeatureLock isAllowed={!!planFeatures?.settingsAutoReply}>
                 <MasterSwitch project={project} />
                 <Tabs defaultValue="welcome" className="w-full">
                     <ScrollArea className="w-full whitespace-nowrap rounded-md border-b">
@@ -701,14 +701,14 @@ function SettingsPageContent() {
           
           <TabsContent value="marketing" className="mt-6 relative">
             <FeatureLockOverlay isAllowed={!!planFeatures?.settingsMarketing} featureName="Marketing Settings" />
-            <FeatureLock isAllowed={!!planFeatures?.settingsMarketing} featureName="Marketing Settings">
+            <FeatureLock isAllowed={!!planFeatures?.settingsMarketing}>
                 <MarketingSettingsForm project={project} />
             </FeatureLock>
           </TabsContent>
 
           <TabsContent value="template-library" className="mt-6 relative">
             <FeatureLockOverlay isAllowed={!!planFeatures?.settingsTemplateLibrary} featureName="Template Library" />
-            <FeatureLock isAllowed={!!planFeatures?.settingsTemplateLibrary} featureName="Template Library">
+            <FeatureLock isAllowed={!!planFeatures?.settingsTemplateLibrary}>
                 <Card>
                     <CardHeader>
                         <CardTitle>Template Library</CardTitle>
@@ -730,28 +730,28 @@ function SettingsPageContent() {
 
           <TabsContent value="canned-messages" className="mt-6 relative">
             <FeatureLockOverlay isAllowed={!!planFeatures?.settingsCannedMessages} featureName="Canned Messages" />
-            <FeatureLock isAllowed={!!planFeatures?.settingsCannedMessages} featureName="Canned Messages">
+            <FeatureLock isAllowed={!!planFeatures?.settingsCannedMessages}>
                 <CannedMessagesSettingsTab project={project} />
             </FeatureLock>
           </TabsContent>
 
           <TabsContent value="agents-roles" className="mt-6 relative">
              <FeatureLockOverlay isAllowed={!!planFeatures?.settingsAgentsRoles} featureName="Agents & Roles" />
-             <FeatureLock isAllowed={!!planFeatures?.settingsAgentsRoles} featureName="Agents & Roles">
+             <FeatureLock isAllowed={!!planFeatures?.settingsAgentsRoles}>
                 <AgentsRolesSettingsTab project={project} user={user} />
              </FeatureLock>
           </TabsContent>
 
           <TabsContent value="compliance" className="mt-6 relative">
               <FeatureLockOverlay isAllowed={!!planFeatures?.settingsCompliance} featureName="Compliance Settings" />
-              <FeatureLock isAllowed={!!planFeatures?.settingsCompliance} featureName="Compliance Settings">
+              <FeatureLock isAllowed={!!planFeatures?.settingsCompliance}>
                 <Card><OptInOutForm project={project} /></Card>
               </FeatureLock>
           </TabsContent>
 
           <TabsContent value="attributes" className="mt-6 relative">
             <FeatureLockOverlay isAllowed={!!planFeatures?.settingsUserAttributes} featureName="User Attributes" />
-            <FeatureLock isAllowed={!!planFeatures?.settingsUserAttributes} featureName="User Attributes">
+            <FeatureLock isAllowed={!!planFeatures?.settingsUserAttributes}>
                 <UserAttributesForm project={project} user={user} />
             </FeatureLock>
           </TabsContent>
