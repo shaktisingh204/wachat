@@ -104,7 +104,7 @@ export function QrCodeGenerator() {
                 <CardDescription>Select a content type and enter your data to create a scannable QR code.</CardDescription>
             </CardHeader>
             <CardContent>
-                <div className="grid md:grid-cols-2 gap-8 items-start">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                     <div className="space-y-4">
                         <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as QrDataType)} className="w-full">
                             <TabsList className="grid w-full grid-cols-3 md:grid-cols-6 h-auto">
