@@ -1,3 +1,4 @@
+
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
@@ -24,6 +25,18 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'wawachat.s3.us-east-1.amazonaws.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'scontent.whatsapp.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.qrserver.com',
         port: '',
         pathname: '/**',
       },
