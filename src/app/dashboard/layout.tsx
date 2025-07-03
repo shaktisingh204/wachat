@@ -126,6 +126,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <SidebarProvider>
+      <div className="hidden md:flex h-screen w-20 flex-shrink-0 flex-col items-center gap-4 border-r bg-card py-4">
+        <div className="p-2 rounded-lg bg-primary text-primary-foreground">
+          <Briefcase className="h-6 w-6" />
+        </div>
+        <div className="p-2 rounded-lg hover:bg-muted">
+          <Users className="h-6 w-6 text-muted-foreground" />
+        </div>
+        <div className="p-2 rounded-lg hover:bg-muted">
+          <Settings className="h-6 w-6 text-muted-foreground" />
+        </div>
+      </div>
       <Sidebar>
         <SidebarHeader className="p-4">
            <div className="flex items-center gap-2">
