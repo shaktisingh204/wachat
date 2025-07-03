@@ -162,13 +162,11 @@ export function KanbanBoard() {
     
     return (
         <ScrollArea className="w-full h-full">
-            <div style={{minWidth: '100%', display: 'table', height: '100%'}}>
-                <div className="flex h-full w-max p-4 gap-4">
-                    {boardData.map(column => (
-                        <KanbanColumn key={column.name} title={column.name} contacts={column.contacts} onDrop={handleDrop} />
-                    ))}
-                    <AddList onAddList={handleAddList} />
-                </div>
+            <div className="flex h-full w-max p-4 gap-4">
+                {boardData.map(column => (
+                    <KanbanColumn key={column.name} title={column.name} contacts={column.contacts} onDrop={handleDrop} />
+                ))}
+                <AddList onAddList={handleAddList} />
             </div>
             <ScrollBar orientation="horizontal" />
         </ScrollArea>
