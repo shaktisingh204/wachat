@@ -137,7 +137,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Settings className="h-6 w-6 text-muted-foreground" />
         </div>
       </div>
-      <Sidebar>
+      <Sidebar className="md:left-20">
         <SidebarHeader className="p-4">
            <div className="flex items-center gap-2">
               <WachatBrandLogo className="size-8 shrink-0" />

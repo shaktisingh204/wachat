@@ -71,8 +71,7 @@ import type {
 
 
 export async function getSession(): Promise<{ user: Omit<User, 'password'> } | null> {
-    const cookieStore = cookies();
-    const sessionToken = cookieStore.get('session')?.value;
+    const sessionToken = cookies().get('session')?.value;
     if (!sessionToken) {
         return null;
     }
@@ -4423,6 +4422,7 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
 }
 
     
+
 
 
 
