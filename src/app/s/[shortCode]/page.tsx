@@ -1,0 +1,18 @@
+
+import { redirect, notFound } from 'next/navigation';
+import { trackClickAndGetUrl } from '@/app/actions/url-shortener.actions';
+
+export default async function ShortUrlRedirectPage({ params }: { params: { shortCode: string } }) {
+    if (!params.shortCode) {
+        notFound();
+    }
+    
+    // We don't need to check user session here, this should be public
+    const { originalUrl, error } = await trackClickAndGetUrl(params.shortCode);
+    
+    if (error || !originalUrl) {
+        notFound();
+    }
+    
+    redirect(originalUrl);
+}

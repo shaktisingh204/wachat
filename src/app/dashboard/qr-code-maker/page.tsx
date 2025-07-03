@@ -1,5 +1,7 @@
 
-import { Card, CardContent } from '@/components/ui/card';
+'use client';
+
+import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
 import { QrCode } from 'lucide-react';
 
 export default function QrCodeMakerPage() {
@@ -14,12 +16,7 @@ export default function QrCodeMakerPage() {
                     Generate QR codes to launch WhatsApp conversations or link to your website.
                 </p>
             </div>
-            <Card className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg card-gradient card-gradient-purple">
-                <CardContent>
-                    <p className="text-lg font-semibold">Coming Soon!</p>
-                    <p>This feature is on our roadmap.</p>
-                </CardContent>
-            </Card>
+            <QrCodeGenerator />
         </div>
     );
 }
