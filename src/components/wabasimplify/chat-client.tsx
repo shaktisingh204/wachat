@@ -231,7 +231,7 @@ export function ChatClient() {
                 onOpenChange={setIsNewChatDialogOpen}
                 onStartChat={handleNewChat}
             />
-            <div className="flex flex-col flex-1 min-h-0 border rounded-lg bg-card">
+            <div className="flex flex-col flex-1 min-h-0 border rounded-lg bg-card h-full">
                 <div className="p-4 border-b flex-shrink-0">
                     <div className="max-w-sm">
                         <Select value={selectedPhoneNumberId} onValueChange={handlePhoneNumberChange}>
