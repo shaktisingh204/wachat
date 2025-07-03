@@ -50,7 +50,7 @@ import {
   ServerCog,
   ShoppingBag,
 } from 'lucide-react';
-import { WachatBrandLogo } from '@/components/wabasimplify/custom-sidebar-components';
+import { WachatBrandLogo, FacebookIcon, WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { getProjectCount, getSession, handleLogout } from '@/app/actions';
@@ -128,7 +128,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     <SidebarProvider>
       <div className="hidden md:flex h-screen w-20 flex-shrink-0 flex-col items-center gap-4 border-r bg-card py-4">
         <div className="p-2 rounded-lg bg-primary text-primary-foreground">
-          <Briefcase className="h-6 w-6" />
+          <WhatsAppIcon className="h-6 w-6" />
+        </div>
+        <div className="p-2 rounded-lg hover:bg-muted">
+          <FacebookIcon className="h-6 w-6 text-muted-foreground" />
         </div>
         <div className="p-2 rounded-lg hover:bg-muted">
           <Users className="h-6 w-6 text-muted-foreground" />
@@ -295,5 +298,3 @@ const allMenuItems = [
   { href: '/dashboard/billing', label: 'Billing', icon: CreditCard, featureKey: 'billing' },
   { href: '/dashboard/notifications', label: 'Notifications', icon: History, featureKey: 'notifications' },
 ];
-
-    

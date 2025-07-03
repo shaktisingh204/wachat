@@ -26,6 +26,13 @@ export const WachatBrandLogo = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+export const WhatsAppIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+      <path d="M19.3 4.7a11.8 11.8 0 0 0-14.6 14.6l-2.2 6.7 6.9-2.2a11.8 11.8 0 0 0 14.6-14.6Z"/>
+      <path d="M15.1 12.3a2.2 2.2 0 0 1-3.6 2.2c-1.2-1.2-1.2-3.2 0-4.4a2.2 2.2 0 0 1 3.6 0l-2 2"/>
+    </svg>
+);
+
 export const WachatSidebarTopLogo = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" {...props}>
       <g fill="none" fillRule="evenodd">
