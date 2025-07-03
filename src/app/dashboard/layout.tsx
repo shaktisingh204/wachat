@@ -155,9 +155,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const currentMenuItems = activeApp === 'whatsapp' ? wachatMenuItems : facebookMenuItems;
 
   return (
+    <div data-theme={activeApp}>
     <SidebarProvider>
       <div className="fixed top-2 left-2 bottom-2 z-20 hidden md:flex">
-        <div className="flex h-full flex-col items-center gap-4 rounded-lg border bg-card py-4 shadow-md">
+        <div className="flex h-full w-16 flex-col items-center gap-4 rounded-lg border bg-card py-4 shadow-md">
             <Tooltip>
                 <TooltipTrigger asChild>
                     <button
@@ -194,11 +195,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </div>
       <Sidebar
         variant="floating"
-        sideOffset="calc(5rem + 1rem)"
-        innerClassName={cn(
-          'transition-colors',
-          activeApp === 'whatsapp' ? 'bg-emerald-50 dark:bg-emerald-950/20' : 'bg-sky-50 dark:bg-sky-950/20'
-        )}
+        sideOffset="5rem"
       >
         <SidebarHeader className="p-4">
            <div className="flex items-center gap-2">
@@ -282,7 +279,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset sideOffset="calc(5rem + 1rem)">
+      <SidebarInset sideOffset="5rem">
         <header className="flex items-center justify-between p-4 border-b bg-background sticky top-0 z-10 shrink-0">
           <div className="flex items-center gap-4">
             <SidebarTrigger />
@@ -339,5 +336,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </main>
       </SidebarInset>
     </SidebarProvider>
+    </div>
   );
 }
