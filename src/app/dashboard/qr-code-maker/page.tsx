@@ -1,7 +1,8 @@
 
 
 import { QrCodeGenerator } from '@/components/wabasimplify/qr-code-generator';
-import { getQrCodes, getSession } from '@/app/actions';
+import { getSession } from '@/app/actions';
+import { getQrCodes } from '@/app/actions/qr-code.actions';
 import { SavedQrCodes } from '@/components/wabasimplify/saved-qr-codes';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';

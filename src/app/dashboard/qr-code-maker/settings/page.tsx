@@ -3,11 +3,11 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getSession, type Project, type User } from '@/app/actions';
+import { getSession, type User } from '@/app/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, ChevronLeft } from 'lucide-react';
-import { QrCodeSettingsTab } from '@/components/wabasimplify/qr-code-settings-tab';
+import { TagsSettingsTab } from '@/components/wabasimplify/tags-settings-tab';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
@@ -21,7 +21,7 @@ function SettingsPageSkeleton() {
 }
 
 export default function QrCodeSettingsPage() {
-    const [user, setUser] = useState<Omit<User, 'password'> | null>(null);
+    const [user, setUser] = useState<(Omit<User, 'password'> & { _id: string, tags?: any[] }) | null>(null);
     const [isLoading, startLoadingTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
 
@@ -59,9 +59,9 @@ export default function QrCodeSettingsPage() {
                     </Link>
                 </Button>
                 <h1 className="text-3xl font-bold font-headline">QR Code Maker Settings</h1>
-                <p className="text-muted-foreground">Configure advanced options and developer settings for your QR codes.</p>
+                <p className="text-muted-foreground">Manage your tags. Tags can be applied to QR codes and short links to help you organize them.</p>
             </div>
-            <QrCodeSettingsTab />
+            <TagsSettingsTab user={user} />
         </div>
     )
 }
