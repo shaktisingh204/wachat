@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -52,8 +53,9 @@ import {
   Heart,
   Route,
   Wrench,
+  Facebook,
 } from 'lucide-react';
-import { WachatBrandLogo, FacebookIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { WachatBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getProjectCount, getSession, handleLogout } from '@/app/actions';
 import { type Plan, type WithId } from '@/lib/definitions';
@@ -87,6 +89,7 @@ const wachatMenuItems = [
 ];
 
 const facebookMenuItems = [
+    { href: '/dashboard/facebook', label: 'Overview', icon: Facebook, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/posts', label: 'Page Posts', icon: Newspaper, featureKey: 'whatsappAds' },
@@ -194,7 +197,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         : 'bg-card text-blue-600 hover:bg-accent'
                     )}
                     >
-                    <FacebookIcon className="h-6 w-6" />
+                    <FacebookAppIcon className="h-6 w-6" />
                     </button>
                 </TooltipTrigger>
                 <TooltipContent side="right">Facebook Manager</TooltipContent>
@@ -244,7 +247,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname.startsWith(item.href)}
+                  isActive={pathname.startsWith(item.href) && item.href !== '/dashboard/facebook'}
                   tooltip={tooltipText}
                   disabled={isDisabled}
                   aria-disabled={isDisabled}

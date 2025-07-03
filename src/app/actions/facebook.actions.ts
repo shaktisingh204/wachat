@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -11,26 +12,30 @@ import { getProjectById } from '@/app/actions';
 import type { AdCampaign, Project } from '@/lib/definitions';
 
 
-export async function handleUpdateMarketingSettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const adAccountId = formData.get('adAccountId') as string;
-    const facebookPageId = formData.get('facebookPageId') as string;
+export async function handleFacebookPageSetup(data: {
+    projectId: string;
+    adAccountId: string;
+    facebookPageId: string;
+    accessToken: string;
+}): Promise<{ success?: boolean; error?: string }> {
+    const { projectId, adAccountId, facebookPageId, accessToken } = data;
 
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { error: "Access denied." };
 
-    if (!adAccountId || !facebookPageId) {
-        return { error: 'Both Ad Account ID and Facebook Page ID are required.' };
+    if (!adAccountId || !facebookPageId || !accessToken) {
+        return { error: 'Required information (Ad Account, Page ID, Token) was not received from Facebook.' };
     }
 
     try {
         const { db } = await connectToDatabase();
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
-            { $set: { adAccountId, facebookPageId } }
+            { $set: { adAccountId, facebookPageId, accessToken } } // Also update the token to be the latest one
         );
-        revalidatePath('/dashboard/settings');
-        return { message: 'Marketing settings updated successfully!' };
+        revalidatePath('/dashboard/facebook');
+        revalidatePath('/dashboard/facebook/settings');
+        return { success: true };
     } catch (e: any) {
         return { error: 'Failed to save marketing settings.' };
     }
