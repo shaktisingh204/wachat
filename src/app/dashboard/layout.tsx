@@ -60,6 +60,7 @@ import { WachatBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, Instagr
 import { cn } from '@/lib/utils';
 import { getProjectCount, getSession, handleLogout } from '@/app/actions';
 import { type Plan, type WithId } from '@/lib/definitions';
+import { Separator } from '@/components/ui/separator';
 
 function FullPageSkeleton() {
     return (
@@ -307,12 +308,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               } else if (!isAllowed) {
                 tooltipText = `${item.label} (Upgrade plan)`;
               }
+              
+              const isOverviewPage = item.href === '/dashboard' || item.href === '/dashboard/overview' || item.href === '/dashboard/facebook';
+              const isActive = isOverviewPage ? pathname === item.href : pathname.startsWith(item.href);
+
 
               return (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href) && item.href !== '/dashboard/facebook')}
+                  isActive={isActive}
                   tooltip={tooltipText}
                   disabled={isDisabled}
                   aria-disabled={isDisabled}
