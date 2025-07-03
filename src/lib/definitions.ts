@@ -585,3 +585,22 @@ export type Product = {
     condition: string;
     createdAt: Date;
 };
+
+export type ShortUrl = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    originalUrl: string;
+    shortCode: string;
+    alias?: string;
+    password?: string;
+    expiresAt?: Date;
+    clickCount: number;
+    analytics: {
+        timestamp: Date;
+        referrer?: string;
+        userAgent?: string;
+        ip?: string;
+    }[];
+    tags?: string[];
+    createdAt: Date;
+};

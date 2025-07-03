@@ -1,23 +1,180 @@
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Link as LinkIcon } from 'lucide-react';
+'use client';
+
+import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
+import { useFormStatus } from 'react-dom';
+import { createShortUrl, getShortUrls } from '@/app/actions/url-shortener.actions';
+import type { WithId, ShortUrl } from '@/lib/definitions';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertCircle, Link as LinkIcon, LoaderCircle, Copy, BarChart2, Trash2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+
+const initialState = {
+  message: null,
+  error: null,
+};
+
+function SubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <LinkIcon className="mr-2 h-4 w-4" />}
+            Shorten URL
+        </Button>
+    )
+}
+
+function ShortenerPageSkeleton() {
+    return (
+        <div className="space-y-8">
+            <Skeleton className="h-40 w-full" />
+            <Skeleton className="h-64 w-full" />
+        </div>
+    );
+}
 
 export default function UrlShortenerPage() {
+    const [urls, setUrls] = useState<WithId<ShortUrl>[]>([]);
+    const [isLoading, startLoadingTransition] = useTransition();
+    const [isClient, setIsClient] = useState(false);
+    const [projectId, setProjectId] = useState<string | null>(null);
+    const { toast } = useToast();
+    const [state, formAction] = useActionState(createShortUrl, initialState);
+    const formRef = useRef<HTMLFormElement>(null);
+    const { isCopied, copy } = useCopyToClipboard();
+
+    const fetchUrls = () => {
+        if (!projectId) return;
+        startLoadingTransition(async () => {
+            const data = await getShortUrls(projectId);
+            setUrls(data);
+        });
+    };
+
+    useEffect(() => {
+        setIsClient(true);
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        setProjectId(storedProjectId);
+    }, []);
+
+    useEffect(() => {
+        if (projectId) {
+            fetchUrls();
+        }
+    }, [projectId]);
+
+    useEffect(() => {
+        if (state.message) {
+            toast({ title: "Success", description: state.message });
+            formRef.current?.reset();
+            fetchUrls();
+        }
+        if (state.error) {
+            toast({ title: "Error", description: state.error, variant: "destructive" });
+        }
+    }, [state, toast, fetchUrls]);
+    
+    const getShortUrl = (shortCode: string) => {
+        if (typeof window === 'undefined') return '';
+        return `${window.location.origin}/s/${shortCode}`;
+    }
+
+    if (!isClient) return <ShortenerPageSkeleton />;
+
+    if (!projectId) {
+        return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>No Project Selected</AlertTitle>
+                <AlertDescription>
+                    Please select a project from the main dashboard to use the URL Shortener.
+                </AlertDescription>
+            </Alert>
+        );
+    }
+
     return (
         <div className="flex flex-col gap-8">
-             <div>
+            <div>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
                     <LinkIcon className="h-8 w-8"/>
                     URL Shortener
                 </h1>
                 <p className="text-muted-foreground mt-2">
-                    Create short, branded links for your campaigns.
+                    Create short, trackable links for your campaigns.
                 </p>
             </div>
-            <Card className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg card-gradient card-gradient-blue">
+
+            <Card className="card-gradient card-gradient-blue">
+                <form action={formAction} ref={formRef}>
+                    <input type="hidden" name="projectId" value={projectId} />
+                    <CardHeader>
+                        <CardTitle>Create a new short link</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="originalUrl">Destination URL</Label>
+                            <Input id="originalUrl" name="originalUrl" type="url" placeholder="https://example.com/very-long-url-to-shorten" required/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="alias">Custom Alias (Optional)</Label>
+                            <Input id="alias" name="alias" placeholder="e.g., summer-sale" />
+                        </div>
+                    </CardContent>
+                    <CardFooter>
+                        <SubmitButton />
+                    </CardFooter>
+                </form>
+            </Card>
+
+            <Card className="card-gradient card-gradient-purple">
+                <CardHeader>
+                    <CardTitle>Your Links</CardTitle>
+                </CardHeader>
                 <CardContent>
-                    <p className="text-lg font-semibold">Coming Soon!</p>
-                    <p>This feature is on our roadmap.</p>
+                    <div className="border rounded-md">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Short URL</TableHead>
+                                    <TableHead>Destination</TableHead>
+                                    <TableHead>Clicks</TableHead>
+                                    <TableHead>Created</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {isLoading ? <TableRow><TableCell colSpan={5}><Skeleton className="h-10 w-full"/></TableCell></TableRow>
+                                : urls.length > 0 ? urls.map(url => (
+                                    <TableRow key={url._id.toString()}>
+                                        <TableCell className="font-mono text-sm flex items-center gap-2">
+                                            <a href={getShortUrl(url.shortCode)} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                                                {getShortUrl(url.shortCode)}
+                                            </a>
+                                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => copy(getShortUrl(url.shortCode))}>
+                                                <Copy className="h-4 w-4"/>
+                                            </Button>
+                                        </TableCell>
+                                        <TableCell className="text-muted-foreground truncate max-w-xs">{url.originalUrl}</TableCell>
+                                        <TableCell>{url.clickCount}</TableCell>
+                                        <TableCell>{new Date(url.createdAt).toLocaleDateString()}</TableCell>
+                                        <TableCell className="text-right">
+                                            <Button variant="ghost" size="icon"><BarChart2 className="h-4 w-4"/></Button>
+                                            <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4"/></Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                                : <TableRow><TableCell colSpan={5} className="text-center h-24">No links created yet.</TableCell></TableRow>}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </CardContent>
             </Card>
         </div>
