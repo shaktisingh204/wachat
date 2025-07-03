@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { BulkImportDialog } from '@/components/wabasimplify/bulk-url-import-dialog';
 
 
 const initialState = {
@@ -182,8 +183,9 @@ export default function UrlShortenerPage() {
                                 <Input id="alias" name="alias" placeholder="e.g., summer-sale" />
                             </div>
                         </CardContent>
-                        <CardFooter>
+                        <CardFooter className="flex justify-between items-center">
                             <SubmitButton />
+                            <BulkImportDialog projectId={projectId} onImportComplete={fetchUrls} />
                         </CardFooter>
                     </form>
                 </Card>

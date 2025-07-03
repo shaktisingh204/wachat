@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type BusinessCapabilities = {
@@ -612,4 +613,5 @@ export type ShortUrl = {
     }[];
     tags?: string[];
     createdAt: Date;
+    enableLinkPreview?: boolean;
 };

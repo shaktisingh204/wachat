@@ -8,6 +8,9 @@ import { getProjectById } from '@/app/actions';
 import type { ShortUrl } from '@/lib/definitions';
 import { nanoid } from 'nanoid';
 import { headers } from 'next/headers';
+import { Readable } from 'stream';
+import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 
 const generateShortCode = (length = 7) => nanoid(length);
 
@@ -63,6 +66,103 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
         return { error: e.message || 'An unexpected error occurred.' };
     }
 }
+
+async function processUrlStream(inputStream: NodeJS.ReadableStream | string, projectId: ObjectId): Promise<number> {
+    return new Promise<number>((resolve, reject) => {
+        const urlRows: { url: string; alias?: string }[] = [];
+        
+        Papa.parse(inputStream, {
+            header: true,
+            skipEmptyLines: true,
+            step: (results) => {
+                urlRows.push(results.data as { url: string; alias?: string });
+            },
+            complete: async () => {
+                if (urlRows.length === 0) {
+                    return resolve(0);
+                }
+
+                const urlColumnHeader = Object.keys(urlRows[0])[0];
+                const aliasColumnHeader = Object.keys(urlRows[0])[1];
+
+                const urlsToInsert = urlRows.map(row => {
+                    const originalUrl = (row[urlColumnHeader as keyof typeof row] || '').trim();
+                    if (!originalUrl) return null;
+
+                    try { new URL(originalUrl); } catch { return null; }
+
+                    const alias = (row[aliasColumnHeader as keyof typeof row] || '').trim() || null;
+                    
+                    return {
+                        projectId,
+                        originalUrl,
+                        shortCode: alias || generateShortCode(),
+                        clickCount: 0,
+                        analytics: [],
+                        createdAt: new Date(),
+                    };
+                }).filter(Boolean);
+
+                if (urlsToInsert.length === 0) {
+                    return resolve(0);
+                }
+
+                const { db } = await connectToDatabase();
+                try {
+                    const result = await db.collection('short_urls').insertMany(urlsToInsert as any[], { ordered: false });
+                    resolve(result.insertedCount);
+                } catch(e: any) {
+                    if (e.code === 11000) {
+                        resolve(e.result.nInserted || 0);
+                    } else {
+                        reject(e);
+                    }
+                }
+            },
+            error: (error) => reject(error)
+        });
+    });
+};
+
+export async function handleBulkCreateShortUrls(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const urlFile = formData.get('urlFile') as File;
+
+    if (!projectId || !urlFile || urlFile.size === 0) {
+        return { error: 'Project ID and a file are required.' };
+    }
+    
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
+
+    try {
+        let createdCount = 0;
+        if (urlFile.name.endsWith('.csv')) {
+            const nodeStream = Readable.fromWeb(urlFile.stream() as any);
+            createdCount = await processUrlStream(nodeStream, new ObjectId(projectId));
+        } else if (urlFile.name.endsWith('.xlsx')) {
+            const fileBuffer = Buffer.from(await urlFile.arrayBuffer());
+            const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            if (!sheetName) throw new Error('The XLSX file contains no sheets.');
+            const worksheet = workbook.Sheets[sheetName];
+            const csvData = XLSX.utils.sheet_to_csv(worksheet);
+            createdCount = await processUrlStream(csvData, new ObjectId(projectId));
+        } else {
+            return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
+        }
+
+        if (createdCount === 0) {
+            return { error: 'No valid URLs found in the file to import.' };
+        }
+
+        revalidatePath('/dashboard/url-shortener');
+        return { message: `Successfully imported and created ${createdCount} short URL(s).` };
+    } catch (e: any) {
+        return { error: e.message || 'An unexpected error occurred during bulk import.' };
+    }
+}
+
 
 export async function getShortUrls(projectId: string): Promise<WithId<ShortUrl>[]> {
     if (!ObjectId.isValid(projectId)) return [];

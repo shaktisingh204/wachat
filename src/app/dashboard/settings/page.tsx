@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog, Handshake, MessageSquareHeart, BookCopy, Lock, Tags } from 'lucide-react';
+import { AlertCircle, LoaderCircle, Save, Bot, Clock, BrainCircuit, Users, Trash2, Plus, Search, ShieldCheck, ClipboardList, UserCog, Handshake, MessageSquareHeart, BookCopy, Lock, Tags, Link as LinkIcon } from 'lucide-react';
 import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -28,6 +28,7 @@ import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-s
 import { useRouter } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { TagsSettingsTab } from '@/components/wabasimplify/tags-settings-tab';
+import { UrlShortenerSettingsTab } from '@/components/wabasimplify/url-shortener-settings-tab';
 
 
 const updateSettingsInitialState = { message: null, error: null };
@@ -610,6 +611,7 @@ function SettingsPageContent() {
               <TabsTrigger value="compliance"><ShieldCheck className="mr-2 h-4 w-4" />Compliance</TabsTrigger>
               <TabsTrigger value="attributes"><Users className="mr-2 h-4 w-4" />User Attributes</TabsTrigger>
               <TabsTrigger value="tags"><Tags className="mr-2 h-4 w-4" />Tags & Labels</TabsTrigger>
+              <TabsTrigger value="url-shortener"><LinkIcon className="mr-2 h-4 w-4" />URL Shortener</TabsTrigger>
             </TabsList>
             <ScrollBar orientation="horizontal" />
         </ScrollArea>
@@ -712,6 +714,13 @@ function SettingsPageContent() {
           <TabsContent value="tags" className="mt-6 relative">
             <FeatureLockOverlay isAllowed={true} featureName="Tags" />
             <TagsSettingsTab project={project} />
+          </TabsContent>
+          
+          <TabsContent value="url-shortener" className="mt-6 relative">
+            <FeatureLockOverlay isAllowed={!!planFeatures?.urlShortener} featureName="URL Shortener Settings" />
+            <FeatureLock isAllowed={!!planFeatures?.urlShortener}>
+                <UrlShortenerSettingsTab project={project} />
+            </FeatureLock>
           </TabsContent>
 
         </Tabs>
