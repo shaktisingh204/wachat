@@ -18,6 +18,7 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
     const projectId = formData.get('projectId') as string;
     const originalUrl = formData.get('originalUrl') as string;
     const alias = formData.get('alias') as string | null;
+    const tagIds = (formData.get('tagIds') as string)?.split(',') || [];
 
     if (!projectId || !originalUrl) {
         return { error: 'Project ID and Original URL are required.' };
@@ -51,6 +52,7 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
             shortCode,
             clickCount: 0,
             analytics: [],
+            tagIds,
             createdAt: new Date(),
         };
 

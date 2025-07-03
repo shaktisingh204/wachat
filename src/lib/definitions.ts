@@ -601,9 +601,6 @@ export type ShortUrl = {
     projectId: ObjectId;
     originalUrl: string;
     shortCode: string;
-    alias?: string;
-    password?: string;
-    expiresAt?: Date;
     clickCount: number;
     analytics: {
         timestamp: Date;
@@ -611,7 +608,6 @@ export type ShortUrl = {
         userAgent?: string;
         ip?: string;
     }[];
-    tags?: string[];
+    tagIds?: string[];
     createdAt: Date;
-    enableLinkPreview?: boolean;
 };

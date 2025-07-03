@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect } from 'react';
@@ -10,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { LoaderCircle, Save } from 'lucide-react';
+import { LoaderCircle, Save, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '../ui/separator';
 
@@ -57,8 +58,8 @@ export function UrlShortenerSettingsTab({ project }: { project: WithId<Project> 
                     <Separator />
 
                     <div className="space-y-4">
-                        <h4 className="font-medium">API Access</h4>
-                        <div className="space-y-2">
+                        <h4 className="font-medium">Developer Options</h4>
+                         <div className="space-y-2">
                             <Label htmlFor="apiKey">API Key</Label>
                             <div className="flex gap-2">
                                 <Input id="apiKey" name="apiKey" value="********************************" disabled />
@@ -66,36 +67,37 @@ export function UrlShortenerSettingsTab({ project }: { project: WithId<Project> 
                             </div>
                             <p className="text-xs text-muted-foreground">Programmatic URL creation via API is coming soon.</p>
                         </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex items-center justify-between rounded-lg border p-4">
-                        <div>
-                            <Label htmlFor="linkPreview" className="text-base">Enable Link Previews</Label>
-                            <p className="text-sm text-muted-foreground">
-                                Show a preview page before redirecting.
-                            </p>
+                        <div className="space-y-2">
+                            <Label>Browser Bookmarklet</Label>
+                            <div className="p-3 bg-muted/80 rounded-md text-sm text-muted-foreground">
+                                Drag this to your bookmarks bar to shorten the current page's URL instantly. (Feature coming soon)
+                            </div>
                         </div>
-                        <Switch id="linkPreview" name="linkPreview" disabled />
                     </div>
-                     <p className="text-xs text-muted-foreground text-center">Link previews are a planned feature.</p>
 
                     <Separator />
-
-                    <div className="space-y-4">
-                        <h4 className="font-medium">Abuse Protection</h4>
-                        <div className="flex items-center justify-between rounded-lg border p-4">
+                     <div className="space-y-4">
+                        <h4 className="font-medium">Advanced Features</h4>
+                         <div className="flex items-center justify-between rounded-lg border p-4">
                             <div>
-                                <Label htmlFor="rateLimit" className="text-base">Enable Rate Limiting</Label>
+                                <Label htmlFor="linkPreview" className="text-base">Enable Link Previews</Label>
                                 <p className="text-sm text-muted-foreground">
-                                    Prevent abuse by limiting requests per IP.
+                                    Show a preview page before redirecting.
                                 </p>
                             </div>
-                            <Switch id="rateLimit" name="rateLimit" disabled />
+                            <Switch id="linkPreview" name="linkPreview" disabled />
                         </div>
-                         <p className="text-xs text-muted-foreground text-center">Advanced abuse protection is a planned feature.</p>
-                    </div>
+                         <div className="flex items-center justify-between rounded-lg border p-4">
+                            <div>
+                                <Label htmlFor="geoRedirect" className="text-base">Enable Geo-Location Redirects</Label>
+                                <p className="text-sm text-muted-foreground">
+                                    Redirect users based on their country.
+                                </p>
+                            </div>
+                            <Switch id="geoRedirect" name="geoRedirect" disabled />
+                        </div>
+                     </div>
+
 
                 </CardContent>
                 <CardFooter>

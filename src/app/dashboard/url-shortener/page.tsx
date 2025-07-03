@@ -1,10 +1,11 @@
 
+
 'use client';
 
-import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
+import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
-import { createShortUrl, getShortUrls, deleteShortUrl } from '@/app/actions/url-shortener.actions';
-import type { WithId, ShortUrl } from '@/lib/definitions';
+import { createShortUrl, getShortUrls, deleteShortUrl, getProjectById } from '@/app/actions/url-shortener.actions';
+import type { WithId, ShortUrl, Project, Tag } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +13,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Link as LinkIcon, LoaderCircle, Copy, BarChart2, Trash2, QrCode } from 'lucide-react';
+import { AlertCircle, Link as LinkIcon, LoaderCircle, Copy, BarChart2, Trash2, QrCode, ChevronsUpDown, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { QrCodeDialog } from '@/components/wabasimplify/qr-code-dialog';
@@ -28,6 +29,10 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { BulkImportDialog } from '@/components/wabasimplify/bulk-url-import-dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 
 const initialState = {
@@ -79,6 +84,56 @@ function DeleteButton({ urlId, onDeleted }: { urlId: string, onDeleted: () => vo
     );
 }
 
+function TagsSelector({ projectTags, onSelectionChange }: { projectTags: Tag[], onSelectionChange: (tagIds: string[]) => void }) {
+    const [open, setOpen] = useState(false);
+    const [selectedTags, setSelectedTags] = useState<string[]>([]);
+    
+    const handleSelect = (tagId: string) => {
+        const newSelected = selectedTags.includes(tagId)
+            ? selectedTags.filter(id => id !== tagId)
+            : [...selectedTags, tagId];
+        setSelectedTags(newSelected);
+        onSelectionChange(newSelected);
+    };
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <Button variant="outline" role="combobox" className="w-full justify-between">
+                    <span className="truncate">
+                        {selectedTags.length > 0
+                            ? selectedTags.map(id => projectTags.find(t => t._id === id)?.name).filter(Boolean).join(', ')
+                            : "Select tags..."
+                        }
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <Command>
+                    <CommandInput placeholder="Search tags..." />
+                    <CommandList>
+                        <CommandEmpty>No tags found. Manage tags in settings.</CommandEmpty>
+                        <CommandGroup>
+                             {projectTags.map((tag) => (
+                                <CommandItem
+                                    key={tag._id}
+                                    value={tag.name}
+                                    onSelect={() => handleSelect(tag._id)}
+                                >
+                                    <Check className={cn("mr-2 h-4 w-4", selectedTags.includes(tag._id) ? "opacity-100" : "opacity-0")} />
+                                    <span className="w-4 h-4 rounded-full mr-2" style={{ backgroundColor: tag.color }} />
+                                    <span>{tag.name}</span>
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
+    )
+}
+
 function ShortenerPageSkeleton() {
     return (
         <div className="space-y-8">
@@ -89,6 +144,7 @@ function ShortenerPageSkeleton() {
 }
 
 export default function UrlShortenerPage() {
+    const [project, setProject] = useState<WithId<Project> | null>(null);
     const [urls, setUrls] = useState<WithId<ShortUrl>[]>([]);
     const [isLoading, startLoadingTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
@@ -96,14 +152,19 @@ export default function UrlShortenerPage() {
     const { toast } = useToast();
     const [state, formAction] = useActionState(createShortUrl, initialState);
     const formRef = useRef<HTMLFormElement>(null);
-    const { isCopied, copy } = useCopyToClipboard();
+    const { copy } = useCopyToClipboard();
     const [selectedUrlForQr, setSelectedUrlForQr] = useState<string | null>(null);
+    const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
     const fetchUrls = useCallback(() => {
         if (!projectId) return;
         startLoadingTransition(async () => {
-            const data = await getShortUrls(projectId);
-            setUrls(data);
+            const [projectData, urlData] = await Promise.all([
+                getProjectById(projectId),
+                getShortUrls(projectId),
+            ]);
+            setProject(projectData);
+            setUrls(urlData);
         });
     }, [projectId]);
 
@@ -123,6 +184,7 @@ export default function UrlShortenerPage() {
         if (state.message) {
             toast({ title: "Success", description: state.message });
             formRef.current?.reset();
+            setSelectedTagIds([]);
             fetchUrls();
         }
         if (state.error) {
@@ -170,17 +232,24 @@ export default function UrlShortenerPage() {
                 <Card className="card-gradient card-gradient-blue">
                     <form action={formAction} ref={formRef}>
                         <input type="hidden" name="projectId" value={projectId} />
+                        <input type="hidden" name="tagIds" value={selectedTagIds.join(',')} />
                         <CardHeader>
                             <CardTitle>Create a new short link</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="originalUrl">Destination URL</Label>
-                                <Input id="originalUrl" name="originalUrl" type="url" placeholder="https://example.com/very-long-url-to-shorten" required/>
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="originalUrl">Destination URL</Label>
+                                    <Input id="originalUrl" name="originalUrl" type="url" placeholder="https://example.com/very-long-url-to-shorten" required/>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="alias">Custom Alias (Optional)</Label>
+                                    <Input id="alias" name="alias" placeholder="e.g., summer-sale" />
+                                </div>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="alias">Custom Alias (Optional)</Label>
-                                <Input id="alias" name="alias" placeholder="e.g., summer-sale" />
+                                <Label>Tags (Optional)</Label>
+                                <TagsSelector projectTags={project?.tags || []} onSelectionChange={setSelectedTagIds} />
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-between items-center">
@@ -201,13 +270,14 @@ export default function UrlShortenerPage() {
                                     <TableRow>
                                         <TableHead>Short URL</TableHead>
                                         <TableHead>Destination</TableHead>
+                                        <TableHead>Tags</TableHead>
                                         <TableHead>Clicks</TableHead>
                                         <TableHead>Created</TableHead>
                                         <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {isLoading ? <TableRow><TableCell colSpan={5}><Skeleton className="h-10 w-full"/></TableCell></TableRow>
+                                    {isLoading ? <TableRow><TableCell colSpan={6}><Skeleton className="h-10 w-full"/></TableCell></TableRow>
                                     : urls.length > 0 ? urls.map(url => (
                                         <TableRow key={url._id.toString()}>
                                             <TableCell className="font-mono text-sm flex items-center gap-2">
@@ -219,6 +289,18 @@ export default function UrlShortenerPage() {
                                                 </Button>
                                             </TableCell>
                                             <TableCell className="text-muted-foreground truncate max-w-xs">{url.originalUrl}</TableCell>
+                                             <TableCell>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {(url.tagIds || []).map(tagId => {
+                                                        const tag = project?.tags?.find(t => t._id === tagId);
+                                                        return tag ? (
+                                                            <Badge key={tagId} className="rounded-sm" style={{ backgroundColor: tag.color, color: '#fff' }}>
+                                                                {tag.name}
+                                                            </Badge>
+                                                        ) : null;
+                                                    })}
+                                                </div>
+                                            </TableCell>
                                             <TableCell>{url.clickCount}</TableCell>
                                             <TableCell>{new Date(url.createdAt).toLocaleDateString()}</TableCell>
                                             <TableCell className="text-right">
@@ -227,7 +309,7 @@ export default function UrlShortenerPage() {
                                             </TableCell>
                                         </TableRow>
                                     ))
-                                    : <TableRow><TableCell colSpan={5} className="text-center h-24">No links created yet.</TableCell></TableRow>}
+                                    : <TableRow><TableCell colSpan={6} className="text-center h-24">No links created yet.</TableCell></TableRow>}
                                 </TableBody>
                             </Table>
                         </div>
