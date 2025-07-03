@@ -1,8 +1,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { CleanDatabaseButton } from "@/components/wabasimplify/clean-database-button";
 import { SubscribeAllButton } from "@/components/wabasimplify/subscribe-all-button";
-import { AlertTriangle, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { RunCronJobsButton } from "@/components/wabasimplify/run-cron-jobs-button";
 import { PhonePeSettingsForm } from "@/components/wabasimplify/phonepe-settings-form";
@@ -42,20 +41,6 @@ export default async function SystemHealthPage() {
 
             <Separator />
 
-             <Card className="border-destructive card-gradient card-gradient-orange">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-destructive">
-                         <AlertTriangle className="h-5 w-5" />
-                        Dangerous Actions
-                    </CardTitle>
-                    <CardDescription>
-                        This action can result in permanent data loss.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <CleanDatabaseButton />
-                </CardContent>
-            </Card>
         </div>
     );
 }

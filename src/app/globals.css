@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -33,6 +34,7 @@ body {
     --chart-4: 285.2 83.2% 53.3%;
     --chart-5: 350.2 83.2% 53.3%;
     --radius: 0.5rem;
+    --instagram: 327 92% 55%;
     
     /* Neutral Sidebar as default */
     --sidebar-background: 220 13% 98%;
@@ -106,6 +108,20 @@ body {
     --sidebar-accent: 217 50% 25%;
     --sidebar-accent-foreground: 0 0% 100%;
   }
+
+  /* Instagram Theme */
+  [data-theme="instagram"] {
+    --sidebar-primary: 327 92% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 327 92% 95%;
+    --sidebar-accent-foreground: 327 92% 25%;
+  }
+  .dark [data-theme="instagram"] {
+    --sidebar-primary: 327 92% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 327 50% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+  }
 }
 
 @layer base {
@@ -156,6 +172,12 @@ body {
 }
 
 @layer utilities {
+    .bg-instagram {
+        background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));
+    }
+    .text-instagram {
+        color: hsl(var(--instagram));
+    }
     .animate-fade-in-up {
         animation: fade-in-up 0.6s ease-in-out forwards;
         opacity: 0;

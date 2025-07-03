@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -251,7 +250,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname.startsWith(item.href) && item.href !== '/dashboard/facebook'}
+                  isActive={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href) && item.href !== '/dashboard/facebook')}
                   tooltip={tooltipText}
                   disabled={isDisabled}
                   aria-disabled={isDisabled}

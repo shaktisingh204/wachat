@@ -127,7 +127,7 @@ export type Project = {
     connectedCatalogId?: string;
     hasCatalogManagement?: boolean;
     kanbanStatuses?: string[];
-    plan?: WithId<Plan>; // populated by aggregate
+    plan?: WithId<Plan> | null; // populated by aggregate
 };
 
 export type Template = {
@@ -193,10 +193,12 @@ export type MetaFlow = {
 };
 
 export type PlanFeaturePermissions = {
+    overview: boolean;
     campaigns: boolean;
     liveChat: boolean;
     contacts: boolean;
     templates: boolean;
+    catalog: boolean;
     flowBuilder: boolean;
     metaFlows: boolean;
     whatsappAds: boolean;
@@ -212,6 +214,13 @@ export type PlanFeaturePermissions = {
     apiAccess: boolean;
     urlShortener: boolean;
     qrCodeMaker: boolean;
+    numbers: boolean;
+    billing: boolean;
+    notifications: boolean;
+    instagramFeed: boolean;
+    instagramStories: boolean;
+    instagramReels: boolean;
+    instagramMessages: boolean;
 };
 
 export type PlanMessageCosts = {
