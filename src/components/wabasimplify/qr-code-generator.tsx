@@ -2,15 +2,17 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
-import { Download, QrCode, Link, Type, Mail, Phone, MessageSquare, Wifi } from 'lucide-react';
+import { Download, QrCode, Link, Type, Mail, Phone, MessageSquare, Wifi, Upload } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '../ui/separator';
+import { BulkCreateQrDialog } from './bulk-qr-create-dialog';
 
 type QrDataType = 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi';
 
@@ -33,6 +35,8 @@ export function QrCodeGenerator() {
     const [qrConfig, setQrConfig] = useState({
         color: '000000',
         bgColor: 'FFFFFF',
+        eccLevel: 'L', // L, M, Q, H
+        size: 250,
     });
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -42,6 +46,14 @@ export function QrCodeGenerator() {
     const handleSelectChange = (name: string, value: string) => {
          setFormData(prev => ({ ...prev, [name]: value }));
     };
+    
+    const handleConfigChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setQrConfig(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    };
+
+    const handleColorChange = (name: 'color' | 'bgColor', value: string) => {
+        setQrConfig(prev => ({...prev, [name]: value.substring(1)}));
+    }
 
     const qrDataString = useMemo(() => {
         switch (activeTab) {
@@ -62,7 +74,7 @@ export function QrCodeGenerator() {
         }
     }, [activeTab, formData]);
 
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrDataString)}&color=${qrConfig.color}&bgcolor=${qrConfig.bgColor}`;
+    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrConfig.size}x${qrConfig.size}&data=${encodeURIComponent(qrDataString)}&color=${qrConfig.color}&bgcolor=${qrConfig.bgColor}&ecc=${qrConfig.eccLevel}`;
 
     const handleDownload = () => {
         const link = document.createElement('a');
@@ -105,11 +117,14 @@ export function QrCodeGenerator() {
                             </TabsList>
                             <TabsContent value={activeTab} className="mt-4">{renderInputFields()}</TabsContent>
                         </Tabs>
-                         <div className="space-y-2 border-t pt-4">
-                            <Label>Customization</Label>
+                         <Separator />
+                         <div className="space-y-4">
+                            <h3 className="font-medium text-lg">Customization</h3>
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-1"><Label htmlFor="color" className="text-xs">Dot Color</Label><Input id="color" type="color" value={`#${qrConfig.color}`} onChange={(e) => setQrConfig(p => ({...p, color: e.target.value.substring(1)}))} /></div>
-                                <div className="space-y-1"><Label htmlFor="bgColor" className="text-xs">Background Color</Label><Input id="bgColor" type="color" value={`#${qrConfig.bgColor}`} onChange={(e) => setQrConfig(p => ({...p, bgColor: e.target.value.substring(1)}))} /></div>
+                                <div className="space-y-1"><Label htmlFor="color" className="text-sm">Dot Color</Label><Input id="color" type="color" value={`#${qrConfig.color}`} onChange={(e) => handleColorChange('color', e.target.value)} /></div>
+                                <div className="space-y-1"><Label htmlFor="bgColor" className="text-sm">Background Color</Label><Input id="bgColor" type="color" value={`#${qrConfig.bgColor}`} onChange={(e) => handleColorChange('bgColor', e.target.value)} /></div>
+                                <div className="space-y-1"><Label htmlFor="size" className="text-sm">Size (px)</Label><Input id="size" name="size" type="number" min="50" max="1000" value={qrConfig.size} onChange={handleConfigChange} /></div>
+                                <div className="space-y-1"><Label htmlFor="eccLevel" className="text-sm">Error Correction</Label><Select name="eccLevel" value={qrConfig.eccLevel} onValueChange={(val) => setQrConfig(p => ({...p, eccLevel: val}))}><SelectTrigger id="eccLevel"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="L">Low (L)</SelectItem><SelectItem value="M">Medium (M)</SelectItem><SelectItem value="Q">Quartile (Q)</SelectItem><SelectItem value="H">High (H)</SelectItem></SelectContent></Select></div>
                             </div>
                          </div>
                     </div>
@@ -124,9 +139,12 @@ export function QrCodeGenerator() {
                                 </div>
                             )}
                         </div>
-                        <Button onClick={handleDownload} disabled={!qrDataString.trim()} className="w-full max-w-xs">
-                            <Download className="mr-2 h-4 w-4" /> Download PNG
-                        </Button>
+                        <div className="flex gap-2 w-full max-w-xs">
+                             <Button onClick={handleDownload} disabled={!qrDataString.trim()} className="w-full">
+                                <Download className="mr-2 h-4 w-4" /> Download PNG
+                            </Button>
+                            <BulkCreateQrDialog />
+                        </div>
                     </div>
                 </div>
             </CardContent>

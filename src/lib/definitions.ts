@@ -611,3 +611,16 @@ export type ShortUrl = {
     tagIds?: string[];
     createdAt: Date;
 };
+
+export type QrCode = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    dataType: 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi';
+    data: any;
+    qrString: string;
+    isDynamic: boolean;
+    scanCount: number;
+    createdAt: Date;
+    expiresAt?: Date;
+    password?: string;
+};
