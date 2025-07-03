@@ -26,6 +26,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   LayoutDashboard,
@@ -76,6 +77,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [isClient, setIsClient] = React.useState(false);
   const [isVerifying, setIsVerifying] = React.useState(true);
   const [projectCount, setProjectCount] = React.useState<number | null>(null);
+  const [activeApp, setActiveApp] = React.useState('whatsapp');
+
 
   React.useEffect(() => {
     setIsClient(true);
@@ -127,12 +130,38 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <SidebarProvider>
       <div className="hidden md:flex h-screen w-20 flex-shrink-0 flex-col items-center gap-4 border-r bg-card py-4">
-        <div className="p-2 rounded-lg bg-primary text-primary-foreground">
-          <WhatsAppIcon className="h-6 w-6" />
-        </div>
-        <div className="p-2 rounded-lg hover:bg-muted">
-          <FacebookIcon className="h-6 w-6 text-muted-foreground" />
-        </div>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <button
+                onClick={() => setActiveApp('whatsapp')}
+                className={cn(
+                    'p-3 rounded-lg transition-colors',
+                    activeApp === 'whatsapp'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-card text-primary hover:bg-accent'
+                )}
+                >
+                <WhatsAppIcon className="h-6 w-6" />
+                </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">WhatsApp Tools</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <button
+                onClick={() => setActiveApp('facebook')}
+                className={cn(
+                    'p-3 rounded-lg transition-colors',
+                    activeApp === 'facebook'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-card text-blue-600 hover:bg-accent'
+                )}
+                >
+                <FacebookIcon className="h-6 w-6" />
+                </button>
+            </TooltipTrigger>
+            <TooltipContent side="right">Facebook Manager</TooltipContent>
+        </Tooltip>
         <div className="p-2 rounded-lg hover:bg-muted">
           <Users className="h-6 w-6 text-muted-foreground" />
         </div>
