@@ -91,7 +91,7 @@ const facebookMenuItems = [
     { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/posts', label: 'Page Posts', icon: Newspaper, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/setup', label: 'Setup Guide', icon: Wrench, featureKey: 'whatsappAds' },
-    { href: '/dashboard/settings?tab=marketing', label: 'Settings', icon: Settings, featureKey: 'settingsMarketing' },
+    { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, featureKey: 'whatsappAds' },
 ];
 
 const instagramMenuItems = [
@@ -363,3 +363,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+
+    
