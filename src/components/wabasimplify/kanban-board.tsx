@@ -161,8 +161,8 @@ export function KanbanBoard() {
     }
     
     return (
-        <ScrollArea className="h-full w-full">
-            <div className="flex h-full p-4 gap-4">
+        <ScrollArea className="w-full h-full">
+            <div className="flex h-full w-max p-4 gap-4">
                 {boardData.map(column => (
                     <KanbanColumn key={column.name} title={column.name} contacts={column.contacts} onDrop={handleDrop} />
                 ))}
