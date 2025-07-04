@@ -211,6 +211,14 @@ export type CustomAudience = {
     time_updated: number;
 };
 
+export type FacebookPost = {
+    id: string;
+    message?: string;
+    full_picture?: string;
+    permalink_url: string;
+    created_time: string;
+};
+
 export type MetaFlow = {
     name: string;
     projectId: ObjectId;

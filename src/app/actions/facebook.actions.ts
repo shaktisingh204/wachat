@@ -9,7 +9,7 @@ import { ObjectId, type WithId } from 'mongodb';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost } from '@/lib/definitions';
 
 
 export async function handleFacebookPageSetup(data: {
@@ -224,6 +224,32 @@ export async function getCustomAudiences(projectId: string): Promise<{ audiences
         }
         
         return { audiences: response.data.data || [] };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getFacebookPosts(projectId: string): Promise<{ posts?: FacebookPost[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or is missing Facebook Page ID or access token.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/posts`, {
+            params: {
+                fields: 'id,message,full_picture,permalink_url,created_time',
+                access_token: project.accessToken,
+                limit: 25,
+            }
+        });
+        
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        return { posts: response.data.data || [] };
 
     } catch (e: any) {
         return { error: getErrorMessage(e) };
