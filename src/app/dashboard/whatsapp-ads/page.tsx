@@ -16,6 +16,7 @@ import { AlertCircle, PlusCircle, Megaphone } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CreateAdDialog } from '@/components/wabasimplify/create-ad-dialog';
 import Link from 'next/link';
+import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
 
 function AdsPageSkeleton() {
     return (
@@ -85,6 +86,21 @@ export default function AdsManagerPage() {
         );
     }
 
+    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+    const configId = process.env.NEXT_PUBLIC_FACEBOOK_CONFIG_ID;
+    
+    if (!appId || !configId) {
+        return (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Configuration Error</AlertTitle>
+                <AlertDescription>
+                    The Facebook integration is not configured correctly by the admin. `NEXT_PUBLIC_FACEBOOK_APP_ID` and `NEXT_PUBLIC_FACEBOOK_CONFIG_ID` must be set.
+                </AlertDescription>
+            </Alert>
+        );
+    }
+
     return (
         <>
             {project && (
@@ -101,23 +117,20 @@ export default function AdsManagerPage() {
                         <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Megaphone/> Ads Manager</h1>
                         <p className="text-muted-foreground">Create and manage your "Click to WhatsApp" ad campaigns.</p>
                     </div>
-                    <Button onClick={() => setIsCreateAdOpen(true)} disabled={!hasMarketingSetup}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Create New Ad
-                    </Button>
+                    {hasMarketingSetup ? (
+                        <Button onClick={() => setIsCreateAdOpen(true)}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Create New Ad
+                        </Button>
+                    ) : (
+                        <FacebookEmbeddedSignup
+                            appId={appId}
+                            configId={configId}
+                            projectId={projectId}
+                            onSuccess={fetchData}
+                        />
+                    )}
                 </div>
-
-                {!hasMarketingSetup && (
-                    <Alert>
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Marketing Settings Required</AlertTitle>
-                        <AlertDescription>
-                            Please configure your Ad Account ID and Facebook Page ID in{' '}
-                            <Link href="/dashboard/facebook/settings" className="font-semibold text-primary hover:underline">Settings</Link>
-                            {' '}before you can create ads.
-                        </AlertDescription>
-                    </Alert>
-                )}
 
                 <Card className="card-gradient card-gradient-blue">
                     <CardHeader>
