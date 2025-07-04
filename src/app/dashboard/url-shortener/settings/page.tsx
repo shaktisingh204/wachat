@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { BookOpen, Key, Link2, LoaderCircle, Info, Trash2, CheckCircle } from 'lucide-react';
+import { BookOpen, Key, Link2, LoaderCircle, Info, Trash2, CheckCircle, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -130,7 +130,25 @@ export default function UrlShortenerSettingsPage() {
                                         </div>
                                         <DeleteButton domainId={domain._id.toString()} />
                                     </div>
-                                    {!domain.verified && (
+                                    {domain.verified ? (
+                                        <div className="p-3 bg-green-50 dark:bg-green-950 rounded-md text-sm space-y-3 border border-green-200 dark:border-green-800">
+                                            <div className="flex items-center gap-2 font-semibold text-green-800 dark:text-green-300">
+                                                <CheckCircle className="h-4 w-4"/>
+                                                Domain ownership verified!
+                                            </div>
+                                            <p className="text-muted-foreground">Now, configure the CNAME record in your DNS provider to point your domain to our servers. This enables the short links.</p>
+                                            <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
+                                                <span className="text-muted-foreground">Type:</span> <span>CNAME</span>
+                                                <span className="text-muted-foreground">Host/Name:</span> <span>{domain.hostname}</span>
+                                                <span className="text-muted-foreground">Value/Target:</span>
+                                                <div className="flex items-center gap-2">
+                                                    <span className="break-all">cname.sabnode.com</span>
+                                                    <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy('cname.sabnode.com')}><Copy className="h-3 w-3"/></Button>
+                                                </div>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground pt-2">Note: DNS changes can take up to 24 hours to propagate. The 'Host' value may differ depending on your provider (e.g., 'links' instead of 'links.mybrand.com').</p>
+                                        </div>
+                                    ) : (
                                         <div className="p-3 bg-muted/50 rounded-md text-sm space-y-3">
                                             <p className="text-muted-foreground">To verify this domain, add the following TXT record to your DNS settings:</p>
                                             <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
@@ -153,13 +171,6 @@ export default function UrlShortenerSettingsPage() {
                             <p className="text-sm text-center text-muted-foreground py-4">No custom domains added yet.</p>
                         )}
                     </div>
-                    <Alert>
-                        <Info className="h-4 w-4" />
-                        <AlertTitle>DNS Configuration Required</AlertTitle>
-                        <AlertDescription>
-                            After verifying, you must point your custom domain to our servers using a CNAME record. This step is handled with your domain provider (e.g., GoDaddy, Namecheap). This functionality is not implemented in this prototype.
-                        </AlertDescription>
-                    </Alert>
                 </CardContent>
             </Card>
             
