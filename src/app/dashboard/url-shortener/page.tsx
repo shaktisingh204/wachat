@@ -265,7 +265,7 @@ export default function UrlShortenerPage() {
                                             <SelectValue placeholder="Default" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="">Default Domain</SelectItem>
+                                            <SelectItem value="none">Default Domain</SelectItem>
                                             {verifiedDomains.map(d => (
                                                 <SelectItem key={d._id.toString()} value={d._id.toString()}>{d.hostname}</SelectItem>
                                             ))}

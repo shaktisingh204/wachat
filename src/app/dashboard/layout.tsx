@@ -119,7 +119,6 @@ const qrCodeMakerMenuItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string, credits?: number, plan?: WithId<Plan> } | null>(null);
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
   const [isClient, setIsClient] = React.useState(false);
@@ -165,20 +164,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             setSessionUser(session.user as any);
             getProjectCount().then(count => {
               setProjectCount(count);
-              // This is the important change: We no longer redirect from the client side.
-              // The middleware handles unauthorized access.
-              // If there are no projects, the user can still access setup/billing/profile.
               if (count === 0 && !isSetupPage) {
-                  router.push('/dashboard/setup');
+                // This redirect is handled by middleware now to prevent loops
+                // The layout should only display content, not handle auth redirects.
               }
             });
         }
-        // If session is null, middleware will have already redirected.
-        // We just stop the loading spinner.
         setIsVerifying(false);
     })
 
-  }, [pathname, router, isClient]);
+  }, [pathname, isClient]);
 
   const isChatPage = pathname.startsWith('/dashboard/chat');
 
