@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, PlusCircle, Megaphone } from 'lucide-react';
+import { AlertCircle, PlusCircle, Megaphone, Wrench } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CreateAdDialog } from '@/components/wabasimplify/create-ad-dialog';
 import Link from 'next/link';
@@ -67,23 +67,36 @@ export default function AdsManagerPage() {
         }
     }, [projectId, fetchData]);
     
-    const hasMarketingSetup = !!(project?.adAccountId && project.facebookPageId && project.accessToken);
-
-    if (!isClient || isLoading) {
+    if (!isClient) {
         return <AdsPageSkeleton />;
     }
 
     if (!projectId) {
          return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>
-                    Please select a project from the main dashboard to manage ads.
-                </AlertDescription>
-            </Alert>
+            <div className="flex flex-col items-center justify-center h-full text-center gap-4">
+                <Megaphone className="h-16 w-16 text-muted-foreground" />
+                <Alert>
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>No Project Selected</AlertTitle>
+                    <AlertDescription>
+                        Please select a project from the main dashboard to manage its ads, or go to the Project Connections page to connect your projects.
+                    </AlertDescription>
+                </Alert>
+                <Button asChild>
+                    <Link href="/dashboard/facebook/all-projects">
+                        <Wrench className="mr-2 h-4 w-4" />
+                        Go to Project Connections
+                    </Link>
+                </Button>
+            </div>
         );
     }
+    
+    if (isLoading) {
+        return <AdsPageSkeleton />;
+    }
+
+    const hasMarketingSetup = !!(project?.adAccountId && project.facebookPageId && project.accessToken);
 
     return (
         <>
@@ -99,7 +112,7 @@ export default function AdsManagerPage() {
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Megaphone/> Ads Manager</h1>
-                        <p className="text-muted-foreground">Create and manage your "Click to WhatsApp" ad campaigns.</p>
+                        <p className="text-muted-foreground">Create and manage your "Click to WhatsApp" ad campaigns for project: {project?.name}</p>
                     </div>
                     <Button onClick={() => setIsCreateAdOpen(true)} disabled={!hasMarketingSetup}>
                         <PlusCircle className="mr-2 h-4 w-4" />
@@ -112,9 +125,9 @@ export default function AdsManagerPage() {
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>Marketing Settings Required</AlertTitle>
                         <AlertDescription>
-                            Please configure your Ad Account ID and Facebook Page ID in{' '}
-                            <Link href="/dashboard/facebook/settings" className="font-semibold text-primary hover:underline">Settings</Link>
-                            {' '}before you can create ads.
+                            This project is not yet connected to Facebook. Go to the {' '}
+                            <Link href="/dashboard/facebook/all-projects" className="font-semibold text-primary hover:underline">Project Connections</Link>
+                            {' '}page to connect it.
                         </AlertDescription>
                     </Alert>
                 )}

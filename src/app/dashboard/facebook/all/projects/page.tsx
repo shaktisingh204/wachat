@@ -23,7 +23,7 @@ function SetupPageSkeleton() {
     );
 }
 
-export default function MarketingApiSetupPage() {
+export default function AllProjectsPage() {
     const [projects, setProjects] = useState<WithId<Project>[]>([]);
     const [isLoading, startLoading] = useTransition();
 
@@ -50,7 +50,7 @@ export default function MarketingApiSetupPage() {
             <div>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
                     <Wrench className="h-8 w-8"/>
-                    Facebook Project Setup
+                    All Project Connections
                 </h1>
                 <p className="text-muted-foreground mt-2">
                     Connect your projects to Facebook to enable "Click to WhatsApp" ad creation.

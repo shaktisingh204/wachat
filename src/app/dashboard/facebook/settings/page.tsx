@@ -68,7 +68,7 @@ export default function FacebookSettingsPage() {
          <div className="flex flex-col gap-8">
             <div>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Facebook/> Facebook Connection</h1>
-                <p className="text-muted-foreground">Review your connected Facebook Page and Ad Account.</p>
+                <p className="text-muted-foreground">Review your connected Facebook Page and Ad Account for project "{project.name}".</p>
             </div>
             
             <Card className="card-gradient card-gradient-blue">
@@ -98,7 +98,7 @@ export default function FacebookSettingsPage() {
                 </CardContent>
                  <CardFooter>
                     <Button asChild>
-                        <Link href="/dashboard/facebook">
+                        <Link href="/dashboard/facebook/setup">
                              {hasMarketingSetup ? 'Disconnect / Change Account' : 'Connect Account'}
                         </Link>
                     </Button>
