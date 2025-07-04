@@ -20,7 +20,11 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
     const alias = formData.get('alias') as string | null;
     const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
     const expiresAtStr = formData.get('expiresAt') as string | null;
-    const domainId = formData.get('domainId') as string | null;
+    let domainId = formData.get('domainId') as string | null;
+
+    if (domainId === 'none') {
+        domainId = null;
+    }
 
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied.' };
@@ -174,7 +178,7 @@ export async function handleBulkCreateShortUrls(prevState: any, formData: FormDa
 }
 
 
-export async function getShortUrls(): Promise<{ user: (Omit<User, 'password'> & { _id: string, tags?: any[] }) | null; urls: WithId<ShortUrl>[]; domains: WithId<CustomDomain>[] }> {
+export async function getShortUrls(): Promise<{ user: (Omit<User, 'password'> & { _id: string }) | null; urls: WithId<ShortUrl>[]; domains: WithId<CustomDomain>[] }> {
     const session = await getSession();
     if (!session?.user) return { user: null, urls: [], domains: [] };
 
