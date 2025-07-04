@@ -1,4 +1,3 @@
-
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
@@ -12,53 +11,35 @@ export function middleware(request: NextRequest) {
   const isDashboardPage = pathname.startsWith('/dashboard')
   const isAdminDashboardPage = pathname.startsWith('/admin/dashboard')
   
-  // If trying to access the admin dashboard
-  if (isAdminDashboardPage) {
-    // If not an admin, redirect to admin login
-    if (!adminSessionToken) {
-      return NextResponse.redirect(new URL('/admin-login', request.url))
-    }
-    // Otherwise, allow access
-    return NextResponse.next()
+  // If trying to access the admin dashboard and no admin session exists, redirect to admin login
+  if (isAdminDashboardPage && !adminSessionToken) {
+    return NextResponse.redirect(new URL('/admin-login', request.url))
   }
 
-  // If trying to access the user dashboard
-  if (isDashboardPage) {
-    // If not logged in, redirect to login
-    if (!sessionToken) {
-      return NextResponse.redirect(new URL('/login', request.url))
-    }
-    // Otherwise, allow access
-    return NextResponse.next()
+  // If trying to access the user dashboard and no user session exists, redirect to login
+  if (isDashboardPage && !sessionToken) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // If trying to access a regular auth page (login/signup)
-  if (isAuthPage) {
-    // If already logged in, redirect to the user dashboard
-    if (sessionToken) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-    // Otherwise, allow access
-    return NextResponse.next()
+  // If trying to access a regular auth page (login/signup) while logged in, redirect to dashboard
+  if (isAuthPage && sessionToken) {
+    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // If trying to access the admin login page
-  if (isAdminAuthPage) {
-    // If already an admin, redirect to the admin dashboard
-    if (adminSessionToken) {
-      return NextResponse.redirect(new URL('/admin/dashboard', request.url))
-    }
-    // Otherwise, allow access
-    return NextResponse.next()
+  // If trying to access the admin login page while an admin session exists, redirect to admin dashboard
+  if (isAdminAuthPage && adminSessionToken) {
+    return NextResponse.redirect(new URL('/admin/dashboard', request.url))
   }
 
-  // For all other pages (e.g., public landing page), allow access
+  // Allow all other requests to proceed
   return NextResponse.next()
 }
 
+// Match all routes except for static assets, API routes, and public paths
 export const config = {
   matcher: [
-    // Match all routes except for static files, API routes, and special Next.js paths
-    '/((?!_next/static|_next/image|favicon.ico|api/|s/|.*\\..*).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|s/|.*\\..*).*)',
   ],
 }
+
+    

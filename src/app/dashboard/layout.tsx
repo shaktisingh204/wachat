@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -149,6 +148,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     const isDashboardHome = pathname === '/dashboard';
+    const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
 
     if (isDashboardHome) {
       localStorage.removeItem('activeProjectId');
@@ -165,15 +165,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             setSessionUser(session.user as any);
             getProjectCount().then(count => {
               setProjectCount(count);
-              if (count === 0 && pathname !== '/dashboard' && pathname !== '/dashboard/setup' && pathname !== '/dashboard/profile' && pathname !== '/dashboard/billing' && pathname !== '/dashboard/settings') {
+              if (count === 0 && !isSetupPage) {
                   router.push('/dashboard/setup');
               }
-               setIsVerifying(false);
             });
-        } else {
-            router.push('/login');
-            setIsVerifying(false);
         }
+        // If session is null, we no longer redirect here. Middleware handles it.
+        // This prevents the redirect loop.
+        setIsVerifying(false);
     })
 
   }, [pathname, router, isClient]);
@@ -183,7 +182,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!isClient || isVerifying) {
       return <FullPageSkeleton />;
   }
-
+  
   const hasNoProjects = projectCount === 0;
   const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
   const planFeatures = sessionUser?.plan?.features;
@@ -444,3 +443,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+
+    
