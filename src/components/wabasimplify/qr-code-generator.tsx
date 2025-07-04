@@ -7,9 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import Image from 'next/image';
+import QRCode from 'react-qr-code';
 import { Button } from '@/components/ui/button';
-import { Download, QrCode, Link, Type, Mail, Phone, MessageSquare, Wifi, Save, LoaderCircle, Check, ChevronsUpDown } from 'lucide-react';
+import { Download, QrCode, Link, Type, Mail, Phone, MessageSquare, Wifi, Save, LoaderCircle, Check, ChevronsUpDown, Image as ImageIcon } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '../ui/separator';
@@ -22,6 +22,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '../ui/command';
 import { cn } from '@/lib/utils';
 import { Badge } from '../ui/badge';
+import { Switch } from '../ui/switch';
 
 type QrDataType = 'url' | 'text' | 'email' | 'phone' | 'sms' | 'wifi';
 
@@ -90,8 +91,11 @@ function SubmitButton() {
 
 export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id: string, tags?: Tag[] } }) {
     const [activeTab, setActiveTab] = useState<QrDataType>('url');
+    const [isDynamic, setIsDynamic] = useState(false);
+    const [logoFile, setLogoFile] = useState<File | null>(null);
+
     const [formData, setFormData] = useState({
-        url: 'https://wachat.com', text: 'Hello, World!', email: '', emailSubject: '',
+        url: 'https://sabnode.com', text: 'Hello, World!', email: '', emailSubject: '',
         emailBody: '', phone: '', sms: '', smsMessage: '', wifiSsid: '',
         wifiPassword: '', wifiEncryption: 'WPA',
     });
@@ -104,12 +108,14 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
     const [state, formAction] = useActionState(createQrCode, initialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
+    const qrCodeRef = useRef<HTMLDivElement>(null);
 
      useEffect(() => {
         if (state.message) {
             toast({ title: "Success", description: state.message });
             formRef.current?.reset();
             setSelectedTagIds([]);
+            setLogoFile(null);
         }
         if (state.error) {
             toast({ title: "Error", description: state.error, variant: "destructive" });
@@ -144,15 +150,34 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
         }
     }, [activeTab, formData]);
 
-    const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=${qrConfig.size}x${qrConfig.size}&data=${encodeURIComponent(qrDataString)}&color=${qrConfig.color}&bgcolor=${qrConfig.bgColor}&ecc=${qrConfig.eccLevel}`;
-
     const handleDownload = () => {
-        const link = document.createElement('a');
-        link.href = qrApiUrl;
-        link.download = `qrcode-${activeTab}.png`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const svg = qrCodeRef.current?.querySelector('svg');
+        if (svg) {
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const canvas = document.createElement("canvas");
+            const scale = 3;
+            const svgSize = svg.getBoundingClientRect();
+            canvas.width = svgSize.width * scale;
+            canvas.height = svgSize.height * scale;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+
+            ctx.fillStyle = `#${qrConfig.bgColor}`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const img = new Image();
+            img.onload = () => {
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const pngFile = canvas.toDataURL("image/png");
+                const downloadLink = document.createElement("a");
+                downloadLink.download = `qrcode.png`;
+                downloadLink.href = pngFile;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+            };
+            img.src = `data:image/svg+xml;base64,${btoa(svgData)}`;
+        }
     };
 
     const renderInputFields = () => {
@@ -173,6 +198,8 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
             <input type="hidden" name="data" value={JSON.stringify(formData)} />
             <input type="hidden" name="config" value={JSON.stringify(qrConfig)} />
             <input type="hidden" name="tagIds" value={selectedTagIds.join(',')} />
+            <input type="hidden" name="isDynamic" value={isDynamic ? 'on' : 'off'} />
+            
             <Card className="card-gradient card-gradient-green">
                 <CardHeader>
                     <CardTitle>Generate a QR Code</CardTitle>
@@ -199,6 +226,12 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
                                     <Label htmlFor="name">Name</Label>
                                     <Input id="name" name="name" placeholder="e.g., My Website QR Code" required />
                                 </div>
+                                {activeTab === 'url' && (
+                                    <div className="flex items-center space-x-2">
+                                        <Switch id="isDynamic" name="isDynamic" checked={isDynamic} onCheckedChange={setIsDynamic} />
+                                        <Label htmlFor="isDynamic">Dynamic QR Code (Trackable)</Label>
+                                    </div>
+                                )}
                                 <div className="space-y-2">
                                     <Label>Tags (Optional)</Label>
                                     <TagsSelector userTags={user?.tags || []} onSelectionChange={setSelectedTagIds} />
@@ -209,12 +242,23 @@ export function QrCodeGenerator({ user }: { user: Omit<User, 'password'> & { _id
                                     <div className="space-y-1"><Label htmlFor="size" className="text-sm">Size (px)</Label><Input id="size" name="size" type="number" min="50" max="1000" value={qrConfig.size} onChange={handleConfigChange} /></div>
                                     <div className="space-y-1"><Label htmlFor="eccLevel" className="text-sm">Error Correction</Label><Select name="eccLevel" value={qrConfig.eccLevel} onValueChange={(val) => setQrConfig(p => ({...p, eccLevel: val}))}><SelectTrigger id="eccLevel"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="L">Low (L)</SelectItem><SelectItem value="M">Medium (M)</SelectItem><SelectItem value="Q">Quartile (Q)</SelectItem><SelectItem value="H">High (H)</SelectItem></SelectContent></Select></div>
                                 </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="logoFile">Logo (Optional)</Label>
+                                    <Input id="logoFile" name="logoFile" type="file" accept="image/png,image/jpeg" onChange={(e) => setLogoFile(e.target.files?.[0] || null)} />
+                                </div>
                             </div>
                         </div>
                         <div className="flex flex-col items-center justify-center space-y-4">
-                            <div className="p-4 bg-white rounded-lg aspect-square w-full max-w-xs mx-auto">
+                            <div ref={qrCodeRef} className="p-4 bg-white rounded-lg aspect-square w-full max-w-xs mx-auto flex items-center justify-center">
                                 {qrDataString.trim() ? (
-                                    <Image src={qrApiUrl} alt="Generated QR Code" width={250} height={250} data-ai-hint="qr code" />
+                                    <QRCode
+                                        value={qrDataString}
+                                        size={256}
+                                        fgColor={`#${qrConfig.color}`}
+                                        bgColor={`#${qrConfig.bgColor}`}
+                                        level={qrConfig.eccLevel as any}
+                                        style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                                    />
                                 ) : (
                                     <div className="flex flex-col items-center justify-center text-muted-foreground text-center gap-2 h-full">
                                         <QrCode className="h-16 w-16" />

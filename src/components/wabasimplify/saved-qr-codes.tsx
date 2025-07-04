@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Eye, Trash2, LoaderCircle } from 'lucide-react';
 import type { WithId } from 'mongodb';
-import { getQrCodes, deleteQrCode, type QrCode } from '@/app/actions/qr-code.actions';
+import { getQrCodes, deleteQrCode, type QrCode, type QrCodeWithShortUrl } from '@/app/actions/qr-code.actions';
 import { QrCodeDialog } from './qr-code-dialog';
 import {
   AlertDialog,
@@ -23,6 +23,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 
 function DeleteQrCodeButton({ qrCode, onDeleted }: { qrCode: WithId<QrCode>, onDeleted: () => void }) {
@@ -62,10 +63,10 @@ function DeleteQrCodeButton({ qrCode, onDeleted }: { qrCode: WithId<QrCode>, onD
     );
 }
 
-export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode>[] }) {
+export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCodeWithShortUrl>[] }) {
     const [qrCodes, setQrCodes] = useState(initialQrCodes);
     const [isLoading, startLoadingTransition] = useTransition();
-    const [selectedQrUrl, setSelectedQrUrl] = useState<string | null>(null);
+    const [selectedQrData, setSelectedQrData] = useState<{dataString: string, config: any} | null>(null);
 
     const fetchData = () => {
         startLoadingTransition(async () => {
@@ -78,8 +79,12 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
         setQrCodes(initialQrCodes);
     }, [initialQrCodes]);
 
-
-    const generateDataString = (code: QrCode) => {
+    const generateDataString = (code: QrCode, codeWithUrl?: QrCodeWithShortUrl) => {
+        if (code.dataType === 'url' && code.shortUrlId && codeWithUrl?.shortUrl) {
+            const domain = window.location.origin;
+            return `${domain}/s/${codeWithUrl.shortUrl.shortCode}`;
+        }
+        
         switch (code.dataType) {
             case 'url': return code.data.url;
             case 'text': return code.data.text;
@@ -91,17 +96,18 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
         }
     };
     
-    const getApiUrl = (code: QrCode) => {
-        const dataString = generateDataString(code);
-        return `https://api.qrserver.com/v1/create-qr-code/?size=${code.config.size}x${code.config.size}&data=${encodeURIComponent(dataString)}&color=${code.config.color}&bgcolor=${code.config.bgColor}&ecc=${code.config.eccLevel}`;
+    const handleViewQr = (code: WithId<QrCodeWithShortUrl>) => {
+        const dataString = generateDataString(code, code);
+        setSelectedQrData({ dataString, config: code.config });
     };
 
     return (
         <>
         <QrCodeDialog
-            url={selectedQrUrl}
-            open={!!selectedQrUrl}
-            onOpenChange={(open) => !open && setSelectedQrUrl(null)}
+            dataString={selectedQrData?.dataString || null}
+            config={selectedQrData?.config}
+            open={!!selectedQrData}
+            onOpenChange={(open) => !open && setSelectedQrData(null)}
         />
         <Card className="card-gradient card-gradient-purple">
             <CardHeader>
@@ -124,13 +130,24 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
                             : qrCodes.length > 0 ? qrCodes.map(code => (
                                 <TableRow key={code._id.toString()}>
                                     <TableCell className="font-medium">{code.name}</TableCell>
-                                    <TableCell><Badge variant="outline" className="capitalize">{code.dataType}</Badge></TableCell>
+                                    <TableCell>
+                                        <div className="flex flex-col gap-1">
+                                            <Badge variant="outline" className="capitalize">{code.dataType}</Badge>
+                                            {code.shortUrl && <Badge variant="secondary">Dynamic</Badge>}
+                                        </div>
+                                    </TableCell>
                                     <TableCell className="text-muted-foreground truncate max-w-xs font-mono text-xs">
-                                        {generateDataString(code)}
+                                        {code.shortUrl ? (
+                                            <Link href={`/dashboard/url-shortener/${code.shortUrl._id}`} className="text-primary hover:underline">
+                                                {window.location.origin}/s/{code.shortUrl.shortCode}
+                                            </Link>
+                                        ) : (
+                                            generateDataString(code)
+                                        )}
                                     </TableCell>
                                     <TableCell>{new Date(code.createdAt).toLocaleDateString()}</TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="ghost" size="icon" onClick={() => setSelectedQrUrl(getApiUrl(code))}><Eye className="h-4 w-4"/></Button>
+                                        <Button variant="ghost" size="icon" onClick={() => handleViewQr(code)}><Eye className="h-4 w-4"/></Button>
                                         <DeleteQrCodeButton qrCode={code} onDeleted={fetchData} />
                                     </TableCell>
                                 </TableRow>
@@ -144,4 +161,3 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
         </>
     );
 }
-
