@@ -20,7 +20,11 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
     const alias = formData.get('alias') as string | null;
     const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
     const expiresAtStr = formData.get('expiresAt') as string | null;
-    const domainId = formData.get('domainId') as string | null;
+    let domainId = formData.get('domainId') as string | null;
+    if (domainId === 'none') {
+        domainId = null;
+    }
+
 
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied.' };
