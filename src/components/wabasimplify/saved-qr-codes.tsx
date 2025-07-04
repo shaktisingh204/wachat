@@ -139,9 +139,11 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
                                     </TableCell>
                                     <TableCell className="text-muted-foreground truncate max-w-xs font-mono text-xs">
                                         {code.shortUrl ? (
-                                            <Link href={`/dashboard/url-shortener/${code.shortUrl._id}`} className="text-primary hover:underline">
-                                                {window.location.origin}/s/{code.shortUrl.shortCode}
-                                            </Link>
+                                            <Button asChild variant="outline" size="sm">
+                                                <Link href={`/dashboard/url-shortener/${code.shortUrl._id}`}>
+                                                    View Analytics
+                                                </Link>
+                                            </Button>
                                         ) : (
                                             generateDataString(code)
                                         )}
