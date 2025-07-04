@@ -4,9 +4,8 @@
 import { useState } from 'react';
 import { EmbeddedSignup } from '@/components/wabasimplify/embedded-signup';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import type { Metadata } from 'next';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Key } from 'lucide-react';
 import { CreateProjectDialog } from '@/components/wabasimplify/project-dialog';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';

@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Facebook, Key, Link as LinkIcon } from 'lucide-react';
+import { AlertCircle, Facebook } from 'lucide-react';
 import Link from 'next/link';
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {

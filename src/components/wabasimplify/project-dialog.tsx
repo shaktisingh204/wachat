@@ -89,25 +89,13 @@ export function CreateProjectDialog() {
           <DialogHeader>
             <DialogTitle>Manual Project Setup</DialogTitle>
             <DialogDescription>
-              Enter your credentials below. For detailed instructions, please see our{' '}
-              <Link href="/dashboard/setup/docs" className="text-primary hover:underline">
-                Manual Setup Guide
-              </Link>
-              .
+              Enter your WABA ID below. This will connect to the platform's main Meta App.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="wabaId" className="text-right">Business ID</Label>
+              <Label htmlFor="wabaId" className="text-right">WABA ID</Label>
               <Input id="wabaId" name="wabaId" placeholder="WhatsApp Business Account ID" className="col-span-3" required />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="appId" className="text-right">App ID</Label>
-              <Input id="appId" name="appId" placeholder="Your Meta App ID" className="col-span-3" required />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="accessToken" className="text-right">Access Token</Label>
-              <Input id="accessToken" name="accessToken" type="password" placeholder="A permanent System User Token" className="col-span-3" required />
             </div>
             <div className="pt-2 pl-4">
                 <div className="flex items-center space-x-2">
@@ -116,7 +104,7 @@ export function CreateProjectDialog() {
                         Include permissions for Catalog Management
                     </Label>
                 </div>
-                <p className="text-xs text-muted-foreground pl-6">Requires 'catalog_management' permission on your token.</p>
+                <p className="text-xs text-muted-foreground pl-6">This will attempt to find a Business ID associated with your token.</p>
             </div>
           </div>
           <DialogFooter>
