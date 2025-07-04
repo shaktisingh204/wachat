@@ -263,6 +263,10 @@ export async function handleCreateFacebookPost(prevState: any, formData: FormDat
     const message = formData.get('message') as string;
     const mediaUrl = formData.get('mediaUrl') as string;
     const mediaFile = formData.get('mediaFile') as File;
+    const isScheduled = formData.get('isScheduled') === 'on';
+    const scheduledDate = formData.get('scheduledDate') as string;
+    const scheduledTime = formData.get('scheduledTime') as string;
+
 
     if (!projectId || !postType) {
         return { error: 'Project ID and post type are required.' };
@@ -275,58 +279,104 @@ export async function handleCreateFacebookPost(prevState: any, formData: FormDat
 
     const { facebookPageId, accessToken } = project;
     const apiVersion = 'v22.0';
+    let endpoint = '';
+    const form = new FormData();
+    form.append('access_token', accessToken);
+
+    if (isScheduled) {
+        if (!scheduledDate || !scheduledTime) {
+            return { error: 'A date and time are required for scheduling.' };
+        }
+        const scheduledDateTime = new Date(`${scheduledDate}T${scheduledTime}`);
+        if (isNaN(scheduledDateTime.getTime())) {
+            return { error: 'Invalid date or time format.' };
+        }
+        form.append('scheduled_publish_time', String(Math.floor(scheduledDateTime.getTime() / 1000)));
+        form.append('published', 'false');
+    }
     
     try {
         if (postType === 'text') {
             if (!message) return { error: 'Message is required for a text post.' };
-            await axios.post(`https://graph.facebook.com/${apiVersion}/${facebookPageId}/feed`, {
-                message: message,
-                access_token: accessToken,
-            });
+            form.append('message', message);
+            endpoint = `/${facebookPageId}/feed`;
         } else if (postType === 'image') {
-            if (!mediaUrl && (!mediaFile || mediaFile.size === 0)) {
-                return { error: 'An image URL or file is required.' };
-            }
+            if (!mediaUrl && (!mediaFile || mediaFile.size === 0)) return { error: 'An image URL or file is required.' };
+            endpoint = `/${facebookPageId}/photos`;
+            if (message) form.append('caption', message);
             if (mediaUrl) {
-                await axios.post(`https://graph.facebook.com/${apiVersion}/${facebookPageId}/photos`, {
-                    url: mediaUrl,
-                    caption: message,
-                    access_token: accessToken,
-                });
-            } else { // File upload
-                const form = new FormData();
-                form.append('caption', message);
-                form.append('source', new Blob([await mediaFile.arrayBuffer()]), mediaFile.name);
-                form.append('access_token', accessToken);
-                await axios.post(`https://graph.facebook.com/${apiVersion}/${facebookPageId}/photos`, form, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                });
+                form.append('url', mediaUrl);
+            } else {
+                 form.append('source', new Blob([await mediaFile.arrayBuffer()]), mediaFile.name);
             }
         } else if (postType === 'video') {
-             if (!mediaUrl && (!mediaFile || mediaFile.size === 0)) {
-                return { error: 'A video URL or file is required.' };
-            }
-            if (mediaUrl) {
-                await axios.post(`https://graph.facebook.com/${apiVersion}/${facebookPageId}/videos`, {
-                    file_url: mediaUrl,
-                    description: message,
-                    access_token: accessToken,
-                });
-            } else { // File upload
-                const form = new FormData();
-                form.append('description', message);
+             if (!mediaUrl && (!mediaFile || mediaFile.size === 0)) return { error: 'A video URL or file is required.' };
+            endpoint = `/${facebookPageId}/videos`;
+             if (message) form.append('description', message);
+             if (mediaUrl) {
+                form.append('file_url', mediaUrl);
+            } else { 
                 form.append('source', new Blob([await mediaFile.arrayBuffer()]), mediaFile.name);
-                form.append('access_token', accessToken);
-                await axios.post(`https://graph.facebook.com/${apiVersion}/${facebookPageId}/videos`, form, {
-                    headers: { 'Content-Type': 'multipart/form-data' },
-                });
             }
         }
+        
+        await axios.post(`https://graph.facebook.com/${apiVersion}${endpoint}`, form, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
 
         revalidatePath('/dashboard/facebook/posts');
-        return { message: 'Post created successfully!' };
+        const successMessage = isScheduled ? 'Post scheduled successfully!' : 'Post created successfully!';
+        return { message: successMessage };
 
     } catch (e: any) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleUpdatePost(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const postId = formData.get('postId') as string;
+    const message = formData.get('message') as string;
+
+    if (!projectId || !postId || !message) {
+        return { success: false, error: 'Missing required information.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied or project not configured.' };
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v22.0/${postId}`, {
+            message: message,
+            access_token: project.accessToken
+        });
+        revalidatePath('/dashboard/facebook/posts');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+export async function handleDeletePost(postId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+     if (!projectId || !postId) {
+        return { success: false, error: 'Missing required information.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied or project not configured.' };
+    }
+
+    try {
+        await axios.delete(`https://graph.facebook.com/v22.0/${postId}`, {
+            params: { access_token: project.accessToken }
+        });
+        revalidatePath('/dashboard/facebook/posts');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
