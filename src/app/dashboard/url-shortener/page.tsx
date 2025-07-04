@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
+import { useEffect, useState, useTransition, useActionState, useRef, useMemo, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
 import { createShortUrl, getShortUrls, deleteShortUrl, getCustomDomains } from '@/app/actions/url-shortener.actions';
 import type { WithId, ShortUrl, User, Tag, CustomDomain } from '@/lib/definitions';
@@ -161,10 +160,10 @@ export default function UrlShortenerPage() {
 
     const fetchUrls = useCallback(() => {
         startLoadingTransition(async () => {
-            const data = await getShortUrls();
-            setUser(data.user || null);
-            setUrls(data.urls);
-            setDomains(data.domains);
+            const { user: userData, urls: urlData, domains: domainData } = await getShortUrls();
+            setUser(userData);
+            setUrls(urlData);
+            setDomains(domainData);
         });
     }, []);
 
