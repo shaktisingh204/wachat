@@ -33,7 +33,6 @@ export default function FacebookManagerPage() {
     const [isLoading, startLoadingTransition] = useTransition();
     const [isClient, setIsClient] = useState(false);
     const [projectId, setProjectId] = useState<string | null>(null);
-    const configId = process.env.META_CONFIG_ID;
 
     const fetchData = useCallback(() => {
         if (!projectId) return;
@@ -73,7 +72,8 @@ export default function FacebookManagerPage() {
         );
     }
 
-    const appId = project?.appId || process.env.NEXT_PUBLIC_META_APP_ID;
+    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+    const configId = process.env.FACEBOOK_CONFIG_ID;
     
     if (!appId || !configId) {
         return (
@@ -81,7 +81,7 @@ export default function FacebookManagerPage() {
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Configuration Error</AlertTitle>
                 <AlertDescription>
-                    This project does not have an App ID configured, and no fallback is set by the admin. The Embedded Signup feature also requires a global `META_CONFIG_ID` to be set by the administrator. Please configure your project through the main setup page or contact support.
+                    The Facebook integration is not configured correctly by the admin. `NEXT_PUBLIC_FACEBOOK_APP_ID` and `FACEBOOK_CONFIG_ID` must be set.
                 </AlertDescription>
             </Alert>
         );
