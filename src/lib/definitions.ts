@@ -188,6 +188,29 @@ export type AdCampaign = {
     createdAt: Date;
 };
 
+export type FacebookPage = {
+    id: string;
+    name: string;
+    category: string;
+    tasks: string[];
+};
+
+export type CustomAudience = {
+    id: string;
+    name: string;
+    description: string;
+    approximate_count_lower_bound: number;
+    delivery_status: {
+        code: number;
+        description: string;
+    };
+    operation_status: {
+        code: number;
+        description: string;
+    };
+    time_updated: number;
+};
+
 export type MetaFlow = {
     name: string;
     projectId: ObjectId;
