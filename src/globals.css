@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -33,6 +34,7 @@ body {
     --chart-4: 285.2 83.2% 53.3%;
     --chart-5: 350.2 83.2% 53.3%;
     --radius: 0.5rem;
+    --instagram: 327 92% 55%;
     
     /* Neutral Sidebar as default */
     --sidebar-background: 220 13% 98%;
@@ -83,8 +85,8 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 145 63% 95%;
     --sidebar-accent-foreground: 145 63% 15%;
-    --sidebar-background: 145 63% 98%;
-    --sidebar-border: 145 63% 92%;
+    --sidebar-background: 220 13% 98%;
+    --sidebar-border: 220 13% 91%;
   }
 
   .dark [data-theme="whatsapp"] {
@@ -92,8 +94,8 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 145 50% 25%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-background: 145 50% 15%;
-    --sidebar-border: 145 50% 20%;
+    --sidebar-background: 220 10% 12%;
+    --sidebar-border: 220 10% 20%;
   }
   
   /* Facebook Theme Overrides */
@@ -102,8 +104,8 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 91% 95%;
     --sidebar-accent-foreground: 217 91% 25%;
-    --sidebar-background: 217 91% 98%;
-    --sidebar-border: 217 91% 92%;
+    --sidebar-background: 220 13% 98%;
+    --sidebar-border: 220 13% 91%;
   }
 
   .dark [data-theme="facebook"] {
@@ -111,8 +113,62 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 50% 25%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-background: 217 50% 15%;
-    --sidebar-border: 217 50% 20%;
+    --sidebar-background: 220 10% 12%;
+    --sidebar-border: 220 10% 20%;
+  }
+
+  /* Instagram Theme */
+  [data-theme="instagram"] {
+    --sidebar-primary: 327 92% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 327 92% 95%;
+    --sidebar-accent-foreground: 327 92% 25%;
+    --sidebar-background: 220 13% 98%;
+    --sidebar-border: 220 13% 91%;
+  }
+  .dark [data-theme="instagram"] {
+    --sidebar-primary: 327 92% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 327 50% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-background: 220 10% 12%;
+    --sidebar-border: 220 10% 20%;
+  }
+
+  /* URL Shortener Theme */
+  [data-theme="url-shortener"] {
+    --sidebar-primary: 259 92% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 259 92% 95%;
+    --sidebar-accent-foreground: 259 92% 25%;
+    --sidebar-background: 220 13% 98%;
+    --sidebar-border: 220 13% 91%;
+  }
+  .dark [data-theme="url-shortener"] {
+    --sidebar-primary: 259 92% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 259 50% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-background: 220 10% 12%;
+    --sidebar-border: 220 10% 20%;
+  }
+
+  /* QR Code Maker Theme */
+  [data-theme="qr-code-maker"] {
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 25 95% 95%;
+    --sidebar-accent-foreground: 25 95% 25%;
+    --sidebar-background: 220 13% 98%;
+    --sidebar-border: 220 13% 91%;
+  }
+  .dark [data-theme="qr-code-maker"] {
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 25 50% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-background: 220 10% 12%;
+    --sidebar-border: 220 10% 20%;
   }
 }
 
@@ -164,6 +220,12 @@ body {
 }
 
 @layer utilities {
+    .bg-instagram {
+        background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));
+    }
+    .text-instagram {
+        color: hsl(var(--instagram));
+    }
     .animate-fade-in-up {
         animation: fade-in-up 0.6s ease-in-out forwards;
         opacity: 0;

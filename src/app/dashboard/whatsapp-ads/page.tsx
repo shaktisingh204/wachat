@@ -113,7 +113,7 @@ export default function AdsManagerPage() {
                         <AlertTitle>Marketing Settings Required</AlertTitle>
                         <AlertDescription>
                             Please configure your Ad Account ID and Facebook Page ID in{' '}
-                            <Link href="/dashboard/settings?tab=marketing" className="font-semibold text-primary hover:underline">Settings &rarr; Marketing</Link>
+                            <Link href="/dashboard/facebook/settings" className="font-semibold text-primary hover:underline">Settings</Link>
                             {' '}before you can create ads.
                         </AlertDescription>
                     </Alert>
