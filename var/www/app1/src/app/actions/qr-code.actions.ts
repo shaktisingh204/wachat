@@ -5,7 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/app/actions';
 import { createShortUrl } from './url-shortener.actions';
 import type { QrCode, QrCodeWithShortUrl } from '@/lib/definitions';
 

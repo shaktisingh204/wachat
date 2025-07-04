@@ -1,10 +1,10 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
 import { createShortUrl, getShortUrls, deleteShortUrl, getCustomDomains } from '@/app/actions/url-shortener.actions';
-import { getSession } from '@/lib/auth';
 import type { WithId, ShortUrl, User, Tag, CustomDomain } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -161,13 +161,10 @@ export default function UrlShortenerPage() {
 
     const fetchUrls = useCallback(() => {
         startLoadingTransition(async () => {
-            const [userData, urlData] = await Promise.all([
-                getSession(),
-                getShortUrls(),
-            ]);
-            setUser(userData?.user || null);
-            setUrls(urlData.urls);
-            setDomains(urlData.domains);
+            const data = await getShortUrls();
+            setUser(data.user || null);
+            setUrls(data.urls);
+            setDomains(data.domains);
         });
     }, []);
 

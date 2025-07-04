@@ -174,13 +174,15 @@ export async function handleBulkCreateShortUrls(prevState: any, formData: FormDa
 }
 
 
-export async function getShortUrls(): Promise<{ urls: WithId<ShortUrl>[], domains: WithId<CustomDomain>[]}> {
+export async function getShortUrls(): Promise<{ user: (Omit<User, 'password'> & { _id: string }) | null; urls: WithId<ShortUrl>[]; domains: WithId<CustomDomain>[] }> {
     const session = await getSession();
-    if (!session?.user) return { urls: [], domains: [] };
+    if (!session?.user) return { user: null, urls: [], domains: [] };
 
     try {
         const { db } = await connectToDatabase();
-        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
+        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) }, { projection: { password: 0 }});
+        
+        if (!user) return { user: null, urls: [], domains: [] };
         
         const urls = await db.collection('short_urls')
             .find({ userId: new ObjectId(session.user._id) })
@@ -188,12 +190,13 @@ export async function getShortUrls(): Promise<{ urls: WithId<ShortUrl>[], domain
             .toArray();
 
         return { 
+            user: JSON.parse(JSON.stringify(user)),
             urls: JSON.parse(JSON.stringify(urls)),
             domains: JSON.parse(JSON.stringify(user?.customDomains || [])),
         };
     } catch (error) {
         console.error('Failed to fetch short URLs:', error);
-        return { urls: [], domains: [] };
+        return { user: session.user as any, urls: [], domains: [] };
     }
 }
 

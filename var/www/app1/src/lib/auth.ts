@@ -2,10 +2,6 @@
 
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
-import { connectToDatabase } from '@/lib/mongodb';
-import { ObjectId, WithId } from 'mongodb';
-import type { User, Plan, Tag } from './definitions';
 
 function getJwtSecret(): string {
     const secret = process.env.JWT_SECRET;
@@ -73,48 +69,4 @@ export function verifyAdminSessionToken(token: string): AdminSessionPayload | nu
         console.error("Admin JWT verification failed:", (error as Error).message);
         return null;
     }
-}
-
-export async function getSession(): Promise<{ user: Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null, tags?: Tag[] } } | null> {
-    const sessionToken = cookies().get('session')?.value;
-    if (!sessionToken) {
-        return null;
-    }
-
-    const payload = verifySessionToken(sessionToken);
-    if (!payload) {
-        return null;
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        const user = await db.collection<User>('users').findOne(
-            { _id: new ObjectId(payload.userId) },
-            { projection: { password: 0 } }
-        );
-
-        if (!user) {
-            return null;
-        }
-
-        return { user: JSON.parse(JSON.stringify(user)) };
-    } catch (error) {
-        console.error("Error fetching session user from DB:", error);
-        return null;
-    }
-}
-
-export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
-    const cookieStore = cookies();
-    const sessionToken = cookieStore.get('admin_session')?.value;
-    if (!sessionToken) {
-        return { isAdmin: false };
-    }
-
-    const payload = verifyAdminSessionToken(sessionToken);
-    if (payload && payload.role === 'admin') {
-        return { isAdmin: true };
-    }
-
-    return { isAdmin: false };
 }

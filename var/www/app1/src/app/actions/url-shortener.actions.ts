@@ -5,7 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession } from '@/lib/auth';
+import { getSession } from '@/app/actions';
 import type { ShortUrl, User, CustomDomain } from '@/lib/definitions';
 import { nanoid } from 'nanoid';
 import { headers } from 'next/headers';
@@ -44,7 +44,7 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
         if (domainId) {
             query.domainId = domainId;
         } else {
-            query.userId = session.user._id; // legacy links tied to user
+            query.userId = new ObjectId(session.user._id); // legacy links tied to user
         }
 
         const existing = await db.collection('short_urls').findOne(query);
@@ -174,13 +174,15 @@ export async function handleBulkCreateShortUrls(prevState: any, formData: FormDa
 }
 
 
-export async function getShortUrls(): Promise<{ urls: WithId<ShortUrl>[], domains: WithId<CustomDomain>[]}> {
+export async function getShortUrls(): Promise<{ user: (Omit<User, 'password'> & { _id: string }) | null; urls: WithId<ShortUrl>[]; domains: WithId<CustomDomain>[] }> {
     const session = await getSession();
-    if (!session?.user) return { urls: [], domains: [] };
+    if (!session?.user) return { user: null, urls: [], domains: [] };
 
     try {
         const { db } = await connectToDatabase();
-        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
+        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) }, { projection: { password: 0 }});
+        
+        if (!user) return { user: null, urls: [], domains: [] };
         
         const urls = await db.collection('short_urls')
             .find({ userId: new ObjectId(session.user._id) })
@@ -188,12 +190,13 @@ export async function getShortUrls(): Promise<{ urls: WithId<ShortUrl>[], domain
             .toArray();
 
         return { 
+            user: JSON.parse(JSON.stringify(user)),
             urls: JSON.parse(JSON.stringify(urls)),
             domains: JSON.parse(JSON.stringify(user?.customDomains || [])),
         };
     } catch (error) {
         console.error('Failed to fetch short URLs:', error);
-        return { urls: [], domains: [] };
+        return { user: session.user as any, urls: [], domains: [] };
     }
 }
 
