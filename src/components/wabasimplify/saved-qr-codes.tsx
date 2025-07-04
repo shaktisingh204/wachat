@@ -66,7 +66,7 @@ function DeleteQrCodeButton({ qrCode, onDeleted }: { qrCode: WithId<QrCode>, onD
 export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCodeWithShortUrl>[] }) {
     const [qrCodes, setQrCodes] = useState(initialQrCodes);
     const [isLoading, startLoadingTransition] = useTransition();
-    const [selectedQrData, setSelectedQrData] = useState<{dataString: string, config: any} | null>(null);
+    const [selectedQrData, setSelectedQrData] = useState<{dataString: string, config: any, logoDataUri?: string} | null>(null);
 
     const fetchData = () => {
         startLoadingTransition(async () => {
@@ -98,7 +98,7 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
     
     const handleViewQr = (code: WithId<QrCodeWithShortUrl>) => {
         const dataString = generateDataString(code, code);
-        setSelectedQrData({ dataString, config: code.config });
+        setSelectedQrData({ dataString, config: code.config, logoDataUri: code.logoDataUri });
     };
 
     return (
@@ -106,6 +106,7 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
         <QrCodeDialog
             dataString={selectedQrData?.dataString || null}
             config={selectedQrData?.config}
+            logoDataUri={selectedQrData?.logoDataUri}
             open={!!selectedQrData}
             onOpenChange={(open) => !open && setSelectedQrData(null)}
         />
@@ -158,6 +159,5 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
                 </div>
             </CardContent>
         </Card>
-        </>
     );
 }

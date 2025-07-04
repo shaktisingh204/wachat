@@ -18,9 +18,10 @@ interface QrCodeDialogProps {
     onOpenChange: (open: boolean) => void;
     dataString: string | null;
     config?: { color: string; bgColor: string; eccLevel: string };
+    logoDataUri?: string;
 }
 
-export function QrCodeDialog({ open, onOpenChange, dataString, config }: QrCodeDialogProps) {
+export function QrCodeDialog({ open, onOpenChange, dataString, config, logoDataUri }: QrCodeDialogProps) {
     const qrCodeRef = useRef<HTMLDivElement>(null);
     if (!dataString) return null;
 
@@ -73,6 +74,14 @@ export function QrCodeDialog({ open, onOpenChange, dataString, config }: QrCodeD
                         bgColor={`#${config?.bgColor || 'FFFFFF'}`}
                         level={(config?.eccLevel as any) || 'L'}
                         style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                        {...(logoDataUri && {
+                            imageSettings: {
+                                src: logoDataUri,
+                                height: 40,
+                                width: 40,
+                                excavate: true,
+                            },
+                        })}
                     />
                 </div>
                 <Button onClick={handleDownload} className="w-full">
