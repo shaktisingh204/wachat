@@ -7,59 +7,58 @@ export function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get('session')?.value
   const adminSessionToken = request.cookies.get('admin_session')?.value
 
-  const isAuthPath = pathname.startsWith('/login') || pathname.startsWith('/signup')
-  const isAdminAuthPath = pathname.startsWith('/admin-login')
-
-  const publicPaths = [
-    '/',
-    '/terms-and-conditions',
-    '/privacy-policy',
-  ];
-  const publicPrefixes = ['/s/']; // For URL shortener links
-
-  const isApiRoute = pathname.startsWith('/api/');
-
-  // Determine if the path is public
-  const isPublicPath = 
-    publicPaths.includes(pathname) ||
-    publicPrefixes.some(prefix => pathname.startsWith(prefix)) ||
-    isAuthPath ||
-    isAdminAuthPath ||
-    isApiRoute;
-
-  // 1. Admin Session Management
-  if (adminSessionToken) {
-    // If admin is logged in and tries to access admin login page, redirect to admin dashboard
-    if (isAdminAuthPath) {
-      return NextResponse.redirect(new URL('/admin/dashboard', request.url))
-    }
-  } else {
-    // If admin is not logged in and tries to access protected admin routes, redirect to admin login
-    if (pathname.startsWith('/admin/dashboard')) {
+  const isAuthPage = pathname === '/login' || pathname === '/signup'
+  const isAdminAuthPage = pathname === '/admin-login'
+  const isDashboardPage = pathname.startsWith('/dashboard')
+  const isAdminDashboardPage = pathname.startsWith('/admin/dashboard')
+  
+  // If trying to access the admin dashboard
+  if (isAdminDashboardPage) {
+    // If not an admin, redirect to admin login
+    if (!adminSessionToken) {
       return NextResponse.redirect(new URL('/admin-login', request.url))
     }
+    // Otherwise, allow access
+    return NextResponse.next()
   }
 
-  // 2. User Session Management
-  if (sessionToken) {
-    // If user is logged in and tries to access login/signup pages, redirect to dashboard
-    if (isAuthPath) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    }
-  } else {
-    // If user is not logged in and tries to access a protected route
-    if (!isPublicPath && !pathname.startsWith('/admin')) {
+  // If trying to access the user dashboard
+  if (isDashboardPage) {
+    // If not logged in, redirect to login
+    if (!sessionToken) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
+    // Otherwise, allow access
+    return NextResponse.next()
   }
 
-  // 3. Allow request to proceed if no redirect conditions are met
+  // If trying to access a regular auth page (login/signup)
+  if (isAuthPage) {
+    // If already logged in, redirect to the user dashboard
+    if (sessionToken) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+    // Otherwise, allow access
+    return NextResponse.next()
+  }
+
+  // If trying to access the admin login page
+  if (isAdminAuthPage) {
+    // If already an admin, redirect to the admin dashboard
+    if (adminSessionToken) {
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+    }
+    // Otherwise, allow access
+    return NextResponse.next()
+  }
+
+  // For all other pages (e.g., public landing page), allow access
   return NextResponse.next()
 }
 
 export const config = {
   matcher: [
-    // Match all routes except for static files and special Next.js paths
-    '/((?!_next/static|_next/image|favicon.ico|.*\\..*).*)',
+    // Match all routes except for static files, API routes, and special Next.js paths
+    '/((?!_next/static|_next/image|favicon.ico|api/|s/|.*\\..*).*)',
   ],
 }
