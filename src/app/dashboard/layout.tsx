@@ -29,32 +29,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard,
-  MessageSquare,
-  Users,
-  Send,
-  GitFork,
-  Settings,
-  Briefcase,
-  ChevronDown,
-  FileText,
-  Phone,
-  Webhook,
-  History,
-  LogOut,
-  CreditCard,
-  LoaderCircle,
-  Megaphone,
-  ServerCog,
-  ShoppingBag,
-  Newspaper,
-  Clapperboard,
-  Heart,
-  Route,
-  Wrench,
-  Facebook,
-  Link as LinkIcon,
-  QrCode,
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode
 } from 'lucide-react';
 import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -90,11 +65,13 @@ const wachatMenuItems = [
   { href: '/dashboard/notifications', label: 'Notifications', icon: History, featureKey: 'notifications' },
 ];
 
-const whatsappAdsMenuItems = [
-    { href: '/dashboard/whatsapp-ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
-    { href: '/dashboard/whatsapp-ads/roadmap', label: 'Roadmap', icon: Route, featureKey: 'whatsappAds' },
-    { href: '/dashboard/whatsapp-ads/setup', label: 'Project Setup', icon: Wrench, featureKey: 'whatsappAds' },
-    { href: '/dashboard/whatsapp-ads/settings', label: 'Settings', icon: Settings, featureKey: 'whatsappAds' },
+const facebookMenuItems = [
+    { href: '/dashboard/facebook', label: 'Dashboard', icon: LayoutDashboard, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/pages', label: 'All Pages', icon: Newspaper, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/all-projects', label: 'Project Connections', icon: Wrench, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, featureKey: 'whatsappAds' },
 ];
 
 const instagramMenuItems = [
@@ -132,8 +109,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   React.useEffect(() => {
     if (!isClient) return;
 
-    if (pathname.startsWith('/dashboard/whatsapp-ads')) {
-        setActiveApp('whatsapp-ads');
+    if (pathname.startsWith('/dashboard/facebook')) {
+        setActiveApp('facebook');
     } else if (pathname.startsWith('/dashboard/instagram')) {
         setActiveApp('instagram');
     } else if (pathname.startsWith('/dashboard/url-shortener')) {
@@ -162,10 +139,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             setSessionUser(session.user as any);
             getProjectCount().then(count => {
               setProjectCount(count);
-              if (count === 0 && !isSetupPage) {
-                // This redirect is handled by middleware now to prevent loops
-                // The layout should only display content, not handle auth redirects.
-              }
             });
         }
         setIsVerifying(false);
@@ -184,8 +157,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const planFeatures = sessionUser?.plan?.features;
   
   const currentMenuItems =
-    activeApp === 'whatsapp-ads'
-      ? whatsappAdsMenuItems
+    activeApp === 'facebook'
+      ? facebookMenuItems
       : activeApp === 'instagram'
       ? instagramMenuItems
       : activeApp === 'url-shortener'
@@ -218,10 +191,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Tooltip>
                 <TooltipTrigger asChild>
                     <Link
-                    href="/dashboard/whatsapp-ads"
+                    href="/dashboard/facebook"
                     className={cn(
                         'p-3 mx-2 rounded-lg transition-colors',
-                        activeApp === 'whatsapp-ads'
+                        activeApp === 'facebook'
                         ? 'bg-blue-600 text-white'
                         : 'bg-card text-blue-600 hover:bg-accent'
                     )}
@@ -229,7 +202,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <FacebookAppIcon className="h-6 w-6" />
                     </Link>
                 </TooltipTrigger>
-                <TooltipContent side="right">WhatsApp Ads</TooltipContent>
+                <TooltipContent side="right">Facebook Tools</TooltipContent>
             </Tooltip>
              <Tooltip>
                 <TooltipTrigger asChild>
@@ -308,7 +281,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                const isBasePage = 
                     item.href === '/dashboard' ||
                     item.href === '/dashboard/overview' ||
-                    item.href === '/dashboard/whatsapp-ads' ||
+                    item.href === '/dashboard/facebook' ||
                     item.href === '/dashboard/instagram/feed' ||
                     item.href === '/dashboard/url-shortener' ||
                     item.href === '/dashboard/qr-code-maker';
