@@ -6,112 +6,57 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { ChevronLeft, AlertCircle, Wrench } from 'lucide-react';
+import { ArrowLeft, Wrench } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Marketing API Setup Guide | SabNode',
+  title: 'Facebook Marketing Setup | SabNode',
 };
 
 export default function MarketingApiSetupPage() {
   return (
-    <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+    <div className="flex flex-col gap-8 max-w-2xl mx-auto">
       <div>
         <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
             <Wrench className="h-8 w-8"/>
-            Marketing API Setup Guide
+            Facebook Marketing Setup
         </h1>
         <p className="text-muted-foreground mt-2">
-          A step-by-step guide to connecting your business to the Meta Marketing API.
+            Connecting your Facebook Page and Ad Account is easy with our guided setup.
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Phase 1: Meta App Setup & Review</CardTitle>
+          <CardTitle>Guided Setup Process</CardTitle>
           <CardDescription>
-            Prepare your Meta App with the necessary products and permissions.
+            We use Facebook's secure Embedded Signup to connect your accounts in just a few clicks.
           </CardDescription>
         </CardHeader>
         <CardContent>
           <ol className="list-decimal space-y-3 pl-5 text-sm">
-            <li>Create a new Meta App at <a href="https://developers.facebook.com/apps" target="_blank" rel="noopener noreferrer" className="text-primary underline">developers.facebook.com</a>.</li>
-            <li>In your App's dashboard, add the required products: <strong>Marketing API</strong>, <strong>Business Management</strong>, <strong>Pages API</strong>, and optionally <strong>Instagram Graph API</strong>.</li>
-            <li>Go to the "App Review" section and request "Standard Access" for the following permissions:
-                <ul className="list-disc pl-6 mt-2">
-                    <li><code>ads_management</code></li>
-                    <li><code>business_management</code></li>
-                    <li><code>pages_show_list</code></li>
-                    <li><code>pages_read_engagement</code></li>
-                    <li>Optional: <code>catalog_management</code>, <code>leads_retrieval</code>, <code>ads_read</code></li>
-                </ul>
-            </li>
+            <li>Navigate to the main Facebook Manager page in your dashboard.</li>
+            <li>Click the "Connect with Facebook" button.</li>
+            <li>A secure pop-up window from Facebook will open.</li>
+            <li>Follow the on-screen instructions to select the Facebook Page and Ad Account you wish to use for your campaigns.</li>
+            <li>Grant the necessary permissions for SabNode to manage ads on your behalf.</li>
           </ol>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Phase 2: Generate a Permanent API Token</CardTitle>
-          <CardDescription>
-            You must generate a non-expiring token using a System User for server-to-server calls.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <ol className="list-decimal space-y-3 pl-5 text-sm">
-            <li>
-              Go to your <strong>Meta Business Settings</strong> &rarr;{' '}
-              <strong>Users</strong> &rarr; <strong>System Users</strong>.
-            </li>
-            <li>
-              Select an existing System User (with Admin role) or create a new one.
-            </li>
-            <li>
-              Click <strong>Add Assets</strong>. Assign your App, Ad Account, and Facebook Page to this System User with <strong>Full Control</strong> permissions.
-            </li>
-            <li>
-              With the System User selected, click{' '}
-              <strong>Generate new token</strong>.
-            </li>
-            <li>Select your App from the dropdown menu.</li>
-            <li>
-              For Token Expiration, select <strong>Never</strong>. This is essential for uninterrupted service.
-            </li>
-            <li>
-              Under Permissions, make sure to check both{' '}
-              <code>whatsapp_business_management</code> and{' '}
-              <code>whatsapp_business_messaging</code>.
-            </li>
-            <li>Click <strong>Generate Token</strong> and copy it securely. You will need this for the next steps in our platform.</li>
-          </ol>
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>Important: Store Your Token Securely</AlertTitle>
-            <AlertDescription>
-              The permanent access token is like a password. Treat it securely
-              and do not share it. If you lose it, you will need to revoke the old one and generate a new one.
-            </AlertDescription>
-          </Alert>
+           <p className="text-sm mt-4 text-muted-foreground">
+             That's it! Your accounts will be securely connected, and you'll be able to create ads directly from the platform.
+           </p>
         </CardContent>
       </Card>
       
-       <Card>
-        <CardHeader>
-          <CardTitle>Phase 3: Connect to SabNode</CardTitle>
-          <CardDescription>
-            Enter your Ad Account ID and Page ID in the settings.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <p className="text-sm">
-            Navigate to the <strong>Settings &rarr; Marketing</strong> tab in SabNode. Paste your <strong>Ad Account ID</strong> (e.g., `act_12345`) and your <strong>Facebook Page ID</strong> into the respective fields and save. Your access token is already saved with your project, so you don't need to re-enter it.
-          </p>
-        </CardContent>
-      </Card>
-
+       <div className="flex justify-center">
+            <Button asChild>
+                <Link href="/dashboard/facebook">
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Go to Facebook Manager
+                </Link>
+            </Button>
+       </div>
     </div>
   );
 }
