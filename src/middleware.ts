@@ -15,12 +15,14 @@ export function middleware(request: NextRequest) {
     '/terms-and-conditions',
     '/privacy-policy',
   ];
+  const publicPrefixes = ['/s/']; // For URL shortener links
 
   const isApiRoute = pathname.startsWith('/api/');
 
   // Determine if the path is public
   const isPublicPath = 
     publicPaths.includes(pathname) ||
+    publicPrefixes.some(prefix => pathname.startsWith(prefix)) ||
     isAuthPath ||
     isAdminAuthPath ||
     isApiRoute;
