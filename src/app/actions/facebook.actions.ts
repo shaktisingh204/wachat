@@ -9,7 +9,7 @@ import { ObjectId, type WithId } from 'mongodb';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions';
-import type { AdCampaign, Project } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience } from '@/lib/definitions';
 
 
 export async function handleFacebookPageSetup(data: {
@@ -177,5 +177,55 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
     } catch (e: any) {
         console.error('Failed to create WhatsApp Ad:', getErrorMessage(e));
         return { error: getErrorMessage(e) || 'An unexpected error occurred during ad creation.' };
+    }
+}
+
+export async function getFacebookPages(projectId: string): Promise<{ pages?: FacebookPage[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or access token is missing.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v22.0/me/accounts`, {
+            params: {
+                fields: 'id,name,category,tasks',
+                access_token: project.accessToken,
+            }
+        });
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+        
+        return { pages: response.data.data || [] };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getCustomAudiences(projectId: string): Promise<{ audiences?: CustomAudience[], error?: string }> {
+     const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.adAccountId) {
+        return { error: 'Project not found or is missing Ad Account ID or access token.' };
+    }
+    
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v22.0/act_${project.adAccountId}/customaudiences`, {
+             params: {
+                fields: 'id,name,description,approximate_count_lower_bound,delivery_status,operation_status,time_updated',
+                access_token: project.accessToken,
+            }
+        });
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+        
+        return { audiences: response.data.data || [] };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
     }
 }
