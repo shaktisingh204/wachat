@@ -11,18 +11,20 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ChevronLeft, Image as ImageIcon, LoaderCircle, Send, Type, Video } from 'lucide-react';
+import { AlertCircle, ChevronLeft, Image as ImageIcon, LoaderCircle, Send, Type, Video, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Switch } from '@/components/ui/switch';
+import { DatePicker } from '@/components/ui/date-picker';
 
 const initialState = { message: null, error: null };
 
-function SubmitButton() {
+function SubmitButton({ isScheduled }: { isScheduled: boolean }) {
     const { pending } = useFormStatus();
     return (
         <Button type="submit" size="lg" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-            Create Post
+            {isScheduled ? 'Schedule Post' : 'Create Post'}
         </Button>
     )
 }
@@ -34,6 +36,8 @@ export default function CreateFacebookPostPage() {
     const [projectId, setProjectId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('text');
     const [mediaSource, setMediaSource] = useState('url');
+    const [isScheduled, setIsScheduled] = useState(false);
+    const [scheduledDate, setScheduledDate] = useState<Date>();
 
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -44,6 +48,8 @@ export default function CreateFacebookPostPage() {
         if (state.message) {
             toast({ title: 'Success', description: state.message });
             formRef.current?.reset();
+            setIsScheduled(false);
+            setScheduledDate(undefined);
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
@@ -96,6 +102,8 @@ export default function CreateFacebookPostPage() {
                 <form action={formAction} ref={formRef}>
                     <input type="hidden" name="projectId" value={projectId} />
                     <input type="hidden" name="postType" value={activeTab} />
+                    <input type="hidden" name="scheduledDate" value={scheduledDate?.toISOString().split('T')[0]} />
+
                     <Card>
                         <CardHeader>
                             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -126,8 +134,23 @@ export default function CreateFacebookPostPage() {
                                 </TabsContent>
                             </Tabs>
                         </CardHeader>
-                        <CardFooter>
-                            <SubmitButton />
+                        <CardFooter className="flex flex-wrap items-center justify-between gap-4">
+                            <div className="flex flex-col gap-4">
+                                <div className="flex items-center space-x-2">
+                                    <Switch id="isScheduled" name="isScheduled" checked={isScheduled} onCheckedChange={setIsScheduled} />
+                                    <Label htmlFor="isScheduled" className="flex items-center gap-2">
+                                        <Calendar className="h-4 w-4" />
+                                        Schedule Post
+                                    </Label>
+                                </div>
+                                {isScheduled && (
+                                    <div className="flex flex-wrap gap-2">
+                                        <DatePicker date={scheduledDate} setDate={setScheduledDate} />
+                                        <Input name="scheduledTime" type="time" required />
+                                    </div>
+                                )}
+                            </div>
+                            <SubmitButton isScheduled={isScheduled} />
                         </CardFooter>
                     </Card>
                 </form>

@@ -1,40 +1,57 @@
 
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState, useTransition, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getFacebookPosts } from '@/app/actions/facebook.actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Link as LinkIcon, Newspaper, ExternalLink } from 'lucide-react';
+import { AlertCircle, Link as LinkIcon, Newspaper, ExternalLink, Edit, Trash2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { FacebookPost } from '@/lib/definitions';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import { UpdatePostDialog } from '@/components/wabasimplify/update-post-dialog';
+import { DeletePostButton } from '@/components/wabasimplify/delete-post-button';
 
-function PostCard({ post }: { post: FacebookPost }) {
+function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, projectId: string, onActionComplete: () => void }) {
+    const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+
     return (
-        <Card className="flex flex-col">
-            {post.full_picture && (
-                <div className="relative aspect-video">
-                    <Image src={post.full_picture} alt={post.message?.substring(0, 50) || 'Facebook Post'} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="social media post"/>
-                </div>
-            )}
-            <CardContent className="p-4 flex-grow">
-                <p className="text-sm text-muted-foreground line-clamp-4">
-                    {post.message || <span className="italic">This post has no text content.</span>}
-                </p>
-            </CardContent>
-            <CardFooter className="flex justify-between items-center text-xs text-muted-foreground p-4 pt-0">
-                <span>{formatDistanceToNow(new Date(post.created_time), { addSuffix: true })}</span>
-                <Button asChild variant="outline" size="sm">
-                    <a href={post.permalink_url} target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="mr-2 h-3 w-3" /> View Post
-                    </a>
-                </Button>
-            </CardFooter>
-        </Card>
+        <>
+            <UpdatePostDialog
+                isOpen={isUpdateOpen}
+                onOpenChange={setIsUpdateOpen}
+                post={post}
+                projectId={projectId}
+                onPostUpdated={onActionComplete}
+            />
+            <Card className="flex flex-col">
+                {post.full_picture && (
+                    <div className="relative aspect-video">
+                        <Image src={post.full_picture} alt={post.message?.substring(0, 50) || 'Facebook Post'} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="social media post"/>
+                    </div>
+                )}
+                <CardContent className="p-4 flex-grow">
+                    <p className="text-sm text-muted-foreground line-clamp-4">
+                        {post.message || <span className="italic">This post has no text content.</span>}
+                    </p>
+                </CardContent>
+                <CardFooter className="flex justify-between items-center text-xs text-muted-foreground p-4 pt-0">
+                    <span>{formatDistanceToNow(new Date(post.created_time), { addSuffix: true })}</span>
+                    <div className="flex items-center gap-1">
+                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsUpdateOpen(true)}><Edit className="h-3 w-3" /></Button>
+                         <DeletePostButton postId={post.id} projectId={projectId} onPostDeleted={onActionComplete} />
+                         <Button asChild variant="outline" size="sm">
+                            <a href={post.permalink_url} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="mr-2 h-3 w-3" /> View
+                            </a>
+                        </Button>
+                    </div>
+                </CardFooter>
+            </Card>
+        </>
     );
 }
 
@@ -58,6 +75,19 @@ export default function PagePostsPage() {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, startTransition] = useTransition();
     const [projectId, setProjectId] = useState<string | null>(null);
+    const [actionCounter, setActionCounter] = useState(0); // Used to trigger re-fetch
+
+    const fetchPosts = useCallback(() => {
+        if (!projectId) return;
+        startTransition(async () => {
+            const { posts: fetchedPosts, error: fetchError } = await getFacebookPosts(projectId);
+            if (fetchError) {
+                setError(fetchError);
+            } else if (fetchedPosts) {
+                setPosts(fetchedPosts);
+            }
+        });
+    }, [projectId]);
 
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -65,21 +95,16 @@ export default function PagePostsPage() {
     }, []);
 
     useEffect(() => {
-        if (projectId) {
-            startTransition(async () => {
-                const { posts: fetchedPosts, error: fetchError } = await getFacebookPosts(projectId);
-                if (fetchError) {
-                    setError(fetchError);
-                } else if (fetchedPosts) {
-                    setPosts(fetchedPosts);
-                }
-            });
-        }
-    }, [projectId]);
+        fetchPosts();
+    }, [projectId, fetchPosts, actionCounter]);
     
     if (isLoading && posts.length === 0) {
         return <PostsPageSkeleton />;
     }
+
+    const handleActionComplete = () => {
+        setActionCounter(prev => prev + 1);
+    };
     
     return (
         <div className="flex flex-col gap-8">
@@ -109,7 +134,7 @@ export default function PagePostsPage() {
                 </Alert>
             ) : posts.length > 0 ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {posts.map(post => <PostCard key={post.id} post={post} />)}
+                    {posts.map(post => <PostCard key={post.id} post={post} projectId={projectId} onActionComplete={handleActionComplete} />)}
                 </div>
             ) : (
                  <Card className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">

@@ -59,7 +59,7 @@ export function FacebookEmbeddedSignup({ appId, configId, projectId, onSuccess }
       return;
     }
     
-    const scopes = 'ads_management,pages_show_list,pages_read_engagement,business_management';
+    const scopes = 'ads_management,pages_show_list,pages_read_engagement,business_management,pages_manage_posts';
 
     window.FB.login(
       function (response: any) {
