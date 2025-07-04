@@ -90,13 +90,11 @@ const wachatMenuItems = [
   { href: '/dashboard/notifications', label: 'Notifications', icon: History, featureKey: 'notifications' },
 ];
 
-const facebookMenuItems = [
-    { href: '/dashboard/facebook', label: 'Overview', icon: Facebook, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/posts', label: 'Page Posts', icon: Newspaper, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/setup', label: 'Setup Guide', icon: Wrench, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, featureKey: 'whatsappAds' },
+const whatsappAdsMenuItems = [
+    { href: '/dashboard/whatsapp-ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
+    { href: '/dashboard/whatsapp-ads/roadmap', label: 'Roadmap', icon: Route, featureKey: 'whatsappAds' },
+    { href: '/dashboard/whatsapp-ads/setup', label: 'Project Setup', icon: Wrench, featureKey: 'whatsappAds' },
+    { href: '/dashboard/whatsapp-ads/settings', label: 'Settings', icon: Settings, featureKey: 'whatsappAds' },
 ];
 
 const instagramMenuItems = [
@@ -134,8 +132,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   React.useEffect(() => {
     if (!isClient) return;
 
-    if (pathname.startsWith('/dashboard/facebook')) {
-        setActiveApp('facebook');
+    if (pathname.startsWith('/dashboard/whatsapp-ads')) {
+        setActiveApp('whatsapp-ads');
     } else if (pathname.startsWith('/dashboard/instagram')) {
         setActiveApp('instagram');
     } else if (pathname.startsWith('/dashboard/url-shortener')) {
@@ -186,8 +184,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const planFeatures = sessionUser?.plan?.features;
   
   const currentMenuItems =
-    activeApp === 'facebook'
-      ? facebookMenuItems
+    activeApp === 'whatsapp-ads'
+      ? whatsappAdsMenuItems
       : activeApp === 'instagram'
       ? instagramMenuItems
       : activeApp === 'url-shortener'
@@ -215,15 +213,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <WhatsAppIcon className="h-6 w-6" />
                     </Link>
                 </TooltipTrigger>
-                <TooltipContent side="right">WhatsApp Tools</TooltipContent>
+                <TooltipContent side="right">Wachat Suite</TooltipContent>
             </Tooltip>
             <Tooltip>
                 <TooltipTrigger asChild>
                     <Link
-                    href="/dashboard/facebook"
+                    href="/dashboard/whatsapp-ads"
                     className={cn(
                         'p-3 mx-2 rounded-lg transition-colors',
-                        activeApp === 'facebook'
+                        activeApp === 'whatsapp-ads'
                         ? 'bg-blue-600 text-white'
                         : 'bg-card text-blue-600 hover:bg-accent'
                     )}
@@ -231,7 +229,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <FacebookAppIcon className="h-6 w-6" />
                     </Link>
                 </TooltipTrigger>
-                <TooltipContent side="right">Facebook Manager</TooltipContent>
+                <TooltipContent side="right">WhatsApp Ads</TooltipContent>
             </Tooltip>
              <Tooltip>
                 <TooltipTrigger asChild>
@@ -310,7 +308,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                const isBasePage = 
                     item.href === '/dashboard' ||
                     item.href === '/dashboard/overview' ||
-                    item.href === '/dashboard/facebook' ||
+                    item.href === '/dashboard/whatsapp-ads' ||
                     item.href === '/dashboard/instagram/feed' ||
                     item.href === '/dashboard/url-shortener' ||
                     item.href === '/dashboard/qr-code-maker';
