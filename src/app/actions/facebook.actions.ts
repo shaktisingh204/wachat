@@ -255,3 +255,78 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
         return { error: getErrorMessage(e) };
     }
 }
+
+
+export async function handleCreateFacebookPost(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const postType = formData.get('postType') as 'text' | 'image' | 'video';
+    const message = formData.get('message') as string;
+    const mediaUrl = formData.get('mediaUrl') as string;
+    const mediaFile = formData.get('mediaFile') as File;
+
+    if (!projectId || !postType) {
+        return { error: 'Project ID and post type are required.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.facebookPageId || !project.accessToken) {
+        return { error: 'Project is not fully configured for Facebook posting.' };
+    }
+
+    const { facebookPageId, accessToken } = project;
+    const apiVersion = 'v22.0';
+    
+    try {
+        if (postType === 'text') {
+            if (!message) return { error: 'Message is required for a text post.' };
+            await axios.post(`https://graph.facebook.com/${apiVersion}/${facebookPageId}/feed`, {
+                message: message,
+                access_token: accessToken,
+            });
+        } else if (postType === 'image') {
+            if (!mediaUrl && (!mediaFile || mediaFile.size === 0)) {
+                return { error: 'An image URL or file is required.' };
+            }
+            if (mediaUrl) {
+                await axios.post(`https://graph.facebook.com/${apiVersion}/${facebookPageId}/photos`, {
+                    url: mediaUrl,
+                    caption: message,
+                    access_token: accessToken,
+                });
+            } else { // File upload
+                const form = new FormData();
+                form.append('caption', message);
+                form.append('source', new Blob([await mediaFile.arrayBuffer()]), mediaFile.name);
+                form.append('access_token', accessToken);
+                await axios.post(`https://graph.facebook.com/${apiVersion}/${facebookPageId}/photos`, form, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+            }
+        } else if (postType === 'video') {
+             if (!mediaUrl && (!mediaFile || mediaFile.size === 0)) {
+                return { error: 'A video URL or file is required.' };
+            }
+            if (mediaUrl) {
+                await axios.post(`https://graph.facebook.com/${apiVersion}/${facebookPageId}/videos`, {
+                    file_url: mediaUrl,
+                    description: message,
+                    access_token: accessToken,
+                });
+            } else { // File upload
+                const form = new FormData();
+                form.append('description', message);
+                form.append('source', new Blob([await mediaFile.arrayBuffer()]), mediaFile.name);
+                form.append('access_token', accessToken);
+                await axios.post(`https://graph.facebook.com/${apiVersion}/${facebookPageId}/videos`, form, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                });
+            }
+        }
+
+        revalidatePath('/dashboard/facebook/posts');
+        return { message: 'Post created successfully!' };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
