@@ -161,5 +161,6 @@ export function SavedQrCodes({ initialQrCodes }: { initialQrCodes: WithId<QrCode
                 </div>
             </CardContent>
         </Card>
+        </>
     );
 }
