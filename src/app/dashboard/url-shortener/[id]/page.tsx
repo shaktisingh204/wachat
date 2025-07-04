@@ -1,4 +1,4 @@
-import { getShortUrlById } from '@/app/actions/url-shortener.actions';
+import { getShortUrlById, getCustomDomains } from '@/app/actions/url-shortener.actions';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -7,21 +7,32 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, BarChart2, Calendar, Link as LinkIcon, Hash } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import type { ShortUrl } from '@/lib/definitions';
+import type { WithId } from 'mongodb';
 
 export const dynamic = 'force-dynamic';
 
 export default async function ShortUrlAnalyticsPage({ params }: { params: { id: string } }) {
-    const url = await getShortUrlById(params.id);
+    const [url, domains] = await Promise.all([
+        getShortUrlById(params.id),
+        getCustomDomains(),
+    ]);
 
     if (!url) {
         notFound();
     }
     
-    const getShortUrl = (shortCode: string) => {
-        // This is a server component, so window is not available. 
-        // We have to construct the URL manually. This should be an env var in a real app.
+    const getShortUrl = (shortUrlDoc: WithId<ShortUrl>) => {
+        if (shortUrlDoc.domainId) {
+            const domain = domains.find(d => d._id.toString() === shortUrlDoc.domainId);
+            if (domain) {
+                const protocol = 'https://'; // Assume https for custom domains
+                return `${protocol}${domain.hostname}/${shortUrlDoc.shortCode}`;
+            }
+        }
+        // Fallback to default domain
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
-        return `${baseUrl}/s/${shortCode}`;
+        return `${baseUrl}/s/${shortUrlDoc.shortCode}`;
     }
 
     return (
@@ -31,8 +42,8 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: { id: 
                     <Link href="/dashboard/url-shortener"><ArrowLeft className="mr-2 h-4 w-4" />Back to All Links</Link>
                 </Button>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><BarChart2/> Analytics</h1>
-                <a href={getShortUrl(url.shortCode)} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">
-                    {getShortUrl(url.shortCode)}
+                <a href={getShortUrl(url)} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline break-all">
+                    {getShortUrl(url)}
                 </a>
             </div>
 
