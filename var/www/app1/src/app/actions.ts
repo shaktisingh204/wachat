@@ -17,7 +17,7 @@ import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { intelligentTranslate } from '@/ai/flows/intelligent-translate-flow';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { hashPassword, comparePassword, createSessionToken, verifySessionToken, createAdminSessionToken, verifyAdminSessionToken, getSession, getAdminSession } from '@/lib/auth';
+import { hashPassword, comparePassword, createSessionToken, verifySessionToken, createAdminSessionToken, verifyAdminSessionToken } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import { premadeTemplates } from '@/lib/premade-templates';
@@ -69,6 +69,51 @@ import type {
     AdminUserView,
     KanbanColumnData,
 } from '@/lib/definitions';
+
+
+export async function getSession(): Promise<{ user: Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null, tags?: Tag[] } } | null> {
+    const sessionToken = cookies().get('session')?.value;
+    if (!sessionToken) {
+        return null;
+    }
+
+    const payload = verifySessionToken(sessionToken);
+    if (!payload) {
+        return null;
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection<User>('users').findOne(
+            { _id: new ObjectId(payload.userId) },
+            { projection: { password: 0 } }
+        );
+
+        if (!user) {
+            return null;
+        }
+
+        return { user: JSON.parse(JSON.stringify(user)) };
+    } catch (error) {
+        console.error("Error fetching session user from DB:", error);
+        return null;
+    }
+}
+
+export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
+    const cookieStore = cookies();
+    const sessionToken = cookieStore.get('admin_session')?.value;
+    if (!sessionToken) {
+        return { isAdmin: false };
+    }
+
+    const payload = verifyAdminSessionToken(sessionToken);
+    if (payload && payload.role === 'admin') {
+        return { isAdmin: true };
+    }
+
+    return { isAdmin: false };
+}
 
 
 export async function handleSuggestContent(topic: string): Promise<{ suggestions?: string[]; error?: string }> {
@@ -2466,13 +2511,13 @@ export async function savePaymentGatewaySettings(prevState: any, formData: FormD
     }
 }
 
-export async function handleInitiatePayment(projectId: string, planId: string): Promise<InitiatePaymentResult> {
+export async function handleInitiatePayment(planId: string, projectId?: string): Promise<InitiatePaymentResult> {
     const session = await getSession();
     if (!session?.user) {
         return { error: 'You must be logged in to purchase a plan.' };
     }
 
-    if (!ObjectId.isValid(planId) || !ObjectId.isValid(projectId)) {
+    if (!ObjectId.isValid(planId) || (projectId && !ObjectId.isValid(projectId))) {
         return { error: 'Invalid plan or project selected.' };
     }
 
@@ -2480,11 +2525,10 @@ export async function handleInitiatePayment(projectId: string, planId: string): 
     try {
         const [plan, project] = await Promise.all([
             getPlanById(planId),
-            getProjectById(projectId)
+            projectId ? getProjectById(projectId) : Promise.resolve(null)
         ]);
         
         if (!plan) return { error: 'Selected plan not found.' };
-        if (!project) return { error: 'Project not found.' };
 
         const pgSettings = await getPaymentGatewaySettings();
         if (!pgSettings) return { error: 'Payment gateway is not configured. Please contact support.' };
@@ -2496,7 +2540,7 @@ export async function handleInitiatePayment(projectId: string, planId: string): 
         const now = new Date();
         const newTransaction: Omit<Transaction, '_id'> = {
             userId: new ObjectId(session.user._id),
-            projectId: new ObjectId(projectId),
+            ...(projectId && { projectId: new ObjectId(projectId) }),
             planId: new ObjectId(planId),
             amount: plan.price * 100,
             status: 'PENDING',
@@ -2504,7 +2548,7 @@ export async function handleInitiatePayment(projectId: string, planId: string): 
             createdAt: now,
             updatedAt: now,
             type: 'PLAN',
-            description: `Upgrade ${project.name} to ${plan.name} Plan`,
+            description: project ? `Upgrade ${project.name} to ${plan.name} Plan` : `Purchase ${plan.name} Plan`,
         };
         const transactionResult = await db.collection('transactions').insertOne(newTransaction as any);
         const merchantTransactionId = transactionResult.insertedId.toString();
@@ -3504,7 +3548,7 @@ export async function handleUpdateOptInOutSettings(prevState: any, formData: For
         optOutKeywords: (formData.get('optOutKeywords') as string || '').split(',').map(k => k.trim()).filter(Boolean),
         optInResponse: formData.get('optInResponse') as string,
         optOutResponse: formData.get('optOutResponse') as string,
-    }
+    };
 
     try {
         const { db } = await connectToDatabase();
@@ -4232,3 +4276,6 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
 
 
 
+
+
+    
