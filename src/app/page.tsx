@@ -487,8 +487,8 @@ const WhatsAppShowcase = () => {
                                             </div>
                                         </div>
                                         <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '2.5s', opacity: 0 }}>
-                                      <div className="bg-white h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '2.8s' }}>
-                                        <div className="p-2 border-b text-center font-semibold text-sm">
+                                      <div className="bg-[#F0F2F5] h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '2.8s' }}>
+                                        <div className="p-2 border-b text-center font-semibold text-sm bg-white rounded-t-2xl">
                                           Our Collection
                                         </div>
                                         <div className="flex-1 p-2 space-y-2 overflow-y-auto">
