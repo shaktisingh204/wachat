@@ -4,6 +4,8 @@ import type { NextRequest } from 'next/server'
 import { connectToDatabase } from './lib/mongodb'
 import { type ShortUrl } from './lib/definitions'
 
+export const runtime = 'nodejs'; // Force Node.js runtime instead of Edge
+
 async function handleCustomDomainRedirect(request: NextRequest) {
     const host = request.headers.get('host')!
     const shortCode = request.nextUrl.pathname.substring(1)
@@ -45,7 +47,7 @@ async function handleCustomDomainRedirect(request: NextRequest) {
     return null; // Fall through if no redirect found
 }
 
-export async function middleware(request: NextRequest) {
+export default async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const host = request.headers.get('host') || '';
 
@@ -64,20 +66,25 @@ export async function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get('session')?.value
   const adminSessionToken = request.cookies.get('admin_session')?.value
 
-  // If trying to access a protected dashboard route without the correct session, redirect to the appropriate login page.
-  if (pathname.startsWith('/admin/dashboard') && !adminSessionToken) {
-    return NextResponse.redirect(new URL('/admin-login', request.url));
-  }
-  if (pathname.startsWith('/dashboard') && !sessionToken) {
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/admin-login');
+  const isDashboard = pathname.startsWith('/dashboard');
+  const isAdminDashboard = pathname.startsWith('/admin/dashboard');
+
+  if (isDashboard && !sessionToken) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // If already logged in, redirect away from the login/signup pages.
-  if (sessionToken && (pathname === '/login' || pathname === '/signup')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  if (isAdminDashboard && !adminSessionToken) {
+    return NextResponse.redirect(new URL('/admin-login', request.url));
   }
-  if (adminSessionToken && pathname === '/admin-login') {
-    return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+
+  if (isAuthPage) {
+    if (sessionToken && !pathname.startsWith('/admin')) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+    if (adminSessionToken && pathname.startsWith('/admin')) {
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+    }
   }
 
   // Allow the request to proceed if none of the above conditions are met.
