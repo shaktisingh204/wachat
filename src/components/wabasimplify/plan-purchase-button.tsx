@@ -3,7 +3,8 @@
 
 import { useActionState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
-import { handleInitiatePayment, type Plan } from '@/app/actions';
+import { handleInitiatePayment } from '@/app/actions';
+import type { Plan } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle } from 'lucide-react';
@@ -27,10 +28,11 @@ function SubmitButton({ children }: { children: React.ReactNode }) {
 interface PlanPurchaseButtonProps {
     plan: WithId<Plan>;
     currentPlanId?: string;
+    projectId: string;
 }
 
-export function PlanPurchaseButton({ plan, currentPlanId }: PlanPurchaseButtonProps) {
-    const [state, formAction] = useActionState(handleInitiatePayment, initialState);
+export function PlanPurchaseButton({ plan, currentPlanId, projectId }: PlanPurchaseButtonProps) {
+    const [state, formAction] = useActionState((prevState, formData) => handleInitiatePayment(plan._id.toString(), projectId), initialState);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -47,7 +49,7 @@ export function PlanPurchaseButton({ plan, currentPlanId }: PlanPurchaseButtonPr
     }
 
     return (
-        <form action={() => formAction(plan._id.toString())} className="w-full">
+        <form action={formAction} className="w-full">
             <SubmitButton>Upgrade to {plan.name}</SubmitButton>
         </form>
     );

@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -43,7 +44,7 @@ export async function createShortUrl(prevState: any, formData: FormData): Promis
         if (domainId) {
             query.domainId = domainId;
         } else {
-            query.userId = session.user._id; // legacy links tied to user
+            query.userId = new ObjectId(session.user._id); // legacy links tied to user
         }
 
         const existing = await db.collection('short_urls').findOne(query);

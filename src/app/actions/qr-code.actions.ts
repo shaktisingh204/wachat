@@ -1,10 +1,12 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getSession, createShortUrl } from '@/app/actions';
+import { getSession } from '@/app/actions';
+import { createShortUrl } from './url-shortener.actions';
 import type { QrCode, QrCodeWithShortUrl } from '@/lib/definitions';
 
 

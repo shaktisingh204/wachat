@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -58,8 +59,7 @@ import {
 } from 'lucide-react';
 import { WachatBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { getProjectCount, handleLogout } from '@/app/actions';
-import { getSession } from '@/lib/auth';
+import { getProjectCount, handleLogout, getSession } from '@/app/actions';
 import { type Plan, type WithId } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
 
@@ -294,7 +294,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <SidebarHeader className="p-4">
            <div className="flex items-center gap-2">
               <WachatBrandLogo className="size-8 shrink-0" />
-              <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Wachat</span>
+              <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">SabNode</span>
           </div>
         </SidebarHeader>
         <SidebarContent>

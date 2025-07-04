@@ -5,14 +5,14 @@ import { Check, X, History } from 'lucide-react';
 import type { Metadata } from 'next';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { getPlans } from '@/app/actions';
-import { getSession } from '@/lib/auth';
+import { getPlans, getSession, handleInitiatePayment } from '@/app/actions';
 import { Separator } from '@/components/ui/separator';
 import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-button';
 import { CreditPurchaseButton } from '@/components/wabasimplify/credit-purchase-button';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useEffect, useState } from 'react';
+import type { Plan, WithId } from '@/lib/definitions';
 
 const PlanFeature = ({ children, included }: { children: React.ReactNode, included: boolean }) => (
     <li className="flex items-center gap-3">
@@ -31,10 +31,13 @@ export default function BillingPage() {
     const [isClient, setIsClient] = useState(false);
     const [session, setSession] = useState<any>(null);
     const [plans, setPlans] = useState<any[]>([]);
+    const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
 
     useEffect(() => {
         setIsClient(true);
         document.title = 'Billing & Plans | SabNode';
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        setActiveProjectId(storedProjectId);
         const fetchData = async () => {
             const [sessionData, plansData] = await Promise.all([
                 getSession(),
@@ -80,7 +83,7 @@ export default function BillingPage() {
                                 <p className="text-3xl font-bold">₹{pack.amount}</p>
                             </CardContent>
                             <CardFooter>
-                                <CreditPurchaseButton credits={pack.credits} amount={pack.amount} />
+                                <CreditPurchaseButton credits={pack.credits} amount={pack.amount} projectId={activeProjectId || undefined}/>
                             </CardFooter>
                         </Card>
                     ))}
@@ -94,7 +97,7 @@ export default function BillingPage() {
                 <p className="text-muted-foreground">Unlock more features and increase your limits by upgrading your plan.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
-                {plans.map((plan, index) => (
+                {plans.map((plan: WithId<Plan>, index) => (
                     <Card key={plan._id.toString()} className={cn("flex flex-col card-gradient", gradientClasses[index % gradientClasses.length], userPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
                         <CardHeader className="flex-grow">
                             <CardTitle>{plan.name}</CardTitle>
@@ -118,7 +121,7 @@ export default function BillingPage() {
                             </ul>
                         </CardContent>
                         <CardFooter className="mt-auto">
-                           {isClient && <PlanPurchaseButton plan={plan} currentPlanId={userPlanId?.toString()} />}
+                           {isClient && activeProjectId && <PlanPurchaseButton plan={plan} currentPlanId={userPlanId?.toString()} projectId={activeProjectId} />}
                         </CardFooter>
                     </Card>
                 ))}
