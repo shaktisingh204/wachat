@@ -1,21 +1,18 @@
 
+'use client';
 
 import { Check, X, History } from 'lucide-react';
 import type { Metadata } from 'next';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { getSession, getPlans } from '@/app/actions';
+import { getPlans } from '@/app/actions';
+import { getSession } from '@/lib/auth';
 import { Separator } from '@/components/ui/separator';
 import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-button';
 import { CreditPurchaseButton } from '@/components/wabasimplify/credit-purchase-button';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-
-export const metadata: Metadata = {
-  title: 'Billing & Plans | SabNode',
-};
-export const dynamic = 'force-dynamic';
-
+import { useEffect, useState } from 'react';
 
 const PlanFeature = ({ children, included }: { children: React.ReactNode, included: boolean }) => (
     <li className="flex items-center gap-3">
@@ -30,11 +27,26 @@ const creditPacks = [
     { credits: 30000, amount: 2500, description: 'Business Pack', gradient: 'card-gradient-purple' },
 ];
 
-export default async function BillingPage() {
-    const session = await getSession();
-    const plans = await getPlans({ isPublic: true });
-    const userPlanId = session?.user?.plan?._id;
+export default function BillingPage() {
+    const [isClient, setIsClient] = useState(false);
+    const [session, setSession] = useState<any>(null);
+    const [plans, setPlans] = useState<any[]>([]);
 
+    useEffect(() => {
+        setIsClient(true);
+        document.title = 'Billing & Plans | SabNode';
+        const fetchData = async () => {
+            const [sessionData, plansData] = await Promise.all([
+                getSession(),
+                getPlans({ isPublic: true })
+            ]);
+            setSession(sessionData);
+            setPlans(plansData);
+        };
+        fetchData();
+    }, []);
+
+    const userPlanId = session?.user?.plan?._id;
     const gradientClasses = ['card-gradient-purple', 'card-gradient-blue', 'card-gradient-green'];
 
     return (
@@ -106,7 +118,7 @@ export default async function BillingPage() {
                             </ul>
                         </CardContent>
                         <CardFooter className="mt-auto">
-                            <PlanPurchaseButton plan={plan} currentPlanId={userPlanId?.toString()} />
+                           {isClient && <PlanPurchaseButton plan={plan} currentPlanId={userPlanId?.toString()} />}
                         </CardFooter>
                     </Card>
                 ))}

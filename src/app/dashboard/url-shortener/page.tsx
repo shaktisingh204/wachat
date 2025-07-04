@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
 import { useFormStatus } from 'react-dom';
 import { createShortUrl, getShortUrls, deleteShortUrl, getCustomDomains } from '@/app/actions/url-shortener.actions';
-import { getSession } from '@/app/actions';
+import { getSession } from '@/lib/auth';
 import type { WithId, ShortUrl, User, Tag, CustomDomain } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';

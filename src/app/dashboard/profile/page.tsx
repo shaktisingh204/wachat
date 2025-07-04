@@ -1,9 +1,11 @@
 
+
 'use client';
 
 import { useEffect, useState, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getSession, handleUpdateUserProfile, handleChangePassword } from '@/app/actions';
+import { handleUpdateUserProfile, handleChangePassword } from '@/app/actions';
+import { getSession } from '@/lib/auth';
 import type { User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

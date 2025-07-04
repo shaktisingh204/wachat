@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -57,7 +58,8 @@ import {
 } from 'lucide-react';
 import { WachatBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { getProjectCount, getSession, handleLogout } from '@/app/actions';
+import { getProjectCount, handleLogout } from '@/app/actions';
+import { getSession } from '@/lib/auth';
 import { type Plan, type WithId } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
 
