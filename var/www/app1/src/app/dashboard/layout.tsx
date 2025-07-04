@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -50,11 +51,17 @@ import {
   Newspaper,
   Clapperboard,
   Heart,
+  Route,
+  Wrench,
+  Facebook,
+  Link as LinkIcon,
+  QrCode,
 } from 'lucide-react';
-import { WachatBrandLogo, FacebookIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { SabNodeLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { getProjectCount, getSession, handleLogout } from '@/app/actions';
+import { getProjectCount, handleLogout, getSession } from '@/app/actions';
 import { type Plan, type WithId } from '@/lib/definitions';
+import { Separator } from '@/components/ui/separator';
 
 function FullPageSkeleton() {
     return (
@@ -85,10 +92,12 @@ const wachatMenuItems = [
 ];
 
 const facebookMenuItems = [
-    { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'facebookAds' },
-    { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'facebookAudiences' },
-    { href: '/dashboard/facebook/posts', label: 'Page Posts', icon: Newspaper, featureKey: 'facebookPosts' },
-    { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, featureKey: 'facebookSettings' },
+    { href: '/dashboard/facebook', label: 'Overview', icon: Facebook, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/posts', label: 'Page Posts', icon: Newspaper, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/setup', label: 'Setup Guide', icon: Wrench, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, featureKey: 'whatsappAds' },
 ];
 
 const instagramMenuItems = [
@@ -96,6 +105,16 @@ const instagramMenuItems = [
     { href: '/dashboard/instagram/stories', label: 'Stories', icon: Clapperboard, featureKey: 'instagramStories' },
     { href: '/dashboard/instagram/reels', label: 'Reels', icon: Heart, featureKey: 'instagramReels' },
     { href: '/dashboard/instagram/messages', label: 'Messages', icon: MessageSquare, featureKey: 'instagramMessages' },
+];
+
+const urlShortenerMenuItems = [
+    { href: '/dashboard/url-shortener', label: 'Shortener', icon: LinkIcon, featureKey: 'urlShortener' },
+    { href: '/dashboard/url-shortener/settings', label: 'Settings', icon: Settings, featureKey: 'urlShortener' },
+];
+
+const qrCodeMakerMenuItems = [
+    { href: '/dashboard/qr-code-maker', label: 'QR Maker', icon: QrCode, featureKey: 'qrCodeMaker' },
+    { href: '/dashboard/qr-code-maker/settings', label: 'Settings', icon: Settings, featureKey: 'qrCodeMaker' },
 ];
 
 
@@ -116,6 +135,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   React.useEffect(() => {
     if (!isClient) return;
+
+    if (pathname.startsWith('/dashboard/facebook')) {
+        setActiveApp('facebook');
+    } else if (pathname.startsWith('/dashboard/instagram')) {
+        setActiveApp('instagram');
+    } else if (pathname.startsWith('/dashboard/url-shortener')) {
+        setActiveApp('url-shortener');
+    } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
+        setActiveApp('qr-code-maker');
+    } else {
+        setActiveApp('whatsapp');
+    }
 
     const isDashboardHome = pathname === '/dashboard';
 
@@ -157,7 +188,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
   const planFeatures = sessionUser?.plan?.features;
   
-  const currentMenuItems = activeApp === 'whatsapp' ? wachatMenuItems : activeApp === 'facebook' ? facebookMenuItems : instagramMenuItems;
+  const currentMenuItems =
+    activeApp === 'facebook'
+      ? facebookMenuItems
+      : activeApp === 'instagram'
+      ? instagramMenuItems
+      : activeApp === 'url-shortener'
+      ? urlShortenerMenuItems
+      : activeApp === 'qr-code-maker'
+      ? qrCodeMakerMenuItems
+      : wachatMenuItems; 
 
   return (
     <div data-theme={activeApp}>
@@ -166,8 +206,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="flex h-full w-16 flex-col items-center gap-4 rounded-lg border bg-card py-4 shadow-md">
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <button
-                    onClick={() => setActiveApp('whatsapp')}
+                    <Link
+                    href="/dashboard/overview"
                     className={cn(
                         'p-3 mx-2 rounded-lg transition-colors',
                         activeApp === 'whatsapp'
@@ -176,14 +216,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     )}
                     >
                     <WhatsAppIcon className="h-6 w-6" />
-                    </button>
+                    </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right">WhatsApp Tools</TooltipContent>
             </Tooltip>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <button
-                    onClick={() => setActiveApp('facebook')}
+                    <Link
+                    href="/dashboard/facebook"
                     className={cn(
                         'p-3 mx-2 rounded-lg transition-colors',
                         activeApp === 'facebook'
@@ -191,15 +231,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         : 'bg-card text-blue-600 hover:bg-accent'
                     )}
                     >
-                    <FacebookIcon className="h-6 w-6" />
-                    </button>
+                    <FacebookAppIcon className="h-6 w-6" />
+                    </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right">Facebook Manager</TooltipContent>
             </Tooltip>
              <Tooltip>
                 <TooltipTrigger asChild>
-                    <button
-                    onClick={() => setActiveApp('instagram')}
+                    <Link
+                    href="/dashboard/instagram/feed"
                     className={cn(
                         'p-3 mx-2 rounded-lg transition-colors',
                         activeApp === 'instagram'
@@ -208,9 +248,42 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     )}
                     >
                     <InstagramIcon className="h-6 w-6" />
-                    </button>
+                    </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right">Instagram Manager</TooltipContent>
+            </Tooltip>
+            <Separator className="w-2/3 my-1 bg-border/50"/>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                     <Link
+                        href="/dashboard/url-shortener"
+                        className={cn(
+                            'p-3 mx-2 rounded-lg transition-colors',
+                            activeApp === 'url-shortener'
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-card text-purple-600 hover:bg-accent'
+                        )}
+                        >
+                        <LinkIcon className="h-6 w-6" />
+                    </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">URL Shortener</TooltipContent>
+            </Tooltip>
+             <Tooltip>
+                <TooltipTrigger asChild>
+                     <Link
+                        href="/dashboard/qr-code-maker"
+                        className={cn(
+                            'p-3 mx-2 rounded-lg transition-colors',
+                            activeApp === 'qr-code-maker'
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-card text-orange-500 hover:bg-accent'
+                        )}
+                        >
+                        <QrCode className="h-6 w-6" />
+                    </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">QR Code Maker</TooltipContent>
             </Tooltip>
         </div>
       </div>
@@ -220,8 +293,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <SidebarHeader className="p-4">
            <div className="flex items-center gap-2">
-              <WachatBrandLogo className="size-8 shrink-0" />
-              <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">Wachat</span>
+              <SabNodeLogo className="size-8 shrink-0" />
+              <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">SabNode</span>
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -236,12 +309,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               } else if (!isAllowed) {
                 tooltipText = `${item.label} (Upgrade plan)`;
               }
+              
+               const isBasePage = 
+                    item.href === '/dashboard' ||
+                    item.href === '/dashboard/overview' ||
+                    item.href === '/dashboard/facebook' ||
+                    item.href === '/dashboard/instagram/feed' ||
+                    item.href === '/dashboard/url-shortener' ||
+                    item.href === '/dashboard/qr-code-maker';
+
+              const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
+
 
               return (
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname.startsWith(item.href)}
+                  isActive={isActive}
                   tooltip={tooltipText}
                   disabled={isDisabled}
                   aria-disabled={isDisabled}
@@ -300,7 +384,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset sideOffset="calc(4rem + 8px)" className="flex flex-col p-2 gap-2 h-screen">
+      <SidebarInset sideOffset="calc(4rem + 8px)" className="flex flex-col h-screen p-2 gap-2">
         <header className="flex items-center justify-between p-3 border bg-card rounded-lg shrink-0">
           <div className="flex items-center gap-2">
             <SidebarTrigger />

@@ -174,7 +174,7 @@ export async function handleBulkCreateShortUrls(prevState: any, formData: FormDa
 }
 
 
-export async function getShortUrls(): Promise<{ user: (Omit<User, 'password'> & { _id: string }) | null; urls: WithId<ShortUrl>[]; domains: WithId<CustomDomain>[] }> {
+export async function getShortUrls(): Promise<{ user: (Omit<User, 'password'> & { _id: string, tags?: any[] }) | null; urls: WithId<ShortUrl>[]; domains: WithId<CustomDomain>[] }> {
     const session = await getSession();
     if (!session?.user) return { user: null, urls: [], domains: [] };
 

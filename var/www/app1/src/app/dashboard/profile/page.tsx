@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { useEffect, useState, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getSession, handleUpdateUserProfile, handleChangePassword } from '@/app/actions';
+import { handleUpdateUserProfile, handleChangePassword, getSession } from '@/app/actions';
 import type { User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,8 +17,6 @@ import { Separator } from '@/components/ui/separator';
 
 const profileInitialState = { message: null, error: null };
 const passwordInitialState = { message: null, error: null };
-
-export const dynamic = 'force-dynamic';
 
 function SubmitButton({ children, icon: Icon }: { children: React.ReactNode; icon: React.ElementType }) {
   const { pending } = useFormStatus();
@@ -155,7 +154,7 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        document.title = "My Profile | Wachat";
+        document.title = "My Profile | SabNode";
         getSession().then(session => {
             if (session?.user) {
                 setUser(session.user);

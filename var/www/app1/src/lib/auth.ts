@@ -70,5 +70,3 @@ export function verifyAdminSessionToken(token: string): AdminSessionPayload | nu
         return null;
     }
 }
-
-    
