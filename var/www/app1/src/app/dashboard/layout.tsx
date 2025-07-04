@@ -57,7 +57,7 @@ import {
   Link as LinkIcon,
   QrCode,
 } from 'lucide-react';
-import { SabNodeLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getProjectCount, handleLogout, getSession } from '@/app/actions';
 import { type Plan, type WithId } from '@/lib/definitions';
@@ -149,6 +149,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     const isDashboardHome = pathname === '/dashboard';
+    const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
 
     if (isDashboardHome) {
       localStorage.removeItem('activeProjectId');
@@ -165,15 +166,17 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             setSessionUser(session.user as any);
             getProjectCount().then(count => {
               setProjectCount(count);
-              if (count === 0 && pathname !== '/dashboard' && pathname !== '/dashboard/setup' && pathname !== '/dashboard/profile' && pathname !== '/dashboard/billing' && pathname !== '/dashboard/settings') {
+              // This is the important change: We no longer redirect from the client side.
+              // The middleware handles unauthorized access.
+              // If there are no projects, the user can still access setup/billing/profile.
+              if (count === 0 && !isSetupPage) {
                   router.push('/dashboard/setup');
               }
-               setIsVerifying(false);
             });
-        } else {
-            router.push('/login');
-            setIsVerifying(false);
         }
+        // If session is null, middleware will have already redirected.
+        // We just stop the loading spinner.
+        setIsVerifying(false);
     })
 
   }, [pathname, router, isClient]);
@@ -183,7 +186,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!isClient || isVerifying) {
       return <FullPageSkeleton />;
   }
-
+  
   const hasNoProjects = projectCount === 0;
   const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
   const planFeatures = sessionUser?.plan?.features;
@@ -293,7 +296,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       >
         <SidebarHeader className="p-4">
            <div className="flex items-center gap-2">
-              <SabNodeLogo className="size-8 shrink-0" />
+              <SabNodeBrandLogo className="size-8 shrink-0" />
               <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">SabNode</span>
           </div>
         </SidebarHeader>
