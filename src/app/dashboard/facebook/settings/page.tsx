@@ -83,6 +83,7 @@ export default function FacebookSettingsPage() {
                         <dl className="space-y-1">
                             <InfoRow label="Facebook Page ID" value={project.facebookPageId} />
                             <InfoRow label="Ad Account ID" value={project.adAccountId} />
+                             <InfoRow label="Connected App ID" value={project.appId || 'Not Set'} />
                             <InfoRow label="Access Token" value={<span className="font-mono text-sm">••••••••••••••••••••</span>} />
                         </dl>
                     ) : (
