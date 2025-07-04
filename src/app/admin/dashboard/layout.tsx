@@ -26,7 +26,7 @@ import {
   SidebarTrigger,
   SidebarInset,
 } from '@/components/ui/sidebar';
-import { WachatLogo } from '@/components/wabasimplify/logo';
+import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users } from 'lucide-react';
 import { handleAdminLogout } from '@/app/actions';
 
@@ -47,7 +47,7 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
     <SidebarProvider>
       <Sidebar>
         <SidebarHeader>
-          <WachatLogo className="w-32 h-auto" />
+          <SabNodeLogo className="w-32 h-auto" />
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
