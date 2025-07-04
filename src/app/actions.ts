@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -2998,12 +2999,17 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
     }
 
     const wabaId = formData.get('wabaId') as string;
-    const appId = formData.get('appId') as string;
-    const accessToken = formData.get('accessToken') as string;
     const includeCatalog = formData.get('includeCatalog') === 'on';
 
-    if (!wabaId || !appId || !accessToken) {
-        return { error: 'All fields are required.' };
+    if (!wabaId) {
+        return { error: 'WABA ID is required.' };
+    }
+
+    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
+    const appId = process.env.NEXT_PUBLIC_META_APP_ID;
+
+    if (!accessToken || !appId) {
+        return { error: 'System administrator has not configured the Meta integration credentials.' };
     }
 
     try {
@@ -3016,7 +3022,7 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
             if (businesses && businesses.length > 0) {
                 businessId = businesses[0].id;
             } else {
-                return { error: "Could not find a Meta Business Account associated with this token to enable Catalog features." };
+                console.warn("Could not find a Meta Business Account associated with this token to enable Catalog features.");
             }
         }
         
@@ -3117,6 +3123,11 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
         return { success: false, count: 0, error: 'You must be logged in.' };
     }
 
+    const appId = process.env.NEXT_PUBLIC_META_APP_ID;
+    if (!appId) {
+        return { success: false, count: 0, error: 'Platform App ID is not configured.' };
+    }
+
     try {
         const { db } = await connectToDatabase();
         const bulkOps: any[] = [];
@@ -3153,6 +3164,7 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
                 name: wabaData.name,
                 wabaId: wabaData.id,
                 accessToken: accessToken,
+                appId: appId,
                 createdAt: new Date(),
                 messagesPerSecond: 1000,
                 planId: defaultPlan?._id,
@@ -3169,6 +3181,7 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
                             name: projectDoc.name, 
                             accessToken: projectDoc.accessToken, 
                             userId: projectDoc.userId,
+                            appId: projectDoc.appId,
                             businessId: projectDoc.businessId,
                             hasCatalogManagement: projectDoc.hasCatalogManagement,
                         },
