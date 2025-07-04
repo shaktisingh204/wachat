@@ -2,11 +2,12 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Megaphone, Users, Newspaper, Wrench, Settings, LayoutGrid } from 'lucide-react';
+import { Megaphone, Users, Newspaper, Wrench, Settings, LayoutGrid, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 
 const features = [
     { href: '/dashboard/facebook/ads', icon: Megaphone, title: 'Ads Manager', description: 'Create and monitor Click-to-WhatsApp ads.' },
+    { href: '/dashboard/facebook/messages', icon: MessageSquare, title: 'Live Chat', description: 'Engage with customers on Facebook Messenger.' },
     { href: '/dashboard/facebook/pages', icon: Newspaper, title: 'Connected Pages', description: 'View all connected Facebook Pages.' },
     { href: '/dashboard/facebook/audiences', icon: Users, title: 'Audiences', description: 'Manage custom and lookalike audiences.' },
     { href: '/dashboard/facebook/all-projects', icon: Wrench, title: 'Project Connections', description: 'Connect your projects to Facebook.' },
