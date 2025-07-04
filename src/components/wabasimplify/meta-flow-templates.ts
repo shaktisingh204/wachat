@@ -2,7 +2,7 @@
 
 import {
   Heading1, Heading2, Pilcrow, Captions, Type, Newspaper, Calendar, CalendarDays, ChevronDownSquare, Radio, ListChecks, Tags,
-  Image as ImageIcon, GalleryVertical, Camera, FileUp, Hand, Footprints, Link as LinkIcon, List as ListIcon, GitBranch, Switch
+  Image as ImageIcon, GalleryVertical, Camera, FileUp, Hand, Footprints, Link as LinkIcon, List as ListIcon, GitBranch, Switch as SwitchIcon
 } from 'lucide-react';
 
 export type DeclarativeUIComponent = {
@@ -64,7 +64,7 @@ export const declarativeFlowComponents: { name: string; components: DeclarativeU
         name: 'Conditional Logic',
         components: [
             { type: 'If', label: 'If/Else Block', icon: GitBranch, description: 'Conditionally show components.' },
-            { type: 'Switch', label: 'Switch Block', icon: Switch, description: 'Show components based on a value.' },
+            { type: 'Switch', label: 'Switch Block', icon: SwitchIcon, description: 'Show components based on a value.' },
         ]
     }
 ];

@@ -15,7 +15,7 @@ import { useFormStatus } from 'react-dom';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useActionState } from 'react-dom';
+import { useActionState } from 'react';
 import Link from 'next/link';
 
 interface AgentsRolesSettingsTabProps {
