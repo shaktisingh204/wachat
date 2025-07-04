@@ -204,12 +204,28 @@ export async function getShortUrls(): Promise<{ user: (Omit<User, 'password'> & 
     }
 }
 
-export async function trackClickAndGetUrl(shortCode: string): Promise<{ originalUrl: string | null; error?: string }> {
+export async function trackClickAndGetUrl(shortCode: string, hostname: string | null): Promise<{ originalUrl: string | null; error?: string }> {
     try {
         const { db } = await connectToDatabase();
-        
-        // This simplified logic assumes the default domain. Custom domain routing would need middleware.
-        const urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode, domainId: { $exists: false } });
+        let urlDoc: WithId<ShortUrl> | null = null;
+
+        if (hostname) {
+            // Custom domain lookup
+            const userWithDomain = await db.collection('users').findOne({ 'customDomains.hostname': hostname, 'customDomains.verified': true });
+            if (userWithDomain) {
+                const domain = userWithDomain.customDomains?.find((d: any) => d.hostname === hostname);
+                if (domain) {
+                    urlDoc = await db.collection<ShortUrl>('short_urls').findOne({
+                        shortCode,
+                        domainId: domain._id.toString()
+                    });
+                }
+            }
+        } else {
+            // Default domain lookup
+            urlDoc = await db.collection<ShortUrl>('short_urls').findOne({ shortCode, domainId: { $exists: false } });
+        }
+
 
         if (!urlDoc) {
              return { originalUrl: null, error: 'URL not found.' };
