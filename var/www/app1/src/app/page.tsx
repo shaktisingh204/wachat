@@ -121,9 +121,9 @@ const WhatsAppShowcase = () => {
                                 <div className="flex justify-end animate-fade-in-up" style={{ animationDelay: '2s' }}><div className="bg-[#005C4B] text-white rounded-lg rounded-tr-none p-2 text-sm max-w-xs shadow">Welcome! Tap to see our product showcase.</div></div>
                             </div>
                             <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '3s', opacity: 0 }}>
-                                <div className="bg-[#F0F2F5] h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '3.3s' }}>
+                                <div className="bg-background h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '3.3s' }}>
                                     <div className="p-2 border-b text-center font-semibold text-sm bg-white rounded-t-2xl">Product Showcase</div>
-                                    <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+                                    <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-[#F0F2F5]">
                                         <div className="flex gap-3 border rounded-lg p-3 bg-white">
                                             <Image src="https://placehold.co/80x80.png" alt="product" width={80} height={80} className="rounded-md" data-ai-hint="shirt product" />
                                             <div><p className="font-medium text-gray-800">Cool T-Shirt</p><p className="text-sm text-muted-foreground">$25.00</p><Button size="sm" variant="outline" className="mt-1 h-7">Add</Button></div>
@@ -236,11 +236,11 @@ const WhatsAppShowcase = () => {
                                         </div>
                                         {/* Animated Meta Flow Overlay */}
                                         <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '0.5s', opacity: 0 }}>
-                                            <div className="bg-[#F0F2F5] h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '0.8s' }}>
+                                            <div className="bg-background h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '0.8s' }}>
                                                 <div className="p-2 border-b text-center font-semibold text-sm bg-white rounded-t-2xl">
                                                 Order Products
                                                 </div>
-                                                <div className="flex-1 p-4 space-y-4 overflow-y-auto">
+                                                <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-[#F0F2F5]">
                                                 <p className="font-semibold text-gray-800">Summer Collection</p>
                                                 <div className="flex gap-3 border rounded-lg p-3 bg-white">
                                                     <Image src="https://placehold.co/80x80.png" alt="product" width={80} height={80} className="rounded-md" data-ai-hint="shirt product"/>
@@ -302,7 +302,7 @@ const WhatsAppShowcase = () => {
                     </div>
                 </div>
             </section>
-
+            
             {/* New Features Section */}
             <section className="py-16 md:py-24">
                 <div className="container mx-auto px-4">
@@ -487,11 +487,11 @@ const WhatsAppShowcase = () => {
                                             </div>
                                         </div>
                                         <div className="absolute inset-0 bg-black/40 flex flex-col justify-end z-20 animate-fade-in" style={{ animationDelay: '2.5s', opacity: 0 }}>
-                                      <div className="bg-white h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '2.8s' }}>
-                                        <div className="p-2 border-b text-center font-semibold text-sm">
+                                      <div className="bg-background h-[90%] rounded-t-2xl flex flex-col animate-slide-in-up" style={{ animationDelay: '2.8s' }}>
+                                        <div className="p-2 border-b text-center font-semibold text-sm bg-white rounded-t-2xl">
                                           Our Collection
                                         </div>
-                                        <div className="flex-1 p-2 space-y-2 overflow-y-auto">
+                                        <div className="flex-1 p-2 space-y-2 overflow-y-auto bg-[#F0F2F5]">
                                           <div className="flex gap-3 border rounded-lg p-2 bg-white">
                                             <Image src="https://placehold.co/80x80.png" alt="product" width={60} height={60} className="rounded-md" data-ai-hint="eco-friendly bottle"/>
                                             <div><p className="font-medium text-gray-800 text-sm">Eco Water Bottle</p><p className="text-xs text-muted-foreground">$15.00</p></div>
