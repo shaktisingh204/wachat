@@ -7,16 +7,21 @@ import Image from 'next/image';
 import { getFacebookPosts } from '@/app/actions/facebook.actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Link as LinkIcon, Newspaper, ExternalLink, Edit, Trash2 } from 'lucide-react';
+import { AlertCircle, Link as LinkIcon, Newspaper, ExternalLink, Edit, Trash2, Video, Image as ImageIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { FacebookPost } from '@/lib/definitions';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { UpdatePostDialog } from '@/components/wabasimplify/update-post-dialog';
 import { DeletePostButton } from '@/components/wabasimplify/delete-post-button';
+import { AddThumbnailDialog } from '@/components/wabasimplify/add-thumbnail-dialog';
+import { CrosspostDialog } from '@/components/wabasimplify/crosspost-dialog';
 
 function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, projectId: string, onActionComplete: () => void }) {
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+    const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
+    const [isCrosspostOpen, setIsCrosspostOpen] = useState(false);
+    const isVideo = !!post.object_id;
 
     return (
         <>
@@ -27,6 +32,24 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
                 projectId={projectId}
                 onPostUpdated={onActionComplete}
             />
+            {isVideo && post.object_id && (
+                <>
+                <AddThumbnailDialog
+                    isOpen={isThumbnailOpen}
+                    onOpenChange={setIsThumbnailOpen}
+                    videoId={post.object_id}
+                    projectId={projectId}
+                    onSuccess={onActionComplete}
+                />
+                <CrosspostDialog
+                    isOpen={isCrosspostOpen}
+                    onOpenChange={setIsCrosspostOpen}
+                    postId={post.id}
+                    projectId={projectId}
+                    onSuccess={onActionComplete}
+                />
+                </>
+            )}
             <Card className="flex flex-col">
                 {post.full_picture && (
                     <div className="relative aspect-video">
@@ -43,6 +66,12 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
                     <div className="flex items-center gap-1">
                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsUpdateOpen(true)}><Edit className="h-3 w-3" /></Button>
                          <DeletePostButton postId={post.id} projectId={projectId} onPostDeleted={onActionComplete} />
+                         {isVideo && (
+                            <>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsThumbnailOpen(true)}><ImageIcon className="h-3 w-3"/></Button>
+                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsCrosspostOpen(true)}><Video className="h-3 w-3"/></Button>
+                            </>
+                         )}
                          <Button asChild variant="outline" size="sm">
                             <a href={post.permalink_url} target="_blank" rel="noopener noreferrer">
                                 <ExternalLink className="mr-2 h-3 w-3" /> View
