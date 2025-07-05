@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Db, Filter, ObjectId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
-import { processSingleWebhook, processStatusUpdateBatch, processIncomingMessageBatch, processCommentWebhook } from '@/lib/webhook-processor';
+import { processSingleWebhook, processStatusUpdateBatch, processIncomingMessageBatch, processCommentWebhook, processMessengerWebhook } from '@/lib/webhook-processor';
 import { revalidatePath } from 'next/cache';
 
 const getSearchableText = (payload: any): string => {
@@ -136,14 +136,21 @@ export async function POST(request: NextRequest) {
     // Handle Facebook Page (Messenger and Feed) webhooks
     if (payload.object === 'page') {
         const entry = payload.entry?.[0];
-        if (projectId && entry?.changes) {
+        if (projectId && entry) {
             const project = await db.collection<Project>('projects').findOne({ _id: projectId });
             if (project) {
-                for (const change of entry.changes) {
-                    if (change.field === 'feed' && change.value?.item === 'comment' && change.value?.verb === 'add') {
-                        await processCommentWebhook(db, project, change.value);
-                    } else if (change.field === 'messaging') {
-                        revalidatePath('/dashboard/facebook/messages');
+                // Handle comments
+                if (entry.changes) {
+                    for (const change of entry.changes) {
+                        if (change.field === 'feed' && change.value?.item === 'comment' && change.value?.verb === 'add') {
+                            await processCommentWebhook(db, project, change.value);
+                        }
+                    }
+                }
+                // Handle messages
+                if (entry.messaging) {
+                    for (const messagingEvent of entry.messaging) {
+                        await processMessengerWebhook(db, project, messagingEvent);
                     }
                 }
             }
