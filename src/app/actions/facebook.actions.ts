@@ -52,7 +52,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
     const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`;
 
     if (!appId || !appSecret) {
-        return { success: false, error: 'Server is not configured for Facebook authentication.' };
+        return { success: false, error: 'Server is not configured for Facebook authentication. Please ensure NEXT_PUBLIC_FACEBOOK_APP_ID and FACEBOOK_APP_SECRET are set in your environment variables.' };
     }
 
     try {
