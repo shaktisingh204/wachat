@@ -13,7 +13,7 @@ const app = next({ dev, hostname, port });
 const handle = app.getRequestHandler();
 
 if (cluster.isPrimary) {
-  const numCPUs = os.cpus().length;
+  const numCPUs = Math.min(os.cpus().length, 70);
   console.log(`\n\x1b[32m[Cluster] Primary process ${process.pid} is running.\x1b[0m`);
   console.log(`\x1b[32m[Cluster] Forking for ${numCPUs} CPU cores.\x1b[0m\n`);
 
