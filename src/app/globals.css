@@ -100,8 +100,6 @@ body {
   
   /* Facebook Theme Overrides */
   [data-theme="facebook"] {
-    --primary: 217 91% 60%;
-    --ring: 217 91% 60%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 91% 95%;
@@ -111,8 +109,6 @@ body {
   }
 
   .dark [data-theme="facebook"] {
-    --primary: 217 91% 60%;
-    --ring: 217 91% 60%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 50% 25%;
@@ -170,6 +166,24 @@ body {
     --sidebar-primary: 25 95% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 25 50% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-background: 220 10% 12%;
+    --sidebar-border: 220 10% 20%;
+  }
+
+  /* SEO Suite Theme */
+  [data-theme="seo-suite"] {
+    --sidebar-primary: 0 84% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 84% 95%;
+    --sidebar-accent-foreground: 0 84% 25%;
+    --sidebar-background: 220 13% 98%;
+    --sidebar-border: 220 13% 91%;
+  }
+  .dark [data-theme="seo-suite"] {
+    --sidebar-primary: 0 84% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 50% 22%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-background: 220 10% 12%;
     --sidebar-border: 220 10% 20%;

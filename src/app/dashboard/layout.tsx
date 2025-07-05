@@ -29,9 +29,9 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp
 } from 'lucide-react';
-import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getProjectCount, handleLogout, getSession } from '@/app/actions';
 import { type Plan, type WithId } from '@/lib/definitions';
@@ -94,6 +94,10 @@ const qrCodeMakerMenuItems = [
     { href: '/dashboard/qr-code-maker/settings', label: 'Settings', icon: Settings, featureKey: 'qrCodeMaker' },
 ];
 
+const seoMenuItems = [
+    { href: '/dashboard/seo', label: 'Dashboard', icon: TrendingUp, featureKey: 'overview' },
+];
+
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -120,6 +124,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setActiveApp('url-shortener');
     } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
         setActiveApp('qr-code-maker');
+    } else if (pathname.startsWith('/dashboard/seo')) {
+        setActiveApp('seo-suite');
     } else {
         setActiveApp('whatsapp');
     }
@@ -168,6 +174,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       ? urlShortenerMenuItems
       : activeApp === 'qr-code-maker'
       ? qrCodeMakerMenuItems
+      : activeApp === 'seo-suite'
+      ? seoMenuItems
       : wachatMenuItems; 
 
   return (
@@ -222,6 +230,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right">Instagram Manager</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Link
+                    href="/dashboard/seo"
+                    className={cn(
+                        'p-3 mx-2 rounded-lg transition-colors',
+                        activeApp === 'seo-suite'
+                        ? 'bg-red-600 text-white'
+                        : 'bg-card text-red-600 hover:bg-accent'
+                    )}
+                    >
+                    <SeoIcon className="h-6 w-6" />
+                    </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">SEO Suite</TooltipContent>
             </Tooltip>
             <Separator className="w-2/3 my-1 bg-border/50"/>
             <Tooltip>
@@ -288,7 +312,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     item.href === '/dashboard/instagram/feed' ||
                     item.href === '/dashboard/url-shortener' ||
                     item.href === '/dashboard/qr-code-maker' ||
-                    item.href === '/dashboard/facebook/all-projects';
+                    item.href === '/dashboard/facebook/all-projects' ||
+                    item.href === '/dashboard/seo';
 
               const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
 
