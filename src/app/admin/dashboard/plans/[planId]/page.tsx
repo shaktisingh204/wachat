@@ -19,6 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeft, LoaderCircle, Save } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { planFeatureMap } from '@/lib/plans';
 
 const initialState = { message: null, error: null };
 
@@ -31,27 +32,6 @@ function SubmitButton() {
         </Button>
     )
 }
-
-const features: { id: keyof PlanFeaturePermissions, name: string }[] = [
-    { id: 'campaigns', name: 'Broadcast Campaigns' },
-    { id: 'liveChat', name: 'Live Chat' },
-    { id: 'contacts', name: 'Contact Management' },
-    { id: 'templates', name: 'Message Templates' },
-    { id: 'catalog', name: 'Product Catalog' },
-    { id: 'flowBuilder', name: 'Flow Builder' },
-    { id: 'metaFlows', name: 'Meta Flows' },
-    { id: 'whatsappAds', name: 'WhatsApp Ads' },
-    { id: 'urlShortener', name: 'URL Shortener' },
-    { id: 'qrCodeMaker', name: 'QR Code Maker' },
-    { id: 'webhooks', name: 'Webhooks Page' },
-    { id: 'apiAccess', name: 'API Access' },
-    { id: 'settingsBroadcast', name: 'Broadcast Settings Tab' },
-    { id: 'settingsAutoReply', name: 'Auto-Reply Settings Tab' },
-    { id: 'settingsCannedMessages', name: 'Canned Messages Tab' },
-    { id: 'settingsAgentsRoles', name: 'Agents & Roles Tab' },
-    { id: 'settingsCompliance', name: 'Compliance Settings Tab' },
-    { id: 'settingsUserAttributes', name: 'User Attributes Tab' },
-];
 
 export default function PlanEditorPage() {
     const params = useParams();
@@ -186,7 +166,7 @@ export default function PlanEditorPage() {
                     <CardHeader><CardTitle>Enabled Features</CardTitle></CardHeader>
                     <CardContent className="space-y-3">
                         <div className="grid grid-cols-2 gap-3">
-                        {features.map(feature => (
+                        {planFeatureMap.map(feature => (
                             <div key={feature.id} className="flex items-center space-x-3">
                                 <Checkbox id={feature.id} name={feature.id} defaultChecked={(plan?.features as any)?.[feature.id] ?? true} />
                                 <Label htmlFor={feature.id} className="font-normal">{feature.name}</Label>
