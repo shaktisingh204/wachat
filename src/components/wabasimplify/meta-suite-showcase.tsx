@@ -89,7 +89,7 @@ export const MetaSuiteShowcase = () => {
                                 </p>
                             </div>
                             <div className="lg:w-2/3 p-4 rounded-lg bg-background/30 w-full flex justify-center">
-                               <Card className="w-full max-w-lg shadow-xl animate-fade-in-up">
+                               <Card className="w-full max-w-lg shadow-xl animate-fade-in-up card-gradient card-gradient-green">
                                     <CardHeader><CardTitle>Create New Post</CardTitle></CardHeader>
                                     <CardContent className="space-y-4">
                                         <Textarea placeholder="What's on your mind?" className="h-32"/>
@@ -118,7 +118,7 @@ export const MetaSuiteShowcase = () => {
                             </div>
                             <div className="lg:w-2/3 p-4 rounded-lg bg-background/30 w-full flex justify-center">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
-                                    <Card className="animate-fade-in-up" style={{animationDelay: '0.2s'}}>
+                                    <Card className="animate-fade-in-up card-gradient card-gradient-blue" style={{animationDelay: '0.2s'}}>
                                         <Image src="https://placehold.co/600x400.png" width={300} height={200} alt="post" className="rounded-t-lg" data-ai-hint="nature landscape" />
                                         <CardContent className="p-2 text-xs">Our new collection is here!</CardContent>
                                         <CardFooter className="p-2 flex justify-between text-xs text-muted-foreground">
@@ -126,7 +126,7 @@ export const MetaSuiteShowcase = () => {
                                             <div className="flex gap-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Edit className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash2 className="h-3 w-3"/></Button></div>
                                         </CardFooter>
                                     </Card>
-                                     <Card className="animate-fade-in-up" style={{animationDelay: '0.4s'}}>
+                                     <Card className="animate-fade-in-up card-gradient card-gradient-purple" style={{animationDelay: '0.4s'}}>
                                         <CardHeader><CardTitle className="text-sm">Scheduled</CardTitle><CardDescription className="text-xs">Tomorrow at 10 AM</CardDescription></CardHeader>
                                         <CardContent className="p-4 pt-0 text-xs text-muted-foreground">Weekly update post about our new blog article...</CardContent>
                                         <CardFooter className="p-2 flex justify-end">
