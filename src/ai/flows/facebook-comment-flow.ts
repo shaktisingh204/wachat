@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Manages AI-powered moderation and replies for Facebook comments.
@@ -7,7 +8,7 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
-export const ProcessCommentInputSchema = z.object({
+const ProcessCommentInputSchema = z.object({
   commentText: z.string().describe('The content of the Facebook comment.'),
   moderationPrompt: z
     .string()
@@ -24,7 +25,7 @@ export const ProcessCommentInputSchema = z.object({
 });
 export type ProcessCommentInput = z.infer<typeof ProcessCommentInputSchema>;
 
-export const ProcessCommentOutputSchema = z.object({
+const ProcessCommentOutputSchema = z.object({
   shouldDelete: z
     .boolean()
     .describe('Whether the comment should be deleted based on the moderation prompt.'),
