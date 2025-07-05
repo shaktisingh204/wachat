@@ -283,6 +283,19 @@ export type FacebookPost = {
     is_published?: boolean;
 };
 
+export type FacebookBroadcast = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    message: string;
+    status: 'QUEUED' | 'PROCESSING' | 'COMPLETED' | 'FAILED' | 'PARTIAL_FAILURE';
+    createdAt: Date;
+    startedAt?: Date;
+    completedAt?: Date;
+    totalRecipients: number;
+    successCount: number;
+    failedCount: number;
+};
+
 export type FacebookConversationParticipant = {
     id: string; // This is the PSID for the user
     name: string;

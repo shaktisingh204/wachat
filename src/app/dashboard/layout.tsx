@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -72,6 +71,7 @@ const facebookMenuItems = [
     { href: '/dashboard/facebook/posts', label: 'Posts', icon: Newspaper, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/scheduled', label: 'Scheduled', icon: Calendar, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/broadcasts', label: 'Broadcasts', icon: Send, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/post-randomizer', label: 'Post Randomizer', icon: Repeat, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/auto-reply', label: 'Auto-Reply', icon: MessageSquareReply, featureKey: 'whatsappAds' },
