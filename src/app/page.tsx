@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { WhatsAppIcon, FacebookIcon as FacebookAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { MetaSuiteShowcase } from '@/components/wabasimplify/meta-suite-showcase';
 
 const AppShowcase = ({ title, description, children, className }: { title: React.ReactNode, description: string, children: React.ReactNode, className?: string }) => (
     <div className={cn("space-y-8 animate-fade-in", className)}>
@@ -599,37 +600,7 @@ export default function HomePage() {
       case 'whatsapp':
         return <WhatsAppShowcase />;
       case 'facebook':
-        return (
-            <AppShowcase 
-                title="The Meta Suite" 
-                description="A unified toolkit to manage your Facebook and Instagram marketing, messaging, and advertising."
-            >
-                <OverviewFeatureCard 
-                    icon={Megaphone} 
-                    title="Facebook Ads" 
-                    description="Create and manage 'Click to WhatsApp' ad campaigns directly from the dashboard." 
-                    gradient="card-gradient-blue" 
-                />
-                <OverviewFeatureCard 
-                    icon={Newspaper} 
-                    title="Content Management" 
-                    description="Schedule and publish posts to both your Facebook Page and Instagram profile." 
-                    gradient="card-gradient-purple" 
-                />
-                <OverviewFeatureCard 
-                    icon={MessageSquare} 
-                    title="Unified Inbox" 
-                    description="Engage with customers from both Messenger and Instagram DMs in one place." 
-                    gradient="card-gradient-orange" 
-                />
-                <OverviewFeatureCard 
-                    icon={Users} 
-                    title="Audience Tools" 
-                    description="Build and manage custom audiences for targeted advertising campaigns across Meta." 
-                    gradient="card-gradient-green" 
-                />
-            </AppShowcase>
-        );
+        return <MetaSuiteShowcase />;
       case 'url-shortener':
          return (
             <AppShowcase title="Powerful URL Shortener" description="Create, manage, and track short links with our enterprise-grade toolkit.">
