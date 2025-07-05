@@ -728,3 +728,43 @@ export type PageInsights = {
     pageReach: number;
     postEngagement: number;
 };
+
+// --- SEO Suite Types ---
+
+export type BrandMention = {
+    source: 'Google Alerts' | 'Reddit' | 'Twitter' | 'News';
+    author: string;
+    content: string;
+    url: string;
+    sentiment: 'Positive' | 'Neutral' | 'Negative';
+    date: Date;
+};
+
+export type KeywordData = {
+    keyword: string;
+    position: number;
+    volume: number;
+};
+
+export type TrafficData = {
+    date: string;
+    organic: number;
+    social: number;
+    direct: number;
+};
+
+export type SiteMetrics = {
+    domainAuthority: number;
+    linkingDomains: number;
+    totalBacklinks: number;
+    toxicityScore: number;
+    trafficData: TrafficData[];
+    keywords: KeywordData[];
+};
+
+export type Backlink = {
+    sourceUrl: string;
+    anchorText: string;
+    domainAuthority: number;
+    linkType: string;
+};
