@@ -8,11 +8,13 @@ import {
   Send, Megaphone, Newspaper, MessageSquare, ArrowRight, Star, ChevronDown, Check, Users, Settings, Edit, Trash2, Calendar, ThumbsUp, Share2
 } from 'lucide-react';
 import Image from 'next/image';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '../ui/label';
+import { Switch } from '../ui/switch';
 
 const OverviewFeatureCard = ({ icon: Icon, title, description, gradient }: { icon: React.ElementType, title: string, description: string, gradient?: string }) => (
     <Card className={cn("hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient", gradient)}>
@@ -93,9 +95,11 @@ export const MetaSuiteShowcase = () => {
                                         <Textarea placeholder="What's on your mind?" className="h-32"/>
                                         <Input type="file" />
                                         <div className="flex items-center space-x-2">
-                                            <Calendar className="h-4 w-4" />
-                                            <Label>Schedule for later</Label>
-                                            <Switch />
+                                            <Switch id="schedule-switch" />
+                                            <Label htmlFor="schedule-switch" className="flex items-center gap-2">
+                                                <Calendar className="h-4 w-4" />
+                                                Schedule for later
+                                            </Label>
                                         </div>
                                     </CardContent>
                                     <CardFooter className="flex justify-end">
@@ -113,7 +117,7 @@ export const MetaSuiteShowcase = () => {
                                 </p>
                             </div>
                             <div className="lg:w-2/3 p-4 rounded-lg bg-background/30 w-full flex justify-center">
-                                <div className="grid grid-cols-2 gap-4 w-full max-w-2xl">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
                                     <Card className="animate-fade-in-up" style={{animationDelay: '0.2s'}}>
                                         <Image src="https://placehold.co/600x400.png" width={300} height={200} alt="post" className="rounded-t-lg" data-ai-hint="nature landscape" />
                                         <CardContent className="p-2 text-xs">Our new collection is here!</CardContent>
