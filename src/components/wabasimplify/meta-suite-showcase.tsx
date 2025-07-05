@@ -126,9 +126,16 @@ export const MetaSuiteShowcase = () => {
                                             <div className="flex gap-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Edit className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash2 className="h-3 w-3"/></Button></div>
                                         </CardFooter>
                                     </Card>
-                                     <Card className="animate-fade-in-up card-gradient card-gradient-purple" style={{animationDelay: '0.4s'}}>
-                                        <CardHeader><CardTitle className="text-sm">Scheduled</CardTitle><CardDescription className="text-xs">Tomorrow at 10 AM</CardDescription></CardHeader>
-                                        <CardContent className="p-4 pt-0 text-xs text-muted-foreground">Weekly update post about our new blog article...</CardContent>
+                                     <Card className="animate-fade-in-up card-gradient card-gradient-orange" style={{animationDelay: '0.4s'}}>
+                                        <CardHeader>
+                                            <div className="flex justify-between items-center">
+                                                <CardTitle className="text-sm flex items-center gap-2"><Calendar className="h-4 w-4"/>Scheduled</CardTitle>
+                                                <CardDescription className="text-xs !mt-0">Tomorrow at 10 AM</CardDescription>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent className="p-4 pt-0 text-xs text-muted-foreground">
+                                            Weekly update post about our new blog article...
+                                        </CardContent>
                                         <CardFooter className="p-2 flex justify-end">
                                             <Button size="sm" variant="secondary">Publish Now</Button>
                                         </CardFooter>
