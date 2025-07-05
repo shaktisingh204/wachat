@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -28,6 +29,8 @@ import {
     Frame,
     Maximize,
     Minimize,
+    ImageIcon,
+    Clock,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -45,8 +48,11 @@ import type { FacebookFlow, FacebookFlowNode, FacebookFlowEdge } from '@/lib/def
 import type { WithId } from 'mongodb';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 
-type NodeType = 'start' | 'text' | 'buttons' | 'input';
+type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition';
 
 type ButtonConfig = {
     id: string;
@@ -55,8 +61,11 @@ type ButtonConfig = {
 
 const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
+    { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Quick Replies', icon: ToggleRight },
     { type: 'input', label: 'Get User Input', icon: Type },
+    { type: 'delay', label: 'Add Delay', icon: Clock },
+    { type: 'condition', label: 'Add Condition', icon: GitFork },
 ];
 
 const NodePreview = ({ node }: { node: FacebookFlowNode }) => {
@@ -79,6 +88,15 @@ const NodePreview = ({ node }: { node: FacebookFlowNode }) => {
             case 'text':
             case 'input':
                 return <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text)}</p>;
+            case 'image':
+                return (
+                     <div className="space-y-1">
+                        <div className="aspect-video bg-background/50 rounded-md flex items-center justify-center">
+                            <ImageIcon className="h-8 w-8 text-foreground/20" />
+                        </div>
+                        {node.data.caption && <p className="whitespace-pre-wrap text-xs">{renderTextWithVariables(node.data.caption)}</p>}
+                    </div>
+                );
             case 'buttons':
                 return (
                     <div className="space-y-2">
@@ -124,14 +142,15 @@ const NodeComponent = ({
 }) => {
     const BlockIcon = [...blockTypes, {type: 'start', label: 'Start', icon: Play}].find(b => b.type === node.type)?.icon || MessageSquare;
 
-    const Handle = ({ position, id }: { position: 'left' | 'right', id: string }) => (
+    const Handle = ({ position, id, style }: { position: 'left' | 'right', id: string, style?: React.CSSProperties }) => (
         <div 
             id={id}
             data-handle-pos={position}
+            style={style}
             className={cn(
                 "absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10",
                 position === 'left' && "-left-2 top-1/2 -translate-y-1/2",
-                position === 'right' && "-right-2 top-1/2 -translate-y-1/2",
+                position === 'right' && "-right-2",
             )} 
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); onHandleClick(e, node.id, id); }}
@@ -151,10 +170,31 @@ const NodeComponent = ({
                     <CardTitle className="text-sm font-medium">{node.data.label}</CardTitle>
                 </CardHeader>
                 <NodePreview node={node} />
+                 {node.type === 'condition' && (
+                    <CardContent className="p-3 pt-0 text-xs text-muted-foreground">
+                        <div className="flex justify-between items-center"><span>Yes</span></div>
+                        <Separator className="my-1"/>
+                        <div className="flex justify-between items-center"><span>No</span></div>
+                    </CardContent>
+                )}
             </Card>
 
-            {node.type !== 'start' && <Handle position="left" id={`${node.id}-input`} />}
-            <Handle position="right" id={`${node.id}-output`} />
+            {node.type !== 'start' && <Handle position="left" id={`${node.id}-input`} style={{top: '50%', transform: 'translateY(-50%)'}} />}
+            
+            {node.type === 'condition' ? (
+                <>
+                    <Handle position="right" id={`${node.id}-output-yes`} style={{ top: '33.33%', transform: 'translateY(-50%)' }} />
+                    <Handle position="right" id={`${node.id}-output-no`} style={{ top: '66.67%', transform: 'translateY(-50%)' }} />
+                </>
+            ) : node.type === 'buttons' ? (
+                (node.data.buttons || []).map((btn: ButtonConfig, index: number) => {
+                    const totalButtons = node.data.buttons.length;
+                    const topPosition = totalButtons > 1 ? `${(100 / (totalButtons + 1)) * (index + 1)}%` : '50%';
+                    return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition, transform: 'translateY(-50%)' }} />;
+                })
+            ) : (
+                <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />
+            )}
         </div>
     );
 };
@@ -206,6 +246,19 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                 );
             case 'text':
                 return <Textarea id="text-content" placeholder="Enter your message here..." value={selectedNode.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} className="h-32" />;
+             case 'image':
+                 return (
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="image-url">Image URL</Label>
+                            <Input id="image-url" placeholder="https://example.com/image.png" value={selectedNode.data.imageUrl || ''} onChange={(e) => handleDataChange('imageUrl', e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="image-caption">Caption (Optional)</Label>
+                            <Textarea id="image-caption" placeholder="A caption for your image..." value={selectedNode.data.caption || ''} onChange={(e) => handleDataChange('caption', e.target.value)} />
+                        </div>
+                    </div>
+                );
             case 'buttons':
                  return (
                     <div className="space-y-4">
@@ -246,6 +299,39 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                         </div>
                     </div>
                  );
+            case 'delay':
+                return (
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                             <Label htmlFor="delay-seconds">Delay (seconds)</Label>
+                             <Input id="delay-seconds" type="number" min="1" value={selectedNode.data.delaySeconds || 1} onChange={(e) => handleDataChange('delaySeconds', parseFloat(e.target.value))} />
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Switch id="typing-indicator" checked={selectedNode.data.showTyping} onCheckedChange={(checked) => handleDataChange('showTyping', checked)} />
+                            <Label htmlFor="typing-indicator">Show typing indicator</Label>
+                        </div>
+                    </div>
+                );
+             case 'condition':
+                return (
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>Condition Type</Label>
+                            <RadioGroup value={selectedNode.data.conditionType || 'variable'} onValueChange={(val) => handleDataChange('conditionType', val)} className="flex gap-4 pt-1">
+                                <div className="flex items-center space-x-2"><RadioGroupItem value="variable" id="type-variable" /><Label htmlFor="type-variable" className="font-normal">Variable</Label></div>
+                                <div className="flex items-center space-x-2"><RadioGroupItem value="user_response" id="type-user-response" /><Label htmlFor="type-user-response" className="font-normal">User Response</Label></div>
+                            </RadioGroup>
+                            <p className="text-xs text-muted-foreground">"User Response" will pause the flow and wait for the user's next message.</p>
+                        </div>
+
+                        {(selectedNode.data.conditionType === 'variable' || !selectedNode.data.conditionType) && (
+                            <div className="space-y-2"><Label htmlFor="condition-variable">Variable to Check</Label><Input id="condition-variable" placeholder="e.g., {{user_name}}" value={selectedNode.data.variable || ''} onChange={(e) => handleDataChange('variable', e.target.value)} /></div>
+                        )}
+
+                        <div className="space-y-2"><Label htmlFor="condition-operator">Operator</Label><Select value={selectedNode.data.operator || 'equals'} onValueChange={(val) => handleDataChange('operator', val)}><SelectTrigger id="condition-operator"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Does not equal</SelectItem><SelectItem value="contains">Contains</SelectItem><SelectItem value="is_one_of">Is one of (comma-sep)</SelectItem><SelectItem value="is_not_one_of">Is not one of (comma-sep)</SelectItem></SelectContent></Select></div>
+                        <div className="space-y-2"><Label htmlFor="condition-value">Value to Compare Against</Label><Input id="condition-value" placeholder="e.g., confirmed" value={selectedNode.data.value || ''} onChange={(e) => handleDataChange('value', e.target.value)} /></div>
+                    </div>
+                );
             default:
                 return <p className="text-sm text-muted-foreground italic">No properties to configure for this block type.</p>;
         }
@@ -349,6 +435,49 @@ const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number
     const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
     return path;
 };
+
+const getNodeHandlePosition = (node: FacebookFlowNode, handleId: string) => {
+    if (!node || !handleId) return null;
+
+    const x = node.position.x;
+    const y = node.position.y;
+    
+    // Consistent height for simple nodes
+    let nodeHeight = 60; 
+    
+    if (node.type === 'condition') nodeHeight = 80;
+    if (node.type === 'buttons') {
+        const buttonCount = node.data.buttons?.length || 1;
+        nodeHeight = 60 + (buttonCount * 20); // Base height + height per button
+    }
+
+
+    if (handleId.endsWith('-input')) {
+        return { x: x, y: y + 30 }; // Consistent input position
+    }
+    if (handleId.endsWith('-output-main')) {
+        return { x: x + NODE_WIDTH, y: y + 30 };
+    }
+    if (handleId.endsWith('-output-yes')) {
+        return { x: x + NODE_WIDTH, y: y + nodeHeight * (1/3) };
+    }
+    if (handleId.endsWith('-output-no')) {
+        return { x: x + NODE_WIDTH, y: y + nodeHeight * (2/3) };
+    }
+    if (handleId.includes('-btn-')) {
+        const buttonIndex = parseInt(handleId.split('-btn-')[1], 10);
+        const totalButtons = node.data.buttons.length;
+        const topPosition = totalButtons > 1 ? (60 + (nodeHeight - 60) / (totalButtons + 1) * (buttonIndex + 1)) : 60 + (nodeHeight - 60) / 2;
+        return { x: x + NODE_WIDTH, y: y + topPosition };
+    }
+    
+    // Fallback for generic output handles from older data structures
+    if (handleId.includes('output')) {
+        return { x: x + NODE_WIDTH, y: y + 30 };
+    }
+    
+    return null;
+}
 
 export default function FacebookFlowBuilderPage() {
     const { toast } = useToast();
@@ -529,27 +658,13 @@ export default function FacebookFlowBuilderPage() {
         }
     }
 
-    const getNodeHandlePosition = (node: FacebookFlowNode, handleId: string) => {
-        if (!node || !handleId) return null;
-        const x = node.position.x;
-        const y = node.position.y;
-        
-        if (handleId.endsWith('-input')) {
-            return { x: x, y: y + NODE_HEIGHT / 2 };
-        }
-        if (handleId.endsWith('-output')) {
-            return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT / 2 };
-        }
-        return null;
-    }
-
     const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
         e.preventDefault();
         e.stopPropagation();
 
         if (!viewportRef.current) return;
         
-        const isOutputHandle = handleId.endsWith('-output');
+        const isOutputHandle = handleId.includes('output') || handleId.includes('-btn-');
 
         if (isOutputHandle) {
             const sourceNode = nodes.find(n => n.id === nodeId);
@@ -566,12 +681,23 @@ export default function FacebookFlowBuilderPage() {
             }
 
             const newEdge: FacebookFlowEdge = {
-                id: `edge-${connecting.sourceNodeId}-${nodeId}`,
+                id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`,
                 source: connecting.sourceNodeId,
                 target: nodeId,
+                sourceHandle: connecting.sourceHandleId,
+                targetHandle: handleId
             };
             
-            setEdges(prev => [...prev.filter(edge => edge.source !== connecting.sourceNodeId), newEdge]);
+            const edgesWithoutExistingTarget = edges.filter(edge => !(edge.target === nodeId && edge.targetHandle === handleId));
+            
+            const sourceHasSingleOutput = !connecting.sourceHandleId.includes('btn-') && !connecting.sourceHandleId.includes('output-yes') && !connecting.sourceHandleId.includes('output-no');
+            if (sourceHasSingleOutput) {
+                const edgesWithoutExistingSource = edgesWithoutExistingTarget.filter(e => e.source !== connecting.sourceNodeId);
+                setEdges([...edgesWithoutExistingSource, newEdge]);
+            } else {
+                setEdges([...edgesWithoutExistingTarget, newEdge]);
+            }
+            
             setConnecting(null);
         }
     };
@@ -727,8 +853,8 @@ export default function FacebookFlowBuilderPage() {
                                             const targetNode = nodes.find(n => n.id === edge.target);
                                             if(!sourceNode || !targetNode) return null;
                                             
-                                            const sourcePos = getNodeHandlePosition(sourceNode, `${edge.source}-output`);
-                                            const targetPos = getNodeHandlePosition(targetNode, `${edge.target}-input`);
+                                            const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`);
+                                            const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`);
                                             if (!sourcePos || !targetPos) return null;
 
                                             return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
