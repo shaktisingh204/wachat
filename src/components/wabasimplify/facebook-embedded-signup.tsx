@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -26,7 +27,7 @@ interface FacebookEmbeddedSignupProps {
 export function FacebookEmbeddedSignup({ appId, configId, projectId, onSuccess }: FacebookEmbeddedSignupProps) {
   const [sdkLoaded, setSdkLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { toast } = useToast();
+  const { toast } } = useToast();
   const router = useRouter();
 
   useEffect(() => {
@@ -59,7 +60,7 @@ export function FacebookEmbeddedSignup({ appId, configId, projectId, onSuccess }
       return;
     }
     
-    const scopes = 'ads_management,pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights';
+    const scopes = 'ads_management,pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights,pages_manage_engagement';
 
     window.FB.login(
       function (response: any) {
@@ -119,3 +120,5 @@ export function FacebookEmbeddedSignup({ appId, configId, projectId, onSuccess }
     </Button>
   );
 }
+
+    

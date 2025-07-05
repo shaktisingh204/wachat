@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { getFacebookPosts } from '@/app/actions/facebook.actions';
+import { getFacebookPosts, handleLikeObject } from '@/app/actions/facebook.actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Link as LinkIcon, Newspaper, ExternalLink, Edit, Trash2, Video, Image as ImageIcon, ThumbsUp, MessageCircle, Share2, CornerUpRight } from 'lucide-react';
@@ -16,16 +17,34 @@ import { UpdatePostDialog } from '@/components/wabasimplify/update-post-dialog';
 import { DeletePostButton } from '@/components/wabasimplify/delete-post-button';
 import { AddThumbnailDialog } from '@/components/wabasimplify/add-thumbnail-dialog';
 import { CrosspostDialog } from '@/components/wabasimplify/crosspost-dialog';
+import { ViewCommentsDialog } from '@/components/wabasimplify/view-comments-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, projectId: string, onActionComplete: () => void }) {
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
     const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
     const [isCrosspostOpen, setIsCrosspostOpen] = useState(false);
+    const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+    const [isLiking, startLikingTransition] = useTransition();
+    const { toast } = useToast();
+
     const isVideo = !!post.object_id;
     
     const reactionCount = post.reactions?.summary?.total_count || 0;
     const commentCount = post.comments?.summary?.total_count || 0;
     const shareCount = post.shares?.count || 0;
+
+    const onLike = () => {
+        startLikingTransition(async () => {
+            const result = await handleLikeObject(post.id, projectId);
+            if (!result.success) {
+                toast({ title: "Error", description: "Could not like this post.", variant: "destructive" });
+            } else {
+                 toast({ title: "Liked!", description: "You have liked this post." });
+                 onActionComplete();
+            }
+        });
+    };
 
 
     return (
@@ -37,6 +56,15 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
                 projectId={projectId}
                 onPostUpdated={onActionComplete}
             />
+            {isCommentsOpen && (
+                <ViewCommentsDialog
+                    isOpen={isCommentsOpen}
+                    onOpenChange={setIsCommentsOpen}
+                    post={post}
+                    projectId={projectId}
+                    onActionComplete={onActionComplete}
+                />
+            )}
             {isVideo && post.object_id && (
                 <>
                 <AddThumbnailDialog
@@ -68,13 +96,13 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
                 </CardContent>
                 <div className="flex justify-between items-center text-xs text-muted-foreground px-4 pb-2">
                      <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1"><ThumbsUp className="h-3 w-3"/> {reactionCount}</span>
-                        <span className="flex items-center gap-1"><MessageCircle className="h-3 w-3"/> {commentCount}</span>
+                        <Button variant="ghost" size="sm" className="h-auto p-1" onClick={() => setIsCommentsOpen(true)}><MessageCircle className="h-3 w-3 mr-1"/> {commentCount}</Button>
                         <span className="flex items-center gap-1"><Share2 className="h-3 w-3"/> {shareCount}</span>
                     </div>
                     <span>{formatDistanceToNow(new Date(post.created_time), { addSuffix: true })}</span>
                 </div>
                 <CardFooter className="flex justify-end items-center gap-1 p-2 pt-0 border-t mt-2">
+                    <Button variant="ghost" size="sm" className="h-7" onClick={onLike} disabled={isLiking}><ThumbsUp className="h-3 w-3 mr-1"/> Like ({reactionCount})</Button>
                     <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsUpdateOpen(true)}><Edit className="h-3 w-3" /></Button>
                     <DeletePostButton postId={post.id} projectId={projectId} onPostDeleted={onActionComplete} />
                     {isVideo && (
@@ -83,7 +111,7 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsCrosspostOpen(true)}><CornerUpRight className="h-3 w-3"/></Button>
                         </>
                     )}
-                    <Button asChild variant="outline" size="sm">
+                    <Button asChild variant="outline" size="sm" className="h-7">
                         <a href={post.permalink_url} target="_blank" rel="noopener noreferrer">
                             <ExternalLink className="mr-2 h-3 w-3" /> View
                         </a>
@@ -186,3 +214,5 @@ export default function PagePostsPage() {
         </div>
     );
 }
+
+    
