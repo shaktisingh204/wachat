@@ -113,7 +113,7 @@ export default function AdsManagerPage() {
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Megaphone/> Ads Manager</h1>
-                        <p className="text-muted-foreground">Create and manage your "Click to WhatsApp" ad campaigns for project: {project?.name}</p>
+                        <p className="text-muted-foreground">Create and manage your "Click to WhatsApp" ad campaigns.</p>
                     </div>
                     <Button onClick={() => setIsCreateAdOpen(true)} disabled={!hasMarketingSetup}>
                         <PlusCircle className="mr-2 h-4 w-4" />
