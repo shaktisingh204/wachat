@@ -2,7 +2,7 @@
 
 import {
   Heading1, Heading2, Pilcrow, Captions, Type, Newspaper, Calendar, CalendarDays, ChevronDownSquare, Radio, ListChecks, Tags,
-  Image as ImageIcon, GalleryVertical, Camera, FileUp, Hand, Footprints, Link as LinkIcon, List as ListIcon, GitBranch, Switch as SwitchIcon
+  Image as ImageIcon, GalleryVertical, Camera, FileUp, Hand, Footprints, Link as LinkIcon, List as ListIcon, GitBranch, ToggleRight as SwitchIcon
 } from 'lucide-react';
 
 export type DeclarativeUIComponent = {
