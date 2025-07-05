@@ -936,11 +936,8 @@ export async function getFacebookChatInitialData(projectId: string): Promise<{
     };
 }
 
-export async function handleUpdateCommentAutoReply(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function handleUpdateCommentAutoReplySettings(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const projectId = formData.get('projectId') as string;
-    const enabled = formData.get('enabled') === 'on';
-    const replyText = formData.get('replyText') as string;
-
     if (!projectId) {
         return { success: false, error: 'Project ID is missing.' };
     }
@@ -950,20 +947,23 @@ export async function handleUpdateCommentAutoReply(prevState: any, formData: For
         return { success: false, error: 'Access denied or project not found.' };
     }
     
-    if (enabled && !replyText) {
-        return { success: false, error: 'Reply text cannot be empty when auto-reply is enabled.' };
-    }
-
     try {
-        const { db } = await connectToDatabase();
-        const settings: FacebookCommentAutoReplySettings = { enabled, replyText };
+        const settings: FacebookCommentAutoReplySettings = {
+            enabled: formData.get('enabled') === 'on',
+            replyMode: formData.get('replyMode') as 'static' | 'ai',
+            staticReplyText: formData.get('staticReplyText') as string,
+            aiReplyPrompt: formData.get('aiReplyPrompt') as string,
+            moderationEnabled: formData.get('moderationEnabled') === 'on',
+            moderationPrompt: formData.get('moderationPrompt') as string,
+        };
         
+        const { db } = await connectToDatabase();
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
             { $set: { facebookCommentAutoReply: settings } }
         );
 
-        revalidatePath('/dashboard/facebook/settings');
+        revalidatePath('/dashboard/facebook/auto-reply');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };

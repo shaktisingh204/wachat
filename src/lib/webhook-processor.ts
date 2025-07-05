@@ -9,6 +9,7 @@ import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
 import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelligent-translate-flow';
 import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template } from './definitions';
 import { getErrorMessage } from './utils';
+import { processFacebookComment } from '@/ai/flows/facebook-comment-flow';
 
 const BATCH_SIZE = 1000;
 
@@ -1139,24 +1140,70 @@ export async function processCommentWebhook(db: Db, project: WithId<Project>, co
     }
 
     const settings = project.facebookCommentAutoReply;
-    if (!settings?.enabled || !settings.replyText) {
+    if (!settings?.enabled) {
         return;
     }
-
-    // The objectId for replying to a comment is the comment_id itself.
+    
     const commentId = commentData.comment_id;
-    if (!commentId) {
-        console.error("Webhook processor: comment_id missing in comment webhook payload.", commentData);
+    const commentText = commentData.message;
+
+    if (!commentId || !commentText) {
+        console.error("Webhook processor: comment_id or message missing in comment webhook payload.", commentData);
         return;
     }
 
-    try {
-        await axios.post(`https://graph.facebook.com/v22.0/${commentId}/comments`, {
-            message: settings.replyText,
-            access_token: project.accessToken
-        });
-    } catch (e: any) {
-        // We log the error but don't re-throw, as failing to auto-reply shouldn't stop other webhook processing.
-        console.error(`Failed to post auto-reply to comment ${commentId} for project ${project._id}:`, getErrorMessage(e));
+    // --- AI Moderation ---
+    if (settings.moderationEnabled && settings.moderationPrompt) {
+        try {
+            const moderationResult = await processFacebookComment({
+                commentText,
+                moderationPrompt: settings.moderationPrompt,
+            });
+            
+            if (moderationResult.shouldDelete) {
+                console.log(`AI flagged comment ${commentId} for deletion. Reason: ${moderationResult.reason}`);
+                try {
+                    await axios.delete(`https://graph.facebook.com/v22.0/${commentId}`, {
+                        params: { access_token: project.accessToken }
+                    });
+                    // Comment deleted, do not proceed to reply.
+                    return;
+                } catch (e: any) {
+                    console.error(`Failed to delete comment ${commentId}:`, getErrorMessage(e));
+                    // Even if deletion fails, we probably shouldn't reply to an abusive comment.
+                    return;
+                }
+            }
+        } catch(e) {
+            console.error("AI Moderation flow failed:", getErrorMessage(e));
+        }
+    }
+
+    // --- Reply Logic ---
+    if (settings.replyMode === 'static' && settings.staticReplyText) {
+        try {
+            await axios.post(`https://graph.facebook.com/v22.0/${commentId}/comments`, {
+                message: settings.staticReplyText,
+                access_token: project.accessToken
+            });
+        } catch (e: any) {
+            console.error(`Failed to post static auto-reply to comment ${commentId}:`, getErrorMessage(e));
+        }
+    } else if (settings.replyMode === 'ai' && settings.aiReplyPrompt) {
+        try {
+            const replyResult = await processFacebookComment({
+                commentText,
+                replyPrompt: settings.aiReplyPrompt,
+            });
+
+            if (replyResult.reply) {
+                await axios.post(`https://graph.facebook.com/v22.0/${commentId}/comments`, {
+                    message: replyResult.reply,
+                    access_token: project.accessToken
+                });
+            }
+        } catch (e: any) {
+            console.error(`Failed to post AI auto-reply to comment ${commentId}:`, getErrorMessage(e));
+        }
     }
 }
