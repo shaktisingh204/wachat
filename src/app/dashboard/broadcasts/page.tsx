@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -38,6 +37,7 @@ import { RequeueBroadcastDialog } from '@/components/wabasimplify/requeue-broadc
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
+import { Separator } from '@/components/ui/separator';
 
 
 type Broadcast = {
@@ -221,6 +221,61 @@ function BroadcastPageSkeleton() {
     );
 }
 
+function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
+  const [sendingSpeed, setSendingSpeed] = useState(0);
+  const [deliverySpeed, setDeliverySpeed] = useState(0);
+
+  useEffect(() => {
+    if (!item.startedAt) {
+      setSendingSpeed(0);
+      setDeliverySpeed(0);
+      return;
+    }
+
+    const calculateSpeeds = () => {
+      const now = new Date();
+      // Use completedAt if available, otherwise use now.
+      const endTime = item.completedAt ? new Date(item.completedAt) : now;
+      const durationSeconds = (endTime.getTime() - new Date(item.startedAt!).getTime()) / 1000;
+      
+      if (durationSeconds > 0) {
+        // "Sending Speed": Rate of success/fail responses from Meta API
+        const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
+        setSendingSpeed(Math.round(totalProcessed / durationSeconds));
+        
+        // "Delivery Speed": Rate of actual delivery/read confirmations via webhook
+        const totalDeliveredOrRead = (item.deliveredCount || 0) + (item.readCount || 0);
+        setDeliverySpeed(Math.round(totalDeliveredOrRead / durationSeconds));
+      } else {
+        setSendingSpeed(0);
+        setDeliverySpeed(0);
+      }
+    };
+
+    if (item.status !== 'PROCESSING') {
+      calculateSpeeds();
+      return; // No need for an interval if the job is done
+    }
+
+    const intervalId = setInterval(calculateSpeeds, 2000); // Update every 2 seconds for active jobs
+
+    return () => clearInterval(intervalId);
+  }, [item]);
+
+  if (!item.startedAt) {
+    return <span>-</span>;
+  }
+
+  return (
+    <div className="font-mono text-xs text-muted-foreground space-y-1" title="Actual Sending / Meta Accepting / Target Limit">
+      <div>Send Speed: {sendingSpeed} msg/s</div>
+      <div>Accept Speed: {deliverySpeed} msg/s</div>
+      <div>Target Speed: {item.messagesPerSecond ?? 'N/A'} msg/s</div>
+    </div>
+  );
+}
+
+
 export default function BroadcastPage() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
@@ -345,50 +400,6 @@ export default function BroadcastPage() {
 
   const isLoadingData = isRefreshing && !project;
 
-  function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
-    const [speed, setSpeed] = useState(0);
-
-    useEffect(() => {
-        if (!item.startedAt) {
-            setSpeed(0);
-            return;
-        }
-
-        const calculateSpeed = (endTime: Date) => {
-            const duration = (endTime.getTime() - new Date(item.startedAt!).getTime()) / 1000;
-            if (duration > 0) {
-                const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
-                setSpeed(Math.round(totalProcessed / duration));
-            } else {
-                setSpeed(0);
-            }
-        };
-
-        if (item.status !== 'PROCESSING') {
-            if (item.completedAt) {
-                calculateSpeed(new Date(item.completedAt));
-            }
-            return;
-        }
-
-        const interval = setInterval(() => {
-            calculateSpeed(new Date());
-        }, 2000); // update every 2 seconds
-
-        return () => clearInterval(interval);
-    }, [item]);
-
-    if (!item.startedAt) {
-        return <span>-</span>;
-    }
-
-    return (
-        <div title="Actual sending speed (msg/s) / Target concurrency limit">
-            Rate: {speed}/{item.messagesPerSecond ?? 'N/A'} msg/s
-        </div>
-    );
-  }
-
   return (
     <>
       <div className="flex flex-col gap-8">
@@ -457,9 +468,8 @@ export default function BroadcastPage() {
                         <TableHead>Duration</TableHead>
                         <TableHead>Template / Flow</TableHead>
                         <TableHead>Delivery Stats</TableHead>
-                        <TableHead>File Name</TableHead>
-                        <TableHead>Contacts</TableHead>
-                        <TableHead>Progress</TableHead>
+                        <TableHead>File</TableHead>
+                        <TableHead>Speed (Send/Deliver/Limit)</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
@@ -479,27 +489,20 @@ export default function BroadcastPage() {
                             </TableCell>
                             <TableCell>{item.templateName}</TableCell>
                             <TableCell>
-                              <div className="font-mono text-xs">
-                                  <div>DELIVERED: {item.deliveredCount ?? 0}</div>
-                                  <div>READ: {item.readCount ?? 0}</div>
-                              </div>
+                                <div className="w-40 space-y-1">
+                                    <div className="text-xs font-mono">
+                                    <div>Sent: {item.successCount ?? 0} / {item.contactCount}</div>
+                                    <div>Delivered: {item.deliveredCount ?? 0} | Read: {item.readCount ?? 0}</div>
+                                    <div className="text-destructive">Failed: {item.errorCount ?? 0}</div>
+                                    </div>
+                                    {item.status === 'PROCESSING' && item.contactCount > 0 && (
+                                        <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-1 mt-1" />
+                                    )}
+                                </div>
                             </TableCell>
                             <TableCell>{item.fileName}</TableCell>
-                            <TableCell>{item.contactCount}</TableCell>
                             <TableCell>
-                              {item.status === 'PROCESSING' && item.contactCount > 0 ? (
-                                  <div className="w-48 space-y-1">
-                                      <div className="text-xs font-mono text-muted-foreground">
-                                          <div>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</div>
-                                          <SpeedDisplay item={item} />
-                                      </div>
-                                      <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
-                                  </div>
-                              ) : item.successCount !== undefined ? (
-                                `${item.successCount} sent, ${item.errorCount || 0} failed`
-                              ) : (
-                                '-'
-                              )}
+                                <SpeedDisplay item={item} />
                             </TableCell>
                             <TableCell>
                               <Badge variant={getStatusVariant(item)} className="capitalize">
@@ -522,7 +525,7 @@ export default function BroadcastPage() {
                                   <Button asChild variant="outline" size="sm">
                                       <Link href={`/dashboard/broadcasts/${item._id.toString()}`}>
                                           <FileText className="mr-2 h-4 w-4" />
-                                          <span>View Report</span>
+                                          <span>Report</span>
                                       </Link>
                                   </Button>
                               </div>
@@ -548,9 +551,6 @@ export default function BroadcastPage() {
                               <div className="w-full space-y-1">
                                   <div className="flex justify-between text-xs font-mono text-muted-foreground">
                                     <span>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</span>
-                                    <div className="text-right">
-                                        <SpeedDisplay item={item} />
-                                    </div>
                                   </div>
                                   <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
                               </div>
@@ -561,7 +561,9 @@ export default function BroadcastPage() {
                               <div className="flex justify-between"><span className="text-muted-foreground">Sent:</span> <span className="font-medium">{item.successCount || 0}</span></div>
                               <div className="flex justify-between"><span className="text-muted-foreground">Failed:</span> <span className="font-medium">{item.errorCount || 0}</span></div>
                               <div className="flex justify-between col-span-2"><span className="text-muted-foreground">File:</span> <span className="font-medium truncate">{item.fileName}</span></div>
-                          </div>
+                           </div>
+                           <Separator />
+                           <SpeedDisplay item={item} />
                         </CardContent>
                         <CardFooter className="flex justify-end gap-2">
                              {(item.status === 'QUEUED' || item.status === 'PROCESSING') && <StopBroadcastButton broadcastId={item._id.toString()} size="sm" />}
