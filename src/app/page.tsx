@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -590,8 +589,7 @@ export default function HomePage() {
   const appIcons = [
     { id: 'overview', icon: Home, label: 'Overview' },
     { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat Suite' },
-    { id: 'facebook', icon: FacebookAppIcon, label: 'Facebook Tools' },
-    { id: 'instagram', icon: InstagramIcon, label: 'Instagram Tools' },
+    { id: 'facebook', icon: FacebookAppIcon, label: 'Meta Suite' },
     { id: 'url-shortener', icon: LinkIcon, label: 'URL Shortener' },
     { id: 'qr-code-maker', icon: QrCode, label: 'QR Code Maker' },
   ];
@@ -601,9 +599,37 @@ export default function HomePage() {
       case 'whatsapp':
         return <WhatsAppShowcase />;
       case 'facebook':
-        return <AppShowcase title="Facebook Integration" description="Connect your Facebook assets for seamless ad management."><OverviewFeatureCard icon={Megaphone} title="Facebook Ads" description="Create and manage 'Click to WhatsApp' ad campaigns directly from the dashboard." gradient="card-gradient-blue" /><ComingSoonCard title="Audience Management" icon={Users} /><ComingSoonCard title="Page Post Sync" icon={Newspaper} /><ComingSoonCard title="Lead Form Integration" icon={FileText} /></AppShowcase>;
-      case 'instagram':
-        return <AppShowcase title="Instagram Tools" description="Manage your Instagram presence alongside your other channels."><ComingSoonCard title="Instagram DM Inbox" icon={MessageSquare} /><ComingSoonCard title="Story Replies" icon={Repeat} /><ComingSoonCard title="Post Comments" icon={Quote} /><ComingSoonCard title="Reels Management" icon={Video} /></AppShowcase>;
+        return (
+            <AppShowcase 
+                title="The Meta Suite" 
+                description="A unified toolkit to manage your Facebook and Instagram marketing, messaging, and advertising."
+            >
+                <OverviewFeatureCard 
+                    icon={Megaphone} 
+                    title="Facebook Ads" 
+                    description="Create and manage 'Click to WhatsApp' ad campaigns directly from the dashboard." 
+                    gradient="card-gradient-blue" 
+                />
+                <OverviewFeatureCard 
+                    icon={Newspaper} 
+                    title="Content Management" 
+                    description="Schedule and publish posts to both your Facebook Page and Instagram profile." 
+                    gradient="card-gradient-purple" 
+                />
+                <OverviewFeatureCard 
+                    icon={MessageSquare} 
+                    title="Unified Inbox" 
+                    description="Engage with customers from both Messenger and Instagram DMs in one place." 
+                    gradient="card-gradient-orange" 
+                />
+                <OverviewFeatureCard 
+                    icon={Users} 
+                    title="Audience Tools" 
+                    description="Build and manage custom audiences for targeted advertising campaigns across Meta." 
+                    gradient="card-gradient-green" 
+                />
+            </AppShowcase>
+        );
       case 'url-shortener':
          return (
             <AppShowcase title="Powerful URL Shortener" description="Create, manage, and track short links with our enterprise-grade toolkit.">
