@@ -208,11 +208,6 @@ export async function handleStartBroadcast(
 
     let contactCount = 0;
     
-    // This logic assumes audienceType comes from the form, which isn't present in the component.
-    // I'll keep the logic here as it's part of the original function.
-    // A future step might be to add the audienceType selector to the form.
-    const audienceType = formData.get('audienceType') as 'file' | 'tags' || 'file'; // Default to file for now
-
     if (audienceType === 'tags') {
         const contactsFromTags = await db.collection('contacts').find({
             projectId: projectObjectId,
