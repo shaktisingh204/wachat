@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -10,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { CustomAudience } from '@/lib/definitions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 function AudiencesPageSkeleton() {
     return (
@@ -87,7 +89,7 @@ export default function AudiencesPage() {
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             ) : (
-                <Card>
+                <Card className="card-gradient card-gradient-purple">
                     <CardHeader>
                         <CardTitle>Custom Audiences</CardTitle>
                         <CardDescription>A list of custom audiences in your connected ad account.</CardDescription>

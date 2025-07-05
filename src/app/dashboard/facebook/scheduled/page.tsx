@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
@@ -15,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { UpdatePostDialog } from '@/components/wabasimplify/update-post-dialog';
 import { DeletePostButton } from '@/components/wabasimplify/delete-post-button';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 function ScheduledPostCard({ post, projectId, onActionComplete }: { post: FacebookPost, projectId: string, onActionComplete: () => void }) {
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
@@ -42,7 +44,7 @@ function ScheduledPostCard({ post, projectId, onActionComplete }: { post: Facebo
                 projectId={projectId}
                 onPostUpdated={onActionComplete}
             />
-            <Card className="flex flex-col">
+            <Card className="flex flex-col card-gradient card-gradient-purple">
                 {post.full_picture && (
                     <div className="relative aspect-video">
                         <Image src={post.full_picture} alt={post.message?.substring(0, 50) || 'Facebook Post'} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="social media post"/>

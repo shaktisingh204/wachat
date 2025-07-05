@@ -19,6 +19,7 @@ import { AddThumbnailDialog } from '@/components/wabasimplify/add-thumbnail-dial
 import { CrosspostDialog } from '@/components/wabasimplify/crosspost-dialog';
 import { ViewCommentsDialog } from '@/components/wabasimplify/view-comments-dialog';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, projectId: string, onActionComplete: () => void }) {
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
@@ -83,7 +84,7 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
                 />
                 </>
             )}
-            <Card className="flex flex-col">
+            <Card className="flex flex-col card-gradient card-gradient-blue">
                 {post.full_picture && (
                     <div className="relative aspect-video">
                         <Image src={post.full_picture} alt={post.message?.substring(0, 50) || 'Facebook Post'} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="social media post"/>
