@@ -11,6 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { PermissionErrorDialog } from './permission-error-dialog';
 
 export function FacebookChatClient() {
     const router = useRouter();
@@ -24,6 +25,7 @@ export function FacebookChatClient() {
     
     const [isLoading, startLoadingTransition] = useTransition();
     const [loadingConversation, startConversationLoadTransition] = useTransition();
+    const [permissionError, setPermissionError] = useState<string | null>(null);
     
     const [projectId, setProjectId] = useState<string|null>(null);
 
@@ -31,8 +33,12 @@ export function FacebookChatClient() {
         startLoadingTransition(async () => {
             const { project: projectData, conversations: convosData, error } = await getFacebookChatInitialData(pid);
             if (error) {
-                // handle error, maybe show toast
-                console.error(error);
+                if (error.includes('permission') || error.includes('(#200)')) {
+                    setPermissionError(error);
+                } else {
+                    console.error(error);
+                }
+                setProject(projectData); // Still set project data if available
                 return;
             }
             setProject(projectData);
@@ -82,6 +88,13 @@ export function FacebookChatClient() {
             setMessages(fetchedMessages || []);
         }
     }
+    
+    const onSuccessfulReconnect = () => {
+        setPermissionError(null);
+        if (projectId) {
+            fetchInitialData(projectId);
+        }
+    }
 
     if (!projectId) {
         return (
@@ -102,34 +115,43 @@ export function FacebookChatClient() {
     }
 
     return (
-        <div className="flex flex-1 overflow-hidden h-full">
-            <div className={cn("w-full flex-col border-r md:w-1/3 lg:w-1/4", selectedConversation ? "hidden md:flex" : "flex")}>
-                <FacebookConversationList
-                    conversations={conversations}
-                    selectedConversationId={selectedConversation?.id}
-                    onSelectConversation={handleSelectConversation}
-                    isLoading={isLoading}
-                />
-            </div>
-             <div className={cn("w-full flex-col flex-1", selectedConversation ? "flex" : "hidden md:flex")}>
-                 {selectedConversation && project ? (
-                    <FacebookChatWindow
-                        key={selectedConversation.id}
-                        project={project}
-                        conversation={selectedConversation}
-                        messages={messages}
-                        isLoading={loadingConversation}
-                        onBack={() => setSelectedConversation(null)}
-                        onMessageSent={onMessageSent}
+        <>
+            <PermissionErrorDialog 
+                isOpen={!!permissionError}
+                onOpenChange={() => setPermissionError(null)}
+                error={permissionError}
+                project={project}
+                onSuccess={onSuccessfulReconnect}
+            />
+            <div className="flex flex-1 overflow-hidden h-full">
+                <div className={cn("w-full flex-col border-r md:w-1/3 lg:w-1/4", selectedConversation ? "hidden md:flex" : "flex")}>
+                    <FacebookConversationList
+                        conversations={conversations}
+                        selectedConversationId={selectedConversation?.id}
+                        onSelectConversation={handleSelectConversation}
+                        isLoading={isLoading}
                     />
-                 ) : (
-                    <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center">
-                        <MessageSquare className="h-16 w-16" />
-                        <h2 className="text-xl font-semibold">Select a conversation</h2>
-                        <p>Choose a conversation from the list to start messaging.</p>
-                    </div>
-                 )}
-             </div>
-        </div>
+                </div>
+                <div className={cn("w-full flex-col flex-1", selectedConversation ? "flex" : "hidden md:flex")}>
+                    {selectedConversation && project ? (
+                        <FacebookChatWindow
+                            key={selectedConversation.id}
+                            project={project}
+                            conversation={selectedConversation}
+                            messages={messages}
+                            isLoading={loadingConversation}
+                            onBack={() => setSelectedConversation(null)}
+                            onMessageSent={onMessageSent}
+                        />
+                    ) : (
+                        <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center">
+                            <MessageSquare className="h-16 w-16" />
+                            <h2 className="text-xl font-semibold">Select a conversation</h2>
+                            <p>Choose a conversation from the list to start messaging.</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </>
     );
 }

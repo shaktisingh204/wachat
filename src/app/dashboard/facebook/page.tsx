@@ -1,13 +1,13 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { getProjectById } from '@/app/actions';
 import { getPageDetails, getPageInsights, getFacebookPosts } from '@/app/actions/facebook.actions';
-import type { FacebookPageDetails, PageInsights, FacebookPost, FacebookComment } from '@/lib/definitions';
+import type { FacebookPageDetails, PageInsights, FacebookPost, FacebookComment, Project, WithId } from '@/lib/definitions';
 import { AlertCircle, Users, ThumbsUp, Newspaper, Megaphone, Settings, MessageSquare, Wrench, Edit, TrendingUp, Handshake, Star, Calendar } from 'lucide-react';
 import Image from 'next/image';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { EditPageDetailsDialog } from '@/components/wabasimplify/edit-page-details-dialog';
 import { Separator } from '@/components/ui/separator';
+import { PermissionErrorDialog } from '@/components/wabasimplify/permission-error-dialog';
 
 
 const StatCard = ({ title, value, icon: Icon, gradientClass }: { title: string, value: string | number, icon: React.ElementType, gradientClass?: string }) => (
@@ -100,10 +101,12 @@ function DashboardSkeleton() {
 }
 
 export default function FacebookDashboardPage() {
+    const [project, setProject] = useState<WithId<Project> | null>(null);
     const [pageDetails, setPageDetails] = useState<FacebookPageDetails | null>(null);
     const [insights, setInsights] = useState<PageInsights | null>(null);
     const [posts, setPosts] = useState<FacebookPost[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const [permissionError, setPermissionError] = useState<string | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [projectId, setProjectId] = useState<string | null>(null);
     const [isEditOpen, setIsEditOpen] = useState(false);
@@ -112,15 +115,31 @@ export default function FacebookDashboardPage() {
     const fetchPageData = useCallback(() => {
         if (projectId) {
             startLoading(async () => {
+                const projectData = await getProjectById(projectId);
+                setProject(projectData);
+                if (!projectData) {
+                    setError("Project not found or you don't have access.");
+                    return;
+                }
+                
                 const [detailsResult, insightsResult, postsResult] = await Promise.all([
                     getPageDetails(projectId),
                     getPageInsights(projectId),
                     getFacebookPosts(projectId)
                 ]);
 
-                if (detailsResult.error) setError(detailsResult.error);
-                else if (detailsResult.page) setPageDetails(detailsResult.page);
+                const firstError = detailsResult.error || insightsResult.error || postsResult.error;
 
+                if (firstError) {
+                     if (firstError.includes('permission') || firstError.includes('(#100)') || firstError.includes('(#200)')) {
+                        setPermissionError(firstError);
+                        setError(null);
+                    } else {
+                        setError(firstError);
+                    }
+                }
+
+                if (detailsResult.page) setPageDetails(detailsResult.page);
                 if (insightsResult.insights) setInsights(insightsResult.insights);
                 if (postsResult.posts) setPosts(postsResult.posts);
             });
@@ -161,8 +180,13 @@ export default function FacebookDashboardPage() {
         
         return { topPosts: calculatedTopPosts, recentComments: allComments };
     }, [posts]);
+    
+    const onSuccessfulReconnect = () => {
+        setPermissionError(null);
+        setActionCounter(p => p + 1);
+    }
 
-    if (isLoading && !pageDetails) return <DashboardSkeleton />;
+    if (isLoading && !pageDetails && !error && !permissionError) return <DashboardSkeleton />;
 
     if (!projectId) {
          return (
@@ -186,13 +210,31 @@ export default function FacebookDashboardPage() {
          )
     }
 
-    if (!pageDetails) {
-        return <p>No page details available.</p>;
+    if (!pageDetails && !isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center h-full">
+                <PermissionErrorDialog 
+                    isOpen={!!permissionError}
+                    onOpenChange={() => setPermissionError(null)}
+                    error={permissionError}
+                    project={project}
+                    onSuccess={onSuccessfulReconnect}
+                />
+                 <p className="text-muted-foreground">No page details available. This may be due to missing permissions.</p>
+            </div>
+        )
     }
 
 
     return (
         <>
+            <PermissionErrorDialog 
+                isOpen={!!permissionError}
+                onOpenChange={() => setPermissionError(null)}
+                error={permissionError}
+                project={project}
+                onSuccess={onSuccessfulReconnect}
+            />
             {pageDetails && projectId && (
                 <EditPageDetailsDialog 
                     isOpen={isEditOpen}
@@ -272,4 +314,3 @@ export default function FacebookDashboardPage() {
         </>
     );
 }
-

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -33,7 +32,7 @@ export function FacebookEmbeddedSignup({ appId }: FacebookEmbeddedSignupProps) {
     }
 
     const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
-    const scopes = 'pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights,pages_manage_engagement';
+    const scopes = 'pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights,pages_manage_engagement,pages_messaging';
     const facebookLoginUrl = `https://www.facebook.com/v22.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
 
     return (
