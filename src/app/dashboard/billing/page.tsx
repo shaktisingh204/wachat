@@ -5,7 +5,8 @@
 import { Check, X, History } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { getSession, handleInitiatePayment, getPlans } from '@/app/actions';
+import { getSession, handleInitiatePayment } from '@/app/actions';
+import { getPlans } from '@/app/actions/plan.actions';
 import { Separator } from '@/components/ui/separator';
 import { PlanPurchaseButton } from '@/components/wabasimplify/plan-purchase-button';
 import { CreditPurchaseButton } from '@/components/wabasimplify/credit-purchase-button';

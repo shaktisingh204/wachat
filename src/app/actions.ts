@@ -2,7 +2,6 @@
 
 'use server';
 
-export * from './actions/plan.actions';
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Db, ObjectId, WithId, Filter } from 'mongodb';
@@ -2274,7 +2273,7 @@ export async function handleInitiatePayment(planId: string, projectId?: string):
     const { db } = await connectToDatabase();
     try {
         const [plan, project] = await Promise.all([
-            getPlanById(planId),
+            db.collection<Plan>('plans').findOne({ _id: new ObjectId(planId) }),
             projectId ? getProjectById(projectId) : Promise.resolve(null)
         ]);
         

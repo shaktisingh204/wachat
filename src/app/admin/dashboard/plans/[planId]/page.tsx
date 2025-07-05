@@ -5,7 +5,7 @@ import { useEffect, useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { getPlanById, savePlan } from '@/app/actions';
+import { getPlanById, savePlan } from '@/app/actions/plan.actions';
 import type { PlanFeaturePermissions, Plan } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
