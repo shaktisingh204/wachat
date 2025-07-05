@@ -345,6 +345,50 @@ export default function BroadcastPage() {
 
   const isLoadingData = isRefreshing && !project;
 
+  function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
+    const [speed, setSpeed] = useState(0);
+
+    useEffect(() => {
+        if (!item.startedAt) {
+            setSpeed(0);
+            return;
+        }
+
+        const calculateSpeed = (endTime: Date) => {
+            const duration = (endTime.getTime() - new Date(item.startedAt!).getTime()) / 1000;
+            if (duration > 0) {
+                const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
+                setSpeed(Math.round(totalProcessed / duration));
+            } else {
+                setSpeed(0);
+            }
+        };
+
+        if (item.status !== 'PROCESSING') {
+            if (item.completedAt) {
+                calculateSpeed(new Date(item.completedAt));
+            }
+            return;
+        }
+
+        const interval = setInterval(() => {
+            calculateSpeed(new Date());
+        }, 2000); // update every 2 seconds
+
+        return () => clearInterval(interval);
+    }, [item]);
+
+    if (!item.startedAt) {
+        return <span>-</span>;
+    }
+
+    return (
+        <div title="Actual sending speed (msg/s) / Target concurrency limit">
+            Rate: {speed}/{item.messagesPerSecond ?? 'N/A'} msg/s
+        </div>
+    );
+  }
+
   return (
     <>
       <div className="flex flex-col gap-8">
@@ -447,7 +491,7 @@ export default function BroadcastPage() {
                                   <div className="w-48 space-y-1">
                                       <div className="text-xs font-mono text-muted-foreground">
                                           <div>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</div>
-                                          <div title="Target sending speed in messages per second (concurrency limit)">Target Speed: {item.messagesPerSecond ?? 'N/A'} msg/s</div>
+                                          <SpeedDisplay item={item} />
                                       </div>
                                       <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
                                   </div>
@@ -505,7 +549,7 @@ export default function BroadcastPage() {
                                   <div className="flex justify-between text-xs font-mono text-muted-foreground">
                                     <span>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</span>
                                     <div className="text-right">
-                                        <div>Target Speed: {item.messagesPerSecond ?? 'N/A'} msg/s</div>
+                                        <SpeedDisplay item={item} />
                                     </div>
                                   </div>
                                   <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
