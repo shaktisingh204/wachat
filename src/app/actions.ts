@@ -12,7 +12,7 @@ import { Readable } from 'stream';
 import FormData from 'form-data';
 import axios from 'axios';
 import { translateText } from '@/ai/flows/translate-text';
-import { processSingleWebhook, handleSingleMessageEvent, processStatusUpdateBatch } from '@/lib/webhook-processor';
+import { processSingleWebhook, handleSingleMessageEvent, processStatusUpdateBatch, processIncomingMessageBatch } from '@/lib/webhook-processor';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { intelligentTranslate } from '@/ai/flows/intelligent-translate-flow';
 import { cookies } from 'next/headers';
