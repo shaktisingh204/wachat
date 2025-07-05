@@ -32,10 +32,10 @@ const OverviewFeatureCard = ({ icon: Icon, title, description, gradient }: { ico
 
 export const MetaSuiteShowcase = () => {
     const features = [
-        { icon: Newspaper, title: 'Unified Content Scheduler', description: "Plan and publish content across both Facebook and Instagram from a single, intuitive interface.", gradient: 'card-gradient-purple' },
+        { icon: Newspaper, title: 'Unified Content Scheduler', description: "Plan and publish content across both Facebook and Instagram from a single, intuitive interface.", gradient: 'card-gradient-blue' },
         { icon: Megaphone, title: 'Click-to-WhatsApp Ads', description: "Launch and monitor ad campaigns that drive conversations directly from Facebook to your WhatsApp.", gradient: 'card-gradient-blue' },
-        { icon: Users, title: 'Audience Management', description: "View your custom audiences and prepare targeted campaigns for maximum impact.", gradient: 'card-gradient-green' },
-        { icon: MessageSquare, title: 'Unified Inbox', description: "Engage with customers from Messenger and Instagram DMs in one centralized location.", gradient: 'card-gradient-orange' }
+        { icon: Users, title: 'Audience Management', description: "View your custom audiences and prepare targeted campaigns for maximum impact.", gradient: 'card-gradient-blue' },
+        { icon: MessageSquare, title: 'Unified Inbox', description: "Engage with customers from Messenger and Instagram DMs in one centralized location.", gradient: 'card-gradient-blue' }
     ];
 
     const [animationKey, setAnimationKey] = React.useState(0);
@@ -89,7 +89,7 @@ export const MetaSuiteShowcase = () => {
                                 </p>
                             </div>
                             <div className="lg:w-2/3 p-4 rounded-lg bg-background/30 w-full flex justify-center">
-                               <Card className="w-full max-w-lg shadow-xl animate-fade-in-up card-gradient card-gradient-green">
+                               <Card className="w-full max-w-lg shadow-xl animate-fade-in-up card-gradient card-gradient-blue">
                                     <CardHeader><CardTitle>Create New Post</CardTitle></CardHeader>
                                     <CardContent className="space-y-4">
                                         <Textarea placeholder="What's on your mind?" className="h-32"/>
@@ -126,7 +126,7 @@ export const MetaSuiteShowcase = () => {
                                             <div className="flex gap-1"><Button size="icon" variant="ghost" className="h-6 w-6"><Edit className="h-3 w-3"/></Button><Button size="icon" variant="ghost" className="h-6 w-6"><Trash2 className="h-3 w-3"/></Button></div>
                                         </CardFooter>
                                     </Card>
-                                     <Card className="animate-fade-in-up card-gradient card-gradient-orange" style={{animationDelay: '0.4s'}}>
+                                     <Card className="animate-fade-in-up card-gradient card-gradient-purple" style={{animationDelay: '0.4s'}}>
                                         <CardHeader>
                                             <div className="flex justify-between items-center">
                                                 <CardTitle className="text-sm flex items-center gap-2"><Calendar className="h-4 w-4"/>Scheduled</CardTitle>
