@@ -14,24 +14,30 @@ import { getProjectById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
 import type { Project, BroadcastJob, BroadcastState, Template, MetaFlow, Contact } from '@/lib/definitions';
 
-const BATCH_SIZE = 5000;
+const BATCH_SIZE = 1000;
 
 const processContactBatch = async (db: Db, broadcastId: ObjectId, project: WithId<Project>, batch: Partial<Contact>[], variablesFromColumn: boolean = true) => {
     if (batch.length === 0) return 0;
     
     let contactsToInsert = batch.map(row => {
-        const phone = row.waId || (row as any).phone;
+        let phone;
+        let variables: Record<string, any>;
+
+        if (variablesFromColumn) {
+            const keys = Object.keys(row as any);
+            phone = keys.length > 0 ? (row as any)[keys[0]] : null;
+            variables = { ...row };
+            if (keys.length > 0) delete (variables as any)[keys[0]];
+        } else {
+            phone = row.waId;
+            variables = row.variables || {};
+        }
+        
         if (!phone) return null;
         
-        let variables = row.variables || {};
-        if (variablesFromColumn) {
-            const { waId, phone: p, ...rest } = row as any;
-            variables = rest;
-        }
-
         return {
             broadcastId,
-            phone,
+            phone: String(phone).trim().replace(/\D/g, ''),
             variables,
             status: 'PENDING' as const,
             createdAt: new Date(),
@@ -54,7 +60,6 @@ const processContactBatch = async (db: Db, broadcastId: ObjectId, project: WithI
         try {
             await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false });
         } catch(err: any) {
-            // Ignore duplicate key errors which can happen with retries, but log others.
             if (err.code !== 11000) { 
                 console.warn("Bulk insert for broadcast contacts failed.", err.code);
             }
@@ -75,10 +80,10 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
             skipEmptyLines: true,
             dynamicTyping: false,
             step: (results, parser) => {
-                contactBatch.push({ phone: Object.values(results.data)[0], variables: results.data });
+                contactBatch.push(results.data);
                 if (contactBatch.length >= BATCH_SIZE) {
                     parser.pause(); 
-                    processContactBatch(db, broadcastId, project, contactBatch)
+                    processContactBatch(db, broadcastId, project, contactBatch, true)
                         .then(processedInBatch => {
                             totalProcessedCount += processedInBatch;
                             contactBatch = [];
@@ -90,7 +95,7 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
             complete: async () => {
                 try {
                      if (contactBatch.length > 0) {
-                        const processedInBatch = await processContactBatch(db, broadcastId, project, contactBatch);
+                        const processedInBatch = await processContactBatch(db, broadcastId, project, contactBatch, true);
                         totalProcessedCount += processedInBatch;
                     }
                     resolve(totalProcessedCount);
@@ -302,3 +307,5 @@ export async function handleStartBroadcast(
     return { error: getErrorMessage(e) || 'An unexpected error occurred while processing the broadcast.' };
   }
 }
+
+    
