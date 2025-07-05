@@ -195,6 +195,34 @@ export type FacebookPage = {
     tasks: string[];
 };
 
+export type FacebookPageDetails = {
+    id: string;
+    name: string;
+    about?: string;
+    category?: string;
+    fan_count?: number;
+    followers_count?: number;
+    link?: string;
+    location?: {
+        city: string;
+        country: string;
+        latitude: number;
+        longitude: number;
+        street: string;
+        zip: string;
+    };
+    phone?: string;
+    website?: string;
+    picture?: {
+        data: {
+            height: number;
+            is_silhouette: boolean;
+            url: string;
+            width: number;
+        };
+    };
+};
+
 export type CustomAudience = {
     id: string;
     name: string;
