@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -53,7 +54,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
     if (!appUrl) {
         return { success: false, error: 'Server is not configured for Facebook authentication. NEXT_PUBLIC_APP_URL is not set.' };
     }
-    const redirectUri = `${appUrl}/auth/facebook/callback`;
+    const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
 
     if (!appId || !appSecret) {
         return { success: false, error: 'Server is not configured for Facebook authentication. Please ensure NEXT_PUBLIC_FACEBOOK_APP_ID and FACEBOOK_APP_SECRET are set in your environment variables.' };

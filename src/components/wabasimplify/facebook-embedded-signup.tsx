@@ -32,7 +32,7 @@ export function FacebookEmbeddedSignup({ appId }: FacebookEmbeddedSignupProps) {
         return <Button disabled size="lg"><LoaderCircle className="mr-2 h-5 w-5 animate-spin"/>Loading...</Button>;
     }
 
-    const redirectUri = `${appUrl}/auth/facebook/callback`;
+    const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
     const scopes = 'pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights,pages_manage_engagement';
     const facebookLoginUrl = `https://www.facebook.com/v22.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
 
