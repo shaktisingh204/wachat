@@ -10,7 +10,7 @@ import FormData from 'form-data';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings } from '@/lib/definitions';
 
 
 export async function handleFacebookPageSetup(data: {
@@ -703,7 +703,7 @@ export async function getPageInsights(projectId: string): Promise<{ insights?: P
 
 export async function handlePostComment(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const projectId = formData.get('projectId') as string;
-    const objectId = formData.get('objectId') as string; // Post or Video ID
+    const objectId = formData.get('objectId') as string; // Post or Video or Comment ID
     const message = formData.get('message') as string;
 
     if (!projectId || !objectId || !message) {
@@ -935,4 +935,37 @@ export async function getFacebookChatInitialData(projectId: string): Promise<{
         conversations: conversations || [],
     };
 }
+
+export async function handleUpdateCommentAutoReply(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const enabled = formData.get('enabled') === 'on';
+    const replyText = formData.get('replyText') as string;
+
+    if (!projectId) {
+        return { success: false, error: 'Project ID is missing.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project) {
+        return { success: false, error: 'Access denied or project not found.' };
+    }
     
+    if (enabled && !replyText) {
+        return { success: false, error: 'Reply text cannot be empty when auto-reply is enabled.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const settings: FacebookCommentAutoReplySettings = { enabled, replyText };
+        
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { facebookCommentAutoReply: settings } }
+        );
+
+        revalidatePath('/dashboard/facebook/settings');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}

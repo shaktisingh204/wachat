@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Db, Filter, ObjectId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
-import { processSingleWebhook, processStatusUpdateBatch, processIncomingMessageBatch } from '@/lib/webhook-processor';
+import { processSingleWebhook, processStatusUpdateBatch, processIncomingMessageBatch, processCommentWebhook } from '@/lib/webhook-processor';
 import { revalidatePath } from 'next/cache';
 
 const getSearchableText = (payload: any): string => {
@@ -43,6 +43,11 @@ const getSearchableText = (payload: any): string => {
                 if (entry.messaging) {
                     for (const message of entry.messaging) {
                         text += ` sender:${message.sender?.id || ''} recipient:${message.recipient?.id || ''} mid:${message.message?.mid || ''}`;
+                    }
+                }
+                if(entry.changes) {
+                    for (const change of entry.changes) {
+                         text += ` field:${change.field} item:${change.value?.item} verb:${change.value?.verb} comment_id:${change.value?.comment_id}`;
                     }
                 }
             }
@@ -128,11 +133,20 @@ export async function POST(request: NextRequest) {
     });
     logId = logResult.insertedId;
 
-    // Handle Facebook Page (Messenger) webhooks
+    // Handle Facebook Page (Messenger and Feed) webhooks
     if (payload.object === 'page') {
-        if (projectId && payload.entry?.[0]?.messaging) {
-            // Revalidate the messages page to trigger a data refresh on the client.
-            revalidatePath('/dashboard/facebook/messages');
+        const entry = payload.entry?.[0];
+        if (projectId && entry?.changes) {
+            const project = await db.collection<Project>('projects').findOne({ _id: projectId });
+            if (project) {
+                for (const change of entry.changes) {
+                    if (change.field === 'feed' && change.value?.item === 'comment' && change.value?.verb === 'add') {
+                        await processCommentWebhook(db, project, change.value);
+                    } else if (change.field === 'messaging') {
+                        revalidatePath('/dashboard/facebook/messages');
+                    }
+                }
+            }
         }
         await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: null } });
         return NextResponse.json({ status: 'processed_page_event' }, { status: 200 });

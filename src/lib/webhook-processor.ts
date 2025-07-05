@@ -8,6 +8,7 @@ import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
 import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelligent-translate-flow';
 import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template } from './definitions';
+import { getErrorMessage } from './utils';
 
 const BATCH_SIZE = 1000;
 
@@ -1129,4 +1130,33 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
     }
 
     return { success: successCount, failed: results.length - successCount };
+}
+
+export async function processCommentWebhook(db: Db, project: WithId<Project>, commentData: any) {
+    // Make sure we don't reply to our own comments
+    if (commentData.from.id === project.facebookPageId) {
+        return;
+    }
+
+    const settings = project.facebookCommentAutoReply;
+    if (!settings?.enabled || !settings.replyText) {
+        return;
+    }
+
+    // The objectId for replying to a comment is the comment_id itself.
+    const commentId = commentData.comment_id;
+    if (!commentId) {
+        console.error("Webhook processor: comment_id missing in comment webhook payload.", commentData);
+        return;
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v22.0/${commentId}/comments`, {
+            message: settings.replyText,
+            access_token: project.accessToken
+        });
+    } catch (e: any) {
+        // We log the error but don't re-throw, as failing to auto-reply shouldn't stop other webhook processing.
+        console.error(`Failed to post auto-reply to comment ${commentId} for project ${project._id}:`, getErrorMessage(e));
+    }
 }
