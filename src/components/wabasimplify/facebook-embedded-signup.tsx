@@ -5,7 +5,6 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { FacebookIcon } from './custom-sidebar-components';
-import { useToast } from '@/hooks/use-toast';
 import { LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
 
