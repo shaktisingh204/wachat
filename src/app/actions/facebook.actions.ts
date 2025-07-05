@@ -5,6 +5,7 @@
 import { revalidatePath } from 'next/cache';
 import axios from 'axios';
 import { ObjectId, type WithId } from 'mongodb';
+import FormData from 'form-data';
 
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -307,7 +308,7 @@ export async function handleCreateFacebookPost(prevState: any, formData: FormDat
             if (mediaUrl) {
                 form.append('url', mediaUrl);
             } else {
-                 form.append('source', new Blob([await mediaFile.arrayBuffer()]), mediaFile.name);
+                 form.append('source', Buffer.from(await mediaFile.arrayBuffer()), { filename: mediaFile.name, contentType: mediaFile.type });
             }
         } else if (postType === 'video') {
              if (!mediaUrl && (!mediaFile || mediaFile.size === 0)) return { error: 'A video URL or file is required.' };
@@ -316,12 +317,14 @@ export async function handleCreateFacebookPost(prevState: any, formData: FormDat
              if (mediaUrl) {
                 form.append('file_url', mediaUrl);
             } else { 
-                form.append('source', new Blob([await mediaFile.arrayBuffer()]), mediaFile.name);
+                form.append('source', Buffer.from(await mediaFile.arrayBuffer()), { filename: mediaFile.name, contentType: mediaFile.type });
             }
         }
         
         await axios.post(`https://graph.facebook.com/${apiVersion}${endpoint}`, form, {
-            headers: { 'Content-Type': 'multipart/form-data' },
+            headers: { 
+                ...form.getHeaders() 
+            },
         });
 
         revalidatePath('/dashboard/facebook/posts');
