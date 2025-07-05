@@ -115,6 +115,12 @@ export type FacebookCommentAutoReplySettings = {
   moderationPrompt?: string;
 };
 
+export type PostRandomizerSettings = {
+    enabled: boolean;
+    frequencyHours: number;
+    lastPostedAt?: Date;
+};
+
 export type Project = {
     _id: ObjectId;
     userId: ObjectId;
@@ -139,6 +145,7 @@ export type Project = {
     adAccountId?: string;
     facebookPageId?: string;
     facebookCommentAutoReply?: FacebookCommentAutoReplySettings;
+    postRandomizer?: PostRandomizerSettings;
     tags?: Tag[];
     planId?: ObjectId;
     credits?: number;
@@ -764,6 +771,14 @@ export type QrCodeWithShortUrl = WithId<QrCode> & {
 export type PageInsights = {
     pageReach: number;
     postEngagement: number;
+};
+
+export type RandomizerPost = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    message: string;
+    imageUrl?: string;
+    createdAt: Date;
 };
 
 // --- SEO Suite Types ---
