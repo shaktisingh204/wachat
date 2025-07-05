@@ -106,33 +106,26 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
 
         // 5. For each page, create or update a project
         const { db } = await connectToDatabase();
-        const bulkOps = userPages.map((page: any) => {
-            const projectData = {
-                userId: new ObjectId(session.user._id),
-                name: page.name,
-                facebookPageId: page.id,
-                adAccountId: adAccountId, 
-                accessToken: longLivedToken,
-                phoneNumbers: [],
-                createdAt: new Date(),
-                messagesPerSecond: 10000,
-            };
-
-            return {
-                updateOne: {
-                    filter: { userId: new ObjectId(session.user._id), facebookPageId: page.id },
-                    update: { 
-                        $set: { 
-                            name: projectData.name, 
-                            accessToken: projectData.accessToken,
-                            adAccountId: projectData.adAccountId,
-                        },
-                        $setOnInsert: projectData,
+        const bulkOps = userPages.map((page: any) => ({
+            updateOne: {
+                filter: { userId: new ObjectId(session.user._id), facebookPageId: page.id },
+                update: {
+                    $set: {
+                        name: page.name,
+                        accessToken: longLivedToken,
+                        adAccountId: adAccountId,
                     },
-                    upsert: true,
-                }
-            };
-        });
+                    $setOnInsert: {
+                        userId: new ObjectId(session.user._id),
+                        facebookPageId: page.id,
+                        phoneNumbers: [],
+                        createdAt: new Date(),
+                        messagesPerSecond: 10000,
+                    },
+                },
+                upsert: true,
+            },
+        }));
 
         if (bulkOps.length > 0) {
             await db.collection('projects').bulkWrite(bulkOps);

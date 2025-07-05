@@ -1429,37 +1429,23 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
             const projectDoc = {
                 userId: new ObjectId(session.user._id),
                 name: waba.name,
-                wabaId: waba.id,
-                businessId: businessId,
                 accessToken: accessToken,
                 phoneNumbers: phoneNumbers,
-                createdAt: new Date(),
-                messagesPerSecond: 80,
-                planId: defaultPlan?._id,
-                credits: defaultPlan?.signupCredits || 0,
-                hasCatalogManagement: true, // Assuming if they sync this way, they want catalog features.
+                businessId: businessId,
+                hasCatalogManagement: true,
             };
 
             return {
                 updateOne: {
                     filter: { wabaId: waba.id },
                     update: { 
-                        $set: { 
-                            name: projectDoc.name,
-                            accessToken: projectDoc.accessToken,
-                            phoneNumbers: projectDoc.phoneNumbers,
-                            userId: projectDoc.userId,
-                            businessId: projectDoc.businessId,
-                            hasCatalogManagement: projectDoc.hasCatalogManagement,
-                        },
+                        $set: projectDoc,
                         $setOnInsert: {
-                             wabaId: projectDoc.wabaId,
-                             createdAt: projectDoc.createdAt,
-                             messagesPerSecond: projectDoc.messagesPerSecond,
-                             planId: projectDoc.planId,
-                             credits: projectDoc.credits,
-                             businessId: projectDoc.businessId,
-                             hasCatalogManagement: projectDoc.hasCatalogManagement,
+                             wabaId: waba.id,
+                             createdAt: new Date(),
+                             messagesPerSecond: 80,
+                             planId: defaultPlan?._id,
+                             credits: defaultPlan?.signupCredits || 0,
                         }
                     },
                     upsert: true,
@@ -3850,3 +3836,4 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
         return { success: false, error: 'Failed to update tags.' };
     }
 }
+
