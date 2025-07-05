@@ -2,7 +2,8 @@
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { getProjectById, saveRandomizerSettings, getRandomizerPosts, deleteRandomizerPost } from '@/app/actions/facebook.actions';
+import { getProjectById } from '@/app/actions';
+import { saveRandomizerSettings, getRandomizerPosts, deleteRandomizerPost } from '@/app/actions/facebook.actions';
 import type { WithId, Project, RandomizerPost, PostRandomizerSettings } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
