@@ -732,7 +732,7 @@ export type PageInsights = {
 // --- SEO Suite Types ---
 
 export type BrandMention = {
-    source: 'Google Alerts' | 'Reddit' | 'Twitter' | 'News';
+    source: 'Reddit' | 'Twitter' | 'TechCrunch' | 'Google Alerts';
     author: string;
     content: string;
     url: string;
@@ -766,5 +766,5 @@ export type Backlink = {
     sourceUrl: string;
     anchorText: string;
     domainAuthority: number;
-    linkType: string;
+    linkType: 'News' | 'Forum' | 'Blog' | 'Review';
 };
