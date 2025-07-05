@@ -3,7 +3,8 @@
 
 import { useState, useEffect, useTransition, useCallback, useRef } from 'react';
 import type { WithId } from 'mongodb';
-import { getFacebookBroadcasts, handleSendFacebookBroadcast, getProjectById } from '@/app/actions/facebook.actions';
+import { getFacebookBroadcasts, handleSendFacebookBroadcast } from '@/app/actions/facebook.actions';
+import { getProjectById } from '@/app/actions';
 import type { Project, FacebookBroadcast } from '@/lib/definitions';
 import { useActionState, useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
