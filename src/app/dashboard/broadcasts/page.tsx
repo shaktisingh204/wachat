@@ -222,12 +222,12 @@ function BroadcastPageSkeleton() {
 }
 
 function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
-  const [sendingSpeed, setSendingSpeed] = useState(0);
+  const [apiResponseSpeed, setApiResponseSpeed] = useState(0);
   const [deliverySpeed, setDeliverySpeed] = useState(0);
 
   useEffect(() => {
     if (!item.startedAt) {
-      setSendingSpeed(0);
+      setApiResponseSpeed(0);
       setDeliverySpeed(0);
       return;
     }
@@ -239,15 +239,15 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
       const durationSeconds = (endTime.getTime() - new Date(item.startedAt!).getTime()) / 1000;
       
       if (durationSeconds > 0) {
-        // "Sending Speed": Rate of success/fail responses from Meta API
+        // API Response Rate: Rate of success/fail responses from Meta API
         const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
-        setSendingSpeed(Math.round(totalProcessed / durationSeconds));
+        setApiResponseSpeed(Math.round(totalProcessed / durationSeconds));
         
-        // "Delivery Speed": Rate of actual delivery/read confirmations via webhook
+        // Final Delivery Rate: Rate of actual delivery/read confirmations via webhook
         const totalDeliveredOrRead = (item.deliveredCount || 0) + (item.readCount || 0);
         setDeliverySpeed(Math.round(totalDeliveredOrRead / durationSeconds));
       } else {
-        setSendingSpeed(0);
+        setApiResponseSpeed(0);
         setDeliverySpeed(0);
       }
     };
@@ -267,10 +267,10 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
   }
 
   return (
-    <div className="font-mono text-xs text-muted-foreground space-y-1" title="Actual Sending / Meta Accepting / Target Limit">
-      <div>Send Speed: {sendingSpeed} msg/s</div>
-      <div>Accept Speed: {deliverySpeed} msg/s</div>
-      <div>Target Speed: {item.messagesPerSecond ?? 'N/A'} msg/s</div>
+    <div className="font-mono text-xs text-muted-foreground space-y-1" title="API Response Rate / Final Delivery Rate / Concurrency Limit">
+      <div>API Response Rate: {apiResponseSpeed} msg/s</div>
+      <div>Final Delivery Rate: {deliverySpeed} msg/s</div>
+      <div>Concurrency Limit: {item.messagesPerSecond ?? 'N/A'} msg/s</div>
     </div>
   );
 }
@@ -469,7 +469,7 @@ export default function BroadcastPage() {
                         <TableHead>Template / Flow</TableHead>
                         <TableHead>Delivery Stats</TableHead>
                         <TableHead>File</TableHead>
-                        <TableHead>Speed (Send/Deliver/Limit)</TableHead>
+                        <TableHead>Speed (API/Delivery/Limit)</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
