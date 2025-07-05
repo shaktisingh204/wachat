@@ -14,67 +14,91 @@ import { getProjectById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
 import type { Project, BroadcastJob, BroadcastState, Template, MetaFlow } from '@/lib/definitions';
 
+const BATCH_SIZE = 5000;
+
+const processContactBatch = async (db: Db, broadcastId: ObjectId, project: WithId<Project>, batch: any[]) => {
+    if (batch.length === 0) return 0;
+
+    const phoneColumnHeader = Object.keys(batch[0])[0];
+    if (!phoneColumnHeader) {
+        throw new Error("CSV file appears to be missing a header row or has no columns.");
+    }
+
+    let contactsToInsert = batch.map(row => {
+        const phone = String(row[phoneColumnHeader] || '').trim();
+        if (!phone) return null;
+        const { [phoneColumnHeader]: _, ...variables } = row;
+        return {
+            broadcastId,
+            phone,
+            variables,
+            status: 'PENDING' as const,
+            createdAt: new Date(),
+        };
+    }).filter(Boolean);
+
+    if (project.optInOutSettings?.enabled === true) {
+        const allPhoneNumbers = contactsToInsert.map(c => c!.phone);
+        const optedOutContacts = await db.collection('contacts').find({
+            projectId: project._id,
+            waId: { $in: allPhoneNumbers },
+            isOptedOut: true
+        }, { projection: { waId: 1 } }).toArray();
+        const optedOutNumbersSet = new Set(optedOutContacts.map(c => c.waId));
+
+        contactsToInsert = contactsToInsert.filter(c => !optedOutNumbersSet.has(c!.phone));
+    }
+
+    if (contactsToInsert.length > 0) {
+        await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false }).catch(err => {
+            if (err.code !== 11000) { 
+                console.warn("Bulk insert for broadcast contacts failed.", err.code);
+            }
+        });
+    }
+    
+    return contactsToInsert.length;
+};
+
 
 const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId, project: WithId<Project>): Promise<number> => {
     return new Promise<number>((resolve, reject) => {
-        const allParsedContacts: any[] = [];
+        let contactBatch: any[] = [];
+        let totalProcessedCount = 0;
         
         Papa.parse(inputStream, {
             header: true,
             skipEmptyLines: true,
             dynamicTyping: false,
-            step: (results) => {
-                allParsedContacts.push(results.data as Record<string, string>);
+            step: (results, parser) => {
+                contactBatch.push(results.data as Record<string, string>);
+                if (contactBatch.length >= BATCH_SIZE) {
+                    parser.pause(); 
+                    processContactBatch(db, broadcastId, project, contactBatch)
+                        .then(processedInBatch => {
+                            totalProcessedCount += processedInBatch;
+                            contactBatch = [];
+                            parser.resume();
+                        })
+                        .catch(err => reject(err));
+                }
             },
             complete: async () => {
-                if (allParsedContacts.length === 0) {
-                    return resolve(0);
+                try {
+                     if (contactBatch.length > 0) {
+                        const processedInBatch = await processContactBatch(db, broadcastId, project, contactBatch);
+                        totalProcessedCount += processedInBatch;
+                    }
+                    resolve(totalProcessedCount);
+                } catch(e) {
+                    reject(e);
                 }
-
-                const phoneColumnHeader = Object.keys(allParsedContacts[0])[0];
-                if (!phoneColumnHeader) {
-                    return reject(new Error("File has no columns."));
-                }
-                
-                let contactsToInsert = allParsedContacts.map(row => {
-                    const phone = String(row[phoneColumnHeader] || '').trim();
-                    if (!phone) return null;
-                    const {[phoneColumnHeader]: _, ...variables} = row;
-                    return {
-                        broadcastId,
-                        phone,
-                        variables,
-                        status: 'PENDING' as const,
-                        createdAt: new Date(),
-                    };
-                }).filter(Boolean);
-
-                if (project.optInOutSettings?.enabled === true) {
-                    const allPhoneNumbers = contactsToInsert.map(c => c!.phone);
-                    const optedOutContacts = await db.collection('contacts').find({
-                        projectId: project._id,
-                        waId: { $in: allPhoneNumbers },
-                        isOptedOut: true
-                    }, { projection: { waId: 1 } }).toArray();
-                    const optedOutNumbersSet = new Set(optedOutContacts.map(c => c.waId));
-
-                    contactsToInsert = contactsToInsert.filter(c => !optedOutNumbersSet.has(c!.phone));
-                }
-
-                if (contactsToInsert.length > 0) {
-                    await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false }).catch(err => {
-                        if (err.code !== 11000) { 
-                            console.warn("Bulk insert for broadcast contacts failed.", err.code);
-                        }
-                    });
-                }
-                
-                resolve(contactsToInsert.length);
             },
             error: (error) => reject(error)
         });
     });
 };
+
 
 export async function handleStartBroadcast(
   prevState: BroadcastState,
