@@ -49,7 +49,7 @@ export async function getAdCampaigns(projectId: string): Promise<WithId<AdCampai
     if (!hasAccess) return [];
 
     try {
-        const { db } } from await connectToDatabase();
+        const { db } = await connectToDatabase();
         const ads = await db.collection<AdCampaign>('ad_campaigns')
             .find({ projectId: new ObjectId(projectId) })
             .sort({ createdAt: -1 })
