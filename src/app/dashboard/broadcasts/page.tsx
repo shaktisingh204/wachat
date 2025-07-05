@@ -58,12 +58,6 @@ type Broadcast = {
   projectMessagesPerSecond?: number;
 };
 
-type RateData = {
-    lastProcessedCount: number;
-    lastFetchTime: number;
-    rate: number;
-};
-
 const BROADCASTS_PER_PAGE = 10;
 
 function StopBroadcastButton({ broadcastId, size = 'sm' }: { broadcastId: string, size?: 'sm' | 'default' | 'lg' | 'icon' | null }) {
@@ -237,7 +231,6 @@ export default function BroadcastPage() {
   const [isRunningCron, startCronRunTransition] = useTransition();
   const { toast } = useToast();
   const router = useRouter();
-  const [sendRateData, setSendRateData] = useState<Record<string, RateData>>({});
   
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -260,30 +253,7 @@ export default function BroadcastPage() {
             setMetaFlows(metaFlowsData || []);
             setHistory(historyData.broadcasts || []);
             setTotalPages(Math.ceil(historyData.total / BROADCASTS_PER_PAGE));
-
-            const now = Date.now();
-            setSendRateData(prevData => {
-                const newData = { ...prevData };
-                (historyData.broadcasts || []).forEach(item => {
-                    const id = item._id.toString();
-                    const totalProcessed = (item.successCount ?? 0) + (item.errorCount ?? 0);
-
-                    if (item.status === 'PROCESSING') {
-                        const prevItemData = prevData[id];
-                        if (prevItemData && now > prevItemData.lastFetchTime) {
-                            const deltaTime = (now - prevItemData.lastFetchTime) / 1000;
-                            const deltaCount = totalProcessed - prevItemData.lastProcessedCount;
-                            const currentRate = deltaTime > 1 ? Math.round(deltaCount / deltaTime) : (prevItemData?.rate ?? 0);
-                            newData[id] = { lastProcessedCount: totalProcessed, lastFetchTime: now, rate: currentRate };
-                        } else if (!prevItemData) {
-                            newData[id] = { lastProcessedCount: totalProcessed, lastFetchTime: now, rate: 0 };
-                        }
-                    } else if (newData[id]) {
-                        delete newData[id];
-                    }
-                });
-                return newData;
-            });
+            
             if (showToast) {
               toast({ title: 'Refreshed', description: 'Broadcast history has been updated.' });
             }
@@ -477,8 +447,7 @@ export default function BroadcastPage() {
                                   <div className="w-48 space-y-1">
                                       <div className="text-xs font-mono text-muted-foreground">
                                           <div>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</div>
-                                          <div title="Actual measured speed">Speed: {sendRateData[item._id.toString()]?.rate ?? 0} msg/s</div>
-                                          <div title="Configured parallel task limit">Concurrency: {item.projectMessagesPerSecond ?? item.messagesPerSecond ?? 'N/A'}</div>
+                                          <div title="Target sending speed in messages per second (concurrency limit)">Target Speed: {item.messagesPerSecond ?? 'N/A'} msg/s</div>
                                       </div>
                                       <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
                                   </div>
@@ -536,8 +505,7 @@ export default function BroadcastPage() {
                                   <div className="flex justify-between text-xs font-mono text-muted-foreground">
                                     <span>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</span>
                                     <div className="text-right">
-                                        <div>Speed: {sendRateData[item._id.toString()]?.rate ?? 0} msg/s</div>
-                                        <div>Concurrency: {item.projectMessagesPerSecond ?? item.messagesPerSecond ?? 'N/A'}</div>
+                                        <div>Target Speed: {item.messagesPerSecond ?? 'N/A'} msg/s</div>
                                     </div>
                                   </div>
                                   <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
