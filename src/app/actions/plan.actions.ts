@@ -6,7 +6,15 @@ import { ObjectId, type Filter, WithId } from 'mongodb';
 import { getAdminSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Plan, PlanFeaturePermissions } from '@/lib/definitions';
-import { planFeaturesDefaults } from '@/app/actions';
+
+export const planFeaturesDefaults = {
+    overview: true, campaigns: true, liveChat: true, contacts: true, templates: true, catalog: false, flowBuilder: true,
+    metaFlows: true, whatsappAds: false, webhooks: true, settingsBroadcast: true, settingsAutoReply: true,
+    settingsMarketing: false, settingsTemplateLibrary: true, settingsCannedMessages: true, settingsAgentsRoles: true,
+    settingsCompliance: true, settingsUserAttributes: true, apiAccess: false,
+    urlShortener: true, qrCodeMaker: true, numbers: true, billing: true, notifications: true,
+    instagramFeed: false, instagramStories: false, instagramReels: false, instagramMessages: false
+};
 
 
 export async function getPlans(filter?: Filter<Plan>): Promise<WithId<Plan>[]> {
