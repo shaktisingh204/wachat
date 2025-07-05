@@ -210,6 +210,8 @@ export type FacebookFlowEdge = {
     id: string;
     source: string;
     target: string;
+    sourceHandle?: string;
+    targetHandle?: string;
 };
 
 export type FacebookFlow = {
@@ -458,7 +460,6 @@ export type Invitation = {
     projectId: ObjectId;
     projectName: string;
     inviterId: ObjectId;
-    inviterName: string;
     inviteeEmail: string;
     role: string;
     status: 'pending';
