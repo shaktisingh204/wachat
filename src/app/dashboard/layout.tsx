@@ -73,6 +73,7 @@ const facebookMenuItems = [
     { href: '/dashboard/facebook/live-studio', label: 'Live Studio', icon: Video, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/broadcasts', label: 'Broadcasts', icon: Send, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/subscribers', label: 'Subscribers', icon: Users, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/post-randomizer', label: 'Post Randomizer', icon: Repeat, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/auto-reply', label: 'Auto-Reply', icon: MessageSquareReply, featureKey: 'whatsappAds' },

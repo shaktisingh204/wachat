@@ -335,6 +335,11 @@ export type FacebookLiveStream = {
     createdAt: Date;
 };
 
+export type FacebookSubscriber = {
+  id: string; // PSID
+  name: string;
+};
+
 
 export type MetaFlow = {
     name: string;

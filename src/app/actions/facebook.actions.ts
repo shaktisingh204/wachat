@@ -10,7 +10,7 @@ import FormData from 'form-data';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber } from '@/lib/definitions';
 
 
 export async function handleFacebookPageSetup(data: {
@@ -1273,6 +1273,41 @@ export async function handleScheduleLiveStream(prevState: any, formData: FormDat
 
     } catch (e: any) {
         console.error("Failed to schedule live stream:", getErrorMessage(e));
+        return { error: getErrorMessage(e) };
+    }
+}
+
+// --- Subscriber Actions ---
+
+export async function getFacebookSubscribers(projectId: string): Promise<{ subscribers?: FacebookSubscriber[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.facebookPageId || !project.accessToken) {
+        return { error: 'Project not found or is not configured for Facebook.' };
+    }
+
+    try {
+        const { facebookPageId, accessToken } = project;
+        const allSubscribersMap = new Map<string, FacebookSubscriber>();
+        let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${facebookPageId}/conversations?fields=participants&limit=100&access_token=${accessToken}`;
+
+        while (nextUrl) {
+            const response = await axios.get(nextUrl);
+            if (response.data.error) throw new Error(getErrorMessage({ response }));
+
+            const conversations = response.data.data || [];
+            for (const convo of conversations) {
+                const participant = convo.participants?.data?.find((p: any) => p.id !== facebookPageId);
+                if (participant && !allSubscribersMap.has(participant.id)) {
+                    allSubscribersMap.set(participant.id, { id: participant.id, name: participant.name });
+                }
+            }
+            nextUrl = response.data.paging?.next;
+        }
+
+        const subscribers = Array.from(allSubscribersMap.values());
+        return { subscribers };
+
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
