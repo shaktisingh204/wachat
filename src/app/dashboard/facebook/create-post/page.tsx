@@ -102,6 +102,7 @@ export default function CreateFacebookPostPage() {
                 <form action={formAction} ref={formRef}>
                     <input type="hidden" name="projectId" value={projectId} />
                     <input type="hidden" name="postType" value={activeTab} />
+                    <input type="hidden" name="isScheduled" value={isScheduled ? 'on' : 'off'} />
                     <input type="hidden" name="scheduledDate" value={scheduledDate?.toISOString().split('T')[0]} />
 
                     <Card>
@@ -142,8 +143,8 @@ export default function CreateFacebookPostPage() {
                         <CardFooter className="flex flex-wrap items-center justify-between gap-4">
                             <div className="flex flex-col gap-4">
                                 <div className="flex items-center space-x-2">
-                                    <Switch id="isScheduled" name="isScheduled" checked={isScheduled} onCheckedChange={setIsScheduled} />
-                                    <Label htmlFor="isScheduled" className="flex items-center gap-2">
+                                    <Switch id="isScheduledSwitch" checked={isScheduled} onCheckedChange={setIsScheduled} />
+                                    <Label htmlFor="isScheduledSwitch" className="flex items-center gap-2">
                                         <Calendar className="h-4 w-4" />
                                         Schedule Post
                                     </Label>

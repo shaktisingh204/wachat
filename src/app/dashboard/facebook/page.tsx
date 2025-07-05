@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
@@ -7,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { getPageDetails, getPageInsights, getFacebookPosts } from '@/app/actions/facebook.actions';
 import type { FacebookPageDetails, PageInsights, FacebookPost, FacebookComment } from '@/lib/definitions';
-import { AlertCircle, Users, ThumbsUp, Newspaper, Megaphone, Settings, MessageSquare, Wrench, Edit, TrendingUp, Handshake, Star } from 'lucide-react';
+import { AlertCircle, Users, ThumbsUp, Newspaper, Megaphone, Settings, MessageSquare, Wrench, Edit, TrendingUp, Handshake, Star, Calendar } from 'lucide-react';
 import Image from 'next/image';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -32,6 +33,7 @@ const StatCard = ({ title, value, icon: Icon, gradientClass }: { title: string, 
 const features = [
     { href: '/dashboard/facebook/create-post', title: 'Create Post', description: 'Publish content to your page.', icon: Newspaper },
     { href: '/dashboard/facebook/posts', title: 'Manage Posts', description: 'View and manage recent posts.', icon: Newspaper },
+    { href: '/dashboard/facebook/scheduled', title: 'Scheduled Posts', description: 'Manage scheduled posts.', icon: Calendar },
     { href: '/dashboard/facebook/ads', title: 'Ads Manager', description: 'Create and monitor campaigns.', icon: Megaphone },
     { href: '/dashboard/facebook/messages', title: 'Live Chat', description: 'Engage with customers on Messenger.', icon: MessageSquare },
     { href: '/dashboard/facebook/pages', title: 'All Pages', description: 'View all connected pages.', icon: Newspaper },
@@ -270,3 +272,4 @@ export default function FacebookDashboardPage() {
         </>
     );
 }
+

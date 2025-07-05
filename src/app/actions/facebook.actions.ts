@@ -362,6 +362,7 @@ export async function handleCreateFacebookPost(prevState: any, formData: FormDat
         });
 
         revalidatePath('/dashboard/facebook/posts');
+        revalidatePath('/dashboard/facebook/scheduled');
         const successMessage = isScheduled ? 'Post scheduled successfully!' : 'Post created successfully!';
         return { message: successMessage };
 
@@ -390,6 +391,7 @@ export async function handleUpdatePost(prevState: any, formData: FormData): Prom
             access_token: project.accessToken
         });
         revalidatePath('/dashboard/facebook/posts');
+        revalidatePath('/dashboard/facebook/scheduled');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
@@ -412,6 +414,7 @@ export async function handleDeletePost(postId: string, projectId: string): Promi
             params: { access_token: project.accessToken }
         });
         revalidatePath('/dashboard/facebook/posts');
+        revalidatePath('/dashboard/facebook/scheduled');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
@@ -623,6 +626,56 @@ export async function handleLikeObject(objectId: string, projectId: string): Pro
         if (e.response?.data?.error?.code === 1705) {
              return { success: true }; // Already liked
         }
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getScheduledPosts(projectId: string): Promise<{ posts?: FacebookPost[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or is missing Facebook Page ID or access token.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/promotable_posts`, {
+            params: {
+                is_published: false,
+                fields: 'id,message,full_picture,permalink_url,created_time,scheduled_publish_time',
+                access_token: project.accessToken,
+                limit: 100,
+            }
+        });
+        
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        return { posts: response.data.data || [] };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function publishScheduledPost(postId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    if (!projectId || !postId) {
+        return { success: false, error: 'Missing required information.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied or project not configured.' };
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v22.0/${postId}`, {
+            is_published: true,
+            access_token: project.accessToken
+        });
+        revalidatePath('/dashboard/facebook/posts');
+        revalidatePath('/dashboard/facebook/scheduled');
+        return { success: true };
+    } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
