@@ -3850,12 +3850,3 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
         return { success: false, error: 'Failed to update tags.' };
     }
 }
-
-export const planFeaturesDefaults = {
-    overview: true, campaigns: true, liveChat: true, contacts: true, templates: true, catalog: false, flowBuilder: true,
-    metaFlows: true, whatsappAds: false, webhooks: true, settingsBroadcast: true, settingsAutoReply: true,
-    settingsMarketing: false, settingsTemplateLibrary: true, settingsCannedMessages: true, settingsAgentsRoles: true,
-    settingsCompliance: true, settingsUserAttributes: true, apiAccess: false,
-    urlShortener: true, qrCodeMaker: true, numbers: true, billing: true, notifications: true,
-    instagramFeed: false, instagramStories: false, instagramReels: false, instagramMessages: false
-};
