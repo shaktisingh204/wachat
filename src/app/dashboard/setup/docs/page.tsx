@@ -13,7 +13,7 @@ import { ChevronLeft, AlertCircle } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Manual Setup Guide | Wachat',
+  title: 'Manual Setup Guide | SabNode',
 };
 
 export default function ManualSetupDocsPage() {
@@ -134,7 +134,7 @@ export default function ManualSetupDocsPage() {
 
        <Card>
         <CardHeader>
-          <CardTitle>Step 3: Connect to Wachat</CardTitle>
+          <CardTitle>Step 3: Connect to SabNode</CardTitle>
           <CardDescription>
             Enter the credentials you've collected into the manual setup dialog.
           </CardDescription>

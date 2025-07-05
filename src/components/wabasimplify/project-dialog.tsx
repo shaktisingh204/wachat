@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import { useEffect, useState, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
-import { handleCreateProject } from '@/app/actions';
+import { handleManualWachatSetup } from '@/app/actions/project.actions';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -48,7 +47,7 @@ function SubmitButton() {
 
 export function CreateProjectDialog() {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(handleCreateProject, initialState);
+  const [state, formAction] = useActionState(handleManualWachatSetup, initialState);
   const { toast } = useToast();
   const router = useRouter();
   
@@ -60,6 +59,7 @@ export function CreateProjectDialog() {
       });
       setOpen(false); 
       router.push('/dashboard');
+      router.refresh();
     }
     if (state?.error) {
       toast({
@@ -89,15 +89,26 @@ export function CreateProjectDialog() {
           <DialogHeader>
             <DialogTitle>Manual Project Setup</DialogTitle>
             <DialogDescription>
-              Enter your WABA ID below. This will connect to the platform's main Meta App.
+               Enter your WABA ID, App ID, and a permanent Access Token. For help finding these, please consult the{' '}
+              <Link href="/dashboard/setup/docs" className="text-primary hover:underline" onClick={() => setOpen(false)}>
+                  manual setup guide
+              </Link>.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="wabaId" className="text-right">WABA ID</Label>
-              <Input id="wabaId" name="wabaId" placeholder="WhatsApp Business Account ID" className="col-span-3" required />
+            <div className="space-y-2">
+              <Label htmlFor="wabaId">WABA ID</Label>
+              <Input id="wabaId" name="wabaId" placeholder="WhatsApp Business Account ID" required />
             </div>
-            <div className="pt-2 pl-4">
+             <div className="space-y-2">
+              <Label htmlFor="appId">App ID</Label>
+              <Input id="appId" name="appId" placeholder="Your Meta App ID" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="accessToken">Permanent Access Token</Label>
+              <Input id="accessToken" name="accessToken" type="password" placeholder="A non-expiring System User token" required />
+            </div>
+            <div className="pt-2">
                 <div className="flex items-center space-x-2">
                     <Checkbox id="include-catalog-manual" name="includeCatalog" defaultChecked={true} />
                     <Label htmlFor="include-catalog-manual" className="text-sm font-normal">
@@ -108,7 +119,7 @@ export function CreateProjectDialog() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button variant="outline" type="button" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>
         </form>
