@@ -239,6 +239,19 @@ export type CustomAudience = {
     time_updated: number;
 };
 
+export type FacebookComment = {
+  id: string;
+  message: string;
+  from: {
+    name: string;
+    id: string;
+  };
+  created_time: string;
+  comments?: {
+    data: FacebookComment[];
+  }
+};
+
 export type FacebookPost = {
     id: string;
     message?: string;
@@ -248,8 +261,9 @@ export type FacebookPost = {
     object_id?: string;
     shares?: { count: number };
     reactions?: { data: any[], summary: { total_count: number } };
-    comments?: { data: any[], summary: { total_count: number } };
+    comments?: { data: FacebookComment[], summary: { total_count: number } };
 };
+
 
 export type MetaFlow = {
     name: string;
@@ -712,3 +726,5 @@ export type PageInsights = {
     pageReach: number;
     postEngagement: number;
 };
+
+    

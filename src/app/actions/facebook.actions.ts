@@ -49,7 +49,7 @@ export async function getAdCampaigns(projectId: string): Promise<WithId<AdCampai
     if (!hasAccess) return [];
 
     try {
-        const { db } = await connectToDatabase();
+        const { db } } from await connectToDatabase();
         const ads = await db.collection<AdCampaign>('ad_campaigns')
             .find({ projectId: new ObjectId(projectId) })
             .sort({ createdAt: -1 })
@@ -267,7 +267,7 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
     try {
         const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/posts`, {
             params: {
-                fields: 'id,message,full_picture,permalink_url,created_time,object_id,shares,reactions.summary(true),comments.summary(true)',
+                fields: 'id,message,full_picture,permalink_url,created_time,object_id,shares,reactions.summary(true),comments.summary(true){id,message,from,created_time,comments{id,message,from,created_time}}',
                 access_token: project.accessToken,
                 limit: 25,
             }
@@ -554,3 +554,77 @@ export async function getPageInsights(projectId: string): Promise<{ insights?: P
         return { error: getErrorMessage(e) };
     }
 }
+
+export async function handlePostComment(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const objectId = formData.get('objectId') as string; // Post or Video ID
+    const message = formData.get('message') as string;
+
+    if (!projectId || !objectId || !message) {
+        return { success: false, error: 'Missing required information.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied or project not configured.' };
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v22.0/${objectId}/comments`, {
+            message,
+            access_token: project.accessToken
+        });
+        revalidatePath('/dashboard/facebook/posts');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
+export async function handleDeleteComment(commentId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+     if (!projectId || !commentId) {
+        return { success: false, error: 'Missing required information.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied or project not configured.' };
+    }
+
+    try {
+        await axios.delete(`https://graph.facebook.com/v22.0/${commentId}`, {
+            params: { access_token: project.accessToken }
+        });
+        revalidatePath('/dashboard/facebook/posts');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function handleLikeObject(objectId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    if (!projectId || !objectId) {
+        return { success: false, error: 'Missing required information.' };
+    }
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied or project not configured.' };
+    }
+
+    try {
+        await axios.post(`https://graph.facebook.com/v22.0/${objectId}/likes`, {
+            access_token: project.accessToken
+        });
+        revalidatePath('/dashboard/facebook/posts');
+        return { success: true };
+    } catch (e: any) {
+        // Facebook returns an error if you try to like something twice, so we can ignore that specific error.
+        if (e.response?.data?.error?.code === 1705) {
+             return { success: true }; // Already liked
+        }
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+    
