@@ -10,7 +10,7 @@ import FormData from 'form-data';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage } from '@/lib/definitions';
 
 
 export async function handleFacebookPageSetup(data: {
@@ -823,4 +823,116 @@ export async function publishScheduledPost(postId: string, projectId: string): P
     }
 }
 
+export async function getFacebookConversations(projectId: string): Promise<{ conversations?: FacebookConversation[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or is missing Facebook Page ID or access token.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/conversations`, {
+            params: {
+                fields: 'id,snippet,unread_count,updated_time,participants,can_reply',
+                access_token: project.accessToken,
+                platform: 'messenger',
+            }
+        });
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+        
+        return { conversations: response.data.data || [] };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getFacebookConversationMessages(conversationId: string, projectId: string): Promise<{ messages?: FacebookMessage[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or is missing access token.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v22.0/${conversationId}/messages`, {
+            params: {
+                fields: 'id,created_time,from,to,message',
+                access_token: project.accessToken,
+            }
+        });
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+        
+        // Return messages in chronological order
+        return { messages: (response.data.data || []).reverse() };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function sendFacebookMessage(prevState: any, formData: FormData): Promise<{ success?: boolean; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const recipientId = formData.get('recipientId') as string; // PSID
+    const messageText = formData.get('messageText') as string;
+
+    if (!projectId || !recipientId || !messageText) {
+        return { error: 'Missing required information to send message.' };
+    }
+    
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or access token missing.' };
+    }
+
+    try {
+        const response = await axios.post(`https://graph.facebook.com/v22.0/me/messages`, 
+            {
+                recipient: { id: recipientId },
+                messaging_type: "RESPONSE",
+                message: { text: messageText },
+            },
+            {
+                params: { access_token: project.accessToken }
+            }
+        );
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        revalidatePath('/dashboard/facebook/messages');
+        return { success: true };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+export async function getFacebookChatInitialData(projectId: string): Promise<{
+    project: WithId<Project> | null,
+    conversations: FacebookConversation[],
+    error?: string
+}> {
+    const project = await getProjectById(projectId);
+    if (!project) {
+        return { project: null, conversations: [], error: "Project not found." };
+    }
+    
+    const { conversations, error } = await getFacebookConversations(projectId);
+    
+    if (error) {
+        return { project, conversations: [], error };
+    }
+    
+    return {
+        project: JSON.parse(JSON.stringify(project)),
+        conversations: conversations || [],
+    };
+}
     

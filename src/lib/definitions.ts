@@ -266,6 +266,33 @@ export type FacebookPost = {
     is_published?: boolean;
 };
 
+export type FacebookConversationParticipant = {
+    id: string; // This is the PSID for the user
+    name: string;
+    email: string;
+};
+
+export type FacebookConversation = {
+    id: string;
+    snippet: string;
+    unread_count: number;
+    updated_time: string;
+    participants: {
+        data: FacebookConversationParticipant[];
+    };
+    can_reply: boolean;
+};
+
+export type FacebookMessage = {
+    id: string;
+    created_time: string;
+    from: FacebookConversationParticipant;
+    to: {
+        data: FacebookConversationParticipant[];
+    };
+    message: string;
+};
+
 
 export type MetaFlow = {
     name: string;
