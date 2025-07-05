@@ -19,9 +19,9 @@
  *     requests to Meta. This allows us to send multiple messages in parallel, dramatically
  *     increasing throughput. The concurrency level is configurable per project.
  *
- * 4.  **Batched Database Writes:** To minimize database load, status updates for each sent
- *     message are buffered and written in bulk (`bulkWrite`) at a longer interval. This
- *     avoids a separate DB write for every single message sent.
+ * 4.  **Optimized Batched Database Writes:** To minimize database load, status updates for each
+ *     sent message are buffered. This buffer is flushed to the database both on a timer and
+ *     when it reaches a specific size, ensuring a balance between real-time updates and performance.
  *
  * 5.  **Robust Error Handling & Cancellation:** The system includes detailed error logging
  *     and a mechanism to check if a job has been cancelled, allowing it to gracefully
@@ -56,8 +56,8 @@ type Project = {
     messagesPerSecond?: number;
 };
 
-// Increased interval to 5 seconds to reduce DB write frequency.
 const WRITE_INTERVAL_MS = 5000;
+const BATCH_WRITE_SIZE = 500; // New constant for batch size
 
 
 const getAxiosErrorMessage = (error: any): string => {
@@ -124,6 +124,24 @@ async function* contactGenerator(
 async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate: number): Promise<any> {
     const jobId = job._id;
     const operationsBuffer: any[] = [];
+    
+    const flushBuffer = async () => {
+        if (operationsBuffer.length === 0) return;
+        
+        const bufferCopy = [...operationsBuffer];
+        operationsBuffer.length = 0; // Clear the buffer immediately
+
+        await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
+            
+        const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
+        const errorCount = bufferCopy.length - successCount;
+
+        if (successCount > 0 || errorCount > 0) {
+            await db.collection('broadcasts').updateOne({ _id: jobId }, {
+                $inc: { successCount, errorCount },
+            });
+        }
+    };
     
     const sendSingleMessage = async (contactDoc: BroadcastContact) => {
         const contact = { phone: contactDoc.phone, ...contactDoc.variables };
@@ -218,23 +236,7 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
         }
     };
 
-    const writeInterval = setInterval(async () => {
-        if (operationsBuffer.length > 0) {
-            const bufferCopy = [...operationsBuffer];
-            operationsBuffer.length = 0; 
-            
-            await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
-            
-            const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
-            const errorCount = bufferCopy.length - successCount;
-
-            if (successCount > 0 || errorCount > 0) {
-                await db.collection('broadcasts').updateOne({ _id: jobId }, {
-                    $inc: { successCount, errorCount },
-                });
-            }
-        }
-    }, WRITE_INTERVAL_MS);
+    const writeInterval = setInterval(flushBuffer, WRITE_INTERVAL_MS);
     
     try {
         let isCancelled = false;
@@ -259,6 +261,9 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
             const operation = await sendSingleMessage(contact);
             if (operation) {
                 operationsBuffer.push(operation);
+                if (operationsBuffer.length >= BATCH_WRITE_SIZE) {
+                    await flushBuffer();
+                }
             }
         });
     } catch (processingError: any) {
@@ -273,20 +278,9 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
         return { jobId: jobId.toString(), status: `Processing Error - ${finalStatus}`, error: errorMsg };
     } finally {
         clearInterval(writeInterval);
-
-        if (operationsBuffer.length > 0) {
-             const bufferCopy = [...operationsBuffer];
-             await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
-                
-             const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
-             const errorCount = bufferCopy.length - successCount;
-
-             if (successCount > 0 || errorCount > 0) {
-                await db.collection('broadcasts').updateOne({ _id: jobId }, {
-                    $inc: { successCount, errorCount },
-                });
-             }
-        }
+        
+        // Final flush for any remaining operations in the buffer
+        await flushBuffer();
 
         const finalJobState = await db.collection('broadcasts').findOne({_id: jobId});
         const jobSuccessCount = finalJobState?.successCount || 0;
