@@ -43,34 +43,33 @@ export async function handleFacebookPageSetup(data: {
     }
 }
 
-export async function handleConnectNewFacebookPage(data: {
-    adAccountId: string;
-    facebookPageId: string;
-    accessToken: string;
-    pageName: string;
-}): Promise<{ success?: boolean; error?: string }> {
+export async function handleFacebookOAuthCallback(code: string): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
-    if (!session?.user) return { error: "Access denied." };
+    if (!session?.user) return { success: false, error: "Access denied." };
 
-    const { adAccountId, facebookPageId, accessToken: shortLivedToken, pageName } = data;
-    
-    if (!adAccountId || !facebookPageId || !shortLivedToken || !pageName) {
-        return { error: 'Required information (Ad Account, Page ID, Token, Page Name) was not received from Facebook.' };
+    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+    const appSecret = process.env.FACEBOOK_APP_SECRET;
+    const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/auth/facebook/callback`;
+
+    if (!appId || !appSecret) {
+        return { success: false, error: 'Server is not configured for Facebook authentication.' };
     }
 
     try {
-        const { db } = await connectToDatabase();
+        // 1. Exchange code for a short-lived access token
+        const tokenResponse = await axios.get('https://graph.facebook.com/v22.0/oauth/access_token', {
+            params: {
+                client_id: appId,
+                redirect_uri: redirectUri,
+                client_secret: appSecret,
+                code: code,
+            }
+        });
+        const shortLivedToken = tokenResponse.data.access_token;
+        if (!shortLivedToken) return { success: false, error: 'Failed to obtain access token from Facebook.' };
         
-        // 1. Exchange short-lived token for a long-lived one
-        const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
-        const appSecret = process.env.FACEBOOK_APP_SECRET;
-
-        if (!appId || !appSecret) {
-            console.error('Facebook App ID or Secret is not configured on the server.');
-            return { error: 'Server configuration error. Please contact the administrator.' };
-        }
-
-        const tokenResponse = await axios.get(`https://graph.facebook.com/v22.0/oauth/access_token`, {
+        // 2. Exchange for a long-lived token
+        const longLivedResponse = await axios.get('https://graph.facebook.com/v22.0/oauth/access_token', {
             params: {
                 grant_type: 'fb_exchange_token',
                 client_id: appId,
@@ -78,27 +77,32 @@ export async function handleConnectNewFacebookPage(data: {
                 fb_exchange_token: shortLivedToken,
             }
         });
+        const longLivedToken = longLivedResponse.data.access_token;
+        if (!longLivedToken) return { success: false, error: 'Could not obtain a long-lived token from Facebook.' };
 
-        const longLivedToken = tokenResponse.data.access_token;
-        if (!longLivedToken) {
-            return { error: 'Could not obtain a long-lived token from Facebook.' };
-        }
-        
-        // 2. Validate permissions
-        const permissionsResponse = await axios.get(`https://graph.facebook.com/v22.0/me/permissions`, {
+        // 3. Validate permissions
+        const permissionsResponse = await axios.get('https://graph.facebook.com/v22.0/me/permissions', {
             params: { access_token: longLivedToken }
         });
-
         const grantedPermissions = permissionsResponse.data.data.map((p: any) => p.permission);
         const requiredPermissions = ['pages_show_list', 'pages_read_engagement', 'business_management', 'pages_manage_posts', 'read_insights', 'pages_manage_engagement'];
-        
         const missingPermissions = requiredPermissions.filter(p => !grantedPermissions.includes(p));
-
         if (missingPermissions.length > 0) {
-            return { error: `Permissions missing: ${missingPermissions.join(', ')}. Please reconnect and grant all required permissions.` };
+            return { success: false, error: `Permissions missing: ${missingPermissions.join(', ')}. Please reconnect and grant all required permissions.` };
         }
 
-        // 3. Continue with existing logic, but use the longLivedToken
+        // 4. Fetch necessary info (Ad Account, Page ID, Page Name)
+        const adAccountsResponse = await axios.get('https://graph.facebook.com/v22.0/me/adaccounts', { params: { access_token: longLivedToken }});
+        if (!adAccountsResponse.data?.data?.[0]?.id) return { success: false, error: 'Could not find an associated Ad Account.' };
+        const adAccountId = adAccountsResponse.data.data[0].id;
+        
+        const pagesResponse = await axios.get('https://graph.facebook.com/v22.0/me/accounts', { params: { fields: 'id,name', access_token: longLivedToken }});
+        if (!pagesResponse.data?.data?.[0]?.id) return { success: false, error: 'Could not find an associated Facebook Page.' };
+        const facebookPageId = pagesResponse.data.data[0].id;
+        const pageName = pagesResponse.data.data[0].name;
+
+        // 5. Save or update the project in the database
+        const { db } = await connectToDatabase();
         const existingProject = await db.collection('projects').findOne({
             userId: new ObjectId(session.user._id),
             facebookPageId: facebookPageId
@@ -109,28 +113,25 @@ export async function handleConnectNewFacebookPage(data: {
                 { _id: existingProject._id },
                 { $set: { accessToken: longLivedToken, adAccountId, name: pageName } }
             );
-            revalidatePath('/dashboard/facebook/all-projects');
-            return { success: true };
+        } else {
+            const newProject: Omit<Project, '_id'> = {
+                userId: new ObjectId(session.user._id),
+                name: pageName,
+                facebookPageId: facebookPageId,
+                adAccountId: adAccountId,
+                accessToken: longLivedToken,
+                phoneNumbers: [],
+                createdAt: new Date(),
+                messagesPerSecond: 10000,
+            };
+            await db.collection('projects').insertOne(newProject as any);
         }
 
-        const newProject: Omit<Project, '_id'> = {
-            userId: new ObjectId(session.user._id),
-            name: pageName,
-            facebookPageId: facebookPageId,
-            adAccountId: adAccountId,
-            accessToken: longLivedToken, // Use the long-lived token
-            phoneNumbers: [],
-            createdAt: new Date(),
-            messagesPerSecond: 10000,
-        };
-
-        await db.collection('projects').insertOne(newProject as any);
         revalidatePath('/dashboard/facebook/all-projects');
         return { success: true };
-
-    } catch (e: any) {
-        // Use getErrorMessage to provide better feedback
-        return { error: getErrorMessage(e) || 'Failed to save marketing settings.' };
+    } catch(e) {
+        console.error("Facebook OAuth Callback failed:", e);
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
