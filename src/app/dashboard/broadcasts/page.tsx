@@ -477,7 +477,8 @@ export default function BroadcastPage() {
                                   <div className="w-48 space-y-1">
                                       <div className="text-xs font-mono text-muted-foreground">
                                           <div>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</div>
-                                          <div>{`Rate: ${sendRateData[item._id.toString()]?.rate ?? 0}/${item.projectMessagesPerSecond ?? item.messagesPerSecond ?? 'N/A'} msg/s`}</div>
+                                          <div title="Actual measured speed">Speed: {sendRateData[item._id.toString()]?.rate ?? 0} msg/s</div>
+                                          <div title="Configured parallel task limit">Concurrency: {item.projectMessagesPerSecond ?? item.messagesPerSecond ?? 'N/A'}</div>
                                       </div>
                                       <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
                                   </div>
@@ -534,7 +535,10 @@ export default function BroadcastPage() {
                               <div className="w-full space-y-1">
                                   <div className="flex justify-between text-xs font-mono text-muted-foreground">
                                     <span>{`${(item.successCount ?? 0) + (item.errorCount ?? 0)} / ${item.contactCount}`}</span>
-                                    <span>{`Rate: ${sendRateData[item._id.toString()]?.rate ?? 0}/${item.projectMessagesPerSecond ?? item.messagesPerSecond ?? 'N/A'} msg/s`}</span>
+                                    <div className="text-right">
+                                        <div>Speed: {sendRateData[item._id.toString()]?.rate ?? 0} msg/s</div>
+                                        <div>Concurrency: {item.projectMessagesPerSecond ?? item.messagesPerSecond ?? 'N/A'}</div>
+                                    </div>
                                   </div>
                                   <Progress value={(((item.successCount ?? 0) + (item.errorCount ?? 0)) * 100) / item.contactCount} className="h-2" />
                               </div>
