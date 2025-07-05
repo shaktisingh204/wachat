@@ -491,3 +491,35 @@ export async function handleCrosspostVideo(prevState: any, formData: FormData): 
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+export async function handleUpdatePageDetails(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const pageId = formData.get('pageId') as string;
+    
+    if (!projectId || !pageId) {
+        return { success: false, error: 'Missing required IDs.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied or project not configured.' };
+    }
+    
+    const payload: any = { access_token: project.accessToken };
+    const fieldsToUpdate = ['about', 'phone', 'website'];
+    
+    fieldsToUpdate.forEach(field => {
+        const value = formData.get(field) as string | null;
+        if (value !== null) { 
+            payload[field] = value;
+        }
+    });
+
+    try {
+        await axios.post(`https://graph.facebook.com/v22.0/${pageId}`, payload);
+        revalidatePath('/dashboard/facebook');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}

@@ -1,18 +1,18 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useEffect, useState, useTransition, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { getPageDetails } from '@/app/actions/facebook.actions';
 import type { FacebookPageDetails } from '@/lib/definitions';
-import { AlertCircle, Users, ThumbsUp, Newspaper, Megaphone, Settings, MessageSquare, Wrench } from 'lucide-react';
+import { AlertCircle, Users, ThumbsUp, Newspaper, Megaphone, Settings, MessageSquare, Wrench, Edit } from 'lucide-react';
 import Image from 'next/image';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { EditPageDetailsDialog } from '@/components/wabasimplify/edit-page-details-dialog';
 
 const StatCard = ({ title, value, icon: Icon, gradientClass }: { title: string, value: string | number, icon: React.ElementType, gradientClass?: string }) => (
     <Card className={cn("card-gradient", gradientClass)}>
@@ -58,13 +58,10 @@ export default function FacebookDashboardPage() {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [projectId, setProjectId] = useState<string | null>(null);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+    const [actionCounter, setActionCounter] = useState(0);
 
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
-
-    useEffect(() => {
+    const fetchPageData = useCallback(() => {
         if (projectId) {
             startLoading(async () => {
                 const { page, error: fetchError } = await getPageDetails(projectId);
@@ -76,8 +73,17 @@ export default function FacebookDashboardPage() {
             });
         }
     }, [projectId]);
+
+    useEffect(() => {
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        setProjectId(storedProjectId);
+    }, []);
+
+    useEffect(() => {
+        fetchPageData();
+    }, [projectId, fetchPageData, actionCounter]);
     
-    if (isLoading) return <DashboardSkeleton />;
+    if (isLoading && !pageDetails) return <DashboardSkeleton />;
 
     if (!projectId) {
          return (
@@ -107,44 +113,58 @@ export default function FacebookDashboardPage() {
 
 
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex items-center gap-4">
-                <Avatar className="h-16 w-16">
-                    <AvatarFallback>{pageDetails.name.charAt(0)}</AvatarFallback>
-                    {pageDetails.picture?.data?.url && <Image src={pageDetails.picture.data.url} alt={pageDetails.name} width={64} height={64} className="rounded-full" data-ai-hint="logo company"/>}
-                </Avatar>
-                <div>
-                    <h1 className="text-3xl font-bold font-headline">{pageDetails.name}</h1>
-                    <p className="text-muted-foreground">{pageDetails.category}</p>
+        <>
+            {pageDetails && projectId && (
+                <EditPageDetailsDialog 
+                    isOpen={isEditOpen}
+                    onOpenChange={setIsEditOpen}
+                    pageDetails={pageDetails}
+                    projectId={projectId}
+                    onSuccess={() => setActionCounter(p => p + 1)}
+                />
+            )}
+            <div className="flex flex-col gap-8">
+                <div className="flex items-center gap-4">
+                    <Avatar className="h-16 w-16">
+                        <AvatarFallback>{pageDetails.name.charAt(0)}</AvatarFallback>
+                        {pageDetails.picture?.data?.url && <Image src={pageDetails.picture.data.url} alt={pageDetails.name} width={64} height={64} className="rounded-full" data-ai-hint="logo company"/>}
+                    </Avatar>
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <h1 className="text-3xl font-bold font-headline">{pageDetails.name}</h1>
+                            <Button variant="outline" size="icon" onClick={() => setIsEditOpen(true)}><Edit className="h-4 w-4"/></Button>
+                        </div>
+                        <p className="text-muted-foreground">{pageDetails.category}</p>
+                    </div>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <StatCard title="Followers" value={pageDetails.followers_count || 0} icon={Users} gradientClass="card-gradient-blue" />
+                    <StatCard title="Likes" value={pageDetails.fan_count || 0} icon={ThumbsUp} gradientClass="card-gradient-green" />
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <Card className="lg:col-span-2">
+                        <CardHeader><CardTitle>About</CardTitle></CardHeader>
+                        <CardContent>
+                            <p className="text-muted-foreground">{pageDetails.about || 'No description provided.'}</p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader><CardTitle>Quick Links</CardTitle></CardHeader>
+                        <CardContent className="space-y-2">
+                            {features.map(feature => (
+                                <Button key={feature.href} asChild variant="ghost" className="w-full justify-start">
+                                    <Link href={feature.href}>
+                                        <feature.icon className="mr-2 h-4 w-4" />
+                                        {feature.title}
+                                    </Link>
+                                </Button>
+                            ))}
+                        </CardContent>
+                    </Card>
                 </div>
             </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Followers" value={pageDetails.followers_count || 0} icon={Users} gradientClass="card-gradient-blue" />
-                <StatCard title="Likes" value={pageDetails.fan_count || 0} icon={ThumbsUp} gradientClass="card-gradient-green" />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <Card className="lg:col-span-2">
-                    <CardHeader><CardTitle>About</CardTitle></CardHeader>
-                    <CardContent>
-                        <p className="text-muted-foreground">{pageDetails.about || 'No description provided.'}</p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader><CardTitle>Quick Links</CardTitle></CardHeader>
-                    <CardContent className="space-y-2">
-                        {features.map(feature => (
-                             <Button key={feature.href} asChild variant="ghost" className="w-full justify-start">
-                                <Link href={feature.href}>
-                                    <feature.icon className="mr-2 h-4 w-4" />
-                                    {feature.title}
-                                </Link>
-                            </Button>
-                        ))}
-                    </CardContent>
-                </Card>
-            </div>
-        </div>
+        </>
     );
 }
