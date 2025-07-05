@@ -143,9 +143,26 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
         }
     };
     
-    const sendSingleMessage = async (contactDoc: BroadcastContact) => {
+    const sendSingleMessage = async (db: Db, job: BroadcastJobType, contactDoc: BroadcastContact) => {
         const contact = { phone: contactDoc.phone, ...contactDoc.variables };
         const phone = contact.phone;
+
+        // Check for opt-out status before sending (except for Authentication templates)
+        if (job.category !== 'AUTHENTICATION') {
+            const isOptedOut = await db.collection('contacts').findOne(
+                { projectId: job.projectId, waId: phone, isOptedOut: true },
+                { projection: { _id: 1 } }
+            );
+
+            if (isOptedOut) {
+                return {
+                    updateOne: {
+                        filter: { _id: contactDoc._id },
+                        update: { $set: { status: 'FAILED', error: 'Contact opted out' } }
+                    }
+                };
+            }
+        }
         
         try {
             const getVars = (text: string): number[] => {
@@ -258,7 +275,7 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
 
         const generator = contactGenerator(db, jobId, checkCancelled);
         await promisePool(perJobRate, generator, async (contact) => {
-            const operation = await sendSingleMessage(contact);
+            const operation = await sendSingleMessage(db, job, contact);
             if (operation) {
                 operationsBuffer.push(operation);
                 if (operationsBuffer.length >= BATCH_WRITE_SIZE) {

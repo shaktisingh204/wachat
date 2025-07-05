@@ -16,10 +16,10 @@ import type { Project, BroadcastJob, BroadcastState, Template, MetaFlow, Contact
 
 const BATCH_SIZE = 1000;
 
-const processContactBatch = async (db: Db, broadcastId: ObjectId, project: WithId<Project>, batch: Partial<Contact>[], variablesFromColumn: boolean = true) => {
+const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial<Contact>[], variablesFromColumn: boolean = true) => {
     if (batch.length === 0) return 0;
     
-    let contactsToInsert = batch.map(row => {
+    const contactsToInsert = batch.map(row => {
         let phone;
         let variables: Record<string, any>;
 
@@ -44,22 +44,13 @@ const processContactBatch = async (db: Db, broadcastId: ObjectId, project: WithI
         };
     }).filter(Boolean);
 
-    if (project.optInOutSettings?.enabled === true) {
-        const allPhoneNumbers = contactsToInsert.map(c => c!.phone);
-        const optedOutContacts = await db.collection('contacts').find({
-            projectId: project._id,
-            waId: { $in: allPhoneNumbers },
-            isOptedOut: true
-        }, { projection: { waId: 1 } }).toArray();
-        const optedOutNumbersSet = new Set(optedOutContacts.map(c => c.waId));
-
-        contactsToInsert = contactsToInsert.filter(c => !optedOutNumbersSet.has(c!.phone));
-    }
+    // OPT-OUT CHECK REMOVED: This is now handled by the cron sender for better performance.
 
     if (contactsToInsert.length > 0) {
         try {
             await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false });
         } catch(err: any) {
+            // Non-fatal error for duplicate keys, which we can ignore.
             if (err.code !== 11000) { 
                 console.warn("Bulk insert for broadcast contacts failed.", err.code);
             }
@@ -70,7 +61,7 @@ const processContactBatch = async (db: Db, broadcastId: ObjectId, project: WithI
 };
 
 
-const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId, project: WithId<Project>): Promise<number> => {
+const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId): Promise<number> => {
     return new Promise<number>((resolve, reject) => {
         let contactBatch: any[] = [];
         let totalProcessedCount = 0;
@@ -83,7 +74,7 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
                 contactBatch.push(results.data);
                 if (contactBatch.length >= BATCH_SIZE) {
                     parser.pause(); 
-                    processContactBatch(db, broadcastId, project, contactBatch, true)
+                    processContactBatch(db, broadcastId, contactBatch, true)
                         .then(processedInBatch => {
                             totalProcessedCount += processedInBatch;
                             contactBatch = [];
@@ -95,7 +86,7 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
             complete: async () => {
                 try {
                      if (contactBatch.length > 0) {
-                        const processedInBatch = await processContactBatch(db, broadcastId, project, contactBatch, true);
+                        const processedInBatch = await processContactBatch(db, broadcastId, contactBatch, true);
                         totalProcessedCount += processedInBatch;
                     }
                     resolve(totalProcessedCount);
@@ -251,13 +242,13 @@ export async function handleStartBroadcast(
         for await (const contact of contactsCursor) {
             contactBatch.push(contact);
             if (contactBatch.length >= BATCH_SIZE) {
-                const processedInBatch = await processContactBatch(db, broadcastId, project, contactBatch, false);
+                const processedInBatch = await processContactBatch(db, broadcastId, contactBatch, false);
                 contactCount += processedInBatch;
                 contactBatch = [];
             }
         }
         if (contactBatch.length > 0) {
-            const processedInBatch = await processContactBatch(db, broadcastId, project, contactBatch, false);
+            const processedInBatch = await processContactBatch(db, broadcastId, contactBatch, false);
             contactCount += processedInBatch;
         }
 
@@ -270,7 +261,7 @@ export async function handleStartBroadcast(
 
         if (contactFile.name.endsWith('.csv')) {
             const nodeStream = Readable.fromWeb(contactFile.stream() as any);
-            contactCount = await processStreamedContacts(nodeStream, db, broadcastId, project);
+            contactCount = await processStreamedContacts(nodeStream, db, broadcastId);
         } else if (contactFile.name.endsWith('.xlsx')) {
             const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
             const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
@@ -280,7 +271,7 @@ export async function handleStartBroadcast(
             }
             const worksheet = workbook.Sheets[sheetName];
             const csvData = XLSX.utils.sheet_to_csv(worksheet);
-            contactCount = await processStreamedContacts(csvData, db, broadcastId, project);
+            contactCount = await processStreamedContacts(csvData, db, broadcastId);
         } else {
             await db.collection('broadcasts').deleteOne({ _id: broadcastId });
             return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
@@ -307,5 +298,3 @@ export async function handleStartBroadcast(
     return { error: getErrorMessage(e) || 'An unexpected error occurred while processing the broadcast.' };
   }
 }
-
-    
