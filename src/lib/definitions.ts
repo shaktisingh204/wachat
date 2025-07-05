@@ -262,6 +262,8 @@ export type FacebookPost = {
     shares?: { count: number };
     reactions?: { data: any[], summary: { total_count: number } };
     comments?: { data: FacebookComment[], summary: { total_count: number } };
+    scheduled_publish_time?: number;
+    is_published?: boolean;
 };
 
 
@@ -726,5 +728,3 @@ export type PageInsights = {
     pageReach: number;
     postEngagement: number;
 };
-
-    
