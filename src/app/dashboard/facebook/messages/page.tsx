@@ -1,25 +1,32 @@
 
-import { Card, CardContent } from '@/components/ui/card';
-import { MessageSquare } from 'lucide-react';
+
+import type { Metadata } from 'next';
+import { Suspense } from 'react';
+import { Skeleton } from '@/components/ui/skeleton';
+import { FacebookChatClient } from '@/components/wabasimplify/facebook-chat-client';
+
+export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Facebook Messages | SabNode',
+};
+
+function ChatPageSkeleton() {
+    return <div className="h-full w-full"><Skeleton className="h-full w-full" /></div>;
+}
 
 export default function FacebookMessagesPage() {
     return (
-        <div className="flex flex-col gap-8">
-             <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <MessageSquare className="h-8 w-8"/>
-                    Facebook Messages
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    A unified inbox for all your Facebook Page conversations.
-                </p>
+        <div className="h-full flex flex-col">
+            <div className="flex-shrink-0 p-4 border-b">
+                 <h1 className="text-3xl font-bold font-headline">Facebook Messenger</h1>
+                 <p className="text-muted-foreground">Respond to messages from your connected Facebook Page.</p>
             </div>
-            <Card className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
-                <CardContent>
-                    <p className="text-lg font-semibold">Coming Soon!</p>
-                    <p>This feature is on our roadmap. You'll soon be able to manage your Messenger conversations right here.</p>
-                </CardContent>
-            </Card>
+            <div className="flex-1 overflow-hidden h-full">
+                <Suspense fallback={<ChatPageSkeleton />}>
+                    <FacebookChatClient />
+                </Suspense>
+            </div>
         </div>
     );
 }
