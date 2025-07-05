@@ -73,7 +73,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
         const shortLivedToken = tokenResponse.data.access_token;
         if (!shortLivedToken) return { success: false, error: 'Failed to obtain access token from Facebook.' };
         
-        // 2. Exchange for a long-lived token
+        // 2. Exchange for a long-lived user token
         const longLivedResponse = await axios.get('https://graph.facebook.com/v22.0/oauth/access_token', {
             params: {
                 grant_type: 'fb_exchange_token',
@@ -96,23 +96,45 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
             console.warn("Could not retrieve ad account for user:", getErrorMessage(e));
         }
 
-        // 4. Fetch all pages the user has access to, including their individual page access tokens
+        // 4. Fetch all pages the user has access to, and get long-lived tokens for each page
         const pagesResponse = await axios.get('https://graph.facebook.com/v22.0/me/accounts', { params: { fields: 'id,name,access_token', access_token: longLivedToken }});
-        const userPages = pagesResponse.data?.data;
+        const userPagesWithShortTokens = pagesResponse.data?.data;
 
-        if (!userPages || userPages.length === 0) {
+        if (!userPagesWithShortTokens || userPagesWithShortTokens.length === 0) {
              return { success: false, error: 'No manageable Facebook Pages found for your account. Please ensure you have granted access to at least one page during the authorization process.' };
         }
+        
+        const userPages = await Promise.all(
+            userPagesWithShortTokens.map(async (page: any) => {
+                try {
+                    const pageTokenResponse = await axios.get('https://graph.facebook.com/v22.0/oauth/access_token', {
+                        params: {
+                            grant_type: 'fb_exchange_token',
+                            client_id: appId,
+                            client_secret: appSecret,
+                            fb_exchange_token: page.access_token,
+                        }
+                    });
+                    const longLivedPageToken = pageTokenResponse.data.access_token;
+                    return { ...page, access_token: longLivedPageToken };
+                } catch (e) {
+                    console.error(`Failed to get long-lived token for page ${page.id}`, getErrorMessage(e));
+                    return null;
+                }
+            })
+        );
+        
+        const validPages = userPages.filter(Boolean);
 
         // 5. For each page, create or update a project
         const { db } = await connectToDatabase();
-        const bulkOps = userPages.map((page: any) => ({
+        const bulkOps = validPages.map((page: any) => ({
             updateOne: {
                 filter: { userId: new ObjectId(session.user._id), facebookPageId: page.id },
                 update: {
                     $set: {
                         name: page.name,
-                        accessToken: page.access_token, // Use the page-specific access token
+                        accessToken: page.access_token, // This is now the LONG LIVED page-specific access token
                         adAccountId: adAccountId,
                     },
                     $setOnInsert: {

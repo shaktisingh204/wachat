@@ -1207,3 +1207,51 @@ export async function processCommentWebhook(db: Db, project: WithId<Project>, co
         }
     }
 }
+
+export async function processMessengerWebhook(db: Db, project: WithId<Project>, messagingEvent: any) {
+    const senderPsid = messagingEvent.sender?.id;
+    const pageId = messagingEvent.recipient?.id;
+
+    // Don't process echos from the page itself
+    if (!senderPsid || senderPsid === pageId) {
+        return;
+    }
+
+    const messageText = messagingEvent.message?.text;
+    const now = new Date();
+
+    // Find or create subscriber
+    const subscriberResult = await db.collection('facebook_subscribers').findOneAndUpdate(
+        { projectId: project._id, psid: senderPsid },
+        { 
+            $setOnInsert: { 
+                projectId: project._id, 
+                psid: senderPsid, 
+                name: `User ${senderPsid.slice(-4)}`,
+                createdAt: now,
+            }
+        },
+        { upsert: true, returnDocument: 'before' }
+    );
+    
+    const isNewSubscriber = subscriberResult === null;
+
+    // Send welcome message if it's the first time and the feature is enabled
+    if (isNewSubscriber && project.facebookWelcomeMessage?.enabled && project.facebookWelcomeMessage.message) {
+        try {
+            await axios.post(`https://graph.facebook.com/v22.0/me/messages`, 
+                {
+                    recipient: { id: senderPsid },
+                    messaging_type: "RESPONSE",
+                    message: { text: project.facebookWelcomeMessage.message },
+                },
+                { params: { access_token: project.accessToken } }
+            );
+        } catch (e: any) {
+            console.error(`Failed to send Facebook welcome message to ${senderPsid}:`, getErrorMessage(e));
+        }
+    }
+
+    revalidatePath('/dashboard/facebook/messages');
+    revalidatePath('/dashboard/facebook/subscribers');
+}
