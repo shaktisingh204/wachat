@@ -10,7 +10,7 @@ import FormData from 'form-data';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings } from '@/lib/definitions';
 
 
 export async function handleFacebookPageSetup(data: {
@@ -936,31 +936,42 @@ export async function getFacebookChatInitialData(projectId: string): Promise<{
     };
 }
 
-export async function handleUpdateCommentAutoReplySettings(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+export async function handleUpdateFacebookAutomationSettings(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const projectId = formData.get('projectId') as string;
-    if (!projectId) {
-        return { success: false, error: 'Project ID is missing.' };
-    }
+    if (!projectId) return { success: false, error: 'Project ID is missing.' };
 
     const project = await getProjectById(projectId);
-    if (!project) {
-        return { success: false, error: 'Access denied or project not found.' };
-    }
-    
+    if (!project) return { success: false, error: 'Access denied or project not found.' };
+
+    const automationType = formData.get('automationType') as 'comment' | 'welcome';
+
     try {
-        const settings: FacebookCommentAutoReplySettings = {
-            enabled: formData.get('enabled') === 'on',
-            replyMode: formData.get('replyMode') as 'static' | 'ai',
-            staticReplyText: formData.get('staticReplyText') as string,
-            aiReplyPrompt: formData.get('aiReplyPrompt') as string,
-            moderationEnabled: formData.get('moderationEnabled') === 'on',
-            moderationPrompt: formData.get('moderationPrompt') as string,
-        };
-        
         const { db } = await connectToDatabase();
+        let settingsUpdate: any = {};
+
+        if (automationType === 'comment') {
+            const settings: FacebookCommentAutoReplySettings = {
+                enabled: formData.get('enabled') === 'on',
+                replyMode: formData.get('replyMode') as 'static' | 'ai',
+                staticReplyText: formData.get('staticReplyText') as string,
+                aiReplyPrompt: formData.get('aiReplyPrompt') as string,
+                moderationEnabled: formData.get('moderationEnabled') === 'on',
+                moderationPrompt: formData.get('moderationPrompt') as string,
+            };
+            settingsUpdate = { facebookCommentAutoReply: settings };
+        } else if (automationType === 'welcome') {
+             const settings: FacebookWelcomeMessageSettings = {
+                enabled: formData.get('enabled') === 'on',
+                message: formData.get('message') as string,
+            };
+             settingsUpdate = { facebookWelcomeMessage: settings };
+        } else {
+            return { success: false, error: 'Invalid automation type specified.' };
+        }
+        
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
-            { $set: { facebookCommentAutoReply: settings } }
+            { $set: settingsUpdate }
         );
 
         revalidatePath('/dashboard/facebook/auto-reply');
@@ -1279,33 +1290,20 @@ export async function handleScheduleLiveStream(prevState: any, formData: FormDat
 
 // --- Subscriber Actions ---
 
-export async function getFacebookSubscribers(projectId: string): Promise<{ subscribers?: FacebookSubscriber[], error?: string }> {
+export async function getFacebookSubscribers(projectId: string): Promise<{ subscribers?: WithId<FacebookSubscriber>[], error?: string }> {
     const project = await getProjectById(projectId);
     if (!project || !project.facebookPageId || !project.accessToken) {
         return { error: 'Project not found or is not configured for Facebook.' };
     }
 
     try {
-        const { facebookPageId, accessToken } = project;
-        const allSubscribersMap = new Map<string, FacebookSubscriber>();
-        let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${facebookPageId}/conversations?fields=participants&limit=100&access_token=${accessToken}`;
-
-        while (nextUrl) {
-            const response = await axios.get(nextUrl);
-            if (response.data.error) throw new Error(getErrorMessage({ response }));
-
-            const conversations = response.data.data || [];
-            for (const convo of conversations) {
-                const participant = convo.participants?.data?.find((p: any) => p.id !== facebookPageId);
-                if (participant && !allSubscribersMap.has(participant.id)) {
-                    allSubscribersMap.set(participant.id, { id: participant.id, name: participant.name });
-                }
-            }
-            nextUrl = response.data.paging?.next;
-        }
-
-        const subscribers = Array.from(allSubscribersMap.values());
-        return { subscribers };
+        const { db } = await connectToDatabase();
+        const subscribers = await db.collection<FacebookSubscriber>('facebook_subscribers')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .toArray();
+            
+        return { subscribers: JSON.parse(JSON.stringify(subscribers)) };
 
     } catch (e: any) {
         return { error: getErrorMessage(e) };

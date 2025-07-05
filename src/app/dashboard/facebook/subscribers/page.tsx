@@ -1,18 +1,20 @@
 
+
 'use client';
 
-import { useEffect, useState, useTransition, useMemo } from 'react';
+import { useEffect, useState, useTransition, useMemo, useCallback } from 'react';
 import { getFacebookSubscribers } from '@/app/actions/facebook.actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Users, Search, LoaderCircle } from 'lucide-react';
+import { AlertCircle, Users, Search } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { FacebookSubscriber } from '@/lib/definitions';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useDebouncedCallback } from 'use-debounce';
+import type { WithId } from 'mongodb';
 
 const SUBSCRIBERS_PER_PAGE = 20;
 
@@ -36,19 +38,14 @@ function SubscribersPageSkeleton() {
 }
 
 export default function SubscribersPage() {
-    const [subscribers, setSubscribers] = useState<FacebookSubscriber[]>([]);
+    const [subscribers, setSubscribers] = useState<WithId<FacebookSubscriber>[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, startTransition] = useTransition();
     const [projectId, setProjectId] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [currentPage, setCurrentPage] = useState(1);
     
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
-
-    useEffect(() => {
+    const fetchData = useCallback(() => {
         if (projectId) {
             startTransition(async () => {
                 const { subscribers: fetchedSubscribers, error: fetchError } = await getFacebookSubscribers(projectId);
@@ -60,6 +57,15 @@ export default function SubscribersPage() {
             });
         }
     }, [projectId]);
+    
+    useEffect(() => {
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        setProjectId(storedProjectId);
+    }, []);
+
+    useEffect(() => {
+        fetchData();
+    }, [projectId, fetchData]);
 
     const handleSearch = useDebouncedCallback((term: string) => {
         setSearchQuery(term);
@@ -147,17 +153,17 @@ export default function SubscribersPage() {
                                 <TableBody>
                                     {paginatedSubscribers.length > 0 ? (
                                         paginatedSubscribers.map(sub => (
-                                            <TableRow key={sub.id}>
+                                            <TableRow key={sub._id.toString()}>
                                                 <TableCell>
                                                     <div className="flex items-center gap-3">
                                                         <Avatar>
-                                                            <AvatarImage src={`https://graph.facebook.com/${sub.id}/picture`} alt={sub.name} data-ai-hint="person avatar"/>
+                                                            <AvatarImage src={`https://graph.facebook.com/${sub.psid}/picture`} alt={sub.name} data-ai-hint="person avatar"/>
                                                             <AvatarFallback>{sub.name.charAt(0)}</AvatarFallback>
                                                         </Avatar>
                                                         <span className="font-medium">{sub.name}</span>
                                                     </div>
                                                 </TableCell>
-                                                <TableCell className="font-mono text-xs">{sub.id}</TableCell>
+                                                <TableCell className="font-mono text-xs">{sub.psid}</TableCell>
                                             </TableRow>
                                         ))
                                     ) : (
