@@ -106,6 +106,11 @@ export type CustomDomain = {
     verificationCode: string;
 };
 
+export type FacebookCommentAutoReplySettings = {
+  enabled: boolean;
+  replyText: string;
+};
+
 export type Project = {
     _id: ObjectId;
     userId: ObjectId;
@@ -129,6 +134,7 @@ export type Project = {
     agents?: Agent[];
     adAccountId?: string;
     facebookPageId?: string;
+    facebookCommentAutoReply?: FacebookCommentAutoReplySettings;
     tags?: Tag[];
     planId?: ObjectId;
     credits?: number;
