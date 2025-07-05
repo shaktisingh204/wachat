@@ -246,6 +246,9 @@ export type FacebookPost = {
     permalink_url: string;
     created_time: string;
     object_id?: string;
+    shares?: { count: number };
+    reactions?: { data: any[], summary: { total_count: number } };
+    comments?: { data: any[], summary: { total_count: number } };
 };
 
 export type MetaFlow = {
@@ -703,4 +706,9 @@ export type QrCode = {
 
 export type QrCodeWithShortUrl = WithId<QrCode> & {
     shortUrl?: WithId<ShortUrl> | null;
+};
+
+export type PageInsights = {
+    pageReach: number;
+    postEngagement: number;
 };
