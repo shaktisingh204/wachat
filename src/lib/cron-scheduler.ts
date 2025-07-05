@@ -1,12 +1,45 @@
 
-
 'use server';
+
+/**
+ * @fileOverview High-Throughput Broadcast Scheduler
+ *
+ * This file contains the core logic for processing and sending broadcast campaigns.
+ * It is designed for high performance and scalability using several key patterns:
+ *
+ * 1.  **Scheduler Lock:** A lock is acquired in the database to ensure that only one
+ *     instance of the scheduler runs at a time, preventing race conditions and duplicate sends.
+ *
+ * 2.  **Asynchronous Iterators (Generators):** Instead of loading all contacts for a large
+ *     campaign into memory, an async generator (`contactGenerator`) yields contacts one by one
+ *     from the database cursor. This is extremely memory-efficient for campaigns with
+ *     millions of contacts.
+ *
+ * 3.  **Concurrency Pool:** The `promisePool` function manages a pool of concurrent API
+ *     requests to Meta. This allows us to send multiple messages in parallel, dramatically
+ *     increasing throughput. The concurrency level is configurable per project.
+ *
+ * 4.  **Batched Database Writes:** To minimize database load, status updates for each sent
+ *     message are buffered and written in bulk (`bulkWrite`) at a set interval. This
+ *     avoids a separate DB write for every single message sent.
+ *
+ * 5.  **Robust Error Handling & Cancellation:** The system includes detailed error logging
+ *     and a mechanism to check if a job has been cancelled, allowing it to gracefully
+ *     stop processing.
+ *
+ * While this architecture is highly optimized for a single-server environment, achieving
+ * speeds of 1 million messages per second would require a distributed system with a message
+ * queue (like Kafka or RabbitMQ) and multiple worker instances, which is beyond the scope
+ * of this implementation. This code provides the maximum possible throughput within the
+ * current architecture.
+ */
+
 
 import { config } from 'dotenv';
 config();
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { Db, ObjectId, FindOneAndUpdateOptions, Filter } from 'mongodb';
+import { Db, ObjectId } from 'mongodb';
 import axios from 'axios';
 import { type BroadcastJob as BroadcastJobType } from './definitions';
 
@@ -101,120 +134,120 @@ async function* contactGenerator(
 
 async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate: number): Promise<any> {
     const jobId = job._id;
-    try {
-        const operationsBuffer: any[] = [];
+    const operationsBuffer: any[] = [];
+    
+    const sendSingleMessage = async (contactDoc: BroadcastContact) => {
+        const contact = { phone: contactDoc.phone, ...contactDoc.variables };
+        const phone = contact.phone;
         
-        const sendSingleMessage = async (contactDoc: BroadcastContact) => {
-            const contact = { phone: contactDoc.phone, ...contactDoc.variables };
-            const phone = contact.phone;
+        try {
+            const getVars = (text: string): number[] => {
+                if (!text) return [];
+                const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
+                return variableMatches 
+                    ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] 
+                    : [];
+            };
+
+            const payloadComponents: any[] = [];
+            const headerComponent = job.components.find(c => c.type === 'HEADER');
+            if (headerComponent) {
+                const parameters: any[] = [];
+                if (headerComponent.format === 'TEXT' && headerComponent.text) {
+                    const headerVars = getVars(headerComponent.text);
+                    if (headerVars.length > 0) {
+                        headerVars.sort((a,b) => a-b).forEach(varNum => {
+                            parameters.push({ type: 'text', text: contact[`variable${varNum}`] || '' });
+                        });
+                    }
+                } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
+                    const format = headerComponent.format.toLowerCase();
+                    let parameter: any;
+                    if (job.headerMediaId) {
+                        parameter = { type: format, [format]: { id: job.headerMediaId } };
+                    } else if (job.headerImageUrl) {
+                        parameter = { type: format, [format]: { link: job.headerImageUrl } };
+                        if(format === 'document') {
+                            parameter.document.filename = contact['filename'] || 'document';
+                        }
+                    }
+                    if (parameter) {
+                        parameters.push(parameter);
+                    }
+                }
+                if (parameters.length > 0) payloadComponents.push({ type: 'header', parameters });
+            }
+
+            const bodyComponent = job.components.find(c => c.type === 'BODY');
+            if (bodyComponent?.text) {
+                const bodyVars = getVars(bodyComponent.text);
+                if (bodyVars.length > 0) {
+                    const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({ type: 'text', text: contact[`variable${varNum}`] || '' }));
+                    payloadComponents.push({ type: 'body', parameters });
+                }
+            }
+
+            const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
+            if (buttonsComponent && Array.isArray(buttonsComponent.buttons)) {
+                    buttonsComponent.buttons.forEach((button: any, index: number) => {
+                    if (button.type === 'URL' && button.url?.includes('{{1}}') && contact[`button_url_param_${index}`]) {
+                        payloadComponents.push({
+                            type: 'button',
+                            sub_type: 'url',
+                            index: String(index),
+                            parameters: [{ type: 'text', text: contact[`button_url_param_${index}`] }]
+                        });
+                    }
+                });
+            }
             
-            try {
-                const getVars = (text: string): number[] => {
-                    if (!text) return [];
-                    const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
-                    return variableMatches 
-                        ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] 
-                        : [];
-                };
+            const messageData = {
+                messaging_product: 'whatsapp', to: phone, recipient_type: 'individual', type: 'template',
+                template: { name: job.templateName, language: { code: job.language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
+            };
+            
+            const response = await axios.post(
+                `https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`,
+                messageData,
+                { headers: { 'Authorization': `Bearer ${job.accessToken}` } }
+            );
 
-                const payloadComponents: any[] = [];
-                const headerComponent = job.components.find(c => c.type === 'HEADER');
-                if (headerComponent) {
-                    const parameters: any[] = [];
-                    if (headerComponent.format === 'TEXT' && headerComponent.text) {
-                        const headerVars = getVars(headerComponent.text);
-                        if (headerVars.length > 0) {
-                            headerVars.sort((a,b) => a-b).forEach(varNum => {
-                                parameters.push({ type: 'text', text: contact[`variable${varNum}`] || '' });
-                            });
-                        }
-                    } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
-                        const format = headerComponent.format.toLowerCase();
-                        let parameter: any;
-                        if (job.headerMediaId) {
-                            parameter = { type: format, [format]: { id: job.headerMediaId } };
-                        } else if (job.headerImageUrl) {
-                            parameter = { type: format, [format]: { link: job.headerImageUrl } };
-                            if(format === 'document') {
-                                parameter.document.filename = contact['filename'] || 'document';
-                            }
-                        }
-                        if (parameter) {
-                            parameters.push(parameter);
-                        }
-                    }
-                    if (parameters.length > 0) payloadComponents.push({ type: 'header', parameters });
+            return {
+                updateOne: {
+                    filter: { _id: contactDoc._id },
+                    update: { $set: { status: 'SENT', sentAt: new Date(), messageId: response.data?.messages?.[0]?.id } }
                 }
-
-                const bodyComponent = job.components.find(c => c.type === 'BODY');
-                if (bodyComponent?.text) {
-                    const bodyVars = getVars(bodyComponent.text);
-                    if (bodyVars.length > 0) {
-                        const parameters = bodyVars.sort((a,b) => a-b).map(varNum => ({ type: 'text', text: contact[`variable${varNum}`] || '' }));
-                        payloadComponents.push({ type: 'body', parameters });
-                    }
+            };
+        } catch(error: any) {
+            const errorMessage = getAxiosErrorMessage(error);
+            return {
+                updateOne: {
+                    filter: { _id: contactDoc._id },
+                    update: { $set: { status: 'FAILED', sentAt: new Date(), error: errorMessage } }
                 }
+            };
+        }
+    };
 
-                const buttonsComponent = job.components.find(c => c.type === 'BUTTONS');
-                if (buttonsComponent && Array.isArray(buttonsComponent.buttons)) {
-                     buttonsComponent.buttons.forEach((button: any, index: number) => {
-                        if (button.type === 'URL' && button.url?.includes('{{1}}') && contact[`button_url_param_${index}`]) {
-                            payloadComponents.push({
-                                type: 'button',
-                                sub_type: 'url',
-                                index: String(index),
-                                parameters: [{ type: 'text', text: contact[`button_url_param_${index}`] }]
-                            });
-                        }
-                    });
-                }
-                
-                const messageData = {
-                    messaging_product: 'whatsapp', to: phone, recipient_type: 'individual', type: 'template',
-                    template: { name: job.templateName, language: { code: job.language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
-                };
-                
-                const response = await axios.post(
-                    `https://graph.facebook.com/v22.0/${job.phoneNumberId}/messages`,
-                    messageData,
-                    { headers: { 'Authorization': `Bearer ${job.accessToken}` } }
-                );
+    const writeInterval = setInterval(async () => {
+        if (operationsBuffer.length > 0) {
+            const bufferCopy = [...operationsBuffer];
+            operationsBuffer.length = 0; 
+            
+            await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
+            
+            const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
+            const errorCount = bufferCopy.length - successCount;
 
-                return {
-                    updateOne: {
-                        filter: { _id: contactDoc._id },
-                        update: { $set: { status: 'SENT', sentAt: new Date(), messageId: response.data?.messages?.[0]?.id } }
-                    }
-                };
-            } catch(error: any) {
-                const errorMessage = getAxiosErrorMessage(error);
-                return {
-                    updateOne: {
-                        filter: { _id: contactDoc._id },
-                        update: { $set: { status: 'FAILED', sentAt: new Date(), error: errorMessage } }
-                    }
-                };
+            if (successCount > 0 || errorCount > 0) {
+                await db.collection('broadcasts').updateOne({ _id: jobId }, {
+                    $inc: { successCount, errorCount },
+                });
             }
-        };
-
-        const writeInterval = setInterval(async () => {
-            if (operationsBuffer.length > 0) {
-                const bufferCopy = [...operationsBuffer];
-                operationsBuffer.length = 0; 
-                
-                await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
-                
-                const successCount = bufferCopy.filter(op => op.updateOne.update.$set.status === 'SENT').length;
-                const errorCount = bufferCopy.length - successCount;
-
-                if (successCount > 0 || errorCount > 0) {
-                    await db.collection('broadcasts').updateOne({ _id: jobId }, {
-                        $inc: { successCount, errorCount },
-                    });
-                }
-            }
-        }, WRITE_INTERVAL_MS);
-        
+        }
+    }, WRITE_INTERVAL_MS);
+    
+    try {
         let isCancelled = false;
         let lastCheckTime = 0;
         const checkCancelled = async (): Promise<boolean> => {
@@ -232,19 +265,24 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
             return false;
         };
 
-        try {
-            const generator = contactGenerator(db, jobId, checkCancelled);
-
-            await promisePool(perJobRate, generator, async (contact) => {
-                const operation = await sendSingleMessage(contact);
-                if (operation) {
-                    operationsBuffer.push(operation);
-                }
-            });
-        } finally {
-            // Cleanup is handled in the generator's finally block
-        }
-
+        const generator = contactGenerator(db, jobId, checkCancelled);
+        await promisePool(perJobRate, generator, async (contact) => {
+            const operation = await sendSingleMessage(contact);
+            if (operation) {
+                operationsBuffer.push(operation);
+            }
+        });
+    } catch (processingError: any) {
+        const errorMsg = getAxiosErrorMessage(processingError);
+        console.error(`Processing failed for job ${jobId}: ${errorMsg}`);
+        const finalJobState = await db.collection('broadcasts').findOne({_id: jobId});
+        const finalStatus = (finalJobState?.successCount || 0) > 0 ? 'Partial Failure' : 'Failed';
+        await db.collection('broadcasts').updateOne(
+            { _id: jobId },
+            { $set: { status: finalStatus, completedAt: new Date(), error: errorMsg } }
+        );
+        return { jobId: jobId.toString(), status: `Processing Error - ${finalStatus}`, error: errorMsg };
+    } finally {
         clearInterval(writeInterval);
 
         if (operationsBuffer.length > 0) {
@@ -277,20 +315,10 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
             { _id: jobId },
             { $set: { status: finalStatus, completedAt: new Date() } }
         );
-
-        return { jobId: jobId.toString(), status: finalStatus, success: jobSuccessCount, failed: jobErrorCount };
-
-    } catch (processingError: any) {
-         const errorMsg = getAxiosErrorMessage(processingError);
-         console.error(`Processing failed for job ${jobId}: ${errorMsg}`);
-         const finalJobState = await db.collection('broadcasts').findOne({_id: jobId});
-         const finalStatus = (finalJobState?.successCount || 0) > 0 ? 'Partial Failure' : 'Failed';
-         await db.collection('broadcasts').updateOne(
-            { _id: jobId },
-            { $set: { status: finalStatus, completedAt: new Date() } }
-         );
-        return { jobId: jobId.toString(), status: `Processing Error - ${finalStatus}`, error: errorMsg };
     }
+    
+    const finalJob = await db.collection('broadcasts').findOne({ _id: jobId });
+    return { jobId: jobId.toString(), status: finalJob?.status, success: finalJob?.successCount, failed: finalJob?.errorCount };
 }
 
 
