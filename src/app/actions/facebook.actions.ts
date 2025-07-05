@@ -83,7 +83,7 @@ export async function handleConnectNewFacebookPage(data: {
             accessToken: accessToken,
             phoneNumbers: [],
             createdAt: new Date(),
-            messagesPerSecond: 6000,
+            messagesPerSecond: 10000,
         };
 
         await db.collection('projects').insertOne(newProject as any);
@@ -128,7 +128,7 @@ export async function handleManualFacebookPageSetup(prevState: any, formData: Fo
             accessToken: accessToken,
             phoneNumbers: [],
             createdAt: new Date(),
-            messagesPerSecond: 6000,
+            messagesPerSecond: 10000,
         };
 
         await db.collection('projects').insertOne(newProject as any);
