@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -98,8 +99,8 @@ export default function FacebookSettingsPage() {
                 </CardContent>
                  <CardFooter>
                     <Button asChild>
-                        <Link href="/dashboard/facebook/setup">
-                             {hasMarketingSetup ? 'Disconnect / Change Account' : 'Connect Account'}
+                        <Link href="/dashboard/facebook/all-projects">
+                             {hasMarketingSetup ? 'Reconnect / Change Account' : 'Connect Account'}
                         </Link>
                     </Button>
                 </CardFooter>

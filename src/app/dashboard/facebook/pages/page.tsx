@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { FacebookPage } from '@/lib/definitions';
+import { cn } from '@/lib/utils';
 
 function PagesPageSkeleton() {
     return (
@@ -85,7 +86,7 @@ export default function AllFacebookPagesPage() {
             ) : pages.length > 0 ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {pages.map(page => (
-                        <Card key={page.id}>
+                        <Card key={page.id} className="card-gradient card-gradient-green">
                             <CardHeader className="flex-row items-center gap-4">
                                 <Avatar>
                                     <AvatarImage src={`https://graph.facebook.com/${page.id}/picture?type=square`} alt={page.name} data-ai-hint="logo company"/>

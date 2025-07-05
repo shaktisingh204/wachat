@@ -105,7 +105,7 @@ export default function CreateFacebookPostPage() {
                     <input type="hidden" name="isScheduled" value={isScheduled ? 'on' : 'off'} />
                     <input type="hidden" name="scheduledDate" value={scheduledDate?.toISOString().split('T')[0]} />
 
-                    <Card>
+                    <Card className="card-gradient card-gradient-green">
                         <CardHeader>
                             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                                 <TabsList className="grid w-full grid-cols-3">
