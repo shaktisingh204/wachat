@@ -4,7 +4,7 @@
 
 import { useFormStatus } from 'react-dom';
 import { useActionState, useEffect, useRef, useState } from 'react';
-import { handleStartBroadcast } from '@/app/actions';
+import { handleStartBroadcast } from '@/app/actions/broadcast.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../ui/card';
@@ -125,7 +125,7 @@ export function BroadcastForm({ templates, project, metaFlows }: BroadcastFormPr
             <div className="space-y-2">
                 <Label htmlFor="broadcastType">1. Select Broadcast Type</Label>
                 <RadioGroup name="broadcastType" value={broadcastType} onValueChange={(val) => setBroadcastType(val as any)} className="flex gap-4 pt-1">
-                    <div className="flex items-center space-x-2"><RadioGroupItem value="template" id="type-template" /><Label htmlFor="type-template">Template Message</Label></div>
+                    <div className="flex items-center space-x-2"><RadioGroupItem value="template" id="type-template" /><Label htmlFor="type-template">Campaign</Label></div>
                     <div className="flex items-center space-x-2"><RadioGroupItem value="flow" id="type-flow" /><Label htmlFor="type-flow">Meta Flow</Label></div>
                 </RadioGroup>
             </div>
