@@ -115,6 +115,11 @@ export type FacebookCommentAutoReplySettings = {
   moderationPrompt?: string;
 };
 
+export type FacebookWelcomeMessageSettings = {
+    enabled: boolean;
+    message: string;
+};
+
 export type PostRandomizerSettings = {
     enabled: boolean;
     frequencyHours: number;
@@ -145,6 +150,7 @@ export type Project = {
     adAccountId?: string;
     facebookPageId?: string;
     facebookCommentAutoReply?: FacebookCommentAutoReplySettings;
+    facebookWelcomeMessage?: FacebookWelcomeMessageSettings;
     postRandomizer?: PostRandomizerSettings;
     tags?: Tag[];
     planId?: ObjectId;
@@ -188,6 +194,29 @@ export type Flow = {
     projectId: any;
     nodes: FlowNode[];
     edges: FlowEdge[];
+    triggerKeywords: string[];
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type FacebookFlowNode = {
+    id: string;
+    type: string;
+    data: any;
+    position: { x: number, y: number };
+};
+
+export type FacebookFlowEdge = {
+    id: string;
+    source: string;
+    target: string;
+};
+
+export type FacebookFlow = {
+    name: string;
+    projectId: ObjectId;
+    nodes: FacebookFlowNode[];
+    edges: FacebookFlowEdge[];
     triggerKeywords: string[];
     createdAt: Date;
     updatedAt: Date;
@@ -336,8 +365,11 @@ export type FacebookLiveStream = {
 };
 
 export type FacebookSubscriber = {
-  id: string; // PSID
+  _id: ObjectId;
+  projectId: ObjectId;
+  psid: string; // Page-Scoped ID
   name: string;
+  createdAt: Date;
 };
 
 
@@ -554,12 +586,6 @@ export type CannedMessage = {
     isFavourite: boolean;
     createdBy: string;
     createdAt: Date;
-};
-
-export type FlowLogEntry = {
-    timestamp: Date;
-    message: string;
-    data?: any;
 };
 
 export type FlowLog = {
