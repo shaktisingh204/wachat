@@ -20,18 +20,14 @@
  *     increasing throughput. The concurrency level is configurable per project.
  *
  * 4.  **Batched Database Writes:** To minimize database load, status updates for each sent
- *     message are buffered and written in bulk (`bulkWrite`) at a set interval. This
+ *     message are buffered and written in bulk (`bulkWrite`) at a longer interval. This
  *     avoids a separate DB write for every single message sent.
  *
  * 5.  **Robust Error Handling & Cancellation:** The system includes detailed error logging
  *     and a mechanism to check if a job has been cancelled, allowing it to gracefully
  *     stop processing.
  *
- * While this architecture is highly optimized for a single-server environment, achieving
- * speeds of 1 million messages per second would require a distributed system with a message
- * queue (like Kafka or RabbitMQ) and multiple worker instances, which is beyond the scope
- * of this implementation. This code provides the maximum possible throughput within the
- * current architecture.
+ * This architecture maximizes throughput for a single-server environment.
  */
 
 
@@ -60,7 +56,8 @@ type Project = {
     messagesPerSecond?: number;
 };
 
-const WRITE_INTERVAL_MS = 1000; // How often to write bulk updates to the DB.
+// Increased interval to 5 seconds to reduce DB write frequency.
+const WRITE_INTERVAL_MS = 5000;
 
 
 const getAxiosErrorMessage = (error: any): string => {
@@ -82,9 +79,6 @@ const getAxiosErrorMessage = (error: any): string => {
 
 /**
  * Runs an async iterator function over an async generator of items with a specified concurrency limit.
- * @param poolLimit The maximum number of promises to run in parallel.
- * @param iterable An async generator that yields items to process.
- * @param iteratorFn The async function to apply to each item.
  */
 async function promisePool<T>(
   poolLimit: number,
@@ -104,11 +98,6 @@ async function promisePool<T>(
 
 /**
  * An async generator that yields contacts from the database for a given job.
- * This is a simple cursor over the pending contacts. The rate of sending is controlled
- * by the consumer (the promisePool).
- * @param db The database instance.
- * @param jobId The ID of the current broadcast job.
- * @param checkCancelled A function to check if the job has been cancelled.
  */
 async function* contactGenerator(
     db: Db,
@@ -122,12 +111,12 @@ async function* contactGenerator(
     try {
         for await (const contact of cursor) {
             if (await checkCancelled()) {
-                break; // Stop yielding if job is cancelled
+                break;
             }
             yield contact;
         }
     } finally {
-        await cursor.close(); // Ensure cursor is closed
+        await cursor.close();
     }
 }
 
@@ -254,7 +243,7 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
             if (isCancelled) return true;
             
             const now = Date.now();
-            if (now - lastCheckTime > 2000) { // Check every 2 seconds
+            if (now - lastCheckTime > 2000) { 
                 lastCheckTime = now;
                 const currentJobState = await db.collection<BroadcastJobType>('broadcasts').findOne({_id: jobId}, {projection: {status: 1}});
                 if (currentJobState?.status === 'Cancelled') {
@@ -331,9 +320,8 @@ export async function processBroadcastJob() {
         const conn = await connectToDatabase();
         db = conn.db;
 
-        // --- Acquire Lock ---
         const now = new Date();
-        const lockHeldUntil = new Date(now.getTime() + 5 * 60 * 1000); // Lock for 5 minutes
+        const lockHeldUntil = new Date(now.getTime() + 5 * 60 * 1000); 
 
         let lockResult;
         try {
@@ -349,10 +337,10 @@ export async function processBroadcastJob() {
                 { upsert: true, returnDocument: 'after' }
             );
         } catch (e: any) {
-            if (e.code === 11000) { // Duplicate key error from a race condition
-                lockResult = null; // We lost the race, so we don't have the lock
+            if (e.code === 11000) { 
+                lockResult = null;
             } else {
-                throw e; // Re-throw other unexpected errors
+                throw e;
             }
         }
         
@@ -360,7 +348,6 @@ export async function processBroadcastJob() {
              return { message: "Scheduler lock held by another process." };
         }
         lockAcquired = true;
-        // --- End Acquire Lock ---
 
         const tenSecondsAgo = new Date(Date.now() - 10 * 1000);
 
@@ -443,7 +430,7 @@ export async function processBroadcastJob() {
                 db = conn.db;
                 await db.collection('locks').updateOne(
                     { _id: lockId },
-                    { $set: { lockHeldUntil: new Date(0) } } // Release lock
+                    { $set: { lockHeldUntil: new Date(0) } }
                 );
             } catch(e) {
                 console.error("Failed to release scheduler lock:", e);
