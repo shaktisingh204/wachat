@@ -1,19 +1,21 @@
 
 'use client';
 
-import { useEffect, useState, useTransition, useCallback } from 'react';
+import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { getPageDetails, getPageInsights } from '@/app/actions/facebook.actions';
-import type { FacebookPageDetails, PageInsights } from '@/lib/definitions';
-import { AlertCircle, Users, ThumbsUp, Newspaper, Megaphone, Settings, MessageSquare, Wrench, Edit, TrendingUp, Handshake } from 'lucide-react';
+import { getPageDetails, getPageInsights, getFacebookPosts } from '@/app/actions/facebook.actions';
+import type { FacebookPageDetails, PageInsights, FacebookPost, FacebookComment } from '@/lib/definitions';
+import { AlertCircle, Users, ThumbsUp, Newspaper, Megaphone, Settings, MessageSquare, Wrench, Edit, TrendingUp, Handshake, Star } from 'lucide-react';
 import Image from 'next/image';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { EditPageDetailsDialog } from '@/components/wabasimplify/edit-page-details-dialog';
+import { Separator } from '@/components/ui/separator';
+
 
 const StatCard = ({ title, value, icon: Icon, gradientClass }: { title: string, value: string | number, icon: React.ElementType, gradientClass?: string }) => (
     <Card className={cn("card-gradient", gradientClass)}>
@@ -38,12 +40,54 @@ const features = [
     { href: '/dashboard/facebook/settings', title: 'Settings', description: 'View your connected account IDs.', icon: Settings },
 ];
 
+const RecentComment = ({ comment, postLink }: { comment: FacebookComment & {postLink: string}; postLink: string }) => (
+    <div className="flex items-start gap-3">
+        <Avatar className="h-9 w-9">
+            <AvatarImage src={`https://graph.facebook.com/${comment.from.id}/picture`} alt={comment.from.name} data-ai-hint="person avatar" />
+            <AvatarFallback>{comment.from.name.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+            <p className="text-sm">
+                <span className="font-semibold">{comment.from.name}</span> commented:
+            </p>
+            <p className="text-sm text-muted-foreground line-clamp-2">
+                "{comment.message}"
+            </p>
+            <Link href={postLink} target="_blank" className="text-xs text-primary hover:underline">
+                View Post
+            </Link>
+        </div>
+    </div>
+);
+
+const TopPost = ({ post }: { post: FacebookPost & { engagementScore: number } }) => (
+    <div className="flex items-start gap-3">
+        <div className="flex-shrink-0 text-center w-12">
+            <p className="text-lg font-bold">{post.engagementScore}</p>
+            <p className="text-xs text-muted-foreground">Engaged</p>
+        </div>
+        <div className="flex-1">
+            <p className="text-sm text-muted-foreground line-clamp-2">
+                {post.message || <span className="italic">Media post</span>}
+            </p>
+            <Link href={post.permalink_url} target="_blank" className="text-xs text-primary hover:underline">
+                View Post
+            </Link>
+        </div>
+    </div>
+);
+
+
 function DashboardSkeleton() {
     return (
         <div className="space-y-8">
             <Skeleton className="h-8 w-1/3" />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-24" />)}
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                 <Skeleton className="h-48" />
+                 <Skeleton className="h-48" />
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2"><Skeleton className="h-48" /></div>
@@ -53,10 +97,10 @@ function DashboardSkeleton() {
     );
 }
 
-
 export default function FacebookDashboardPage() {
     const [pageDetails, setPageDetails] = useState<FacebookPageDetails | null>(null);
     const [insights, setInsights] = useState<PageInsights | null>(null);
+    const [posts, setPosts] = useState<FacebookPost[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [projectId, setProjectId] = useState<string | null>(null);
@@ -66,20 +110,17 @@ export default function FacebookDashboardPage() {
     const fetchPageData = useCallback(() => {
         if (projectId) {
             startLoading(async () => {
-                const [detailsResult, insightsResult] = await Promise.all([
+                const [detailsResult, insightsResult, postsResult] = await Promise.all([
                     getPageDetails(projectId),
-                    getPageInsights(projectId)
+                    getPageInsights(projectId),
+                    getFacebookPosts(projectId)
                 ]);
 
-                if (detailsResult.error) {
-                    setError(detailsResult.error);
-                } else if (detailsResult.page) {
-                    setPageDetails(detailsResult.page);
-                }
+                if (detailsResult.error) setError(detailsResult.error);
+                else if (detailsResult.page) setPageDetails(detailsResult.page);
 
-                if (insightsResult.insights) {
-                    setInsights(insightsResult.insights);
-                }
+                if (insightsResult.insights) setInsights(insightsResult.insights);
+                if (postsResult.posts) setPosts(postsResult.posts);
             });
         }
     }, [projectId]);
@@ -93,6 +134,32 @@ export default function FacebookDashboardPage() {
         fetchPageData();
     }, [projectId, fetchPageData, actionCounter]);
     
+     const { topPosts, recentComments } = useMemo(() => {
+        if (!posts || posts.length === 0) {
+            return { topPosts: [], recentComments: [] };
+        }
+
+        const calculatedTopPosts = posts
+            .map(post => {
+                const engagementScore = 
+                    (post.reactions?.summary.total_count || 0) +
+                    (post.comments?.summary.total_count || 0) +
+                    (post.shares?.count || 0);
+                return { ...post, engagementScore };
+            })
+            .sort((a, b) => b.engagementScore - a.engagementScore)
+            .slice(0, 5);
+
+        const allComments = posts
+            .flatMap(post => 
+                (post.comments?.data || []).map(comment => ({ ...comment, postLink: post.permalink_url }))
+            )
+            .sort((a, b) => new Date(b.created_time).getTime() - new Date(a.created_time).getTime())
+            .slice(0, 5);
+        
+        return { topPosts: calculatedTopPosts, recentComments: allComments };
+    }, [posts]);
+
     if (isLoading && !pageDetails) return <DashboardSkeleton />;
 
     if (!projectId) {
@@ -153,6 +220,29 @@ export default function FacebookDashboardPage() {
                     <StatCard title="Likes" value={pageDetails.fan_count || 0} icon={ThumbsUp} gradientClass="card-gradient-green" />
                     <StatCard title="Daily Reach" value={insights?.pageReach || 0} icon={TrendingUp} gradientClass="card-gradient-purple" />
                     <StatCard title="Daily Engagement" value={insights?.postEngagement || 0} icon={Handshake} gradientClass="card-gradient-orange" />
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Star className="h-5 w-5 text-amber-400"/>Top Posts</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {topPosts.length > 0 ? (
+                                topPosts.map(post => <TopPost key={post.id} post={post} />)
+                            ) : <p className="text-sm text-muted-foreground text-center py-4">No posts to analyze yet.</p>}
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5 text-blue-500"/>Recent Comments</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            {recentComments.length > 0 ? (
+                                recentComments.map(comment => <RecentComment key={comment.id} comment={comment} postLink={comment.postLink}/>)
+                            ) : <p className="text-sm text-muted-foreground text-center py-4">No recent comments.</p>}
+                        </CardContent>
+                    </Card>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
