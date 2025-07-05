@@ -11,7 +11,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Facebook } from 'lucide-react';
 import Link from 'next/link';
-import { FacebookCommentAutoReplyForm } from '@/components/wabasimplify/facebook-comment-auto-reply-form';
 
 function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
     return (
@@ -106,8 +105,6 @@ export default function FacebookSettingsPage() {
                     </Button>
                 </CardFooter>
             </Card>
-
-            <FacebookCommentAutoReplyForm project={project} />
         </div>
     );
 }

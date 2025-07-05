@@ -108,7 +108,11 @@ export type CustomDomain = {
 
 export type FacebookCommentAutoReplySettings = {
   enabled: boolean;
-  replyText: string;
+  replyMode: 'static' | 'ai';
+  staticReplyText?: string;
+  aiReplyPrompt?: string;
+  moderationEnabled: boolean;
+  moderationPrompt?: string;
 };
 
 export type Project = {
