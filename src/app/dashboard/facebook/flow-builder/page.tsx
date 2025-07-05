@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { 
     MessageSquare, 
     ToggleRight, 
@@ -17,11 +17,17 @@ import {
     Save,
     Plus,
     Type,
-    BrainCircuit,
     LoaderCircle,
     BookOpen,
     PanelLeft,
     Settings2,
+    Copy,
+    File,
+    ZoomIn,
+    ZoomOut,
+    Frame,
+    Maximize,
+    Minimize,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -37,7 +43,8 @@ import {
 } from '@/app/actions/facebook-flow.actions';
 import type { FacebookFlow, FacebookFlowNode, FacebookFlowEdge } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
-
+import { Separator } from '@/components/ui/separator';
+import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
 
 type NodeType = 'start' | 'text' | 'buttons' | 'input';
 
@@ -52,9 +59,7 @@ const blockTypes = [
     { type: 'input', label: 'Get User Input', icon: Type },
 ];
 
-const NodeComponent = ({ node, isSelected }: { node: FacebookFlowNode; isSelected: boolean; }) => {
-    const BlockIcon = [...blockTypes, {type: 'start', label: 'Start', icon: Play}].find(b => b.type === node.type)?.icon || MessageSquare;
-
+const NodePreview = ({ node }: { node: FacebookFlowNode }) => {
     const renderTextWithVariables = (text?: string) => {
         if (!text) return <span className="italic opacity-50">Enter message...</span>;
         const parts = text.split(/({{\s*[\w\d._]+\s*}})/g);
@@ -69,34 +74,90 @@ const NodeComponent = ({ node, isSelected }: { node: FacebookFlowNode; isSelecte
         );
     };
 
+    const previewContent = () => {
+        switch (node.type) {
+            case 'text':
+            case 'input':
+                return <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text)}</p>;
+            case 'buttons':
+                return (
+                    <div className="space-y-2">
+                        <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text)}</p>
+                        <div className="space-y-1 mt-2 border-t border-muted-foreground/20 pt-2">
+                            {(node.data.buttons || []).map((btn: any, index: number) => (
+                                <div key={btn.id || index} className="text-center text-primary font-medium bg-background/50 py-1.5 rounded-md text-xs">
+                                    {btn.text || `Button ${index + 1}`}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
+    const content = previewContent();
+    if (!content) return null;
+
     return (
-        <Card className={cn("w-64 hover:shadow-xl hover:-translate-y-1 bg-card", isSelected && "ring-2 ring-primary shadow-2xl")}>
-            <CardHeader className="flex flex-row items-center gap-3 p-3">
-                <BlockIcon className="h-5 w-5 text-muted-foreground" />
-                <CardTitle className="text-sm font-medium">{node.data.label}</CardTitle>
-            </CardHeader>
-            <CardContent className="p-3 pt-0">
-                <div className="text-sm text-muted-foreground space-y-2">
-                    {node.type === 'text' && <div>{renderTextWithVariables(node.data.text)}</div>}
-                    {node.type === 'input' && <div>{renderTextWithVariables(node.data.text)}</div>}
-                    {node.type === 'buttons' && (
-                        <>
-                            <div>{renderTextWithVariables(node.data.text)}</div>
-                            <div className="border-t pt-2 space-y-1">
-                                {(node.data.buttons || []).map((btn: any, index: number) => (
-                                    <div key={btn.id || index} className="text-center text-primary font-medium bg-background/50 py-1.5 rounded-md text-xs">
-                                        {btn.text || `Button ${index + 1}`}
-                                    </div>
-                                ))}
-                            </div>
-                        </>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
+        <CardContent className="p-2 pt-0">
+            <div className="bg-muted p-2 rounded-lg text-sm text-card-foreground/80">
+                {content}
+            </div>
+        </CardContent>
     );
 };
 
+const NodeComponent = ({ 
+    node, 
+    onSelectNode, 
+    isSelected,
+    onNodeMouseDown,
+    onHandleClick 
+}: { 
+    node: FacebookFlowNode; 
+    onSelectNode: (id: string) => void; 
+    isSelected: boolean;
+    onNodeMouseDown: (e: React.MouseEvent, nodeId: string) => void;
+    onHandleClick: (e: React.MouseEvent, nodeId: string, handleId: string) => void;
+}) => {
+    const BlockIcon = [...blockTypes, {type: 'start', label: 'Start', icon: Play}].find(b => b.type === node.type)?.icon || MessageSquare;
+
+    const Handle = ({ position, id }: { position: 'left' | 'right', id: string }) => (
+        <div 
+            id={id}
+            data-handle-pos={position}
+            className={cn(
+                "absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10",
+                position === 'left' && "-left-2 top-1/2 -translate-y-1/2",
+                position === 'right' && "-right-2 top-1/2 -translate-y-1/2",
+            )} 
+            onMouseDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onHandleClick(e, node.id, id); }}
+        />
+    );
+
+    return (
+        <div 
+            className="absolute cursor-grab active:cursor-grabbing transition-all"
+            style={{ top: node.position.y, left: node.position.x }}
+            onMouseDown={(e) => onNodeMouseDown(e, node.id)}
+            onClick={(e) => { e.stopPropagation(); onSelectNode(node.id); }}
+        >
+            <Card className={cn("w-64 hover:shadow-xl hover:-translate-y-1 bg-card", isSelected && "ring-2 ring-primary shadow-2xl")}>
+                <CardHeader className="flex flex-row items-center gap-3 p-3">
+                    <BlockIcon className="h-5 w-5 text-muted-foreground" />
+                    <CardTitle className="text-sm font-medium">{node.data.label}</CardTitle>
+                </CardHeader>
+                <NodePreview node={node} />
+            </Card>
+
+            {node.type !== 'start' && <Handle position="left" id={`${node.id}-input`} />}
+            <Handle position="right" id={`${node.id}-output`} />
+        </div>
+    );
+};
 
 const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selectedNode: FacebookFlowNode | null; updateNodeData: (id: string, data: Partial<any>) => void, deleteNode: (id: string) => void }) => {
     if (!selectedNode) return null;
@@ -218,20 +279,100 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
     );
 };
 
+const FlowsAndBlocksPanel = ({ 
+    isLoading,
+    flows,
+    currentFlow,
+    handleSelectFlow,
+    handleDeleteFlow,
+    handleCreateNewFlow,
+    addNode,
+} : {
+    isLoading: boolean;
+    flows: WithId<FacebookFlow>[];
+    currentFlow: WithId<FacebookFlow> | null;
+    handleSelectFlow: (id: string) => void;
+    handleDeleteFlow: (id: string) => void;
+    handleCreateNewFlow: () => void;
+    addNode: (type: NodeType) => void;
+}) => (
+    <>
+        <Card>
+            <CardHeader className="flex-row items-center justify-between p-3">
+                <CardTitle className="text-base">Flows</CardTitle>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={handleCreateNewFlow}><Plus/></Button>
+            </CardHeader>
+            <CardContent className="p-2 pt-0">
+                <ScrollArea className="h-40">
+                    {isLoading && flows.length === 0 ? <Skeleton className="h-full w-full"/> : 
+                        flows.map(flow => (
+                            <div key={flow._id.toString()} className="flex items-center group">
+                                <Button 
+                                    variant="ghost" 
+                                    className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && "bg-muted font-semibold")}
+                                    onClick={() => handleSelectFlow(flow._id.toString())}
+                                >
+                                    <File className="mr-2 h-4 w-4"/>
+                                    {flow.name}
+                                </Button>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => handleDeleteFlow(flow._id.toString())}>
+                                    <Trash2 className="h-4 w-4"/>
+                                </Button>
+                            </div>
+                        ))
+                    }
+                </ScrollArea>
+            </CardContent>
+        </Card>
+        <Card className="flex-1 flex flex-col">
+            <CardHeader className="p-3"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
+            <CardContent className="space-y-2 p-2 pt-0 flex-1 min-h-0">
+                <ScrollArea className="h-full">
+                    {blockTypes.map(({ type, label, icon: Icon }) => (
+                        <Button key={type} variant="outline" className="w-full justify-start mb-2" onClick={() => addNode(type as NodeType)}>
+                            <Icon className="mr-2 h-4 w-4" />
+                            {label}
+                        </Button>
+                    ))}
+                </ScrollArea>
+            </CardContent>
+        </Card>
+    </>
+);
+
+const NODE_WIDTH = 256;
+const NODE_HEIGHT = 100;
+
+const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
+    if (!sourcePos || !targetPos) return '';
+    const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
+    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    return path;
+};
 
 export default function FacebookFlowBuilderPage() {
-    // This component will have a simplified UI for now, focusing on a few key nodes.
-    // It will not have the full react-flow-renderer setup yet.
+    const { toast } = useToast();
     const [isClient, setIsClient] = useState(false);
     const [projectId, setProjectId] = useState<string | null>(null);
     const [flows, setFlows] = useState<WithId<FacebookFlow>[]>([]);
     const [currentFlow, setCurrentFlow] = useState<WithId<FacebookFlow> | null>(null);
     const [nodes, setNodes] = useState<FacebookFlowNode[]>([]);
+    const [edges, setEdges] = useState<FacebookFlowEdge[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-    const [isLoading, startLoadingTransition] = useTransition();
     const [isSaving, startSaveTransition] = useTransition();
+    const [isLoading, startLoadingTransition] = useTransition();
     
-    const { toast } = useToast();
+    const [pan, setPan] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [isPanning, setIsPanning] = useState(false);
+    const viewportRef = useRef<HTMLDivElement>(null);
+    const [draggingNode, setDraggingNode] = useState<string | null>(null);
+    const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
+    const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+
+    const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
+    const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
+    const [isFullScreen, setIsFullScreen] = useState(false);
 
     useEffect(() => {
         setIsClient(true);
@@ -263,23 +404,31 @@ export default function FacebookFlowBuilderPage() {
         const flow = await getFacebookFlowById(flowId);
         setCurrentFlow(flow);
         setNodes(flow?.nodes || []);
+        setEdges(flow?.edges || []);
         setSelectedNodeId(null);
+        setIsBlocksSheetOpen(false);
     }
     
     const handleCreateNewFlow = () => {
         setCurrentFlow(null);
-        setNodes([{ id: 'start', type: 'start', data: { label: 'Start Flow' }, position: { x: 50, y: 50 } }]);
+        setNodes([{ id: 'start', type: 'start', data: { label: 'Start Flow' }, position: { x: 50, y: 150 } }]);
+        setEdges([]);
         setSelectedNodeId('start');
     }
 
     const addNode = (type: NodeType) => {
+        const centerOfViewX = viewportRef.current ? (viewportRef.current.clientWidth / 2 - pan.x) / zoom : 300;
+        const centerOfViewY = viewportRef.current ? (viewportRef.current.clientHeight / 2 - pan.y) / zoom : 150;
+
         const newNode: FacebookFlowNode = {
             id: `${type}-${Date.now()}`,
             type,
             data: { label: `New ${type}` },
-            position: { x: 100, y: nodes.length * 100 },
+            position: { x: centerOfViewX, y: centerOfViewY },
         };
         setNodes(prev => [...prev, newNode]);
+        setSelectedNodeId(newNode.id);
+        setIsBlocksSheetOpen(false);
     };
     
      const updateNodeData = (id: string, data: Partial<any>) => {
@@ -290,7 +439,9 @@ export default function FacebookFlowBuilderPage() {
 
     const deleteNode = (id: string) => {
         setNodes(prev => prev.filter(node => node.id !== id));
+        setEdges(prev => prev.filter(edge => edge.source !== id && edge.target !== id));
         if (selectedNodeId === id) setSelectedNodeId(null);
+        setIsPropsSheetOpen(false);
     };
 
     const handleSaveFlow = async () => {
@@ -305,7 +456,7 @@ export default function FacebookFlowBuilderPage() {
                 projectId,
                 name: flowName,
                 nodes,
-                edges: [], // Edges not implemented in this simple view yet
+                edges,
                 triggerKeywords
             });
             if(result.error) toast({title: "Error", description: result.error, variant: 'destructive'});
@@ -318,6 +469,167 @@ export default function FacebookFlowBuilderPage() {
             }
         });
     }
+
+    const handleDeleteFlow = async (flowId: string) => {
+        const result = await deleteFacebookFlow(flowId);
+        if(result.error) toast({title: "Error", description: result.error, variant: 'destructive'});
+        else {
+            toast({title: "Success", description: result.message});
+            fetchFlows();
+            if(currentFlow?._id.toString() === flowId) {
+                handleCreateNewFlow();
+            }
+        }
+    }
+    
+    const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDraggingNode(nodeId);
+    };
+    
+    const handleCanvasMouseDown = (e: React.MouseEvent) => {
+        if (e.target === e.currentTarget) {
+            e.preventDefault();
+            setIsPanning(true);
+        }
+    };
+
+    const handleCanvasMouseMove = (e: React.MouseEvent) => {
+        if (isPanning) {
+            setPan(prev => ({ x: prev.x + e.movementX, y: prev.y + e.movementY }));
+        } else if (draggingNode) {
+            setNodes(prev => prev.map(n => 
+                n.id === draggingNode
+                    ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } 
+                    : n
+            ));
+        }
+        
+        if (connecting && viewportRef.current) {
+            const rect = viewportRef.current.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            setMousePosition({ x: (mouseX - pan.x) / zoom, y: (mouseY - pan.y) / zoom });
+        }
+    };
+
+    const handleCanvasMouseUp = () => {
+        setIsPanning(false);
+        setDraggingNode(null);
+    };
+
+    const handleCanvasClick = (e: React.MouseEvent) => {
+        if (e.target === e.currentTarget) {
+            if (connecting) {
+                setConnecting(null);
+            } else {
+                setSelectedNodeId(null);
+            }
+        }
+    }
+
+    const getNodeHandlePosition = (node: FacebookFlowNode, handleId: string) => {
+        if (!node || !handleId) return null;
+        const x = node.position.x;
+        const y = node.position.y;
+        
+        if (handleId.endsWith('-input')) {
+            return { x: x, y: y + NODE_HEIGHT / 2 };
+        }
+        if (handleId.endsWith('-output')) {
+            return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT / 2 };
+        }
+        return null;
+    }
+
+    const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!viewportRef.current) return;
+        
+        const isOutputHandle = handleId.endsWith('-output');
+
+        if (isOutputHandle) {
+            const sourceNode = nodes.find(n => n.id === nodeId);
+            if(sourceNode){
+                const handlePos = getNodeHandlePosition(sourceNode, handleId);
+                if (handlePos) {
+                    setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });
+                }
+            }
+        } else if (connecting && !isOutputHandle) {
+            if (connecting.sourceNodeId === nodeId) {
+                setConnecting(null);
+                return;
+            }
+
+            const newEdge: FacebookFlowEdge = {
+                id: `edge-${connecting.sourceNodeId}-${nodeId}`,
+                source: connecting.sourceNodeId,
+                target: nodeId,
+            };
+            
+            setEdges(prev => [...prev.filter(edge => edge.source !== connecting.sourceNodeId), newEdge]);
+            setConnecting(null);
+        }
+    };
+
+    const handleWheel = (e: React.WheelEvent) => {
+        e.preventDefault();
+        if (!viewportRef.current) return;
+    
+        const rect = viewportRef.current.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+    
+        const zoomFactor = -0.001;
+        const newZoom = Math.max(0.2, Math.min(2, zoom + e.deltaY * zoomFactor));
+        
+        const worldX = (mouseX - pan.x) / zoom;
+        const worldY = (mouseY - pan.y) / zoom;
+        
+        const newPanX = mouseX - worldX * newZoom;
+        const newPanY = mouseY - worldY * newZoom;
+    
+        setZoom(newZoom);
+        setPan({ x: newPanX, y: newPanY });
+    };
+
+    useEffect(() => {
+        if (selectedNodeId) {
+            setIsPropsSheetOpen(true);
+        }
+    }, [selectedNodeId]);
+
+    const handleZoomControls = (direction: 'in' | 'out' | 'reset') => {
+        if(direction === 'reset') {
+            setZoom(1);
+            setPan({ x: 0, y: 0 });
+            return;
+        }
+        setZoom(prevZoom => {
+            const newZoom = direction === 'in' ? prevZoom * 1.2 : prevZoom / 1.2;
+            return Math.max(0.2, Math.min(2, newZoom));
+        });
+    };
+
+    const handleToggleFullScreen = () => {
+        if (!document.fullscreenElement) {
+            viewportRef.current?.requestFullscreen().catch(err => {
+                alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+            });
+        } else {
+            document.exitFullscreen?.();
+        }
+    };
+
+    useEffect(() => {
+        const handleFullScreenChange = () => setIsFullScreen(!!document.fullscreenElement);
+        document.addEventListener('fullscreenchange', handleFullScreenChange);
+        return () => document.removeEventListener('fullscreenchange', handleFullScreenChange);
+    }, []);
 
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
 
@@ -338,79 +650,117 @@ export default function FacebookFlowBuilderPage() {
     }
 
     return (
-        <div className="flex flex-col gap-8 h-full">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <GitFork className="h-8 w-8"/>
-                    Facebook Flow Builder
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    Create automated chatbot flows for your Facebook Page.
-                </p>
+        <div className="flex flex-col h-full gap-4">
+            <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <Input 
+                        id="flow-name-input"
+                        key={currentFlow?._id.toString() || 'new-flow'}
+                        defaultValue={currentFlow?.name || 'New Flow'} 
+                        className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-3xl font-bold font-headline"
+                        onMouseDown={(e) => e.stopPropagation()}
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="flex md:hidden items-center gap-2">
+                        <Button variant="outline" onClick={() => setIsBlocksSheetOpen(true)}><PanelLeft className="mr-2 h-4 w-4"/>Flows & Blocks</Button>
+                        {selectedNode && <Button variant="outline" onClick={() => setIsPropsSheetOpen(true)} disabled={!selectedNode}><Settings2 className="mr-2 h-4 w-4"/>Properties</Button>}
+                    </div>
+                    <Button onClick={handleSaveFlow} disabled={isSaving}>
+                        {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4" />}
+                        <span className="hidden sm:inline">Save Flow</span>
+                    </Button>
+                </div>
             </div>
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 min-h-0">
+                <div className="hidden md:flex md:col-span-3 lg:col-span-2 flex-col gap-4">
+                    <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
+                </div>
+                <Sheet open={isBlocksSheetOpen} onOpenChange={setIsBlocksSheetOpen}>
+                    <SheetContent side="left" className="p-2 flex flex-col gap-4 w-full max-w-xs">
+                        <SheetTitle className="sr-only">Flows and Blocks</SheetTitle>
+                        <SheetDescription className="sr-only">A list of flows and draggable blocks.</SheetDescription>
+                        <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
+                    </SheetContent>
+                </Sheet>
+                <div className="md:col-span-6 lg:col-span-7">
+                    <Card
+                        ref={viewportRef}
+                        className="h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing"
+                        onMouseDown={handleCanvasMouseDown}
+                        onMouseMove={handleCanvasMouseMove}
+                        onMouseUp={handleCanvasMouseUp}
+                        onMouseLeave={handleCanvasMouseUp}
+                        onWheel={handleWheel}
+                        onClick={handleCanvasClick}
+                    >
+                        <div
+                            className="absolute inset-0"
+                            style={{
+                                backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)',
+                                backgroundSize: '20px 20px',
+                                backgroundPosition: `${pan.x}px ${pan.y}px`,
+                            }}
+                        />
+                        <div 
+                            className="relative w-full h-full"
+                            style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}
+                        >
+                            {isLoading && !currentFlow ? (
+                                <div className="absolute inset-0 flex items-center justify-center"><LoaderCircle className="h-8 w-8 animate-spin text-primary" /></div>
+                            ) : (
+                                <>
+                                    {nodes.map(node => (
+                                        <NodeComponent 
+                                            key={node.id} 
+                                            node={node}
+                                            onSelectNode={setSelectedNodeId}
+                                            isSelected={selectedNodeId === node.id}
+                                            onNodeMouseDown={handleNodeMouseDown}
+                                            onHandleClick={handleHandleClick}
+                                        />
+                                    ))}
+                                    <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
+                                        {edges.map(edge => {
+                                            const sourceNode = nodes.find(n => n.id === edge.source);
+                                            const targetNode = nodes.find(n => n.id === edge.target);
+                                            if(!sourceNode || !targetNode) return null;
+                                            
+                                            const sourcePos = getNodeHandlePosition(sourceNode, `${edge.source}-output`);
+                                            const targetPos = getNodeHandlePosition(targetNode, `${edge.target}-input`);
+                                            if (!sourcePos || !targetPos) return null;
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
-                <div className="lg:col-span-3 space-y-4">
-                    <Card>
-                        <CardHeader className="p-4">
-                            <CardTitle className="text-base">Flows</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-2">
-                             <Button variant="outline" className="w-full mb-2" onClick={handleCreateNewFlow}>
-                                <Plus className="mr-2 h-4 w-4"/> New Flow
-                            </Button>
-                            <ScrollArea className="h-40">
-                                {flows.map(flow => (
-                                    <Button key={flow._id.toString()} variant="ghost" className={cn("w-full justify-start", currentFlow?._id.toString() === flow._id.toString() && "bg-muted")} onClick={() => handleSelectFlow(flow._id.toString())}>
-                                        {flow.name}
-                                    </Button>
-                                ))}
-                            </ScrollArea>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader className="p-4"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
-                        <CardContent className="p-2 space-y-2">
-                            {blockTypes.map(block => (
-                                <Button key={block.type} variant="outline" className="w-full justify-start" onClick={() => addNode(block.type as NodeType)}>
-                                    <block.icon className="mr-2 h-4 w-4"/> {block.label}
-                                </Button>
-                            ))}
-                        </CardContent>
-                    </Card>
-                </div>
-                <div className="lg:col-span-5">
-                    <Card className="h-full flex flex-col">
-                        <CardHeader>
-                            <Input id="flow-name-input" key={currentFlow?._id.toString()} defaultValue={currentFlow?.name || "New Flow"} className="text-lg font-semibold" />
-                        </CardHeader>
-                        <ScrollArea className="flex-1 p-4">
-                           <div className="space-y-3">
-                                {nodes.map(node => (
-                                    <button key={node.id} className="w-full" onClick={() => setSelectedNodeId(node.id)}>
-                                        <NodeComponent node={node} isSelected={selectedNodeId === node.id} />
-                                    </button>
-                                ))}
-                            </div>
-                        </ScrollArea>
-                        <CardFooter>
-                            <Button className="w-full" onClick={handleSaveFlow} disabled={isSaving}>
-                                {isSaving ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin"/> : <Save className="h-4 w-4 mr-2"/>} Save Flow
-                            </Button>
-                        </CardFooter>
-                    </Card>
-                </div>
-                <div className="lg:col-span-4">
-                    {selectedNode ? (
-                        <PropertiesPanel selectedNode={selectedNode} updateNodeData={updateNodeData} deleteNode={deleteNode} />
-                    ) : (
-                        <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center border-2 border-dashed rounded-lg">
-                            Select a block to edit its properties.
+                                            return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
+                                        })}
+                                        {connecting && (
+                                            <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" strokeDasharray="5,5" />
+                                        )}
+                                    </svg>
+                                </>
+                            )}
                         </div>
-                    )}
+                        <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                            <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
+                            <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>
+                                {isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
+                            </Button>
+                        </div>
+                    </Card>
                 </div>
+                <div className="hidden md:block md:col-span-3">
+                    {selectedNode && <PropertiesPanel selectedNode={selectedNode} updateNodeData={updateNodeData} deleteNode={deleteNode} />}
+                </div>
+                <Sheet open={isPropsSheetOpen} onOpenChange={setIsPropsSheetOpen}>
+                    <SheetContent side="right" className="p-0 flex flex-col w-full max-w-md">
+                        <SheetTitle className="sr-only">Block Properties</SheetTitle>
+                        <SheetDescription className="sr-only">Configure the selected block's properties.</SheetDescription>
+                        {selectedNode && <PropertiesPanel selectedNode={selectedNode} updateNodeData={updateNodeData} deleteNode={deleteNode} />}
+                    </SheetContent>
+                </Sheet>
             </div>
         </div>
     );
 }
-
