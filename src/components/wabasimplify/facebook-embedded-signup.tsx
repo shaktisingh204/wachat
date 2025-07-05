@@ -27,7 +27,7 @@ interface FacebookEmbeddedSignupProps {
 export function FacebookEmbeddedSignup({ appId, configId, projectId, onSuccess }: FacebookEmbeddedSignupProps) {
   const [sdkLoaded, setSdkLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const { toast } } = useToast();
+  const { toast } = useToast();
   const router = useRouter();
 
   useEffect(() => {
