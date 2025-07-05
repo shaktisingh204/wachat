@@ -1,23 +1,23 @@
+
 'use server';
 
-// This file is ready for your SEO-related server actions.
-// TODO: Implement real API calls to Google Alerts, Reddit, Twitter, and other SEO data providers.
-
-import { BrandMention, SiteMetrics, Backlink } from "@/lib/definitions";
+import type { BrandMention, SiteMetrics, Backlink } from "@/lib/definitions";
 
 export async function getBrandMentions(domain: string): Promise<BrandMention[]> {
-    // Mocked data
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    console.log(`Fetching brand mentions for: ${domain}`);
+    // In a real app, you would call Google Alerts, Reddit, Twitter APIs here.
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate network delay
     return [
-        { source: 'Reddit', author: 'u/coolinvestor', content: 'Just tried SabNode for a campaign, the flow builder is a game-changer!', url: '#', sentiment: 'Positive', date: new Date() },
-        { source: 'Twitter', author: '@devgal', content: 'Anyone have thoughts on SabNode vs other WhatsApp tools? The pricing seems competitive.', url: '#', sentiment: 'Neutral', date: new Date() },
-        { source: 'TechCrunch', author: 'TechCrunch', content: 'Newcomer SabNode aims to simplify WhatsApp Business marketing with an all-in-one suite.', url: '#', sentiment: 'Positive', date: new Date() },
-        { source: 'Reddit', author: 'u/startups', content: 'Having a bit of trouble with the API integration on SabNode, any tips?', url: '#', sentiment: 'Negative', date: new Date() },
-    ]
+        { source: 'Reddit', author: 'u/coolinvestor', content: 'Just tried SabNode for a campaign, the flow builder is a game-changer!', url: '#', sentiment: 'Positive', date: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000) },
+        { source: 'Twitter', author: '@devgal', content: 'Anyone have thoughts on SabNode vs other WhatsApp tools? The pricing seems competitive.', url: '#', sentiment: 'Neutral', date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) },
+        { source: 'TechCrunch', author: 'TechCrunch Staff', content: 'Newcomer SabNode aims to simplify WhatsApp Business marketing with an all-in-one suite.', url: '#', sentiment: 'Positive', date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000) },
+        { source: 'Reddit', author: 'u/startups', content: 'Having a bit of trouble with the API integration on SabNode, any tips?', url: '#', sentiment: 'Negative', date: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000) },
+    ];
 }
 
 export async function getSiteMetrics(domain: string): Promise<SiteMetrics> {
-    // Mocked data
+    console.log(`Fetching site metrics for: ${domain}`);
+    // In a real app, you'd call Semrush, Ahrefs, or Moz APIs here.
     await new Promise(resolve => setTimeout(resolve, 500));
     return {
         domainAuthority: 45,
@@ -39,12 +39,13 @@ export async function getSiteMetrics(domain: string): Promise<SiteMetrics> {
             { keyword: 'best flow builder', position: 8, volume: 3200 },
             { keyword: 'meta suite pricing', position: 12, volume: 900 },
         ]
-    }
+    };
 }
 
 
 export async function getBacklinks(domain: string): Promise<Backlink[]> {
-    // Mocked data
+    console.log(`Fetching backlinks for: ${domain}`);
+    // In a real app, you'd call a backlink provider API here.
     await new Promise(resolve => setTimeout(resolve, 1200));
     return [
         { sourceUrl: 'https://techcrunch.com/sabnode-review', anchorText: 'SabNode', domainAuthority: 92, linkType: 'News' },

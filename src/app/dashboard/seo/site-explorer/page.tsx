@@ -1,58 +1,71 @@
+
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { useEffect, useState, useTransition } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Globe, Link as LinkIcon, BarChart, LineChart, TrendingUp, Search } from 'lucide-react';
+import { Globe, Link as LinkIcon, BarChart, Search } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
+import { getBacklinks, getSiteMetrics } from '@/app/actions/seo.actions';
+import type { Backlink, SiteMetrics } from '@/lib/definitions';
 
 const ChartContainer = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartContainer), { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> });
 const ChartTooltip = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartTooltip), { ssr: false });
 const ChartTooltipContent = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartTooltipContent), { ssr: false });
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
-const backlinkData = [
-  { month: 'Jan', count: 150 },
-  { month: 'Feb', count: 180 },
-  { month: 'Mar', count: 250 },
-  { month: 'Apr', count: 320 },
-  { month: 'May', count: 450 },
-  { month: 'Jun', count: 510 },
-];
+
 const chartConfigBacklinks = { count: { label: "Backlinks", color: "hsl(var(--chart-1))" } };
 
-const anchorTextData = [
-    { text: 'SabNode', count: 210, percentage: 41 },
-    { text: 'whatsapp marketing tool', count: 80, percentage: 16 },
-    { text: 'click here', count: 55, percentage: 11 },
-    { text: 'sabnode.com', count: 45, percentage: 9 },
-    { text: 'read more', count: 30, percentage: 6 },
-];
-
-const linkingDomains = [
-    { domain: 'techcrunch.com', type: 'News' },
-    { domain: 'indiehackers.com', type: 'Forum' },
-    { domain: 'marketingblog.com', type: 'Blog' },
-    { domain: 'saasreviews.net', type: 'Review' },
-];
-
-const StatCard = ({ title, value, icon: Icon }: { title: string, value: string, icon: React.ElementType }) => (
+const StatCard = ({ title, value, icon: Icon }: { title: string, value: string | number, icon: React.ElementType }) => (
     <Card>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium">{title}</CardTitle>
             <Icon className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-            <div className="text-2xl font-bold">{value}</div>
+            <div className="text-2xl font-bold">{typeof value === 'number' ? value.toLocaleString() : value}</div>
         </CardContent>
     </Card>
 );
 
 export default function SiteExplorerPage() {
+    const [metrics, setMetrics] = useState<SiteMetrics | null>(null);
+    const [backlinks, setBacklinks] = useState<Backlink[]>([]);
+    const [isLoading, startTransition] = useTransition();
+
+    useEffect(() => {
+        startTransition(async () => {
+            const [metricsData, backlinksData] = await Promise.all([
+                getSiteMetrics('sabnode.com'),
+                getBacklinks('sabnode.com'),
+            ]);
+            setMetrics(metricsData);
+            setBacklinks(backlinksData);
+        });
+    }, []);
+    
+    const anchorTextData = backlinks.reduce((acc, link) => {
+        const existing = acc.find(item => item.text === link.anchorText);
+        if (existing) {
+            existing.count++;
+        } else {
+            acc.push({ text: link.anchorText, count: 1 });
+        }
+        return acc;
+    }, [] as { text: string; count: number }[]).map(item => ({ ...item, percentage: (item.count / backlinks.length) * 100 }));
+
+
+    if (isLoading || !metrics) {
+        return <Skeleton className="h-full w-full" />;
+    }
+
+    const backlinkHistory = metrics.trafficData.map((d, i) => ({ month: d.date.substring(0, 3), count: 50 + i * 80 + Math.random() * 50 }));
+
     return (
         <div className="flex flex-col gap-8">
              <div>
@@ -71,10 +84,10 @@ export default function SiteExplorerPage() {
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <StatCard title="Domain Authority" value="45" icon={BarChart} />
-                <StatCard title="Linking Domains" value="850" icon={Globe} />
-                <StatCard title="Total Backlinks" value="5.1k" icon={LinkIcon} />
-                <StatCard title="Toxicity Score" value="2%" icon={AlertTriangle} />
+                <StatCard title="Domain Authority" value={metrics.domainAuthority} icon={BarChart} />
+                <StatCard title="Linking Domains" value={metrics.linkingDomains} icon={Globe} />
+                <StatCard title="Total Backlinks" value={metrics.totalBacklinks} icon={LinkIcon} />
+                <StatCard title="Toxicity Score" value={`${metrics.toxicityScore}%`} icon={BarChart} />
             </div>
             
             <Card>
@@ -83,7 +96,7 @@ export default function SiteExplorerPage() {
                 </CardHeader>
                 <CardContent>
                      <ChartContainer config={chartConfigBacklinks} className="h-64 w-full">
-                        <AreaChart data={backlinkData}>
+                        <AreaChart data={backlinkHistory}>
                             <CartesianGrid vertical={false} />
                             <XAxis dataKey="month" tickLine={false} axisLine={false} tickMargin={8} />
                             <YAxis />
@@ -109,7 +122,7 @@ export default function SiteExplorerPage() {
                                 <div key={item.text} className="space-y-1">
                                     <div className="flex justify-between items-baseline">
                                         <p className="text-sm font-medium truncate">{item.text}</p>
-                                        <p className="text-xs text-muted-foreground">{item.percentage}%</p>
+                                        <p className="text-xs text-muted-foreground">{item.percentage.toFixed(0)}%</p>
                                     </div>
                                     <Progress value={item.percentage} />
                                 </div>
@@ -129,10 +142,10 @@ export default function SiteExplorerPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {linkingDomains.map(item => (
-                                        <tr key={item.domain} className="border-b last:border-0">
-                                            <td className="p-3">{item.domain}</td>
-                                            <td className="p-3 text-right"><Badge variant="outline">{item.type}</Badge></td>
+                                    {backlinks.map(item => (
+                                        <tr key={item.sourceUrl} className="border-b last:border-0">
+                                            <td className="p-3 truncate max-w-xs">{new URL(item.sourceUrl).hostname}</td>
+                                            <td className="p-3 text-right"><Badge variant="outline">{item.linkType}</Badge></td>
                                         </tr>
                                     ))}
                                 </tbody>

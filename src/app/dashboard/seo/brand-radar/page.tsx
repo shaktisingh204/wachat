@@ -1,42 +1,25 @@
+
 'use client';
 
+import { useEffect, useState, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, BarChart, Rss, MessageSquare, Flame, TrendingUp } from 'lucide-react';
+import { Rss, MessageSquare, Flame, TrendingUp, Search } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Label } from '@/components/ui/label';
+import { getBrandMentions } from '@/app/actions/seo.actions';
+import type { BrandMention } from '@/lib/definitions';
+import { formatDistanceToNow } from 'date-fns';
 
 const ChartContainer = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartContainer), { ssr: false, loading: () => <Skeleton className="h-64 w-full" /> });
 const ChartTooltip = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartTooltip), { ssr: false });
 const ChartTooltipContent = dynamic(() => import("@/components/ui/chart").then(mod => mod.ChartTooltipContent), { ssr: false });
-import { Bar, CartesianGrid, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
-
-const mentionData = [
-  { source: 'Google Alerts', mentions: 45 },
-  { source: 'Reddit', mentions: 120 },
-  { source: 'Twitter', mentions: 210 },
-  { source: 'News', mentions: 30 },
-];
-
-const sentimentData = [
-    { sentiment: 'Positive', count: 185 },
-    { sentiment: 'Neutral', count: 150 },
-    { sentiment: 'Negative', count: 70 },
-];
-
-const chartConfigMentions = { mentions: { label: "Mentions", color: "hsl(var(--chart-1))" } };
 const chartConfigSentiment = { count: { label: "Count", color: "hsl(var(--chart-2))" } };
-
-const recentMentions = [
-    { source: 'Reddit', user: 'u/coolinvestor', text: 'Just tried SabNode for a campaign, the flow builder is a game-changer!', link: '#', sentiment: 'Positive' },
-    { source: 'Twitter', user: '@devgal', text: 'Anyone have thoughts on SabNode vs other WhatsApp tools? The pricing seems competitive.', link: '#', sentiment: 'Neutral' },
-    { source: 'Google Alerts', user: 'TechCrunch', text: 'Newcomer SabNode aims to simplify WhatsApp Business marketing with an all-in-one suite.', link: '#', sentiment: 'Positive' },
-    { source: 'Reddit', user: 'u/startups', text: 'Having a bit of trouble with the API integration on SabNode, any tips?', link: '#', sentiment: 'Negative' },
-];
 
 const getSentimentVariant = (sentiment: string) => {
     switch(sentiment) {
@@ -46,7 +29,35 @@ const getSentimentVariant = (sentiment: string) => {
     }
 }
 
+const getSourceIcon = (source: BrandMention['source']) => {
+    switch(source) {
+        case 'Reddit': return <Flame />;
+        case 'Twitter': return <MessageSquare />;
+        default: return <Rss />;
+    }
+}
+
 export default function BrandRadarPage() {
+    const [mentions, setMentions] = useState<BrandMention[]>([]);
+    const [isLoading, startTransition] = useTransition();
+
+    useEffect(() => {
+        startTransition(async () => {
+            const data = await getBrandMentions('sabnode.com');
+            setMentions(data);
+        });
+    }, []);
+
+    const sentimentData = mentions.reduce((acc, mention) => {
+        const existing = acc.find(item => item.sentiment === mention.sentiment);
+        if (existing) {
+            existing.count++;
+        } else {
+            acc.push({ sentiment: mention.sentiment, count: 1 });
+        }
+        return acc;
+    }, [] as { sentiment: string, count: number }[]);
+
     return (
         <div className="flex flex-col gap-8">
              <div>
@@ -76,29 +87,13 @@ export default function BrandRadarPage() {
             </Card>
 
             <div className="grid md:grid-cols-2 gap-8">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Mentions by Source</CardTitle>
-                        <CardDescription>Last 30 days</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                         <ChartContainer config={chartConfigMentions} className="h-64 w-full">
-                            <BarChart data={mentionData} layout="vertical" margin={{ left: 10 }}>
-                                <CartesianGrid horizontal={false} />
-                                <XAxis type="number" hide />
-                                <YAxis dataKey="source" type="category" tickLine={false} axisLine={false} tickMargin={10} width={80} />
-                                <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                                <Bar dataKey="mentions" fill="var(--color-mentions)" radius={4} />
-                            </BarChart>
-                        </ChartContainer>
-                    </CardContent>
-                </Card>
                  <Card>
                     <CardHeader>
                         <CardTitle>Sentiment Analysis</CardTitle>
                         <CardDescription>Overall sentiment of recent mentions.</CardDescription>
                     </CardHeader>
                     <CardContent>
+                        {isLoading ? <Skeleton className="h-64 w-full"/> : 
                         <ChartContainer config={chartConfigSentiment} className="h-64 w-full">
                             <BarChart data={sentimentData} accessibilityLayer>
                                 <CartesianGrid vertical={false} />
@@ -108,36 +103,37 @@ export default function BrandRadarPage() {
                                 <Bar dataKey="count" fill="var(--color-count)" radius={4} />
                             </BarChart>
                         </ChartContainer>
+                        }
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Recent Mentions</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {isLoading ? [...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 w-full"/>) :
+                            mentions.map((mention, i) => (
+                                <div key={i} className="flex gap-4 p-3 border-b last:border-0">
+                                    <div className="text-muted-foreground mt-1">
+                                        {getSourceIcon(mention.source)}
+                                    </div>
+                                    <div className="flex-1">
+                                        <div className="flex justify-between items-center">
+                                            <p className="font-semibold text-sm">{mention.author}</p>
+                                            <Badge variant={getSentimentVariant(mention.sentiment)}>{mention.sentiment}</Badge>
+                                        </div>
+                                        <p className="text-sm text-muted-foreground">{mention.content}</p>
+                                        <a href={mention.url} className="text-xs text-primary hover:underline">
+                                            {formatDistanceToNow(mention.date, { addSuffix: true })}
+                                        </a>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </CardContent>
                 </Card>
             </div>
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle>Recent Mentions</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="space-y-4">
-                        {recentMentions.map((mention, i) => (
-                            <div key={i} className="flex gap-4 p-3 border-b last:border-0">
-                                <div className="text-muted-foreground">
-                                    {mention.source === 'Reddit' ? <Flame /> : mention.source === 'Twitter' ? <MessageSquare/> : <Rss/>}
-                                </div>
-                                <div className="flex-1">
-                                    <div className="flex justify-between items-center">
-                                        <p className="font-semibold text-sm">{mention.user}</p>
-                                        <Badge variant={getSentimentVariant(mention.sentiment)}>{mention.sentiment}</Badge>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">{mention.text}</p>
-                                    <a href={mention.link} className="text-xs text-primary hover:underline">View Source</a>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </CardContent>
-            </Card>
-
         </div>
     );
 }
-
