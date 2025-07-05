@@ -802,9 +802,8 @@ export async function getScheduledPosts(projectId: string): Promise<{ posts?: Fa
     }
 
     try {
-        const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/promotable_posts`, {
+        const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/scheduled_posts`, {
             params: {
-                is_published: false,
                 fields: 'id,message,full_picture,permalink_url,created_time,scheduled_publish_time',
                 access_token: project.accessToken,
                 limit: 100,
