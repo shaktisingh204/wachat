@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
@@ -8,19 +9,10 @@ import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
-import { CheckCircle, Facebook } from 'lucide-react';
+import { CheckCircle, Facebook, Wrench } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ManualFacebookSetupDialog } from '@/components/wabasimplify/manual-facebook-setup-dialog';
 
 function PageSkeleton() {
     return (
@@ -72,48 +64,6 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
     );
 }
 
-function ConnectProjectDialog({ unconnectedProjects, appId, configId, onSuccess }: { unconnectedProjects: WithId<Project>[], appId: string, configId: string, onSuccess: () => void}) {
-    const [selectedProjectId, setSelectedProjectId] = useState<string>('');
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild>
-                <Button>Connect a Project</Button>
-            </DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Connect a Project to Facebook</DialogTitle>
-                    <DialogDescription>
-                        Select one of your existing Wachat projects to connect it to a Facebook Page and Ad Account.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="py-4 space-y-4">
-                    <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
-                        <SelectTrigger>
-                            <SelectValue placeholder="Select a project to connect..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {unconnectedProjects.map(p => (
-                                <SelectItem key={p._id.toString()} value={p._id.toString()}>{p.name} (WABA: ...{p.wabaId?.slice(-4)})</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                    <FacebookEmbeddedSignup
-                        appId={appId}
-                        configId={configId}
-                        projectId={selectedProjectId}
-                        onSuccess={() => {
-                            setIsOpen(false);
-                            onSuccess();
-                        }}
-                    />
-                </div>
-            </DialogContent>
-        </Dialog>
-    );
-}
-
 export default function AllFacebookPagesPage() {
     const [projects, setProjects] = useState<WithId<Project>[]>([]);
     const [isLoading, startLoading] = useTransition();
@@ -136,43 +86,42 @@ export default function AllFacebookPagesPage() {
         return <PageSkeleton />;
     }
 
-    const connectedProjects = projects.filter(p => !!p.facebookPageId && !!p.wabaId);
-    const unconnectedProjects = projects.filter(p => !p.facebookPageId && !!p.wabaId);
+    const connectedFacebookProjects = projects.filter(p => !!p.facebookPageId && !p.wabaId);
 
     return (
         <div className="flex flex-col gap-8">
             <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        Project Connections
+                        Facebook Page Connections
                     </h1>
                     <p className="text-muted-foreground mt-2">
-                        Connect your Wachat projects to Facebook to enable advertising and other features.
+                        Connect and manage your Facebook Pages. Each connected page is treated as a separate project.
                     </p>
                 </div>
-                 <div>
-                    {appId && configId && unconnectedProjects.length > 0 ? (
-                        <ConnectProjectDialog
-                            unconnectedProjects={unconnectedProjects}
+                 <div className="flex items-center gap-2">
+                    <ManualFacebookSetupDialog onSuccess={fetchData} />
+                    {appId && configId ? (
+                        <FacebookEmbeddedSignup
                             appId={appId}
                             configId={configId}
                             onSuccess={fetchData}
                         />
                     ) : (
-                         <p className="text-sm text-muted-foreground">All projects are connected.</p>
+                         <p className="text-sm text-destructive">Admin has not configured Facebook integration.</p>
                     )}
                 </div>
             </div>
             
             <div className="space-y-4">
-                {connectedProjects.length > 0 ? (
-                    connectedProjects.map(project => (
+                {connectedFacebookProjects.length > 0 ? (
+                    connectedFacebookProjects.map(project => (
                         <ConnectedPageCard key={project._id.toString()} project={project} />
                     ))
                 ) : (
                     <Card className="text-center py-12">
                          <CardContent>
-                            <p className="text-muted-foreground">No projects have been connected to Facebook yet.</p>
+                            <p className="text-muted-foreground">No Facebook Pages have been connected yet.</p>
                          </CardContent>
                     </Card>
                 )}

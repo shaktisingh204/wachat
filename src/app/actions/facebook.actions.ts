@@ -94,6 +94,50 @@ export async function handleConnectNewFacebookPage(data: {
     }
 }
 
+export async function handleManualFacebookPageSetup(prevState: any, formData: FormData): Promise<{ success?: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied." };
+
+    const projectName = formData.get('projectName') as string;
+    const facebookPageId = formData.get('facebookPageId') as string;
+    const adAccountId = formData.get('adAccountId') as string;
+    const accessToken = formData.get('accessToken') as string;
+
+    if (!projectName || !facebookPageId || !adAccountId || !accessToken) {
+        return { error: 'All fields are required for manual setup.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        const existingProject = await db.collection('projects').findOne({
+            userId: new ObjectId(session.user._id),
+            facebookPageId: facebookPageId
+        });
+
+        if (existingProject) {
+            return { error: 'You have already connected this Facebook Page.' };
+        }
+
+        const newProject: Omit<Project, '_id'> = {
+            userId: new ObjectId(session.user._id),
+            name: projectName,
+            facebookPageId: facebookPageId,
+            adAccountId: adAccountId,
+            accessToken: accessToken,
+            phoneNumbers: [],
+            createdAt: new Date(),
+        };
+
+        await db.collection('projects').insertOne(newProject as any);
+        revalidatePath('/dashboard/facebook/all-projects');
+        return { success: true };
+
+    } catch (e: any) {
+        return { error: 'Failed to save manual project settings.' };
+    }
+}
+
 
 export async function getAdCampaigns(projectId: string): Promise<WithId<AdCampaign>[]> {
     if (!ObjectId.isValid(projectId)) return [];

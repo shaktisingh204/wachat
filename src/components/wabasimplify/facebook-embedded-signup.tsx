@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { FacebookIcon } from './custom-sidebar-components';
 import { useToast } from '@/hooks/use-toast';
-import { handleFacebookPageSetup, handleConnectNewFacebookPage } from '@/app/actions/facebook.actions';
+import { handleConnectNewFacebookPage } from '@/app/actions/facebook.actions';
 import { useRouter } from 'next/navigation';
 import { LoaderCircle } from 'lucide-react';
 
@@ -20,15 +20,13 @@ declare global {
 interface FacebookEmbeddedSignupProps {
   appId: string;
   configId: string;
-  projectId?: string;
   onSuccess: () => void;
 }
 
-export function FacebookEmbeddedSignup({ appId, configId, projectId, onSuccess }: FacebookEmbeddedSignupProps) {
+export function FacebookEmbeddedSignup({ appId, configId, onSuccess }: FacebookEmbeddedSignupProps) {
   const [sdkLoaded, setSdkLoaded] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
-  const router = useRouter();
 
   useEffect(() => {
     if (document.getElementById('facebook-jssdk')) {
@@ -87,12 +85,7 @@ export function FacebookEmbeddedSignup({ appId, configId, projectId, onSuccess }
                     const facebookPageId = pagesResponse.data[0].id;
                     const pageName = pagesResponse.data[0].name;
 
-                    let result;
-                    if (projectId) {
-                        result = await handleFacebookPageSetup({ projectId, adAccountId, facebookPageId, accessToken });
-                    } else {
-                        result = await handleConnectNewFacebookPage({ adAccountId, facebookPageId, accessToken, pageName });
-                    }
+                    const result = await handleConnectNewFacebookPage({ adAccountId, facebookPageId, accessToken, pageName });
                     
                     if (result.error) {
                         toast({ title: 'Setup Failed', description: result.error, variant: 'destructive' });
@@ -116,7 +109,7 @@ export function FacebookEmbeddedSignup({ appId, configId, projectId, onSuccess }
   };
 
   return (
-    <Button onClick={onFacebookLogin} disabled={!sdkLoaded || isProcessing || !projectId} size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
+    <Button onClick={onFacebookLogin} disabled={!sdkLoaded || isProcessing} size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">
       {isProcessing ? (
           <LoaderCircle className="mr-2 h-5 w-5 animate-spin" />
       ) : (
