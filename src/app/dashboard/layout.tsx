@@ -29,7 +29,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar
 } from 'lucide-react';
 import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -66,12 +66,14 @@ const wachatMenuItems = [
 ];
 
 const facebookMenuItems = [
+    { href: '/dashboard/facebook/all-projects', label: 'Project Connections', icon: Wrench, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook', label: 'Dashboard', icon: LayoutDashboard, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/posts', label: 'Posts', icon: Newspaper, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/scheduled', label: 'Scheduled', icon: Calendar, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/pages', label: 'All Pages', icon: Newspaper, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/all-projects', label: 'Project Connections', icon: Wrench, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, featureKey: 'whatsappAds' },
 ];
 
@@ -192,7 +194,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <Tooltip>
                 <TooltipTrigger asChild>
                     <Link
-                    href="/dashboard/facebook"
+                    href="/dashboard/facebook/all-projects"
                     className={cn(
                         'p-3 mx-2 rounded-lg transition-colors',
                         activeApp === 'facebook'
@@ -203,7 +205,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     <FacebookAppIcon className="h-6 w-6" />
                     </Link>
                 </TooltipTrigger>
-                <TooltipContent side="right">Facebook Tools</TooltipContent>
+                <TooltipContent side="right">Meta Suite</TooltipContent>
             </Tooltip>
              <Tooltip>
                 <TooltipTrigger asChild>
@@ -279,13 +281,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 tooltipText = `${item.label} (Upgrade plan)`;
               }
               
-               const isBasePage = 
+              const isBasePage = 
                     item.href === '/dashboard' ||
                     item.href === '/dashboard/overview' ||
                     item.href === '/dashboard/facebook' ||
                     item.href === '/dashboard/instagram/feed' ||
                     item.href === '/dashboard/url-shortener' ||
-                    item.href === '/dashboard/qr-code-maker';
+                    item.href === '/dashboard/qr-code-maker' ||
+                    item.href === '/dashboard/facebook/all-projects';
 
               const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
 
