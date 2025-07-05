@@ -1,3 +1,4 @@
+
 'use server';
 
 import { getSession, handleSyncPhoneNumbers } from '@/app/actions';
@@ -62,7 +63,7 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
             accessToken: accessToken,
             phoneNumbers: [],
             createdAt: new Date(),
-            messagesPerSecond: 1000000,
+            messagesPerSecond: 1000,
             planId: defaultPlan?._id,
             credits: defaultPlan?.signupCredits || 0,
             hasCatalogManagement: includeCatalog,
