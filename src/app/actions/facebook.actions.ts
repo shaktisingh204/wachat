@@ -240,7 +240,7 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
     try {
         const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/posts`, {
             params: {
-                fields: 'id,message,full_picture,permalink_url,created_time',
+                fields: 'id,message,full_picture,permalink_url,created_time,object_id',
                 access_token: project.accessToken,
                 limit: 25,
             }
@@ -267,6 +267,7 @@ export async function handleCreateFacebookPost(prevState: any, formData: FormDat
     const isScheduled = formData.get('isScheduled') === 'on';
     const scheduledDate = formData.get('scheduledDate') as string;
     const scheduledTime = formData.get('scheduledTime') as string;
+    const tags = formData.get('tags') as string;
 
 
     if (!projectId || !postType) {
@@ -305,6 +306,12 @@ export async function handleCreateFacebookPost(prevState: any, formData: FormDat
             if (!mediaUrl && (!mediaFile || mediaFile.size === 0)) return { error: 'An image URL or file is required.' };
             endpoint = `/${facebookPageId}/photos`;
             if (message) form.append('caption', message);
+            
+            if (tags) {
+                const tagObjects = tags.split(',').map(id => ({ tag_uid: id.trim() }));
+                form.append('tags', JSON.stringify(tagObjects));
+            }
+            
             if (mediaUrl) {
                 form.append('url', mediaUrl);
             } else {
@@ -378,6 +385,80 @@ export async function handleDeletePost(postId: string, projectId: string): Promi
             params: { access_token: project.accessToken }
         });
         revalidatePath('/dashboard/facebook/posts');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function handleAddVideoThumbnail(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const videoId = formData.get('videoId') as string;
+    const thumbnailFile = formData.get('thumbnailFile') as File;
+    
+    if (!projectId || !videoId || !thumbnailFile || thumbnailFile.size === 0) {
+        return { success: false, error: 'Missing required fields.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied or project not configured.' };
+    }
+    
+    try {
+        const form = new FormData();
+        form.append('source', Buffer.from(await thumbnailFile.arrayBuffer()), { filename: thumbnailFile.name, contentType: thumbnailFile.type });
+        form.append('access_token', project.accessToken);
+
+        await axios.post(`https://graph.facebook.com/v22.0/${videoId}/thumbnails`, form, {
+            headers: { ...form.getHeaders() },
+        });
+
+        revalidatePath('/dashboard/facebook/posts');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getEligibleCrosspostPages(postId: string, projectId: string): Promise<{pages: FacebookPage[], error?: string}> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { pages: [], error: 'Access denied or project not configured.' };
+    }
+    
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v22.0/${postId}/crosspost_eligible_pages`, {
+            params: { access_token: project.accessToken }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({response}));
+        return { pages: response.data.data || [] };
+    } catch (e: any) {
+        return { pages: [], error: getErrorMessage(e) };
+    }
+}
+
+
+export async function handleCrosspostVideo(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const postId = formData.get('postId') as string;
+    const targetPageIds = formData.getAll('targetPageIds') as string[];
+
+    if (!projectId || !postId || targetPageIds.length === 0) {
+        return { success: false, error: 'Missing required information.' };
+    }
+    
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied or project not configured.' };
+    }
+    
+    try {
+        await axios.post(`https://graph.facebook.com/v22.0/${postId}/crosspost`, {
+            crossposted_pages: targetPageIds,
+            access_token: project.accessToken
+        });
+
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };

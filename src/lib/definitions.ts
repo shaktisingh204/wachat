@@ -217,6 +217,7 @@ export type FacebookPost = {
     full_picture?: string;
     permalink_url: string;
     created_time: string;
+    object_id?: string;
 };
 
 export type MetaFlow = {

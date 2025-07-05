@@ -124,6 +124,11 @@ export default function CreateFacebookPostPage() {
                                         <Textarea id="message-image" name="message" placeholder="A caption for your image." />
                                     </div>
                                     <MediaInputs />
+                                    <div className="space-y-2">
+                                        <Label htmlFor="tags">Tag People (Optional)</Label>
+                                        <Input id="tags" name="tags" placeholder="Comma-separated user IDs" />
+                                        <p className="text-xs text-muted-foreground">Note: This is for tagging public figures or pages with known IDs.</p>
+                                    </div>
                                 </TabsContent>
                                 <TabsContent value="video" className="pt-6 space-y-4">
                                      <div className="space-y-2">
