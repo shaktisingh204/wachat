@@ -6,7 +6,7 @@ import { useState, useEffect, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { getProjects } from '@/app/actions';
 import type { WithId, Project } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
 import { CheckCircle, Facebook, Wrench } from 'lucide-react';
@@ -90,17 +90,23 @@ export default function AllFacebookPagesPage() {
 
     return (
         <div className="flex flex-col gap-8">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        Facebook Page Connections
-                    </h1>
-                    <p className="text-muted-foreground mt-2">
-                        Connect and manage your Facebook Pages. Each connected page is treated as a separate project.
-                    </p>
-                </div>
-                 <div className="flex items-center gap-2">
-                    <ManualFacebookSetupDialog onSuccess={fetchData} />
+            <div>
+                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
+                    Facebook Page Connections
+                </h1>
+                <p className="text-muted-foreground mt-2">
+                    Connect and manage your Facebook Pages. Each connected page is treated as a separate project.
+                </p>
+            </div>
+
+            <Card className="card-gradient card-gradient-green">
+                <CardHeader>
+                    <CardTitle>Connect a New Page</CardTitle>
+                    <CardDescription>
+                        Use the secure pop-up for the fastest setup. If it fails, or if you need to use a System User token, use the Manual Setup.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col sm:flex-row gap-4 items-center justify-center">
                     {appId && configId ? (
                         <FacebookEmbeddedSignup
                             appId={appId}
@@ -110,8 +116,14 @@ export default function AllFacebookPagesPage() {
                     ) : (
                          <p className="text-sm text-destructive">Admin has not configured Facebook integration.</p>
                     )}
-                </div>
-            </div>
+                    <ManualFacebookSetupDialog onSuccess={fetchData} />
+                </CardContent>
+                <CardFooter>
+                     <p className="text-xs text-muted-foreground">
+                        Note: The standard connection requires whitelisting your domain as a valid OAuth Redirect URI in your Facebook App settings. Manual setup avoids this requirement.
+                    </p>
+                </CardFooter>
+            </Card>
             
             <div className="space-y-4">
                 {connectedFacebookProjects.length > 0 ? (
