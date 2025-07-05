@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { getFacebookPosts } from '@/app/actions/facebook.actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Link as LinkIcon, Newspaper, ExternalLink, Edit, Trash2, Video, Image as ImageIcon } from 'lucide-react';
+import { AlertCircle, Link as LinkIcon, Newspaper, ExternalLink, Edit, Trash2, Video, Image as ImageIcon, ThumbsUp, MessageCircle, Share2, CornerUpRight } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { FacebookPost } from '@/lib/definitions';
 import { formatDistanceToNow } from 'date-fns';
@@ -22,6 +22,11 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
     const [isThumbnailOpen, setIsThumbnailOpen] = useState(false);
     const [isCrosspostOpen, setIsCrosspostOpen] = useState(false);
     const isVideo = !!post.object_id;
+    
+    const reactionCount = post.reactions?.summary?.total_count || 0;
+    const commentCount = post.comments?.summary?.total_count || 0;
+    const shareCount = post.shares?.count || 0;
+
 
     return (
         <>
@@ -61,23 +66,28 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
                         {post.message || <span className="italic">This post has no text content.</span>}
                     </p>
                 </CardContent>
-                <CardFooter className="flex justify-between items-center text-xs text-muted-foreground p-4 pt-0">
-                    <span>{formatDistanceToNow(new Date(post.created_time), { addSuffix: true })}</span>
-                    <div className="flex items-center gap-1">
-                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsUpdateOpen(true)}><Edit className="h-3 w-3" /></Button>
-                         <DeletePostButton postId={post.id} projectId={projectId} onPostDeleted={onActionComplete} />
-                         {isVideo && (
-                            <>
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsThumbnailOpen(true)}><ImageIcon className="h-3 w-3"/></Button>
-                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsCrosspostOpen(true)}><Video className="h-3 w-3"/></Button>
-                            </>
-                         )}
-                         <Button asChild variant="outline" size="sm">
-                            <a href={post.permalink_url} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="mr-2 h-3 w-3" /> View
-                            </a>
-                        </Button>
+                <div className="flex justify-between items-center text-xs text-muted-foreground px-4 pb-2">
+                     <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1"><ThumbsUp className="h-3 w-3"/> {reactionCount}</span>
+                        <span className="flex items-center gap-1"><MessageCircle className="h-3 w-3"/> {commentCount}</span>
+                        <span className="flex items-center gap-1"><Share2 className="h-3 w-3"/> {shareCount}</span>
                     </div>
+                    <span>{formatDistanceToNow(new Date(post.created_time), { addSuffix: true })}</span>
+                </div>
+                <CardFooter className="flex justify-end items-center gap-1 p-2 pt-0 border-t mt-2">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsUpdateOpen(true)}><Edit className="h-3 w-3" /></Button>
+                    <DeletePostButton postId={post.id} projectId={projectId} onPostDeleted={onActionComplete} />
+                    {isVideo && (
+                        <>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsThumbnailOpen(true)}><ImageIcon className="h-3 w-3"/></Button>
+                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsCrosspostOpen(true)}><CornerUpRight className="h-3 w-3"/></Button>
+                        </>
+                    )}
+                    <Button asChild variant="outline" size="sm">
+                        <a href={post.permalink_url} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="mr-2 h-3 w-3" /> View
+                        </a>
+                    </Button>
                 </CardFooter>
             </Card>
         </>

@@ -10,7 +10,7 @@ import FormData from 'form-data';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights } from '@/lib/definitions';
 
 
 export async function handleFacebookPageSetup(data: {
@@ -267,7 +267,7 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
     try {
         const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/posts`, {
             params: {
-                fields: 'id,message,full_picture,permalink_url,created_time,object_id',
+                fields: 'id,message,full_picture,permalink_url,created_time,object_id,shares,reactions.summary(true),comments.summary(true)',
                 access_token: project.accessToken,
                 limit: 25,
             }
@@ -521,5 +521,36 @@ export async function handleUpdatePageDetails(prevState: any, formData: FormData
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getPageInsights(projectId: string): Promise<{ insights?: PageInsights, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { error: 'Project not found or is missing Facebook Page ID or access token.' };
+    }
+
+    try {
+        const metrics = 'page_impressions_unique,page_post_engagements';
+        const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/insights`, {
+            params: {
+                metric: metrics,
+                period: 'day',
+                access_token: project.accessToken,
+            }
+        });
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        const insightsData = response.data.data;
+        const pageReach = insightsData.find((m: any) => m.name === 'page_impressions_unique')?.values?.[0]?.value || 0;
+        const postEngagement = insightsData.find((m: any) => m.name === 'page_post_engagements')?.values?.[0]?.value || 0;
+
+        return { insights: { pageReach, postEngagement } };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
     }
 }
