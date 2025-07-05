@@ -323,6 +323,18 @@ export type FacebookMessage = {
     message: string;
 };
 
+export type FacebookLiveStream = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    title: string;
+    description?: string;
+    scheduledTime: Date;
+    facebookVideoId: string;
+    status: 'SCHEDULED_LIVE' | 'LIVE' | 'VOD';
+    streamUrl?: string;
+    createdAt: Date;
+};
+
 
 export type MetaFlow = {
     name: string;

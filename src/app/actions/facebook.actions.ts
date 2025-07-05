@@ -10,7 +10,7 @@ import FormData from 'form-data';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream } from '@/lib/definitions';
 
 
 export async function handleFacebookPageSetup(data: {
@@ -1178,6 +1178,101 @@ export async function handleSendFacebookBroadcast(prevState: any, formData: Form
         return { message: `Broadcast sent to ${successCount} users. ${failedCount} failed.` };
 
     } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+// --- Live Stream Actions ---
+
+export async function getScheduledLiveStreams(projectId: string): Promise<WithId<FacebookLiveStream>[]> {
+    if (!ObjectId.isValid(projectId)) return [];
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const streams = await db.collection<FacebookLiveStream>('facebook_live_streams')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ scheduledTime: -1 })
+            .limit(50)
+            .toArray();
+        return JSON.parse(JSON.stringify(streams));
+    } catch (e) {
+        console.error("Failed to fetch scheduled streams:", e);
+        return [];
+    }
+}
+
+export async function handleScheduleLiveStream(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const title = formData.get('title') as string;
+    const description = formData.get('description') as string;
+    const scheduledDate = formData.get('scheduledDate') as string;
+    const scheduledTime = formData.get('scheduledTime') as string;
+    const videoFile = formData.get('videoFile') as File;
+
+    if (!projectId || !title || !scheduledDate || !scheduledTime || !videoFile || videoFile.size === 0) {
+        return { error: 'All fields, including a video file, are required.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.facebookPageId || !project.accessToken) {
+        return { error: 'Project is not fully configured for Facebook posting.' };
+    }
+
+    const scheduledPublishTime = new Date(`${scheduledDate}T${scheduledTime}`);
+    if (isNaN(scheduledPublishTime.getTime()) || scheduledPublishTime < new Date()) {
+        return { error: 'Invalid or past schedule date/time.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const { facebookPageId, accessToken } = project;
+        const apiVersion = 'v22.0';
+
+        const form = new FormData();
+        form.append('access_token', accessToken);
+        form.append('title', title);
+        form.append('description', description);
+        form.append('live_status', 'SCHEDULED_LIVE');
+        form.append('scheduled_publish_time', String(Math.floor(scheduledPublishTime.getTime() / 1000)));
+        form.append('source', Buffer.from(await videoFile.arrayBuffer()), {
+            filename: videoFile.name,
+            contentType: videoFile.type,
+        });
+        
+        const response = await axios.post(`https://graph-video.facebook.com/${apiVersion}/${facebookPageId}/videos`, form, {
+            headers: { ...form.getHeaders() },
+             maxContentLength: Infinity,
+             maxBodyLength: Infinity,
+        });
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+        
+        const facebookVideoId = response.data.id;
+        if (!facebookVideoId) {
+            throw new Error('Facebook did not return a video ID after upload.');
+        }
+
+        const newStream: Omit<FacebookLiveStream, '_id'> = {
+            projectId: new ObjectId(projectId),
+            title,
+            description,
+            scheduledTime: scheduledPublishTime,
+            facebookVideoId,
+            status: 'SCHEDULED_LIVE',
+            createdAt: new Date(),
+        };
+
+        await db.collection('facebook_live_streams').insertOne(newStream as any);
+
+        revalidatePath('/dashboard/facebook/live-studio');
+        return { message: 'Video successfully scheduled as a live premiere!' };
+
+    } catch (e: any) {
+        console.error("Failed to schedule live stream:", getErrorMessage(e));
         return { error: getErrorMessage(e) };
     }
 }
