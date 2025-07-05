@@ -29,7 +29,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video
 } from 'lucide-react';
 import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -70,6 +70,7 @@ const facebookMenuItems = [
     { href: '/dashboard/facebook', label: 'Dashboard', icon: LayoutDashboard, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/posts', label: 'Posts', icon: Newspaper, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/scheduled', label: 'Scheduled', icon: Calendar, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/live-studio', label: 'Live Studio', icon: Video, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/broadcasts', label: 'Broadcasts', icon: Send, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/post-randomizer', label: 'Post Randomizer', icon: Repeat, featureKey: 'whatsappAds' },
