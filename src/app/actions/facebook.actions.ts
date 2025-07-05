@@ -85,55 +85,57 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
         const longLivedToken = longLivedResponse.data.access_token;
         if (!longLivedToken) return { success: false, error: 'Could not obtain a long-lived token from Facebook.' };
 
-        // 3. Validate permissions
-        const permissionsResponse = await axios.get('https://graph.facebook.com/v22.0/me/permissions', {
-            params: { access_token: longLivedToken }
-        });
-        const grantedPermissions = permissionsResponse.data.data.map((p: any) => p.permission);
-        const requiredPermissions = ['pages_show_list', 'pages_read_engagement', 'business_management', 'pages_manage_posts', 'read_insights', 'pages_manage_engagement'];
-        const missingPermissions = requiredPermissions.filter(p => !grantedPermissions.includes(p));
-        if (missingPermissions.length > 0) {
-            return { success: false, error: `Permissions missing: ${missingPermissions.join(', ')}. Please reconnect and grant all required permissions.` };
+        // 3. Fetch user's ad account (optional)
+        let adAccountId: string | undefined;
+        try {
+            const adAccountsResponse = await axios.get('https://graph.facebook.com/v22.0/me/adaccounts', { params: { access_token: longLivedToken }});
+            if (adAccountsResponse.data?.data?.[0]?.id) {
+                adAccountId = adAccountsResponse.data.data[0].id;
+            }
+        } catch (e) {
+            console.warn("Could not retrieve ad account for user:", getErrorMessage(e));
         }
 
-        // 4. Fetch necessary info (Ad Account, Page ID, Page Name)
-        const adAccountsResponse = await axios.get('https://graph.facebook.com/v22.0/me/adaccounts', { params: { access_token: longLivedToken }});
-        if (!adAccountsResponse.data?.data?.[0]?.id) {
-            return { success: false, error: 'Could not find an associated Ad Account. Please ensure your Facebook user has access to at least one Ad Account in your Business Manager.' };
-        }
-        const adAccountId = adAccountsResponse.data.data[0].id;
-        
+        // 4. Fetch all pages the user has access to
         const pagesResponse = await axios.get('https://graph.facebook.com/v22.0/me/accounts', { params: { fields: 'id,name', access_token: longLivedToken }});
-        if (!pagesResponse.data?.data?.[0]?.id) {
-             return { success: false, error: 'Could not find an associated Facebook Page. Please ensure your Facebook user has a role on at least one Page and has granted the app permission to access it.' };
+        const userPages = pagesResponse.data?.data;
+
+        if (!userPages || userPages.length === 0) {
+             return { success: false, error: 'No manageable Facebook Pages found for your account. Please ensure you have granted access to at least one page during the authorization process.' };
         }
-        const facebookPageId = pagesResponse.data.data[0].id;
-        const pageName = pagesResponse.data.data[0].name;
 
-        // 5. Save or update the project in the database
+        // 5. For each page, create or update a project
         const { db } = await connectToDatabase();
-        const existingProject = await db.collection('projects').findOne({
-            userId: new ObjectId(session.user._id),
-            facebookPageId: facebookPageId
-        });
-
-        if (existingProject) {
-            await db.collection('projects').updateOne(
-                { _id: existingProject._id },
-                { $set: { accessToken: longLivedToken, adAccountId, name: pageName } }
-            );
-        } else {
-            const newProject: Omit<Project, '_id'> = {
+        const bulkOps = userPages.map((page: any) => {
+            const projectData = {
                 userId: new ObjectId(session.user._id),
-                name: pageName,
-                facebookPageId: facebookPageId,
-                adAccountId: adAccountId,
+                name: page.name,
+                facebookPageId: page.id,
+                adAccountId: adAccountId, 
                 accessToken: longLivedToken,
                 phoneNumbers: [],
                 createdAt: new Date(),
                 messagesPerSecond: 10000,
             };
-            await db.collection('projects').insertOne(newProject as any);
+
+            return {
+                updateOne: {
+                    filter: { userId: new ObjectId(session.user._id), facebookPageId: page.id },
+                    update: { 
+                        $set: { 
+                            name: projectData.name, 
+                            accessToken: projectData.accessToken,
+                            adAccountId: projectData.adAccountId,
+                        },
+                        $setOnInsert: projectData,
+                    },
+                    upsert: true,
+                }
+            };
+        });
+
+        if (bulkOps.length > 0) {
+            await db.collection('projects').bulkWrite(bulkOps);
         }
 
         revalidatePath('/dashboard/facebook/all-projects');
@@ -827,3 +829,5 @@ export async function publishScheduledPost(postId: string, projectId: string): P
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+    
