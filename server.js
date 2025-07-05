@@ -6,7 +6,7 @@ const os = require('os');
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = 'localhost';
-const port = parseInt(process.env.PORT, 10) || 3009;
+const port = parseInt(process.env.PORT, 10) || 3001;
 
 // For Next.js app
 const app = next({ dev, hostname, port });
