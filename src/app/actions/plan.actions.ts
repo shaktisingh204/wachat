@@ -2,7 +2,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { ObjectId, type Filter } from 'mongodb';
+import { ObjectId, type Filter, WithId } from 'mongodb';
 import { getAdminSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Plan, PlanFeaturePermissions } from '@/lib/definitions';
