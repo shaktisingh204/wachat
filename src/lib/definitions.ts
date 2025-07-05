@@ -110,7 +110,7 @@ export type Project = {
     _id: ObjectId;
     userId: ObjectId;
     name: string;
-    wabaId: string;
+    wabaId?: string;
     businessId?: string;
     appId?: string;
     accessToken: string;
