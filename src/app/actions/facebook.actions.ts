@@ -93,11 +93,15 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
 
         // 4. Fetch necessary info (Ad Account, Page ID, Page Name)
         const adAccountsResponse = await axios.get('https://graph.facebook.com/v22.0/me/adaccounts', { params: { access_token: longLivedToken }});
-        if (!adAccountsResponse.data?.data?.[0]?.id) return { success: false, error: 'Could not find an associated Ad Account.' };
+        if (!adAccountsResponse.data?.data?.[0]?.id) {
+            return { success: false, error: 'Could not find an associated Ad Account. Please ensure your Facebook user has access to at least one Ad Account in your Business Manager.' };
+        }
         const adAccountId = adAccountsResponse.data.data[0].id;
         
         const pagesResponse = await axios.get('https://graph.facebook.com/v22.0/me/accounts', { params: { fields: 'id,name', access_token: longLivedToken }});
-        if (!pagesResponse.data?.data?.[0]?.id) return { success: false, error: 'Could not find an associated Facebook Page.' };
+        if (!pagesResponse.data?.data?.[0]?.id) {
+             return { success: false, error: 'Could not find an associated Facebook Page. Please ensure your Facebook user has a role on at least one Page and has granted the app permission to access it.' };
+        }
         const facebookPageId = pagesResponse.data.data[0].id;
         const pageName = pagesResponse.data.data[0].name;
 
