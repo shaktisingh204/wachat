@@ -100,6 +100,8 @@ body {
   
   /* Facebook Theme Overrides */
   [data-theme="facebook"] {
+    --primary: 217 91% 60%;
+    --ring: 217 91% 60%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 91% 95%;
@@ -109,6 +111,8 @@ body {
   }
 
   .dark [data-theme="facebook"] {
+    --primary: 217 91% 60%;
+    --ring: 217 91% 60%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 50% 25%;
