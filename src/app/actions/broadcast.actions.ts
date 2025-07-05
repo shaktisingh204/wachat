@@ -12,22 +12,23 @@ import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
-import type { Project, BroadcastJob, BroadcastState, Template, MetaFlow } from '@/lib/definitions';
+import type { Project, BroadcastJob, BroadcastState, Template, MetaFlow, Contact } from '@/lib/definitions';
 
 const BATCH_SIZE = 5000;
 
-const processContactBatch = async (db: Db, broadcastId: ObjectId, project: WithId<Project>, batch: any[]) => {
+const processContactBatch = async (db: Db, broadcastId: ObjectId, project: WithId<Project>, batch: Partial<Contact>[], variablesFromColumn: boolean = true) => {
     if (batch.length === 0) return 0;
-
-    const phoneColumnHeader = Object.keys(batch[0])[0];
-    if (!phoneColumnHeader) {
-        throw new Error("CSV file appears to be missing a header row or has no columns.");
-    }
-
+    
     let contactsToInsert = batch.map(row => {
-        const phone = String(row[phoneColumnHeader] || '').trim();
+        const phone = row.waId || (row as any).phone;
         if (!phone) return null;
-        const { [phoneColumnHeader]: _, ...variables } = row;
+        
+        let variables = row.variables || {};
+        if (variablesFromColumn) {
+            const { waId, phone: p, ...rest } = row as any;
+            variables = rest;
+        }
+
         return {
             broadcastId,
             phone,
@@ -50,11 +51,14 @@ const processContactBatch = async (db: Db, broadcastId: ObjectId, project: WithI
     }
 
     if (contactsToInsert.length > 0) {
-        await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false }).catch(err => {
+        try {
+            await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false });
+        } catch(err: any) {
+            // Ignore duplicate key errors which can happen with retries, but log others.
             if (err.code !== 11000) { 
                 console.warn("Bulk insert for broadcast contacts failed.", err.code);
             }
-        });
+        }
     }
     
     return contactsToInsert.length;
@@ -71,7 +75,7 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
             skipEmptyLines: true,
             dynamicTyping: false,
             step: (results, parser) => {
-                contactBatch.push(results.data as Record<string, string>);
+                contactBatch.push({ phone: Object.values(results.data)[0], variables: results.data });
                 if (contactBatch.length >= BATCH_SIZE) {
                     parser.pause(); 
                     processContactBatch(db, broadcastId, project, contactBatch)
@@ -233,22 +237,23 @@ export async function handleStartBroadcast(
     let contactCount = 0;
     
     if (audienceType === 'tags') {
-        const contactsFromTags = await db.collection('contacts').find({
+        const contactsCursor = db.collection('contacts').find({
             projectId: projectObjectId,
             tagIds: { $in: tagIds },
-            ...(project.optInOutSettings?.enabled ? { isOptedOut: { $ne: true } } : {})
-        }).toArray();
+        });
 
-        if (contactsFromTags.length > 0) {
-            const contactsToInsert = contactsFromTags.map(c => ({
-                broadcastId,
-                phone: c.waId,
-                variables: c.variables || {},
-                status: 'PENDING' as const,
-                createdAt: new Date()
-            }));
-            await db.collection('broadcast_contacts').insertMany(contactsToInsert);
-            contactCount = contactsToInsert.length;
+        let contactBatch: Partial<Contact>[] = [];
+        for await (const contact of contactsCursor) {
+            contactBatch.push(contact);
+            if (contactBatch.length >= BATCH_SIZE) {
+                const processedInBatch = await processContactBatch(db, broadcastId, project, contactBatch, false);
+                contactCount += processedInBatch;
+                contactBatch = [];
+            }
+        }
+        if (contactBatch.length > 0) {
+            const processedInBatch = await processContactBatch(db, broadcastId, project, contactBatch, false);
+            contactCount += processedInBatch;
         }
 
     } else { // audienceType is 'file'
