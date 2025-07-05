@@ -5,7 +5,9 @@ import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { handleFacebookOAuthCallback } from '@/app/actions/facebook.actions';
 import { LoaderCircle, AlertCircle } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 function FacebookCallbackComponent() {
     const searchParams = useSearchParams();
@@ -41,17 +43,61 @@ function FacebookCallbackComponent() {
         }
 
     }, [searchParams, router]);
+    
+    const isConfigError = error?.includes('Server is not configured');
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-screen p-4">
+                 <Card className="w-full max-w-lg">
+                    <CardHeader className="text-center">
+                        <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
+                        <CardTitle className="mt-4">Connection Failed</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        {isConfigError ? (
+                            <div className="space-y-4 text-left">
+                                <p className="text-destructive font-semibold text-center">The server is not configured correctly for Facebook authentication.</p>
+                                <p className="text-sm text-muted-foreground">To fix this, you must create a <code>.env.local</code> file in the root directory of the project and add your Facebook App credentials.</p>
+                                <div className="p-4 bg-muted rounded-md text-sm font-mono overflow-x-auto">
+                                    <pre><code>
+                                        # .env.local (create this file in the root of your project)
+                                        {"\n\n"}
+                                        NEXT_PUBLIC_FACEBOOK_APP_ID=your_facebook_app_id
+                                        {"\n"}
+                                        FACEBOOK_APP_SECRET=your_facebook_app_secret
+                                        {"\n\n"}
+                                        # Add other required variables from README.md
+                                    </code></pre>
+                                </div>
+                                <p className="text-sm text-muted-foreground">After creating and saving the file, you must **restart the application** for the changes to take effect.</p>
+                            </div>
+                        ) : (
+                            <CardDescription className="text-center">
+                                {error}
+                            </CardDescription>
+                        )}
+                    </CardContent>
+                    <CardFooter className="flex justify-center">
+                        <Button asChild variant="outline">
+                            <Link href="/dashboard/facebook/all-projects">Go Back</Link>
+                        </Button>
+                    </CardFooter>
+                </Card>
+            </div>
+        )
+    }
 
     return (
         <div className="flex items-center justify-center min-h-screen">
              <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
-                    {error ? <AlertCircle className="mx-auto h-12 w-12 text-destructive" /> : <LoaderCircle className="mx-auto h-12 w-12 animate-spin text-primary" />}
-                    <CardTitle className="mt-4">{error ? 'Connection Failed' : 'Connecting...'}</CardTitle>
+                    <LoaderCircle className="mx-auto h-12 w-12 animate-spin text-primary" />
+                    <CardTitle className="mt-4">Connecting...</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <CardDescription className="text-center">
-                        {error || message}
+                        {message}
                     </CardDescription>
                 </CardContent>
             </Card>
