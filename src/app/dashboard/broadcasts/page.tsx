@@ -267,10 +267,10 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
   }
 
   return (
-    <div className="font-mono text-xs text-muted-foreground space-y-1" title="API Response Rate / Final Delivery Rate / Concurrency Limit">
-      <div>API Response Rate: {apiResponseSpeed} msg/s</div>
-      <div>Final Delivery Rate: {deliverySpeed} msg/s</div>
-      <div>Concurrency Limit: {item.messagesPerSecond ?? 'N/A'} msg/s</div>
+    <div className="font-mono text-xs text-muted-foreground space-y-1" title="My App Sending Speed / Meta Accepting Speed / Limit">
+      <div>My App Sending Speed: {apiResponseSpeed} msg/s</div>
+      <div>Meta Accepting Speed: {deliverySpeed} msg/s</div>
+      <div>Limit: {item.messagesPerSecond ?? 'N/A'} msg/s</div>
     </div>
   );
 }
@@ -469,7 +469,7 @@ export default function BroadcastPage() {
                         <TableHead>Template / Flow</TableHead>
                         <TableHead>Delivery Stats</TableHead>
                         <TableHead>File</TableHead>
-                        <TableHead>Speed (API/Delivery/Limit)</TableHead>
+                        <TableHead>Speed</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
