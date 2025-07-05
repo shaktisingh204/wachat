@@ -49,18 +49,56 @@ export async function handleConnectNewFacebookPage(data: {
     accessToken: string;
     pageName: string;
 }): Promise<{ success?: boolean; error?: string }> {
-    const { adAccountId, facebookPageId, accessToken, pageName } = data;
-    
     const session = await getSession();
     if (!session?.user) return { error: "Access denied." };
 
-    if (!adAccountId || !facebookPageId || !accessToken || !pageName) {
+    const { adAccountId, facebookPageId, accessToken: shortLivedToken, pageName } = data;
+    
+    if (!adAccountId || !facebookPageId || !shortLivedToken || !pageName) {
         return { error: 'Required information (Ad Account, Page ID, Token, Page Name) was not received from Facebook.' };
     }
 
     try {
         const { db } = await connectToDatabase();
         
+        // 1. Exchange short-lived token for a long-lived one
+        const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+        const appSecret = process.env.FACEBOOK_APP_SECRET;
+
+        if (!appId || !appSecret) {
+            console.error('Facebook App ID or Secret is not configured on the server.');
+            return { error: 'Server configuration error. Please contact the administrator.' };
+        }
+
+        const tokenResponse = await axios.get(`https://graph.facebook.com/v22.0/oauth/access_token`, {
+            params: {
+                grant_type: 'fb_exchange_token',
+                client_id: appId,
+                client_secret: appSecret,
+                fb_exchange_token: shortLivedToken,
+            }
+        });
+
+        const longLivedToken = tokenResponse.data.access_token;
+        if (!longLivedToken) {
+            return { error: 'Could not obtain a long-lived token from Facebook.' };
+        }
+        
+        // 2. Validate permissions
+        const permissionsResponse = await axios.get(`https://graph.facebook.com/v22.0/me/permissions`, {
+            params: { access_token: longLivedToken }
+        });
+
+        const grantedPermissions = permissionsResponse.data.data.map((p: any) => p.permission);
+        const requiredPermissions = ['pages_show_list', 'pages_read_engagement', 'business_management', 'pages_manage_posts', 'read_insights', 'pages_manage_engagement'];
+        
+        const missingPermissions = requiredPermissions.filter(p => !grantedPermissions.includes(p));
+
+        if (missingPermissions.length > 0) {
+            return { error: `Permissions missing: ${missingPermissions.join(', ')}. Please reconnect and grant all required permissions.` };
+        }
+
+        // 3. Continue with existing logic, but use the longLivedToken
         const existingProject = await db.collection('projects').findOne({
             userId: new ObjectId(session.user._id),
             facebookPageId: facebookPageId
@@ -69,7 +107,7 @@ export async function handleConnectNewFacebookPage(data: {
         if (existingProject) {
             await db.collection('projects').updateOne(
                 { _id: existingProject._id },
-                { $set: { accessToken, adAccountId, name: pageName } }
+                { $set: { accessToken: longLivedToken, adAccountId, name: pageName } }
             );
             revalidatePath('/dashboard/facebook/all-projects');
             return { success: true };
@@ -80,7 +118,7 @@ export async function handleConnectNewFacebookPage(data: {
             name: pageName,
             facebookPageId: facebookPageId,
             adAccountId: adAccountId,
-            accessToken: accessToken,
+            accessToken: longLivedToken, // Use the long-lived token
             phoneNumbers: [],
             createdAt: new Date(),
             messagesPerSecond: 10000,
@@ -91,9 +129,11 @@ export async function handleConnectNewFacebookPage(data: {
         return { success: true };
 
     } catch (e: any) {
-        return { error: 'Failed to save marketing settings.' };
+        // Use getErrorMessage to provide better feedback
+        return { error: getErrorMessage(e) || 'Failed to save marketing settings.' };
     }
 }
+
 
 export async function handleManualFacebookPageSetup(prevState: any, formData: FormData): Promise<{ success?: boolean; error?: string }> {
     const session = await getSession();
