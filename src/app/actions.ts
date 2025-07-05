@@ -1434,7 +1434,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
                 accessToken: accessToken,
                 phoneNumbers: phoneNumbers,
                 createdAt: new Date(),
-                messagesPerSecond: 10000,
+                messagesPerSecond: 80,
                 planId: defaultPlan?._id,
                 credits: defaultPlan?.signupCredits || 0,
                 hasCatalogManagement: true, // Assuming if they sync this way, they want catalog features.
@@ -2800,7 +2800,7 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
             accessToken: accessToken,
             phoneNumbers: [],
             createdAt: new Date(),
-            messagesPerSecond: 10000,
+            messagesPerSecond: 80,
             planId: defaultPlan?._id,
             credits: defaultPlan?.signupCredits || 0,
             hasCatalogManagement: includeCatalog,
