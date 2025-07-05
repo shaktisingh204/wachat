@@ -58,7 +58,7 @@ export function FacebookEmbeddedSignup({ appId, configId, onSuccess }: FacebookE
       return;
     }
     
-    const scopes = 'ads_management,pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights,pages_manage_engagement';
+    const scopes = 'pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights,pages_manage_engagement';
 
     window.FB.login(
       function (response: any) {
