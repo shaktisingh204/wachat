@@ -313,14 +313,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
-            <SidebarMenuItem>
-               <SidebarMenuButton asChild isActive={pathname === '/dashboard'} tooltip="All Projects">
-                <Link href="/dashboard">
-                  <Briefcase />
-                  <span>All Projects</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {activeApp !== 'facebook' && activeApp !== 'instagram' && (
+                <SidebarMenuItem>
+                    <SidebarMenuButton asChild isActive={pathname === '/dashboard'} tooltip="All Projects">
+                        <Link href="/dashboard">
+                        <Briefcase />
+                        <span>All Projects</span>
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            )}
              <SidebarMenuItem>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
