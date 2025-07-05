@@ -10,7 +10,7 @@ import FormData from 'form-data';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast } from '@/lib/definitions';
 
 
 export async function handleFacebookPageSetup(data: {
@@ -1057,5 +1057,127 @@ export async function deleteRandomizerPost(postId: string, projectId: string): P
         return { success: true };
     } catch(e: any) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+// --- Facebook Broadcast Actions ---
+export async function getFacebookBroadcasts(projectId: string): Promise<WithId<FacebookBroadcast>[]> {
+    if (!ObjectId.isValid(projectId)) return [];
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const broadcasts = await db.collection<FacebookBroadcast>('facebook_broadcasts')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .limit(50)
+            .toArray();
+        return JSON.parse(JSON.stringify(broadcasts));
+    } catch (e) {
+        console.error("Failed to fetch Facebook broadcasts:", e);
+        return [];
+    }
+}
+
+export async function handleSendFacebookBroadcast(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const message = formData.get('message') as string;
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.facebookPageId || !project.accessToken) {
+        return { error: 'Project not found or is not configured for Facebook.' };
+    }
+
+    if (!message) {
+        return { error: 'Message cannot be empty.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const { facebookPageId, accessToken } = project;
+        
+        const allConversations: FacebookConversation[] = [];
+        let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${facebookPageId}/conversations?fields=participants&limit=100&access_token=${accessToken}`;
+
+        while (nextUrl) {
+            const response = await axios.get(nextUrl);
+            if (response.data?.data) {
+                allConversations.push(...response.data.data);
+            }
+            nextUrl = response.data.paging?.next;
+        }
+
+        const recipientIds = [
+            ...new Set(
+                allConversations
+                    .map(convo => convo.participants.data.find(p => p.id !== facebookPageId)?.id)
+                    .filter(Boolean)
+            ),
+        ];
+        
+        if (recipientIds.length === 0) {
+            return { error: "No contacts found to broadcast to. A user must message your page first." };
+        }
+        
+        const newBroadcast: Omit<FacebookBroadcast, '_id'> = {
+            projectId: project._id,
+            message,
+            status: 'QUEUED',
+            createdAt: new Date(),
+            totalRecipients: recipientIds.length,
+            successCount: 0,
+            failedCount: 0,
+        };
+
+        const result = await db.collection('facebook_broadcasts').insertOne(newBroadcast as any);
+        const broadcastId = result.insertedId;
+
+        await db.collection('facebook_broadcasts').updateOne({ _id: broadcastId }, { $set: { status: 'PROCESSING', startedAt: new Date() }});
+
+        let successCount = 0;
+        let failedCount = 0;
+        const BATCH_SIZE = 10;
+
+        for (let i = 0; i < recipientIds.length; i += BATCH_SIZE) {
+            const batch = recipientIds.slice(i, i + BATCH_SIZE);
+            
+            const promises = batch.map(recipientId => (
+                axios.post(
+                    `https://graph.facebook.com/v22.0/me/messages`,
+                    {
+                        recipient: { id: recipientId },
+                        messaging_type: "MESSAGE_TAG",
+                        message: { text: message },
+                        tag: "POST_PURCHASE_UPDATE"
+                    },
+                    { params: { access_token: accessToken } }
+                ).then(() => {
+                    successCount++;
+                }).catch(err => {
+                    console.error(`Failed to send broadcast message to ${recipientId}:`, getErrorMessage(err));
+                    failedCount++;
+                })
+            ));
+
+            await Promise.all(promises);
+            await new Promise(res => setTimeout(res, 1000));
+        }
+        
+        await db.collection('facebook_broadcasts').updateOne(
+            { _id: broadcastId },
+            { $set: { 
+                status: failedCount > 0 ? 'PARTIAL_FAILURE' : 'COMPLETED',
+                completedAt: new Date(),
+                successCount,
+                failedCount,
+            }}
+        );
+
+        revalidatePath('/dashboard/facebook/broadcasts');
+        return { message: `Broadcast sent to ${successCount} users. ${failedCount} failed.` };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
     }
 }
