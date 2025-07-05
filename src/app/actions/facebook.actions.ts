@@ -9,7 +9,7 @@ import FormData from 'form-data';
 
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getProjectById, getSession } from '@/app/actions';
 import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights } from '@/lib/definitions';
 
 
@@ -36,7 +36,59 @@ export async function handleFacebookPageSetup(data: {
         );
         revalidatePath('/dashboard/facebook');
         revalidatePath('/dashboard/facebook/settings');
+        revalidatePath('/dashboard/facebook/all-projects');
         return { success: true };
+    } catch (e: any) {
+        return { error: 'Failed to save marketing settings.' };
+    }
+}
+
+export async function handleConnectNewFacebookPage(data: {
+    adAccountId: string;
+    facebookPageId: string;
+    accessToken: string;
+    pageName: string;
+}): Promise<{ success?: boolean; error?: string }> {
+    const { adAccountId, facebookPageId, accessToken, pageName } = data;
+    
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied." };
+
+    if (!adAccountId || !facebookPageId || !accessToken || !pageName) {
+        return { error: 'Required information (Ad Account, Page ID, Token, Page Name) was not received from Facebook.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        const existingProject = await db.collection('projects').findOne({
+            userId: new ObjectId(session.user._id),
+            facebookPageId: facebookPageId
+        });
+
+        if (existingProject) {
+            await db.collection('projects').updateOne(
+                { _id: existingProject._id },
+                { $set: { accessToken, adAccountId, name: pageName } }
+            );
+            revalidatePath('/dashboard/facebook/all-projects');
+            return { success: true };
+        }
+
+        const newProject: Omit<Project, '_id'> = {
+            userId: new ObjectId(session.user._id),
+            name: pageName,
+            facebookPageId: facebookPageId,
+            adAccountId: adAccountId,
+            accessToken: accessToken,
+            phoneNumbers: [],
+            createdAt: new Date(),
+        };
+
+        await db.collection('projects').insertOne(newProject as any);
+        revalidatePath('/dashboard/facebook/all-projects');
+        return { success: true };
+
     } catch (e: any) {
         return { error: 'Failed to save marketing settings.' };
     }
