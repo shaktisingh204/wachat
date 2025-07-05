@@ -10,7 +10,7 @@ import FormData from 'form-data';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost } from '@/lib/definitions';
 
 
 export async function handleFacebookPageSetup(data: {
@@ -966,6 +966,96 @@ export async function handleUpdateCommentAutoReplySettings(prevState: any, formD
         revalidatePath('/dashboard/facebook/auto-reply');
         return { success: true };
     } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+// --- Post Randomizer Actions ---
+
+export async function saveRandomizerSettings(prevState: any, formData: FormData): Promise<{ success: boolean, error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    if (!projectId) return { success: false, error: 'Project ID is required.' };
+    
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { success: false, error: 'Access denied.' };
+
+    try {
+        const settings: PostRandomizerSettings = {
+            enabled: formData.get('enabled') === 'on',
+            frequencyHours: Number(formData.get('frequencyHours')),
+        };
+
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { postRandomizer: settings } }
+        );
+        revalidatePath('/dashboard/facebook/post-randomizer');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getRandomizerPosts(projectId: string): Promise<WithId<RandomizerPost>[]> {
+    if (!ObjectId.isValid(projectId)) return [];
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const posts = await db.collection<RandomizerPost>('randomizer_posts')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(posts));
+    } catch (e) {
+        console.error('Failed to get randomizer posts:', e);
+        return [];
+    }
+}
+
+export async function addRandomizerPost(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const message = formData.get('message') as string;
+    const imageUrl = formData.get('imageUrl') as string;
+
+    if (!projectId || !message) {
+        return { success: false, error: 'Project and message are required.' };
+    }
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { success: false, error: 'Access denied.' };
+
+    try {
+        const newPost: Omit<RandomizerPost, '_id'> = {
+            projectId: new ObjectId(projectId),
+            message,
+            ...(imageUrl && { imageUrl }),
+            createdAt: new Date(),
+        };
+        const { db } = await connectToDatabase();
+        await db.collection('randomizer_posts').insertOne(newPost as any);
+        revalidatePath('/dashboard/facebook/post-randomizer');
+        return { success: true };
+    } catch(e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteRandomizerPost(postId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(postId) || !ObjectId.isValid(projectId)) {
+        return { success: false, error: 'Invalid ID provided.' };
+    }
+
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { success: false, error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('randomizer_posts').deleteOne({ _id: new ObjectId(postId), projectId: new ObjectId(projectId) });
+        revalidatePath('/dashboard/facebook/post-randomizer');
+        return { success: true };
+    } catch(e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
