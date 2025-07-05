@@ -63,7 +63,7 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
             accessToken: accessToken,
             phoneNumbers: [],
             createdAt: new Date(),
-            messagesPerSecond: 1000,
+            messagesPerSecond: 3000,
             planId: defaultPlan?._id,
             credits: defaultPlan?.signupCredits || 0,
             hasCatalogManagement: includeCatalog,
