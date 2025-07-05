@@ -96,8 +96,8 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
             console.warn("Could not retrieve ad account for user:", getErrorMessage(e));
         }
 
-        // 4. Fetch all pages the user has access to
-        const pagesResponse = await axios.get('https://graph.facebook.com/v22.0/me/accounts', { params: { fields: 'id,name', access_token: longLivedToken }});
+        // 4. Fetch all pages the user has access to, including their individual page access tokens
+        const pagesResponse = await axios.get('https://graph.facebook.com/v22.0/me/accounts', { params: { fields: 'id,name,access_token', access_token: longLivedToken }});
         const userPages = pagesResponse.data?.data;
 
         if (!userPages || userPages.length === 0) {
@@ -112,7 +112,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
                 update: {
                     $set: {
                         name: page.name,
-                        accessToken: longLivedToken,
+                        accessToken: page.access_token, // Use the page-specific access token
                         adAccountId: adAccountId,
                     },
                     $setOnInsert: {
