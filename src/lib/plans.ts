@@ -1,4 +1,5 @@
 
+
 import type { PlanFeaturePermissions } from '@/lib/definitions';
 
 export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string }[] = [
@@ -8,6 +9,7 @@ export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string }[
     { id: 'contacts', name: 'Contact Management' },
     { id: 'templates', name: 'Message Templates' },
     { id: 'catalog', name: 'Product Catalog' },
+    { id: 'ecommerce', name: 'E-Commerce' },
     { id: 'flowBuilder', name: 'Flow Builder' },
     { id: 'metaFlows', name: 'Meta Flows' },
     { id: 'whatsappAds', name: 'WhatsApp Ads' },
@@ -33,7 +35,7 @@ export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string }[
 ];
 
 export const planFeaturesDefaults: PlanFeaturePermissions = {
-    overview: true, campaigns: true, liveChat: true, contacts: true, templates: true, catalog: false, flowBuilder: true,
+    overview: true, campaigns: true, liveChat: true, contacts: true, templates: true, catalog: false, ecommerce: false, flowBuilder: true,
     metaFlows: true, whatsappAds: false, webhooks: true, settingsBroadcast: true, settingsAutoReply: true,
     settingsMarketing: false, settingsTemplateLibrary: true, settingsCannedMessages: true, settingsAgentsRoles: true,
     settingsCompliance: true, settingsUserAttributes: true, apiAccess: false,
