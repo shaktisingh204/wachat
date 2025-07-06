@@ -401,6 +401,12 @@ export type FacebookSubscriber = {
   assignedAgentId?: string;
   snippet?: string;
   updated_time?: Date;
+  activeEcommFlow?: {
+    flowId: string;
+    currentNodeId: string;
+    variables: Record<string, any>;
+    waitingSince?: Date;
+  };
 };
 
 
@@ -989,6 +995,7 @@ export type EcommFlow = {
     nodes: EcommFlowNode[];
     edges: EcommFlowEdge[];
     triggerKeywords: string[];
+    isWelcomeFlow?: boolean;
     createdAt: Date;
     updatedAt: Date;
 };
