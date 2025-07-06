@@ -31,6 +31,7 @@ import {
     ImageIcon,
     Clock,
     ShoppingCart,
+    View,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -59,16 +60,27 @@ type ButtonConfig = {
     text: string;
 };
 
-type CarouselSection = {
-    title: string;
-    products: { product_retailer_id: string }[];
+type CarouselElementButton = {
+  type: 'web_url' | 'postback';
+  title: string;
+  url?: string;
+  payload?: string;
 };
+
+type CarouselElement = {
+    id: string;
+    title: string;
+    subtitle?: string;
+    image_url?: string;
+    buttons?: CarouselElementButton[];
+};
+
 
 const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Quick Replies', icon: ToggleRight },
-    { type: 'carousel', label: 'Product Carousel', icon: ShoppingCart },
+    { type: 'carousel', label: 'Product Carousel', icon: View },
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'delay', label: 'Add Delay', icon: Clock },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
@@ -117,7 +129,8 @@ const NodePreview = ({ node }: { node: EcommFlowNode }) => {
                     </div>
                 );
             case 'carousel':
-                return <p className="text-xs text-muted-foreground italic">Sends a product carousel linked to catalog: {node.data.catalogId || 'Not Set'}</p>;
+                 const elementCount = node.data.elements?.length || 0;
+                return <p className="text-xs text-muted-foreground italic">Sends a carousel with {elementCount} card(s).</p>;
             default:
                 return null;
         }
@@ -201,7 +214,7 @@ const NodeComponent = ({
                     return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition, transform: 'translateY(-50%)' }} />;
                 })
             ) : (
-                <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />
+                node.type !== 'carousel' && <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />
             )}
         </div>
     );
@@ -237,54 +250,88 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
         handleDataChange('buttons', newButtons);
     };
 
-    const handleCarouselSectionChange = (sectionIndex: number, field: 'title', value: string) => {
-        const newSections = [...(selectedNode.data.sections || [])];
-        newSections[sectionIndex] = { ...newSections[sectionIndex], [field]: value };
-        handleDataChange('sections', newSections);
-    };
-    
-    const handleCarouselProductChange = (sectionIndex: number, productIndex: number, value: string) => {
-        const newSections = JSON.parse(JSON.stringify(selectedNode.data.sections || []));
-        newSections[sectionIndex].products[productIndex].product_retailer_id = value;
-        handleDataChange('sections', newSections);
-    };
-    
-    const addCarouselSection = () => {
-        const newSections: CarouselSection[] = [...(selectedNode.data.sections || []), { title: '', products: [{ product_retailer_id: '' }] }];
-        handleDataChange('sections', newSections);
-    };
-    
-    const removeCarouselSection = (sectionIndex: number) => {
-        const newSections = (selectedNode.data.sections || []).filter((_: any, i: number) => i !== sectionIndex);
-        handleDataChange('sections', newSections);
-    };
-    
-    const addCarouselProduct = (sectionIndex: number) => {
-        const newSections = JSON.parse(JSON.stringify(selectedNode.data.sections || []));
-        newSections[sectionIndex].products.push({ product_retailer_id: '' });
-        handleDataChange('sections', newSections);
+    const handleElementChange = (elementId: string, field: keyof CarouselElement, value: string) => {
+        const newElements = (selectedNode.data.elements || []).map((el: CarouselElement) => 
+            el.id === elementId ? { ...el, [field]: value } : el
+        );
+        handleDataChange('elements', newElements);
     };
 
-    const removeCarouselProduct = (sectionIndex: number, productIndex: number) => {
-        const newSections = JSON.parse(JSON.stringify(selectedNode.data.sections || []));
-        newSections[sectionIndex].products = newSections[sectionIndex].products.filter((_: any, i: number) => i !== productIndex);
-        handleDataChange('sections', newSections);
+    const handleElementButtonChange = (elementId: string, buttonIndex: number, field: keyof CarouselElementButton, value: string) => {
+        const newElements = (selectedNode.data.elements || []).map((el: CarouselElement) => {
+            if (el.id === elementId) {
+                const newButtons = [...(el.buttons || [])];
+                newButtons[buttonIndex] = { ...newButtons[buttonIndex], [field]: value };
+                return { ...el, buttons: newButtons };
+            }
+            return el;
+        });
+        handleDataChange('elements', newElements);
     };
+    
+    const addElement = () => {
+        const currentElements = selectedNode.data.elements || [];
+        if (currentElements.length >= 10) {
+            toast({ title: "Limit Reached", description: "A carousel can have a maximum of 10 cards.", variant: "destructive" });
+            return;
+        }
+        const newElements = [...currentElements, { id: `el-${Date.now()}`, title: 'New Card', buttons: [] }];
+        handleDataChange('elements', newElements);
+    };
+    
+    const removeElement = (elementId: string) => {
+        const newElements = (selectedNode.data.elements || []).filter((el: CarouselElement) => el.id !== elementId);
+        handleDataChange('elements', newElements);
+    };
+
+    const addElementButton = (elementId: string, type: 'web_url' | 'postback') => {
+        const newElements = (selectedNode.data.elements || []).map((el: CarouselElement) => {
+            if (el.id === elementId) {
+                const currentButtons = el.buttons || [];
+                if (currentButtons.length >= 3) {
+                    toast({ title: "Limit Reached", description: "A card can have a maximum of 3 buttons.", variant: "destructive" });
+                    return el;
+                }
+                const newButtons = [...currentButtons, { type, title: 'New Button' }];
+                return { ...el, buttons: newButtons };
+            }
+            return el;
+        });
+        handleDataChange('elements', newElements);
+    };
+
+    const removeElementButton = (elementId: string, buttonIndex: number) => {
+         const newElements = (selectedNode.data.elements || []).map((el: CarouselElement) => {
+            if (el.id === elementId) {
+                const newButtons = (el.buttons || []).filter((_, i) => i !== buttonIndex);
+                return { ...el, buttons: newButtons };
+            }
+            return el;
+        });
+        handleDataChange('elements', newElements);
+    }
 
 
     const renderProperties = () => {
         switch (selectedNode.type) {
             case 'start':
                 return (
-                    <div className="space-y-2">
-                        <Label htmlFor="triggerKeywords">Trigger Keywords</Label>
-                        <Input 
-                            id="triggerKeywords"
-                            placeholder="e.g., help, menu" 
-                            value={selectedNode.data.triggerKeywords || ''} 
-                            onChange={(e) => handleDataChange('triggerKeywords', e.target.value)}
-                        />
-                         <p className="text-xs text-muted-foreground">Comma-separated keywords to start this flow.</p>
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="triggerKeywords">Trigger Keywords</Label>
+                            <Input 
+                                id="triggerKeywords"
+                                placeholder="e.g., help, menu" 
+                                value={selectedNode.data.triggerKeywords || ''} 
+                                onChange={(e) => handleDataChange('triggerKeywords', e.target.value)}
+                            />
+                            <p className="text-xs text-muted-foreground">Comma-separated keywords to start this flow.</p>
+                        </div>
+                        <div className="flex items-center space-x-2 rounded-lg border p-4">
+                            <Switch id="isWelcomeFlow" name="isWelcomeFlow" checked={selectedNode.data.isWelcomeFlow} onCheckedChange={(checked) => handleDataChange('isWelcomeFlow', checked)} />
+                            <Label htmlFor="isWelcomeFlow">Set as Welcome Flow</Label>
+                        </div>
+                         <p className="text-xs text-muted-foreground">If enabled, this flow will automatically trigger for new users.</p>
                     </div>
                 );
             case 'text':
@@ -376,55 +423,45 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                     </div>
                 );
             case 'carousel':
+                const elements = selectedNode.data.elements || [];
                 return (
                     <div className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="carousel-header">Header Text</Label>
-                            <Input id="carousel-header" placeholder="Our Top Items" value={selectedNode.data.headerText || ''} onChange={(e) => handleDataChange('headerText', e.target.value)} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="carousel-body">Body Text</Label>
-                            <Textarea id="carousel-body" placeholder="Check out these amazing items." value={selectedNode.data.bodyText || ''} onChange={(e) => handleDataChange('bodyText', e.target.value)} required />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="carousel-catalog-id">Catalog ID</Label>
-                            <Input id="carousel-catalog-id" placeholder="Your Meta Catalog ID" value={selectedNode.data.catalogId || ''} onChange={(e) => handleDataChange('catalogId', e.target.value)} required />
-                            <p className="text-xs text-muted-foreground">This feature requires a Meta Commerce Catalog.</p>
-                        </div>
-                        <Separator />
-                        <div className="space-y-2">
-                            <div className="flex justify-between items-center">
-                                <Label>Sections</Label>
-                                <Button type="button" size="sm" variant="outline" onClick={addCarouselSection}>
-                                    <Plus className="mr-2 h-4 w-4" /> Section
-                                </Button>
-                            </div>
-                             {(selectedNode.data.sections || []).map((section: CarouselSection, sectionIndex: number) => (
-                                <div key={sectionIndex} className="p-3 border rounded-lg space-y-3 bg-muted/50">
-                                    <div className="flex items-center gap-2">
-                                        <Input 
-                                            placeholder="Section Title" 
-                                            value={section.title} 
-                                            onChange={(e) => handleCarouselSectionChange(sectionIndex, 'title', e.target.value)}
-                                        />
-                                        <Button type="button" variant="ghost" size="icon" onClick={() => removeCarouselSection(sectionIndex)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                                    </div>
-                                    <div className="space-y-2 pl-4">
-                                        {(section.products || []).map((product, productIndex) => (
-                                            <div key={productIndex} className="flex items-center gap-2">
-                                                <Input 
-                                                    placeholder="Product SKU / Retailer ID" 
-                                                    value={product.product_retailer_id}
-                                                    onChange={(e) => handleCarouselProductChange(sectionIndex, productIndex, e.target.value)}
-                                                />
-                                                <Button type="button" variant="ghost" size="icon" onClick={() => removeCarouselProduct(sectionIndex, productIndex)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        <Label>Carousel Cards ({elements.length}/10)</Label>
+                        <div className="space-y-3 max-h-[40vh] overflow-y-auto pr-2">
+                            {elements.map((el: CarouselElement, elIndex: number) => (
+                                <div key={el.id} className="p-3 border rounded-lg space-y-3 bg-muted/50 relative">
+                                    <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeElement(el.id)}><Trash2 className="h-4 w-4"/></Button>
+                                    <h4 className="font-medium text-sm">Card {elIndex + 1}</h4>
+                                    <Input placeholder="Image URL" value={el.image_url || ''} onChange={e => handleElementChange(el.id, 'image_url', e.target.value)} />
+                                    <Input placeholder="Title (80 chars max)" value={el.title} onChange={e => handleElementChange(el.id, 'title', e.target.value)} maxLength={80} required/>
+                                    <Input placeholder="Subtitle (80 chars max)" value={el.subtitle || ''} onChange={e => handleElementChange(el.id, 'subtitle', e.target.value)} maxLength={80}/>
+                                    <div className="space-y-2">
+                                        {(el.buttons || []).map((btn, btnIndex) => (
+                                            <div key={btnIndex} className="p-2 border bg-background rounded-md space-y-2 relative">
+                                                <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeElementButton(el.id, btnIndex)}><Trash2 className="h-3 w-3"/></Button>
+                                                <RadioGroup value={btn.type} onValueChange={(val) => handleElementButtonChange(el.id, btnIndex, 'type', val)} className="flex gap-4">
+                                                    <div className="flex items-center space-x-2"><RadioGroupItem value="web_url" id={`btn-type-url-${el.id}-${btnIndex}`} /><Label htmlFor={`btn-type-url-${el.id}-${btnIndex}`} className="font-normal">URL</Label></div>
+                                                    <div className="flex items-center space-x-2"><RadioGroupItem value="postback" id={`btn-type-postback-${el.id}-${btnIndex}`} /><Label htmlFor={`btn-type-postback-${el.id}-${btnIndex}`} className="font-normal">Postback</Label></div>
+                                                </RadioGroup>
+                                                <Input placeholder="Button Title (20 chars max)" value={btn.title} onChange={e => handleElementButtonChange(el.id, btnIndex, 'title', e.target.value)} maxLength={20} required/>
+                                                {btn.type === 'web_url' ? (
+                                                     <Input placeholder="https://example.com" value={btn.url || ''} onChange={e => handleElementButtonChange(el.id, btnIndex, 'url', e.target.value)} required/>
+                                                ) : (
+                                                     <Input placeholder="Payload_for_webhook" value={btn.payload || ''} onChange={e => handleElementButtonChange(el.id, btnIndex, 'payload', e.target.value)} required/>
+                                                )}
                                             </div>
                                         ))}
-                                        <Button type="button" size="sm" variant="link" onClick={() => addCarouselProduct(sectionIndex)}>+ Add Product</Button>
+                                        {(el.buttons?.length || 0) < 3 && (
+                                            <div className="flex gap-2">
+                                                <Button type="button" variant="outline" size="sm" onClick={() => addElementButton(el.id, 'web_url')}>+ URL Button</Button>
+                                                <Button type="button" variant="outline" size="sm" onClick={() => addElementButton(el.id, 'postback')}>+ Postback Button</Button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
-                             ))}
+                            ))}
                         </div>
+                        <Button type="button" variant="outline" className="w-full" onClick={addElement}><Plus className="mr-2 h-4 w-4"/>Add Card</Button>
                     </div>
                 );
             default:
