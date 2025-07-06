@@ -1551,3 +1551,33 @@ export async function getInstagramAccountForPage(projectId: string): Promise<{ i
         return { error: getErrorMessage(e) };
     }
 }
+
+export async function getCommerceMerchantSettings(projectId: string): Promise<{ settings?: any, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.facebookPageId || !project.accessToken) {
+        return { error: 'Project not found or is not configured for Facebook.' };
+    }
+    
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}`, {
+            params: {
+                fields: 'commerce_merchant_settings{commerce_manager_url,display_name,shops}',
+                access_token: project.accessToken,
+            }
+        });
+        
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        const settings = response.data.commerce_merchant_settings;
+        if (!settings) {
+            return { error: 'No Commerce Merchant Settings found for this Page.' };
+        }
+        
+        return { settings };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
