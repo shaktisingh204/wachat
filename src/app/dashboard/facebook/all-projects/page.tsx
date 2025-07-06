@@ -8,12 +8,14 @@ import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
-import { CheckCircle, Facebook, Wrench, Edit } from 'lucide-react';
+import { CheckCircle, Facebook, Wrench } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ManualFacebookSetupDialog } from '@/components/wabasimplify/manual-facebook-setup-dialog';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { getInstagramAccountForPage } from '@/app/actions/facebook.actions';
+import { WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 function PageSkeleton() {
     return (
@@ -29,20 +31,26 @@ function PageSkeleton() {
     );
 }
 
-function ManagePageButton({ project }: { project: WithId<Project> }) {
+function ConnectedPageCard({ project }: { project: WithId<Project> }) {
     const router = useRouter();
-    
+    const [instagramId, setInstagramId] = useState<string | null>(null);
+    const [checkingIg, setCheckingIg] = useState(true);
+
+    useEffect(() => {
+        getInstagramAccountForPage(project._id.toString()).then(result => {
+            if (result.instagramId) {
+                setInstagramId(result.instagramId);
+            }
+            setCheckingIg(false);
+        });
+    }, [project]);
+
     const handleClick = () => {
         localStorage.setItem('activeProjectId', project._id.toString());
         localStorage.setItem('activeProjectName', project.name);
         router.push('/dashboard/facebook');
     };
 
-    return <Button onClick={handleClick} size="sm">Manage</Button>;
-}
-
-
-function ConnectedPageCard({ project }: { project: WithId<Project> }) {
     return (
         <Card className={cn("flex flex-col card-gradient card-gradient-blue transition-transform hover:-translate-y-1")}>
             <CardHeader className="flex-row items-center gap-4">
@@ -57,11 +65,21 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
             <CardContent className="flex-grow">
                 <Badge variant="secondary"><CheckCircle className="mr-1 h-3 w-3" /> Connected</Badge>
             </CardContent>
-            <CardFooter className="flex justify-end gap-2">
-                 <Button asChild variant="outline" size="sm">
-                    <a href={`https://facebook.com/${project.facebookPageId}`} target="_blank" rel="noopener noreferrer">View on Facebook</a>
-                </Button>
-                <ManagePageButton project={project} />
+            <CardFooter className="flex justify-between items-center">
+                 <div className="flex items-center gap-2">
+                    {checkingIg ? (
+                        <Skeleton className="h-5 w-5 rounded-full" />
+                    ) : instagramId ? (
+                        <InstagramIcon className="h-5 w-5 text-instagram" />
+                    ) : null}
+                    {project.wabaId && <WhatsAppIcon className="h-5 w-5 text-green-500" />}
+                </div>
+                <div className="flex gap-2">
+                    <Button asChild variant="outline" size="sm">
+                        <a href={`https://facebook.com/${project.facebookPageId}`} target="_blank" rel="noopener noreferrer">View on Facebook</a>
+                    </Button>
+                    <Button onClick={handleClick} size="sm">Manage</Button>
+                </div>
             </CardFooter>
         </Card>
     );
@@ -89,7 +107,7 @@ export default function AllFacebookPagesPage() {
         return <PageSkeleton />;
     }
 
-    const connectedFacebookProjects = projects.filter(p => !!p.facebookPageId && !p.wabaId);
+    const connectedFacebookProjects = projects.filter(p => !!p.facebookPageId);
 
     return (
         <div className="flex flex-col gap-8">
