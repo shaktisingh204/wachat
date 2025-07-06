@@ -430,9 +430,10 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
     }
 
     try {
+        const fields = 'id,message,permalink_url,created_time,object_id,shares,reactions.summary(total_count),comments.summary(total_count).limit(5){id,message,from,created_time},attachments{media{image{src}}}';
         const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/posts`, {
             params: {
-                fields: 'id,message,full_picture,permalink_url,created_time,object_id,shares,reactions.limit(0).summary(true),comments.limit(5).summary(true){id,message,from,created_time}',
+                fields: fields,
                 access_token: project.accessToken,
                 limit: 25,
             }
@@ -442,7 +443,13 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
             throw new Error(getErrorMessage({ response }));
         }
 
-        return { posts: response.data.data || [] };
+        // Map the response to add the full_picture field for the UI components
+        const postsWithPictures = (response.data.data || []).map((post: any) => {
+            const full_picture = post.attachments?.data?.[0]?.media?.image?.src;
+            return { ...post, full_picture };
+        });
+
+        return { posts: postsWithPictures };
 
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -802,9 +809,10 @@ export async function getScheduledPosts(projectId: string): Promise<{ posts?: Fa
     }
 
     try {
+        // full_picture and permalink_url are not available for unpublished posts
         const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/scheduled_posts`, {
             params: {
-                fields: 'id,message,full_picture,permalink_url,created_time,scheduled_publish_time',
+                fields: 'id,message,created_time,scheduled_publish_time',
                 access_token: project.accessToken,
                 limit: 100,
             }
@@ -820,6 +828,7 @@ export async function getScheduledPosts(projectId: string): Promise<{ posts?: Fa
         return { error: getErrorMessage(e) };
     }
 }
+
 
 export async function publishScheduledPost(postId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
     if (!projectId || !postId) {
@@ -1328,5 +1337,36 @@ export async function getFacebookSubscribers(projectId: string): Promise<{ subsc
 
     } catch (e: any) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+// --- Comment Auto-Reply ---
+export async function handleUpdateCommentAutoReply(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    if (!projectId) return { success: false, error: 'Project ID is missing.' };
+
+    const project = await getProjectById(projectId);
+    if (!project) return { success: false, error: 'Access denied or project not found.' };
+    
+    try {
+        const { db } = await connectToDatabase();
+        const settings: FacebookCommentAutoReplySettings = {
+            enabled: formData.get('enabled') === 'on',
+            replyMode: formData.get('replyMode') as 'static' | 'ai',
+            staticReplyText: formData.get('staticReplyText') as string,
+            aiReplyPrompt: formData.get('aiReplyPrompt') as string,
+            moderationEnabled: false, // This feature is now part of the main automation settings.
+            moderationPrompt: '',     // This feature is now part of the main automation settings.
+        };
+
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { facebookCommentAutoReply: settings } }
+        );
+
+        revalidatePath('/dashboard/facebook/auto-reply');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
