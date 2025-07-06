@@ -1741,7 +1741,7 @@ export async function handleSubscribeProjectWebhook(projectId: string): Promise<
         return { error: 'Project not found or you do not have access.' };
     }
 
-    const accessToken = hasAccess.accessToken;
+    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN || hasAccess.accessToken;
     const appId = hasAccess.appId || process.env.NEXT_PUBLIC_META_APP_ID;
     const apiVersion = 'v23.0';
     const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
