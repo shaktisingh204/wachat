@@ -26,11 +26,11 @@ export function FacebookChatWindow({ project, conversation, messages, isLoading,
     const participant = conversation.participants.data.find(p => p.id !== project.facebookPageId);
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
     }, [messages]);
 
     return (
-        <div className="flex flex-col h-full bg-muted/30">
+        <div className="flex flex-col h-full bg-transparent">
             <div className="flex items-center justify-between gap-3 p-3 border-b bg-background h-[73px] flex-shrink-0">
                 <div className="flex items-center gap-3">
                     <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
@@ -52,7 +52,7 @@ export function FacebookChatWindow({ project, conversation, messages, isLoading,
                 </div>
             </div>
             
-            <ScrollArea className="flex-1" viewportClassName="scroll-container">
+            <ScrollArea className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
                 <div className="p-4 space-y-4">
                     {isLoading ? (
                         <div className="flex items-center justify-center h-full">

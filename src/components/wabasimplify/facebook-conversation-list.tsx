@@ -8,8 +8,8 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { formatDistanceToNow } from 'date-fns';
-import { Search } from 'lucide-react';
+import { format } from 'date-fns';
+import { Search, MessageSquarePlus } from 'lucide-react';
 import { Input } from '../ui/input';
 
 interface FacebookConversationListProps {
@@ -37,10 +37,14 @@ export function FacebookConversationList({ conversations, selectedConversationId
     }
 
     return (
-        <div className="h-full flex flex-col overflow-hidden">
+        <div className="h-full flex flex-col overflow-hidden bg-card">
             <div className="p-3 border-b flex-shrink-0 space-y-3">
                 <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold tracking-tight">Messenger Chats</h2>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MessageSquarePlus className="h-5 w-5" />
+                        <span className="sr-only">New Chat</span>
+                    </Button>
                 </div>
                  <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -61,8 +65,8 @@ export function FacebookConversationList({ conversations, selectedConversationId
                                     key={convo.id}
                                     onClick={() => onSelectConversation(convo)}
                                     className={cn(
-                                        "flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-muted",
-                                        selectedConversationId === convo.id && "bg-muted"
+                                        "flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-accent",
+                                        selectedConversationId === convo.id && "bg-accent"
                                     )}
                                 >
                                     <Avatar>
@@ -73,13 +77,13 @@ export function FacebookConversationList({ conversations, selectedConversationId
                                         <div className="flex items-center justify-between">
                                             <p className="font-semibold truncate">{participant?.name || 'Unknown User'}</p>
                                             <p className="text-xs text-muted-foreground whitespace-nowrap">
-                                                {formatDistanceToNow(new Date(convo.updated_time), { addSuffix: true })}
+                                                {format(new Date(convo.updated_time), 'p')}
                                             </p>
                                         </div>
                                         <div className="flex items-center justify-between">
                                             <p className="text-sm text-muted-foreground truncate">{convo.snippet}</p>
                                             {convo.unread_count > 0 && (
-                                                <Badge variant="default" className="h-5 w-5 flex items-center justify-center p-0">{convo.unread_count}</Badge>
+                                                <Badge className="h-5 w-5 flex items-center justify-center p-0 rounded-full bg-primary text-primary-foreground">{convo.unread_count}</Badge>
                                             )}
                                         </div>
                                     </div>

@@ -41,7 +41,7 @@ export function ChatWindow({
     const [isUpdatingStatus, startStatusUpdateTransition] = useTransition();
 
     useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+        messagesEndRef.current?.scrollIntoView({ behavior: 'auto' });
     }, [conversation]);
     
     const handleMarkResolved = () => {
@@ -57,7 +57,7 @@ export function ChatWindow({
     };
 
     return (
-        <div className="flex flex-col h-full bg-muted/30">
+        <div className="flex flex-col h-full bg-transparent">
             <div className="flex items-center justify-between gap-3 p-3 border-b bg-background h-[73px] flex-shrink-0">
                 <div className="flex items-center gap-3">
                     <Button variant="ghost" size="icon" className="md:hidden" onClick={onBack}>
@@ -81,7 +81,7 @@ export function ChatWindow({
                 </div>
             </div>
             
-            <ScrollArea className="flex-1" viewportClassName="scroll-container">
+            <ScrollArea className="flex-1 bg-chat-texture" viewportClassName="scroll-container">
                  {isLoading ? (
                     <div className="flex items-center justify-center h-full">
                          <LoaderCircle className="h-6 w-6 animate-spin text-muted-foreground" />
