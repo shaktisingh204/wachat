@@ -14,7 +14,7 @@ import { SyncProjectsDialog } from "@/components/wabasimplify/sync-projects-dial
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
-  title: "Select Project | Wachat",
+  title: "Select Project | SabNode",
 };
 
 export default async function SelectProjectPage({
@@ -25,7 +25,7 @@ export default async function SelectProjectPage({
   };
 }) {
     const query = searchParams?.query || '';
-    const projects: WithId<Project>[] = await getProjects(query);
+    const projects: WithId<Project>[] = await getProjects(query, 'whatsapp');
 
     return (
         <div className="flex flex-col gap-8">
