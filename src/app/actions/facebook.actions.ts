@@ -12,6 +12,33 @@ import { getProjectById, getSession } from '@/app/actions';
 import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings } from '@/lib/definitions';
 
 
+async function handleSubscribeFacebookPageWebhook(pageId: string, pageAccessToken: string): Promise<{ success: boolean, error?: string }> {
+    const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
+    if (!appId) {
+        console.warn(`Could not subscribe page ${pageId}: NEXT_PUBLIC_FACEBOOK_APP_ID is not set.`);
+        return { success: false, error: "Server APP_ID not configured." };
+    }
+    try {
+        const subscribedFields = 'messages,messaging_postbacks,feed';
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${pageId}/subscribed_apps`, {
+            subscribed_fields: subscribedFields,
+            access_token: pageAccessToken
+        });
+        
+        if (response.data.success) {
+            console.log(`Successfully subscribed page ${pageId} to webhooks.`);
+            return { success: true };
+        } else {
+            console.warn(`Failed to subscribe page ${pageId} to webhooks.`, response.data.error);
+            return { success: false, error: getErrorMessage({response}) };
+        }
+    } catch (e: any) {
+        console.error(`Error subscribing page ${pageId} to webhooks:`, getErrorMessage(e));
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
 export async function handleFacebookPageSetup(data: {
     projectId: string;
     adAccountId: string;
@@ -151,6 +178,12 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
         if (bulkOps.length > 0) {
             await db.collection('projects').bulkWrite(bulkOps);
         }
+        
+        // 6. Subscribe each page to webhooks
+        for (const page of validPages) {
+            await handleSubscribeFacebookPageWebhook(page.id, page.access_token);
+        }
+
 
         revalidatePath('/dashboard/facebook/all-projects');
         return { success: true };
@@ -197,7 +230,13 @@ export async function handleManualFacebookPageSetup(prevState: any, formData: Fo
             messagesPerSecond: 10000,
         };
 
-        await db.collection('projects').insertOne(newProject as any);
+        const result = await db.collection('projects').insertOne(newProject as any);
+        
+        // Subscribe to webhooks after creation
+        if (result.insertedId) {
+            await handleSubscribeFacebookPageWebhook(facebookPageId, accessToken);
+        }
+
         revalidatePath('/dashboard/facebook/all-projects');
         return { success: true };
 
