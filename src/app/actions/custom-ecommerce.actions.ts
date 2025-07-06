@@ -4,13 +4,92 @@
 import { getProjectById } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { EcommProduct, EcommOrder, EcommSettings } from '@/lib/definitions';
-import { ObjectId } from 'mongodb';
+import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
+import { getErrorMessage } from '@/lib/utils';
 
-export async function getEcommProducts(shopId: string) {
-    // TODO: Implement
-    return [];
+export async function getEcommProducts(projectId: string): Promise<WithId<EcommProduct>[]> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return [];
+    
+    try {
+        const { db } = await connectToDatabase();
+        const products = await db.collection('ecomm_products')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(products));
+    } catch (e) {
+        console.error("Failed to get e-commerce products:", e);
+        return [];
+    }
 }
+
+export async function saveEcommProduct(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const productId = formData.get('productId') as string | null;
+
+    if (!projectId) return { error: 'Project ID is missing.' };
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied or project not found.' };
+
+    try {
+        const variantsString = formData.get('variants') as string;
+        const variants = variantsString ? JSON.parse(variantsString) : [];
+
+        const productData: Partial<EcommProduct> = {
+            projectId: new ObjectId(projectId),
+            name: formData.get('name') as string,
+            description: formData.get('description') as string,
+            price: parseFloat(formData.get('price') as string),
+            stock: formData.get('stock') ? parseInt(formData.get('stock') as string, 10) : undefined,
+            imageUrl: formData.get('imageUrl') as string,
+            variants: variants,
+            updatedAt: new Date(),
+        };
+
+        if (!productData.name || isNaN(productData.price)) {
+            return { error: 'Product name and price are required.' };
+        }
+        
+        const { db } = await connectToDatabase();
+
+        if (productId && ObjectId.isValid(productId)) {
+            await db.collection('ecomm_products').updateOne(
+                { _id: new ObjectId(productId), projectId: new ObjectId(projectId) },
+                { $set: productData }
+            );
+        } else {
+            productData.createdAt = new Date();
+            await db.collection('ecomm_products').insertOne(productData as EcommProduct);
+        }
+        
+        revalidatePath('/dashboard/custom-ecommerce/products');
+        return { message: `Product "${productData.name}" saved successfully!` };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteEcommProduct(productId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(productId)) return { success: false, error: 'Invalid Product ID.' };
+    
+    const { db } = await connectToDatabase();
+    const product = await db.collection('ecomm_products').findOne({ _id: new ObjectId(productId) });
+    if (!product) return { success: false, error: 'Product not found.' };
+
+    const hasAccess = await getProjectById(product.projectId.toString());
+    if (!hasAccess) return { success: false, error: 'Access denied.' };
+
+    try {
+        await db.collection('ecomm_products').deleteOne({ _id: new ObjectId(productId) });
+        revalidatePath('/dashboard/custom-ecommerce/products');
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
 
 export async function getEcommOrders(shopId: string) {
     // TODO: Implement
