@@ -429,7 +429,7 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
     }
 
     try {
-        const fields = 'id,message,permalink_url,created_time,object_id,shares,full_picture,reactions.summary(true),comments.limit(5){id,message,from,created_time},comments.summary(true)';
+        const fields = 'id,message,permalink_url,created_time,object_id,shares,full_picture,reactions.summary(true),comments.summary(true)';
         const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/posts`, {
             params: {
                 fields: fields,
@@ -1361,5 +1361,36 @@ export async function handleUpdateCommentAutoReply(prevState: any, formData: For
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function markFacebookConversationAsRead(conversationId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied or project not configured.' };
+    }
+
+    try {
+        await axios.post(
+            `https://graph.facebook.com/v23.0/${conversationId}`, 
+            {}, // Empty body
+            { 
+                params: { 
+                    state: 'read',
+                    access_token: project.accessToken 
+                } 
+            }
+        );
+        revalidatePath('/dashboard/facebook/messages');
+        return { success: true };
+    } catch (e: any) {
+        // It's possible for this to fail if another client reads it first.
+        // We can ignore certain errors to avoid showing an error toast to the user.
+        const errorMessage = getErrorMessage(e);
+        if (!errorMessage.includes("This message has already been read")) {
+            console.error("Failed to mark conversation as read:", errorMessage);
+            return { success: false, error: errorMessage };
+        }
+        return { success: true }; // Treat "already read" as success
     }
 }
