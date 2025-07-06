@@ -1,12 +1,12 @@
 
 'use server';
 
-import { revalidatePath } from 'next/cache';
+import { revalidatePath } from 'next/revalidate';
 import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
 import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelligent-translate-flow';
-import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template, EcommFlow, EcommFlowNode, FacebookSubscriber } from './definitions';
+import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template, EcommFlow, EcommFlowNode, FacebookSubscriber, EcommFlowEdge } from './definitions';
 import { getErrorMessage } from './utils';
 import { processFacebookComment } from '@/ai/flows/facebook-comment-flow';
 
@@ -306,7 +306,7 @@ async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithI
         const getVars = (text: string): number[] => {
             if (!text) return [];
             const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
-            return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
+            return variableMatches ? [...new Set(matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
         };
 
         const payloadComponents: any[] = [];
@@ -1237,10 +1237,19 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
         { upsert: true, returnDocument: 'after' }
     );
     
-    const isNewSubscriber = !subscriberResult;
+    if (!subscriberResult) return;
+    const isNewSubscriber = !subscriberResult.lastErrorObject?.updatedExisting;
 
     // Handle incoming messages or postbacks
     if (messagingEvent.message || messagingEvent.postback) {
+        
+        // Check for an active e-commerce flow first
+        if (subscriberResult.activeEcommFlow) {
+            // TODO: Implement logic to continue an existing flow
+            return;
+        }
+        
+        // If no active flow, check for triggers
         const payload = messagingEvent.postback?.payload || messagingEvent.message?.quick_reply?.payload || messagingEvent.message?.text;
         
         if (isNewSubscriber && project.ecommSettings?.welcomeMessage) {
@@ -1267,8 +1276,8 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
                 { params: { access_token: project.accessToken } }
             );
         } else {
-            // TODO: Here you would insert the logic to check for an active e-commerce flow
-            // or trigger a new flow based on the `payload` variable.
+            // TODO: Here you would insert the logic to check for keyword triggers
+            // to start a new e-commerce flow.
         }
     }
 

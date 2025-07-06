@@ -397,6 +397,7 @@ export type FacebookSubscriber = {
   assignedAgentId?: string;
   snippet?: string;
   updated_time?: Date;
+  unread_count?: number;
   activeEcommFlow?: {
     flowId: string;
     currentNodeId: string;
