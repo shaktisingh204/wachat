@@ -220,6 +220,11 @@ body {
 }
 
 @layer utilities {
+    .bg-auth-texture {
+        background-color: hsl(var(--background));
+        background-image: radial-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+        background-size: 16px 16px;
+    }
     .bg-instagram {
         background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));
     }

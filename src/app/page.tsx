@@ -733,7 +733,7 @@ export default function HomePage() {
         </div>
       </main>
       <footer className="border-t">
-        <div className="container mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4"><p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} SabNode. All rights reserved.</p><div className="flex gap-4"><Link href="/terms-and-conditions" className="text-sm text-muted-foreground hover:text-primary">Terms & Conditions</Link><Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link></div></div>
+        <div className="container mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4"><p className="text-sm text-muted-foreground">© {new Date().getFullYear()} SabNode. All Rights Reserved.</p><div className="flex gap-4"><Link href="/terms-and-conditions" className="text-sm text-muted-foreground hover:text-primary">Terms & Conditions</Link><Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link></div></div>
       </footer>
     </div>
   );
