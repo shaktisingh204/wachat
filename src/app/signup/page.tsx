@@ -12,7 +12,6 @@ import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { handleSignup } from '@/app/actions';
-import Image from 'next/image';
 
 const initialState = {
   message: null,
@@ -34,8 +33,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-6 lg:p-8 relative">
-        {/* This div should have the background illustration */}
+    <div className="flex flex-col items-center justify-center min-h-screen bg-auth-texture p-4 sm:p-6 lg:p-8">
         <div className="absolute top-6 left-6 sm:top-8 sm:left-8">
             <Link href="/">
                 <SabNodeLogo className="w-24 h-auto" />
@@ -80,7 +78,7 @@ export default function SignupPage() {
             </form>
         </Card>
          <div className="absolute bottom-6 text-center w-full">
-            <p className="text-xs text-muted-foreground">Copyright @wework 2022 | <Link href="/privacy-policy" className="hover:text-primary">Privacy Policy</Link></p>
+            <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} SabNode. All Rights Reserved. | <Link href="/privacy-policy" className="hover:text-primary">Privacy Policy</Link></p>
         </div>
     </div>
   );
