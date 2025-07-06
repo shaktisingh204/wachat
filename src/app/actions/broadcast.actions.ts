@@ -110,7 +110,6 @@ export async function handleStartBroadcast(
   try {
     const projectId = formData.get('projectId') as string;
     const phoneNumberId = formData.get('phoneNumberId') as string;
-    const broadcastType = formData.get('broadcastType') as 'template' | 'flow';
     const mediaSource = formData.get('mediaSource') as 'url' | 'file';
     const audienceType = formData.get('audienceType') as 'file' | 'tags';
     const tagIds = formData.getAll('tagIds') as string[];
@@ -141,91 +140,66 @@ export async function handleStartBroadcast(
     
     let broadcastJobData: Omit<WithId<BroadcastJob>, '_id'>;
     const projectObjectId = new ObjectId(projectId);
+    
+    const templateId = formData.get('templateId') as string;
+    if (!templateId) return { error: 'Please select a message template.' };
+    if (!ObjectId.isValid(templateId)) return { error: 'Invalid Template ID.' };
 
-    if(broadcastType === 'flow') {
-        const metaFlowId = formData.get('metaFlowId') as string;
-        if (!metaFlowId) return { error: 'Please select a Meta Flow.' };
-        if (!ObjectId.isValid(metaFlowId)) return { error: 'Invalid Meta Flow ID.' };
-        const flow = await db.collection<MetaFlow>('meta_flows').findOne({ _id: new ObjectId(metaFlowId), projectId: projectObjectId });
-        if (!flow) return { error: 'Selected flow not found for this project.' };
+    const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: projectObjectId });
+    if (!template) return { error: 'Selected template not found for this project.' };
 
-        broadcastJobData = {
-            projectId: projectObjectId,
-            broadcastType: 'flow',
-            metaFlowId: new ObjectId(metaFlowId),
-            templateName: flow.name, 
-            phoneNumberId,
-            accessToken,
-            status: 'QUEUED',
-            createdAt: new Date(),
-            contactCount: 0,
-            fileName: contactFileName,
-            category: 'UTILITY', 
-            components: [], // Required for type, but not used for flows
-            language: '', // Required for type, but not used for flows
-        };
+    let headerMediaId: string | undefined = undefined;
+    let headerImageUrl: string | undefined = undefined;
 
-    } else { 
-        const templateId = formData.get('templateId') as string;
-        if (!templateId) return { error: 'Please select a message template.' };
-        if (!ObjectId.isValid(templateId)) return { error: 'Invalid Template ID.' };
+    const templateHasMediaHeader = template.components?.some((c: any) => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
+    
+    if (templateHasMediaHeader) {
+        if (mediaSource === 'file') {
+            const mediaFile = formData.get('headerImageFile') as File;
+            if (!mediaFile || mediaFile.size === 0) return { error: 'Please upload a media file for this template header.' };
+            
+            const form = new FormData();
+            const buffer = Buffer.from(await mediaFile.arrayBuffer());
+            form.append('file', buffer, {
+                filename: mediaFile.name, contentType: mediaFile.type,
+            });
+            form.append('messaging_product', 'whatsapp');
+            
+            const uploadResponse = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
+            const mediaId = uploadResponse.data.id;
+            if (!mediaId) return { error: 'Failed to upload media to Meta. No ID returned.' };
+            headerMediaId = mediaId;
 
-        const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: projectObjectId });
-        if (!template) return { error: 'Selected template not found for this project.' };
-
-        let headerMediaId: string | undefined = undefined;
-        let headerImageUrl: string | undefined = undefined;
-
-        const templateHasMediaHeader = template.components?.some((c: any) => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format));
-        
-        if (templateHasMediaHeader) {
-            if (mediaSource === 'file') {
-                const mediaFile = formData.get('headerImageFile') as File;
-                if (!mediaFile || mediaFile.size === 0) return { error: 'Please upload a media file for this template header.' };
-                
-                const form = new FormData();
-                const buffer = Buffer.from(await mediaFile.arrayBuffer());
-                form.append('file', buffer, {
-                    filename: mediaFile.name, contentType: mediaFile.type,
-                });
-                form.append('messaging_product', 'whatsapp');
-                
-                const uploadResponse = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
-                const mediaId = uploadResponse.data.id;
-                if (!mediaId) return { error: 'Failed to upload media to Meta. No ID returned.' };
-                headerMediaId = mediaId;
-
-            } else { 
-                const overrideUrl = formData.get('headerImageUrl') as string | null;
-                if (overrideUrl && overrideUrl.trim() !== '') {
-                    headerImageUrl = overrideUrl.trim();
-                } else {
-                    return { error: 'A public media URL is required for this template.' };
-                }
+        } else { 
+            const overrideUrl = formData.get('headerImageUrl') as string | null;
+            if (overrideUrl && overrideUrl.trim() !== '') {
+                headerImageUrl = overrideUrl.trim();
+            } else {
+                return { error: 'A public media URL is required for this template.' };
             }
         }
-        
-        const variableMappings = (JSON.parse(formData.get('variableMappings') as string || '[]')) as any[];
-
-        broadcastJobData = {
-            projectId: projectObjectId,
-            broadcastType: 'template',
-            templateId: new ObjectId(templateId),
-            templateName: template.name,
-            phoneNumberId,
-            accessToken,
-            status: 'QUEUED',
-            createdAt: new Date(),
-            contactCount: 0,
-            fileName: contactFileName,
-            components: template.components,
-            language: template.language,
-            headerImageUrl: headerImageUrl,
-            headerMediaId: headerMediaId,
-            category: template.category,
-            variableMappings: variableMappings
-        };
     }
+    
+    const variableMappings = (JSON.parse(formData.get('variableMappings') as string || '[]')) as any[];
+
+    broadcastJobData = {
+        projectId: projectObjectId,
+        broadcastType: 'template',
+        templateId: new ObjectId(templateId),
+        templateName: template.name,
+        phoneNumberId,
+        accessToken,
+        status: 'QUEUED',
+        createdAt: new Date(),
+        contactCount: 0,
+        fileName: contactFileName,
+        components: template.components,
+        language: template.language,
+        headerImageUrl: headerImageUrl,
+        headerMediaId: headerMediaId,
+        category: template.category,
+        variableMappings: variableMappings
+    };
 
     const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData as any);
     broadcastId = broadcastResult.insertedId;

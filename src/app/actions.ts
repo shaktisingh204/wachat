@@ -72,7 +72,10 @@ import type {
 
 
 export async function getSession(): Promise<{ user: Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null, tags?: Tag[] } } | null> {
-    const sessionToken = cookies().get('session')?.value;
+    const cookieStore = cookies();
+    const sessionCookie = cookieStore.get('session');
+    const sessionToken = sessionCookie?.value;
+
     if (!sessionToken) {
         return null;
     }
@@ -101,7 +104,8 @@ export async function getSession(): Promise<{ user: Omit<User, 'password' | 'pla
 }
 
 export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
-    const sessionToken = cookies().get('admin_session')?.value;
+    const cookieStore = cookies();
+    const sessionToken = cookieStore.get('admin_session')?.value;
     if (!sessionToken) {
         return { isAdmin: false };
     }
@@ -444,7 +448,6 @@ export async function getBroadcasts(
                         {
                             $project: {
                                 templateId: 1,
-                                metaFlowId: 1,
                                 templateName: 1,
                                 fileName: 1,
                                 contactCount: 1,

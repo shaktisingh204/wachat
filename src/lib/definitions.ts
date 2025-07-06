@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type BusinessCapabilities = {
@@ -714,9 +715,8 @@ export type VariableMapping = {
 export type BroadcastJob = {
     _id: ObjectId;
     projectId: ObjectId;
-    broadcastType: 'template' | 'flow';
+    broadcastType: 'template';
     templateId?: ObjectId;
-    metaFlowId?: ObjectId;
     templateName: string;
     phoneNumberId: string;
     accessToken: string;
