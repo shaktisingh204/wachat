@@ -72,10 +72,7 @@ import type {
 
 
 export async function getSession(): Promise<{ user: Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null, tags?: Tag[] } } | null> {
-    const cookieStore = cookies();
-    const sessionCookie = cookieStore.get('session');
-    const sessionToken = sessionCookie?.value;
-
+    const sessionToken = cookies().get('session')?.value;
     if (!sessionToken) {
         return null;
     }
@@ -104,10 +101,7 @@ export async function getSession(): Promise<{ user: Omit<User, 'password' | 'pla
 }
 
 export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
-    const cookieStore = cookies();
-    const adminSessionCookie = cookieStore.get('admin_session');
-    const sessionToken = adminSessionCookie?.value;
-
+    const sessionToken = cookies().get('admin_session')?.value;
     if (!sessionToken) {
         return { isAdmin: false };
     }
@@ -622,7 +616,7 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
         const fields = 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput,whatsapp_business_profile{about,address,description,email,profile_picture_url,websites,vertical}';
         
         const allPhoneNumbers: MetaPhoneNumber[] = [];
-        let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}&limit=100`;
+        let nextUrl: string | undefined = `https://graph.facebook.com/v23.0/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}&limit=100`;
 
         while (nextUrl) {
             const response = await fetch(nextUrl, { method: 'GET' });
@@ -700,18 +694,18 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
             sessionFormData.append('file_type', profilePictureFile.type);
             sessionFormData.append('access_token', accessToken);
 
-            const sessionResponse = await axios.post(`https://graph.facebook.com/v22.0/${appId}/uploads`, sessionFormData);
+            const sessionResponse = await axios.post(`https://graph.facebook.com/v23.0/${appId}/uploads`, sessionFormData);
             const uploadSessionId = sessionResponse.data.id;
             
             const fileData = await profilePictureFile.arrayBuffer();
-            const uploadResponse = await axios.post(`https://graph.facebook.com/v22.0/${uploadSessionId}`, Buffer.from(fileData), {
+            const uploadResponse = await axios.post(`https://graph.facebook.com/v23.0/${uploadSessionId}`, Buffer.from(fileData), {
                 headers: { 'Authorization': `OAuth ${accessToken}`, 'Content-Type': profilePictureFile.type },
                 maxContentLength: Infinity, maxBodyLength: Infinity,
             });
             const handle = uploadResponse.data.h;
 
             await axios.post(
-                `https://graph.facebook.com/v22.0/${phoneNumberId}/whatsapp_business_profile`,
+                `https://graph.facebook.com/v23.0/${phoneNumberId}/whatsapp_business_profile`,
                 { messaging_product: "whatsapp", profile_picture_handle: handle },
                 { headers: { 'Authorization': `Bearer ${accessToken}` } }
             );
@@ -737,7 +731,7 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
 
         if (hasTextFields) {
             await axios.post(
-                `https://graph.facebook.com/v22.0/${phoneNumberId}/whatsapp_business_profile`,
+                `https://graph.facebook.com/v23.0/${phoneNumberId}/whatsapp_business_profile`,
                 profilePayload,
                 { headers: { 'Authorization': `Bearer ${accessToken}` } }
             );
@@ -763,7 +757,7 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
         const { wabaId, accessToken } = project;
 
         const allTemplates: MetaTemplate[] = [];
-        let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id,quality_score&limit=100`;
+        let nextUrl: string | undefined = `https://graph.facebook.com/v23.0/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id,quality_score&limit=100`;
 
         while(nextUrl) {
             const response = await fetch(nextUrl, { method: 'GET' });
@@ -852,11 +846,11 @@ async function getMediaHandleForTemplate(file: File | null, url: string | null, 
             return { handle: null };
         }
 
-        const sessionUrl = `https://graph.facebook.com/v22.0/${appId}/uploads?file_length=${fileLength}&file_type=${fileType}&access_token=${accessToken}`;
+        const sessionUrl = `https://graph.facebook.com/v23.0/${appId}/uploads?file_length=${fileLength}&file_type=${fileType}&access_token=${accessToken}`;
         const sessionResponse = await axios.post(sessionUrl, {});
         const uploadSessionId = sessionResponse.data.id;
 
-        const uploadUrl = `https://graph.facebook.com/v22.0/${uploadSessionId}`;
+        const uploadUrl = `https://graph.facebook.com/v23.0/${uploadSessionId}`;
         const uploadResponse = await axios.post(uploadUrl, mediaData, { headers: { Authorization: `OAuth ${accessToken}` } });
         return { handle: uploadResponse.data.h };
     } catch (uploadError: any) {
@@ -1042,7 +1036,7 @@ export async function handleCreateTemplate(
         }
     
         const response = await fetch(
-            `https://graph.facebook.com/v22.0/${wabaId}/message_templates`,
+            `https://graph.facebook.com/v23.0/${wabaId}/message_templates`,
             {
             method: 'POST',
             headers: {
@@ -1131,7 +1125,7 @@ export async function handleCreateFlowTemplate(prevState: any, formData: FormDat
     try {
         const { wabaId, accessToken } = project;
         const response = await axios.post(
-            `https://graph.facebook.com/v22.0/${wabaId}/message_templates`,
+            `https://graph.facebook.com/v23.0/${wabaId}/message_templates`,
             payload,
             { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
         );
@@ -1375,7 +1369,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
         return { error: 'Access Token is required.' };
     }
     
-    const apiVersion = 'v22.0';
+    const apiVersion = 'v23.0';
     
     try {
         const { db } = await connectToDatabase();
@@ -1668,7 +1662,7 @@ export async function handleSubscribeAllProjects(): Promise<{ message?: string; 
     if (!isAdmin) return { error: 'Permission denied.' };
     
     const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
-    const apiVersion = 'v22.0';
+    const apiVersion = 'v23.0';
     const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
 
     if (!accessToken) {
@@ -1735,7 +1729,7 @@ export async function handleSubscribeProjectWebhook(projectId: string): Promise<
 
     const accessToken = hasAccess.accessToken;
     const appId = hasAccess.appId || process.env.NEXT_PUBLIC_META_APP_ID;
-    const apiVersion = 'v22.0';
+    const apiVersion = 'v23.0';
     const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
     const verifyToken = process.env.META_VERIFY_TOKEN;
 
@@ -1921,7 +1915,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
             form.append('messaging_product', 'whatsapp');
 
             const uploadResponse = await axios.post(
-                `https://graph.facebook.com/v22.0/${phoneNumberId}/media`,
+                `https://graph.facebook.com/v23.0/${phoneNumberId}/media`,
                 form,
                 { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${project.accessToken}` } }
             );
@@ -1955,7 +1949,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
             messagePayload.text = { body: messageText, preview_url: true };
         }
         
-        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
         
@@ -2026,7 +2020,7 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
                  const form = new FormData();
                 form.append('file', Buffer.from(await headerMediaFile.arrayBuffer()), { filename: headerMediaFile.name, contentType: headerMediaFile.type });
                 form.append('messaging_product', 'whatsapp');
-                const uploadResponse = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
+                const uploadResponse = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
                 mediaId = uploadResponse.data.id;
             }
 
@@ -2074,7 +2068,7 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
             payload.template.components = payloadComponents;
         }
 
-        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
@@ -2646,7 +2640,7 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
     try {
         let businessId: string | undefined = undefined;
         if(includeCatalog) {
-            const businessesResponse = await axios.get(`https://graph.facebook.com/v22.0/me/businesses`, {
+            const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
                 params: { access_token: accessToken }
             });
             const businesses = businessesResponse.data.data;
@@ -2657,7 +2651,7 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
             }
         }
         
-        const projectDetailsResponse = await fetch(`https://graph.facebook.com/v22.0/${wabaId}?fields=name&access_token=${accessToken}`);
+        const projectDetailsResponse = await fetch(`https://graph.facebook.com/v23.0/${wabaId}?fields=name&access_token=${accessToken}`);
         const projectData = await projectDetailsResponse.json();
 
         if (projectData.error) {
@@ -2767,7 +2761,7 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
         let businessId: string | undefined = undefined;
         if (includeCatalog) {
             try {
-                const businessesResponse = await axios.get(`https://graph.facebook.com/v22.0/me/businesses`, {
+                const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
                     params: { access_token: accessToken }
                 });
                 const businesses = businessesResponse.data?.data;
@@ -2782,7 +2776,7 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
         }
 
         for (const wabaId of wabaIds) {
-            const wabaDetailsResponse = await fetch(`https://graph.facebook.com/v22.0/${wabaId}?fields=name,id&access_token=${accessToken}`);
+            const wabaDetailsResponse = await fetch(`https://graph.facebook.com/v23.0/${wabaId}?fields=name,id&access_token=${accessToken}`);
             const wabaData = await wabaDetailsResponse.json();
 
             if (wabaData.error) {
@@ -2839,7 +2833,7 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
 }
 
 
-export async function handleInviteAgent(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+export async function handleInviteAgent(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const email = formData.get('email') as string;
     const role = formData.get('role') as string;
@@ -2901,7 +2895,7 @@ export async function handleInviteAgent(prevState: any, formData: FormData): Pro
     }
 }
 
-export async function handleRemoveAgent(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+export async function handleRemoveAgent(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const agentUserId = formData.get('agentUserId') as string;
 
