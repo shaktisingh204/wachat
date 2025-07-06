@@ -2686,6 +2686,7 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
         
         if(result.insertedId) {
             await handleSyncPhoneNumbers(result.insertedId.toString());
+            await handleSubscribeProjectWebhook(result.insertedId.toString());
         }
 
         revalidatePath('/dashboard');
@@ -2698,7 +2699,7 @@ export async function handleCreateProject(prevState: any, formData: FormData): P
     }
 }
 
-export async function handleDeleteProject(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function handleDeleteProjectByAdmin(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { error: 'Permission denied.' };
     
@@ -2728,11 +2729,62 @@ export async function handleDeleteProject(prevState: any, formData: FormData): P
             db.collection('flow_logs').deleteMany({ projectId: projectObjectId }),
             db.collection('meta_flows').deleteMany({ projectId: projectObjectId }),
             db.collection('ad_campaigns').deleteMany({ projectId: projectObjectId }),
+            db.collection('facebook_flows').deleteMany({ projectId: projectObjectId }),
         ];
 
         await Promise.all(deletePromises);
         
         revalidatePath('/admin/dashboard');
+
+        return { message: 'Project and all associated data have been permanently deleted.' };
+
+    } catch (e: any) {
+        console.error('Failed to delete project:', e);
+        return { error: e.message || 'An unexpected error occurred while deleting the project.' };
+    }
+}
+
+export async function handleDeleteUserProject(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+    
+    const projectId = formData.get('projectId') as string;
+    
+    if (!projectId || !ObjectId.isValid(projectId)) {
+        return { error: 'Invalid Project ID provided.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const projectObjectId = new ObjectId(projectId);
+        
+        const projectToDelete = await db.collection('projects').findOne({ _id: projectObjectId });
+        if (!projectToDelete || projectToDelete.userId.toString() !== session.user._id.toString()) {
+            return { error: 'Project not found or you do not have permission to delete it.' };
+        }
+        
+        const broadcastIds = await db.collection('broadcasts').find({ projectId: projectObjectId }).map(b => b._id).toArray();
+        
+        const deletePromises = [
+            db.collection('projects').deleteOne({ _id: projectObjectId }),
+            db.collection('templates').deleteMany({ projectId: projectObjectId }),
+            db.collection('broadcasts').deleteMany({ projectId: projectObjectId }),
+            db.collection('broadcast_contacts').deleteMany({ broadcastId: { $in: broadcastIds } }),
+            db.collection('notifications').deleteMany({ projectId: projectObjectId }),
+            db.collection('contacts').deleteMany({ projectId: projectObjectId }),
+            db.collection('incoming_messages').deleteMany({ projectId: projectObjectId }),
+            db.collection('outgoing_messages').deleteMany({ projectId: projectObjectId }),
+            db.collection('flows').deleteMany({ projectId: projectObjectId }),
+            db.collection('canned_messages').deleteMany({ projectId: projectObjectId }),
+            db.collection('flow_logs').deleteMany({ projectId: projectObjectId }),
+            db.collection('meta_flows').deleteMany({ projectId: projectObjectId }),
+            db.collection('ad_campaigns').deleteMany({ projectId: projectObjectId }),
+            db.collection('facebook_flows').deleteMany({ projectId: projectObjectId }),
+        ];
+
+        await Promise.all(deletePromises);
+        
+        revalidatePath('/dashboard');
 
         return { message: 'Project and all associated data have been permanently deleted.' };
 
@@ -2820,6 +2872,12 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
         if (bulkOps.length > 0) {
             const result = await db.collection('projects').bulkWrite(bulkOps);
             const syncedCount = result.upsertedCount + result.modifiedCount;
+
+            const syncedProjects = await db.collection<WithId<Project>>('projects').find({ wabaId: { $in: wabaIds }, userId: new ObjectId(session.user._id) }).project({ _id: 1 }).toArray();
+            for (const project of syncedProjects) {
+                await handleSubscribeProjectWebhook(project._id.toString());
+            }
+
             revalidatePath('/dashboard');
             return { success: true, count: syncedCount };
         } else {
