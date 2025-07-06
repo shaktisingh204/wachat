@@ -1824,7 +1824,7 @@ export async function handleImportContacts(prevState: any, formData: FormData): 
     const phoneNumberId = formData.get('phoneNumberId') as string;
     const contactFile = formData.get('contactFile') as File;
 
-    if (!projectId || !phoneNumberId || !contactFile || contactFile.size === 0) {
+    if (!projectId || !phoneNumberId || !contactFile || !contactFile.size === 0) {
         return { error: 'Project, phone number, and a file are required.' };
     }
 
@@ -2743,7 +2743,7 @@ export async function handleDeleteProjectByAdmin(prevState: any, formData: FormD
             db.collection('flow_logs').deleteMany({ projectId: projectObjectId }),
             db.collection('meta_flows').deleteMany({ projectId: projectObjectId }),
             db.collection('ad_campaigns').deleteMany({ projectId: projectObjectId }),
-            db.collection('facebook_flows').deleteMany({ projectId: projectObjectId }),
+            db.collection('ecomm_flows').deleteMany({ projectId: projectObjectId }),
         ];
 
         await Promise.all(deletePromises);
@@ -2793,7 +2793,7 @@ export async function handleDeleteUserProject(prevState: any, formData: FormData
             db.collection('flow_logs').deleteMany({ projectId: projectObjectId }),
             db.collection('meta_flows').deleteMany({ projectId: projectObjectId }),
             db.collection('ad_campaigns').deleteMany({ projectId: projectObjectId }),
-            db.collection('facebook_flows').deleteMany({ projectId: projectObjectId }),
+            db.collection('ecomm_flows').deleteMany({ projectId: projectObjectId }),
         ];
 
         await Promise.all(deletePromises);
