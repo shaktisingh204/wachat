@@ -33,9 +33,10 @@ import {
 } from 'lucide-react';
 import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { getProjectCount, handleLogout, getSession } from '@/app/actions';
-import { type Plan, type WithId } from '@/lib/definitions';
+import { getProjectCount, handleLogout, getSession, getProjects } from '@/app/actions';
+import { type Plan, type WithId, type Project } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
+import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 
 function FullPageSkeleton() {
     return (
@@ -110,6 +111,7 @@ const seoMenuItems = [
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string, credits?: number, plan?: WithId<Plan> } | null>(null);
+  const [projects, setProjects] = React.useState<WithId<Project>[]>([]);
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
   const [isClient, setIsClient] = React.useState(false);
   const [isVerifying, setIsVerifying] = React.useState(true);
@@ -139,28 +141,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
 
     const isDashboardHome = pathname === '/dashboard';
-    const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
-
+    
     if (isDashboardHome) {
       localStorage.removeItem('activeProjectId');
       localStorage.removeItem('activeProjectName');
-      setActiveProjectName('All Projects');
-    } else {
-      const name = localStorage.getItem('activeProjectName');
-      const id = localStorage.getItem('activeProjectId');
-      setActiveProjectName(name || (id ? 'Loading project...' : 'No Project Selected'));
     }
+  }, [pathname, isClient]);
 
-    getSession().then(session => {
-        if(session?.user) {
-            setSessionUser(session.user as any);
-            getProjectCount().then(count => {
-              setProjectCount(count);
-            });
-        }
-        setIsVerifying(false);
-    })
+  React.useEffect(() => {
+    if (isClient) {
+        getSession().then(session => {
+            if(session?.user) {
+                setSessionUser(session.user as any);
+                getProjectCount().then(setProjectCount);
+                getProjects().then(setProjects);
+            }
+            setIsVerifying(false);
+        });
+    }
+  }, [isClient]);
 
+  React.useEffect(() => {
+    if (isClient) {
+        const name = localStorage.getItem('activeProjectName');
+        const id = localStorage.getItem('activeProjectId');
+        setActiveProjectName(name || (id ? 'Loading project...' : 'No Project Selected'));
+    }
   }, [pathname, isClient]);
 
   const isChatPage = pathname.startsWith('/dashboard/chat');
@@ -172,7 +178,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const hasNoProjects = projectCount === 0;
   const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
   const planFeatures = sessionUser?.plan?.features;
-  
+
   const currentMenuItems =
     activeApp === 'facebook'
       ? facebookMenuItems
@@ -184,7 +190,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       ? qrCodeMakerMenuItems
       : activeApp === 'seo-suite'
       ? seoMenuItems
-      : wachatMenuItems; 
+      : wachatMenuItems;
+      
+  const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
+  const activeProjectId = isClient ? localStorage.getItem('activeProjectId') : null;
+  const activeFacebookProject = facebookProjects.find(p => p._id.toString() === activeProjectId);
 
   return (
     <div data-theme={activeApp}>
@@ -395,14 +405,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <header className="flex items-center justify-between p-3 border bg-card rounded-lg shrink-0">
           <div className="flex items-center gap-2">
             <SidebarTrigger />
-            <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
-                <Briefcase className="h-4 w-4" />
-                {!isClient ? (
-                    <Skeleton className="h-4 w-32" />
-                ) : (
-                    <span>{activeProjectName}</span>
-                )}
-            </div>
+             {activeApp === 'facebook' && isClient ? (
+                <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeFacebookProject} />
+              ) : (
+                <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
+                    <Briefcase className="h-4 w-4" />
+                    {!isClient ? (
+                        <Skeleton className="h-4 w-32" />
+                    ) : (
+                        <span>{activeProjectName}</span>
+                    )}
+                </div>
+              )}
           </div>
           <div className="flex items-center gap-2">
              <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
