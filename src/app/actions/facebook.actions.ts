@@ -432,7 +432,7 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
     try {
         const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/posts`, {
             params: {
-                fields: 'id,message,full_picture,permalink_url,created_time,object_id,shares,reactions.summary(true),comments.summary(true){id,message,from,created_time,comments{id,message,from,created_time}}',
+                fields: 'id,message,full_picture,permalink_url,created_time,object_id,shares,reactions.limit(0).summary(true),comments.limit(5).summary(true){id,message,from,created_time}',
                 access_token: project.accessToken,
                 limit: 25,
             }
