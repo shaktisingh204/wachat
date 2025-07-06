@@ -105,7 +105,9 @@ export async function getSession(): Promise<{ user: Omit<User, 'password' | 'pla
 
 export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
     const cookieStore = cookies();
-    const sessionToken = cookieStore.get('admin_session')?.value;
+    const sessionCookie = cookieStore.get('admin_session');
+    const sessionToken = sessionCookie?.value;
+    
     if (!sessionToken) {
         return { isAdmin: false };
     }
@@ -219,7 +221,8 @@ export async function getProjectCount(): Promise<number> {
 
 export async function getAllProjectsForAdmin(
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
+    query?: string
 ): Promise<{ projects: WithId<Project>[], total: number }> {
     const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { projects: [], total: 0 };
@@ -227,7 +230,15 @@ export async function getAllProjectsForAdmin(
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<Project> = {};
-        const skip = (page - 1) * limit;
+        if (query) {
+            filter.$or = [
+                { name: { $regex: query, $options: 'i' } },
+                { wabaId: { $regex: query, $options: 'i' } },
+            ];
+        }
+
+        const sanePage = Math.max(1, page);
+        const skip = (sanePage - 1) * limit;
 
         const [projects, total] = await Promise.all([
             db.collection('projects').aggregate([

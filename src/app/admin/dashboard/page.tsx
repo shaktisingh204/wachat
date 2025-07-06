@@ -55,7 +55,7 @@ export default async function AdminDashboardPage({
 }) {
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
-  const { projects, total } = await getAllProjectsForAdmin(query, currentPage, PROJECTS_PER_PAGE);
+  const { projects, total } = await getAllProjectsForAdmin(currentPage, PROJECTS_PER_PAGE, query);
   const allPlans = await getPlans();
   const totalPages = Math.ceil(total / PROJECTS_PER_PAGE);
 
