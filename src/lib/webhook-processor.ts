@@ -2,7 +2,7 @@
 
 'use server';
 
-import { revalidatePath } from 'revalidate';
+import { revalidatePath } from 'next/cache';
 import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
@@ -93,26 +93,41 @@ async function sendFlowMessage(db: Db, project: WithId<Project>, contact: WithId
     try {
         const translatedText = await maybeTranslate(text, variables);
         const interpolatedText = interpolate(translatedText, variables);
+        const waId = (contact as WithId<Contact>).waId || (contact as WithId<FacebookSubscriber>).psid;
+        const isMessenger = !!(contact as WithId<FacebookSubscriber>).psid;
 
-        const messagePayload = {
+        const messagePayload = isMessenger ? {
+            recipient: { id: waId },
+            messaging_type: "RESPONSE",
+            message: { text: interpolatedText },
+        } : {
             messaging_product: 'whatsapp',
             recipient_type: 'individual',
-            to: (contact as WithId<Contact>).waId || (contact as WithId<FacebookSubscriber>).psid,
+            to: waId,
             type: 'text',
             text: { preview_url: false, body: interpolatedText },
         };
-        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
-        const wamid = response.data?.messages?.[0]?.id;
-        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
-
-        const now = new Date();
-        await db.collection('outgoing_messages').insertOne({
-            direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'text',
-            content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        
+        const endpoint = isMessenger ? `https://graph.facebook.com/v23.0/me/messages?access_token=${project.accessToken}` : `https://graph.facebook.com/v23.0/${phoneNumberId}/messages`;
+        
+        const response = await axios.post(endpoint, messagePayload, { 
+            headers: isMessenger ? {} : { 'Authorization': `Bearer ${project.accessToken}` } 
         });
-        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${interpolatedText.substring(0, 50)}`, lastMessageTimestamp: now } });
+        
+        const wamid = response.data?.messages?.[0]?.id;
+        
+        if (!isMessenger) {
+             if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
+             const now = new Date();
+            await db.collection('outgoing_messages').insertOne({
+                direction: 'out', contactId: contact._id, projectId: project._id, wamid, messageTimestamp: now, type: 'text',
+                content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+            });
+             await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${interpolatedText.substring(0, 50)}`, lastMessageTimestamp: now } });
+        }
+       
     } catch (e: any) {
-        console.error(`Flow: Failed to send text message to ${(contact as WithId<Contact>).waId} for project ${project._id}:`, e.message);
+        console.error(`Flow: Failed to send text message to ${project._id}:`, getErrorMessage(e));
     }
 }
 
@@ -144,7 +159,7 @@ async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<C
         });
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: interpolatedCaption || '[Flow]: Sent an image', lastMessageTimestamp: now } });
     } catch (e: any) {
-        console.error(`Flow: Failed to send image message to ${(contact as WithId<Contact>).waId} for project ${project._id}:`, e.message);
+        console.error(`Flow: Failed to send image message to ${(contact as WithId<Contact>).waId} for project ${project._id}:`, getErrorMessage(e));
     }
 }
 
@@ -225,7 +240,52 @@ async function sendEcommFlowQuickReplies(db: Db, project: WithId<Project>, conta
         );
 
     } catch (e: any) {
-        console.error(`Ecomm Flow: Failed to send quick replies to ${contact.psid} for project ${project._id}:`, e.message);
+        console.error(`Ecomm Flow: Failed to send quick replies to ${contact.psid} for project ${project._id}:`, getErrorMessage(e));
+    }
+}
+
+async function sendEcommFlowCarousel(db: Db, project: WithId<Project>, contact: WithId<FacebookSubscriber>, node: EcommFlowNode, variables: Record<string, any>) {
+    const elements = node.data.elements || [];
+    if (elements.length === 0) return;
+
+    try {
+        const finalElements = elements.map((el: any) => {
+            const elementButtons = el.buttons?.map((btn: any) => {
+                if(btn.type === 'web_url') {
+                    return { type: 'web_url', title: btn.title, url: btn.url };
+                }
+                return { type: 'postback', title: btn.title, payload: btn.payload };
+            });
+            return {
+                title: interpolate(el.title, variables),
+                subtitle: interpolate(el.subtitle || '', variables),
+                image_url: interpolate(el.image_url || '', variables),
+                buttons: elementButtons
+            };
+        });
+
+        const messagePayload = {
+            recipient: { id: contact.psid },
+            messaging_type: "RESPONSE",
+            message: {
+                attachment: {
+                    type: "template",
+                    payload: {
+                        template_type: "generic",
+                        elements: finalElements
+                    }
+                }
+            },
+        };
+
+         await axios.post(
+            `https://graph.facebook.com/v23.0/me/messages`,
+            messagePayload,
+            { params: { access_token: project.accessToken } }
+        );
+
+    } catch (e: any) {
+        console.error(`Ecomm Flow: Failed to send carousel to ${contact.psid}:`, getErrorMessage(e));
     }
 }
 
@@ -1465,6 +1525,11 @@ async function executeEcommNode(db: Db, project: WithId<Project>, contact: WithI
                 await sendFlowImage(db, project, contact, project.facebookPageId!, node, currentVariables);
                 const imageEdge = flow.edges.find(e => e.source === nodeId);
                 if(imageEdge) nextNodeId = imageEdge.target;
+                break;
+            case 'carousel':
+                await sendEcommFlowCarousel(db, project, contact, node, currentVariables);
+                const carouselEdge = flow.edges.find(e => e.source === nodeId);
+                if (carouselEdge) nextNodeId = carouselEdge.target;
                 break;
             case 'delay':
                 logger.log(`Delaying for ${node.data.delaySeconds || 1} seconds.`);
