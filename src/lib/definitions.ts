@@ -126,6 +126,18 @@ export type PostRandomizerSettings = {
     lastPostedAt?: Date;
 };
 
+export type EcommSettings = {
+    shopName: string;
+    currency: string;
+    customDomain?: string;
+    // Appearance settings
+    primaryColor?: string;
+    logoUrl?: string;
+    // Messenger settings
+    welcomeMessage?: string;
+    getStartedFlowId?: ObjectId; // Link to a flow builder flow
+}
+
 export type Project = {
     _id: ObjectId;
     userId: ObjectId;
@@ -160,6 +172,7 @@ export type Project = {
     kanbanStatuses?: string[];
     facebookKanbanStatuses?: string[];
     plan?: WithId<Plan> | null; // populated by aggregate
+    ecommSettings?: EcommSettings;
 };
 
 export type Template = {
@@ -212,7 +225,6 @@ export type FacebookFlowEdge = {
     source: string;
     target: string;
     sourceHandle?: string;
-    targetHandle?: string;
 };
 
 export type FacebookFlow = {
@@ -972,15 +984,11 @@ export type EcommOrder = {
 }
 
 export type EcommShopSettings = {
-    _id: ObjectId;
-    projectId: ObjectId; // Link to the main project
     shopName: string;
     currency: string;
     customDomain?: string;
-    // Appearance settings
     primaryColor?: string;
     logoUrl?: string;
-    // Messenger settings
     welcomeMessage?: string;
-    getStartedFlowId?: ObjectId; // Link to a flow builder flow
-}
+    getStartedFlowId?: ObjectId;
+};
