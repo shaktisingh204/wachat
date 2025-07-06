@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useCallback, useTransition } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getFacebookChatInitialData, getFacebookConversationMessages } from '@/app/actions/facebook.actions';
+import { getFacebookChatInitialData, getFacebookConversationMessages, markFacebookConversationAsRead } from '@/app/actions/facebook.actions';
 import { getSession } from '@/app/actions';
 import type { WithId, Project, FacebookConversation, FacebookMessage, User, Plan } from '@/lib/definitions';
 import { FacebookConversationList } from './facebook-conversation-list';
@@ -56,7 +56,7 @@ export function FacebookChatClient() {
             if (conversationIdFromUrl) {
                 const convo = convosData.find(c => c.id === conversationIdFromUrl);
                 if (convo) {
-                    handleSelectConversation(convo);
+                    handleSelectConversation(convo, pid);
                 }
             }
         });
@@ -70,14 +70,20 @@ export function FacebookChatClient() {
         }
     }, [fetchInitialData]);
 
-    const handleSelectConversation = useCallback(async (conversation: FacebookConversation) => {
-        if (!projectId) return;
+    const handleSelectConversation = useCallback(async (conversation: FacebookConversation, pid?: string) => {
+        const currentProjectId = pid || projectId;
+        if (!currentProjectId) return;
 
         setSelectedConversation(conversation);
         router.push(`/dashboard/facebook/messages?conversationId=${conversation.id}`);
 
+        // Mark as read on server if needed
+        if (conversation.unread_count > 0) {
+            markFacebookConversationAsRead(conversation.id, currentProjectId);
+        }
+
         startConversationLoadTransition(async () => {
-            const { messages: fetchedMessages, error } = await getFacebookConversationMessages(conversation.id, projectId);
+            const { messages: fetchedMessages, error } = await getFacebookConversationMessages(conversation.id, currentProjectId);
             if (error) {
                 console.error(error);
                 setMessages([]);
