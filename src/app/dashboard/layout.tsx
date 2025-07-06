@@ -31,9 +31,9 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2, Server, LayoutGrid
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2, Server, LayoutGrid, Palette
 } from 'lucide-react';
-import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon, SeoIcon, CustomEcommerceIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getProjectCount, handleLogout, getSession, getProjects } from '@/app/actions';
 import { type Plan, type WithId, type Project } from '@/lib/definitions';
@@ -145,6 +145,13 @@ const seoMenuItems = [
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, featureKey: 'overview' },
 ];
 
+const customEcommerceMenuItems = [
+  { href: '/dashboard/custom-ecommerce', label: 'Dashboard', icon: LayoutDashboard, featureKey: 'ecommerce' },
+  { href: '/dashboard/custom-ecommerce/products', label: 'Products', icon: ShoppingBag, featureKey: 'ecommerce' },
+  { href: '/dashboard/custom-ecommerce/orders', label: 'Orders', icon: Package, featureKey: 'ecommerce' },
+  { href: '/dashboard/custom-ecommerce/appearance', label: 'Appearance', icon: Palette, featureKey: 'ecommerce' },
+  { href: '/dashboard/custom-ecommerce/settings', label: 'Settings', icon: Settings, featureKey: 'ecommerce' },
+];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -174,6 +181,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setActiveApp('qr-code-maker');
     } else if (pathname.startsWith('/dashboard/seo')) {
         setActiveApp('seo-suite');
+    } else if (pathname.startsWith('/dashboard/custom-ecommerce')) {
+        setActiveApp('custom-ecommerce');
     } else {
         setActiveApp('whatsapp');
     }
@@ -217,7 +226,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
   const planFeatures = sessionUser?.plan?.features;
 
-  const menuGroups = activeApp === 'facebook' ? facebookMenuGroups : [{ title: null, items: activeApp === 'instagram' ? instagramMenuItems : activeApp === 'url-shortener' ? urlShortenerMenuItems : activeApp === 'qr-code-maker' ? qrCodeMakerMenuItems : activeApp === 'seo-suite' ? seoMenuItems : wachatMenuItems }];
+  const menuGroups = 
+      activeApp === 'facebook' ? facebookMenuGroups 
+      : [{ title: null, items: activeApp === 'instagram' ? instagramMenuItems 
+      : activeApp === 'url-shortener' ? urlShortenerMenuItems 
+      : activeApp === 'qr-code-maker' ? qrCodeMakerMenuItems 
+      : activeApp === 'seo-suite' ? seoMenuItems 
+      : activeApp === 'custom-ecommerce' ? customEcommerceMenuItems 
+      : wachatMenuItems }];
       
   const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
   const activeProjectId = isClient ? localStorage.getItem('activeProjectId') : null;
@@ -263,34 +279,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
              <Tooltip>
                 <TooltipTrigger asChild>
                     <Link
-                    href="/dashboard/instagram/feed"
+                    href="/dashboard/custom-ecommerce"
                     className={cn(
                         'p-3 mx-2 rounded-lg transition-colors',
-                        activeApp === 'instagram'
-                        ? 'bg-instagram text-white'
-                        : 'bg-card text-instagram hover:bg-accent'
+                        activeApp === 'custom-ecommerce'
+                        ? 'bg-amber-500 text-white'
+                        : 'bg-card text-amber-500 hover:bg-accent'
                     )}
                     >
-                    <InstagramIcon className="h-6 w-6" />
+                    <CustomEcommerceIcon className="h-6 w-6" />
                     </Link>
                 </TooltipTrigger>
-                <TooltipContent side="right">Instagram Manager</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Link
-                    href="/dashboard/seo"
-                    className={cn(
-                        'p-3 mx-2 rounded-lg transition-colors',
-                        activeApp === 'seo-suite'
-                        ? 'bg-red-600 text-white'
-                        : 'bg-card text-red-600 hover:bg-accent'
-                    )}
-                    >
-                    <SeoIcon className="h-6 w-6" />
-                    </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">SEO Suite</TooltipContent>
+                <TooltipContent side="right">Custom Ecommerce</TooltipContent>
             </Tooltip>
             <Separator className="w-2/3 my-1 bg-border/50"/>
             <Tooltip>
@@ -365,6 +365,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         item.href === '/dashboard/url-shortener' ||
                         item.href === '/dashboard/qr-code-maker' ||
                         item.href === '/dashboard/facebook/all-projects' ||
+                        item.href === '/dashboard/custom-ecommerce' ||
                         item.href === '/dashboard/seo';
 
                   const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
