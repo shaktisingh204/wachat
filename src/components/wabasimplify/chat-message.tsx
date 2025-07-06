@@ -11,6 +11,7 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/comp
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { Avatar, AvatarFallback } from '../ui/avatar';
 
 interface ChatMessageProps {
     message: AnyMessage;
@@ -176,12 +177,17 @@ export const ChatMessage = React.memo(function ChatMessage({ message }: ChatMess
     
     return (
         <div className={cn("flex items-end gap-2 group/message", isOutgoing ? "justify-end" : "justify-start")}>
+            {!isOutgoing && (
+                <Avatar className="h-8 w-8 self-end">
+                    <AvatarFallback>{message.content?.profile?.name?.charAt(0) || 'U'}</AvatarFallback>
+                </Avatar>
+            )}
             <div
                 className={cn(
-                    "max-w-md rounded-lg p-2 text-sm flex flex-col shadow-sm",
+                    "max-w-[70%] rounded-lg p-2 px-3 text-sm flex flex-col shadow-sm",
                     isOutgoing
-                        ? "bg-[#dcf8c6] dark:bg-[#005c4b] text-foreground"
-                        : "bg-white dark:bg-muted"
+                        ? "bg-[#E2F7CB] dark:bg-[#056056] text-gray-800 dark:text-gray-50 rounded-br-none"
+                        : "bg-white dark:bg-muted rounded-bl-none"
                 )}
             >
                 <MessageBody message={message} isOutgoing={isOutgoing} />

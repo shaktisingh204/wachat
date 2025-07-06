@@ -3,8 +3,8 @@
 
 import { useEffect, useState, useCallback, useTransition } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getFacebookChatInitialData, getFacebookConversationMessages } from '@/app/actions/facebook.actions';
-import type { WithId, Project, FacebookConversation, FacebookMessage } from '@/lib/definitions';
+import { getFacebookChatInitialData, getFacebookConversationMessages, getSession } from '@/app/actions/facebook.actions';
+import type { WithId, Project, FacebookConversation, FacebookMessage, User, Plan } from '@/lib/definitions';
 import { FacebookConversationList } from './facebook-conversation-list';
 import { FacebookChatWindow } from './facebook-chat-window';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -20,6 +20,7 @@ export function FacebookChatClient() {
     const conversationIdFromUrl = searchParams.get('conversationId');
 
     const [project, setProject] = useState<WithId<Project> | null>(null);
+    const [sessionUser, setSessionUser] = useState<(Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null>(null);
     const [conversations, setConversations] = useState<FacebookConversation[]>([]);
     const [selectedConversation, setSelectedConversation] = useState<FacebookConversation | null>(null);
     const [messages, setMessages] = useState<FacebookMessage[]>([]);
@@ -32,7 +33,12 @@ export function FacebookChatClient() {
 
     const fetchInitialData = useCallback((pid: string) => {
         startLoadingTransition(async () => {
-            const { project: projectData, conversations: convosData, error } = await getFacebookChatInitialData(pid);
+             const [initialData, sessionData] = await Promise.all([
+                getFacebookChatInitialData(pid),
+                getSession()
+            ]);
+            const { project: projectData, conversations: convosData, error } = initialData;
+
             if (error) {
                 if (error.includes('permission') || error.includes('(#200)')) {
                     setPermissionError(error);
@@ -44,6 +50,7 @@ export function FacebookChatClient() {
             }
             setProject(projectData);
             setConversations(convosData);
+            setSessionUser(sessionData?.user || null);
 
             if (conversationIdFromUrl) {
                 const convo = convosData.find(c => c.id === conversationIdFromUrl);
@@ -128,6 +135,7 @@ export function FacebookChatClient() {
                 <div className="flex flex-1 overflow-hidden">
                     <div className={cn("w-full flex-col border-r bg-background md:w-[320px] flex-shrink-0", selectedConversation ? "hidden md:flex" : "flex")}>
                         <FacebookConversationList
+                            sessionUser={sessionUser}
                             conversations={conversations}
                             selectedConversationId={selectedConversation?.id}
                             onSelectConversation={handleSelectConversation}

@@ -1,9 +1,9 @@
 
 'use client';
 
-import type { WithId, Contact, Project } from '@/lib/definitions';
+import type { WithId, Contact, Project, User, Plan } from '@/lib/definitions';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { format } from 'date-fns';
 
 interface ChatContactListProps {
+    sessionUser: (Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null;
     project: WithId<Project> | null;
     contacts: WithId<Contact>[];
     selectedContactId?: string;
@@ -28,6 +29,7 @@ interface ChatContactListProps {
 }
 
 export function ChatContactList({ 
+    sessionUser,
     project, 
     contacts, 
     selectedContactId, 
@@ -52,17 +54,31 @@ export function ChatContactList({
     
     return (
         <div className="h-full flex flex-col overflow-hidden bg-card">
+            <div className="p-3 border-b flex-shrink-0 flex items-center justify-between">
+                {sessionUser ? (
+                    <div className="flex items-center gap-3">
+                        <Avatar>
+                            <AvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
+                            <AvatarFallback>{sessionUser.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <p className="font-semibold">{sessionUser.name}</p>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-3">
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <div className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16" /></div>
+                    </div>
+                )}
+                <Button variant="ghost" size="icon" onClick={onNewChat} className="h-8 w-8">
+                    <MessageSquarePlus className="h-5 w-5" />
+                    <span className="sr-only">New Chat</span>
+                </Button>
+            </div>
+
             <div className="p-3 border-b flex-shrink-0 space-y-3">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold tracking-tight">Chats</h2>
-                    <Button variant="ghost" size="icon" onClick={onNewChat} className="h-8 w-8">
-                        <MessageSquarePlus className="h-5 w-5" />
-                        <span className="sr-only">New Chat</span>
-                    </Button>
-                </div>
                  <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search contacts..." className="pl-8" />
+                    <Input placeholder="Search or start new chat" className="pl-8" />
                 </div>
                  <Select value={selectedPhoneNumberId} onValueChange={onPhoneNumberChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
                     <SelectTrigger id="phoneNumberId">
