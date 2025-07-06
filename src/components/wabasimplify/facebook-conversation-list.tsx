@@ -9,6 +9,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { formatDistanceToNow } from 'date-fns';
+import { Search } from 'lucide-react';
+import { Input } from '../ui/input';
 
 interface FacebookConversationListProps {
     conversations: FacebookConversation[];
@@ -30,11 +32,21 @@ export function FacebookConversationList({ conversations, selectedConversationId
     );
     
     const getParticipant = (convo: FacebookConversation) => {
-        return convo.participants.data.find(p => !p.name.includes("Page")); // A bit brittle but should work for most cases
+        // A simple way to get the user, not the page
+        return convo.participants.data.find(p => !p.name.includes("Page"));
     }
 
     return (
         <div className="h-full flex flex-col overflow-hidden">
+            <div className="p-3 border-b flex-shrink-0 space-y-3">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold tracking-tight">Messenger Chats</h2>
+                </div>
+                 <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Search conversations..." className="pl-8" />
+                </div>
+            </div>
             <ScrollArea className="flex-1">
                 {isLoading ? (
                     <div className="p-2 space-y-1">
