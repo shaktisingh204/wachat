@@ -9,9 +9,7 @@ import Link from 'next/link';
 
 interface FacebookEmbeddedSignupProps {
   appId: string;
-  onSuccess: () => void;
-  // configId is no longer needed for this flow
-  configId: string;
+  onSuccess?: () => void;
 }
 
 export function FacebookEmbeddedSignup({ appId }: FacebookEmbeddedSignupProps) {
@@ -32,8 +30,8 @@ export function FacebookEmbeddedSignup({ appId }: FacebookEmbeddedSignupProps) {
     }
 
     const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
-    const scopes = 'pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights,pages_manage_engagement,pages_messaging';
-    const facebookLoginUrl = `https://www.facebook.com/v22.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
+    const scopes = 'pages_show_list,pages_read_engagement,business_management,pages_manage_posts,read_insights,pages_manage_engagement,pages_messaging,catalog_management';
+    const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
 
     return (
         <Button asChild size="lg" className="bg-[#1877F2] hover:bg-[#1877F2]/90 w-full">

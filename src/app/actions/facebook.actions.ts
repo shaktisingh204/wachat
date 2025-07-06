@@ -111,7 +111,23 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
         const longLivedToken = longLivedResponse.data.access_token;
         if (!longLivedToken) return { success: false, error: 'Could not obtain a long-lived token from Facebook.' };
 
-        // 3. Fetch user's ad account (optional)
+        // 3. Fetch user's business ID
+        let businessId: string | undefined;
+        try {
+            const businessResponse = await axios.get('https://graph.facebook.com/v23.0/me', { 
+                params: { 
+                    fields: 'businesses', 
+                    access_token: longLivedToken 
+                }
+            });
+            if (businessResponse.data?.businesses?.data?.[0]?.id) {
+                businessId = businessResponse.data.businesses.data[0].id;
+            }
+        } catch (e) {
+            console.warn("Could not retrieve business ID for user:", getErrorMessage(e));
+        }
+
+        // 4. Fetch user's ad account (optional)
         let adAccountId: string | undefined;
         try {
             const adAccountsResponse = await axios.get('https://graph.facebook.com/v23.0/me/adaccounts', { params: { access_token: longLivedToken }});
@@ -122,7 +138,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
             console.warn("Could not retrieve ad account for user:", getErrorMessage(e));
         }
 
-        // 4. Fetch all pages the user has access to, and get long-lived tokens for each page
+        // 5. Fetch all pages the user has access to, and get long-lived tokens for each page
         const pagesResponse = await axios.get('https://graph.facebook.com/v23.0/me/accounts', { params: { fields: 'id,name,access_token', access_token: longLivedToken }});
         const userPagesWithShortTokens = pagesResponse.data?.data;
 
@@ -152,7 +168,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
         
         const validPages = userPages.filter(Boolean);
 
-        // 5. For each page, create or update a project
+        // 6. For each page, create or update a project
         const { db } = await connectToDatabase();
         const bulkOps = validPages.map((page: any) => ({
             updateOne: {
@@ -160,8 +176,10 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
                 update: {
                     $set: {
                         name: page.name,
-                        accessToken: page.access_token, // This is now the LONG LIVED page-specific access token
+                        accessToken: page.access_token,
                         adAccountId: adAccountId,
+                        businessId: businessId,
+                        hasCatalogManagement: !!businessId,
                     },
                     $setOnInsert: {
                         userId: new ObjectId(session.user._id),
@@ -179,7 +197,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
             await db.collection('projects').bulkWrite(bulkOps);
         }
         
-        // 6. Subscribe each page to webhooks
+        // 7. Subscribe each page to webhooks
         for (const page of validPages) {
             await handleSubscribeFacebookPageWebhook(page.id, page.access_token);
         }
@@ -1505,5 +1523,31 @@ export async function saveFacebookKanbanStatuses(projectId: string, statuses: st
         return { success: true };
     } catch (e: any) {
         return { success: false, error: 'Failed to save Kanban lists.' };
+    }
+}
+
+export async function getInstagramAccountForPage(projectId: string): Promise<{ instagramId?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.facebookPageId || !project.accessToken) {
+        return { error: 'Project not found or is not configured for Facebook.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}`, {
+            params: {
+                fields: 'instagram_business_account',
+                access_token: project.accessToken,
+            }
+        });
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        const instagramId = response.data.instagram_business_account?.id;
+        return { instagramId };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
     }
 }
