@@ -9,7 +9,7 @@ import FormData from 'form-data';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder } from '@/lib/definitions';
 
 
 async function handleSubscribeFacebookPageWebhook(pageId: string, pageAccessToken: string): Promise<{ success: boolean, error?: string }> {
@@ -1561,7 +1561,7 @@ export async function getCommerceMerchantSettings(projectId: string): Promise<{ 
     try {
         const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}`, {
             params: {
-                fields: 'commerce_merchant_settings{commerce_manager_url,display_name,shops}',
+                fields: 'commerce_merchant_settings{id,commerce_manager_url,display_name,shops}',
                 access_token: project.accessToken,
             }
         });
@@ -1572,11 +1572,45 @@ export async function getCommerceMerchantSettings(projectId: string): Promise<{ 
 
         const settings = response.data.commerce_merchant_settings;
         if (!settings) {
-            return { error: 'No Commerce Merchant Settings found for this Page.' };
+            return { error: 'No Commerce Merchant Settings found for this Page. Please set up a shop in Meta Commerce Manager.' };
         }
         
         return { settings };
 
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getFacebookOrders(projectId: string): Promise<{ orders?: FacebookOrder[], error?: string }> {
+    const { settings: commerceSettings, error: settingsError } = await getCommerceMerchantSettings(projectId);
+    if (settingsError) {
+        return { error: `Could not retrieve commerce settings: ${settingsError}` };
+    }
+
+    const commerceAccountId = commerceSettings?.id;
+    if (!commerceAccountId) {
+        return { error: 'Commerce Account ID not found. Ensure a shop is set up and connected.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or access token missing.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${commerceAccountId}/orders`, {
+            params: {
+                fields: 'id,buyer_details,order_status,estimated_payment_details,created,updated',
+                access_token: project.accessToken,
+            }
+        });
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        return { orders: response.data.data || [] };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }

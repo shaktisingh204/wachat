@@ -864,6 +864,26 @@ export type RandomizerPost = {
     createdAt: Date;
 };
 
+export type FacebookOrder = {
+    id: string;
+    buyer_details: {
+        name: string;
+        email: string;
+    };
+    order_status: {
+        state: string;
+    };
+    estimated_payment_details: {
+        total_amount: {
+            amount: string;
+            currency: string;
+            formatted_amount: string;
+        }
+    };
+    created: string;
+    updated: string;
+};
+
 // --- SEO Suite Types ---
 
 export type BrandMention = {
