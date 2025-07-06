@@ -131,6 +131,9 @@ export type EcommSettings = {
     shopName: string;
     currency: string;
     customDomain?: string;
+    paymentLinkRazorpay?: string;
+    paymentLinkPaytm?: string;
+    paymentLinkGPay?: string;
     // Appearance settings
     primaryColor?: string;
     logoUrl?: string;
@@ -1010,6 +1013,9 @@ export type EcommShopSettings = {
     shopName: string;
     currency: string;
     customDomain?: string;
+    paymentLinkRazorpay?: string;
+    paymentLinkPaytm?: string;
+    paymentLinkGPay?: string;
     primaryColor?: string;
     logoUrl?: string;
     welcomeMessage?: string;
