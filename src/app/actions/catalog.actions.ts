@@ -146,6 +146,27 @@ export async function getProductsForCatalog(catalogMetaId: string, projectId: st
     }
 }
 
+export async function getTaggedMediaForProduct(productId: string, projectId: string): Promise<{ media?: any[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Project not found or access token missing.' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${productId}/product_items`, {
+            params: {
+                fields: 'media{id,image_url,media_type,permalink,thumbnail_url}',
+                access_token: project.accessToken
+            }
+        });
+
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        
+        const allMedia = response.data.data.map((item: any) => item.media).filter(Boolean);
+        return { media: allMedia };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
 
 // --- Product Actions ---
 
