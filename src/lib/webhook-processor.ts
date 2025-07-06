@@ -1,7 +1,7 @@
 
 'use server';
 
-import { revalidatePath } from 'next/revalidate';
+import { revalidatePath } from 'revalidate';
 import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
@@ -88,7 +88,7 @@ async function maybeTranslate(text: string, variables: Record<string, any>): Pro
 
 // --- Flow Action Functions ---
 
-async function sendFlowMessage(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, text: string, variables: Record<string, any>) {
+async function sendFlowMessage(db: Db, project: WithId<Project>, contact: WithId<Contact | FacebookSubscriber>, phoneNumberId: string, text: string, variables: Record<string, any>) {
     try {
         const translatedText = await maybeTranslate(text, variables);
         const interpolatedText = interpolate(translatedText, variables);
@@ -96,7 +96,7 @@ async function sendFlowMessage(db: Db, project: WithId<Project>, contact: WithId
         const messagePayload = {
             messaging_product: 'whatsapp',
             recipient_type: 'individual',
-            to: contact.waId,
+            to: (contact as WithId<Contact>).waId || (contact as WithId<FacebookSubscriber>).psid,
             type: 'text',
             text: { preview_url: false, body: interpolatedText },
         };
@@ -111,11 +111,11 @@ async function sendFlowMessage(db: Db, project: WithId<Project>, contact: WithId
         });
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: `[Flow]: ${interpolatedText.substring(0, 50)}`, lastMessageTimestamp: now } });
     } catch (e: any) {
-        console.error(`Flow: Failed to send text message to ${contact.waId} for project ${project._id}:`, e.message);
+        console.error(`Flow: Failed to send text message to ${(contact as WithId<Contact>).waId} for project ${project._id}:`, e.message);
     }
 }
 
-async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>) {
+async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<Contact | FacebookSubscriber>, phoneNumberId: string, node: FlowNode | EcommFlowNode, variables: Record<string, any>) {
     const imageUrl = interpolate(node.data.imageUrl, variables);
     const caption = node.data.caption || '';
     if (!imageUrl) {
@@ -125,9 +125,10 @@ async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<C
     try {
         const translatedCaption = await maybeTranslate(caption, variables);
         const interpolatedCaption = interpolate(translatedCaption, variables);
+        const waId = (contact as WithId<Contact>).waId || (contact as WithId<FacebookSubscriber>).psid;
 
         const messagePayload: any = {
-            messaging_product: 'whatsapp', to: contact.waId, type: 'image',
+            messaging_product: 'whatsapp', to: waId, type: 'image',
             image: { link: imageUrl },
         };
         if (interpolatedCaption) messagePayload.image.caption = interpolatedCaption;
@@ -142,7 +143,7 @@ async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<C
         });
         await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: interpolatedCaption || '[Flow]: Sent an image', lastMessageTimestamp: now } });
     } catch (e: any) {
-        console.error(`Flow: Failed to send image message to ${contact.waId} for project ${project._id}:`, e.message);
+        console.error(`Flow: Failed to send image message to ${(contact as WithId<Contact>).waId} for project ${project._id}:`, e.message);
     }
 }
 
@@ -193,6 +194,40 @@ async function sendFlowButtons(db: Db, project: WithId<Project>, contact: WithId
         console.error(`Flow: Failed to send buttons message to ${contact.waId} for project ${project._id}:`, e.message);
     }
 }
+
+async function sendEcommFlowQuickReplies(db: Db, project: WithId<Project>, contact: WithId<FacebookSubscriber>, node: EcommFlowNode, variables: Record<string, any>) {
+    const text = node.data.text || '';
+    const buttons = (node.data.buttons || []).filter((btn: any) => btn.text);
+    if (!text || buttons.length === 0) return;
+
+    try {
+        const interpolatedText = interpolate(text, variables);
+        const finalButtons = buttons.map((btn: any, index: number) => ({
+            content_type: 'text',
+            title: interpolate(btn.text, variables).substring(0, 20),
+            payload: `${node.id}-btn-${index}` // Use node and button info as payload
+        }));
+        
+        const messagePayload = {
+            recipient: { id: contact.psid },
+            messaging_type: "RESPONSE",
+            message: {
+                text: interpolatedText,
+                quick_replies: finalButtons,
+            },
+        };
+
+        await axios.post(
+            `https://graph.facebook.com/v23.0/me/messages`,
+            messagePayload,
+            { params: { access_token: project.accessToken } }
+        );
+
+    } catch (e: any) {
+        console.error(`Ecomm Flow: Failed to send quick replies to ${contact.psid} for project ${project._id}:`, e.message);
+    }
+}
+
 
 async function sendLanguageSelectionButtons(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>) {
     const text = interpolate(node.data.promptMessage, variables);
@@ -306,7 +341,7 @@ async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithI
         const getVars = (text: string): number[] => {
             if (!text) return [];
             const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
-            return variableMatches ? [...new Set(matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
+            return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
         };
 
         const payloadComponents: any[] = [];
@@ -1014,7 +1049,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
         }
 
         await db.collection('notifications').insertOne({
-            projectId: project._id, wabaId: project.wabaId, message, link,
+            projectId: project._id, wabaId: project.wabaId!, message, link,
             isRead: false, createdAt: new Date(), eventType,
         });
 
@@ -1242,18 +1277,11 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
 
     // Handle incoming messages or postbacks
     if (messagingEvent.message || messagingEvent.postback) {
+        const { handled } = await handleEcommFlowLogic(db, project, subscriberResult, messagingEvent);
+        if (handled) return; // Flow logic took precedence
         
-        // Check for an active e-commerce flow first
-        if (subscriberResult.activeEcommFlow) {
-            // TODO: Implement logic to continue an existing flow
-            return;
-        }
-        
-        // If no active flow, check for triggers
-        const payload = messagingEvent.postback?.payload || messagingEvent.message?.quick_reply?.payload || messagingEvent.message?.text;
-        
+        // If no flow was handled, check for other automations
         if (isNewSubscriber && project.ecommSettings?.welcomeMessage) {
-            // New custom welcome message logic takes priority for new users
              await axios.post(`https://graph.facebook.com/v23.0/me/messages`, 
                 {
                     recipient: { id: senderPsid },
@@ -1263,7 +1291,6 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
                 { params: { access_token: project.accessToken } }
             );
         } else if (isNewSubscriber && project.facebookWelcomeMessage?.enabled) {
-            // Fallback to old welcome message logic
             const welcomeSettings = project.facebookWelcomeMessage;
             const messagePayload: any = { text: welcomeSettings.message };
             if (welcomeSettings.quickReplies && welcomeSettings.quickReplies.length > 0) {
@@ -1275,9 +1302,6 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
                 { recipient: { id: senderPsid }, messaging_type: "RESPONSE", message: messagePayload },
                 { params: { access_token: project.accessToken } }
             );
-        } else {
-            // TODO: Here you would insert the logic to check for keyword triggers
-            // to start a new e-commerce flow.
         }
     }
 
@@ -1323,4 +1347,96 @@ export async function processCatalogWebhook(db: Db, project: WithId<Project>, ca
 
     revalidatePath(`/dashboard/facebook/commerce/products/${catalogData.catalog_id}`);
     revalidatePath('/dashboard/notifications');
+}
+
+async function handleEcommFlowLogic(db: Db, project: WithId<Project>, contact: WithId<FacebookSubscriber>, messagingEvent: any): Promise<{ handled: boolean, logger?: FlowLogger, flowStatus?: 'finished' | 'waiting' | 'error' }> {
+    const userInput = messagingEvent.message?.text?.trim() || messagingEvent.message?.quick_reply?.payload || messagingEvent.postback?.payload;
+    const quickReplyPayload = messagingEvent.message?.quick_reply?.payload;
+
+    if (contact.activeEcommFlow) {
+        const flow = await db.collection<EcommFlow>('ecomm_flows').findOne({ _id: new ObjectId(contact.activeEcommFlow.flowId) });
+        if (!flow) {
+            await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $unset: { activeEcommFlow: "" } });
+            return { handled: false };
+        }
+        
+        const logger = new FlowLogger(db, flow, contact);
+        const flowStatus = await executeEcommNode(db, project, contact, flow, contact.activeEcommFlow.currentNodeId, userInput, logger);
+        return { handled: true, logger, flowStatus };
+    }
+    
+    const flows = await db.collection<EcommFlow>('ecomm_flows').find({
+        projectId: project._id,
+        triggerKeywords: { $exists: true, $ne: [] }
+    }).toArray();
+
+    const triggeredFlow = flows.find(flow =>
+        (flow.triggerKeywords || []).some(keyword => userInput?.toLowerCase().includes(keyword.toLowerCase().trim()))
+    );
+
+    if (triggeredFlow) {
+        const startNode = triggeredFlow.nodes.find(n => n.type === 'start');
+        if (!startNode) return { handled: false };
+
+        const logger = new FlowLogger(db, triggeredFlow, contact);
+        const newActiveFlow = {
+            flowId: triggeredFlow._id.toString(),
+            currentNodeId: startNode.id,
+            variables: { name: contact.name, psid: contact.psid },
+        };
+        await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $set: { activeEcommFlow: newActiveFlow } });
+        const updatedContact = { ...contact, activeEcommFlow: newActiveFlow };
+        
+        const flowStatus = await executeEcommNode(db, project, updatedContact, triggeredFlow, startNode.id, userInput, logger);
+        return { handled: true, logger, flowStatus };
+    }
+
+    return { handled: false };
+}
+
+
+async function executeEcommNode(db: Db, project: WithId<Project>, contact: WithId<FacebookSubscriber>, flow: WithId<EcommFlow>, nodeId: string, userInput: string | undefined, logger: FlowLogger): Promise<'finished' | 'waiting' | 'error'> {
+    const node = flow.nodes.find(n => n.id === nodeId);
+    if (!node) {
+        await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $unset: { activeEcommFlow: "" } });
+        return 'finished';
+    }
+
+    const currentVariables = contact.activeEcommFlow?.variables || {};
+    
+    await db.collection('facebook_subscribers').updateOne(
+        { _id: contact._id },
+        { $set: { "activeEcommFlow.currentNodeId": nodeId, "activeEcommFlow.variables": currentVariables } }
+    );
+    
+    switch(node.type) {
+        case 'text':
+            await sendFlowMessage(db, project, contact, project.facebookPageId!, node.data.text, currentVariables);
+            break;
+        case 'image':
+            await sendFlowImage(db, project, contact, project.facebookPageId!, node, currentVariables);
+            break;
+        case 'buttons':
+            await sendEcommFlowQuickReplies(db, project, contact, node, currentVariables);
+            return 'waiting';
+        case 'input':
+            if (userInput === undefined) {
+                await sendFlowMessage(db, project, contact, project.facebookPageId!, node.data.text, currentVariables);
+                return 'waiting';
+            } else {
+                if (node.data.variableToSave) {
+                    currentVariables[node.data.variableToSave] = userInput;
+                }
+            }
+            break;
+        // Other cases...
+    }
+    
+    const edge = flow.edges.find(e => e.source === nodeId && (!e.sourceHandle || e.sourceHandle === `${nodeId}-output-main`));
+    if (edge) {
+        return executeEcommNode(db, project, { ...contact, activeEcommFlow: { ...contact.activeEcommFlow, variables: currentVariables } } as any, flow, edge.target, undefined, logger);
+    } else {
+        await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $unset: { activeEcommFlow: "" } });
+        return 'finished';
+    }
 }

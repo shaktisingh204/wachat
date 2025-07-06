@@ -653,6 +653,7 @@ export default function EcommFlowBuilderPage() {
                 }
             });
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [projectId, currentFlow]);
 
     useEffect(() => {
@@ -1030,3 +1031,4 @@ export default function EcommFlowBuilderPage() {
         </div>
     );
 }
+
