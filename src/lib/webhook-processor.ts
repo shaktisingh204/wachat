@@ -1,4 +1,3 @@
-
 'use server';
 
 import { revalidatePath } from 'revalidate';
@@ -341,7 +340,7 @@ async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithI
         const getVars = (text: string): number[] => {
             if (!text) return [];
             const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
-            return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
+            return variableMatches ? [...new Set(matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
         };
 
         const payloadComponents: any[] = [];
@@ -1351,7 +1350,6 @@ export async function processCatalogWebhook(db: Db, project: WithId<Project>, ca
 
 async function handleEcommFlowLogic(db: Db, project: WithId<Project>, contact: WithId<FacebookSubscriber>, messagingEvent: any): Promise<{ handled: boolean, logger?: FlowLogger, flowStatus?: 'finished' | 'waiting' | 'error' }> {
     const userInput = messagingEvent.message?.text?.trim() || messagingEvent.message?.quick_reply?.payload || messagingEvent.postback?.payload;
-    const quickReplyPayload = messagingEvent.message?.quick_reply?.payload;
 
     if (contact.activeEcommFlow) {
         const flow = await db.collection<EcommFlow>('ecomm_flows').findOne({ _id: new ObjectId(contact.activeEcommFlow.flowId) });
@@ -1365,6 +1363,8 @@ async function handleEcommFlowLogic(db: Db, project: WithId<Project>, contact: W
         return { handled: true, logger, flowStatus };
     }
     
+    if (!userInput) return { handled: false };
+
     const flows = await db.collection<EcommFlow>('ecomm_flows').find({
         projectId: project._id,
         triggerKeywords: { $exists: true, $ne: [] }
@@ -1379,15 +1379,18 @@ async function handleEcommFlowLogic(db: Db, project: WithId<Project>, contact: W
         if (!startNode) return { handled: false };
 
         const logger = new FlowLogger(db, triggeredFlow, contact);
+        logger.log(`Flow triggered by keyword.`, { keyword: userInput });
+        
         const newActiveFlow = {
             flowId: triggeredFlow._id.toString(),
             currentNodeId: startNode.id,
             variables: { name: contact.name, psid: contact.psid },
         };
+        
         await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $set: { activeEcommFlow: newActiveFlow } });
         const updatedContact = { ...contact, activeEcommFlow: newActiveFlow };
         
-        const flowStatus = await executeEcommNode(db, project, updatedContact, triggeredFlow, startNode.id, userInput, logger);
+        const flowStatus = await executeEcommNode(db, project, updatedContact, triggeredFlow, startNode.id, undefined, logger);
         return { handled: true, logger, flowStatus };
     }
 
@@ -1398,45 +1401,111 @@ async function handleEcommFlowLogic(db: Db, project: WithId<Project>, contact: W
 async function executeEcommNode(db: Db, project: WithId<Project>, contact: WithId<FacebookSubscriber>, flow: WithId<EcommFlow>, nodeId: string, userInput: string | undefined, logger: FlowLogger): Promise<'finished' | 'waiting' | 'error'> {
     const node = flow.nodes.find(n => n.id === nodeId);
     if (!node) {
+        logger.log(`Error: Node with ID ${nodeId} not found. Terminating flow.`);
         await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $unset: { activeEcommFlow: "" } });
+        await logger.save();
         return 'finished';
     }
 
-    const currentVariables = contact.activeEcommFlow?.variables || {};
+    logger.log(`Executing node "${node.data.label}" (ID: ${node.id}, Type: ${node.type}).`);
+    
+    let currentVariables = contact.activeEcommFlow!.variables;
     
     await db.collection('facebook_subscribers').updateOne(
         { _id: contact._id },
-        { $set: { "activeEcommFlow.currentNodeId": nodeId, "activeEcommFlow.variables": currentVariables } }
+        { $set: { "activeEcommFlow.currentNodeId": nodeId } }
     );
     
-    switch(node.type) {
-        case 'text':
-            await sendFlowMessage(db, project, contact, project.facebookPageId!, node.data.text, currentVariables);
-            break;
-        case 'image':
-            await sendFlowImage(db, project, contact, project.facebookPageId!, node, currentVariables);
-            break;
-        case 'buttons':
-            await sendEcommFlowQuickReplies(db, project, contact, node, currentVariables);
-            return 'waiting';
-        case 'input':
-            if (userInput === undefined) {
-                await sendFlowMessage(db, project, contact, project.facebookPageId!, node.data.text, currentVariables);
-                return 'waiting';
+    let nextNodeId: string | null = null;
+    let nextUserInput: string | undefined = undefined;
+
+    // Reacting to user input
+    if (userInput !== undefined) {
+        logger.log(`Processing user input: "${userInput}"`);
+        if (node.type === 'buttons') {
+            const edge = flow.edges.find(e => e.source === nodeId && e.sourceHandle === userInput);
+            if (edge) {
+                nextNodeId = edge.target;
+                const buttonIndex = parseInt(userInput.split('-btn-')[1] || '0', 10);
+                const buttonText = node.data.buttons?.[buttonIndex]?.text || '';
+                nextUserInput = buttonText;
             } else {
-                if (node.data.variableToSave) {
-                    currentVariables[node.data.variableToSave] = userInput;
-                }
+                 logger.log(`No path found for button payload: "${userInput}".`);
             }
-            break;
-        // Other cases...
+        } else if (node.type === 'input') {
+            if (node.data.variableToSave) {
+                currentVariables[node.data.variableToSave] = userInput;
+                await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $set: { "activeEcommFlow.variables": currentVariables } });
+                logger.log(`Saved user input to variable "${node.data.variableToSave}".`);
+            }
+            const edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+        } else {
+             logger.log(`Received user input "${userInput}" but current node "${node.data.label}" is not a waiting node. Terminating flow.`);
+             await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $unset: { activeEcommFlow: "" } });
+             await logger.save();
+             return 'finished';
+        }
+    } 
+    // Automatically progressing through the flow (no user input)
+    else {
+        switch (node.type) {
+            case 'start':
+                const startEdge = flow.edges.find(e => e.source === nodeId);
+                if (startEdge) nextNodeId = startEdge.target;
+                break;
+            case 'text':
+                await sendFlowMessage(db, project, contact, project.facebookPageId!, node.data.text, currentVariables);
+                const textEdge = flow.edges.find(e => e.source === nodeId);
+                if (textEdge) nextNodeId = textEdge.target;
+                break;
+            case 'image':
+                await sendFlowImage(db, project, contact, project.facebookPageId!, node, currentVariables);
+                const imageEdge = flow.edges.find(e => e.source === nodeId);
+                if(imageEdge) nextNodeId = imageEdge.target;
+                break;
+            case 'delay':
+                logger.log(`Delaying for ${node.data.delaySeconds || 1} seconds.`);
+                await new Promise(res => setTimeout(res, (node.data.delaySeconds || 1) * 1000));
+                const delayEdge = flow.edges.find(e => e.source === nodeId);
+                if(delayEdge) nextNodeId = delayEdge.target;
+                break;
+
+            case 'buttons':
+            case 'input':
+            case 'condition': // Condition can also wait
+                if (node.type === 'buttons') {
+                    await sendEcommFlowQuickReplies(db, project, contact, node, currentVariables);
+                } else if (node.type === 'input') {
+                    await sendFlowMessage(db, project, contact, project.facebookPageId!, node.data.text, currentVariables);
+                } else if (node.type === 'condition' && node.data.conditionType === 'user_response') {
+                    // Do nothing, just wait for the next input from the user
+                } else {
+                    // This is a condition that should execute immediately
+                     const valueToCheck = interpolate(node.data.variable, currentVariables);
+                     const interpolatedCheckValue = interpolate(node.data.value, currentVariables);
+                     // ... execute condition logic ...
+                     let conditionMet = valueToCheck === interpolatedCheckValue; // Simplified
+                     const handle = conditionMet ? `${node.id}-output-yes` : `${node.id}-output-no`;
+                     const edge = flow.edges.find(e => e.sourceHandle === handle);
+                     if (edge) nextNodeId = edge.target;
+                     break;
+                }
+
+                logger.log(`Node "${node.data.label}" is waiting for user input.`);
+                await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $set: { "activeEcommFlow.waitingSince": new Date() } });
+                await logger.save();
+                return 'waiting';
+        }
     }
-    
-    const edge = flow.edges.find(e => e.source === nodeId && (!e.sourceHandle || e.sourceHandle === `${nodeId}-output-main`));
-    if (edge) {
-        return executeEcommNode(db, project, { ...contact, activeEcommFlow: { ...contact.activeEcommFlow, variables: currentVariables } } as any, flow, edge.target, undefined, logger);
+
+    if (nextNodeId) {
+        await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $unset: { "activeEcommFlow.waitingSince": "" } });
+        return executeEcommNode(db, project, { ...contact, activeEcommFlow: { ...contact.activeEcommFlow, variables: currentVariables } } as any, flow, nextNodeId, nextUserInput, logger);
     } else {
+        logger.log("Flow execution finished.");
         await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $unset: { activeEcommFlow: "" } });
+        await logger.save();
         return 'finished';
     }
 }
