@@ -37,7 +37,7 @@ export function FacebookChatWindow({ project, conversation, messages, isLoading,
                         <ArrowLeft className="h-4 w-4" />
                     </Button>
                     <Avatar>
-                        <AvatarImage src={`https://graph.facebook.com/${participant?.id}/picture`} alt={participant?.name || 'U'} />
+                        <AvatarImage src={`https://graph.facebook.com/${participant?.id}/picture`} alt={participant?.name || 'U'} data-ai-hint="person avatar"/>
                         <AvatarFallback>{participant?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                     </Avatar>
                     <div>

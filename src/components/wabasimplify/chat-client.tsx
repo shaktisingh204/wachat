@@ -3,9 +3,9 @@
 
 import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getInitialChatData, getProjects, getConversation, markConversationAsRead, findOrCreateContact, getContactsForProject } from '@/app/actions';
+import { getInitialChatData, getProjects, getConversation, markConversationAsRead, findOrCreateContact, getContactsForProject, getSession } from '@/app/actions';
 import type { WithId } from 'mongodb';
-import type { Project, Contact, AnyMessage, Template } from '@/lib/definitions';
+import type { Project, Contact, AnyMessage, Template, User, Plan } from '@/lib/definitions';
 import { ChatContactList } from './chat-contact-list';
 import { ChatWindow } from './chat-window';
 import { ContactInfoPanel } from './contact-info-panel';
@@ -35,6 +35,8 @@ export function ChatClient() {
     const [selectedContact, setSelectedContact] = useState<WithId<Contact> | null>(null);
     const [conversation, setConversation] = useState<AnyMessage[]>([]);
     const [templates, setTemplates] = useState<WithId<Template>[]>([]);
+    const [sessionUser, setSessionUser] = useState<(Omit<User, 'password' | 'planId'> & { _id: string, plan?: WithId<Plan> | null }) | null>(null);
+
 
     const [isLoading, startLoadingTransition] = useTransition();
     const [loadingConversation, startConversationLoadTransition] = useTransition();
@@ -67,23 +69,26 @@ export function ChatClient() {
                 return;
             }
 
-            const useInitialParams = !project;
-            const data = await getInitialChatData(
-                storedProjectId, 
-                phoneId || (useInitialParams ? initialPhoneId : null),
-                useInitialParams ? initialContactId : null
-            );
+            const [initialData, sessionData] = await Promise.all([
+                getInitialChatData(
+                    storedProjectId, 
+                    phoneId || initialPhoneId,
+                    initialContactId
+                ),
+                getSession()
+            ]);
 
-            setProject(data.project);
-            setContacts(data.contacts);
-            setHasMoreContacts(data.contacts.length < data.totalContacts);
-            setSelectedContact(data.selectedContact);
-            setConversation(data.conversation);
-            setTemplates(data.templates);
-            setSelectedPhoneNumberId(data.selectedPhoneNumberId);
+            setProject(initialData.project);
+            setContacts(initialData.contacts);
+            setHasMoreContacts(initialData.contacts.length < initialData.totalContacts);
+            setSelectedContact(initialData.selectedContact);
+            setConversation(initialData.conversation);
+            setTemplates(initialData.templates);
+            setSelectedPhoneNumberId(initialData.selectedPhoneNumberId);
+            setSessionUser(sessionData?.user || null);
             setContactPage(1); 
         });
-    }, [initialContactId, initialPhoneId, project, router, startLoadingTransition]);
+    }, [initialContactId, initialPhoneId, router, startLoadingTransition]);
 
     useEffect(() => {
         setIsClient(true);
@@ -226,8 +231,9 @@ export function ChatClient() {
             />
             <Card className="h-full w-full flex flex-col overflow-hidden bg-muted/30 dark:bg-background">
                 <div className="flex flex-1 overflow-hidden">
-                    <div className="w-[320px] border-r flex flex-col flex-shrink-0 bg-background">
+                    <div className={cn("w-full flex-col border-r bg-background md:w-[320px] flex-shrink-0", selectedContact ? "hidden md:flex" : "flex")}>
                         <ChatContactList
+                            sessionUser={sessionUser}
                             contacts={contacts}
                             selectedContactId={selectedContact?._id.toString()}
                             onSelectContact={handleSelectContact}
@@ -241,7 +247,7 @@ export function ChatClient() {
                         />
                     </div>
 
-                    <div className="flex-1 flex flex-col">
+                    <div className={cn("w-full flex-col flex-1", selectedContact ? "flex" : "hidden md:flex")}>
                          {selectedContact && project ? (
                             <ChatWindow
                                 key={selectedContact._id.toString()}
@@ -256,7 +262,7 @@ export function ChatClient() {
                                 isInfoPanelOpen={isInfoPanelOpen}
                             />
                         ) : (
-                            <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-chat-texture">
+                            <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-chat-texture">
                                 <MessageSquare className="h-16 w-16" />
                                 <h2 className="text-xl font-semibold">Select a conversation</h2>
                                 <p>Choose a contact from the list or start a new chat.</p>

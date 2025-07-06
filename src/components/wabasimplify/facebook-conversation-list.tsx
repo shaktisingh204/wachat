@@ -1,7 +1,7 @@
 
 'use client';
 
-import type { FacebookConversation } from '@/lib/definitions';
+import type { FacebookConversation, User, Plan } from '@/lib/definitions';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -11,15 +11,17 @@ import { Button } from '../ui/button';
 import { format } from 'date-fns';
 import { Search, MessageSquarePlus } from 'lucide-react';
 import { Input } from '../ui/input';
+import type { WithId } from 'mongodb';
 
 interface FacebookConversationListProps {
+    sessionUser: (Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null;
     conversations: FacebookConversation[];
     selectedConversationId?: string;
     onSelectConversation: (conversation: FacebookConversation) => void;
     isLoading: boolean;
 }
 
-export function FacebookConversationList({ conversations, selectedConversationId, onSelectConversation, isLoading }: FacebookConversationListProps) {
+export function FacebookConversationList({ sessionUser, conversations, selectedConversationId, onSelectConversation, isLoading }: FacebookConversationListProps) {
 
     const ConversationSkeleton = () => (
         <div className="flex items-center gap-3 p-3">
@@ -38,14 +40,28 @@ export function FacebookConversationList({ conversations, selectedConversationId
 
     return (
         <div className="h-full flex flex-col overflow-hidden bg-card">
+            <div className="p-3 border-b flex-shrink-0 flex items-center justify-between">
+                {sessionUser ? (
+                    <div className="flex items-center gap-3">
+                        <Avatar>
+                             <AvatarImage src={`https://i.pravatar.cc/150?u=${sessionUser.email}`} data-ai-hint="person avatar" />
+                            <AvatarFallback>{sessionUser.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <p className="font-semibold">{sessionUser.name}</p>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-3">
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <div className="space-y-2"><Skeleton className="h-4 w-24" /><Skeleton className="h-3 w-16" /></div>
+                    </div>
+                )}
+                 <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MessageSquarePlus className="h-5 w-5" />
+                    <span className="sr-only">New Chat</span>
+                </Button>
+            </div>
+
             <div className="p-3 border-b flex-shrink-0 space-y-3">
-                <div className="flex items-center justify-between">
-                    <h2 className="text-lg font-semibold tracking-tight">Messenger Chats</h2>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MessageSquarePlus className="h-5 w-5" />
-                        <span className="sr-only">New Chat</span>
-                    </Button>
-                </div>
                  <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input placeholder="Search conversations..." className="pl-8" />
