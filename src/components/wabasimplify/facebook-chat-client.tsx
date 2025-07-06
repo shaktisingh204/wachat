@@ -3,7 +3,8 @@
 
 import { useEffect, useState, useCallback, useTransition } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getFacebookChatInitialData, getFacebookConversationMessages, getSession } from '@/app/actions/facebook.actions';
+import { getFacebookChatInitialData, getFacebookConversationMessages } from '@/app/actions/facebook.actions';
+import { getSession } from '@/app/actions';
 import type { WithId, Project, FacebookConversation, FacebookMessage, User, Plan } from '@/lib/definitions';
 import { FacebookConversationList } from './facebook-conversation-list';
 import { FacebookChatWindow } from './facebook-chat-window';
