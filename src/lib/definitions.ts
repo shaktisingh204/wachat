@@ -134,12 +134,8 @@ export type EcommSettings = {
     paymentLinkRazorpay?: string;
     paymentLinkPaytm?: string;
     paymentLinkGPay?: string;
-    // Appearance settings
-    primaryColor?: string;
-    logoUrl?: string;
-    // Messenger settings
     welcomeMessage?: string;
-    getStartedFlowId?: ObjectId; // Link to a flow builder flow
+    persistentMenu?: { type: 'postback' | 'web_url'; title: string; payload?: string; url?: string; }[];
 }
 
 export type Project = {

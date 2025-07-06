@@ -12,6 +12,7 @@ import { AlertCircle, Settings } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
 import type { WithId, Project, EcommSettings, CustomDomain } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
+import { PersistentMenuForm } from '@/components/wabasimplify/persistent-menu-form';
 
 function PageSkeleton() {
     return (
@@ -69,9 +70,11 @@ export default function SettingsPage() {
         <div className="flex flex-col gap-8">
             <div>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Settings /> Shop Settings</h1>
-                <p className="text-muted-foreground">Configure your shop name, currency, and custom domain.</p>
+                <p className="text-muted-foreground">Configure your shop name, currency, custom domain, and Messenger menu.</p>
             </div>
             <EcommSettingsForm project={project} settings={settings} domains={domains} />
+            <Separator />
+            <PersistentMenuForm project={project} settings={settings} />
             <Separator />
             <EcommCustomDomainForm project={project} settings={settings} />
         </div>

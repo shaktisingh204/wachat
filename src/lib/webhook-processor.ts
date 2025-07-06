@@ -6,7 +6,7 @@ import { Db, ObjectId, WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { generateAutoReply } from '@/ai/flows/auto-reply-flow';
 import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelligent-translate-flow';
-import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template } from './definitions';
+import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template, EcommFlow, EcommFlowNode, FacebookSubscriber } from './definitions';
 import { getErrorMessage } from './utils';
 import { processFacebookComment } from '@/ai/flows/facebook-comment-flow';
 
@@ -22,7 +22,7 @@ class FlowLogger {
         contactId: ObjectId;
     };
 
-    constructor(db: Db, flow: WithId<Flow>, contact: WithId<Contact>) {
+    constructor(db: Db, flow: WithId<Flow | EcommFlow>, contact: WithId<Contact | FacebookSubscriber>) {
         this.db = db;
         this.executionData = {
             projectId: flow.projectId,
@@ -1218,7 +1218,7 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
 
     const messageText = messagingEvent.message?.text;
     const now = new Date();
-    const snippet = messageText?.substring(0, 100) || (messagingEvent.message?.attachments ? '[Attachment]' : '[Message]');
+    const snippet = messageText?.substring(0, 100) || (messagingEvent.message?.attachments ? '[Attachment]' : messagingEvent.postback?.title || '[Interaction]');
 
     // Find or create subscriber, and update their status/info
     const subscriberResult = await db.collection('facebook_subscribers').findOneAndUpdate(
@@ -1234,37 +1234,41 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
                 status: 'new' // Set default status for new conversations
             }
         },
-        { upsert: true, returnDocument: 'before' }
+        { upsert: true, returnDocument: 'after' }
     );
     
-    const isNewSubscriber = subscriberResult === null;
+    const isNewSubscriber = !subscriberResult;
 
-    // Send welcome message if it's the first time and the feature is enabled
-    if (isNewSubscriber && project.facebookWelcomeMessage?.enabled && project.facebookWelcomeMessage.message) {
-        try {
-            const welcomeSettings = project.facebookWelcomeMessage;
-            const messagePayload: any = {
-                text: welcomeSettings.message
-            };
-
-            if (welcomeSettings.quickReplies && welcomeSettings.quickReplies.length > 0) {
-                messagePayload.quick_replies = welcomeSettings.quickReplies.map(qr => ({
-                    content_type: "text",
-                    title: qr.title.substring(0, 20),
-                    payload: qr.payload || qr.title, // Use title as payload if empty
-                }));
-            }
-
-            await axios.post(`https://graph.facebook.com/v23.0/me/messages`, 
+    // Handle incoming messages or postbacks
+    if (messagingEvent.message || messagingEvent.postback) {
+        const payload = messagingEvent.postback?.payload || messagingEvent.message?.quick_reply?.payload || messagingEvent.message?.text;
+        
+        if (isNewSubscriber && project.ecommSettings?.welcomeMessage) {
+            // New custom welcome message logic takes priority for new users
+             await axios.post(`https://graph.facebook.com/v23.0/me/messages`, 
                 {
                     recipient: { id: senderPsid },
                     messaging_type: "RESPONSE",
-                    message: messagePayload,
+                    message: { text: project.ecommSettings.welcomeMessage },
                 },
                 { params: { access_token: project.accessToken } }
             );
-        } catch (e: any) {
-            console.error(`Failed to send Facebook welcome message to ${senderPsid}:`, getErrorMessage(e));
+        } else if (isNewSubscriber && project.facebookWelcomeMessage?.enabled) {
+            // Fallback to old welcome message logic
+            const welcomeSettings = project.facebookWelcomeMessage;
+            const messagePayload: any = { text: welcomeSettings.message };
+            if (welcomeSettings.quickReplies && welcomeSettings.quickReplies.length > 0) {
+                messagePayload.quick_replies = welcomeSettings.quickReplies.map(qr => ({
+                    content_type: "text", title: qr.title.substring(0, 20), payload: qr.payload || qr.title,
+                }));
+            }
+            await axios.post(`https://graph.facebook.com/v23.0/me/messages`, 
+                { recipient: { id: senderPsid }, messaging_type: "RESPONSE", message: messagePayload },
+                { params: { access_token: project.accessToken } }
+            );
+        } else {
+            // TODO: Here you would insert the logic to check for an active e-commerce flow
+            // or trigger a new flow based on the `payload` variable.
         }
     }
 
