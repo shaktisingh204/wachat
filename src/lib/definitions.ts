@@ -811,6 +811,13 @@ export type Product = {
     createdAt: Date;
 };
 
+export type ProductSet = {
+    id: string;
+    name: string;
+    product_count: number;
+    filter?: any;
+};
+
 export type ShortUrl = {
     _id: ObjectId;
     userId: ObjectId;

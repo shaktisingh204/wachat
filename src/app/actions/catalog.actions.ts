@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -6,7 +7,7 @@ import { ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions';
-import type { Catalog, Product, Project } from '@/lib/definitions';
+import type { Catalog, Product, Project, ProductSet } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
 const API_VERSION = 'v23.0';
@@ -132,6 +133,8 @@ export async function connectCatalogToWaba(projectId: string, catalogMetaId: str
      }
 }
 
+// --- Product Actions ---
+
 export async function getProductsForCatalog(catalogMetaId: string, projectId: string): Promise<any[]> {
     const project = await getProjectById(projectId);
     if (!project) return [];
@@ -172,8 +175,6 @@ export async function getTaggedMediaForProduct(productId: string, projectId: str
     }
 }
 
-
-// --- Product Actions ---
 
 export async function addProductToCatalog(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
@@ -254,6 +255,75 @@ export async function deleteProductFromCatalog(productId: string, projectId: str
         
         return { success: true };
     } catch(e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+// --- Product Set (Collection) Actions ---
+
+export async function listProductSets(catalogId: string, projectId: string): Promise<ProductSet[]> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return [];
+    
+    try {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${catalogId}/product_sets`, {
+            params: {
+                fields: 'id,name,product_count',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return response.data.data || [];
+    } catch (e) {
+        console.error("Failed to list product sets:", getErrorMessage(e));
+        return [];
+    }
+}
+
+export async function createProductSet(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const catalogId = formData.get('catalogId') as string;
+    const name = formData.get('name') as string;
+
+    if (!projectId || !catalogId || !name) {
+        return { error: 'Required fields are missing.' };
+    }
+    
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Project not found or access token missing.' };
+
+    try {
+        // Create a default filter that includes all available products.
+        // The user can refine this in Commerce Manager later.
+        const defaultFilter = {
+            'availability': { 'is_any': ['in_stock', 'available for order', 'preorder'] }
+        };
+
+        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${catalogId}/product_sets`, {
+            name: name,
+            filter: defaultFilter,
+            access_token: project.accessToken
+        });
+
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+
+        revalidatePath(`/dashboard/facebook/commerce/products/${catalogId}`);
+        return { message: `Collection "${name}" created successfully!` };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteProductSet(setId: string, projectId: string): Promise<{ success: boolean, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Access denied.' };
+
+    try {
+        await axios.delete(`https://graph.facebook.com/${API_VERSION}/${setId}`, {
+            params: { access_token: project.accessToken }
+        });
+        return { success: true };
+    } catch (e) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
