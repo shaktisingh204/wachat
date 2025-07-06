@@ -951,18 +951,24 @@ export type Backlink = {
 
 // --- Custom Ecommerce ---
 
+export type EcommProductVariant = {
+  id: string; // e.g., color, size
+  name: string; // e.g., Color, Size
+  options: string; // Comma-separated, e.g., "Red, Blue, Green"
+};
+
 export type EcommProduct = {
-    _id: ObjectId;
-    shopId: ObjectId;
-    name: string;
-    description?: string;
-    price: number;
-    currency: string;
-    imageUrl?: string;
-    stock: number;
-    createdAt: Date;
-    updatedAt: Date;
-}
+  _id: ObjectId;
+  projectId: ObjectId;
+  name: string;
+  description?: string;
+  price: number;
+  imageUrl?: string;
+  stock?: number;
+  variants?: EcommProductVariant[];
+  createdAt: Date;
+  updatedAt: Date;
+};
 
 export type EcommOrderItem = {
     productId: ObjectId;
