@@ -9,26 +9,31 @@ body {
 
 @layer base {
   :root {
-    --background: 40 67% 96%;
-    --foreground: 224 71.4% 4.1%;
+    --background: 210 40% 98%;
+    --foreground: 210 10% 23%;
     --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card-foreground: 210 10% 23%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
-    --primary: 27 95% 73%;
-    --primary-foreground: 224 71.4% 4.1%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 210 10% 23%;
+    --primary: 35 95% 55%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 210 10% 23%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 210 10% 23%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 27 95% 73%;
-    --radius: 0.75rem;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 35 95% 55%;
+    --chart-1: 134 61% 41%;
+    --chart-2: 140 50% 50%;
+    --chart-3: 150 40% 60%;
+    --chart-4: 285.2 83.2% 53.3%;
+    --chart-5: 350.2 83.2% 53.3%;
+    --radius: 0.5rem;
     --instagram: 327 92% 55%;
     
     /* Neutral Sidebar as default */
@@ -43,25 +48,25 @@ body {
   }
 
   .dark {
-    --background: 224 71.4% 4.1%;
+    --background: 210 10% 15%;
     --foreground: 210 40% 98%;
-    --card: 224 71.4% 6.1%;
+    --card: 210 10% 23%;
     --card-foreground: 210 40% 98%;
-    --popover: 224 71.4% 4.1%;
+    --popover: 210 10% 23%;
     --popover-foreground: 210 40% 98%;
-    --primary: 27 95% 73%;
-    --primary-foreground: 224 71.4% 4.1%;
-    --secondary: 215 27.9% 16.9%;
+    --primary: 35 95% 55%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 10% 28%;
     --secondary-foreground: 210 40% 98%;
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
+    --muted: 210 10% 28%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 210 10% 28%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 27 95% 73%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 210 10% 28%;
+    --input: 210 10% 28%;
+    --ring: 35 95% 55%;
 
     /* Neutral Sidebar for Dark Mode */
     --sidebar-background: 220 10% 12%;
