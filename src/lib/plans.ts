@@ -35,7 +35,7 @@ export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string }[
 ];
 
 export const planFeaturesDefaults: PlanFeaturePermissions = {
-    overview: true, campaigns: true, liveChat: true, contacts: true, templates: true, catalog: false, ecommerce: false, flowBuilder: true,
+    overview: true, campaigns: true, liveChat: true, contacts: true, templates: true, catalog: true, ecommerce: false, flowBuilder: true,
     metaFlows: true, whatsappAds: false, webhooks: true, settingsBroadcast: true, settingsAutoReply: true,
     settingsMarketing: false, settingsTemplateLibrary: true, settingsCannedMessages: true, settingsAgentsRoles: true,
     settingsCompliance: true, settingsUserAttributes: true, apiAccess: false,

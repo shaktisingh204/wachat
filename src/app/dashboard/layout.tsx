@@ -31,7 +31,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, LayoutGrid, Package, BarChart2
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2
 } from 'lucide-react';
 import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -57,6 +57,7 @@ const wachatMenuItems = [
   { href: '/dashboard/contacts', label: 'Contacts', icon: Users, featureKey: 'contacts' },
   { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, featureKey: 'campaigns' },
   { href: '/dashboard/templates', label: 'Templates', icon: FileText, featureKey: 'templates' },
+  { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, featureKey: 'catalog' },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'flowBuilder' },
   { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, featureKey: 'metaFlows' },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, featureKey: 'numbers' },
