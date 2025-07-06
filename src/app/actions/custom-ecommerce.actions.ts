@@ -130,6 +130,9 @@ export async function saveEcommShopSettings(prevState: any, formData: FormData):
             shopName: formData.get('shopName') as string,
             currency: formData.get('currency') as string,
             customDomain: formData.get('customDomain') as string || undefined,
+            paymentLinkRazorpay: formData.get('paymentLinkRazorpay') as string || undefined,
+            paymentLinkPaytm: formData.get('paymentLinkPaytm') as string || undefined,
+            paymentLinkGPay: formData.get('paymentLinkGPay') as string || undefined,
         };
 
         if (!settings.shopName || !settings.currency) {

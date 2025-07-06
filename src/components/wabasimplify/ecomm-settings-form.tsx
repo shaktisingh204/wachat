@@ -7,11 +7,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { LoaderCircle, Save } from 'lucide-react';
+import { LoaderCircle, Save, IndianRupee, CreditCard } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
 import type { WithId, Project, EcommSettings, CustomDomain } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Separator } from '../ui/separator';
 
 const initialState = { message: null, error: undefined };
 
@@ -54,37 +55,58 @@ export function EcommSettingsForm({ project, settings, domains }: EcommSettingsF
                     <CardTitle>Basic Configuration</CardTitle>
                     <CardDescription>Set the fundamental properties for your custom shop.</CardDescription>
                 </CardHeader>
-                <CardContent className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="shopName">Shop Name</Label>
-                        <Input id="shopName" name="shopName" placeholder="My Awesome Store" defaultValue={settings?.shopName || ''} required />
+                <CardContent>
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <Label htmlFor="shopName">Shop Name</Label>
+                            <Input id="shopName" name="shopName" placeholder="My Awesome Store" defaultValue={settings?.shopName || ''} required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="currency">Currency</Label>
+                            <Select name="currency" defaultValue={settings?.currency || 'USD'} required>
+                                <SelectTrigger id="currency"><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="USD">USD - US Dollar</SelectItem>
+                                    <SelectItem value="EUR">EUR - Euro</SelectItem>
+                                    <SelectItem value="INR">INR - Indian Rupee</SelectItem>
+                                    <SelectItem value="GBP">GBP - British Pound</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="customDomain">Custom Domain</Label>
+                            <Select name="customDomain" defaultValue={settings?.customDomain || ''}>
+                                <SelectTrigger id="customDomain">
+                                    <SelectValue placeholder="Select a verified domain..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="">None (Use default)</SelectItem>
+                                    {verifiedDomains.map(d => (
+                                        <SelectItem key={d._id.toString()} value={d.hostname}>{d.hostname}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <p className="text-xs text-muted-foreground">Add and verify domains in the section below.</p>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="currency">Currency</Label>
-                         <Select name="currency" defaultValue={settings?.currency || 'USD'} required>
-                            <SelectTrigger id="currency"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="USD">USD - US Dollar</SelectItem>
-                                <SelectItem value="EUR">EUR - Euro</SelectItem>
-                                <SelectItem value="INR">INR - Indian Rupee</SelectItem>
-                                <SelectItem value="GBP">GBP - British Pound</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="customDomain">Custom Domain</Label>
-                         <Select name="customDomain" defaultValue={settings?.customDomain || ''}>
-                            <SelectTrigger id="customDomain">
-                                <SelectValue placeholder="Select a verified domain..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="">None (Use default)</SelectItem>
-                                {verifiedDomains.map(d => (
-                                    <SelectItem key={d._id.toString()} value={d.hostname}>{d.hostname}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                         <p className="text-xs text-muted-foreground">Add and verify domains in the section below.</p>
+                    <Separator className="my-6" />
+                     <div>
+                        <h3 className="text-base font-semibold mb-2 flex items-center gap-2"><CreditCard className="h-4 w-4"/>Payment Links</h3>
+                        <p className="text-sm text-muted-foreground mb-4">Provide direct payment links for services like Razorpay, Paytm, or GPay to enable "Pay" buttons in your shop flows.</p>
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="paymentLinkRazorpay">Razorpay Link</Label>
+                                <Input id="paymentLinkRazorpay" name="paymentLinkRazorpay" placeholder="https://rzp.io/l/yourlink" defaultValue={settings?.paymentLinkRazorpay || ''} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="paymentLinkPaytm">Paytm Link</Label>
+                                <Input id="paymentLinkPaytm" name="paymentLinkPaytm" placeholder="https://p.paytm.me/yourlink" defaultValue={settings?.paymentLinkPaytm || ''} />
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="paymentLinkGPay">Google Pay (GPay) Link</Label>
+                                <Input id="paymentLinkGPay" name="paymentLinkGPay" placeholder="gpay://..." defaultValue={settings?.paymentLinkGPay || ''} />
+                            </div>
+                        </div>
                     </div>
                 </CardContent>
                 <CardFooter>
