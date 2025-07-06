@@ -33,10 +33,16 @@ function CatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
              </CardContent>
              <CardFooter className="flex justify-end gap-2">
                 <Button variant="outline" size="sm" asChild>
-                    <Link href={`https://business.facebook.com/commerce/${catalog.metaCatalogId}/items`} target="_blank">
+                    <Link href={`/dashboard/facebook/commerce/products/${catalog.metaCatalogId}`}>
+                        <ShoppingBag className="mr-2 h-4 w-4"/>
+                        View Products
+                    </Link>
+                </Button>
+                <Button variant="ghost" size="sm" asChild>
+                    <a href={`https://business.facebook.com/commerce/${catalog.metaCatalogId}/items`} target="_blank" rel="noopener noreferrer">
                         <Link2 className="mr-2 h-4 w-4"/>
                         Manage in Meta
-                    </Link>
+                    </a>
                 </Button>
              </CardFooter>
         </Card>
