@@ -7,6 +7,7 @@ import type { EcommProduct, EcommOrder, EcommSettings } from '@/lib/definitions'
 import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getErrorMessage } from '@/lib/utils';
+import axios from 'axios';
 
 export async function getEcommProducts(projectId: string): Promise<WithId<EcommProduct>[]> {
     const hasAccess = await getProjectById(projectId);
@@ -145,5 +146,83 @@ export async function saveEcommShopSettings(prevState: any, formData: FormData):
         return { message: 'Shop settings saved successfully!' };
     } catch (e: any) {
         return { error: 'Failed to save shop settings.' };
+    }
+}
+
+export async function syncProductsToMetaCatalog(projectId: string, metaCatalogId: string): Promise<{ message?: string; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Project not found or access token missing.' };
+
+    const { accessToken, ecommSettings } = project;
+    if (!ecommSettings?.currency) {
+        return { error: 'E-commerce currency is not set in project settings.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const products = await db.collection<EcommProduct>('ecomm_products')
+            .find({ projectId: new ObjectId(projectId) })
+            .toArray();
+        
+        if (products.length === 0) {
+            return { message: 'No custom products to sync.' };
+        }
+
+        const batchOps = products.map(product => {
+            const body = new URLSearchParams({
+                retailer_id: product._id.toString(),
+                name: product.name,
+                description: product.description || '',
+                price: String(product.price * 100), // Price in cents
+                currency: ecommSettings.currency,
+                image_url: product.imageUrl || 'https://placehold.co/600x600.png',
+                availability: (product.stock ?? 1) > 0 ? 'in_stock' : 'out_of_stock',
+                inventory: String(product.stock ?? 100),
+                condition: 'new'
+            }).toString();
+
+            return {
+                method: 'POST',
+                relative_url: `${metaCatalogId}/products`,
+                body: body
+            };
+        });
+        
+        // The API supports up to 50 operations per batch call.
+        const BATCH_SIZE = 50;
+        let successfulSyncs = 0;
+        let errors: string[] = [];
+
+        for (let i = 0; i < batchOps.length; i += BATCH_SIZE) {
+            const batch = batchOps.slice(i, i + BATCH_SIZE);
+            const response = await axios.post(`https://graph.facebook.com/v23.0/`, {
+                access_token: accessToken,
+                batch: JSON.stringify(batch),
+            });
+
+            if (response.data.error) {
+                throw new Error(getErrorMessage({ response }));
+            }
+
+            // Process batch response
+            response.data.forEach((res: any, index: number) => {
+                if (res.code === 200) {
+                    successfulSyncs++;
+                } else {
+                    const errorBody = JSON.parse(res.body);
+                    errors.push(`Product #${i+index}: ${errorBody.error?.message || 'Unknown error'}`);
+                }
+            });
+        }
+        
+        let message = `Successfully synced ${successfulSyncs} of ${products.length} products.`;
+        if (errors.length > 0) {
+            message += `\nErrors on ${errors.length} products.`;
+        }
+
+        return { message, error: errors.length > 0 ? errors.join('\n') : undefined };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
     }
 }
