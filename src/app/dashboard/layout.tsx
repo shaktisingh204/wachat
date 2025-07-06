@@ -31,7 +31,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2, Server, LayoutGrid, Palette
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2, Server, LayoutGrid, Palette, Bot, BookCopy
 } from 'lucide-react';
 import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon, SeoIcon, CustomEcommerceIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -153,6 +153,11 @@ const customEcommerceMenuItems = [
   { href: '/dashboard/custom-ecommerce/settings', label: 'Settings', icon: Settings, featureKey: 'ecommerce' },
 ];
 
+const chatbotMenuItems = [
+  { href: '/dashboard/chatbot/agents', label: 'AI Agents', icon: Bot, featureKey: 'chatbot' },
+  { href: '/dashboard/chatbot/knowledge', label: 'Knowledge Base', icon: BookCopy, featureKey: 'chatbot' },
+];
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string, credits?: number, plan?: WithId<Plan> } | null>(null);
@@ -183,6 +188,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setActiveApp('seo-suite');
     } else if (pathname.startsWith('/dashboard/custom-ecommerce')) {
         setActiveApp('custom-ecommerce');
+    } else if (pathname.startsWith('/dashboard/chatbot')) {
+        setActiveApp('chatbot');
     } else {
         setActiveApp('whatsapp');
     }
@@ -228,6 +235,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const menuGroups = 
       activeApp === 'facebook' ? facebookMenuGroups 
+      : activeApp === 'chatbot' ? [{ title: null, items: chatbotMenuItems }]
       : [{ title: null, items: activeApp === 'instagram' ? instagramMenuItems 
       : activeApp === 'url-shortener' ? urlShortenerMenuItems 
       : activeApp === 'qr-code-maker' ? qrCodeMakerMenuItems 
@@ -239,92 +247,36 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const activeProjectId = isClient ? localStorage.getItem('activeProjectId') : null;
   const activeFacebookProject = facebookProjects.find(p => p._id.toString() === activeProjectId);
 
+  const appIcons = [
+    { id: 'whatsapp', href: '/dashboard/overview', icon: WhatsAppIcon, label: 'Wachat Suite', className: 'bg-[#25D366] text-white', hoverClassName: 'bg-card text-[#25D366] hover:bg-accent' },
+    { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: FacebookAppIcon, label: 'Meta Suite', className: 'bg-blue-600 text-white', hoverClassName: 'bg-card text-blue-600 hover:bg-accent' },
+    { id: 'chatbot', href: '/dashboard/chatbot/agents', icon: Bot, label: 'Chatbot Builder', className: 'bg-cyan-500 text-white', hoverClassName: 'bg-card text-cyan-500 hover:bg-accent' },
+    { id: 'custom-ecommerce', href: '/dashboard/custom-ecommerce', icon: CustomEcommerceIcon, label: 'Custom Ecommerce', className: 'bg-amber-500 text-white', hoverClassName: 'bg-card text-amber-500 hover:bg-accent' },
+    { id: 'url-shortener', href: '/dashboard/url-shortener', icon: LinkIcon, label: 'URL Shortener', className: 'bg-purple-600 text-white', hoverClassName: 'bg-card text-purple-600 hover:bg-accent' },
+    { id: 'qr-code-maker', href: '/dashboard/qr-code-maker', icon: QrCode, label: 'QR Code Maker', className: 'bg-orange-500 text-white', hoverClassName: 'bg-card text-orange-500 hover:bg-accent' },
+  ];
+
   return (
     <div data-theme={activeApp}>
     <SidebarProvider>
       <div className="fixed top-2 left-2 bottom-2 z-20 hidden md:flex">
         <div className="flex h-full w-16 flex-col items-center gap-4 rounded-lg border bg-card py-4 shadow-md">
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Link
-                    href="/dashboard/overview"
-                    className={cn(
-                        'p-3 mx-2 rounded-lg transition-colors',
-                        activeApp === 'whatsapp'
-                        ? 'bg-[#25D366] text-white'
-                        : 'bg-card text-[#25D366] hover:bg-accent'
-                    )}
-                    >
-                    <WhatsAppIcon className="h-6 w-6" />
-                    </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">Wachat Suite</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Link
-                    href="/dashboard/facebook/all-projects"
-                    className={cn(
-                        'p-3 mx-2 rounded-lg transition-colors',
-                        activeApp === 'facebook'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-card text-blue-600 hover:bg-accent'
-                    )}
-                    >
-                    <FacebookAppIcon className="h-6 w-6" />
-                    </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">Meta Suite</TooltipContent>
-            </Tooltip>
-             <Tooltip>
-                <TooltipTrigger asChild>
-                    <Link
-                    href="/dashboard/custom-ecommerce"
-                    className={cn(
-                        'p-3 mx-2 rounded-lg transition-colors',
-                        activeApp === 'custom-ecommerce'
-                        ? 'bg-amber-500 text-white'
-                        : 'bg-card text-amber-500 hover:bg-accent'
-                    )}
-                    >
-                    <CustomEcommerceIcon className="h-6 w-6" />
-                    </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">Custom Ecommerce</TooltipContent>
-            </Tooltip>
-            <Separator className="w-2/3 my-1 bg-border/50"/>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                     <Link
-                        href="/dashboard/url-shortener"
-                        className={cn(
-                            'p-3 mx-2 rounded-lg transition-colors',
-                            activeApp === 'url-shortener'
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-card text-purple-600 hover:bg-accent'
-                        )}
+            {appIcons.map(app => (
+                <Tooltip key={app.id}>
+                    <TooltipTrigger asChild>
+                        <Link
+                            href={app.href}
+                            className={cn(
+                                'p-3 mx-2 rounded-lg transition-colors',
+                                activeApp === app.id ? app.className : app.hoverClassName
+                            )}
                         >
-                        <LinkIcon className="h-6 w-6" />
-                    </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">URL Shortener</TooltipContent>
-            </Tooltip>
-             <Tooltip>
-                <TooltipTrigger asChild>
-                     <Link
-                        href="/dashboard/qr-code-maker"
-                        className={cn(
-                            'p-3 mx-2 rounded-lg transition-colors',
-                            activeApp === 'qr-code-maker'
-                            ? 'bg-orange-500 text-white'
-                            : 'bg-card text-orange-500 hover:bg-accent'
-                        )}
-                        >
-                        <QrCode className="h-6 w-6" />
-                    </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right">QR Code Maker</TooltipContent>
-            </Tooltip>
+                            <app.icon className="h-6 w-6" />
+                        </Link>
+                    </TooltipTrigger>
+                    <TooltipContent side="right">{app.label}</TooltipContent>
+                </Tooltip>
+            ))}
         </div>
       </div>
       <Sidebar
@@ -366,6 +318,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         item.href === '/dashboard/qr-code-maker' ||
                         item.href === '/dashboard/facebook/all-projects' ||
                         item.href === '/dashboard/custom-ecommerce' ||
+                        item.href === '/dashboard/chatbot/agents' ||
                         item.href === '/dashboard/seo';
 
                   const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
