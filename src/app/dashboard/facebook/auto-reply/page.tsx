@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useEffect, useState, useTransition } from 'react';
@@ -11,13 +12,14 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { LoaderCircle, Save, MessageSquareReply, ShieldX, Bot, MessageSquareHeart } from 'lucide-react';
+import { LoaderCircle, Save, MessageSquareReply, ShieldX, Bot, MessageSquareHeart, Trash2, Plus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Input } from '@/components/ui/input';
 
 const initialState = { success: false, error: undefined };
 
@@ -118,6 +120,25 @@ function CommentAutomationForm({ project, settings }: { project: WithId<Project>
 function MessengerWelcomeForm({ project, settings }: { project: WithId<Project>, settings?: FacebookWelcomeMessageSettings }) {
     const [state, formAction] = useActionState(handleUpdateFacebookAutomationSettings, initialState);
     const { toast } = useToast();
+    const [quickReplies, setQuickReplies] = useState(settings?.quickReplies || []);
+
+    const handleAddReply = () => {
+        if (quickReplies.length < 13) {
+            setQuickReplies([...quickReplies, { title: '', payload: '' }]);
+        } else {
+            toast({ title: "Limit Reached", description: "You can add a maximum of 13 quick replies.", variant: "destructive" });
+        }
+    };
+
+    const handleRemoveReply = (index: number) => {
+        setQuickReplies(quickReplies.filter((_, i) => i !== index));
+    };
+
+    const handleReplyChange = (index: number, field: 'title' | 'payload', value: string) => {
+        const newReplies = [...quickReplies];
+        newReplies[index] = {...newReplies[index], [field]: value};
+        setQuickReplies(newReplies);
+    };
     
     useEffect(() => {
         if (state.success) toast({ title: 'Success!', description: 'Welcome message settings saved.' });
@@ -128,6 +149,7 @@ function MessengerWelcomeForm({ project, settings }: { project: WithId<Project>,
         <form action={formAction}>
             <input type="hidden" name="projectId" value={project._id.toString()} />
             <input type="hidden" name="automationType" value="welcome" />
+            <input type="hidden" name="quickReplies" value={JSON.stringify(quickReplies)} />
             <Card className="card-gradient card-gradient-green">
                 <CardHeader>
                     <div className="flex items-center justify-between">
@@ -138,10 +160,26 @@ function MessengerWelcomeForm({ project, settings }: { project: WithId<Project>,
                         <Switch id="welcome-enabled" name="enabled" defaultChecked={settings?.enabled ?? false} />
                     </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-4">
                     <div className="space-y-2">
                         <Label htmlFor="message">Welcome Message Text</Label>
                         <Textarea id="message" name="message" placeholder="Welcome to our page! How can we help you today?" defaultValue={settings?.message || ''} className="min-h-32"/>
+                    </div>
+                     <Separator />
+                    <div className="space-y-2">
+                        <Label>Quick Replies (Optional)</Label>
+                        <p className="text-xs text-muted-foreground">Add up to 13 buttons to guide users after your welcome message.</p>
+                        <div className="space-y-3 pt-2">
+                            {quickReplies.map((reply, index) => (
+                                <div key={index} className="flex items-center gap-2">
+                                    <Input placeholder="Button Title (max 20 chars)" value={reply.title} onChange={e => handleReplyChange(index, 'title', e.target.value)} maxLength={20} />
+                                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveReply(index)}><Trash2 className="h-4 w-4"/></Button>
+                                </div>
+                            ))}
+                        </div>
+                        {quickReplies.length < 13 && (
+                            <Button type="button" variant="outline" size="sm" className="mt-2" onClick={handleAddReply}><Plus className="mr-2 h-4 w-4"/>Add Quick Reply</Button>
+                        )}
                     </div>
                 </CardContent>
                 <CardFooter><SubmitButton>Save Welcome Message</SubmitButton></CardFooter>

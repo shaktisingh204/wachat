@@ -118,6 +118,7 @@ export type FacebookCommentAutoReplySettings = {
 export type FacebookWelcomeMessageSettings = {
     enabled: boolean;
     message: string;
+    quickReplies?: { title: string; payload: string; }[];
 };
 
 export type PostRandomizerSettings = {

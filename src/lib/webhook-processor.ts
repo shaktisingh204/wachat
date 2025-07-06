@@ -1242,11 +1242,24 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
     // Send welcome message if it's the first time and the feature is enabled
     if (isNewSubscriber && project.facebookWelcomeMessage?.enabled && project.facebookWelcomeMessage.message) {
         try {
+            const welcomeSettings = project.facebookWelcomeMessage;
+            const messagePayload: any = {
+                text: welcomeSettings.message
+            };
+
+            if (welcomeSettings.quickReplies && welcomeSettings.quickReplies.length > 0) {
+                messagePayload.quick_replies = welcomeSettings.quickReplies.map(qr => ({
+                    content_type: "text",
+                    title: qr.title.substring(0, 20),
+                    payload: qr.payload || qr.title, // Use title as payload if empty
+                }));
+            }
+
             await axios.post(`https://graph.facebook.com/v23.0/me/messages`, 
                 {
                     recipient: { id: senderPsid },
                     messaging_type: "RESPONSE",
-                    message: { text: project.facebookWelcomeMessage.message },
+                    message: messagePayload,
                 },
                 { params: { access_token: project.accessToken } }
             );
