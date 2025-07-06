@@ -188,6 +188,24 @@ body {
     --sidebar-background: 220 10% 12%;
     --sidebar-border: 220 10% 20%;
   }
+
+  /* Chatbot Theme */
+  [data-theme="chatbot"] {
+    --sidebar-primary: 200 95% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 200 95% 95%;
+    --sidebar-accent-foreground: 200 95% 25%;
+    --sidebar-background: 220 13% 98%;
+    --sidebar-border: 220 13% 91%;
+  }
+  .dark [data-theme="chatbot"] {
+    --sidebar-primary: 200 95% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 200 50% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-background: 220 10% 12%;
+    --sidebar-border: 220 10% 20%;
+  }
 }
 
 @layer base {

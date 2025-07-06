@@ -443,6 +443,7 @@ export type PlanFeaturePermissions = {
     instagramStories: boolean;
     instagramReels: boolean;
     instagramMessages: boolean;
+    chatbot: boolean;
 };
 
 export type PlanMessageCosts = {

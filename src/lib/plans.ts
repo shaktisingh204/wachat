@@ -32,6 +32,7 @@ export const planFeatureMap: { id: keyof PlanFeaturePermissions, name: string }[
     { id: 'instagramStories', name: 'Instagram Stories' },
     { id: 'instagramReels', name: 'Instagram Reels' },
     { id: 'instagramMessages', name: 'Instagram Messages' },
+    { id: 'chatbot', name: 'AI Chatbot Builder' },
 ];
 
 export const planFeaturesDefaults: PlanFeaturePermissions = {
@@ -40,5 +41,5 @@ export const planFeaturesDefaults: PlanFeaturePermissions = {
     settingsMarketing: false, settingsTemplateLibrary: true, settingsCannedMessages: true, settingsAgentsRoles: true,
     settingsCompliance: true, settingsUserAttributes: true, apiAccess: false,
     urlShortener: true, qrCodeMaker: true, numbers: true, billing: true, notifications: true,
-    instagramFeed: false, instagramStories: false, instagramReels: false, instagramMessages: false
+    instagramFeed: false, instagramStories: false, instagramReels: false, instagramMessages: false, chatbot: false
 };
