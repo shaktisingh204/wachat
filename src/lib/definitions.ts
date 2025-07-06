@@ -235,6 +235,12 @@ export type AdCampaign = {
     metaAdCreativeId: string;
     metaAdId: string;
     createdAt: Date;
+    insights?: {
+        impressions?: string;
+        clicks?: string;
+        spend?: string;
+        ctr?: string;
+    };
 };
 
 export type FacebookPage = {
