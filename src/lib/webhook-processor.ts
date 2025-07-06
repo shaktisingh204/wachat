@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -101,7 +99,7 @@ async function sendFlowMessage(db: Db, project: WithId<Project>, contact: WithId
             type: 'text',
             text: { preview_url: false, body: interpolatedText },
         };
-        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
@@ -132,7 +130,7 @@ async function sendFlowImage(db: Db, project: WithId<Project>, contact: WithId<C
             image: { link: imageUrl },
         };
         if (interpolatedCaption) messagePayload.image.caption = interpolatedCaption;
-        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
@@ -180,7 +178,7 @@ async function sendFlowButtons(db: Db, project: WithId<Project>, contact: WithId
             }
         };
 
-        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
@@ -220,7 +218,7 @@ async function sendLanguageSelectionButtons(db: Db, project: WithId<Project>, co
             }
         };
 
-        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
         const now = new Date();
@@ -276,7 +274,7 @@ async function sendFlowCarousel(db: Db, project: WithId<Project>, contact: WithI
             };
         }
         
-        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
@@ -335,7 +333,7 @@ async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithI
         };
 
         logger.log(`Sending template "${template.name}".`, { payload: messageData });
-        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messageData, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, messageData, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
@@ -381,7 +379,7 @@ async function sendMetaFlowTrigger(db: Db, project: WithId<Project>, contact: Wi
         };
 
         logger.log(`Triggering Meta Flow "${metaFlow.name}".`, { payload });
-        const response = await axios.post(`https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
@@ -446,7 +444,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             if (showTyping) {
                 try {
                     axios.post(
-                        `https://graph.facebook.com/v22.0/${contact.phoneNumberId}/messages`, 
+                        `https://graph.facebook.com/v23.0/${contact.phoneNumberId}/messages`, 
                         { messaging_product: 'whatsapp', to: contact.waId, recipient_type: 'individual', type: 'typing', action: 'start' }, 
                         { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
                     ).catch(e => logger.log("Flow: Failed to send typing indicator", { error: e.message }));
@@ -774,7 +772,7 @@ async function sendAutoReplyMessage(db: Db, project: WithId<Project>, contact: W
             messaging_product: 'whatsapp', recipient_type: 'individual', to: contact.waId, type: 'text',
             text: { preview_url: false, body: messageText },
         };
-        const response = await axios.post( `https://graph.facebook.com/v22.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const response = await axios.post( `https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
 
@@ -903,7 +901,7 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
     // Fetch media and convert to data URI if present
     if ((message.type === 'image' || message.type === 'video' || message.type === 'audio' || message.type === 'document') && message[message.type]?.id) {
         try {
-            const mediaInfoResponse = await axios.get(`https://graph.facebook.com/v22.0/${message[message.type].id}`, {
+            const mediaInfoResponse = await axios.get(`https://graph.facebook.com/v23.0/${message[message.type].id}`, {
                 headers: { 'Authorization': `Bearer ${project.accessToken}` }
             });
 
@@ -1111,7 +1109,7 @@ export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) 
                 const project = projectsMap.get(group.projectId.toString());
                 if (!project) throw new Error(`Project ${group.projectId} not found for message batch processing`);
                 
-                await handleSingleMessageEvent(db, project, group.messages[0], group.contacts[0], group.messages[0].metadata);
+                await handleSingleMessageEvent(db, project, group.message, group.contactProfile, group.phoneNumberId);
                 return { success: true };
             } catch (e: any) {
                 console.error(`Error processing a message from batch for project ${group.projectId}: ${e.message}`);
@@ -1163,7 +1161,7 @@ export async function processCommentWebhook(db: Db, project: WithId<Project>, co
             if (moderationResult.shouldDelete) {
                 console.log(`AI flagged comment ${commentId} for deletion. Reason: ${moderationResult.reason}`);
                 try {
-                    await axios.delete(`https://graph.facebook.com/v22.0/${commentId}`, {
+                    await axios.delete(`https://graph.facebook.com/v23.0/${commentId}`, {
                         params: { access_token: project.accessToken }
                     });
                     // Comment deleted, do not proceed to reply.
@@ -1182,7 +1180,7 @@ export async function processCommentWebhook(db: Db, project: WithId<Project>, co
     // --- Reply Logic ---
     if (settings.replyMode === 'static' && settings.staticReplyText) {
         try {
-            await axios.post(`https://graph.facebook.com/v22.0/${commentId}/comments`, {
+            await axios.post(`https://graph.facebook.com/v23.0/${commentId}/comments`, {
                 message: settings.staticReplyText,
                 access_token: project.accessToken
             });
@@ -1197,7 +1195,7 @@ export async function processCommentWebhook(db: Db, project: WithId<Project>, co
             });
 
             if (replyResult.reply) {
-                await axios.post(`https://graph.facebook.com/v22.0/${commentId}/comments`, {
+                await axios.post(`https://graph.facebook.com/v23.0/${commentId}/comments`, {
                     message: replyResult.reply,
                     access_token: project.accessToken
                 });
@@ -1219,16 +1217,20 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
 
     const messageText = messagingEvent.message?.text;
     const now = new Date();
+    const snippet = messageText?.substring(0, 100) || (messagingEvent.message?.attachments ? '[Attachment]' : '[Message]');
 
-    // Find or create subscriber
+    // Find or create subscriber, and update their status/info
     const subscriberResult = await db.collection('facebook_subscribers').findOneAndUpdate(
         { projectId: project._id, psid: senderPsid },
         { 
+            $set: { snippet, updated_time: now },
+            $inc: { unread_count: 1 },
             $setOnInsert: { 
                 projectId: project._id, 
                 psid: senderPsid, 
-                name: `User ${senderPsid.slice(-4)}`,
+                name: `User ${senderPsid.slice(-4)}`, // Name will be updated later if we fetch it
                 createdAt: now,
+                status: 'new' // Set default status for new conversations
             }
         },
         { upsert: true, returnDocument: 'before' }
@@ -1239,7 +1241,7 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
     // Send welcome message if it's the first time and the feature is enabled
     if (isNewSubscriber && project.facebookWelcomeMessage?.enabled && project.facebookWelcomeMessage.message) {
         try {
-            await axios.post(`https://graph.facebook.com/v22.0/me/messages`, 
+            await axios.post(`https://graph.facebook.com/v23.0/me/messages`, 
                 {
                     recipient: { id: senderPsid },
                     messaging_type: "RESPONSE",
@@ -1253,5 +1255,6 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
     }
 
     revalidatePath('/dashboard/facebook/messages');
+    revalidatePath('/dashboard/facebook/kanban');
     revalidatePath('/dashboard/facebook/subscribers');
 }

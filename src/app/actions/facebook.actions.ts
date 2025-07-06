@@ -1372,25 +1372,99 @@ export async function markFacebookConversationAsRead(conversationId: string, pro
 
     try {
         await axios.post(
-            `https://graph.facebook.com/v23.0/${conversationId}`, 
+            `https://graph.facebook.com/v23.0/${conversationId}?state=read`, 
             {}, // Empty body
-            { 
-                params: { 
-                    state: 'read',
-                    access_token: project.accessToken 
-                } 
-            }
+            { params: { access_token: project.accessToken } }
         );
         revalidatePath('/dashboard/facebook/messages');
         return { success: true };
     } catch (e: any) {
-        // It's possible for this to fail if another client reads it first.
-        // We can ignore certain errors to avoid showing an error toast to the user.
         const errorMessage = getErrorMessage(e);
         if (!errorMessage.includes("This message has already been read")) {
             console.error("Failed to mark conversation as read:", errorMessage);
             return { success: false, error: errorMessage };
         }
-        return { success: true }; // Treat "already read" as success
+        return { success: true };
+    }
+}
+
+
+// --- Kanban Actions ---
+
+export async function getFacebookKanbanData(projectId: string): Promise<{ project: WithId<Project> | null, columns: { name: string, conversations: WithId<FacebookSubscriber>[] }[] }> {
+    const defaultData = { project: null, columns: [] };
+    const project = await getProjectById(projectId);
+    if (!project) return defaultData;
+    
+    try {
+        const { db } = await connectToDatabase();
+        const conversations = await db.collection<FacebookSubscriber>('facebook_subscribers')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ updated_time: -1 })
+            .toArray();
+
+        const defaultStatuses = ['new', 'open', 'resolved'];
+        const customStatuses = project.facebookKanbanStatuses || [];
+        const allStatuses = [...new Set([...defaultStatuses, ...customStatuses])];
+
+        const columns = allStatuses.map(status => ({
+            name: status,
+            conversations: conversations.filter(c => (c.status || 'new') === status),
+        }));
+
+        return {
+            project: JSON.parse(JSON.stringify(project)),
+            columns: JSON.parse(JSON.stringify(columns))
+        };
+    } catch (e) {
+        console.error("Failed to get Facebook Kanban data:", e);
+        return defaultData;
+    }
+}
+
+export async function handleUpdateFacebookSubscriberStatus(subscriberId: string, status: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(subscriberId)) {
+        return { success: false, error: 'Invalid subscriber ID.' };
+    }
+    
+    const { db } = await connectToDatabase();
+    const subscriber = await db.collection('facebook_subscribers').findOne({ _id: new ObjectId(subscriberId) });
+    if (!subscriber) {
+        return { success: false, error: 'Subscriber not found.' };
+    }
+
+    const hasAccess = await getProjectById(subscriber.projectId.toString());
+    if (!hasAccess) return { success: false, error: 'Access denied' };
+
+    try {
+        await db.collection('facebook_subscribers').updateOne(
+            { _id: new ObjectId(subscriberId) },
+            { $set: { status } }
+        );
+        
+        revalidatePath('/dashboard/facebook/kanban');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to update conversation status.' };
+    }
+}
+
+export async function saveFacebookKanbanStatuses(projectId: string, statuses: string[]): Promise<{ success: boolean; error?: string }> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { success: false, error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const defaultStatuses = ['new', 'open', 'resolved'];
+        const customStatuses = statuses.filter(s => !defaultStatuses.includes(s));
+        
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { facebookKanbanStatuses: customStatuses } }
+        );
+        revalidatePath('/dashboard/facebook/kanban');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to save Kanban lists.' };
     }
 }

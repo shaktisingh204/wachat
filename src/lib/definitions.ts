@@ -158,6 +158,7 @@ export type Project = {
     connectedCatalogId?: string;
     hasCatalogManagement?: boolean;
     kanbanStatuses?: string[];
+    facebookKanbanStatuses?: string[];
     plan?: WithId<Plan> | null; // populated by aggregate
 };
 
@@ -342,6 +343,8 @@ export type FacebookConversation = {
         data: FacebookConversationParticipant[];
     };
     can_reply: boolean;
+    status?: string;
+    assignedAgentId?: string;
 };
 
 export type FacebookMessage = {
@@ -372,6 +375,10 @@ export type FacebookSubscriber = {
   psid: string; // Page-Scoped ID
   name: string;
   createdAt: Date;
+  status?: string;
+  assignedAgentId?: string;
+  snippet?: string;
+  updated_time?: Date;
 };
 
 
