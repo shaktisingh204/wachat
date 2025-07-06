@@ -1,7 +1,8 @@
 
+
 'use server';
 
-import { getSession, handleSyncPhoneNumbers } from '@/app/actions';
+import { getSession, handleSyncPhoneNumbers, handleSubscribeProjectWebhook } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
 import type { Project, Plan } from '@/lib/definitions';
@@ -27,7 +28,7 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
     try {
         let businessId: string | undefined = undefined;
         if(includeCatalog) {
-            const businessesResponse = await axios.get(`https://graph.facebook.com/v22.0/me/businesses`, {
+            const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
                 params: { access_token: accessToken }
             });
             const businesses = businessesResponse.data.data;
@@ -38,7 +39,7 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
             }
         }
         
-        const projectDetailsResponse = await fetch(`https://graph.facebook.com/v22.0/${wabaId}?fields=name&access_token=${accessToken}`);
+        const projectDetailsResponse = await fetch(`https://graph.facebook.com/v23.0/${wabaId}?fields=name&access_token=${accessToken}`);
         const projectData = await projectDetailsResponse.json();
 
         if (projectData.error) {
@@ -73,6 +74,7 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
         
         if(result.insertedId) {
             await handleSyncPhoneNumbers(result.insertedId.toString());
+            await handleSubscribeProjectWebhook(result.insertedId.toString());
         }
 
         revalidatePath('/dashboard');

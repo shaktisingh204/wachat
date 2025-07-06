@@ -11,6 +11,7 @@ import { Phone, Calendar, BarChart2 } from 'lucide-react';
 import { SubscribeProjectButton } from './subscribe-project-button';
 import { cn } from '@/lib/utils';
 import type { WithId, Project } from '@/lib/definitions';
+import { DeleteProjectButton } from './delete-project-button';
 
 
 interface ProjectCardProps {
@@ -79,13 +80,16 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
     return (
         <Card className={cn("flex flex-col hover:shadow-lg hover:border-primary transition-all card-gradient", project.facebookPageId ? 'card-gradient-blue' : 'card-gradient-green')}>
             <CardHeader className="pb-2">
-                <div className="flex justify-between items-start gap-2">
+                 <div className="flex justify-between items-start gap-2">
                     <CardTitle className="text-lg leading-tight">{project.name}</CardTitle>
-                     {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
-                        <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-xs flex-shrink-0">
-                            {project.reviewStatus.replace(/_/g, ' ').toLowerCase()}
-                        </Badge>
-                    )}
+                    <div className="flex items-center gap-1">
+                        {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
+                            <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-xs flex-shrink-0">
+                                {project.reviewStatus.replace(/_/g, ' ').toLowerCase()}
+                            </Badge>
+                        )}
+                        <DeleteProjectButton projectId={project._id.toString()} projectName={project.name} />
+                    </div>
                 </div>
                  <CardDescription className="font-mono text-xs pt-1 break-all">
                    {project.wabaId ? `WABA ID: ${project.wabaId}` : `Page ID: ${project.facebookPageId}`}

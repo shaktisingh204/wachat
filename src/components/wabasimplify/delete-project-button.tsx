@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle, Trash2 } from 'lucide-react';
-import { handleDeleteProjectByAdmin } from '@/app/actions';
+import { handleDeleteUserProject } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
 const initialState = {
@@ -40,14 +40,14 @@ function SubmitButton() {
   );
 }
 
-interface AdminDeleteProjectButtonProps {
+interface DeleteProjectButtonProps {
   projectId: string;
   projectName: string;
 }
 
-export function AdminDeleteProjectButton({ projectId, projectName }: AdminDeleteProjectButtonProps) {
+export function DeleteProjectButton({ projectId, projectName }: DeleteProjectButtonProps) {
   const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(handleDeleteProjectByAdmin, initialState);
+  const [state, formAction] = useActionState(handleDeleteUserProject, initialState);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -64,17 +64,17 @@ export function AdminDeleteProjectButton({ projectId, projectName }: AdminDelete
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="destructive" size="sm">
-          Delete
+        <Button variant="ghost" size="icon" className="h-7 w-7">
+          <Trash2 className="h-4 w-4 text-destructive" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <form action={formAction}>
           <input type="hidden" name="projectId" value={projectId} />
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure you want to delete this project?</AlertDialogTitle>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the project "{projectName}" and all of its associated data, including templates, campaigns, contacts, and messages.
+              This action cannot be undone. This will permanently delete the project "{projectName}" and all of its associated data, including campaigns, contacts, and flows.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">
