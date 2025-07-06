@@ -19,7 +19,7 @@ async function handleSubscribeFacebookPageWebhook(pageId: string, pageAccessToke
         return { success: false, error: "Server APP_ID not configured." };
     }
     try {
-        const subscribedFields = 'messages,messaging_postbacks,feed';
+        const subscribedFields = 'messages,messaging_postbacks,feed,commerce_orders,catalog_product_events';
         const response = await axios.post(`https://graph.facebook.com/v23.0/${pageId}/subscribed_apps`, {
             subscribed_fields: subscribedFields,
             access_token: pageAccessToken
@@ -1085,9 +1085,13 @@ export async function handleUpdateFacebookAutomationSettings(prevState: any, for
             };
             settingsUpdate = { facebookCommentAutoReply: settings };
         } else if (automationType === 'welcome') {
+             const quickRepliesJSON = formData.get('quickReplies') as string;
+             const quickReplies = quickRepliesJSON ? JSON.parse(quickRepliesJSON) : [];
+            
              const settings: FacebookWelcomeMessageSettings = {
                 enabled: formData.get('enabled') === 'on',
                 message: formData.get('message') as string,
+                quickReplies: quickReplies,
             };
              settingsUpdate = { facebookWelcomeMessage: settings };
         } else {
