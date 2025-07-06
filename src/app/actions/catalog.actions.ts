@@ -137,7 +137,12 @@ export async function getProductsForCatalog(catalogMetaId: string, projectId: st
     if (!project) return [];
 
     try {
-        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${catalogMetaId}/products?access_token=${project.accessToken}`);
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${catalogMetaId}/products`, {
+            params: {
+                fields: 'id,name,description,price,currency,retailer_id,image_url,availability,inventory',
+                access_token: project.accessToken
+            }
+        });
         if(response.data.error) throw new Error(getErrorMessage({response}));
         return response.data.data || [];
     } catch (e) {
@@ -211,10 +216,12 @@ export async function updateProductInCatalog(prevState: any, formData: FormData)
     const productId = formData.get('productId') as string;
     
     const fieldsToUpdate: any = {};
-    if (formData.get('name')) fieldsToUpdate.name = formData.get('name');
-    if (formData.get('description')) fieldsToUpdate.description = formData.get('description');
-    if (formData.get('price')) fieldsToUpdate.price = Number(formData.get('price')) * 100;
-    if (formData.get('image_url')) fieldsToUpdate.image_url = formData.get('image_url');
+    if (formData.has('name')) fieldsToUpdate.name = formData.get('name');
+    if (formData.has('description')) fieldsToUpdate.description = formData.get('description');
+    if (formData.has('price')) fieldsToUpdate.price = Number(formData.get('price')) * 100;
+    if (formData.has('image_url')) fieldsToUpdate.image_url = formData.get('image_url');
+    if (formData.has('inventory')) fieldsToUpdate.inventory = Number(formData.get('inventory'));
+    if (formData.has('availability')) fieldsToUpdate.availability = formData.get('availability');
 
     if (Object.keys(fieldsToUpdate).length === 0) {
         return { error: 'No fields to update.' };

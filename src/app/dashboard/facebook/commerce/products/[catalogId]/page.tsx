@@ -20,8 +20,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronLeft, PlusCircle, ShoppingBag, LoaderCircle, Trash2, Tags } from 'lucide-react';
+import { ChevronLeft, PlusCircle, ShoppingBag, LoaderCircle, Trash2, Tags, Edit } from 'lucide-react';
 import { ViewTaggedMediaDialog } from '@/components/wabasimplify/view-tagged-media-dialog';
+import { Badge } from '@/components/ui/badge';
+import { EditProductDialog } from '@/components/wabasimplify/edit-product-dialog';
+
 
 const addProductInitialState = { message: null, error: null };
 
@@ -92,6 +95,7 @@ export default function CatalogProductsPage() {
     const [projectId, setProjectId] = useState<string | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [viewingProductMedia, setViewingProductMedia] = useState<any | null>(null);
+    const [editingProduct, setEditingProduct] = useState<any | null>(null);
 
     const fetchData = useCallback(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -152,6 +156,8 @@ export default function CatalogProductsPage() {
                                         <TableHead className="w-20"></TableHead>
                                         <TableHead>Name</TableHead>
                                         <TableHead>Price</TableHead>
+                                        <TableHead>Inventory</TableHead>
+                                        <TableHead>Availability</TableHead>
                                         <TableHead>SKU</TableHead>
                                         <TableHead className="text-right">Actions</TableHead>
                                     </TableRow>
@@ -170,8 +176,18 @@ export default function CatalogProductsPage() {
                                                 </TableCell>
                                                 <TableCell className="font-medium">{product.name}</TableCell>
                                                 <TableCell>{new Intl.NumberFormat('en-US', { style: 'currency', currency: product.currency }).format(product.price / 100)}</TableCell>
+                                                <TableCell>{product.inventory?.toLocaleString() || 'N/A'}</TableCell>
+                                                <TableCell>
+                                                    <Badge variant={product.availability === 'in_stock' ? 'default' : 'secondary'}>
+                                                        {product.availability?.replace(/_/g, ' ') || 'N/A'}
+                                                    </Badge>
+                                                </TableCell>
                                                 <TableCell className="font-mono text-xs">{product.retailer_id}</TableCell>
                                                 <TableCell className="text-right">
+                                                     <Button variant="ghost" size="icon" onClick={() => setEditingProduct(product)}>
+                                                        <Edit className="h-4 w-4" />
+                                                        <span className="sr-only">Edit Product</span>
+                                                    </Button>
                                                     <Button variant="ghost" size="icon" onClick={() => setViewingProductMedia(product)}>
                                                         <Tags className="h-4 w-4" />
                                                         <span className="sr-only">View Tagged Media</span>
@@ -191,7 +207,7 @@ export default function CatalogProductsPage() {
                                         ))
                                     ) : (
                                         <TableRow>
-                                            <TableCell colSpan={5} className="text-center h-24">No products found in this catalog.</TableCell>
+                                            <TableCell colSpan={7} className="text-center h-24">No products found in this catalog.</TableCell>
                                         </TableRow>
                                     )}
                                 </TableBody>
@@ -206,6 +222,15 @@ export default function CatalogProductsPage() {
                     onOpenChange={(open) => !open && setViewingProductMedia(null)}
                     product={viewingProductMedia}
                     projectId={projectId}
+                />
+            )}
+             {editingProduct && projectId && (
+                <EditProductDialog
+                    isOpen={!!editingProduct}
+                    onOpenChange={(open) => !open && setEditingProduct(null)}
+                    product={editingProduct}
+                    projectId={projectId}
+                    onProductUpdated={fetchData}
                 />
             )}
         </>
