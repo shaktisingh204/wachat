@@ -149,7 +149,7 @@ export default function NumbersPage() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {phoneNumbers.length > 0 ? (
                   phoneNumbers.map((phone, index) => (
-                      <Card key={phone.id} className={cn("flex flex-col card-gradient", ['card-gradient-blue', 'card-gradient-green', 'card-gradient-purple'][index % 3])}>
+                      <Card key={phone.id} className={cn("flex flex-col card-gradient transition-transform hover:-translate-y-1", ['card-gradient-blue', 'card-gradient-green', 'card-gradient-purple'][index % 3])}>
                           <CardHeader className="flex-row items-center gap-4">
                               <div className="relative flex-shrink-0">
                                   {phone.profile?.profile_picture_url ? (
@@ -190,7 +190,7 @@ export default function NumbersPage() {
                                   <p className="truncate w-40 text-right">{phone.profile?.about || 'Not set'}</p>
                               </div>
                           </CardContent>
-                          <CardFooter>
+                          <CardFooter className="mt-auto">
                               <Button variant="secondary" className="w-full" onClick={() => setEditingPhone(phone)}>
                                   <Edit className="mr-2 h-4 w-4"/>
                                   Edit Profile

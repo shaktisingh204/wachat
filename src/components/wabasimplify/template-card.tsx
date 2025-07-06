@@ -21,9 +21,10 @@ import { cn } from '@/lib/utils';
 
 interface TemplateCardProps {
   template: WithId<Template>;
+  gradientClass?: string;
 }
 
-export const TemplateCard = React.memo(function TemplateCard({ template }: TemplateCardProps) {
+export const TemplateCard = React.memo(function TemplateCard({ template, gradientClass = 'card-gradient-green' }: TemplateCardProps) {
   const router = useRouter();
   const [isViewOpen, setIsViewOpen] = useState(false);
 
@@ -76,11 +77,9 @@ export const TemplateCard = React.memo(function TemplateCard({ template }: Templ
   const isMarketingCarousel = template.type === 'MARKETING_CAROUSEL';
   const isProductCarousel = template.type === 'CATALOG_MESSAGE';
   
-  const cardGradientClass = isMarketingCarousel ? 'card-gradient-purple' : isProductCarousel ? 'card-gradient-orange' : 'card-gradient-green';
-
   return (
     <>
-      <Card className={cn("flex flex-col card-gradient transition-transform hover:-translate-y-1", cardGradientClass)}>
+      <Card className={cn("flex flex-col transition-transform hover:-translate-y-1", gradientClass)}>
         <CardHeader>
           <div className="flex items-start justify-between gap-2">
             <CardTitle className="text-lg font-headline break-all">{template.name}</CardTitle>
@@ -124,7 +123,7 @@ export const TemplateCard = React.memo(function TemplateCard({ template }: Templ
         <CardContent className="flex-grow">
           <p className="text-sm text-foreground/80 line-clamp-4">{template.body || template.components?.find(c => c.type === 'BODY')?.text}</p>
         </CardContent>
-        <CardFooter className="flex justify-end gap-2">
+        <CardFooter className="flex justify-end gap-2 mt-auto">
           <Button variant="ghost" onClick={() => setIsViewOpen(true)}>View</Button>
           <Button variant="outline" onClick={() => handleAction('clone')}>
             <FilePlus2 className="mr-2 h-4 w-4" />

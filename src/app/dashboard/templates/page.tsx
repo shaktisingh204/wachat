@@ -116,6 +116,8 @@ export default function TemplatesPage() {
   const categories = useMemo(() => ['ALL', ...Array.from(new Set(templates.map(t => t.category).filter(Boolean)))], [templates]);
   const statuses = useMemo(() => ['ALL', ...Array.from(new Set(templates.map(t => t.status).filter(Boolean)))], [templates]);
   
+  const cardGradients = ['card-gradient-green', 'card-gradient-blue', 'card-gradient-purple', 'card-gradient-orange'];
+
   if (!isClient || (isLoading && templates.length === 0)) {
     return <TemplatesPageSkeleton />;
   }
@@ -195,10 +197,11 @@ export default function TemplatesPage() {
 
             {filteredTemplates.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {filteredTemplates.map((template) => (
+                {filteredTemplates.map((template, index) => (
                     <TemplateCard
                     key={template._id.toString()}
                     template={template}
+                    gradientClass={cardGradients[index % cardGradients.length]}
                     />
                 ))}
                 </div>

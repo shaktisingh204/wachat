@@ -8,10 +8,12 @@ import type { WithId, Project } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { FacebookEmbeddedSignup } from '@/components/wabasimplify/facebook-embedded-signup';
-import { CheckCircle, Facebook, Wrench } from 'lucide-react';
+import { CheckCircle, Facebook, Wrench, Edit } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ManualFacebookSetupDialog } from '@/components/wabasimplify/manual-facebook-setup-dialog';
+import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 function PageSkeleton() {
     return (
@@ -42,7 +44,7 @@ function ManagePageButton({ project }: { project: WithId<Project> }) {
 
 function ConnectedPageCard({ project }: { project: WithId<Project> }) {
     return (
-        <Card className="card-gradient card-gradient-blue">
+        <Card className={cn("flex flex-col card-gradient card-gradient-blue transition-transform hover:-translate-y-1")}>
             <CardHeader className="flex-row items-center gap-4">
                 <Avatar className="h-12 w-12">
                      <AvatarFallback><Facebook className="h-6 w-6"/></AvatarFallback>
@@ -52,13 +54,15 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
                     <CardDescription>Page ID: {project.facebookPageId}</CardDescription>
                 </div>
             </CardHeader>
-            <CardContent className="flex items-center justify-between">
-                <div className="flex items-center gap-2 text-primary">
-                    <CheckCircle className="h-5 w-5" />
-                    <p className="font-semibold">Connected</p>
-                </div>
-                <ManagePageButton project={project} />
+            <CardContent className="flex-grow">
+                <Badge variant="secondary"><CheckCircle className="mr-1 h-3 w-3" /> Connected</Badge>
             </CardContent>
+            <CardFooter className="flex justify-end gap-2">
+                 <Button asChild variant="outline" size="sm">
+                    <a href={`https://facebook.com/${project.facebookPageId}`} target="_blank" rel="noopener noreferrer">View on Facebook</a>
+                </Button>
+                <ManagePageButton project={project} />
+            </CardFooter>
         </Card>
     );
 }
@@ -124,13 +128,13 @@ export default function AllFacebookPagesPage() {
                 </CardFooter>
             </Card>
             
-            <div className="space-y-4">
+            <div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {connectedFacebookProjects.length > 0 ? (
                     connectedFacebookProjects.map(project => (
                         <ConnectedPageCard key={project._id.toString()} project={project} />
                     ))
                 ) : (
-                    <Card className="text-center py-12">
+                    <Card className="text-center py-12 md:col-span-2 xl:col-span-3">
                          <CardContent>
                             <p className="text-muted-foreground">No Facebook Pages have been connected yet.</p>
                          </CardContent>
