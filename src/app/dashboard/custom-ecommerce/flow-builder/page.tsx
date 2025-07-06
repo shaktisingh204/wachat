@@ -30,6 +30,7 @@ import {
     Minimize,
     ImageIcon,
     Clock,
+    ShoppingCart,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -51,17 +52,23 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 
-type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition';
+type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'carousel';
 
 type ButtonConfig = {
     id: string;
     text: string;
 };
 
+type CarouselSection = {
+    title: string;
+    products: { product_retailer_id: string }[];
+};
+
 const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Quick Replies', icon: ToggleRight },
+    { type: 'carousel', label: 'Product Carousel', icon: ShoppingCart },
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'delay', label: 'Add Delay', icon: Clock },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
@@ -109,6 +116,8 @@ const NodePreview = ({ node }: { node: EcommFlowNode }) => {
                         </div>
                     </div>
                 );
+            case 'carousel':
+                return <p className="text-xs text-muted-foreground italic">Sends a product carousel linked to catalog: {node.data.catalogId || 'Not Set'}</p>;
             default:
                 return null;
         }
@@ -187,7 +196,7 @@ const NodeComponent = ({
                 </>
             ) : node.type === 'buttons' ? (
                 (node.data.buttons || []).map((btn: ButtonConfig, index: number) => {
-                    const totalButtons = node.data.buttons.length;
+                    const totalButtons = (node.data.buttons || []).length;
                     const topPosition = totalButtons > 1 ? `${(100 / (totalButtons + 1)) * (index + 1)}%` : '50%';
                     return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition, transform: 'translateY(-50%)' }} />;
                 })
@@ -227,6 +236,41 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
         const newButtons = (selectedNode.data.buttons || []).filter((_: any, i: number) => i !== index);
         handleDataChange('buttons', newButtons);
     };
+
+    const handleCarouselSectionChange = (sectionIndex: number, field: 'title', value: string) => {
+        const newSections = [...(selectedNode.data.sections || [])];
+        newSections[sectionIndex] = { ...newSections[sectionIndex], [field]: value };
+        handleDataChange('sections', newSections);
+    };
+    
+    const handleCarouselProductChange = (sectionIndex: number, productIndex: number, value: string) => {
+        const newSections = JSON.parse(JSON.stringify(selectedNode.data.sections || []));
+        newSections[sectionIndex].products[productIndex].product_retailer_id = value;
+        handleDataChange('sections', newSections);
+    };
+    
+    const addCarouselSection = () => {
+        const newSections: CarouselSection[] = [...(selectedNode.data.sections || []), { title: '', products: [{ product_retailer_id: '' }] }];
+        handleDataChange('sections', newSections);
+    };
+    
+    const removeCarouselSection = (sectionIndex: number) => {
+        const newSections = (selectedNode.data.sections || []).filter((_: any, i: number) => i !== sectionIndex);
+        handleDataChange('sections', newSections);
+    };
+    
+    const addCarouselProduct = (sectionIndex: number) => {
+        const newSections = JSON.parse(JSON.stringify(selectedNode.data.sections || []));
+        newSections[sectionIndex].products.push({ product_retailer_id: '' });
+        handleDataChange('sections', newSections);
+    };
+
+    const removeCarouselProduct = (sectionIndex: number, productIndex: number) => {
+        const newSections = JSON.parse(JSON.stringify(selectedNode.data.sections || []));
+        newSections[sectionIndex].products = newSections[sectionIndex].products.filter((_: any, i: number) => i !== productIndex);
+        handleDataChange('sections', newSections);
+    };
+
 
     const renderProperties = () => {
         switch (selectedNode.type) {
@@ -329,6 +373,58 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
 
                         <div className="space-y-2"><Label htmlFor="condition-operator">Operator</Label><Select value={selectedNode.data.operator || 'equals'} onValueChange={(val) => handleDataChange('operator', val)}><SelectTrigger id="condition-operator"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Does not equal</SelectItem><SelectItem value="contains">Contains</SelectItem><SelectItem value="is_one_of">Is one of (comma-sep)</SelectItem><SelectItem value="is_not_one_of">Is not one of (comma-sep)</SelectItem></SelectContent></Select></div>
                         <div className="space-y-2"><Label htmlFor="condition-value">Value to Compare Against</Label><Input id="condition-value" placeholder="e.g., confirmed" value={selectedNode.data.value || ''} onChange={(e) => handleDataChange('value', e.target.value)} /></div>
+                    </div>
+                );
+            case 'carousel':
+                return (
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="carousel-header">Header Text</Label>
+                            <Input id="carousel-header" placeholder="Our Top Items" value={selectedNode.data.headerText || ''} onChange={(e) => handleDataChange('headerText', e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="carousel-body">Body Text</Label>
+                            <Textarea id="carousel-body" placeholder="Check out these amazing items." value={selectedNode.data.bodyText || ''} onChange={(e) => handleDataChange('bodyText', e.target.value)} required />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="carousel-catalog-id">Catalog ID</Label>
+                            <Input id="carousel-catalog-id" placeholder="Your Meta Catalog ID" value={selectedNode.data.catalogId || ''} onChange={(e) => handleDataChange('catalogId', e.target.value)} required />
+                            <p className="text-xs text-muted-foreground">This feature requires a Meta Commerce Catalog.</p>
+                        </div>
+                        <Separator />
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center">
+                                <Label>Sections</Label>
+                                <Button type="button" size="sm" variant="outline" onClick={addCarouselSection}>
+                                    <Plus className="mr-2 h-4 w-4" /> Section
+                                </Button>
+                            </div>
+                             {(selectedNode.data.sections || []).map((section: CarouselSection, sectionIndex: number) => (
+                                <div key={sectionIndex} className="p-3 border rounded-lg space-y-3 bg-muted/50">
+                                    <div className="flex items-center gap-2">
+                                        <Input 
+                                            placeholder="Section Title" 
+                                            value={section.title} 
+                                            onChange={(e) => handleCarouselSectionChange(sectionIndex, 'title', e.target.value)}
+                                        />
+                                        <Button type="button" variant="ghost" size="icon" onClick={() => removeCarouselSection(sectionIndex)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                                    </div>
+                                    <div className="space-y-2 pl-4">
+                                        {(section.products || []).map((product, productIndex) => (
+                                            <div key={productIndex} className="flex items-center gap-2">
+                                                <Input 
+                                                    placeholder="Product SKU / Retailer ID" 
+                                                    value={product.product_retailer_id}
+                                                    onChange={(e) => handleCarouselProductChange(sectionIndex, productIndex, e.target.value)}
+                                                />
+                                                <Button type="button" variant="ghost" size="icon" onClick={() => removeCarouselProduct(sectionIndex, productIndex)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                                            </div>
+                                        ))}
+                                        <Button type="button" size="sm" variant="link" onClick={() => addCarouselProduct(sectionIndex)}>+ Add Product</Button>
+                                    </div>
+                                </div>
+                             ))}
+                        </div>
                     </div>
                 );
             default:
@@ -446,7 +542,7 @@ const getNodeHandlePosition = (node: EcommFlowNode, handleId: string) => {
     
     if (node.type === 'condition') nodeHeight = 80;
     if (node.type === 'buttons') {
-        const buttonCount = node.data.buttons?.length || 1;
+        const buttonCount = (node.data.buttons || []).length;
         nodeHeight = 60 + (buttonCount * 20); // Base height + height per button
     }
 
@@ -465,7 +561,7 @@ const getNodeHandlePosition = (node: EcommFlowNode, handleId: string) => {
     }
     if (handleId.includes('-btn-')) {
         const buttonIndex = parseInt(handleId.split('-btn-')[1], 10);
-        const totalButtons = node.data.buttons.length;
+        const totalButtons = (node.data.buttons || []).length;
         const topPosition = totalButtons > 1 ? (60 + (nodeHeight - 60) / (totalButtons + 1) * (buttonIndex + 1)) : 60 + (nodeHeight - 60) / 2;
         return { x: x + NODE_WIDTH, y: y + topPosition };
     }
@@ -577,6 +673,7 @@ export default function EcommFlowBuilderPage() {
         if (!projectId || !flowName) return;
         const startNode = nodes.find(n => n.type === 'start');
         const triggerKeywords = startNode?.data.triggerKeywords?.split(',').map((k:string) => k.trim()).filter(Boolean) || [];
+        const isWelcomeFlow = startNode?.data.isWelcomeFlow || false;
 
         startSaveTransition(async () => {
              const result = await saveEcommFlow({
@@ -585,7 +682,8 @@ export default function EcommFlowBuilderPage() {
                 name: flowName,
                 nodes,
                 edges,
-                triggerKeywords
+                triggerKeywords,
+                isWelcomeFlow,
             });
             if(result.error) toast({title: "Error", description: result.error, variant: 'destructive'});
             else {
