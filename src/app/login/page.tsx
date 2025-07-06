@@ -40,13 +40,13 @@ export default function LoginPage() {
             </Link>
         </div>
       
-        <Card className="w-full max-w-md shadow-2xl rounded-2xl animate-fade-in-up">
+        <Card className="w-full max-w-sm shadow-2xl rounded-2xl animate-fade-in-up">
             <form action={formAction}>
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl font-bold font-headline">Sign In to your Account</CardTitle>
                     <CardDescription>Welcome back! Please enter your details.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
+                <CardContent className="space-y-6 p-6 pb-12">
                     {state?.error && (
                         <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
