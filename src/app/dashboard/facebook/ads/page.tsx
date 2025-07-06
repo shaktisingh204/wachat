@@ -136,7 +136,7 @@ export default function AdsManagerPage() {
                 <Card className="card-gradient card-gradient-blue">
                     <CardHeader>
                         <CardTitle>Your Campaigns</CardTitle>
-                        <CardDescription>A list of all ad campaigns created through SabNode.</CardDescription>
+                        <CardDescription>A list of all ad campaigns created through SabNode, with performance insights.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="border rounded-md">
@@ -145,9 +145,11 @@ export default function AdsManagerPage() {
                                     <TableRow>
                                         <TableHead>Campaign Name</TableHead>
                                         <TableHead>Status</TableHead>
-                                        <TableHead>Daily Budget</TableHead>
-                                        <TableHead>Created At</TableHead>
-                                        <TableHead>Meta Campaign ID</TableHead>
+                                        <TableHead>Impressions</TableHead>
+                                        <TableHead>Clicks</TableHead>
+                                        <TableHead>CTR</TableHead>
+                                        <TableHead>Spend</TableHead>
+                                        <TableHead>Created</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -156,14 +158,16 @@ export default function AdsManagerPage() {
                                             <TableRow key={campaign._id.toString()}>
                                                 <TableCell className="font-medium">{campaign.name}</TableCell>
                                                 <TableCell><Badge variant={campaign.status === 'PAUSED' ? 'secondary' : 'default'}>{campaign.status}</Badge></TableCell>
-                                                <TableCell>${campaign.dailyBudget.toFixed(2)}</TableCell>
+                                                <TableCell>{campaign.insights?.impressions || 'N/A'}</TableCell>
+                                                <TableCell>{campaign.insights?.clicks || 'N/A'}</TableCell>
+                                                <TableCell>{campaign.insights?.ctr ? `${Number(campaign.insights.ctr).toFixed(2)}%` : 'N/A'}</TableCell>
+                                                <TableCell>${campaign.insights?.spend || '0.00'}</TableCell>
                                                 <TableCell>{new Date(campaign.createdAt).toLocaleDateString()}</TableCell>
-                                                <TableCell className="font-mono text-xs">{campaign.metaCampaignId}</TableCell>
                                             </TableRow>
                                         ))
                                     ) : (
                                         <TableRow>
-                                            <TableCell colSpan={5} className="h-24 text-center">No ad campaigns created yet.</TableCell>
+                                            <TableCell colSpan={7} className="h-24 text-center">No ad campaigns created yet.</TableCell>
                                         </TableRow>
                                     )}
                                 </TableBody>
@@ -175,3 +179,4 @@ export default function AdsManagerPage() {
         </>
     );
 }
+

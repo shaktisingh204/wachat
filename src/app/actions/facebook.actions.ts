@@ -266,18 +266,63 @@ export async function handleManualFacebookPageSetup(prevState: any, formData: Fo
 
 export async function getAdCampaigns(projectId: string): Promise<WithId<AdCampaign>[]> {
     if (!ObjectId.isValid(projectId)) return [];
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
+    const project = await getProjectById(projectId);
+    if (!project || !project.adAccountId || !project.accessToken) return [];
 
     try {
         const { db } = await connectToDatabase();
-        const ads = await db.collection<AdCampaign>('ad_campaigns')
+        const localCampaigns = await db.collection<AdCampaign>('ad_campaigns')
             .find({ projectId: new ObjectId(projectId) })
             .sort({ createdAt: -1 })
             .toArray();
-        return JSON.parse(JSON.stringify(ads));
+            
+        if (localCampaigns.length === 0) {
+            return [];
+        }
+
+        const adIds = localCampaigns.map(c => c.metaAdId);
+        
+        // Use a batch request to fetch data for all ads at once
+        const response = await axios.get(`https://graph.facebook.com/v23.0`, {
+            params: {
+                ids: adIds.join(','),
+                fields: 'status,insights{impressions, clicks, spend, ctr}',
+                access_token: project.accessToken
+            }
+        });
+        
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        
+        const metaData = response.data;
+
+        // Combine local data with fresh data from Meta
+        const combinedData = localCampaigns.map(campaign => {
+            const metaAd = metaData[campaign.metaAdId];
+            if (metaAd) {
+                return {
+                    ...campaign,
+                    status: metaAd.status || campaign.status,
+                    insights: metaAd.insights?.data?.[0] || {} // Insights come in a data array
+                };
+            }
+            return campaign; // Return local data if API fails for a specific ad
+        });
+
+        return JSON.parse(JSON.stringify(combinedData));
     } catch (e) {
-        return [];
+        console.error("Failed to fetch ad campaigns with insights:", getErrorMessage(e));
+        // Fallback to local data on any API error to prevent the page from breaking
+        try {
+            const { db } = await connectToDatabase();
+            const localCampaigns = await db.collection<AdCampaign>('ad_campaigns')
+                .find({ projectId: new ObjectId(projectId) })
+                .sort({ createdAt: -1 })
+                .toArray();
+            return JSON.parse(JSON.stringify(localCampaigns));
+        } catch (dbError) {
+            console.error("Fallback to local DB failed during ad campaign fetch:", dbError);
+            return [];
+        }
     }
 }
 
@@ -1615,3 +1660,4 @@ export async function getFacebookOrders(projectId: string): Promise<{ orders?: F
         return { error: getErrorMessage(e) };
     }
 }
+
