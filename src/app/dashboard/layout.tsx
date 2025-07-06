@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -24,17 +25,18 @@ import {
   SidebarFooter,
   SidebarTrigger,
   SidebarInset,
+  SidebarSeparator,
+  SidebarGroupLabel,
 } from '@/components/ui/sidebar';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, LayoutGrid
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, LayoutGrid, Package, BarChart2
 } from 'lucide-react';
 import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getProjectCount, handleLogout, getSession, getProjects } from '@/app/actions';
 import { type Plan, type WithId, type Project } from '@/lib/definitions';
-import { Separator } from '@/components/ui/separator';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 
 function FullPageSkeleton() {
@@ -55,7 +57,6 @@ const wachatMenuItems = [
   { href: '/dashboard/contacts', label: 'Contacts', icon: Users, featureKey: 'contacts' },
   { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, featureKey: 'campaigns' },
   { href: '/dashboard/templates', label: 'Templates', icon: FileText, featureKey: 'templates' },
-  { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, featureKey: 'catalog' },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'flowBuilder' },
   { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, featureKey: 'metaFlows' },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, featureKey: 'numbers' },
@@ -65,23 +66,57 @@ const wachatMenuItems = [
   { href: '/dashboard/notifications', label: 'Notifications', icon: History, featureKey: 'notifications' },
 ];
 
-const facebookMenuItems = [
-    { href: '/dashboard/facebook/all-projects', label: 'Project Connections', icon: Wrench, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook', label: 'Dashboard', icon: LayoutDashboard, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/posts', label: 'Posts', icon: Newspaper, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/scheduled', label: 'Scheduled', icon: Calendar, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/live-studio', label: 'Live Studio', icon: Video, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/broadcasts', label: 'Broadcasts', icon: Send, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/subscribers', label: 'Subscribers', icon: Users, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/post-randomizer', label: 'Post Randomizer', icon: Repeat, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/kanban', label: 'Kanban Board', icon: LayoutGrid, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/auto-reply', label: 'Automation', icon: MessageSquareReply, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/pages', label: 'All Pages', icon: Newspaper, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'whatsappAds' },
-    { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, featureKey: 'whatsappAds' },
+const facebookMenuGroups = [
+  {
+    title: 'General',
+    items: [
+      { href: '/dashboard/facebook/all-projects', label: 'Project Connections', icon: Wrench, featureKey: 'whatsappAds' },
+      { href: '/dashboard/facebook', label: 'Dashboard', icon: LayoutDashboard, featureKey: 'whatsappAds' },
+    ],
+  },
+  {
+    title: 'Content',
+    items: [
+      { href: '/dashboard/facebook/posts', label: 'Posts', icon: Newspaper, featureKey: 'whatsappAds' },
+      { href: '/dashboard/facebook/scheduled', label: 'Scheduled', icon: Calendar, featureKey: 'whatsappAds' },
+      { href: '/dashboard/facebook/live-studio', label: 'Live Studio', icon: Video, featureKey: 'whatsappAds' },
+      { href: '/dashboard/facebook/post-randomizer', label: 'Post Randomizer', icon: Repeat, featureKey: 'whatsappAds' },
+    ],
+  },
+  {
+    title: 'Engagement',
+    items: [
+        { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare, featureKey: 'whatsappAds' },
+        { href: '/dashboard/facebook/kanban', label: 'Kanban Board', icon: LayoutGrid, featureKey: 'whatsappAds' },
+        { href: '/dashboard/facebook/auto-reply', label: 'Automation', icon: MessageSquareReply, featureKey: 'whatsappAds' },
+    ]
+  },
+  {
+    title: 'E-Commerce',
+    items: [
+        { href: '/dashboard/facebook/commerce/products', label: 'Products', icon: ShoppingBag, featureKey: 'ecommerce' },
+        { href: '/dashboard/facebook/commerce/collections', label: 'Collections', icon: ShoppingBag, featureKey: 'ecommerce' },
+        { href: '/dashboard/facebook/commerce/shop', label: 'Shop Setup', icon: LayoutGrid, featureKey: 'ecommerce' },
+        { href: '/dashboard/facebook/commerce/orders', label: 'Orders', icon: Package, featureKey: 'ecommerce' },
+        { href: '/dashboard/facebook/commerce/analytics', label: 'Analytics', icon: BarChart2, featureKey: 'ecommerce' },
+    ]
+  },
+   {
+    title: 'Growth Tools',
+    items: [
+        { href: '/dashboard/facebook/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'whatsappAds' },
+        { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
+        { href: '/dashboard/facebook/subscribers', label: 'Subscribers', icon: Users, featureKey: 'whatsappAds' },
+        { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'whatsappAds' },
+    ]
+  },
+  {
+      title: 'Configuration',
+      items: [
+        { href: '/dashboard/facebook/pages', label: 'All Pages', icon: Newspaper, featureKey: 'whatsappAds' },
+        { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, featureKey: 'whatsappAds' },
+      ]
+  }
 ];
 
 const instagramMenuItems = [
@@ -179,18 +214,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
   const planFeatures = sessionUser?.plan?.features;
 
-  const currentMenuItems =
-    activeApp === 'facebook'
-      ? facebookMenuItems
-      : activeApp === 'instagram'
-      ? instagramMenuItems
-      : activeApp === 'url-shortener'
-      ? urlShortenerMenuItems
-      : activeApp === 'qr-code-maker'
-      ? qrCodeMakerMenuItems
-      : activeApp === 'seo-suite'
-      ? seoMenuItems
-      : wachatMenuItems;
+  const menuGroups = activeApp === 'facebook' ? facebookMenuGroups : [{ title: null, items: activeApp === 'instagram' ? instagramMenuItems : activeApp === 'url-shortener' ? urlShortenerMenuItems : activeApp === 'qr-code-maker' ? qrCodeMakerMenuItems : activeApp === 'seo-suite' ? seoMenuItems : wachatMenuItems }];
       
   const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
   const activeProjectId = isClient ? localStorage.getItem('activeProjectId') : null;
@@ -312,46 +336,56 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {currentMenuItems.map((item) => {
-              const isAllowed = !planFeatures ? true : (planFeatures as any)[item.featureKey] ?? true;
-              const isDisabled = (hasNoProjects && !isSetupPage) || !isAllowed;
-              
-              let tooltipText = item.label;
-              if (hasNoProjects && !isSetupPage) {
-                tooltipText = `${item.label} (connect a project first)`;
-              } else if (!isAllowed) {
-                tooltipText = `${item.label} (Upgrade plan)`;
-              }
-              
-              const isBasePage = 
-                    item.href === '/dashboard' ||
-                    item.href === '/dashboard/overview' ||
-                    item.href === '/dashboard/facebook' ||
-                    item.href === '/dashboard/instagram/feed' ||
-                    item.href === '/dashboard/url-shortener' ||
-                    item.href === '/dashboard/qr-code-maker' ||
-                    item.href === '/dashboard/facebook/all-projects' ||
-                    item.href === '/dashboard/seo';
+            {menuGroups.map((group, groupIndex) => (
+              <React.Fragment key={group.title || groupIndex}>
+                {group.title && (
+                    <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-2 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
+                        <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
+                    </SidebarGroupLabel>
+                )}
+                {group.items.map((item) => {
+                  const isAllowed = !planFeatures ? true : (planFeatures as any)[item.featureKey] ?? true;
+                  const isDisabled = (hasNoProjects && !isSetupPage) || !isAllowed;
+                  
+                  let tooltipText = item.label;
+                  if (hasNoProjects && !isSetupPage) {
+                    tooltipText = `${item.label} (connect a project first)`;
+                  } else if (!isAllowed) {
+                    tooltipText = `${item.label} (Upgrade plan)`;
+                  }
+                  
+                  const isBasePage = 
+                        item.href === '/dashboard' ||
+                        item.href === '/dashboard/overview' ||
+                        item.href === '/dashboard/facebook' ||
+                        item.href === '/dashboard/instagram/feed' ||
+                        item.href === '/dashboard/url-shortener' ||
+                        item.href === '/dashboard/qr-code-maker' ||
+                        item.href === '/dashboard/facebook/all-projects' ||
+                        item.href === '/dashboard/seo';
 
-              const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
+                  const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
 
-
-              return (
-              <SidebarMenuItem key={item.href}>
-                <SidebarMenuButton
-                  asChild
-                  isActive={isActive}
-                  tooltip={tooltipText}
-                  disabled={isDisabled}
-                  aria-disabled={isDisabled}
-                >
-                  <Link href={isDisabled ? '#' : item.href} className={cn(isDisabled && 'pointer-events-none')}>
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            )})}
+                  return (
+                    <SidebarMenuItem key={item.href}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        tooltip={tooltipText}
+                        disabled={isDisabled}
+                        aria-disabled={isDisabled}
+                      >
+                        <Link href={isDisabled ? '#' : item.href} className={cn(isDisabled && 'pointer-events-none')}>
+                          <item.icon />
+                          <span>{item.label}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+                {group.title && groupIndex < menuGroups.length - 1 && <SidebarSeparator />}
+              </React.Fragment>
+            ))}
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>

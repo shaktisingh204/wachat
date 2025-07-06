@@ -401,6 +401,7 @@ export type PlanFeaturePermissions = {
     contacts: boolean;
     templates: boolean;
     catalog: boolean;
+    ecommerce: boolean;
     flowBuilder: boolean;
     metaFlows: boolean;
     whatsappAds: boolean;

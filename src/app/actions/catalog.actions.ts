@@ -9,7 +9,7 @@ import { getProjectById } from '@/app/actions';
 import type { Catalog, Product, Project } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
-const API_VERSION = 'v20.0';
+const API_VERSION = 'v23.0';
 
 // --- CATALOG ACTIONS ---
 
@@ -49,7 +49,7 @@ export async function syncCatalogs(projectId: string): Promise<{ message?: strin
         const result = await db.collection('catalogs').bulkWrite(bulkOps);
         const syncedCount = result.upsertedCount + result.modifiedCount;
 
-        revalidatePath('/dashboard/catalog');
+        revalidatePath('/dashboard/facebook/commerce/products');
         return { message: `Successfully synced ${syncedCount} catalog(s).`, count: syncedCount };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
@@ -98,7 +98,7 @@ export async function createCatalog(prevState: any, formData: FormData): Promise
             createdAt: new Date(),
         } as any);
 
-        revalidatePath('/dashboard/catalog');
+        revalidatePath('/dashboard/facebook/commerce/products');
         return { message: `Catalog "${catalogName}" created successfully.` };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -122,7 +122,7 @@ export async function connectCatalogToWaba(projectId: string, catalogMetaId: str
         if (response.data.success) {
             const { db } = await connectToDatabase();
             await db.collection('projects').updateOne({ _id: new ObjectId(projectId) }, { $set: { connectedCatalogId: catalogMetaId } });
-            revalidatePath('/dashboard/catalog');
+            revalidatePath('/dashboard/facebook/commerce/products');
             return { message: `Catalog successfully connected to WABA.` };
         } else {
              return { error: 'Meta API did not confirm success.' };
