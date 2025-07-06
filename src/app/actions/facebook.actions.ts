@@ -430,7 +430,7 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
     }
 
     try {
-        const fields = 'id,message,permalink_url,created_time,object_id,shares,reactions.summary(total_count),comments.summary(total_count).limit(5){id,message,from,created_time},attachments{media{image{src}}}';
+        const fields = 'id,message,permalink_url,created_time,object_id,shares,full_picture,reactions.summary(true),comments.summary(true).limit(5){id,message,from,created_time}';
         const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/posts`, {
             params: {
                 fields: fields,
@@ -443,13 +443,7 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
             throw new Error(getErrorMessage({ response }));
         }
 
-        // Map the response to add the full_picture field for the UI components
-        const postsWithPictures = (response.data.data || []).map((post: any) => {
-            const full_picture = post.attachments?.data?.[0]?.media?.image?.src;
-            return { ...post, full_picture };
-        });
-
-        return { posts: postsWithPictures };
+        return { posts: response.data.data || [] };
 
     } catch (e: any) {
         return { error: getErrorMessage(e) };
