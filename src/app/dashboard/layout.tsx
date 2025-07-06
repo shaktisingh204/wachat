@@ -31,7 +31,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2, Server, LayoutGrid
 } from 'lucide-react';
 import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -100,6 +100,7 @@ const facebookMenuGroups = [
         { href: '/dashboard/facebook/commerce/shop', label: 'Shop Setup', icon: LayoutGrid, featureKey: 'ecommerce' },
         { href: '/dashboard/facebook/commerce/orders', label: 'Orders', icon: Package, featureKey: 'ecommerce' },
         { href: '/dashboard/facebook/commerce/analytics', label: 'Analytics', icon: BarChart2, featureKey: 'ecommerce' },
+        { href: '/dashboard/facebook/commerce/api', label: 'APIs', icon: Server, featureKey: 'ecommerce' },
     ]
   },
    {
