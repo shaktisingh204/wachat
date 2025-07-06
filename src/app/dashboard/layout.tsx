@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -29,7 +28,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, LayoutGrid
 } from 'lucide-react';
 import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -78,6 +77,7 @@ const facebookMenuItems = [
     { href: '/dashboard/facebook/subscribers', label: 'Subscribers', icon: Users, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/post-randomizer', label: 'Post Randomizer', icon: Repeat, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare, featureKey: 'whatsappAds' },
+    { href: '/dashboard/facebook/kanban', label: 'Kanban Board', icon: LayoutGrid, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/auto-reply', label: 'Automation', icon: MessageSquareReply, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/pages', label: 'All Pages', icon: Newspaper, featureKey: 'whatsappAds' },
     { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'whatsappAds' },
@@ -169,7 +169,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     }
   }, [pathname, isClient]);
 
-  const isChatPage = pathname.startsWith('/dashboard/chat');
+  const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
 
   if (!isClient || isVerifying) {
       return <FullPageSkeleton />;
