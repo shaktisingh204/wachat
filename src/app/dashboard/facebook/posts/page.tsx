@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useTransition, useCallback } from 'react';
+import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { getFacebookPosts, handleLikeObject } from '@/app/actions/facebook.actions';
@@ -32,6 +32,7 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
     const reactionCount = post.reactions?.summary?.total_count || 0;
     const commentCount = post.comments?.summary?.total_count || 0;
     const shareCount = post.shares?.count || 0;
+    const imageUrl = post.full_picture;
 
     const onLike = () => {
         startLikingTransition(async () => {
@@ -93,9 +94,9 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3 pb-4">
-                        {post.full_picture && (
+                        {imageUrl && (
                             <a href={post.permalink_url} target="_blank" rel="noopener noreferrer" className="block relative aspect-video mt-2 overflow-hidden rounded-lg">
-                                <Image src={post.full_picture} alt="Post image" layout="fill" objectFit="cover" data-ai-hint="social media post"/>
+                                <Image src={imageUrl} alt="Post image" layout="fill" objectFit="cover" data-ai-hint="social media post"/>
                             </a>
                         )}
                     </CardContent>
@@ -216,5 +217,3 @@ export default function PagePostsPage() {
         </div>
     );
 }
-
-    

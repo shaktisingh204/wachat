@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type BusinessCapabilities = {
@@ -597,6 +596,12 @@ export type FlowLog = {
     flowName: string;
     createdAt: Date;
     entries: FlowLogEntry[];
+};
+
+export type FlowLogEntry = {
+    timestamp: Date;
+    message: string;
+    data?: any;
 };
 
 export type PaymentGatewaySettings = {

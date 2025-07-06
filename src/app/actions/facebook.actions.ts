@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -62,7 +61,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
 
     try {
         // 1. Exchange code for a short-lived access token
-        const tokenResponse = await axios.get('https://graph.facebook.com/v22.0/oauth/access_token', {
+        const tokenResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
             params: {
                 client_id: appId,
                 redirect_uri: redirectUri,
@@ -74,7 +73,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
         if (!shortLivedToken) return { success: false, error: 'Failed to obtain access token from Facebook.' };
         
         // 2. Exchange for a long-lived user token
-        const longLivedResponse = await axios.get('https://graph.facebook.com/v22.0/oauth/access_token', {
+        const longLivedResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
             params: {
                 grant_type: 'fb_exchange_token',
                 client_id: appId,
@@ -88,7 +87,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
         // 3. Fetch user's ad account (optional)
         let adAccountId: string | undefined;
         try {
-            const adAccountsResponse = await axios.get('https://graph.facebook.com/v22.0/me/adaccounts', { params: { access_token: longLivedToken }});
+            const adAccountsResponse = await axios.get('https://graph.facebook.com/v23.0/me/adaccounts', { params: { access_token: longLivedToken }});
             if (adAccountsResponse.data?.data?.[0]?.id) {
                 adAccountId = adAccountsResponse.data.data[0].id;
             }
@@ -97,7 +96,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
         }
 
         // 4. Fetch all pages the user has access to, and get long-lived tokens for each page
-        const pagesResponse = await axios.get('https://graph.facebook.com/v22.0/me/accounts', { params: { fields: 'id,name,access_token', access_token: longLivedToken }});
+        const pagesResponse = await axios.get('https://graph.facebook.com/v23.0/me/accounts', { params: { fields: 'id,name,access_token', access_token: longLivedToken }});
         const userPagesWithShortTokens = pagesResponse.data?.data;
 
         if (!userPagesWithShortTokens || userPagesWithShortTokens.length === 0) {
@@ -107,7 +106,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
         const userPages = await Promise.all(
             userPagesWithShortTokens.map(async (page: any) => {
                 try {
-                    const pageTokenResponse = await axios.get('https://graph.facebook.com/v22.0/oauth/access_token', {
+                    const pageTokenResponse = await axios.get('https://graph.facebook.com/v23.0/oauth/access_token', {
                         params: {
                             grant_type: 'fb_exchange_token',
                             client_id: appId,
@@ -254,7 +253,7 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
 
 
     try {
-        const apiVersion = 'v22.0';
+        const apiVersion = 'v23.0';
 
         const campaignResponse = await axios.post(
             `https://graph.facebook.com/${apiVersion}/act_${adAccountId}/campaigns`,
@@ -353,7 +352,7 @@ export async function getFacebookPages(projectId: string): Promise<{ pages?: Fac
     }
 
     try {
-        const response = await axios.get(`https://graph.facebook.com/v22.0/me/accounts`, {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/me/accounts`, {
             params: {
                 fields: 'id,name,category,tasks',
                 access_token: project.accessToken,
@@ -379,7 +378,7 @@ export async function getPageDetails(projectId: string): Promise<{ page?: Facebo
 
     try {
         const fields = 'id,name,about,category,fan_count,followers_count,link,location,phone,website,picture.width(100).height(100)';
-        const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}`, {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}`, {
             params: {
                 fields: fields,
                 access_token: project.accessToken,
@@ -405,7 +404,7 @@ export async function getCustomAudiences(projectId: string): Promise<{ audiences
     }
     
     try {
-        const response = await axios.get(`https://graph.facebook.com/v22.0/act_${project.adAccountId}/customaudiences`, {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/act_${project.adAccountId}/customaudiences`, {
              params: {
                 fields: 'id,name,description,approximate_count_lower_bound,delivery_status,operation_status,time_updated',
                 access_token: project.accessToken,
@@ -430,8 +429,8 @@ export async function getFacebookPosts(projectId: string): Promise<{ posts?: Fac
     }
 
     try {
-        const fields = 'id,message,permalink_url,created_time,object_id,shares,full_picture,reactions.summary(true),comments.summary(true).limit(5){id,message,from,created_time}';
-        const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/posts`, {
+        const fields = 'id,message,permalink_url,created_time,object_id,shares,full_picture,reactions.summary(true),comments.limit(5){id,message,from,created_time},comments.summary(true)';
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/posts`, {
             params: {
                 fields: fields,
                 access_token: project.accessToken,
@@ -473,7 +472,7 @@ export async function handleCreateFacebookPost(prevState: any, formData: FormDat
     }
 
     const { facebookPageId, accessToken } = project;
-    const apiVersion = 'v22.0';
+    const apiVersion = 'v23.0';
     let endpoint = '';
     const form = new FormData();
     form.append('access_token', accessToken);
@@ -552,7 +551,7 @@ export async function handleUpdatePost(prevState: any, formData: FormData): Prom
     }
 
     try {
-        await axios.post(`https://graph.facebook.com/v22.0/${postId}`, {
+        await axios.post(`https://graph.facebook.com/v23.0/${postId}`, {
             message: message,
             access_token: project.accessToken
         });
@@ -576,7 +575,7 @@ export async function handleDeletePost(postId: string, projectId: string): Promi
     }
 
     try {
-        await axios.delete(`https://graph.facebook.com/v22.0/${postId}`, {
+        await axios.delete(`https://graph.facebook.com/v23.0/${postId}`, {
             params: { access_token: project.accessToken }
         });
         revalidatePath('/dashboard/facebook/posts');
@@ -606,7 +605,7 @@ export async function handleAddVideoThumbnail(prevState: any, formData: FormData
         form.append('source', Buffer.from(await thumbnailFile.arrayBuffer()), { filename: thumbnailFile.name, contentType: thumbnailFile.type });
         form.append('access_token', project.accessToken);
 
-        await axios.post(`https://graph.facebook.com/v22.0/${videoId}/thumbnails`, form, {
+        await axios.post(`https://graph.facebook.com/v23.0/${videoId}/thumbnails`, form, {
             headers: { ...form.getHeaders() },
         });
 
@@ -624,7 +623,7 @@ export async function getEligibleCrosspostPages(postId: string, projectId: strin
     }
     
     try {
-        const response = await axios.get(`https://graph.facebook.com/v22.0/${postId}/crosspost_eligible_pages`, {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${postId}/crosspost_eligible_pages`, {
             params: { access_token: project.accessToken }
         });
         if (response.data.error) throw new Error(getErrorMessage({response}));
@@ -650,7 +649,7 @@ export async function handleCrosspostVideo(prevState: any, formData: FormData): 
     }
     
     try {
-        await axios.post(`https://graph.facebook.com/v22.0/${postId}/crosspost`, {
+        await axios.post(`https://graph.facebook.com/v23.0/${postId}/crosspost`, {
             crossposted_pages: targetPageIds,
             access_token: project.accessToken
         });
@@ -685,7 +684,7 @@ export async function handleUpdatePageDetails(prevState: any, formData: FormData
     });
 
     try {
-        await axios.post(`https://graph.facebook.com/v22.0/${pageId}`, payload);
+        await axios.post(`https://graph.facebook.com/v23.0/${pageId}`, payload);
         revalidatePath('/dashboard/facebook');
         return { success: true };
     } catch (e: any) {
@@ -701,7 +700,7 @@ export async function getPageInsights(projectId: string): Promise<{ insights?: P
 
     try {
         const metrics = 'page_impressions_unique,page_post_engagements';
-        const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/insights`, {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/insights`, {
             params: {
                 metric: metrics,
                 period: 'day',
@@ -739,7 +738,7 @@ export async function handlePostComment(prevState: any, formData: FormData): Pro
     }
 
     try {
-        await axios.post(`https://graph.facebook.com/v22.0/${objectId}/comments`, {
+        await axios.post(`https://graph.facebook.com/v23.0/${objectId}/comments`, {
             message,
             access_token: project.accessToken
         });
@@ -762,7 +761,7 @@ export async function handleDeleteComment(commentId: string, projectId: string):
     }
 
     try {
-        await axios.delete(`https://graph.facebook.com/v22.0/${commentId}`, {
+        await axios.delete(`https://graph.facebook.com/v23.0/${commentId}`, {
             params: { access_token: project.accessToken }
         });
         revalidatePath('/dashboard/facebook/posts');
@@ -782,7 +781,7 @@ export async function handleLikeObject(objectId: string, projectId: string): Pro
     }
 
     try {
-        await axios.post(`https://graph.facebook.com/v22.0/${objectId}/likes`, {
+        await axios.post(`https://graph.facebook.com/v23.0/${objectId}/likes`, {
             access_token: project.accessToken
         });
         revalidatePath('/dashboard/facebook/posts');
@@ -804,7 +803,7 @@ export async function getScheduledPosts(projectId: string): Promise<{ posts?: Fa
 
     try {
         // full_picture and permalink_url are not available for unpublished posts
-        const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/scheduled_posts`, {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/scheduled_posts`, {
             params: {
                 fields: 'id,message,created_time,scheduled_publish_time',
                 access_token: project.accessToken,
@@ -835,7 +834,7 @@ export async function publishScheduledPost(postId: string, projectId: string): P
     }
 
     try {
-        await axios.post(`https://graph.facebook.com/v22.0/${postId}`, {
+        await axios.post(`https://graph.facebook.com/v23.0/${postId}`, {
             is_published: true,
             access_token: project.accessToken
         });
@@ -854,7 +853,7 @@ export async function getFacebookConversations(projectId: string): Promise<{ con
     }
 
     try {
-        const response = await axios.get(`https://graph.facebook.com/v22.0/${project.facebookPageId}/conversations`, {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.facebookPageId}/conversations`, {
             params: {
                 fields: 'id,snippet,unread_count,updated_time,participants,can_reply',
                 access_token: project.accessToken,
@@ -880,7 +879,7 @@ export async function getFacebookConversationMessages(conversationId: string, pr
     }
 
     try {
-        const response = await axios.get(`https://graph.facebook.com/v22.0/${conversationId}/messages`, {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${conversationId}/messages`, {
             params: {
                 fields: 'id,created_time,from,to,message',
                 access_token: project.accessToken,
@@ -914,7 +913,7 @@ export async function sendFacebookMessage(prevState: any, formData: FormData): P
     }
 
     try {
-        const response = await axios.post(`https://graph.facebook.com/v22.0/me/messages`, 
+        const response = await axios.post(`https://graph.facebook.com/v23.0/me/messages`, 
             {
                 recipient: { id: recipientId },
                 messaging_type: "RESPONSE",
@@ -1133,7 +1132,7 @@ export async function handleSendFacebookBroadcast(prevState: any, formData: Form
         const { facebookPageId, accessToken } = project;
         
         const allConversations: FacebookConversation[] = [];
-        let nextUrl: string | undefined = `https://graph.facebook.com/v22.0/${facebookPageId}/conversations?fields=participants&limit=100&access_token=${accessToken}`;
+        let nextUrl: string | undefined = `https://graph.facebook.com/v23.0/${facebookPageId}/conversations?fields=participants&limit=100&access_token=${accessToken}`;
 
         while (nextUrl) {
             const response = await axios.get(nextUrl);
@@ -1179,7 +1178,7 @@ export async function handleSendFacebookBroadcast(prevState: any, formData: Form
             
             const promises = batch.map(recipientId => (
                 axios.post(
-                    `https://graph.facebook.com/v22.0/me/messages`,
+                    `https://graph.facebook.com/v23.0/me/messages`,
                     {
                         recipient: { id: recipientId },
                         messaging_type: "MESSAGE_TAG",
@@ -1263,7 +1262,7 @@ export async function handleScheduleLiveStream(prevState: any, formData: FormDat
     try {
         const { db } = await connectToDatabase();
         const { facebookPageId, accessToken } = project;
-        const apiVersion = 'v22.0';
+        const apiVersion = 'v23.0';
 
         const form = new FormData();
         form.append('access_token', accessToken);
