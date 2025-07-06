@@ -3,12 +3,11 @@
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import Link from 'next/link';
 import Image from 'next/image';
 import { getScheduledPosts, publishScheduledPost } from '@/app/actions/facebook.actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Newspaper, Edit, Trash2, Send, LoaderCircle, Calendar } from 'lucide-react';
+import { AlertCircle, Edit, Send, LoaderCircle, Calendar } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { FacebookPost } from '@/lib/definitions';
 import { format } from 'date-fns';
@@ -16,7 +15,6 @@ import { Button } from '@/components/ui/button';
 import { UpdatePostDialog } from '@/components/wabasimplify/update-post-dialog';
 import { DeletePostButton } from '@/components/wabasimplify/delete-post-button';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 
 function ScheduledPostCard({ post, projectId, onActionComplete }: { post: FacebookPost, projectId: string, onActionComplete: () => void }) {
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
@@ -44,29 +42,31 @@ function ScheduledPostCard({ post, projectId, onActionComplete }: { post: Facebo
                 projectId={projectId}
                 onPostUpdated={onActionComplete}
             />
-            <Card className="flex flex-col card-gradient card-gradient-purple">
-                {post.full_picture && (
-                    <div className="relative aspect-video">
-                        <Image src={post.full_picture} alt={post.message?.substring(0, 50) || 'Facebook Post'} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="social media post"/>
-                    </div>
-                )}
-                <CardHeader>
-                    <CardDescription className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        Scheduled for {post.scheduled_publish_time ? format(new Date(post.scheduled_publish_time * 1000), 'PPP p') : 'Unknown time'}
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="p-4 pt-0 flex-grow">
-                    <p className="text-sm text-muted-foreground line-clamp-4">
-                        {post.message || <span className="italic">This post has no text content.</span>}
-                    </p>
-                </CardContent>
-                <CardFooter className="flex justify-end items-center gap-1 p-2 pt-0 border-t mt-2">
-                    <Button variant="secondary" size="sm" className="h-7" onClick={onPublishNow} disabled={isPublishing}>
-                        {isPublishing ? <LoaderCircle className="h-3 w-3 mr-1 animate-spin"/> : <Send className="h-3 w-3 mr-1"/>}
-                        Publish Now
+            <Card className="flex flex-col justify-between card-gradient card-gradient-purple h-full">
+                 <div>
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-base font-semibold line-clamp-2">
+                             {post.message || 'Scheduled Media Post'}
+                        </CardTitle>
+                        <CardDescription className="flex items-center gap-2 pt-1">
+                            <Calendar className="h-4 w-4" />
+                            {post.scheduled_publish_time ? format(new Date(post.scheduled_publish_time * 1000), 'PPP p') : 'Unknown time'}
+                        </CardDescription>
+                    </CardHeader>
+                     <CardContent className="space-y-3 pb-4">
+                        {post.full_picture && (
+                            <div className="relative aspect-video mt-2 overflow-hidden rounded-lg">
+                                <Image src={post.full_picture} alt="Scheduled post image" layout="fill" objectFit="cover" data-ai-hint="social media post"/>
+                            </div>
+                        )}
+                    </CardContent>
+                </div>
+                <CardFooter className="flex justify-end items-center border-t pt-3 pb-3 mt-auto gap-2">
+                     <Button variant="secondary" size="sm" onClick={onPublishNow} disabled={isPublishing}>
+                        {isPublishing ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Send className="h-4 w-4"/>}
+                        <span className="ml-2">Publish Now</span>
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsUpdateOpen(true)}><Edit className="h-3 w-3" /></Button>
+                    <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setIsUpdateOpen(true)}><Edit className="h-4 w-4" /></Button>
                     <DeletePostButton postId={post.id} projectId={projectId} onPostDeleted={onActionComplete} />
                 </CardFooter>
             </Card>
@@ -151,7 +151,7 @@ export default function ScheduledPostsPage() {
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             ) : posts.length > 0 ? (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 grid-rows-[masonry]">
                     {posts.map(post => <ScheduledPostCard key={post.id} post={post} projectId={projectId} onActionComplete={handleActionComplete} />)}
                 </div>
             ) : (
@@ -165,3 +165,4 @@ export default function ScheduledPostsPage() {
         </div>
     );
 }
+

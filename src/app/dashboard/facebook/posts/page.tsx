@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
@@ -8,7 +7,7 @@ import Image from 'next/image';
 import { getFacebookPosts, handleLikeObject } from '@/app/actions/facebook.actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Link as LinkIcon, Newspaper, ExternalLink, Edit, Trash2, Video, Image as ImageIcon, ThumbsUp, MessageCircle, Share2, CornerUpRight } from 'lucide-react';
+import { AlertCircle, Newspaper, ExternalLink, Edit, ThumbsUp, MessageCircle, Share2, Video, CornerUpRight, Image as ImageIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { FacebookPost } from '@/lib/definitions';
 import { formatDistanceToNow } from 'date-fns';
@@ -19,7 +18,6 @@ import { AddThumbnailDialog } from '@/components/wabasimplify/add-thumbnail-dial
 import { CrosspostDialog } from '@/components/wabasimplify/crosspost-dialog';
 import { ViewCommentsDialog } from '@/components/wabasimplify/view-comments-dialog';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 
 function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, projectId: string, onActionComplete: () => void }) {
     const [isUpdateOpen, setIsUpdateOpen] = useState(false);
@@ -84,39 +82,42 @@ function PostCard({ post, projectId, onActionComplete }: { post: FacebookPost, p
                 />
                 </>
             )}
-            <Card className="flex flex-col card-gradient card-gradient-blue">
-                {post.full_picture && (
-                    <div className="relative aspect-video">
-                        <Image src={post.full_picture} alt={post.message?.substring(0, 50) || 'Facebook Post'} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="social media post"/>
-                    </div>
-                )}
-                <CardContent className="p-4 flex-grow">
-                    <p className="text-sm text-muted-foreground line-clamp-4">
-                        {post.message || <span className="italic">This post has no text content.</span>}
-                    </p>
-                </CardContent>
-                <div className="flex justify-between items-center text-xs text-muted-foreground px-4 pb-2">
-                     <div className="flex items-center gap-3">
-                        <Button variant="ghost" size="sm" className="h-auto p-1" onClick={() => setIsCommentsOpen(true)}><MessageCircle className="h-3 w-3 mr-1"/> {commentCount}</Button>
-                        <span className="flex items-center gap-1"><Share2 className="h-3 w-3"/> {shareCount}</span>
-                    </div>
-                    <span>{formatDistanceToNow(new Date(post.created_time), { addSuffix: true })}</span>
+            <Card className="flex flex-col justify-between card-gradient card-gradient-blue h-full">
+                <div>
+                    <CardHeader className="pb-4">
+                        <CardTitle className="text-base font-semibold line-clamp-2">
+                           {post.message || (isVideo ? 'Video Post' : 'Media Post')}
+                        </CardTitle>
+                        <CardDescription>
+                             {formatDistanceToNow(new Date(post.created_time), { addSuffix: true })}
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-3 pb-4">
+                        {post.full_picture && (
+                            <a href={post.permalink_url} target="_blank" rel="noopener noreferrer" className="block relative aspect-video mt-2 overflow-hidden rounded-lg">
+                                <Image src={post.full_picture} alt="Post image" layout="fill" objectFit="cover" data-ai-hint="social media post"/>
+                            </a>
+                        )}
+                    </CardContent>
                 </div>
-                <CardFooter className="flex justify-end items-center gap-1 p-2 pt-0 border-t mt-2">
-                    <Button variant="ghost" size="sm" className="h-7" onClick={onLike} disabled={isLiking}><ThumbsUp className="h-3 w-3 mr-1"/> Like ({reactionCount})</Button>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsUpdateOpen(true)}><Edit className="h-3 w-3" /></Button>
-                    <DeletePostButton postId={post.id} projectId={projectId} onPostDeleted={onActionComplete} />
-                    {isVideo && (
-                        <>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsThumbnailOpen(true)}><ImageIcon className="h-3 w-3"/></Button>
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsCrosspostOpen(true)}><CornerUpRight className="h-3 w-3"/></Button>
-                        </>
-                    )}
-                    <Button asChild variant="outline" size="sm" className="h-7">
-                        <a href={post.permalink_url} target="_blank" rel="noopener noreferrer">
-                            <ExternalLink className="mr-2 h-3 w-3" /> View
-                        </a>
-                    </Button>
+                <CardFooter className="flex justify-between items-center border-t pt-3 pb-3 mt-auto">
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                        <span className="flex items-center gap-1.5 cursor-pointer hover:text-foreground" onClick={() => setIsCommentsOpen(true)}>
+                            <MessageCircle className="h-4 w-4" /> {commentCount}
+                        </span>
+                        <span className="flex items-center gap-1.5 cursor-pointer hover:text-foreground" onClick={onLike}>
+                            <ThumbsUp className="h-4 w-4" /> {reactionCount}
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                            <Share2 className="h-4 w-4" /> {shareCount}
+                        </span>
+                    </div>
+                     <div className="flex items-center">
+                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setIsUpdateOpen(true)}>
+                            <Edit className="h-4 w-4" />
+                        </Button>
+                        <DeletePostButton postId={post.id} projectId={projectId} onPostDeleted={onActionComplete} />
+                    </div>
                 </CardFooter>
             </Card>
         </>
@@ -201,7 +202,7 @@ export default function PagePostsPage() {
                     <AlertDescription>{error}</AlertDescription>
                 </Alert>
             ) : posts.length > 0 ? (
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 grid-rows-[masonry]">
                     {posts.map(post => <PostCard key={post.id} post={post} projectId={projectId} onActionComplete={handleActionComplete} />)}
                 </div>
             ) : (
