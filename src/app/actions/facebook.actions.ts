@@ -1667,6 +1667,71 @@ export async function getFacebookOrders(projectId: string): Promise<{ orders?: F
     }
 }
 
+export async function savePersistentMenu(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const menuItemsJson = formData.get('menuItems') as string;
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { success: false, error: 'Access denied.' };
+    }
+
+    let menuItems = [];
+    try {
+        menuItems = JSON.parse(menuItemsJson);
+    } catch (e) {
+        return { success: false, error: 'Invalid menu items format.' };
+    }
+    
+    try {
+        const { db } = await connectToDatabase();
+        let apiPayload;
+
+        if (menuItems.length === 0) {
+            // Send DELETE request to remove the menu
+            apiPayload = {
+                platform: 'messenger',
+                psid: project.facebookPageId, 
+                fields: ['persistent_menu']
+            };
+             await axios.delete(`https://graph.facebook.com/v23.0/me/messenger_profile`, {
+                params: { ...apiPayload, access_token: project.accessToken }
+            });
+        } else {
+             // Send POST request to create/update the menu
+             apiPayload = {
+                persistent_menu: [
+                    {
+                        locale: 'default',
+                        composer_input_disabled: false,
+                        call_to_actions: menuItems.map((item: any) => {
+                            if (item.type === 'web_url') {
+                                return { type: 'web_url', title: item.title, url: item.url };
+                            }
+                            return { type: 'postback', title: item.title, payload: item.payload };
+                        }),
+                    },
+                ],
+            };
+             await axios.post(`https://graph.facebook.com/v23.0/me/messenger_profile`, {
+                ...apiPayload,
+                access_token: project.accessToken,
+            });
+        }
+
+        await db.collection('projects').updateOne(
+            { _id: project._id },
+            { $set: { 'ecommSettings.persistentMenu': menuItems } }
+        );
+        
+        revalidatePath('/dashboard/custom-ecommerce/settings');
+        return { success: true, error: undefined };
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+
 export * from './facebook-flow.actions';
     
 
