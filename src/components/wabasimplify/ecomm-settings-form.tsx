@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
-import type { WithId, Project, EcommSettings } from '@/lib/definitions';
+import type { WithId, Project, EcommSettings, CustomDomain } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const initialState = { message: null, error: undefined };
@@ -28,9 +28,10 @@ function SubmitButton() {
 interface EcommSettingsFormProps {
     project: WithId<Project>;
     settings: EcommSettings | null;
+    domains: WithId<CustomDomain>[]; // Pass domains as a prop
 }
 
-export function EcommSettingsForm({ project, settings }: EcommSettingsFormProps) {
+export function EcommSettingsForm({ project, settings, domains }: EcommSettingsFormProps) {
     const [state, formAction] = useActionState(saveEcommShopSettings, initialState);
     const { toast } = useToast();
 
@@ -42,6 +43,8 @@ export function EcommSettingsForm({ project, settings }: EcommSettingsFormProps)
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
     }, [state, toast]);
+    
+    const verifiedDomains = domains.filter(d => d.verified);
 
     return (
         <form action={formAction}>
@@ -67,6 +70,21 @@ export function EcommSettingsForm({ project, settings }: EcommSettingsFormProps)
                                 <SelectItem value="GBP">GBP - British Pound</SelectItem>
                             </SelectContent>
                         </Select>
+                    </div>
+                    <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="customDomain">Custom Domain</Label>
+                         <Select name="customDomain" defaultValue={settings?.customDomain || ''}>
+                            <SelectTrigger id="customDomain">
+                                <SelectValue placeholder="Select a verified domain..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="">None (Use default)</SelectItem>
+                                {verifiedDomains.map(d => (
+                                    <SelectItem key={d._id.toString()} value={d.hostname}>{d.hostname}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                         <p className="text-xs text-muted-foreground">Add and verify domains in the section below.</p>
                     </div>
                 </CardContent>
                 <CardFooter>

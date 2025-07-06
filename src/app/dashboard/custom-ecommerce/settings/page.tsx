@@ -3,12 +3,15 @@
 
 import { getProjectById } from '@/app/actions';
 import { getEcommSettings } from '@/app/actions/custom-ecommerce.actions';
+import { getCustomDomains } from '@/app/actions/url-shortener.actions';
 import { EcommSettingsForm } from '@/components/wabasimplify/ecomm-settings-form';
+import { EcommCustomDomainForm } from '@/components/wabasimplify/ecomm-custom-domain-form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, Settings } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import type { WithId, Project, EcommSettings } from '@/lib/definitions';
+import { useEffect, useState, useTransition } from 'react';
+import type { WithId, Project, EcommSettings, CustomDomain } from '@/lib/definitions';
+import { Separator } from '@/components/ui/separator';
 
 function PageSkeleton() {
     return (
@@ -17,6 +20,7 @@ function PageSkeleton() {
             <Skeleton className="h-4 w-96"/>
             <div className="space-y-4">
                 <Skeleton className="h-64 w-full" />
+                <Skeleton className="h-80 w-full" />
             </div>
         </div>
     );
@@ -25,20 +29,24 @@ function PageSkeleton() {
 export default function SettingsPage() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
     const [settings, setSettings] = useState<EcommSettings | null>(null);
-    const [isLoading, setIsLoading] = useState(true);
+    const [domains, setDomains] = useState<WithId<CustomDomain>[]>([]);
+    const [isLoading, startLoadingTransition] = useTransition();
 
     useEffect(() => {
         const fetchSettings = async () => {
-            const storedProjectId = localStorage.getItem('activeProjectId');
-            if (storedProjectId) {
-                const projectData = await getProjectById(storedProjectId);
-                setProject(projectData);
-                if (projectData) {
-                    const settingsData = await getEcommSettings(storedProjectId);
+            startLoadingTransition(async () => {
+                const storedProjectId = localStorage.getItem('activeProjectId');
+                if (storedProjectId) {
+                    const [projectData, settingsData, domainData] = await Promise.all([
+                        getProjectById(storedProjectId),
+                        getEcommSettings(storedProjectId),
+                        getCustomDomains()
+                    ]);
+                    setProject(projectData);
                     setSettings(settingsData);
+                    setDomains(domainData);
                 }
-            }
-            setIsLoading(false);
+            });
         };
         fetchSettings();
     }, []);
@@ -63,7 +71,9 @@ export default function SettingsPage() {
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Settings /> Shop Settings</h1>
                 <p className="text-muted-foreground">Configure your shop name, currency, and custom domain.</p>
             </div>
-            <EcommSettingsForm project={project} settings={settings} />
+            <EcommSettingsForm project={project} settings={settings} domains={domains} />
+            <Separator />
+            <EcommCustomDomainForm project={project} settings={settings} />
         </div>
     )
 }
