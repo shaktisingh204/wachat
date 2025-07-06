@@ -774,6 +774,19 @@ export type KanbanColumnData = {
     contacts: WithId<Contact>[];
 };
 
+export type CommerceMerchantSettings = {
+    id: string;
+    commerce_manager_url: string;
+    display_name: string;
+    shops: {
+        data: {
+            id: string;
+            name: string;
+            shop_url: string;
+        }[];
+    };
+};
+
 export type Catalog = {
     _id: ObjectId;
     projectId: ObjectId;
