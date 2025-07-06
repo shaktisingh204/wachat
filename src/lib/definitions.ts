@@ -914,46 +914,6 @@ export type FacebookOrder = {
     updated: string;
 };
 
-// --- SEO Suite Types ---
-
-export type BrandMention = {
-    source: 'Reddit' | 'Twitter' | 'TechCrunch' | 'Google Alerts';
-    author: string;
-    content: string;
-    url: string;
-    sentiment: 'Positive' | 'Neutral' | 'Negative';
-    date: Date;
-};
-
-export type KeywordData = {
-    keyword: string;
-    position: number;
-    volume: number;
-};
-
-export type TrafficData = {
-    date: string;
-    organic: number;
-    social: number;
-    direct: number;
-};
-
-export type SiteMetrics = {
-    domainAuthority: number;
-    linkingDomains: number;
-    totalBacklinks: number;
-    toxicityScore: number;
-    trafficData: TrafficData[];
-    keywords: KeywordData[];
-};
-
-export type Backlink = {
-    sourceUrl: string;
-    anchorText: string;
-    domainAuthority: number;
-    linkType: 'News' | 'Forum' | 'Blog' | 'Review';
-};
-
 // --- Custom Ecommerce ---
 
 export type EcommProductVariant = {
@@ -1009,15 +969,66 @@ export type EcommOrder = {
     updatedAt: Date;
 };
 
-export type EcommShopSettings = {
-    shopName: string;
-    currency: string;
-    customDomain?: string;
-    paymentLinkRazorpay?: string;
-    paymentLinkPaytm?: string;
-    paymentLinkGPay?: string;
-    primaryColor?: string;
-    logoUrl?: string;
-    welcomeMessage?: string;
-    getStartedFlowId?: ObjectId;
+export type EcommFlowNode = {
+    id: string;
+    type: string;
+    data: any;
+    position: { x: number, y: number };
+};
+
+export type EcommFlowEdge = {
+    id: string;
+    source: string;
+    target: string;
+    sourceHandle?: string;
+};
+
+export type EcommFlow = {
+    name: string;
+    projectId: ObjectId;
+    nodes: EcommFlowNode[];
+    edges: EcommFlowEdge[];
+    triggerKeywords: string[];
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+// --- SEO Suite Types ---
+
+export type BrandMention = {
+    source: 'Reddit' | 'Twitter' | 'TechCrunch' | 'Google Alerts';
+    author: string;
+    content: string;
+    url: string;
+    sentiment: 'Positive' | 'Neutral' | 'Negative';
+    date: Date;
+};
+
+export type KeywordData = {
+    keyword: string;
+    position: number;
+    volume: number;
+};
+
+export type TrafficData = {
+    date: string;
+    organic: number;
+    social: number;
+    direct: number;
+};
+
+export type SiteMetrics = {
+    domainAuthority: number;
+    linkingDomains: number;
+    totalBacklinks: number;
+    toxicityScore: number;
+    trafficData: TrafficData[];
+    keywords: KeywordData[];
+};
+
+export type Backlink = {
+    sourceUrl: string;
+    anchorText: string;
+    domainAuthority: number;
+    linkType: 'News' | 'Forum' | 'Blog' | 'Review';
 };
