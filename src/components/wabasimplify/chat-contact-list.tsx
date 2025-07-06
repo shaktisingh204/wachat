@@ -1,19 +1,20 @@
 
-
 'use client';
 
-import type { WithId } from 'mongodb';
-import type { Contact } from '@/app/actions';
+import type { WithId, Contact, Project } from '@/lib/definitions';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
-import { LoaderCircle, MessageSquarePlus } from 'lucide-react';
+import { LoaderCircle, MessageSquarePlus, Search } from 'lucide-react';
 import React from 'react';
+import { Input } from '../ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 interface ChatContactListProps {
+    project: WithId<Project> | null;
     contacts: WithId<Contact>[];
     selectedContactId?: string;
     onSelectContact: (contact: WithId<Contact>) => void;
@@ -21,9 +22,22 @@ interface ChatContactListProps {
     isLoading: boolean;
     hasMoreContacts: boolean;
     loadMoreRef: React.Ref<HTMLDivElement>;
+    selectedPhoneNumberId: string;
+    onPhoneNumberChange: (phoneId: string) => void;
 }
 
-export function ChatContactList({ contacts, selectedContactId, onSelectContact, onNewChat, isLoading, hasMoreContacts, loadMoreRef }: ChatContactListProps) {
+export function ChatContactList({ 
+    project, 
+    contacts, 
+    selectedContactId, 
+    onSelectContact, 
+    onNewChat, 
+    isLoading, 
+    hasMoreContacts, 
+    loadMoreRef, 
+    selectedPhoneNumberId,
+    onPhoneNumberChange
+}: ChatContactListProps) {
 
     const ContactSkeleton = () => (
         <div className="flex items-center gap-3 p-3">
@@ -35,22 +49,32 @@ export function ChatContactList({ contacts, selectedContactId, onSelectContact, 
         </div>
     );
     
-    const getStatusVariant = (status: string | undefined): 'default' | 'secondary' | 'outline' => {
-        if (!status) return 'outline';
-        const lowerStatus = status.toLowerCase();
-        if (lowerStatus === 'open') return 'default';
-        if (lowerStatus === 'resolved') return 'secondary';
-        return 'outline'; // for 'new' and any custom statuses
-    }
-
     return (
         <div className="h-full flex flex-col overflow-hidden">
-            <div className="p-4 border-b flex items-center justify-between flex-shrink-0">
-                <h2 className="text-lg font-semibold tracking-tight">Contacts</h2>
-                <Button variant="ghost" size="icon" onClick={onNewChat} className="h-8 w-8">
-                    <MessageSquarePlus className="h-5 w-5" />
-                    <span className="sr-only">New Chat</span>
-                </Button>
+            <div className="p-3 border-b flex-shrink-0 space-y-3">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold tracking-tight">Chats</h2>
+                    <Button variant="ghost" size="icon" onClick={onNewChat} className="h-8 w-8">
+                        <MessageSquarePlus className="h-5 w-5" />
+                        <span className="sr-only">New Chat</span>
+                    </Button>
+                </div>
+                 <div className="relative">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Search contacts..." className="pl-8" />
+                </div>
+                 <Select value={selectedPhoneNumberId} onValueChange={onPhoneNumberChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
+                    <SelectTrigger id="phoneNumberId">
+                        <SelectValue placeholder="Select a phone number..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {(project?.phoneNumbers || []).map((phone) => (
+                            <SelectItem key={phone.id} value={phone.id}>
+                                {phone.display_phone_number} ({phone.verified_name})
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
             </div>
             <ScrollArea className="flex-1">
                 {isLoading ? (
@@ -74,22 +98,19 @@ export function ChatContactList({ contacts, selectedContactId, onSelectContact, 
                                 <div className="flex-1 overflow-hidden">
                                     <div className="flex items-center justify-between">
                                         <p className="font-semibold truncate">{contact.name}</p>
-                                        {contact.status && (
-                                            <Badge variant={getStatusVariant(contact.status)} className="capitalize text-xs h-5">{contact.status.replace(/_/g, ' ')}</Badge>
+                                        {contact.lastMessageTimestamp && (
+                                            <p className="text-xs text-muted-foreground whitespace-nowrap">
+                                                {new Date(contact.lastMessageTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </p>
                                         )}
                                     </div>
-                                    <p className="text-sm text-muted-foreground truncate">{contact.lastMessage}</p>
-                                </div>
-                                {contact.lastMessageTimestamp && (
-                                    <div className="flex flex-col items-end gap-1 self-start">
-                                        <p className="text-xs text-muted-foreground whitespace-nowrap">
-                                            {new Date(contact.lastMessageTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </p>
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-sm text-muted-foreground truncate">{contact.lastMessage || 'No messages yet.'}</p>
                                         {contact.unreadCount && contact.unreadCount > 0 && (
                                             <Badge variant="default" className="h-5 w-5 flex items-center justify-center p-0">{contact.unreadCount}</Badge>
                                         )}
                                     </div>
-                                )}
+                                </div>
                             </button>
                         ))}
                         {hasMoreContacts && (

@@ -1,24 +1,28 @@
 
-
 'use client';
 
 import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { getInitialChatData, getProjects, getConversation, markConversationAsRead, findOrCreateContact, getContactsForProject } from '@/app/actions';
 import type { WithId } from 'mongodb';
-import type { Project, Contact, AnyMessage, Template } from '@/app/actions';
-
+import type { Project, Contact, AnyMessage, Template } from '@/lib/definitions';
 import { ChatContactList } from './chat-contact-list';
 import { ChatWindow } from './chat-window';
+import { ContactInfoPanel } from './contact-info-panel';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, MessageSquare } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { NewChatDialog } from './new-chat-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { Card } from '../ui/card';
 
 const CONTACTS_PER_PAGE = 30;
+
+function ChatPageSkeleton() {
+    return <Skeleton className="h-full w-full rounded-xl" />;
+}
+
 
 export function ChatClient() {
     const searchParams = useSearchParams();
@@ -38,6 +42,7 @@ export function ChatClient() {
     
     const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState<string>('');
     const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
+    const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
     const [isClient, setIsClient] = useState(false);
     const { toast } = useToast();
 
@@ -209,19 +214,7 @@ export function ChatClient() {
     };
 
     if (!isClient || (isLoading && !project)) {
-        return <div className="flex-1 min-h-0"><Skeleton className="h-full w-full" /></div>;
-    }
-
-    if (!project) {
-        return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>
-                    Please select a project from the main dashboard page to use the live chat.
-                </AlertDescription>
-            </Alert>
-        );
+        return <ChatPageSkeleton />;
     }
 
     return (
@@ -231,28 +224,9 @@ export function ChatClient() {
                 onOpenChange={setIsNewChatDialogOpen}
                 onStartChat={handleNewChat}
             />
-            <div className="flex flex-col flex-1 min-h-0 border rounded-lg bg-card h-full">
-                <div className="p-4 border-b flex-shrink-0">
-                    <div className="max-w-sm">
-                        <Select value={selectedPhoneNumberId} onValueChange={handlePhoneNumberChange}>
-                            <SelectTrigger id="phoneNumberId">
-                                <SelectValue placeholder="Select a phone number..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {(project.phoneNumbers || []).map((phone) => (
-                                    <SelectItem key={phone.id} value={phone.id}>
-                                        {phone.display_phone_number} ({phone.verified_name})
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
+            <Card className="h-full w-full flex flex-col overflow-hidden">
                 <div className="flex flex-1 overflow-hidden">
-                     <div className={cn(
-                        "w-full flex-col border-r md:w-1/3 lg:w-1/4",
-                        selectedContact ? 'hidden md:flex' : 'flex'
-                     )}>
+                    <div className="w-[320px] border-r flex flex-col flex-shrink-0">
                         <ChatContactList
                             contacts={contacts}
                             selectedContactId={selectedContact?._id.toString()}
@@ -261,14 +235,14 @@ export function ChatClient() {
                             isLoading={isLoading && contacts.length === 0}
                             hasMoreContacts={hasMoreContacts}
                             loadMoreRef={loadMoreContactsRef}
+                            selectedPhoneNumberId={selectedPhoneNumberId}
+                            onPhoneNumberChange={handlePhoneNumberChange}
+                            project={project}
                         />
                     </div>
 
-                    <div className={cn(
-                        "w-full flex-col flex-1",
-                        selectedContact ? 'flex' : 'hidden md:flex'
-                    )}>
-                        {selectedContact && project ? (
+                    <div className="flex-1 flex flex-col">
+                         {selectedContact && project ? (
                             <ChatWindow
                                 key={selectedContact._id.toString()}
                                 project={project}
@@ -278,17 +252,28 @@ export function ChatClient() {
                                 isLoading={loadingConversation}
                                 onBack={() => setSelectedContact(null)}
                                 onContactUpdate={handleContactUpdate}
+                                onInfoToggle={() => setIsInfoPanelOpen(prev => !prev)}
+                                isInfoPanelOpen={isInfoPanelOpen}
                             />
                         ) : (
-                            <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center">
+                            <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-muted/30">
                                 <MessageSquare className="h-16 w-16" />
                                 <h2 className="text-xl font-semibold">Select a conversation</h2>
                                 <p>Choose a contact from the list or start a new chat.</p>
                             </div>
                         )}
                     </div>
+                     {isInfoPanelOpen && selectedContact && project && (
+                        <div className="w-[340px] border-l hidden lg:block flex-shrink-0">
+                            <ContactInfoPanel 
+                                project={project}
+                                contact={selectedContact}
+                                onContactUpdate={handleContactUpdate}
+                            />
+                        </div>
+                    )}
                 </div>
-            </div>
+            </Card>
         </>
     );
 }

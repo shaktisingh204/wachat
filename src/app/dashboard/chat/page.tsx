@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 };
 
 function ChatPageSkeleton() {
-    return <div className="h-full w-full"><Skeleton className="h-full w-full" /></div>;
+    return <Skeleton className="h-full w-full rounded-xl" />;
 }
 
 // This is a server component that uses Suspense to handle client-side parameter reading
 export default function ChatPage() {
     return (
-        <div className="h-full">
+        <div className="h-full p-0 m-0">
             <Suspense fallback={<ChatPageSkeleton />}>
                 <ChatClient />
             </Suspense>

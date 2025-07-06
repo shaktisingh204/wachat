@@ -12,6 +12,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PermissionErrorDialog } from './permission-error-dialog';
+import { Card } from '@/components/ui/card';
+// Note: The Info Panel from WhatsApp chat can be reused or adapted if needed.
+// For now, we'll keep the layout similar without the third panel for Facebook.
 
 export function FacebookChatClient() {
     const router = useRouter();
@@ -111,7 +114,7 @@ export function FacebookChatClient() {
     }
     
     if (isLoading) {
-        return <Skeleton className="h-full w-full"/>
+        return <Skeleton className="h-full w-full rounded-xl"/>
     }
 
     return (
@@ -123,35 +126,37 @@ export function FacebookChatClient() {
                 project={project}
                 onSuccess={onSuccessfulReconnect}
             />
-            <div className="flex flex-1 overflow-hidden h-full">
-                <div className={cn("w-full flex-col border-r md:w-1/3 lg:w-1/4", selectedConversation ? "hidden md:flex" : "flex")}>
-                    <FacebookConversationList
-                        conversations={conversations}
-                        selectedConversationId={selectedConversation?.id}
-                        onSelectConversation={handleSelectConversation}
-                        isLoading={isLoading}
-                    />
-                </div>
-                <div className={cn("w-full flex-col flex-1", selectedConversation ? "flex" : "hidden md:flex")}>
-                    {selectedConversation && project ? (
-                        <FacebookChatWindow
-                            key={selectedConversation.id}
-                            project={project}
-                            conversation={selectedConversation}
-                            messages={messages}
-                            isLoading={loadingConversation}
-                            onBack={() => setSelectedConversation(null)}
-                            onMessageSent={onMessageSent}
+            <Card className="h-full w-full flex flex-col overflow-hidden">
+                <div className="flex flex-1 overflow-hidden">
+                    <div className={cn("w-full flex-col border-r md:w-[320px] flex-shrink-0", selectedConversation ? "hidden md:flex" : "flex")}>
+                        <FacebookConversationList
+                            conversations={conversations}
+                            selectedConversationId={selectedConversation?.id}
+                            onSelectConversation={handleSelectConversation}
+                            isLoading={isLoading}
                         />
-                    ) : (
-                        <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center">
-                            <MessageSquare className="h-16 w-16" />
-                            <h2 className="text-xl font-semibold">Select a conversation</h2>
-                            <p>Choose a conversation from the list to start messaging.</p>
-                        </div>
-                    )}
+                    </div>
+                    <div className={cn("w-full flex-col flex-1", selectedConversation ? "flex" : "hidden md:flex")}>
+                        {selectedConversation && project ? (
+                            <FacebookChatWindow
+                                key={selectedConversation.id}
+                                project={project}
+                                conversation={selectedConversation}
+                                messages={messages}
+                                isLoading={loadingConversation}
+                                onBack={() => setSelectedConversation(null)}
+                                onMessageSent={onMessageSent}
+                            />
+                        ) : (
+                            <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-muted/30">
+                                <MessageSquare className="h-16 w-16" />
+                                <h2 className="text-xl font-semibold">Select a conversation</h2>
+                                <p>Choose a conversation from the list to start messaging.</p>
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
+            </Card>
         </>
     );
 }
