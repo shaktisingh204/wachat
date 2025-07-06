@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { getProjectById } from '@/app/actions';
-import { getPageDetails, getPageInsights, getFacebookPosts } from '@/app/actions/facebook.actions';
+import { getPageDetails, getPageInsights, getFacebookPosts, getInstagramAccountForPage } from '@/app/actions/facebook.actions';
 import type { FacebookPageDetails, PageInsights, FacebookPost, FacebookComment, Project, WithId } from '@/lib/definitions';
 import { AlertCircle, Users, ThumbsUp, Newspaper, Megaphone, Settings, MessageSquare, Wrench, Edit, TrendingUp, Handshake, Star, Calendar, Search, SlidersHorizontal, Plus, MoreHorizontal, Share2 } from 'lucide-react';
 import { RadialBarChart, RadialBar, PolarAngleAxis } from "recharts"
@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { PermissionErrorDialog } from '@/components/wabasimplify/permission-error-dialog';
+import { WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string | number, icon: React.ElementType, description?: string }) => (
     <Card className="card-gradient card-gradient-blue">
@@ -139,6 +140,7 @@ export default function FacebookDashboardPage() {
     const [pageDetails, setPageDetails] = useState<FacebookPageDetails | null>(null);
     const [insights, setInsights] = useState<PageInsights | null>(null);
     const [posts, setPosts] = useState<FacebookPost[]>([]);
+    const [instagramId, setInstagramId] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [permissionError, setPermissionError] = useState<string | null>(null);
     const [isLoading, startLoading] = useTransition();
@@ -154,11 +156,14 @@ export default function FacebookDashboardPage() {
                     setError("Project not found or you don't have access.");
                     return;
                 }
-                const [detailsResult, insightsResult, postsResult] = await Promise.all([
-                    getPageDetails(projectId), getPageInsights(projectId), getFacebookPosts(projectId)
+                const [detailsResult, insightsResult, postsResult, igResult] = await Promise.all([
+                    getPageDetails(projectId), 
+                    getPageInsights(projectId), 
+                    getFacebookPosts(projectId),
+                    getInstagramAccountForPage(projectId)
                 ]);
 
-                const firstError = detailsResult.error || insightsResult.error || postsResult.error;
+                const firstError = detailsResult.error || insightsResult.error || postsResult.error || igResult.error;
                 if (firstError) {
                     if (firstError.includes('permission') || firstError.includes('(#100)') || firstError.includes('(#200)')) {
                         setPermissionError(firstError); setError(null);
@@ -168,6 +173,7 @@ export default function FacebookDashboardPage() {
                 if (detailsResult.page) setPageDetails(detailsResult.page);
                 if (insightsResult.insights) setInsights(insightsResult.insights);
                 if (postsResult.posts) setPosts(postsResult.posts);
+                if (igResult.instagramId) setInstagramId(igResult.instagramId);
             });
         }
     }, [projectId]);
@@ -181,7 +187,7 @@ export default function FacebookDashboardPage() {
     
     const onSuccessfulReconnect = () => { setPermissionError(null); setActionCounter(p => p + 1); }
 
-    const engagementRate = (insights && insights.pageReach > 0) ? Math.round((insights.postEngagement / insights.postReach) * 100) : 0;
+    const engagementRate = (insights && insights.pageReach > 0) ? Math.round((insights.postEngagement / insights.pageReach) * 100) : 0;
     const { topPosts, recentComments } = useMemo(() => {
         if (!posts || posts.length === 0) return { topPosts: [], recentComments: [] };
         const calculatedTopPosts = posts.map(post => ({ ...post, engagementScore: (post.reactions?.summary.total_count || 0) + (post.comments?.summary.total_count || 0) })).sort((a, b) => b.engagementScore - a.engagementScore).slice(0, 3);
@@ -214,7 +220,11 @@ export default function FacebookDashboardPage() {
             <PermissionErrorDialog isOpen={!!permissionError} onOpenChange={() => setPermissionError(null)} error={permissionError} project={project} onSuccess={onSuccessfulReconnect} />
             <div className="flex flex-col gap-8">
                 <div className="flex flex-wrap items-center justify-between gap-4">
-                    <h2 className="text-2xl font-bold font-headline">{pageDetails.name} Dashboard</h2>
+                    <h2 className="text-2xl font-bold font-headline flex items-center gap-3">
+                        <span>{pageDetails.name} Dashboard</span>
+                        {project?.wabaId && <WhatsAppIcon className="h-6 w-6 text-green-500" />}
+                        {instagramId && <InstagramIcon className="h-6 w-6 text-instagram" />}
+                    </h2>
                     <div className="flex items-center gap-2">
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Search..." className="pl-8"/></div>
                         <Button variant="outline"><SlidersHorizontal className="mr-2 h-4 w-4"/>Filters</Button>
