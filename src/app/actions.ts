@@ -130,7 +130,7 @@ export async function handleSuggestContent(topic: string): Promise<{ suggestions
   }
 }
 
-export async function getProjects(query?: string): Promise<WithId<Project>[]> {
+export async function getProjects(query?: string, moduleType: 'whatsapp' | 'facebook' | 'all' = 'all'): Promise<WithId<Project>[]> {
     const session = await getSession();
     if (!session?.user) {
         return [];
@@ -147,7 +147,14 @@ export async function getProjects(query?: string): Promise<WithId<Project>[]> {
         };
         
         if (query) {
-            filter.name = { $regex: query, $options: 'i' }; // case-insensitive regex search
+            filter.name = { $regex: query, $options: 'i' };
+        }
+
+        if (moduleType === 'whatsapp') {
+            filter.wabaId = { $exists: true, $ne: null };
+        } else if (moduleType === 'facebook') {
+            filter.facebookPageId = { $exists: true, $ne: null };
+            filter.wabaId = { $exists: false }; // a project with both is a whatsapp project
         }
         
         const projects = await db.collection('projects').aggregate([
@@ -208,7 +215,6 @@ export async function getProjectCount(): Promise<number> {
 }
 
 export async function getAllProjectsForAdmin(
-    query?: string,
     page: number = 1,
     limit: number = 10
 ): Promise<{ projects: WithId<Project>[], total: number }> {
@@ -218,9 +224,6 @@ export async function getAllProjectsForAdmin(
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<Project> = {};
-        if (query) {
-            filter.name = { $regex: query, $options: 'i' };
-        }
         const skip = (page - 1) * limit;
 
         const [projects, total] = await Promise.all([
@@ -3836,4 +3839,3 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
         return { success: false, error: 'Failed to update tags.' };
     }
 }
-
