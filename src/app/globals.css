@@ -15,10 +15,10 @@ body {
     --card-foreground: 210 10% 23%;
     --popover: 0 0% 100%;
     --popover-foreground: 210 10% 23%;
-    --primary: 35 95% 55%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 210 10% 23%;
+    --primary: 134 61% 41%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 134 61% 36%;
+    --secondary-foreground: 0 0% 100%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
     --accent: 210 40% 96.1%;
@@ -27,7 +27,7 @@ body {
     --destructive-foreground: 0 0% 100%;
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 35 95% 55%;
+    --ring: 134 61% 41%;
     --chart-1: 134 61% 41%;
     --chart-2: 140 50% 50%;
     --chart-3: 150 40% 60%;
@@ -54,10 +54,10 @@ body {
     --card-foreground: 210 40% 98%;
     --popover: 210 10% 23%;
     --popover-foreground: 210 40% 98%;
-    --primary: 35 95% 55%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 10% 28%;
-    --secondary-foreground: 210 40% 98%;
+    --primary: 134 61% 41%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 134 61% 36%;
+    --secondary-foreground: 0 0% 100%;
     --muted: 210 10% 28%;
     --muted-foreground: 215 20.2% 65.1%;
     --accent: 210 10% 28%;
@@ -66,7 +66,7 @@ body {
     --destructive-foreground: 210 40% 98%;
     --border: 210 10% 28%;
     --input: 210 10% 28%;
-    --ring: 35 95% 55%;
+    --ring: 134 61% 41%;
 
     /* Neutral Sidebar for Dark Mode */
     --sidebar-background: 220 10% 12%;
@@ -170,6 +170,24 @@ body {
     --sidebar-background: 220 10% 12%;
     --sidebar-border: 220 10% 20%;
   }
+
+  /* Custom Ecommerce Theme */
+  [data-theme="custom-ecommerce"] {
+    --sidebar-primary: 45 95% 55%; /* A gold color */
+    --sidebar-primary-foreground: 210 10% 23%;
+    --sidebar-accent: 45 95% 95%;
+    --sidebar-accent-foreground: 45 95% 25%;
+    --sidebar-background: 220 13% 98%;
+    --sidebar-border: 220 13% 91%;
+  }
+  .dark [data-theme="custom-ecommerce"] {
+    --sidebar-primary: 45 95% 55%;
+    --sidebar-primary-foreground: 210 10% 23%;
+    --sidebar-accent: 45 50% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-background: 220 10% 12%;
+    --sidebar-border: 220 10% 20%;
+  }
 }
 
 @layer base {
@@ -220,15 +238,6 @@ body {
 }
 
 @layer utilities {
-    .bg-auth-texture {
-        background-color: hsl(var(--background));
-        background-image: radial-gradient(hsl(var(--foreground) / 0.03) 1px, transparent 1px);
-        background-size: 16px 16px;
-    }
-    .bg-chat-texture {
-        background-image: url('https://www.toptal.com/designers/subtlepatterns/uploads/double-bubble-outline.png');
-        background-color: hsl(var(--muted));
-    }
     .bg-instagram {
         background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));
     }

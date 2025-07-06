@@ -936,3 +936,51 @@ export type Backlink = {
     domainAuthority: number;
     linkType: 'News' | 'Forum' | 'Blog' | 'Review';
 };
+
+// --- Custom Ecommerce ---
+
+export type EcommProduct = {
+    _id: ObjectId;
+    shopId: ObjectId;
+    name: string;
+    description?: string;
+    price: number;
+    currency: string;
+    imageUrl?: string;
+    stock: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export type EcommOrderItem = {
+    productId: ObjectId;
+    name: string;
+    quantity: number;
+    price: number;
+}
+
+export type EcommOrder = {
+    _id: ObjectId;
+    shopId: ObjectId;
+    contactId: ObjectId; // The customer from the main contacts collection
+    items: EcommOrderItem[];
+    total: number;
+    status: 'pending' | 'paid' | 'shipped' | 'cancelled';
+    shippingAddress?: any;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export type EcommShopSettings = {
+    _id: ObjectId;
+    projectId: ObjectId; // Link to the main project
+    shopName: string;
+    currency: string;
+    customDomain?: string;
+    // Appearance settings
+    primaryColor?: string;
+    logoUrl?: string;
+    // Messenger settings
+    welcomeMessage?: string;
+    getStartedFlowId?: ObjectId; // Link to a flow builder flow
+}
