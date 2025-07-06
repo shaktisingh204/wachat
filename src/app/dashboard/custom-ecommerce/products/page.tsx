@@ -8,9 +8,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, PlusCircle, ShoppingBag } from 'lucide-react';
 import { getEcommProducts, getEcommSettings } from '@/app/actions/custom-ecommerce.actions';
 import { getProjectById } from '@/app/actions';
-import type { WithId, Project, EcommProduct, EcommSettings } from '@/lib/definitions';
+import { getCatalogs } from '@/app/actions/catalog.actions';
+import type { WithId, Project, EcommProduct, EcommSettings, Catalog } from '@/lib/definitions';
 import { EcommProductDialog } from '@/components/wabasimplify/ecomm-product-dialog';
 import { EcommProductCard } from '@/components/wabasimplify/ecomm-product-card';
+import { SyncCustomProductsDialog } from '@/components/wabasimplify/sync-custom-products-dialog';
 
 function PageSkeleton() {
     return (
@@ -100,10 +102,13 @@ export default function ProductsPage() {
                         <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag /> Products</h1>
                         <p className="text-muted-foreground">Manage products for your custom shop.</p>
                     </div>
-                    <Button onClick={() => handleOpenDialog(null)}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Add Product
-                    </Button>
+                    <div className="flex items-center gap-2">
+                        {project.businessId && <SyncCustomProductsDialog projectId={project._id.toString()} />}
+                        <Button onClick={() => handleOpenDialog(null)}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Add Product
+                        </Button>
+                    </div>
                 </div>
 
                 {products.length > 0 ? (
