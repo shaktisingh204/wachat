@@ -13,8 +13,6 @@ import { AlertCircle, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PermissionErrorDialog } from './permission-error-dialog';
 import { Card } from '@/components/ui/card';
-// Note: The Info Panel from WhatsApp chat can be reused or adapted if needed.
-// For now, we'll keep the layout similar without the third panel for Facebook.
 
 export function FacebookChatClient() {
     const router = useRouter();
@@ -126,9 +124,9 @@ export function FacebookChatClient() {
                 project={project}
                 onSuccess={onSuccessfulReconnect}
             />
-            <Card className="h-full w-full flex flex-col overflow-hidden">
+            <Card className="h-full w-full flex flex-col overflow-hidden bg-muted/30 dark:bg-background">
                 <div className="flex flex-1 overflow-hidden">
-                    <div className={cn("w-full flex-col border-r md:w-[320px] flex-shrink-0", selectedConversation ? "hidden md:flex" : "flex")}>
+                    <div className={cn("w-full flex-col border-r bg-background md:w-[320px] flex-shrink-0", selectedConversation ? "hidden md:flex" : "flex")}>
                         <FacebookConversationList
                             conversations={conversations}
                             selectedConversationId={selectedConversation?.id}
@@ -148,7 +146,7 @@ export function FacebookChatClient() {
                                 onMessageSent={onMessageSent}
                             />
                         ) : (
-                            <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-muted/30">
+                            <div className="hidden md:flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-chat-texture">
                                 <MessageSquare className="h-16 w-16" />
                                 <h2 className="text-xl font-semibold">Select a conversation</h2>
                                 <p>Choose a conversation from the list to start messaging.</p>

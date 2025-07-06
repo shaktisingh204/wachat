@@ -224,9 +224,9 @@ export function ChatClient() {
                 onOpenChange={setIsNewChatDialogOpen}
                 onStartChat={handleNewChat}
             />
-            <Card className="h-full w-full flex flex-col overflow-hidden">
+            <Card className="h-full w-full flex flex-col overflow-hidden bg-muted/30 dark:bg-background">
                 <div className="flex flex-1 overflow-hidden">
-                    <div className="w-[320px] border-r flex flex-col flex-shrink-0">
+                    <div className="w-[320px] border-r flex flex-col flex-shrink-0 bg-background">
                         <ChatContactList
                             contacts={contacts}
                             selectedContactId={selectedContact?._id.toString()}
@@ -256,7 +256,7 @@ export function ChatClient() {
                                 isInfoPanelOpen={isInfoPanelOpen}
                             />
                         ) : (
-                            <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-muted/30">
+                            <div className="flex flex-col items-center justify-center h-full text-muted-foreground gap-4 p-8 text-center bg-chat-texture">
                                 <MessageSquare className="h-16 w-16" />
                                 <h2 className="text-xl font-semibold">Select a conversation</h2>
                                 <p>Choose a contact from the list or start a new chat.</p>
@@ -264,7 +264,7 @@ export function ChatClient() {
                         )}
                     </div>
                      {isInfoPanelOpen && selectedContact && project && (
-                        <div className="w-[340px] border-l hidden lg:block flex-shrink-0">
+                        <div className="w-[340px] border-l hidden lg:block flex-shrink-0 bg-background">
                             <ContactInfoPanel 
                                 project={project}
                                 contact={selectedContact}

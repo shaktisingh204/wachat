@@ -9,7 +9,7 @@ body {
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
+    --background: 210 17% 98%;
     --foreground: 210 10% 23%;
     --card: 0 0% 100%;
     --card-foreground: 210 10% 23%;
@@ -222,8 +222,12 @@ body {
 @layer utilities {
     .bg-auth-texture {
         background-color: hsl(var(--background));
-        background-image: radial-gradient(hsl(var(--foreground) / 0.05) 1px, transparent 1px);
+        background-image: radial-gradient(hsl(var(--foreground) / 0.03) 1px, transparent 1px);
         background-size: 16px 16px;
+    }
+    .bg-chat-texture {
+        background-image: url('https://www.toptal.com/designers/subtlepatterns/uploads/double-bubble-outline.png');
+        background-color: hsl(var(--muted));
     }
     .bg-instagram {
         background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));

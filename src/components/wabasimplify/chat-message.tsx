@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React, { useState } from 'react';
@@ -23,9 +22,9 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
     const getIcon = () => {
         switch (status) {
             case 'failed':
-                return <XCircle className="h-4 w-4 text-red-400" />;
+                return <XCircle className="h-4 w-4 text-red-500" />;
             case 'read':
-                return <CheckCheck className="h-4 w-4 text-blue-400" />;
+                return <CheckCheck className="h-4 w-4 text-blue-500" />;
             case 'delivered':
                 return <CheckCheck className="h-4 w-4" />;
             case 'sent':
@@ -44,7 +43,7 @@ function StatusTicks({ message }: { message: OutgoingMessage }) {
         <TooltipProvider>
             <Tooltip>
                 <TooltipTrigger asChild>
-                    <span>{getIcon()}</span>
+                    <span className="text-muted-foreground">{getIcon()}</span>
                 </TooltipTrigger>
                 <TooltipContent side="top" align="end">
                     <div className="text-xs space-y-1 p-1">
@@ -113,7 +112,7 @@ function MediaContent({ message }: { message: AnyMessage }) {
     }
     
     return <div className="text-sm text-muted-foreground italic">[{type} message]</div>;
-}
+};
 
 const MessageBody = ({ message, isOutgoing }: { message: AnyMessage; isOutgoing: boolean }) => {
     // Outgoing message from bot with buttons
@@ -122,9 +121,9 @@ const MessageBody = ({ message, isOutgoing }: { message: AnyMessage; isOutgoing:
         return (
             <div>
                 <p className="whitespace-pre-wrap">{interactive.body.text}</p>
-                <div className="mt-2 pt-2 border-t border-primary-foreground/20 space-y-1">
+                <div className="mt-2 pt-2 border-t border-black/10 space-y-1">
                     {interactive.action.buttons.map((btn: any, index: number) => (
-                        <div key={index} className="text-center bg-primary-foreground/10 rounded-md py-1.5 text-sm font-medium">
+                        <div key={index} className="text-center bg-white/50 rounded-md py-1.5 text-sm font-medium text-blue-500">
                             {btn.reply.title}
                         </div>
                     ))}
@@ -177,51 +176,32 @@ export const ChatMessage = React.memo(function ChatMessage({ message }: ChatMess
     
     return (
         <div className={cn("flex items-end gap-2 group/message", isOutgoing ? "justify-end" : "justify-start")}>
-            
-            {!isOutgoing && (
-                <div className="self-center opacity-0 group-hover/message:opacity-100 transition-opacity">
-                    {(message.type === 'text' || message.type === 'interactive') && (
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onTranslate} disabled={isTranslating}>
-                                        {isTranslating ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Languages className="h-4 w-4" />}
-                                        <span className="sr-only">Translate</span>
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>Translate to English</TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    )}
-                </div>
-            )}
-
             <div
                 className={cn(
-                    "max-w-md rounded-lg p-3 text-sm flex flex-col",
+                    "max-w-md rounded-lg p-2 text-sm flex flex-col shadow-sm",
                     isOutgoing
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
+                        ? "bg-[#dcf8c6] dark:bg-[#005c4b] text-foreground"
+                        : "bg-white dark:bg-muted"
                 )}
             >
                 <MessageBody message={message} isOutgoing={isOutgoing} />
 
                 {translatedText && (
                     <>
-                        <Separator className={cn("my-2", isOutgoing ? "bg-primary-foreground/20" : "bg-muted-foreground/20")} />
-                        <p className={cn("whitespace-pre-wrap italic", isOutgoing ? "text-primary-foreground/90" : "text-muted-foreground")}>{translatedText}</p>
+                        <Separator className="my-2 bg-black/10 dark:bg-white/10" />
+                        <p className="whitespace-pre-wrap italic text-muted-foreground">{translatedText}</p>
                     </>
                 )}
 
 
                 {isOutgoing && message.status === 'failed' && (
-                    <p className="text-xs mt-1 pt-1 border-t border-primary-foreground/20 text-red-300">
+                    <p className="text-xs mt-1 pt-1 border-t border-black/10 text-red-600 dark:text-red-400">
                         Failed: {message.error}
                     </p>
                 )}
 
-                <div className={cn("flex items-center gap-2 self-end mt-1 pt-1", isOutgoing ? 'opacity-80' : 'opacity-60')}>
-                    <p className="text-xs">
+                <div className="flex items-center gap-1.5 self-end mt-1">
+                    <p className="text-xs text-muted-foreground/80">
                         {new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
                     {isOutgoing && <StatusTicks message={message as OutgoingMessage} />}

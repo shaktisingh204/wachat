@@ -12,6 +12,7 @@ import { LoaderCircle, MessageSquarePlus, Search } from 'lucide-react';
 import React from 'react';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { format } from 'date-fns';
 
 interface ChatContactListProps {
     project: WithId<Project> | null;
@@ -50,7 +51,7 @@ export function ChatContactList({
     );
     
     return (
-        <div className="h-full flex flex-col overflow-hidden">
+        <div className="h-full flex flex-col overflow-hidden bg-card">
             <div className="p-3 border-b flex-shrink-0 space-y-3">
                 <div className="flex items-center justify-between">
                     <h2 className="text-lg font-semibold tracking-tight">Chats</h2>
@@ -88,8 +89,8 @@ export function ChatContactList({
                                 key={contact._id.toString()}
                                 onClick={() => onSelectContact(contact)}
                                 className={cn(
-                                    "flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-muted",
-                                    selectedContactId === contact._id.toString() && "bg-muted"
+                                    "flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-accent",
+                                    selectedContactId === contact._id.toString() && "bg-accent"
                                 )}
                             >
                                 <Avatar>
@@ -100,14 +101,14 @@ export function ChatContactList({
                                         <p className="font-semibold truncate">{contact.name}</p>
                                         {contact.lastMessageTimestamp && (
                                             <p className="text-xs text-muted-foreground whitespace-nowrap">
-                                                {new Date(contact.lastMessageTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                {format(new Date(contact.lastMessageTimestamp), 'p')}
                                             </p>
                                         )}
                                     </div>
                                     <div className="flex items-center justify-between">
                                         <p className="text-sm text-muted-foreground truncate">{contact.lastMessage || 'No messages yet.'}</p>
                                         {contact.unreadCount && contact.unreadCount > 0 && (
-                                            <Badge variant="default" className="h-5 w-5 flex items-center justify-center p-0">{contact.unreadCount}</Badge>
+                                            <Badge className="h-5 w-5 flex items-center justify-center p-0 rounded-full bg-primary text-primary-foreground">{contact.unreadCount}</Badge>
                                         )}
                                     </div>
                                 </div>
