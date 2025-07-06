@@ -8,7 +8,6 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Phone, Calendar, BarChart2 } from 'lucide-react';
-import { SubscribeProjectButton } from './subscribe-project-button';
 import { cn } from '@/lib/utils';
 import type { WithId, Project } from '@/lib/definitions';
 import { DeleteProjectButton } from './delete-project-button';
