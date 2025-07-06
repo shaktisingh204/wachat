@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Db, Filter, ObjectId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
-import { processSingleWebhook, processStatusUpdateBatch, processIncomingMessageBatch, processCommentWebhook, processMessengerWebhook } from '@/lib/webhook-processor';
+import { processSingleWebhook, processStatusUpdateBatch, processIncomingMessageBatch, processCommentWebhook, processMessengerWebhook, processOrderWebhook, processCatalogWebhook } from '@/lib/webhook-processor';
 import { revalidatePath } from 'next/cache';
 
 const getSearchableText = (payload: any): string => {
@@ -139,15 +139,19 @@ export async function POST(request: NextRequest) {
         if (projectId && entry) {
             const project = await db.collection<Project>('projects').findOne({ _id: projectId });
             if (project) {
-                // Handle comments
                 if (entry.changes) {
                     for (const change of entry.changes) {
                         if (change.field === 'feed' && change.value?.item === 'comment' && change.value?.verb === 'add') {
                             await processCommentWebhook(db, project, change.value);
                         }
+                        if (change.field === 'commerce_orders') {
+                            await processOrderWebhook(db, project, change.value);
+                        }
+                        if (change.field === 'catalog_product_events') {
+                             await processCatalogWebhook(db, project, change.value);
+                        }
                     }
                 }
-                // Handle messages
                 if (entry.messaging) {
                     for (const messagingEvent of entry.messaging) {
                         await processMessengerWebhook(db, project, messagingEvent);

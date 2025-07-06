@@ -34,11 +34,18 @@ export default function WebhooksPage() {
                 <CardContent className="space-y-4 text-sm text-foreground/90">
                     <ol className="list-decimal list-inside space-y-2">
                         <li>Go to your Meta App's dashboard and select the **Webhooks** product.</li>
-                        <li>Click **Edit subscription** for the "WhatsApp Business Account" object.</li>
-                        <li>In the popup, paste the **Callback URL** and the **Verify token** from above into the corresponding fields.</li>
-                        <li>Click **Verify and save**.</li>
-                        <li>**This is the most important step:** After verifying, go to the Webhook Fields section for `whatsapp_business_account` and click **Edit**.</li>
-                        <li>Subscribe to the events you want to receive. For full functionality, it is recommended to subscribe to all events, especially `messages`, `message_template_status_update`, and `phone_number_quality_update`.</li>
+                        <li>Find the object you want to subscribe to (e.g., "WhatsApp Business Account" or "Page").</li>
+                        <li>Click **Edit subscription** or **Subscribe to object**.</li>
+                        <li>In the popup, paste the **Callback URL** and the **Verify token** from above into the corresponding fields, then click **Verify and save**.</li>
+                        <li>**This is the most important step:** After verifying, find the event fields for that object and click **Edit** or **Subscribe**.</li>
+                        <li>
+                            For full functionality, it's recommended to subscribe to all relevant events.
+                             <ul className="list-disc list-inside ml-6 mt-2">
+                                <li><strong>For WhatsApp:</strong> `messages`, `message_template_status_update`, `phone_number_quality_update`.</li>
+                                <li><strong>For Facebook Pages:</strong> `feed` (for comments), `messages` (for Messenger).</li>
+                                <li><strong>For E-Commerce:</strong> `commerce_orders`, `catalog_product_events`.</li>
+                            </ul>
+                        </li>
                     </ol>
                     <Alert>
                         <Lightbulb className="h-4 w-4" />

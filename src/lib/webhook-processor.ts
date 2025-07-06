@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -1257,4 +1258,43 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
     revalidatePath('/dashboard/facebook/messages');
     revalidatePath('/dashboard/facebook/kanban');
     revalidatePath('/dashboard/facebook/subscribers');
+}
+
+export async function processOrderWebhook(db: Db, project: WithId<Project>, orderData: any) {
+    // This is a placeholder for full order processing logic.
+    // For now, we'll create a notification.
+    const orderId = orderData.order_id;
+    const message = `A new order event was received for Order ID: ${orderId}. Event: ${orderData.update_time}`;
+    
+    await db.collection('notifications').insertOne({
+        projectId: project._id,
+        wabaId: project.wabaId || project.facebookPageId!,
+        message,
+        link: '/dashboard/facebook/commerce/orders',
+        isRead: false,
+        createdAt: new Date(),
+        eventType: 'commerce_orders',
+    });
+    
+    revalidatePath('/dashboard/facebook/commerce/orders');
+    revalidatePath('/dashboard/notifications');
+}
+
+
+export async function processCatalogWebhook(db: Db, project: WithId<Project>, catalogData: any) {
+    // Placeholder for catalog update logic
+    const message = `A catalog event was received: ${catalogData.event}. Product: ${catalogData.product_id}`;
+    
+    await db.collection('notifications').insertOne({
+        projectId: project._id,
+        wabaId: project.wabaId || project.facebookPageId!,
+        message,
+        link: `/dashboard/facebook/commerce/products/${catalogData.catalog_id}`,
+        isRead: false,
+        createdAt: new Date(),
+        eventType: 'catalog_product_events',
+    });
+
+    revalidatePath(`/dashboard/facebook/commerce/products/${catalogData.catalog_id}`);
+    revalidatePath('/dashboard/notifications');
 }
