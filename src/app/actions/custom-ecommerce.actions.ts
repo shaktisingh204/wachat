@@ -91,9 +91,22 @@ export async function deleteEcommProduct(productId: string): Promise<{ success: 
 }
 
 
-export async function getEcommOrders(shopId: string) {
-    // TODO: Implement
-    return [];
+export async function getEcommOrders(projectId: string): Promise<WithId<EcommOrder>[]> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const orders = await db.collection('ecomm_orders')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .limit(50) // Add a limit for performance
+            .toArray();
+        return JSON.parse(JSON.stringify(orders));
+    } catch (e) {
+        console.error("Failed to get e-commerce orders:", e);
+        return [];
+    }
 }
 
 export async function getEcommSettings(projectId: string): Promise<EcommSettings | null> {

@@ -972,22 +972,37 @@ export type EcommProduct = {
 
 export type EcommOrderItem = {
     productId: ObjectId;
-    name: string;
+    productName: string;
+    variantInfo?: string; // e.g., "Color: Red, Size: L"
     quantity: number;
-    price: number;
-}
+    price: number; // Price at time of order
+};
 
 export type EcommOrder = {
     _id: ObjectId;
-    shopId: ObjectId;
+    projectId: ObjectId;
     contactId: ObjectId; // The customer from the main contacts collection
     items: EcommOrderItem[];
+    subtotal: number;
+    shipping: number;
     total: number;
-    status: 'pending' | 'paid' | 'shipped' | 'cancelled';
-    shippingAddress?: any;
+    status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
+    customerInfo?: {
+        name: string;
+        waId: string;
+    };
+    shippingAddress?: {
+        street: string;
+        city: string;
+        state: string;
+        zip: string;
+        country: string;
+    };
+    trackingNumber?: string;
+    paymentStatus: 'pending' | 'successful' | 'failed';
     createdAt: Date;
     updatedAt: Date;
-}
+};
 
 export type EcommShopSettings = {
     shopName: string;
