@@ -93,6 +93,14 @@ const facebookMenuGroups = [
     ]
   },
   {
+    title: 'AI & Automation',
+    items: [
+        { href: '/dashboard/facebook/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'whatsappAds' },
+        { href: '/dashboard/facebook/agents', label: 'AI Agents', icon: Bot, featureKey: 'chatbot' },
+        { href: '/dashboard/facebook/knowledge', label: 'Knowledge Base', icon: BookCopy, featureKey: 'chatbot' },
+    ]
+  },
+  {
     title: 'E-Commerce',
     items: [
         { href: '/dashboard/facebook/commerce/products', label: 'Products', icon: ShoppingBag, featureKey: 'ecommerce' },
@@ -106,7 +114,6 @@ const facebookMenuGroups = [
    {
     title: 'Growth Tools',
     items: [
-        { href: '/dashboard/facebook/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'whatsappAds' },
         { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
         { href: '/dashboard/facebook/broadcasts', label: 'Broadcasts', icon: Send, featureKey: 'whatsappAds' },
         { href: '/dashboard/facebook/subscribers', label: 'Subscribers', icon: Users, featureKey: 'whatsappAds' },
@@ -153,11 +160,6 @@ const customEcommerceMenuItems = [
   { href: '/dashboard/custom-ecommerce/settings', label: 'Settings', icon: Settings, featureKey: 'ecommerce' },
 ];
 
-const chatbotMenuItems = [
-  { href: '/dashboard/chatbot/agents', label: 'AI Agents', icon: Bot, featureKey: 'chatbot' },
-  { href: '/dashboard/chatbot/knowledge', label: 'Knowledge Base', icon: BookCopy, featureKey: 'chatbot' },
-];
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string, credits?: number, plan?: WithId<Plan> } | null>(null);
@@ -188,8 +190,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setActiveApp('seo-suite');
     } else if (pathname.startsWith('/dashboard/custom-ecommerce')) {
         setActiveApp('custom-ecommerce');
-    } else if (pathname.startsWith('/dashboard/chatbot')) {
-        setActiveApp('chatbot');
     } else {
         setActiveApp('whatsapp');
     }
@@ -235,7 +235,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const menuGroups = 
       activeApp === 'facebook' ? facebookMenuGroups 
-      : activeApp === 'chatbot' ? [{ title: null, items: chatbotMenuItems }]
       : [{ title: null, items: activeApp === 'instagram' ? instagramMenuItems 
       : activeApp === 'url-shortener' ? urlShortenerMenuItems 
       : activeApp === 'qr-code-maker' ? qrCodeMakerMenuItems 
@@ -250,7 +249,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const appIcons = [
     { id: 'whatsapp', href: '/dashboard/overview', icon: WhatsAppIcon, label: 'Wachat Suite', className: 'bg-[#25D366] text-white', hoverClassName: 'bg-card text-[#25D366] hover:bg-accent' },
     { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: FacebookAppIcon, label: 'Meta Suite', className: 'bg-blue-600 text-white', hoverClassName: 'bg-card text-blue-600 hover:bg-accent' },
-    { id: 'chatbot', href: '/dashboard/chatbot/agents', icon: Bot, label: 'Chatbot Builder', className: 'bg-cyan-500 text-white', hoverClassName: 'bg-card text-cyan-500 hover:bg-accent' },
     { id: 'custom-ecommerce', href: '/dashboard/custom-ecommerce', icon: CustomEcommerceIcon, label: 'Custom Ecommerce', className: 'bg-amber-500 text-white', hoverClassName: 'bg-card text-amber-500 hover:bg-accent' },
     { id: 'url-shortener', href: '/dashboard/url-shortener', icon: LinkIcon, label: 'URL Shortener', className: 'bg-purple-600 text-white', hoverClassName: 'bg-card text-purple-600 hover:bg-accent' },
     { id: 'qr-code-maker', href: '/dashboard/qr-code-maker', icon: QrCode, label: 'QR Code Maker', className: 'bg-orange-500 text-white', hoverClassName: 'bg-card text-orange-500 hover:bg-accent' },
