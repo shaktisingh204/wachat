@@ -9,31 +9,26 @@ body {
 
 @layer base {
   :root {
-    --background: 210 17% 98%;
-    --foreground: 210 10% 23%;
+    --background: 40 67% 96%;
+    --foreground: 224 71.4% 4.1%;
     --card: 0 0% 100%;
-    --card-foreground: 210 10% 23%;
+    --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
-    --popover-foreground: 210 10% 23%;
-    --primary: 134 61% 41%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 134 61% 36%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 210 10% 23%;
+    --popover-foreground: 224 71.4% 4.1%;
+    --primary: 27 95% 73%;
+    --primary-foreground: 224 71.4% 4.1%;
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 134 61% 41%;
-    --chart-1: 134 61% 41%;
-    --chart-2: 140 50% 50%;
-    --chart-3: 150 40% 60%;
-    --chart-4: 285.2 83.2% 53.3%;
-    --chart-5: 350.2 83.2% 53.3%;
-    --radius: 0.5rem;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 27 95% 73%;
+    --radius: 0.75rem;
     --instagram: 327 92% 55%;
     
     /* Neutral Sidebar as default */
@@ -48,25 +43,25 @@ body {
   }
 
   .dark {
-    --background: 210 10% 15%;
+    --background: 224 71.4% 4.1%;
     --foreground: 210 40% 98%;
-    --card: 210 10% 23%;
+    --card: 224 71.4% 6.1%;
     --card-foreground: 210 40% 98%;
-    --popover: 210 10% 23%;
+    --popover: 224 71.4% 4.1%;
     --popover-foreground: 210 40% 98%;
-    --primary: 134 61% 41%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 134 61% 36%;
-    --secondary-foreground: 0 0% 100%;
-    --muted: 210 10% 28%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 210 10% 28%;
+    --primary: 27 95% 73%;
+    --primary-foreground: 224 71.4% 4.1%;
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+    --accent: 215 27.9% 16.9%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 210 10% 28%;
-    --input: 210 10% 28%;
-    --ring: 134 61% 41%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
+    --ring: 27 95% 73%;
 
     /* Neutral Sidebar for Dark Mode */
     --sidebar-background: 220 10% 12%;
@@ -166,24 +161,6 @@ body {
     --sidebar-primary: 25 95% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 25 50% 22%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-background: 220 10% 12%;
-    --sidebar-border: 220 10% 20%;
-  }
-
-  /* SEO Suite Theme */
-  [data-theme="seo-suite"] {
-    --sidebar-primary: 0 84% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 84% 95%;
-    --sidebar-accent-foreground: 0 84% 25%;
-    --sidebar-background: 220 13% 98%;
-    --sidebar-border: 220 13% 91%;
-  }
-  .dark [data-theme="seo-suite"] {
-    --sidebar-primary: 0 84% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 50% 22%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-background: 220 10% 12%;
     --sidebar-border: 220 10% 20%;
