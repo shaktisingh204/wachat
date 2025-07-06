@@ -145,3 +145,87 @@ export async function getProductsForCatalog(catalogMetaId: string, projectId: st
         return [];
     }
 }
+
+
+// --- Product Actions ---
+
+export async function addProductToCatalog(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const catalogId = formData.get('catalogId') as string;
+
+    const productData: any = {
+        name: formData.get('name') as string,
+        description: formData.get('description') as string,
+        price: Number(formData.get('price')) * 100, // in cents
+        currency: formData.get('currency') as string,
+        retailer_id: formData.get('retailer_id') as string,
+        image_url: formData.get('image_url') as string,
+        availability: 'in_stock', // Default
+        inventory: 100, // Default inventory
+    };
+
+    if (!projectId || !catalogId || !productData.name || !productData.price || !productData.currency || !productData.retailer_id || !productData.image_url) {
+        return { error: 'All fields except description are required.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Project not found or access token missing.' };
+    
+    try {
+        await axios.post(`https://graph.facebook.com/${API_VERSION}/${catalogId}/products`, {
+            ...productData,
+            access_token: project.accessToken
+        });
+
+        revalidatePath(`/dashboard/facebook/commerce/products/${catalogId}`);
+        return { message: 'Product added successfully!' };
+
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function updateProductInCatalog(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const productId = formData.get('productId') as string;
+    
+    const fieldsToUpdate: any = {};
+    if (formData.get('name')) fieldsToUpdate.name = formData.get('name');
+    if (formData.get('description')) fieldsToUpdate.description = formData.get('description');
+    if (formData.get('price')) fieldsToUpdate.price = Number(formData.get('price')) * 100;
+    if (formData.get('image_url')) fieldsToUpdate.image_url = formData.get('image_url');
+
+    if (Object.keys(fieldsToUpdate).length === 0) {
+        return { error: 'No fields to update.' };
+    }
+    
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { error: 'Project not found or access token missing.' };
+
+    try {
+        await axios.post(`https://graph.facebook.com/${API_VERSION}/${productId}`, {
+            ...fieldsToUpdate,
+            access_token: project.accessToken
+        });
+
+        // Can't revalidate dynamic path from here. Client needs to refetch.
+        return { message: 'Product updated successfully!' };
+    } catch(e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteProductFromCatalog(productId: string, projectId: string): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) return { success: false, error: 'Project not found or access token missing.' };
+
+    try {
+        await axios.delete(`https://graph.facebook.com/${API_VERSION}/${productId}`, {
+            params: { access_token: project.accessToken }
+        });
+        
+        return { success: true };
+    } catch(e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
