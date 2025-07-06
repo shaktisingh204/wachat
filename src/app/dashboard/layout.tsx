@@ -108,6 +108,7 @@ const facebookMenuGroups = [
     items: [
         { href: '/dashboard/facebook/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'whatsappAds' },
         { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
+        { href: '/dashboard/facebook/broadcasts', label: 'Broadcasts', icon: Send, featureKey: 'whatsappAds' },
         { href: '/dashboard/facebook/subscribers', label: 'Subscribers', icon: Users, featureKey: 'whatsappAds' },
         { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'whatsappAds' },
     ]
