@@ -72,7 +72,10 @@ import type {
 
 
 export async function getSession(): Promise<{ user: Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null, tags?: Tag[] } } | null> {
-    const sessionToken = cookies().get('session')?.value;
+    const cookieStore = cookies();
+    const sessionCookie = cookieStore.get('session');
+    const sessionToken = sessionCookie?.value;
+
     if (!sessionToken) {
         return null;
     }
@@ -102,7 +105,9 @@ export async function getSession(): Promise<{ user: Omit<User, 'password' | 'pla
 
 export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
     const cookieStore = cookies();
-    const sessionToken = cookieStore.get('admin_session')?.value;
+    const adminSessionCookie = cookieStore.get('admin_session');
+    const sessionToken = adminSessionCookie?.value;
+
     if (!sessionToken) {
         return { isAdmin: false };
     }
