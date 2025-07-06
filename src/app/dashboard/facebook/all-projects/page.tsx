@@ -14,8 +14,6 @@ import { Button } from '@/components/ui/button';
 import { ManualFacebookSetupDialog } from '@/components/wabasimplify/manual-facebook-setup-dialog';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { getInstagramAccountForPage } from '@/app/actions/facebook.actions';
-import { WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 function PageSkeleton() {
     return (
@@ -33,17 +31,6 @@ function PageSkeleton() {
 
 function ConnectedPageCard({ project }: { project: WithId<Project> }) {
     const router = useRouter();
-    const [instagramId, setInstagramId] = useState<string | null>(null);
-    const [checkingIg, setCheckingIg] = useState(true);
-
-    useEffect(() => {
-        getInstagramAccountForPage(project._id.toString()).then(result => {
-            if (result.instagramId) {
-                setInstagramId(result.instagramId);
-            }
-            setCheckingIg(false);
-        });
-    }, [project]);
 
     const handleClick = () => {
         localStorage.setItem('activeProjectId', project._id.toString());
@@ -65,21 +52,11 @@ function ConnectedPageCard({ project }: { project: WithId<Project> }) {
             <CardContent className="flex-grow">
                 <Badge variant="secondary"><CheckCircle className="mr-1 h-3 w-3" /> Connected</Badge>
             </CardContent>
-            <CardFooter className="flex justify-between items-center">
-                 <div className="flex items-center gap-2">
-                    {checkingIg ? (
-                        <Skeleton className="h-5 w-5 rounded-full" />
-                    ) : instagramId ? (
-                        <InstagramIcon className="h-5 w-5 text-instagram" />
-                    ) : null}
-                    {project.wabaId && <WhatsAppIcon className="h-5 w-5 text-green-500" />}
-                </div>
-                <div className="flex gap-2">
-                    <Button asChild variant="outline" size="sm">
-                        <a href={`https://facebook.com/${project.facebookPageId}`} target="_blank" rel="noopener noreferrer">View on Facebook</a>
-                    </Button>
-                    <Button onClick={handleClick} size="sm">Manage</Button>
-                </div>
+            <CardFooter className="flex justify-end gap-2">
+                <Button asChild variant="outline" size="sm">
+                    <a href={`https://facebook.com/${project.facebookPageId}`} target="_blank" rel="noopener noreferrer">View on Facebook</a>
+                </Button>
+                <Button onClick={handleClick} size="sm">Manage</Button>
             </CardFooter>
         </Card>
     );
@@ -101,7 +78,6 @@ export default function AllFacebookPagesPage() {
     }, []);
 
     const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
-    const configId = process.env.NEXT_PUBLIC_FACEBOOK_CONFIG_ID;
 
     if (isLoading) {
         return <PageSkeleton />;
@@ -128,12 +104,8 @@ export default function AllFacebookPagesPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row gap-4 items-center justify-center">
-                    {appId && configId ? (
-                        <FacebookEmbeddedSignup
-                            appId={appId}
-                            configId={configId}
-                            onSuccess={fetchData}
-                        />
+                    {appId ? (
+                        <FacebookEmbeddedSignup appId={appId} />
                     ) : (
                          <p className="text-sm text-destructive">Admin has not configured Facebook integration.</p>
                     )}
