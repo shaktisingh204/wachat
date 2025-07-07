@@ -21,7 +21,7 @@ async function handleSubscribeFacebookPageWebhook(pageId: string, pageAccessToke
         return { success: false, error: "Server APP_ID not configured." };
     }
     try {
-        const subscribedFields = 'messages,messaging_postbacks,feed,commerce_orders,catalog_product_events';
+        const subscribedFields = 'messages,messaging_postbacks,feed';
         const response = await axios.post(`https://graph.facebook.com/v23.0/${pageId}/subscribed_apps`, {
             subscribed_fields: subscribedFields,
             access_token: pageAccessToken
@@ -1717,4 +1717,6 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
         return { success: false, error: getErrorMessage(e) };
     }
 }
+    
+export * from './facebook-flow.actions';
     
