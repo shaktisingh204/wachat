@@ -4,7 +4,7 @@
 import React from 'react';
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -19,7 +19,6 @@ import { SocialShareBlockRenderer } from '@/components/wabasimplify/website-buil
 import { RepeaterBlockRenderer } from '@/components/wabasimplify/website-builder/repeater-block-renderer';
 import { SectionBlockRenderer } from './section-block-renderer';
 import { ColumnsBlockRenderer } from './columns-block-renderer';
-import { FeaturedProductsBlockRenderer } from './featured-products-block-renderer';
 import { HeroBlock } from './hero-block-renderer';
 import { FaqBlockRenderer } from './faq-block-renderer';
 import { TestimonialsBlockRenderer } from './testimonials-block-renderer';
@@ -345,10 +344,11 @@ interface BlockRendererProps {
   selectedBlockId?: string | null;
   onBlockClick?: (id: string) => void;
   onRemoveBlock?: (id: string) => void;
+  isEditable?: boolean;
 }
 
 export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
-    const { block, products, shopSlug, selectedBlockId, onBlockClick, onRemoveBlock } = props;
+    const { block, products, shopSlug, isEditable } = props;
     const safeSettings = block.settings || {};
 
     switch (block.type) {
@@ -372,8 +372,8 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
         case 'countdown': return <CountdownBlockRenderer settings={safeSettings} />;
         case 'socialShare': return <SocialShareBlockRenderer settings={safeSettings} />;
         case 'repeater': return <RepeaterBlockRenderer settings={safeSettings} />;
-        case 'section': return <SectionBlockRenderer settings={safeSettings} blockId={block.id} products={products} selectedBlockId={selectedBlockId} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} children={block.children || []} shopSlug={shopSlug} />;
-        case 'columns': return <ColumnsBlockRenderer settings={safeSettings} blockId={block.id} products={products} selectedBlockId={selectedBlockId} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} children={block.children || []} shopSlug={shopSlug} />;
+        case 'section': return <SectionBlockRenderer {...props} children={block.children || []} isEditable={isEditable} />;
+        case 'columns': return <ColumnsBlockRenderer {...props} children={block.children || []} isEditable={isEditable} />;
         default: return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
     }
 };
