@@ -23,9 +23,10 @@ import type { WithId } from 'mongodb';
 
 interface SyncCustomProductsDialogProps {
   projectId: string;
+  shopId: string;
 }
 
-export function SyncCustomProductsDialog({ projectId }: SyncCustomProductsDialogProps) {
+export function SyncCustomProductsDialog({ projectId, shopId }: SyncCustomProductsDialogProps) {
   const [open, setOpen] = useState(false);
   const [catalogs, setCatalogs] = useState<WithId<Catalog>[]>([]);
   const [selectedCatalogId, setSelectedCatalogId] = useState<string>('');
@@ -58,7 +59,7 @@ export function SyncCustomProductsDialog({ projectId }: SyncCustomProductsDialog
         return;
     }
     startSyncingTransition(async () => {
-        const result = await syncProductsToMetaCatalog(projectId, selectedCatalogId);
+        const result = await syncProductsToMetaCatalog(projectId, shopId, selectedCatalogId);
         if (result.error) {
             toast({ title: 'Sync Error', description: result.error, variant: 'destructive' });
         } else {

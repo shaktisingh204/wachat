@@ -1,23 +1,126 @@
 
-
 'use server';
 
 import { getProjectById } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { EcommProduct, EcommOrder, EcommSettings, AbandonedCartSettings, EcommAppearanceSettings } from '@/lib/definitions';
+import type { EcommProduct, EcommOrder, EcommShop } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getErrorMessage } from '@/lib/utils';
 import axios from 'axios';
 
-export async function getEcommProducts(projectId: string): Promise<WithId<EcommProduct>[]> {
+// --- Shop Actions ---
+
+export async function getEcommShops(projectId: string): Promise<WithId<EcommShop>[]> {
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const shops = await db.collection<EcommShop>('ecomm_shops')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(shops));
+    } catch (e) {
+        console.error("Failed to get e-commerce shops:", e);
+        return [];
+    }
+}
+
+export async function getEcommShopById(shopId: string): Promise<WithId<EcommShop> | null> {
+    if (!ObjectId.isValid(shopId)) return null;
+
+    const { db } = await connectToDatabase();
+    const shop = await db.collection<EcommShop>('ecomm_shops').findOne({ _id: new ObjectId(shopId) });
+
+    if (!shop) return null;
+    const hasAccess = await getProjectById(shop.projectId.toString());
+    if (!hasAccess) return null;
+
+    return JSON.parse(JSON.stringify(shop));
+}
+
+
+export async function createEcommShop(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, shopId?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const name = formData.get('name') as string;
+    const currency = formData.get('currency') as string;
+
+    if (!projectId || !name || !currency) return { error: 'Project, Shop Name, and Currency are required.' };
+
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied or project not found.' };
+
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+
+    try {
+        const { db } = await connectToDatabase();
+        const newShop: Omit<EcommShop, '_id'> = {
+            projectId: new ObjectId(projectId),
+            name,
+            slug,
+            currency,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+
+        const result = await db.collection('ecomm_shops').insertOne(newShop as any);
+        
+        revalidatePath('/dashboard/facebook/custom-ecommerce');
+        return { message: `Shop "${name}" created successfully.`, shopId: result.insertedId.toString() };
+
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function updateEcommShopSettings(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const shopId = formData.get('shopId') as string;
+    if (!shopId) return { error: 'Shop ID is missing.' };
+
+    const shop = await getEcommShopById(shopId);
+    if (!shop) return { error: 'Access denied or shop not found.' };
+    
+    try {
+        const updatedSettings: Partial<EcommShop> = {
+            updatedAt: new Date(),
+        };
+
+        if (formData.has('shopName')) updatedSettings.name = formData.get('shopName') as string;
+        if (formData.has('currency')) updatedSettings.currency = formData.get('currency') as string;
+        if (formData.has('customDomain')) {
+            const domainValue = formData.get('customDomain') as string;
+            updatedSettings.customDomain = (domainValue === 'none' || !domainValue) ? undefined : domainValue;
+        }
+        if (formData.has('paymentLinkRazorpay')) updatedSettings.paymentLinkRazorpay = (formData.get('paymentLinkRazorpay') as string) || undefined;
+        if (formData.has('paymentLinkPaytm')) updatedSettings.paymentLinkPaytm = (formData.get('paymentLinkPaytm') as string) || undefined;
+        if (formData.has('paymentLinkGPay')) updatedSettings.paymentLinkGPay = (formData.get('paymentLinkGPay') as string) || undefined;
+        
+        const { db } = await connectToDatabase();
+        await db.collection('ecomm_shops').updateOne(
+            { _id: new ObjectId(shopId) },
+            { $set: updatedSettings }
+        );
+
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/settings`);
+        return { message: 'Shop settings saved successfully!' };
+    } catch (e: any) {
+        return { error: 'Failed to save shop settings.' };
+    }
+}
+
+
+// --- Product Actions ---
+
+export async function getEcommProducts(shopId: string): Promise<WithId<EcommProduct>[]> {
+    const shop = await getEcommShopById(shopId);
+    if (!shop) return [];
     
     try {
         const { db } = await connectToDatabase();
         const products = await db.collection('ecomm_products')
-            .find({ projectId: new ObjectId(projectId) })
+            .find({ shopId: new ObjectId(shopId) })
             .sort({ createdAt: -1 })
             .toArray();
         return JSON.parse(JSON.stringify(products));
@@ -28,19 +131,20 @@ export async function getEcommProducts(projectId: string): Promise<WithId<EcommP
 }
 
 export async function saveEcommProduct(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
-    const projectId = formData.get('projectId') as string;
+    const shopId = formData.get('shopId') as string;
     const productId = formData.get('productId') as string | null;
 
-    if (!projectId) return { error: 'Project ID is missing.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied or project not found.' };
+    if (!shopId) return { error: 'Shop ID is missing.' };
+    const shop = await getEcommShopById(shopId);
+    if (!shop) return { error: 'Access denied or shop not found.' };
 
     try {
         const variantsString = formData.get('variants') as string;
         const variants = variantsString ? JSON.parse(variantsString) : [];
 
         const productData: Partial<EcommProduct> = {
-            projectId: new ObjectId(projectId),
+            projectId: new ObjectId(shop.projectId),
+            shopId: new ObjectId(shopId),
             name: formData.get('name') as string,
             description: formData.get('description') as string,
             price: parseFloat(formData.get('price') as string),
@@ -58,7 +162,7 @@ export async function saveEcommProduct(prevState: any, formData: FormData): Prom
 
         if (productId && ObjectId.isValid(productId)) {
             await db.collection('ecomm_products').updateOne(
-                { _id: new ObjectId(productId), projectId: new ObjectId(projectId) },
+                { _id: new ObjectId(productId), shopId: new ObjectId(shopId) },
                 { $set: productData }
             );
         } else {
@@ -66,8 +170,7 @@ export async function saveEcommProduct(prevState: any, formData: FormData): Prom
             await db.collection('ecomm_products').insertOne(productData as EcommProduct);
         }
         
-        revalidatePath('/dashboard/custom-ecommerce/products');
-        revalidatePath('/dashboard/facebook/custom-ecommerce/products');
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/products`);
         return { message: `Product "${productData.name}" saved successfully!` };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -81,13 +184,12 @@ export async function deleteEcommProduct(productId: string): Promise<{ success: 
     const product = await db.collection('ecomm_products').findOne({ _id: new ObjectId(productId) });
     if (!product) return { success: false, error: 'Product not found.' };
 
-    const hasAccess = await getProjectById(product.projectId.toString());
-    if (!hasAccess) return { success: false, error: 'Access denied.' };
+    const shop = await getEcommShopById(product.shopId.toString());
+    if(!shop) return { success: false, error: 'Access denied.' };
 
     try {
         await db.collection('ecomm_products').deleteOne({ _id: new ObjectId(productId) });
-        revalidatePath('/dashboard/custom-ecommerce/products');
-        revalidatePath('/dashboard/facebook/custom-ecommerce/products');
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${product.shopId.toString()}/products`);
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
@@ -95,16 +197,16 @@ export async function deleteEcommProduct(productId: string): Promise<{ success: 
 }
 
 
-export async function getEcommOrders(projectId: string): Promise<WithId<EcommOrder>[]> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
+export async function getEcommOrders(shopId: string): Promise<WithId<EcommOrder>[]> {
+    const shop = await getEcommShopById(shopId);
+    if (!shop) return [];
 
     try {
         const { db } = await connectToDatabase();
         const orders = await db.collection('ecomm_orders')
-            .find({ projectId: new ObjectId(projectId) })
+            .find({ shopId: new ObjectId(shopId) })
             .sort({ createdAt: -1 })
-            .limit(50) // Add a limit for performance
+            .limit(50)
             .toArray();
         return JSON.parse(JSON.stringify(orders));
     } catch (e) {
@@ -113,106 +215,21 @@ export async function getEcommOrders(projectId: string): Promise<WithId<EcommOrd
     }
 }
 
-export async function getEcommSettings(projectId: string): Promise<EcommSettings | null> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.ecommSettings) {
-        return null;
-    }
-    return project.ecommSettings;
-}
-
-export async function saveEcommShopSettings(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    if (!projectId) return { error: 'Project ID is missing.' };
-
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied or project not found.' };
-
-    try {
-        const existingSettings = project.ecommSettings || {};
-        const updatedSettings: Partial<EcommSettings> = {};
-
-        if (formData.has('shopName')) updatedSettings.shopName = formData.get('shopName') as string;
-        if (formData.has('currency')) updatedSettings.currency = formData.get('currency') as string;
-        if (formData.has('customDomain')) {
-            const domainValue = formData.get('customDomain') as string;
-            updatedSettings.customDomain = (domainValue === 'none' || !domainValue) ? undefined : domainValue;
-        }
-        if (formData.has('paymentLinkRazorpay')) updatedSettings.paymentLinkRazorpay = (formData.get('paymentLinkRazorpay') as string) || undefined;
-        if (formData.has('paymentLinkPaytm')) updatedSettings.paymentLinkPaytm = (formData.get('paymentLinkPaytm') as string) || undefined;
-        if (formData.has('paymentLinkGPay')) updatedSettings.paymentLinkGPay = (formData.get('paymentLinkGPay') as string) || undefined;
-        
-        const abandonedCartSettings: Partial<AbandonedCartSettings> = {};
-        if (formData.has('abandonedCart.enabled')) abandonedCartSettings.enabled = formData.get('abandonedCart.enabled') === 'on';
-        if (formData.has('abandonedCart.delayMinutes')) abandonedCartSettings.delayMinutes = parseInt(formData.get('abandonedCart.delayMinutes') as string, 10) || 60;
-        if (formData.has('abandonedCart.flowId')) abandonedCartSettings.flowId = formData.get('abandonedCart.flowId') as string;
-
-        if (Object.keys(abandonedCartSettings).length > 0) {
-            updatedSettings.abandonedCart = { ...existingSettings.abandonedCart, ...abandonedCartSettings };
-        }
-        
-        if (formData.has('persistentMenu')) {
-            const menuItemsJson = formData.get('persistentMenu') as string;
-            updatedSettings.persistentMenu = menuItemsJson ? JSON.parse(menuItemsJson) : [];
-        }
-        
-        const appearanceSettings: EcommAppearanceSettings = { ...existingSettings.appearance };
-        let hasAppearanceUpdate = false;
-        if (formData.has('appearance_primaryColor')) {
-            appearanceSettings.primaryColor = formData.get('appearance_primaryColor') as string;
-            hasAppearanceUpdate = true;
-        }
-        if (formData.has('appearance_fontFamily')) {
-            appearanceSettings.fontFamily = formData.get('appearance_fontFamily') as string;
-            hasAppearanceUpdate = true;
-        }
-        if (formData.has('appearance_bannerImageUrl')) {
-            appearanceSettings.bannerImageUrl = formData.get('appearance_bannerImageUrl') as string;
-            hasAppearanceUpdate = true;
-        }
-
-        if(hasAppearanceUpdate) {
-            updatedSettings.appearance = appearanceSettings;
-        }
-
-
-        const finalSettings = { ...existingSettings, ...updatedSettings };
-
-        if (!finalSettings.shopName || !finalSettings.currency) {
-            return { error: 'Shop Name and Currency are required.' };
-        }
-
-        const { db } = await connectToDatabase();
-        
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
-            { $set: { ecommSettings: finalSettings } }
-        );
-
-        revalidatePath('/dashboard/custom-ecommerce/settings');
-        revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
-        revalidatePath('/dashboard/facebook/custom-ecommerce/products');
-        revalidatePath('/dashboard/custom-ecommerce/appearance');
-        revalidatePath('/dashboard/facebook/custom-ecommerce/appearance');
-        return { message: 'Shop settings saved successfully!' };
-    } catch (e: any) {
-        return { error: 'Failed to save shop settings.' };
-    }
-}
-
-export async function syncProductsToMetaCatalog(projectId: string, metaCatalogId: string): Promise<{ message?: string; error?: string }> {
+export async function syncProductsToMetaCatalog(projectId: string, shopId: string, metaCatalogId: string): Promise<{ message?: string; error?: string }> {
     const project = await getProjectById(projectId);
     if (!project || !project.accessToken) return { error: 'Project not found or access token missing.' };
 
-    const { accessToken, ecommSettings } = project;
-    if (!ecommSettings?.currency) {
-        return { error: 'E-commerce currency is not set in project settings.' };
+    const shop = await getEcommShopById(shopId);
+    if (!shop || !shop.currency) {
+        return { error: 'E-commerce currency is not set in shop settings.' };
     }
+    const { accessToken } = project;
+    const currency = shop.currency;
 
     try {
         const { db } = await connectToDatabase();
         const products = await db.collection<EcommProduct>('ecomm_products')
-            .find({ projectId: new ObjectId(projectId) })
+            .find({ shopId: new ObjectId(shopId) })
             .toArray();
         
         if (products.length === 0) {
@@ -225,7 +242,7 @@ export async function syncProductsToMetaCatalog(projectId: string, metaCatalogId
                 name: product.name,
                 description: product.description || '',
                 price: String(product.price * 100), // Price in cents
-                currency: ecommSettings.currency,
+                currency: currency,
                 image_url: product.imageUrl || 'https://placehold.co/600x600.png',
                 availability: (product.stock ?? 1) > 0 ? 'in_stock' : 'out_of_stock',
                 inventory: String(product.stock ?? 100),
@@ -239,7 +256,6 @@ export async function syncProductsToMetaCatalog(projectId: string, metaCatalogId
             };
         });
         
-        // The API supports up to 50 operations per batch call.
         const BATCH_SIZE = 50;
         let successfulSyncs = 0;
         let errors: string[] = [];
@@ -255,7 +271,6 @@ export async function syncProductsToMetaCatalog(projectId: string, metaCatalogId
                 throw new Error(getErrorMessage({ response }));
             }
 
-            // Process batch response
             response.data.forEach((res: any, index: number) => {
                 if (res.code === 200) {
                     successfulSyncs++;

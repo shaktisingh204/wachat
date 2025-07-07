@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
+import { useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -9,15 +10,13 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Package, Eye, RefreshCw, LoaderCircle } from 'lucide-react';
-import { getProjectById } from '@/app/actions';
-import { getEcommOrders } from '@/app/actions/custom-ecommerce.actions';
-import type { WithId, Project, EcommOrder } from '@/lib/definitions';
+import { getEcommOrders, getEcommShopById } from '@/app/actions/custom-ecommerce.actions';
+import type { WithId, EcommOrder, EcommShop } from '@/lib/definitions';
 import { format } from 'date-fns';
 
 function PageSkeleton() {
     return (
         <div className="flex flex-col gap-8">
-            <div><Skeleton className="h-8 w-64" /><Skeleton className="h-4 w-96 mt-2" /></div>
             <Card>
                 <CardHeader><Skeleton className="h-6 w-1/3" /></CardHeader>
                 <CardContent><Skeleton className="h-64 w-full" /></CardContent>
@@ -27,27 +26,29 @@ function PageSkeleton() {
 }
 
 export default function OrdersPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
+    const params = useParams();
+    const shopId = params.shopId as string;
+    const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
     const [orders, setOrders] = useState<WithId<EcommOrder>[]>([]);
     const [isLoading, startLoading] = useTransition();
 
     const fetchData = () => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (storedProjectId) {
+        if (shopId) {
             startLoading(async () => {
-                const projectData = await getProjectById(storedProjectId);
-                setProject(projectData);
-                if (projectData) {
-                    const ordersData = await getEcommOrders(storedProjectId);
-                    setOrders(ordersData);
-                }
+                const [shopData, ordersData] = await Promise.all([
+                    getEcommShopById(shopId),
+                    getEcommOrders(shopId),
+                ]);
+                setShop(shopData);
+                setOrders(ordersData);
             });
         }
     };
 
     useEffect(() => {
         fetchData();
-    }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [shopId]);
 
     const getStatusVariant = (status?: string) => {
         if (!status) return 'outline';
@@ -62,12 +63,12 @@ export default function OrdersPage() {
         return <PageSkeleton />;
     }
 
-    if (!project) {
+    if (!shop) {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>Please select a project to manage its orders.</AlertDescription>
+                <AlertTitle>Shop Not Found</AlertTitle>
+                <AlertDescription>Please select a valid shop to manage its orders.</AlertDescription>
             </Alert>
         );
     }
@@ -76,7 +77,7 @@ export default function OrdersPage() {
         <div className="flex flex-col gap-8">
             <div className="flex items-center justify-between">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Package /> Orders</h1>
+                    <h2 className="text-2xl font-bold">Orders</h2>
                     <p className="text-muted-foreground">View and manage orders from your custom shop.</p>
                 </div>
                  <Button onClick={fetchData} variant="outline" disabled={isLoading}>
@@ -109,7 +110,7 @@ export default function OrdersPage() {
                                             <TableCell>{format(new Date(order.createdAt), 'PPp')}</TableCell>
                                             <TableCell>{order.customerInfo?.name || 'N/A'}</TableCell>
                                             <TableCell><Badge variant={getStatusVariant(order.status)} className="capitalize">{order.status}</Badge></TableCell>
-                                            <TableCell>{new Intl.NumberFormat('en-US', { style: 'currency', currency: project.ecommSettings?.currency || 'USD' }).format(order.total)}</TableCell>
+                                            <TableCell>{new Intl.NumberFormat('en-US', { style: 'currency', currency: shop.currency || 'USD' }).format(order.total)}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
                                             </TableCell>

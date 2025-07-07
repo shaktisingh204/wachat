@@ -17,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle, Save, Plus, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { WithId, Project, EcommProduct, EcommProductVariant } from '@/lib/definitions';
+import type { WithId, EcommShop, EcommProduct, EcommProductVariant } from '@/lib/definitions';
 import { saveEcommProduct } from '@/app/actions/custom-ecommerce.actions';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
@@ -38,12 +38,12 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 interface EcommProductDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  project: WithId<Project>;
+  shop: WithId<EcommShop>;
   product?: WithId<EcommProduct> | null;
   onSuccess: () => void;
 }
 
-export function EcommProductDialog({ isOpen, onOpenChange, project, product, onSuccess }: EcommProductDialogProps) {
+export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSuccess }: EcommProductDialogProps) {
     const [state, formAction] = useActionState(saveEcommProduct, initialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
@@ -86,7 +86,7 @@ export function EcommProductDialog({ isOpen, onOpenChange, project, product, onS
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-xl">
                 <form action={formAction} ref={formRef}>
-                    <input type="hidden" name="projectId" value={project._id.toString()} />
+                    <input type="hidden" name="shopId" value={shop._id.toString()} />
                     {isEditing && <input type="hidden" name="productId" value={product._id.toString()} />}
                     <input type="hidden" name="variants" value={JSON.stringify(variants)} />
                     <DialogHeader>
@@ -107,7 +107,7 @@ export function EcommProductDialog({ isOpen, onOpenChange, project, product, onS
                             </div>
                              <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="price">Price ({project.ecommSettings?.currency || 'USD'})</Label>
+                                    <Label htmlFor="price">Price ({shop?.currency || 'USD'})</Label>
                                     <Input id="price" name="price" type="number" step="0.01" defaultValue={product?.price} required />
                                 </div>
                                 <div className="space-y-2">
