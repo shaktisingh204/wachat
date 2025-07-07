@@ -15,6 +15,7 @@ import { ImageBlockEditor } from './image-block-editor';
 import { ButtonBlockEditor } from './button-block-editor';
 import { VideoBlockEditor } from './video-block-editor';
 import { IconBlockEditor } from './icon-block-editor';
+import { SpacerBlockEditor } from './spacer-block-editor';
 
 interface PropertiesPanelProps {
     selectedBlock: WebsiteBlock | undefined;
@@ -56,6 +57,8 @@ export function PropertiesPanel({ selectedBlock, availableProducts, onUpdate, on
                 return <VideoBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'icon':
                 return <IconBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
+            case 'spacer':
+                return <SpacerBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             default:
                 return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>
         }

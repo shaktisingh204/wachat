@@ -357,6 +357,46 @@ const IconBlock = ({ settings }: { settings: any }) => {
     return iconElement;
 };
 
+const SpacerBlock = ({ settings }: { settings: any }) => {
+    const type = settings.type || 'spacer';
+    const marginTop = settings.margin?.top || '16';
+    const marginBottom = settings.margin?.bottom || '16';
+
+    const style: React.CSSProperties = {
+        marginTop: `${marginTop}px`,
+        marginBottom: `${marginBottom}px`,
+    };
+
+    if (type === 'divider') {
+        const dividerStyle: React.CSSProperties = {
+            ...style,
+            width: settings.width || '100%',
+            borderTopStyle: settings.style || 'solid',
+            borderTopWidth: `${settings.thickness || 1}px`,
+            borderColor: settings.color || 'hsl(var(--border))',
+            marginRight: 'auto',
+            marginLeft: 'auto',
+        };
+         if (settings.alignment === 'left') {
+            dividerStyle.marginRight = 'auto';
+            dividerStyle.marginLeft = '0';
+        } else if (settings.alignment === 'right') {
+            dividerStyle.marginLeft = 'auto';
+            dividerStyle.marginRight = '0';
+        }
+        return <hr style={dividerStyle} />;
+    }
+
+    // Spacer
+    const spacerStyle: React.CSSProperties = {
+        ...style,
+        height: `${settings.height || 24}px`,
+    };
+
+    return <div style={spacerStyle}></div>;
+};
+
+
 export default async function ShopPage({ params }: { params: { slug: string } }) {
     if (!params.slug) {
         notFound();
@@ -395,6 +435,8 @@ export default async function ShopPage({ params }: { params: { slug: string } })
                 return <VideoBlock settings={block.settings} />;
             case 'icon':
                 return <IconBlock settings={block.settings} />;
+            case 'spacer':
+                return <SpacerBlock settings={block.settings} />;
             default:
                 return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
         }
