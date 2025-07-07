@@ -12,6 +12,7 @@ import { TestimonialsBlockEditor } from './testimonials-block-editor';
 import { FaqBlockEditor } from './faq-block-editor';
 import { CustomHtmlBlockEditor } from './custom-html-block-editor';
 import { HeadingBlockEditor } from './heading-block-editor';
+import { ImageBlockEditor } from './image-block-editor';
 import { cn } from "@/lib/utils";
 
 interface WebsiteBlockEditorProps {
@@ -44,6 +45,8 @@ export function WebsiteBlockEditor({ block, onUpdate, onRemove, availableProduct
                 return <CustomHtmlBlockEditor settings={block.settings} onUpdate={handleSettingsUpdate} />;
             case 'heading':
                 return <HeadingBlockEditor settings={block.settings} onUpdate={handleSettingsUpdate} />;
+            case 'image':
+                return <ImageBlockEditor settings={block.settings} onUpdate={handleSettingsUpdate} />;
             default:
                 return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>
         }

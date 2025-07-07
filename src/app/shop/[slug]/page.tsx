@@ -139,6 +139,73 @@ const HeadingBlock = ({ settings }: { settings: any }) => {
     }, settings.text || 'Heading Text');
 };
 
+const ImageBlock = ({ settings }: { settings: any }) => {
+    const sizeClasses = {
+        small: 'w-1/3',
+        medium: 'w-1/2',
+        large: 'w-3/4',
+        full: 'w-full',
+    }[settings.size || 'medium'];
+
+    const alignClasses = {
+        left: 'justify-start',
+        center: 'justify-center',
+        right: 'justify-end',
+    }[settings.align || 'center'];
+
+    const shapeClasses = {
+        square: 'rounded-none',
+        rounded: 'rounded-lg',
+        circle: 'rounded-full aspect-square object-cover',
+    }[settings.shape || 'rounded'];
+
+    const shadowClasses = {
+        none: 'shadow-none',
+        sm: 'shadow-sm',
+        md: 'shadow-md',
+        lg: 'shadow-lg',
+    }[settings.shadow || 'none'];
+
+    const hoverClasses = {
+        none: '',
+        zoom: 'group-hover:scale-105',
+        grayscale: 'group-hover:grayscale',
+    }[settings.hoverEffect || 'none'];
+
+    const borderStyle = settings.border?.enabled ? {
+        borderWidth: `${settings.border.width || 1}px`,
+        borderColor: settings.border.color || '#000000',
+        borderStyle: 'solid',
+    } : {};
+    
+    const imageElement = (
+        <Image
+            src={settings.src || 'https://placehold.co/600x400.png'}
+            alt={settings.alt || 'Shop image'}
+            width={800}
+            height={600}
+            className={cn('transition-transform duration-300', shapeClasses, hoverClasses)}
+            style={borderStyle}
+            data-ai-hint="shop image"
+        />
+    );
+
+    return (
+        <figure className={cn('flex', alignClasses)}>
+            <div className={cn('group space-y-2', sizeClasses, shadowClasses, shapeClasses !== 'rounded-full' ? '' : 'overflow-hidden')}>
+                {settings.link ? (
+                    <a href={settings.link} target="_blank" rel="noopener noreferrer">
+                        {imageElement}
+                    </a>
+                ) : (
+                    imageElement
+                )}
+                {settings.caption && <figcaption className="text-sm text-center text-muted-foreground">{settings.caption}</figcaption>}
+            </div>
+        </figure>
+    );
+};
+
 
 export default async function ShopPage({ params }: { params: { slug: string } }) {
     if (!params.slug) {
@@ -170,6 +237,8 @@ export default async function ShopPage({ params }: { params: { slug: string } })
                 return <CustomHtmlBlock settings={block.settings} />;
             case 'heading':
                 return <HeadingBlock settings={block.settings} />;
+            case 'image':
+                return <ImageBlock settings={block.settings} />;
             default:
                 return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
         }
