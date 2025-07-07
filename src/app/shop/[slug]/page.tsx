@@ -16,6 +16,7 @@ import { TabsBlockRenderer } from '@/components/wabasimplify/website-builder/tab
 import { AccordionBlockRenderer } from '@/components/wabasimplify/website-builder/accordion-block-renderer';
 import { FormBlockRenderer } from '@/components/wabasimplify/website-builder/form-block-renderer';
 import { MapBlockRenderer } from '@/components/wabasimplify/website-builder/map-block-renderer';
+import { CountdownBlockRenderer } from '@/components/wabasimplify/website-builder/countdown-block-renderer';
 
 
 const HeroBlock = ({ settings }: { settings: any }) => (
@@ -452,6 +453,8 @@ export default async function ShopPage({ params }: { params: { slug: string } })
                 return <FormBlockRenderer settings={block.settings} />;
             case 'map':
                 return <MapBlockRenderer settings={block.settings} />;
+            case 'countdown':
+                return <CountdownBlockRenderer settings={block.settings} />;
             default:
                 return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
         }

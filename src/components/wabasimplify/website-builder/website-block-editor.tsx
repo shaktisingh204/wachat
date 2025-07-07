@@ -20,6 +20,7 @@ import { TabsBlockEditor } from './tabs-block-editor';
 import { AccordionBlockEditor } from './accordion-block-editor';
 import { FormBlockEditor } from './form-block-editor';
 import { MapBlockEditor } from './map-block-editor';
+import { CountdownBlockEditor } from './countdown-block-editor';
 
 interface PropertiesPanelProps {
     selectedBlock: WebsiteBlock | undefined;
@@ -73,6 +74,8 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
                 return <FormBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'map':
                 return <MapBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
+            case 'countdown':
+                return <CountdownBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             default:
                 return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>
         }
