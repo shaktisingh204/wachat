@@ -4,7 +4,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon, Minus } from 'lucide-react';
+import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon, Minus, GalleryVertical } from 'lucide-react';
 import type { WebsiteBlock } from '@/lib/definitions';
 
 const blockSections = [
@@ -23,8 +23,9 @@ const blockSections = [
             { type: 'heading', label: 'Heading', icon: Heading1 },
             { type: 'richText', label: 'Rich Text', icon: Type },
             { type: 'image', label: 'Image', icon: ImageIcon },
-            { type: 'button', label: 'Button', icon: MousePointerClick },
             { type: 'video', label: 'Video', icon: Video },
+            { type: 'imageCarousel', label: 'Image Carousel', icon: GalleryVertical },
+            { type: 'button', label: 'Button', icon: MousePointerClick },
             { type: 'icon', label: 'Icon', icon: StarIcon },
             { type: 'spacer', label: 'Spacer / Divider', icon: Minus },
             { type: 'customHtml', label: 'Custom HTML', icon: Code },
