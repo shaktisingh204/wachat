@@ -47,6 +47,7 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
     const [state, formAction] = useActionState(saveEcommProduct, initialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
     const isEditing = !!product;
 
     const [variants, setVariants] = useState<EcommProductVariant[]>([]);
@@ -81,9 +82,18 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
     const handleVariantChange = (id: string, field: 'name' | 'options', value: string) => {
         setVariants(prev => prev.map(v => v.id === id ? { ...v, [field]: value } : v));
     };
+    
+    const onDialogChange = (open: boolean) => {
+        if (!open) {
+            formRef.current?.reset();
+            setVariants([]);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
+        onOpenChange(open);
+    }
 
     return (
-        <Dialog open={isOpen} onOpenChange={onOpenChange}>
+        <Dialog open={isOpen} onOpenChange={onDialogChange}>
             <DialogContent className="sm:max-w-xl">
                 <form action={formAction} ref={formRef}>
                     <input type="hidden" name="shopId" value={shop._id.toString()} />
@@ -118,7 +128,7 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="imageFile">Product Image</Label>
-                                <Input id="imageFile" name="imageFile" type="file" accept="image/*" />
+                                <Input id="imageFile" name="imageFile" type="file" accept="image/*" ref={fileInputRef} />
                                 {product?.imageUrl && <p className="text-xs text-muted-foreground">Current image is set. Uploading a new file will replace it.</p>}
                             </div>
                             <Separator />
@@ -140,7 +150,7 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                         </div>
                     </ScrollArea>
                     <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+                        <Button type="button" variant="ghost" onClick={() => onDialogChange(false)}>Cancel</Button>
                         <SubmitButton isEditing={isEditing} />
                     </DialogFooter>
                 </form>

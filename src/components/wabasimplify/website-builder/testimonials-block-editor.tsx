@@ -11,6 +11,15 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Image from 'next/image';
 
+const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+        callback(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+};
+
 export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const testimonials = settings.testimonials || [];
 
@@ -24,16 +33,8 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
         handleUpdate('testimonials', newTestimonials);
     };
 
-    const handleFileChange = (index: number, file: File | null) => {
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            const newTestimonials = [...testimonials];
-            newTestimonials[index] = { ...newTestimonials[index], avatar: reader.result as string };
-            handleUpdate('testimonials', newTestimonials);
-        };
-        reader.readAsDataURL(file);
+    const handleItemFileChange = (index: number, file: File | null) => {
+        handleFileChange(file, (dataUri) => handleItemChange(index, 'avatar', dataUri));
     };
 
     const addItem = () => {
@@ -78,7 +79,7 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
                                     <Input placeholder="Author Title" value={item.title || ''} onChange={(e) => handleItemChange(index, 'title', e.target.value)} />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <Input type="file" accept="image/*" className="text-xs" onChange={(e) => handleFileChange(index, e.target.files?.[0] || null)} />
+                                    <Input type="file" accept="image/*" className="text-xs" onChange={(e) => handleItemFileChange(index, e.target.files?.[0] || null)} />
                                     {item.avatar && <Image src={item.avatar} alt="Avatar Preview" width={32} height={32} className="rounded-full object-cover" />}
                                 </div>
                             </div>
@@ -126,5 +127,3 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
         </div>
     );
 }
-
-    
