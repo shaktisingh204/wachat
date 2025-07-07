@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard } from 'lucide-react';
+import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1 } from 'lucide-react';
 import type { WebsiteBlock } from '@/lib/definitions';
 
 const blockSections = [
@@ -19,6 +19,7 @@ const blockSections = [
     {
         title: 'Custom Blocks',
         blocks: [
+            { type: 'heading', label: 'Heading', icon: Heading1 },
             { type: 'richText', label: 'Rich Text', icon: Type },
             { type: 'customHtml', label: 'Custom HTML', icon: Code },
         ]

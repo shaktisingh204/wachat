@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { ObjectId } from 'mongodb';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import React from 'react';
 
 
 const HeroBlock = ({ settings }: { settings: any }) => (
@@ -96,6 +97,33 @@ const CustomHtmlBlock = ({ settings }: { settings: any }) => (
     <div dangerouslySetInnerHTML={{ __html: settings.html || '' }} />
 );
 
+const HeadingBlock = ({ settings }: { settings: any }) => {
+    const Tag = settings.htmlTag || 'h2';
+    const style: React.CSSProperties = {
+        fontFamily: settings.fontFamily || 'inherit',
+        fontSize: settings.fontSize ? `${settings.fontSize}px` : undefined,
+        fontWeight: settings.fontWeight || 'normal',
+        fontStyle: settings.fontStyle || 'normal',
+        color: settings.color || 'inherit',
+        textAlign: settings.textAlign || 'left',
+        textShadow: settings.textShadow ? `${settings.textShadow.x || 0}px ${settings.textShadow.y || 0}px ${settings.textShadow.blur || 0}px ${settings.textShadow.color || 'transparent'}` : 'none',
+        margin: settings.margin ? `${settings.margin.top || 0}px ${settings.margin.right || 0}px ${settings.margin.bottom || 0}px ${settings.margin.left || 0}px` : undefined,
+        padding: settings.padding ? `${settings.padding.top || 0}px ${settings.padding.right || 0}px ${settings.padding.bottom || 0}px ${settings.padding.left || 0}px` : undefined,
+    };
+
+    const animationClass = {
+        fade: 'animate-fade-in',
+        slide: 'animate-slide-in-up',
+        zoom: 'animate-in zoom-in-50',
+        bounce: 'animate-bounce',
+    }[settings.animation || 'none'];
+
+    return React.createElement(Tag, {
+        style,
+        className: cn(animationClass)
+    }, settings.text || 'Heading Text');
+};
+
 
 export default async function ShopPage({ params }: { params: { slug: string } }) {
     if (!params.slug) {
@@ -108,7 +136,6 @@ export default async function ShopPage({ params }: { params: { slug: string } })
         notFound();
     }
     
-    // Fetch all products for the shop to pass to blocks that need them
     const products = await getEcommProducts(shop._id.toString());
     const homepageLayout = shop.homepageLayout || [];
 
@@ -126,12 +153,13 @@ export default async function ShopPage({ params }: { params: { slug: string } })
                 return <FaqBlock settings={block.settings} />;
             case 'customHtml':
                 return <CustomHtmlBlock settings={block.settings} />;
+            case 'heading':
+                return <HeadingBlock settings={block.settings} />;
             default:
                 return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
         }
     };
     
-    // Determine the global font for the body from the Hero block if it exists
     const heroBlock = homepageLayout.find(b => b.type === 'hero');
     const globalFontFamily = heroBlock?.settings?.fontFamily || 'Inter, sans-serif';
 
