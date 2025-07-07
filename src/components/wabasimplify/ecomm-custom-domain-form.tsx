@@ -17,6 +17,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { Badge } from '@/components/ui/badge';
 
+
 const addDomainInitialState = { success: undefined, error: undefined };
 
 function AddDomainButton() {
