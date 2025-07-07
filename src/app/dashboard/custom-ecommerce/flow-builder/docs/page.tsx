@@ -76,6 +76,18 @@ const blockDocs = [
         ],
         outputs: ['One main output that is followed after the delay is complete.'],
     },
+     {
+        title: 'Call API / Webhook',
+        description: 'Make a request to an external server or API and save parts of the response to variables.',
+        properties: [
+            { name: 'Method', desc: 'The HTTP method for the request (GET, POST, PUT).' },
+            { name: 'URL', desc: 'The endpoint URL to send the request to. You can use variables here.' },
+            { name: 'Headers / Body', desc: 'Provide JSON for request headers or the request body. Variables are supported.' },
+            { name: 'Response to Variable Mappings', desc: 'Define how to extract data from the API response and save it to flow variables.' },
+        ],
+        outputs: ['One main output that is followed after the API call is complete.'],
+        notes: 'In the mappings, use dot notation for the Response Path (e.g., `user.address.city` or `items[0].name`). The value found at that path will be saved to the Variable Name you provide, which you can then use as `{{your_variable_name}}` in later steps.'
+    }
 ];
 
 export default function FlowBuilderDocsPage() {
