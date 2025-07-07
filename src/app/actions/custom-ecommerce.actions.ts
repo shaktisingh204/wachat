@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { getProjectById } from '@/app/actions';
@@ -56,6 +57,12 @@ export async function createEcommShop(prevState: any, formData: FormData): Promi
 
     try {
         const { db } = await connectToDatabase();
+        
+        const existingSlug = await db.collection('ecomm_shops').findOne({ slug });
+        if (existingSlug) {
+            return { error: 'A shop with this name already exists, resulting in a duplicate URL slug. Please choose a different name.' };
+        }
+
         const newShop: Omit<EcommShop, '_id'> = {
             projectId: new ObjectId(projectId),
             name,
@@ -114,6 +121,7 @@ export async function updateEcommShopSettings(prevState: any, formData: FormData
 // --- Product Actions ---
 
 export async function getEcommProducts(shopId: string): Promise<WithId<EcommProduct>[]> {
+    if (!ObjectId.isValid(shopId)) return [];
     const shop = await getEcommShopById(shopId);
     if (!shop) return [];
     
@@ -198,6 +206,7 @@ export async function deleteEcommProduct(productId: string): Promise<{ success: 
 
 
 export async function getEcommOrders(shopId: string): Promise<WithId<EcommOrder>[]> {
+    if (!ObjectId.isValid(shopId)) return [];
     const shop = await getEcommShopById(shopId);
     if (!shop) return [];
 
