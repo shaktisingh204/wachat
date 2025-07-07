@@ -167,6 +167,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [projectCount, setProjectCount] = React.useState<number | null>(null);
   const [activeApp, setActiveApp] = React.useState('whatsapp');
 
+  const isWebsiteBuilderPage = pathname.includes('/website-builder');
 
   React.useEffect(() => {
     setIsClient(true);
@@ -224,6 +225,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       return <FullPageSkeleton />;
   }
   
+  // Render children directly for a fullscreen experience on the builder page
+  if (isWebsiteBuilderPage) {
+    return <>{children}</>;
+  }
+
   const hasNoProjects = projectCount === 0;
   const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
   const planFeatures = sessionUser?.plan?.features;

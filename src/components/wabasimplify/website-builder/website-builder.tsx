@@ -1,16 +1,15 @@
 
 'use client';
 
-import { useEffect, useState, useTransition, useActionState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState, useTransition, useActionState, useRef, useMemo, useCallback } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { getEcommShopById, getEcommProducts, updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
 import type { WithId, EcommShop, EcommProduct, WebsiteBlock } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { useFormStatus } from 'react-dom';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Plus, LoaderCircle, Save, ArrowLeft, Eye } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { BlockPalette } from './block-palette';
@@ -69,31 +68,11 @@ const removeBlockById = (items: WebsiteBlock[], idToRemove: string): WebsiteBloc
     });
 };
 
-export function WebsiteBuilder() {
-    const params = useParams();
-    const router = useRouter();
-    const shopId = params.shopId as string;
-    const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
-    const [products, setProducts] = useState<WithId<EcommProduct>[]>([]);
-    const [layout, setLayout] = useState<WebsiteBlock[]>([]);
+export function WebsiteBuilder({ shop, availableProducts }: { shop: WithId<EcommShop>, availableProducts: WithId<EcommProduct>[] }) {
+    const [layout, setLayout] = useState<WebsiteBlock[]>(shop.homepageLayout || []);
     const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-    const [isLoading, startLoadingTransition] = useTransition();
     const [state, formAction] = useActionState(updateEcommShopSettings, initialState);
     const { toast } = useToast();
-
-    useEffect(() => {
-        if (shopId) {
-            startLoadingTransition(async () => {
-                const [shopData, productsData] = await Promise.all([
-                    getEcommShopById(shopId),
-                    getEcommProducts(shopId),
-                ]);
-                setShop(shopData);
-                setProducts(productsData);
-                setLayout(shopData?.homepageLayout || []);
-            });
-        }
-    }, [shopId]);
 
     useEffect(() => {
         if (state.message) toast({ title: 'Success', description: state.message });
@@ -178,7 +157,7 @@ export function WebsiteBuilder() {
         setLayout(layoutCopy);
     };
 
-    const selectedBlock = React.useMemo(() => {
+    const selectedBlock = useMemo(() => {
         if (!selectedBlockId) return undefined;
         const findRecursively = (items: WebsiteBlock[]): WebsiteBlock | undefined => {
             for (const item of items) {
@@ -192,32 +171,16 @@ export function WebsiteBuilder() {
         };
         return findRecursively(layout);
     }, [selectedBlockId, layout]);
-
-    if (isLoading) {
-        return <BuilderSkeleton />;
-    }
-
-    if (!shop) {
-        return (
-            <div className="flex items-center justify-center h-screen">
-                <Alert variant="destructive" className="max-w-md">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Shop Not Found</AlertTitle>
-                    <AlertDescription>Please select a valid shop to use the builder.</AlertDescription>
-                </Alert>
-            </div>
-        );
-    }
     
     return (
         <form action={formAction}>
-            <input type="hidden" name="shopId" value={shopId} />
+            <input type="hidden" name="shopId" value={shop._id.toString()} />
             <input type="hidden" name="homepageLayout" value={JSON.stringify(layout)} />
             <DragDropContext onDragEnd={onDragEnd}>
                 <div className="h-screen w-screen bg-muted flex flex-col">
                     <header className="flex-shrink-0 h-16 bg-background border-b flex items-center justify-between px-4">
                         <Button variant="outline" asChild>
-                            <Link href={`/dashboard/facebook/custom-ecommerce/manage/${shopId}`}>
+                            <Link href={`/dashboard/facebook/custom-ecommerce/manage/${shop._id.toString()}`}>
                                 <ArrowLeft className="mr-2 h-4 w-4" />
                                 Back to Shop
                             </Link>
@@ -229,7 +192,7 @@ export function WebsiteBuilder() {
                                     Preview
                                 </Link>
                             </Button>
-                            <SaveButton disabled={isLoading} />
+                            <SaveButton />
                         </div>
                     </header>
                     <div className="flex-1 grid grid-cols-12 min-h-0">
@@ -243,13 +206,13 @@ export function WebsiteBuilder() {
                                 onBlockClick={setSelectedBlockId}
                                 selectedBlockId={selectedBlockId}
                                 onRemoveBlock={handleRemoveBlock}
-                                products={products}
+                                products={availableProducts}
                             />
                         </div>
                         <div className="col-span-3 bg-background border-l p-4 overflow-y-auto">
                             <PropertiesPanel
                                 selectedBlock={selectedBlock}
-                                availableProducts={products}
+                                availableProducts={availableProducts}
                                 onUpdate={handleUpdateBlock}
                                 onRemove={handleRemoveBlock}
                             />
