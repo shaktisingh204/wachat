@@ -4,7 +4,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon, Minus, GalleryVertical, Rows as TabsIcon, PanelTopClose, ClipboardList, MapPin, Timer, Share2 } from 'lucide-react';
+import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon, Minus, GalleryVertical, Rows as TabsIcon, PanelTopClose, ClipboardList, MapPin, Timer, Share2, Repeat } from 'lucide-react';
 import type { WebsiteBlock } from '@/lib/definitions';
 
 const blockSections = [
@@ -18,7 +18,16 @@ const blockSections = [
         ]
     },
     {
-        title: 'Custom Blocks',
+        title: 'Layout',
+        blocks: [
+            { type: 'tabs', label: 'Tabs', icon: TabsIcon },
+            { type: 'accordion', label: 'Accordion', icon: PanelTopClose },
+            { type: 'spacer', label: 'Spacer / Divider', icon: Minus },
+            { type: 'repeater', label: 'Repeater', icon: Repeat },
+        ]
+    },
+    {
+        title: 'Content Blocks',
         blocks: [
             { type: 'heading', label: 'Heading', icon: Heading1 },
             { type: 'richText', label: 'Rich Text', icon: Type },
@@ -28,12 +37,14 @@ const blockSections = [
             { type: 'button', label: 'Button', icon: MousePointerClick },
             { type: 'icon', label: 'Icon', icon: StarIcon },
             { type: 'countdown', label: 'Countdown Timer', icon: Timer },
-            { type: 'spacer', label: 'Spacer / Divider', icon: Minus },
-            { type: 'tabs', label: 'Tabs', icon: TabsIcon },
-            { type: 'accordion', label: 'Accordion', icon: PanelTopClose },
+            { type: 'socialShare', label: 'Social Share', icon: Share2 },
+        ]
+    },
+    {
+        title: 'Advanced',
+        blocks: [
             { type: 'form', label: 'Form', icon: ClipboardList },
             { type: 'map', label: 'Map', icon: MapPin },
-            { type: 'socialShare', label: 'Social Share', icon: Share2 },
             { type: 'customHtml', label: 'Custom HTML', icon: Code },
         ]
     }
