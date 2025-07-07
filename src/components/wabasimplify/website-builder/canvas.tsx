@@ -12,7 +12,7 @@ import React from 'react';
 
 interface CanvasProps {
     layout: WebsiteBlock[];
-    droppableId?: string; // Optional for public view
+    droppableId?: string; 
     products: WithId<EcommProduct>[];
     onBlockClick?: (id: string) => void;
     onRemoveBlock?: (id: string) => void;
@@ -61,7 +61,7 @@ const EditableCanvas = ({ layout, droppableId, products, onBlockClick, onRemoveB
                                         </Button>
                                     </div>
                                     <div className={cn("outline-dashed outline-1 outline-transparent group-hover/block:outline-primary transition-all rounded-lg p-1", selectedBlockId === block.id && "outline-solid outline-2 outline-primary")}>
-                                        <BlockRenderer block={block} products={products} shopSlug={shopSlug} isEditable={true} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} selectedBlockId={selectedBlockId}/>
+                                        <BlockRenderer block={block} products={products} shopSlug={shopSlug} isEditable={true} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} selectedBlockId={selectedBlockId} blockId={block.id}/>
                                     </div>
                                 </div>
                             )}
@@ -82,7 +82,7 @@ const EditableCanvas = ({ layout, droppableId, products, onBlockClick, onRemoveB
 
 const PublicCanvas = ({ layout, products, isNested, shopSlug }: CanvasProps) => {
     return (
-        <div className={cn("space-y-4 w-full h-full", !isNested && "p-4")}>
+        <div className={cn("w-full h-full", !isNested && "space-y-4")}>
             {layout.map((block) => (
                 <BlockRenderer
                     key={block.id}
@@ -90,6 +90,7 @@ const PublicCanvas = ({ layout, products, isNested, shopSlug }: CanvasProps) => 
                     products={products}
                     shopSlug={shopSlug}
                     isEditable={false}
+                    blockId={block.id}
                 />
             ))}
         </div>
