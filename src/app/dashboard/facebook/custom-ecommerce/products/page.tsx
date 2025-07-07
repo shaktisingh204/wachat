@@ -5,14 +5,15 @@ import { useEffect, useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, PlusCircle, ShoppingBag } from 'lucide-react';
+import { AlertCircle, PlusCircle, ShoppingBag, Settings } from 'lucide-react';
 import { getEcommProducts, getEcommSettings } from '@/app/actions/custom-ecommerce.actions';
 import { getProjectById } from '@/app/actions';
-import { getCatalogs } from '@/app/actions/catalog.actions';
-import type { WithId, Project, EcommProduct, EcommSettings, Catalog } from '@/lib/definitions';
+import type { WithId, Project, EcommProduct, EcommSettings } from '@/lib/definitions';
 import { EcommProductDialog } from '@/components/wabasimplify/ecomm-product-dialog';
 import { EcommProductCard } from '@/components/wabasimplify/ecomm-product-card';
 import { SyncCustomProductsDialog } from '@/components/wabasimplify/sync-custom-products-dialog';
+import { EcommQuickSetupDialog } from '@/components/wabasimplify/ecomm-quick-setup-dialog';
+
 
 function PageSkeleton() {
     return (
@@ -79,10 +80,18 @@ export default function ProductsPage() {
 
     if (!settings?.shopName) {
         return (
-            <Alert variant="destructive">
+             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Shop Not Configured</AlertTitle>
-                <AlertDescription>Please configure your shop name and currency in the settings page before adding products.</AlertDescription>
+                <AlertDescription className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2">
+                    <span>Please configure your shop name and currency before adding products.</span>
+                    <EcommQuickSetupDialog project={project} onSuccess={fetchData}>
+                        <Button variant="secondary">
+                            <Settings className="mr-2 h-4 w-4" />
+                            Configure Shop
+                        </Button>
+                    </EcommQuickSetupDialog>
+                </AlertDescription>
             </Alert>
         );
     }
