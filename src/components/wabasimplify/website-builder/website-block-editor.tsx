@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
@@ -46,53 +47,35 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
     }
 
     const renderEditor = () => {
+        const props = {
+            settings: selectedBlock.settings,
+            onUpdate: (newSettings: any) => onUpdate(selectedBlock.id, newSettings)
+        };
+
         switch (selectedBlock.type) {
-            case 'hero':
-                return <HeroBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'featuredProducts':
-                return <FeaturedProductsBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} availableProducts={availableProducts} />;
-            case 'richText':
-                return <RichTextBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'testimonials':
-                return <TestimonialsBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'faq':
-                return <FaqBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'customHtml':
-                return <CustomHtmlBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'heading':
-                return <HeadingBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'image':
-                return <ImageBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'button':
-                return <ButtonBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'video':
-                return <VideoBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'icon':
-                return <IconBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'spacer':
-                return <SpacerBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'imageCarousel':
-                return <ImageCarouselBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'tabs':
-                return <TabsBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'accordion':
-                return <AccordionBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'form':
-                return <FormBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'map':
-                return <MapBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'countdown':
-                return <CountdownBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'socialShare':
-                return <SocialShareBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'repeater':
-                return <RepeaterBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'section':
-                return <SectionBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            case 'columns':
-                return <ColumnsBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
-            default:
-                return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>
+            case 'hero': return <HeroBlockEditor {...props} />;
+            case 'featuredProducts': return <FeaturedProductsBlockEditor {...props} availableProducts={availableProducts} />;
+            case 'richText': return <RichTextBlockEditor {...props} />;
+            case 'testimonials': return <TestimonialsBlockEditor {...props} />;
+            case 'faq': return <FaqBlockEditor {...props} />;
+            case 'customHtml': return <CustomHtmlBlockEditor {...props} />;
+            case 'heading': return <HeadingBlockEditor {...props} />;
+            case 'image': return <ImageBlockEditor {...props} />;
+            case 'button': return <ButtonBlockEditor {...props} />;
+            case 'video': return <VideoBlockEditor {...props} />;
+            case 'icon': return <IconBlockEditor {...props} />;
+            case 'spacer': return <SpacerBlockEditor {...props} />;
+            case 'imageCarousel': return <ImageCarouselBlockEditor {...props} />;
+            case 'tabs': return <TabsBlockEditor {...props} />;
+            case 'accordion': return <AccordionBlockEditor {...props} />;
+            case 'form': return <FormBlockEditor {...props} />;
+            case 'map': return <MapBlockEditor {...props} />;
+            case 'countdown': return <CountdownBlockEditor {...props} />;
+            case 'socialShare': return <SocialShareBlockEditor {...props} />;
+            case 'repeater': return <RepeaterBlockEditor {...props} />;
+            case 'section': return <SectionBlockEditor {...props} />;
+            case 'columns': return <ColumnsBlockEditor {...props} />;
+            default: return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>;
         }
     };
     
