@@ -4,7 +4,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon, Minus, GalleryVertical, Rows as TabsIcon, PanelTopClose, ClipboardList, MapPin, Timer } from 'lucide-react';
+import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon, Minus, GalleryVertical, Rows as TabsIcon, PanelTopClose, ClipboardList, MapPin, Timer, Share2 } from 'lucide-react';
 import type { WebsiteBlock } from '@/lib/definitions';
 
 const blockSections = [
@@ -33,6 +33,7 @@ const blockSections = [
             { type: 'accordion', label: 'Accordion', icon: PanelTopClose },
             { type: 'form', label: 'Form', icon: ClipboardList },
             { type: 'map', label: 'Map', icon: MapPin },
+            { type: 'socialShare', label: 'Social Share', icon: Share2 },
             { type: 'customHtml', label: 'Custom HTML', icon: Code },
         ]
     }
