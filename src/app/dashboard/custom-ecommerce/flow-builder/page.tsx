@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -53,7 +52,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 
-type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'carousel';
+type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'carousel' | 'addToCart';
 
 type ButtonConfig = {
     id: string;
@@ -84,6 +83,7 @@ const blockTypes = [
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'delay', label: 'Add Delay', icon: Clock },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
+    { type: 'addToCart', label: 'Add to Cart', icon: ShoppingCart },
 ];
 
 const NodePreview = ({ node }: { node: EcommFlowNode }) => {
@@ -131,6 +131,8 @@ const NodePreview = ({ node }: { node: EcommFlowNode }) => {
             case 'carousel':
                  const elementCount = node.data.elements?.length || 0;
                 return <p className="text-xs text-muted-foreground italic">Sends a carousel with {elementCount} card(s).</p>;
+            case 'addToCart':
+                return <p className="text-xs text-muted-foreground italic">Adds "{node.data.productName || 'product'}" to cart.</p>;
             default:
                 return null;
         }
@@ -214,7 +216,7 @@ const NodeComponent = ({
                     return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition, transform: 'translateY(-50%)' }} />;
                 })
             ) : (
-                node.type !== 'carousel' && <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />
+                 <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />
             )}
         </div>
     );
@@ -462,6 +464,29 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                             ))}
                         </div>
                         <Button type="button" variant="outline" className="w-full" onClick={addElement}><Plus className="mr-2 h-4 w-4"/>Add Card</Button>
+                    </div>
+                );
+            case 'addToCart':
+                return (
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="productId">Product ID / SKU</Label>
+                            <Input id="productId" value={selectedNode.data.productId || ''} onChange={e => handleDataChange('productId', e.target.value)} placeholder="e.g., TSHIRT-001 or {{selected_sku}}"/>
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor="productName">Product Name</Label>
+                            <Input id="productName" value={selectedNode.data.productName || ''} onChange={e => handleDataChange('productName', e.target.value)} placeholder="e.g., Cool T-Shirt or {{product_name}}"/>
+                        </div>
+                         <div className="grid grid-cols-2 gap-4">
+                             <div className="space-y-2">
+                                <Label htmlFor="quantity">Quantity</Label>
+                                <Input id="quantity" type="number" value={selectedNode.data.quantity || 1} onChange={e => handleDataChange('quantity', parseInt(e.target.value, 10) || 1)} placeholder="1"/>
+                            </div>
+                             <div className="space-y-2">
+                                <Label htmlFor="price">Price</Label>
+                                <Input id="price" type="number" value={selectedNode.data.price || ''} onChange={e => handleDataChange('price', parseFloat(e.target.value) || 0)} placeholder="e.g., 25.00 or {{product_price}}"/>
+                            </div>
+                        </div>
                     </div>
                 );
             default:

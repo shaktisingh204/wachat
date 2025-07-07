@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -54,6 +53,19 @@ class FlowLogger {
  */
 function interpolate(text: string, variables: Record<string, any>): string {
     if (!text) return '';
+    if (text === '{{cart_summary}}') {
+        const cart = variables.cart || [];
+        if (cart.length === 0) return "Your cart is empty.";
+        let summary = "Here's your cart:\n";
+        let total = 0;
+        cart.forEach((item: any) => {
+            const itemTotal = (item.price || 0) * (item.quantity || 1);
+            summary += `- ${item.productName} x ${item.quantity} = $${itemTotal.toFixed(2)}\n`;
+            total += itemTotal;
+        });
+        summary += `\nTotal: $${total.toFixed(2)}`;
+        return summary;
+    }
     return text.replace(/{{\s*([\w\d._]+)\s*}}/g, (match, key) => {
         const value = key.split('.').reduce((o: any, i: string) => o?.[i], variables);
         return value !== undefined ? String(value) : match;
@@ -684,10 +696,7 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
-        case 'addToCart':
-            edge = flow.edges.find(e => e.source === nodeId);
-            if (edge) nextNodeId = edge.target;
-            break;
+        
         case 'sendTemplate':
             await sendFlowTemplate(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables, logger);
             edge = flow.edges.find(e => e.source === nodeId);
@@ -1537,6 +1546,27 @@ async function executeEcommNode(db: Db, project: WithId<Project>, contact: WithI
                 const delayEdge = flow.edges.find(e => e.source === nodeId);
                 if(delayEdge) nextNodeId = delayEdge.target;
                 break;
+            case 'addToCart': {
+                const cart = currentVariables.cart || [];
+                const productId = interpolate(node.data.productId, currentVariables);
+                const productName = interpolate(node.data.productName, currentVariables);
+                const quantity = parseInt(interpolate(node.data.quantity, currentVariables), 10) || 1;
+                const price = parseFloat(interpolate(node.data.price, currentVariables)) || 0;
+                
+                const existingItemIndex = cart.findIndex((item: any) => item.productId === productId);
+                if (existingItemIndex > -1) {
+                    cart[existingItemIndex].quantity += quantity;
+                } else {
+                    cart.push({ productId, productName, quantity, price });
+                }
+                currentVariables.cart = cart;
+                await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $set: { "activeEcommFlow.variables": currentVariables } });
+                logger.log(`Added to cart: ${productName} x ${quantity}`, { cart });
+                
+                const cartEdge = flow.edges.find(e => e.source === nodeId);
+                if (cartEdge) nextNodeId = cartEdge.target;
+                break;
+            }
 
             case 'buttons':
             case 'input':
