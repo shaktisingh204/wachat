@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Droppable, Draggable } from 'react-beautiful-dnd';
@@ -18,24 +19,27 @@ interface CanvasProps {
     onRemoveBlock: (id: string) => void;
     selectedBlockId: string | null;
     isNested?: boolean;
+    shopSlug: string;
 }
 
-const CanvasBlockWrapper = ({ block, index, products, onBlockClick, onRemoveBlock, selectedBlockId }: {
+const CanvasBlockWrapper = ({ block, index, products, onBlockClick, onRemoveBlock, selectedBlockId, shopSlug }: {
     block: WebsiteBlock;
     index: number;
     products: WithId<EcommProduct>[];
     onBlockClick: (id: string) => void;
     onRemoveBlock: (id: string) => void;
     selectedBlockId: string | null;
+    shopSlug: string;
 }) => {
     const isSelected = selectedBlockId === block.id;
+    const safeSettings = block.settings || {};
 
     const layoutStyle: React.CSSProperties = {
-        width: block.settings?.layout?.width,
-        height: block.settings?.layout?.height,
-        maxWidth: block.settings?.layout?.maxWidth,
-        minHeight: block.settings?.layout?.minHeight,
-        overflow: block.settings?.layout?.overflow as any,
+        width: safeSettings.layout?.width,
+        height: safeSettings.layout?.height,
+        maxWidth: safeSettings.layout?.maxWidth,
+        minHeight: safeSettings.layout?.minHeight,
+        overflow: safeSettings.layout?.overflow as any,
     };
 
     return (
@@ -44,10 +48,7 @@ const CanvasBlockWrapper = ({ block, index, products, onBlockClick, onRemoveBloc
                 <div
                     ref={provided.innerRef}
                     {...provided.draggableProps}
-                    className={cn(
-                        "relative group/block",
-                        snapshot.isDragging && "shadow-2xl opacity-90 z-50"
-                    )}
+                    className="relative group/block"
                     onClick={(e) => { e.stopPropagation(); onBlockClick(block.id); }}
                     style={layoutStyle}
                 >
@@ -68,7 +69,8 @@ const CanvasBlockWrapper = ({ block, index, products, onBlockClick, onRemoveBloc
                     </div>
 
                     <div className={cn(
-                        "outline-dashed outline-1 outline-transparent group-hover/block:outline-primary transition-all rounded-lg",
+                        "outline-dashed outline-1 outline-transparent group-hover/block:outline-primary transition-all rounded-lg p-1",
+                        snapshot.isDragging && "shadow-2xl opacity-90 z-50",
                         isSelected && "outline-solid outline-2 outline-primary",
                     )}>
                         <BlockRenderer
@@ -77,6 +79,7 @@ const CanvasBlockWrapper = ({ block, index, products, onBlockClick, onRemoveBloc
                             selectedBlockId={selectedBlockId}
                             onBlockClick={onBlockClick}
                             onRemoveBlock={onRemoveBlock}
+                            shopSlug={shopSlug}
                         />
                     </div>
                 </div>
@@ -86,7 +89,7 @@ const CanvasBlockWrapper = ({ block, index, products, onBlockClick, onRemoveBloc
 };
 
 
-export function Canvas({ layout, droppableId, products, onBlockClick, onRemoveBlock, selectedBlockId, isNested = false }: CanvasProps) {
+export function Canvas({ layout, droppableId, products, onBlockClick, onRemoveBlock, selectedBlockId, isNested = false, shopSlug }: CanvasProps) {
     return (
         <Droppable droppableId={droppableId} type="BLOCK">
             {(provided, snapshot) => (
@@ -109,6 +112,7 @@ export function Canvas({ layout, droppableId, products, onBlockClick, onRemoveBl
                             onBlockClick={onBlockClick}
                             onRemoveBlock={onRemoveBlock}
                             selectedBlockId={selectedBlockId}
+                            shopSlug={shopSlug}
                         />
                     ))}
                     {provided.placeholder}

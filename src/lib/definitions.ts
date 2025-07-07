@@ -963,29 +963,37 @@ export type EcommProduct = {
   updatedAt: Date;
 };
 
-export type EcommOrderItem = {
-    productId: ObjectId;
-    productName: string;
-    variantInfo?: string; // e.g., "Color: Red, Size: L"
+export type EcommCartItem = {
+    productId: string;
+    name: string;
+    price: number;
+    imageUrl?: string;
     quantity: number;
-    price: number; // Price at time of order
+};
+
+export type EcommOrderItem = {
+    productId: string;
+    productName: string;
+    variantInfo?: string; 
+    quantity: number;
+    price: number; 
 };
 
 export type EcommOrder = {
     _id: ObjectId;
     projectId: ObjectId;
     shopId: ObjectId;
-    contactId: ObjectId; // The customer from the main contacts collection
     items: EcommOrderItem[];
     subtotal: number;
     shipping: number;
     total: number;
     status: 'pending' | 'paid' | 'shipped' | 'delivered' | 'cancelled';
-    customerInfo?: {
+    customerInfo: {
         name: string;
-        waId: string;
+        email: string;
+        phone?: string;
     };
-    shippingAddress?: {
+    shippingAddress: {
         street: string;
         city: string;
         state: string;

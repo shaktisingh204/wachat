@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React from 'react';
@@ -12,13 +13,14 @@ interface ColumnsBlockRendererProps {
   children: WebsiteBlock[];
   products: WithId<EcommProduct>[];
   blockId: string;
+  shopSlug: string;
   selectedBlockId?: string | null;
   onBlockClick?: (id: string) => void;
   onRemoveBlock?: (id: string) => void;
 }
 
 export const ColumnsBlockRenderer: React.FC<ColumnsBlockRendererProps> = (props) => {
-    const { settings, children, products, blockId, selectedBlockId, onBlockClick, onRemoveBlock } = props;
+    const { settings, children, products, blockId, shopSlug, selectedBlockId, onBlockClick, onRemoveBlock } = props;
     const safeSettings = settings || {};
     const { columnCount = 2, gap = 4, stackOnMobile = true, padding } = safeSettings;
 
@@ -46,6 +48,7 @@ export const ColumnsBlockRenderer: React.FC<ColumnsBlockRendererProps> = (props)
                         onBlockClick={onBlockClick!}
                         onRemoveBlock={onRemoveBlock!}
                         isNested={true}
+                        shopSlug={shopSlug}
                     />
                 </div>
             ))}
