@@ -13,6 +13,7 @@ import { useState } from 'react';
 import type { WithId, EcommProduct } from '@/lib/definitions';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Switch } from '@/components/ui/switch';
 
 export function FeaturedProductsBlockEditor({ settings, onUpdate, availableProducts }: { settings: any, onUpdate: (newSettings: any) => void, availableProducts: WithId<EcommProduct>[] }) {
     const [open, setOpen] = useState(false);
@@ -101,6 +102,10 @@ export function FeaturedProductsBlockEditor({ settings, onUpdate, availableProdu
                                     </Command>
                                 </PopoverContent>
                             </Popover>
+                        </div>
+                        <div className="flex items-center space-x-2 pt-4">
+                            <Switch id="showViewAllButton" checked={settings.showViewAllButton} onCheckedChange={(val) => handleUpdate('showViewAllButton', val)} />
+                            <Label htmlFor="showViewAllButton">Show "View All" Button</Label>
                         </div>
                     </AccordionContent>
                 </AccordionItem>

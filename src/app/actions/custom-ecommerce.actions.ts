@@ -164,56 +164,178 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
     const shop = await getEcommShopById(shopId);
     if (!shop) return { error: 'Access denied or shop not found.' };
 
-    const defaultShoppingTheme: WebsiteBlock[] = [
+      const defaultShoppingTheme: WebsiteBlock[] = [
+      // 1. Hero Section
       {
         id: uuidv4(),
         type: 'hero',
         settings: {
-          title: 'Designed to go places.',
-          subtitle: 'Sleek, powerful, and ready for anything. The future is here.',
+          title: 'Feel The Best, Look The Best',
+          subtitle: 'Complete your style with awesome clothes from us.',
           buttonText: 'Shop Now',
-          backgroundImageUrl: 'https://placehold.co/1600x800.png',
-          backgroundColor: '#FFFFFF',
-          textColor: '#000000',
+          backgroundImageUrl: 'https://placehold.co/1920x800.png',
+          "data-ai-hint": 'fashion model',
+          backgroundColor: '#f3f4f6', 
+          textColor: '#11182c',
+          buttonColor: '#11182c',
+          buttonTextColor: '#ffffff',
+          layout: 'offset-box'
         },
         children: [],
       },
+      // 2. Featured Brands/Logos Section
       {
         id: uuidv4(),
-        type: 'featuredProducts',
+        type: 'section',
         settings: {
-          title: 'Products of The Week',
-          subtitle: 'Check out our best-selling items.',
-          columns: '4',
-          productIds: [], // User will populate this
+          padding: { top: '32', bottom: '32', left: '16', right: '16' },
+          width: 'boxed',
+          backgroundType: 'color',
+          backgroundColor: '#ffffff'
         },
-        children: [],
+        children: [
+            {
+                id: uuidv4(),
+                type: 'columns',
+                settings: { columnCount: 6, gap: 16, stackOnMobile: false },
+                children: [
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 1', "data-ai-hint": "brand logo" }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 2', "data-ai-hint": "brand logo" }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 3', "data-ai-hint": "brand logo" }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 4', "data-ai-hint": "brand logo" }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 5', "data-ai-hint": "brand logo" }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 6', "data-ai-hint": "brand logo" }}], settings: {} },
+                ]
+            }
+        ]
       },
+      // 3. Featured Products Section
+       {
+        id: uuidv4(),
+        type: 'section',
+        settings: {
+          padding: { top: '64', bottom: '64', left: '16', right: '16' },
+          width: 'boxed'
+        },
+        children: [
+            {
+                id: uuidv4(),
+                type: 'featuredProducts',
+                settings: {
+                title: 'Products of The Week',
+                columns: '4',
+                productIds: [],
+                showViewAllButton: true,
+                },
+                children: [],
+            }
+        ]
+      },
+       // 4. Categories Section
       {
         id: uuidv4(),
-        type: 'testimonials',
+        type: 'section',
         settings: {
-          title: 'What Our Customers Say',
-          testimonials: [
-            { id: uuidv4(), quote: "This is the best product I've ever used. Highly recommended!", author: 'Jane Doe', title: 'Verified Customer' },
-            { id: uuidv4(), quote: "Amazing quality and fast shipping. I will definitely be back for more.", author: 'John Smith', title: 'Happy Client' },
-            { id: uuidv4(), quote: "A game-changer for my daily routine. I can't imagine my life without it now.", author: 'Sam Wilson', title: 'Enthusiast' },
-          ],
+          padding: { top: '64', bottom: '64', left: '16', right: '16' },
+          width: 'boxed',
+          backgroundType: 'color',
+          backgroundColor: '#ffffff'
+        },
+        children: [
+            {
+                id: uuidv4(),
+                type: 'columns',
+                settings: { columnCount: 3, gap: 24, stackOnMobile: true },
+                children: [
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/400x500.png', alt: 'For Him', "data-ai-hint": "male fashion", caption: "For Him" }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/400x500.png', alt: 'For Her', "data-ai-hint": "female fashion", caption: "For Her" }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/400x500.png', alt: 'Accessories', "data-ai-hint": "fashion accessories", caption: "Accessories" }}], settings: {} },
+                ]
+            }
+        ]
+      },
+      // 5. Promotional Banner
+       {
+        id: uuidv4(),
+        type: 'hero',
+        settings: {
+          title: 'Limited Time Offer',
+          subtitle: 'Get 50% off on all winter wear. Don\'t miss out!',
+          buttonText: 'Explore Deals',
+          backgroundImageUrl: 'https://placehold.co/1600x600.png',
+           "data-ai-hint": "sale banner",
+          backgroundColor: '#eab308',
+          textColor: '#ffffff',
+          buttonColor: '#ffffff',
+          buttonTextColor: '#eab308',
+          layout: 'center'
         },
         children: [],
       },
+      // 6. Testimonials Section
       {
         id: uuidv4(),
-        type: 'faq',
+        type: 'section',
         settings: {
-          title: 'Frequently Asked Questions',
-          faqItems: [
-            { id: uuidv4(), question: 'What is the shipping policy?', answer: 'We offer free shipping on all orders over $50. Standard shipping takes 3-5 business days.' },
-            { id: uuidv4(), question: 'What is your return policy?', answer: 'We have a 30-day return policy. If you are not satisfied with your purchase, you can return it for a full refund.' },
-          ],
+          padding: { top: '64', bottom: '64' },
+          backgroundType: 'color',
+          backgroundColor: '#f9fafb'
         },
-        children: [],
+        children: [
+           {
+                id: uuidv4(),
+                type: 'testimonials',
+                settings: {
+                title: 'What Our Customers Say',
+                testimonials: [
+                    { id: uuidv4(), quote: "This is the best product I've ever used. Highly recommended!", author: 'Jane Doe', title: 'Verified Customer' },
+                    { id: uuidv4(), quote: "Amazing quality and fast shipping. I will definitely be back for more.", author: 'John Smith', title: 'Happy Client' },
+                    { id: uuidv4(), quote: "A game-changer for my daily routine. I can't imagine my life without it now.", author: 'Sam Wilson', title: 'Enthusiast' },
+                ],
+                },
+                children: [],
+            }
+        ]
       },
+      // 7. Footer
+      {
+        id: uuidv4(),
+        type: 'section',
+        settings: {
+          padding: { top: '64', bottom: '32', left: '16', right: '16' },
+          width: 'full',
+          backgroundType: 'color',
+          backgroundColor: '#11182c'
+        },
+        children: [
+          {
+            id: uuidv4(),
+            type: 'columns',
+            settings: { columnCount: 4, gap: 32 },
+            children: [
+              { id: uuidv4(), type: 'column', children: [
+                { id: uuidv4(), type: 'heading', settings: { text: 'About Us', htmlTag: 'h4', color: '#ffffff' } },
+                { id: uuidv4(), type: 'richText', settings: { htmlContent: '<p class="text-gray-400">Bringing you the latest trends with quality you can trust.</p>', color: '#9ca3af' } }
+              ], settings: {} },
+              { id: uuidv4(), type: 'column', children: [
+                 { id: uuidv4(), type: 'heading', settings: { text: 'Quick Links', htmlTag: 'h4', color: '#ffffff' } },
+                 { id: uuidv4(), type: 'richText', settings: { htmlContent: '<ul><li><a href="#" class="text-gray-400 hover:text-white">Home</a></li><li><a href="#" class="text-gray-400 hover:text-white">Shop</a></li><li><a href="#" class="text-gray-400 hover:text-white">About</a></li></ul>' } }
+              ], settings: {} },
+              { id: uuidv4(), type: 'column', children: [
+                 { id: uuidv4(), type: 'heading', settings: { text: 'Support', htmlTag: 'h4', color: '#ffffff' } },
+                 { id: uuidv4(), type: 'richText', settings: { htmlContent: '<ul><li><a href="#" class="text-gray-400 hover:text-white">FAQ</a></li><li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li><li><a href="#" class="text-gray-400 hover:text-white">Shipping</a></li></ul>' } }
+              ], settings: {} },
+              { id: uuidv4(), type: 'column', children: [
+                 { id: uuidv4(), type: 'heading', settings: { text: 'Newsletter', htmlTag: 'h4', color: '#ffffff' } },
+                 { id: uuidv4(), type: 'richText', settings: { htmlContent: '<p class="text-gray-400">Subscribe for the latest deals.</p>' } },
+                 { id: uuidv4(), type: 'form', settings: { fields: [{id: uuidv4(), type: 'email', label: ''}], submitButtonText: 'Subscribe' } }
+              ], settings: {} },
+            ]
+          },
+          { id: uuidv4(), type: 'spacer', settings: { type: 'divider', color: '#4b5563' } },
+          { id: uuidv4(), type: 'richText', settings: { htmlContent: `<p class="text-center text-gray-500 text-sm">© ${new Date().getFullYear()} SabNode Shops. All Rights Reserved.</p>` } }
+        ]
+      }
     ];
 
     try {
@@ -283,6 +405,7 @@ export async function getPublicEcommProductById(productId: string): Promise<With
 export async function saveEcommProduct(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const shopId = formData.get('shopId') as string;
     const productId = formData.get('productId') as string | null;
+    const isEditing = !!productId;
 
     if (!shopId) return { error: 'Shop ID is missing.' };
     const shop = await getEcommShopById(shopId);

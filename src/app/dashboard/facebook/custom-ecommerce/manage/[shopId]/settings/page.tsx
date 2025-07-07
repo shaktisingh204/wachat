@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { getEcommShopById } from '@/app/actions/custom-ecommerce.actions';
@@ -29,45 +28,6 @@ function PageSkeleton() {
                 <Skeleton className="h-80 w-full" />
             </div>
         </div>
-    );
-}
-
-function ThemeSelectionForm({ shop }: { shop: WithId<EcommShop> }) {
-    const { toast } = useToast();
-    const [isApplying, startApplying] = useTransition();
-
-    const handleApplyTheme = async () => {
-        startApplying(async () => {
-            const result = await applyEcommShopTheme(shop._id.toString());
-            if (result.error) {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            } else {
-                toast({ title: 'Theme Applied!', description: result.message });
-            }
-        });
-    };
-
-    return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5"/>Shop Themes</CardTitle>
-                <CardDescription>
-                    Apply a pre-designed layout to your shop to get started quickly. Applying a theme will overwrite your current homepage layout.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="border rounded-lg p-4 flex items-center justify-between">
-                    <div>
-                        <h4 className="font-semibold">Default Shopping Theme</h4>
-                        <p className="text-sm text-muted-foreground">A classic layout with a hero, featured products, and testimonials.</p>
-                    </div>
-                    <Button onClick={handleApplyTheme} disabled={isApplying}>
-                        {isApplying ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : null}
-                        Apply Theme
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
     );
 }
 
@@ -113,8 +73,6 @@ export default function SettingsPage() {
     return (
         <div className="flex flex-col gap-8">
             <EcommSettingsForm shop={shop} domains={domains} />
-            <Separator />
-            <ThemeSelectionForm shop={shop} />
             <Separator />
             <PersistentMenuForm shop={shop} />
             <Separator />
