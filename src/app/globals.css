@@ -171,19 +171,19 @@ body {
     --sidebar-border: 220 10% 20%;
   }
 
-  /* Custom Ecommerce Theme */
-  [data-theme="custom-ecommerce"] {
-    --sidebar-primary: 45 95% 55%; /* A gold color */
-    --sidebar-primary-foreground: 210 10% 23%;
-    --sidebar-accent: 45 95% 95%;
-    --sidebar-accent-foreground: 45 95% 25%;
+  /* SEO Suite Theme */
+  [data-theme="seo-suite"] {
+    --sidebar-primary: 210 90% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 90% 95%;
+    --sidebar-accent-foreground: 210 90% 25%;
     --sidebar-background: 220 13% 98%;
     --sidebar-border: 220 13% 91%;
   }
-  .dark [data-theme="custom-ecommerce"] {
-    --sidebar-primary: 45 95% 55%;
-    --sidebar-primary-foreground: 210 10% 23%;
-    --sidebar-accent: 45 50% 22%;
+  .dark [data-theme="seo-suite"] {
+    --sidebar-primary: 210 90% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 50% 22%;
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-background: 220 10% 12%;
     --sidebar-border: 220 10% 20%;
