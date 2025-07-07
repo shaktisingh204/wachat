@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
@@ -25,6 +24,10 @@ import { SocialShareBlockEditor } from './social-share-block-editor';
 import { RepeaterBlockEditor } from './repeater-block-editor';
 import { SectionBlockEditor } from './section-block-editor';
 import { ColumnsBlockEditor } from './columns-block-editor';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Trash2 } from 'lucide-react';
+
 
 interface PropertiesPanelProps {
     selectedBlock: WebsiteBlock | undefined;
@@ -36,7 +39,7 @@ interface PropertiesPanelProps {
 export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate, onRemove }: PropertiesPanelProps) {
     if (!selectedBlock) {
         return (
-            <div className="text-center text-muted-foreground p-8">
+            <div className="text-center text-muted-foreground p-8 h-full flex flex-col items-center justify-center">
                 <p>Select a block on the canvas to edit its properties.</p>
             </div>
         );
@@ -94,8 +97,20 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
     };
     
     return (
-        <div>
-            {renderEditor()}
-        </div>
+        <Card className="h-full flex flex-col">
+            <CardHeader>
+                <CardTitle>Block Properties</CardTitle>
+                <CardDescription>Editing: <span className="font-semibold capitalize">{selectedBlock.type}</span></CardDescription>
+            </CardHeader>
+            <CardContent className="flex-1 overflow-y-auto">
+                 {renderEditor()}
+            </CardContent>
+            <CardFooter className="border-t pt-4">
+                <Button variant="destructive" className="w-full" onClick={() => onRemove(selectedBlock.id)}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Block
+                </Button>
+            </CardFooter>
+        </Card>
     );
 }
