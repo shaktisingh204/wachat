@@ -1,10 +1,9 @@
 
-
 'use server';
 
 import { getProjectById } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { EcommProduct, EcommOrder, EcommShop, EcommSettings, AbandonedCartSettings, WebsiteBlock } from '@/lib/definitions';
+import type { EcommProduct, EcommOrder, EcommShop, EcommSettings, AbandonedCartSettings, WebsiteBlock, EcommProductVariant } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getErrorMessage } from '@/lib/utils';
@@ -166,55 +165,55 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
     if (!shop) return { error: 'Access denied or shop not found.' };
 
     const defaultShoppingTheme: WebsiteBlock[] = [
-        {
-            id: uuidv4(),
-            type: 'hero',
-            settings: {
-                title: 'Welcome to Our Store',
-                subtitle: 'Discover amazing products curated just for you.',
-                buttonText: 'Shop Now',
-                backgroundImageUrl: 'https://placehold.co/1600x600.png',
-                backgroundColor: '#111827',
-                textColor: '#FFFFFF',
-            },
-            children: [],
+      {
+        id: uuidv4(),
+        type: 'hero',
+        settings: {
+          title: 'Designed to go places.',
+          subtitle: 'Sleek, powerful, and ready for anything. The future is here.',
+          buttonText: 'Shop Now',
+          backgroundImageUrl: 'https://placehold.co/1600x800.png',
+          backgroundColor: '#FFFFFF',
+          textColor: '#000000',
         },
-        {
-            id: uuidv4(),
-            type: 'featuredProducts',
-            settings: {
-                title: 'Featured Products',
-                subtitle: 'Check out our best-selling items.',
-                columns: '4',
-                productIds: [], // User will populate this
-            },
-            children: [],
+        children: [],
+      },
+      {
+        id: uuidv4(),
+        type: 'featuredProducts',
+        settings: {
+          title: 'Products of The Week',
+          subtitle: 'Check out our best-selling items.',
+          columns: '4',
+          productIds: [], // User will populate this
         },
-        {
-            id: uuidv4(),
-            type: 'testimonials',
-            settings: {
-                title: 'What Our Customers Say',
-                testimonials: [
-                    { id: uuidv4(), quote: "This is the best product I've ever used. Highly recommended!", author: 'Jane Doe', title: 'Verified Customer' },
-                    { id: uuidv4(), quote: "Amazing quality and fast shipping. I will definitely be back for more.", author: 'John Smith', title: 'Happy Client' },
-                    { id: uuidv4(), quote: "A game-changer for my daily routine. I can't imagine my life without it now.", author: 'Sam Wilson', title: 'Enthusiast' },
-                ],
-            },
-            children: [],
+        children: [],
+      },
+      {
+        id: uuidv4(),
+        type: 'testimonials',
+        settings: {
+          title: 'What Our Customers Say',
+          testimonials: [
+            { id: uuidv4(), quote: "This is the best product I've ever used. Highly recommended!", author: 'Jane Doe', title: 'Verified Customer' },
+            { id: uuidv4(), quote: "Amazing quality and fast shipping. I will definitely be back for more.", author: 'John Smith', title: 'Happy Client' },
+            { id: uuidv4(), quote: "A game-changer for my daily routine. I can't imagine my life without it now.", author: 'Sam Wilson', title: 'Enthusiast' },
+          ],
         },
-         {
-            id: uuidv4(),
-            type: 'faq',
-            settings: {
-                title: 'Frequently Asked Questions',
-                faqItems: [
-                    { id: uuidv4(), question: 'What is the shipping policy?', answer: 'We offer free shipping on all orders over $50. Standard shipping takes 3-5 business days.' },
-                    { id: uuidv4(), question: 'What is your return policy?', answer: 'We have a 30-day return policy. If you are not satisfied with your purchase, you can return it for a full refund.' },
-                ],
-            },
-            children: [],
+        children: [],
+      },
+      {
+        id: uuidv4(),
+        type: 'faq',
+        settings: {
+          title: 'Frequently Asked Questions',
+          faqItems: [
+            { id: uuidv4(), question: 'What is the shipping policy?', answer: 'We offer free shipping on all orders over $50. Standard shipping takes 3-5 business days.' },
+            { id: uuidv4(), question: 'What is your return policy?', answer: 'We have a 30-day return policy. If you are not satisfied with your purchase, you can return it for a full refund.' },
+          ],
         },
+        children: [],
+      },
     ];
 
     try {
@@ -264,6 +263,19 @@ export async function getPublicEcommProducts(shopId: string): Promise<WithId<Eco
     } catch (e) {
         console.error("Failed to get public e-commerce products:", e);
         return [];
+    }
+}
+
+export async function getPublicEcommProductById(productId: string): Promise<WithId<EcommProduct> | null> {
+    if (!ObjectId.isValid(productId)) return null;
+    
+    try {
+        const { db } = await connectToDatabase();
+        const product = await db.collection<EcommProduct>('ecomm_products').findOne({ _id: new ObjectId(productId) });
+        return product ? JSON.parse(JSON.stringify(product)) : null;
+    } catch (e) {
+        console.error("Failed to get public e-commerce product by ID:", e);
+        return null;
     }
 }
 
@@ -351,6 +363,76 @@ export async function getEcommOrders(shopId: string): Promise<WithId<EcommOrder>
     } catch (e) {
         console.error("Failed to get e-commerce orders:", e);
         return [];
+    }
+}
+
+export async function createEcommOrder(data: {
+    shopSlug: string;
+    cart: { productId: string; name: string; price: number; quantity: number }[];
+    customerInfo: { name: string; email: string; phone?: string };
+    shippingAddress: { street: string; city: string; state: string; zip: string; country: string };
+}): Promise<{ orderId?: string, paymentUrl?: string, error?: string }> {
+    const { shopSlug, cart, customerInfo, shippingAddress } = data;
+    if (!shopSlug || cart.length === 0) {
+        return { error: 'Invalid order data.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const shop = await db.collection<EcommShop>('ecomm_shops').findOne({ slug: shopSlug });
+        if (!shop) {
+            return { error: 'Shop not found.' };
+        }
+
+        const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+        const shipping = 0; // Simplified for now
+        const total = subtotal + shipping;
+
+        const order: Omit<EcommOrder, '_id'> = {
+            projectId: shop.projectId,
+            shopId: shop._id,
+            items: cart.map(item => ({
+                productId: item.productId,
+                productName: item.name,
+                quantity: item.quantity,
+                price: item.price
+            })),
+            subtotal,
+            shipping,
+            total,
+            status: 'pending',
+            customerInfo,
+            shippingAddress,
+            paymentStatus: 'pending',
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+
+        const result = await db.collection('ecomm_orders').insertOne(order as any);
+        const orderId = result.insertedId.toString();
+        
+        const paymentLink = shop.paymentLinkRazorpay || shop.paymentLinkPaytm || shop.paymentLinkGPay;
+        
+        // This is a simplified example. A real integration would involve calling the payment provider's API.
+        const paymentUrl = paymentLink ? `${paymentLink}?amount=${total}` : undefined;
+
+        return { orderId, paymentUrl };
+
+    } catch(e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getEcommOrderById(orderId: string): Promise<WithId<EcommOrder> | null> {
+    if (!ObjectId.isValid(orderId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const order = await db.collection<EcommOrder>('ecomm_orders').findOne({ _id: new ObjectId(orderId) });
+        return order ? JSON.parse(JSON.stringify(order)) : null;
+    } catch (e) {
+        console.error("Failed to get e-commerce order by ID:", e);
+        return null;
     }
 }
 

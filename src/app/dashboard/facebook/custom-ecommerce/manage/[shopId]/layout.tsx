@@ -1,15 +1,17 @@
 
 'use client';
 
-import { getEcommShopById } from '@/app/actions/custom-ecommerce.actions';
+import { getEcommShopById, applyEcommShopTheme } from '@/app/actions/custom-ecommerce.actions';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { WithId, EcommShop } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, Bot, Brush, Package, Settings, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Bot, Brush, Package, Settings, ShoppingBag, Wand, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useParams, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useParams, usePathname, useRouter } from 'next/navigation';
+import { useEffect, useState, useTransition } from 'react';
+import { useToast } from '@/hooks/use-toast';
+
 
 const navItems = [
     { href: "/settings", label: "Settings", icon: Settings },
@@ -40,9 +42,12 @@ export default function ShopManagementLayout({
 }) {
     const params = useParams();
     const pathname = usePathname();
+    const router = useRouter();
+    const { toast } = useToast();
     const shopId = params.shopId as string;
     const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isApplyingTheme, startThemeTransition] = useTransition();
 
     useEffect(() => {
         if (shopId) {
@@ -53,11 +58,7 @@ export default function ShopManagementLayout({
         }
     }, [shopId]);
     
-    // The root dashboard layout now handles hiding the chrome for the builder.
-    // This layout component will only render its chrome for non-builder pages.
-    if (pathname.includes('/website-builder')) {
-        return <>{children}</>;
-    }
+    const isWebsiteBuilderPage = pathname.includes('/website-builder');
 
     if (isLoading) {
         return <LayoutSkeleton />;
@@ -65,6 +66,25 @@ export default function ShopManagementLayout({
 
     if (!shop) {
         return <div>Shop not found.</div>;
+    }
+    
+    const handleApplyTheme = async () => {
+        startThemeTransition(async () => {
+            const result = await applyEcommShopTheme(shop._id.toString());
+            if (result.error) {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            } else {
+                toast({ title: 'Theme Applied!', description: result.message });
+                // Refresh the builder page to show new layout
+                if (isWebsiteBuilderPage) {
+                    router.refresh();
+                }
+            }
+        });
+    };
+
+    if (isWebsiteBuilderPage) {
+        return <>{children}</>;
     }
     
     const basePath = `/dashboard/facebook/custom-ecommerce/manage/${shopId}`;
@@ -78,8 +98,16 @@ export default function ShopManagementLayout({
                         Back to All Shops
                     </Link>
                 </Button>
-                <h1 className="text-3xl font-bold font-headline">{shop.name}</h1>
-                <p className="text-muted-foreground">Manage your custom e-commerce shop.</p>
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-3xl font-bold font-headline">{shop.name}</h1>
+                        <p className="text-muted-foreground">Manage your custom e-commerce shop.</p>
+                    </div>
+                    <Button onClick={handleApplyTheme} disabled={isApplyingTheme} variant="outline">
+                        {isApplyingTheme ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Wand className="mr-2 h-4 w-4"/>}
+                        Apply Default Theme
+                    </Button>
+                </div>
             </div>
             <nav>
                 <ul className="flex items-center gap-2 border-b">
