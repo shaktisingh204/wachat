@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { getEcommShopById, getEcommProducts, updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
 import type { WithId, EcommShop, EcommProduct, WebsiteBlock } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
@@ -11,7 +12,7 @@ import { useFormStatus } from 'react-dom';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, Plus, LoaderCircle, Save, ArrowLeft, Eye } from 'lucide-react';
+import { AlertCircle, Plus, LoaderCircle, Save, ArrowLeft, Eye, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { BlockPalette } from './block-palette';
 import { Canvas } from './canvas';
@@ -39,6 +40,35 @@ function BuilderSkeleton() {
         </div>
     );
 }
+
+// Helper function to find a list (children array) in a nested structure
+const findList = (items: WebsiteBlock[], droppableId: string): WebsiteBlock[] | null => {
+    if (droppableId === 'canvas') return items;
+    for (const item of items) {
+        if (item.id === droppableId) {
+            if (!item.children) item.children = [];
+            return item.children;
+        }
+        if (item.children) {
+            const found = findList(item.children, droppableId);
+            if (found) return found;
+        }
+    }
+    return null;
+};
+
+// Helper function to find and remove a block recursively
+const removeBlockById = (items: WebsiteBlock[], idToRemove: string): WebsiteBlock[] => {
+    return items.filter(item => {
+        if (item.id === idToRemove) {
+            return false;
+        }
+        if (item.children) {
+            item.children = removeBlockById(item.children, idToRemove);
+        }
+        return true;
+    });
+};
 
 export function WebsiteBuilder() {
     const params = useParams();
@@ -76,6 +106,7 @@ export function WebsiteBuilder() {
             id: uuidv4(),
             type: type,
             settings: {},
+            ...(type === 'section' && { children: [] }),
         };
         const newLayout = [...layout, newBlock];
         setLayout(newLayout);
@@ -83,25 +114,58 @@ export function WebsiteBuilder() {
     };
 
     const handleUpdateBlock = (id: string, newSettings: any) => {
-        setLayout(prev => prev.map(block => block.id === id ? { ...block, settings: newSettings } : block));
+        const updateRecursively = (items: WebsiteBlock[]): WebsiteBlock[] => {
+            return items.map(block => {
+                if (block.id === id) {
+                    return { ...block, settings: newSettings };
+                }
+                if (block.children) {
+                    return { ...block, children: updateRecursively(block.children) };
+                }
+                return block;
+            });
+        };
+        setLayout(prev => updateRecursively(prev));
     };
 
     const handleRemoveBlock = (id: string) => {
-        setLayout(prev => prev.filter(block => block.id !== id));
+        setLayout(prev => removeBlockById(prev, id));
         if (selectedBlockId === id) {
             setSelectedBlockId(null);
         }
     };
     
     const onDragEnd = (result: DropResult) => {
-        if (!result.destination) return;
-        const items = Array.from(layout);
-        const [reorderedItem] = items.splice(result.source.index, 1);
-        items.splice(result.destination.index, 0, reorderedItem);
-        setLayout(items);
+        const { source, destination } = result;
+        if (!destination) return;
+
+        const layoutCopy = JSON.parse(JSON.stringify(layout));
+
+        const sourceList = findList(layoutCopy, source.droppableId);
+        const destList = findList(layoutCopy, destination.droppableId);
+
+        if (!sourceList || !destList) return;
+
+        const [removed] = sourceList.splice(source.index, 1);
+        destList.splice(destination.index, 0, removed);
+        
+        setLayout(layoutCopy);
     };
 
-    const selectedBlock = layout.find(block => block.id === selectedBlockId);
+    const selectedBlock = useMemo(() => {
+        if (!selectedBlockId) return undefined;
+        const findRecursively = (items: WebsiteBlock[]): WebsiteBlock | undefined => {
+            for (const item of items) {
+                if (item.id === selectedBlockId) return item;
+                if (item.children) {
+                    const found = findRecursively(item.children);
+                    if (found) return found;
+                }
+            }
+            return undefined;
+        };
+        return findRecursively(layout);
+    }, [selectedBlockId, layout]);
 
     if (isLoading) {
         return <BuilderSkeleton />;
@@ -149,8 +213,20 @@ export function WebsiteBuilder() {
                         <div className="col-span-7 bg-muted/50 overflow-y-auto">
                             <Canvas 
                                 layout={layout}
+                                droppableId="canvas"
                                 setSelectedBlockId={setSelectedBlockId}
                                 selectedBlockId={selectedBlockId}
+                                onRemoveBlock={(parentId, index) => {
+                                    const layoutCopy = JSON.parse(JSON.stringify(layout));
+                                    const parentList = findList(layoutCopy, parentId);
+                                    if(parentList) {
+                                        const removed = parentList.splice(index, 1);
+                                        if (selectedBlockId === removed[0]?.id) {
+                                            setSelectedBlockId(null);
+                                        }
+                                    }
+                                    setLayout(layoutCopy);
+                                }}
                             />
                         </div>
                         <div className="col-span-3 bg-background border-l p-4 overflow-y-auto">

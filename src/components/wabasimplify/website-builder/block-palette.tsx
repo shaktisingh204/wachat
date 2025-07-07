@@ -9,21 +9,12 @@ import type { WebsiteBlock } from '@/lib/definitions';
 
 const blockSections = [
     {
-        title: 'Pre-made Sections',
-        blocks: [
-            { type: 'hero', label: 'Hero Section', icon: LayoutDashboard },
-            { type: 'featuredProducts', label: 'Featured Products', icon: ShoppingBag },
-            { type: 'testimonials', label: 'Testimonials', icon: Star },
-            { type: 'faq', label: 'FAQ', icon: FileQuestion },
-        ]
-    },
-    {
         title: 'Layout',
         blocks: [
+            { type: 'section', label: 'Section / Container', icon: LayoutDashboard },
             { type: 'tabs', label: 'Tabs', icon: TabsIcon },
             { type: 'accordion', label: 'Accordion', icon: PanelTopClose },
             { type: 'spacer', label: 'Spacer / Divider', icon: Minus },
-            { type: 'repeater', label: 'Repeater', icon: Repeat },
         ]
     },
     {
@@ -38,6 +29,16 @@ const blockSections = [
             { type: 'icon', label: 'Icon', icon: StarIcon },
             { type: 'countdown', label: 'Countdown Timer', icon: Timer },
             { type: 'socialShare', label: 'Social Share', icon: Share2 },
+        ]
+    },
+    {
+        title: 'Pre-made Sections',
+        blocks: [
+            { type: 'hero', label: 'Hero Section', icon: LayoutDashboard },
+            { type: 'featuredProducts', label: 'Featured Products', icon: ShoppingBag },
+            { type: 'testimonials', label: 'Testimonials', icon: Star },
+            { type: 'faq', label: 'FAQ', icon: FileQuestion },
+            { type: 'repeater', label: 'Repeater', icon: Repeat },
         ]
     },
     {
@@ -76,5 +77,3 @@ export function BlockPalette({ onAddBlock }: BlockPaletteProps) {
         </div>
     );
 }
-
-    
