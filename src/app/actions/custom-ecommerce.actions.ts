@@ -4,7 +4,7 @@
 
 import { getProjectById } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { EcommProduct, EcommOrder, EcommShop } from '@/lib/definitions';
+import type { EcommProduct, EcommOrder, EcommShop, EcommSettings, AbandonedCartSettings } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getErrorMessage } from '@/lib/utils';
@@ -101,58 +101,54 @@ export async function createEcommShop(prevState: any, formData: FormData): Promi
 }
 
 export async function updateEcommShopSettings(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const shopName = formData.get('shopName') as string;
-
-    if (!projectId) {
-        return { error: 'Project ID is missing.' };
+    const shopId = formData.get('shopId') as string;
+    if (!shopId || !ObjectId.isValid(shopId)) {
+        return { error: 'Shop ID is missing or invalid.' };
     }
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied or project not found.' };
 
-    const currentSettings = project.ecommSettings || {};
+    const shop = await getEcommShopById(shopId);
+    if (!shop) return { error: 'Access denied or shop not found.' };
 
     try {
-        const updatedSettings: Partial<EcommSettings> = {
-            shopName: shopName || currentSettings.shopName,
-            currency: (formData.get('currency') as string) || currentSettings.currency,
-        };
+        const { db } = await connectToDatabase();
+        const updates: Partial<EcommShop> = {};
+        
+        const shopName = formData.get('name') as string;
+        if(shopName) updates.name = shopName;
+        
+        const currency = formData.get('currency') as string;
+        if(currency) updates.currency = currency;
 
         const domainValue = formData.get('customDomain') as string;
-        updatedSettings.customDomain = (domainValue === 'none' || !domainValue) ? undefined : domainValue;
+        updates.customDomain = (domainValue === 'none' || !domainValue) ? undefined : domainValue;
         
-        if (formData.has('paymentLinkRazorpay')) updatedSettings.paymentLinkRazorpay = (formData.get('paymentLinkRazorpay') as string) || undefined;
-        if (formData.has('paymentLinkPaytm')) updatedSettings.paymentLinkPaytm = (formData.get('paymentLinkPaytm') as string) || undefined;
-        if (formData.has('paymentLinkGPay')) updatedSettings.paymentLinkGPay = (formData.get('paymentLinkGPay') as string) || undefined;
+        if (formData.has('paymentLinkRazorpay')) updates.paymentLinkRazorpay = (formData.get('paymentLinkRazorpay') as string) || undefined;
+        if (formData.has('paymentLinkPaytm')) updates.paymentLinkPaytm = (formData.get('paymentLinkPaytm') as string) || undefined;
+        if (formData.has('paymentLinkGPay')) updates.paymentLinkGPay = (formData.get('paymentLinkGPay') as string) || undefined;
 
-        if (formData.has('appearance_primaryColor')) {
-             if(!updatedSettings.appearance) updatedSettings.appearance = {};
-             updatedSettings.appearance.primaryColor = formData.get('appearance_primaryColor') as string;
-        }
-        if (formData.has('appearance_fontFamily')) {
-             if(!updatedSettings.appearance) updatedSettings.appearance = {};
-             updatedSettings.appearance.fontFamily = formData.get('appearance_fontFamily') as string;
-        }
-        if (formData.has('appearance_bannerImageUrl')) {
-             if(!updatedSettings.appearance) updatedSettings.appearance = {};
-             updatedSettings.appearance.bannerImageUrl = formData.get('appearance_bannerImageUrl') as string;
+        if (formData.has('appearance_primaryColor') || formData.has('appearance_fontFamily') || formData.has('appearance_bannerImageUrl')) {
+             updates.appearance = { ...shop.appearance };
+             if(formData.has('appearance_primaryColor')) updates.appearance.primaryColor = formData.get('appearance_primaryColor') as string;
+             if(formData.has('appearance_fontFamily')) updates.appearance.fontFamily = formData.get('appearance_fontFamily') as string;
+             if(formData.has('appearance_bannerImageUrl')) updates.appearance.bannerImageUrl = formData.get('appearance_bannerImageUrl') as string;
         }
 
         if (formData.has('abandonedCart.enabled')) {
-            if(!updatedSettings.abandonedCart) updatedSettings.abandonedCart = {} as any;
-            updatedSettings.abandonedCart.enabled = formData.get('abandonedCart.enabled') === 'on';
-            updatedSettings.abandonedCart.delayMinutes = parseInt(formData.get('abandonedCart.delayMinutes') as string, 10);
-            updatedSettings.abandonedCart.flowId = formData.get('abandonedCart.flowId') as string;
+            updates.abandonedCart = { ...shop.abandonedCart } as AbandonedCartSettings;
+            updates.abandonedCart.enabled = formData.get('abandonedCart.enabled') === 'on';
+            updates.abandonedCart.delayMinutes = parseInt(formData.get('abandonedCart.delayMinutes') as string, 10);
+            updates.abandonedCart.flowId = formData.get('abandonedCart.flowId') as string;
         }
 
-        const { db } = await connectToDatabase();
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
-            { $set: { ecommSettings: { ...currentSettings, ...updatedSettings } } }
-        );
+        if (Object.keys(updates).length > 0) {
+            await db.collection('ecomm_shops').updateOne(
+                { _id: new ObjectId(shopId) },
+                { $set: { ...updates, updatedAt: new Date() } }
+            );
+        }
 
-        revalidatePath('/dashboard/custom-ecommerce/settings');
-        revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/settings`);
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/appearance`);
         return { message: 'Shop settings saved successfully!' };
     } catch (e: any) {
         return { error: 'Failed to save shop settings.' };

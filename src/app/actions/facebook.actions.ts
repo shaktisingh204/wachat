@@ -10,6 +10,7 @@ import FormData from 'form-data';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
+import { getEcommShopById } from './custom-ecommerce.actions';
 import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder } from '@/lib/definitions';
 import { processMessengerWebhook } from '@/lib/webhook-processor';
 
@@ -1655,12 +1656,19 @@ export async function getFacebookOrders(projectId: string): Promise<{ orders?: F
 }
 
 export async function savePersistentMenu(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
-    const projectId = formData.get('projectId') as string;
+    const shopId = formData.get('shopId') as string;
     const menuItemsJson = formData.get('menuItems') as string;
 
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { success: false, error: 'Access denied.' };
+    if (!shopId) {
+        return { success: false, error: 'Shop ID is missing.' };
+    }
+    const shop = await getEcommShopById(shopId);
+    if (!shop) {
+        return { success: false, error: 'Shop not found or access denied.' };
+    }
+    const project = await getProjectById(shop.projectId.toString());
+    if (!project || !project.accessToken || !project.facebookPageId) {
+        return { success: false, error: 'Access denied or project not configured.' };
     }
 
     let menuItems = [];
@@ -1675,7 +1683,6 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
         let apiPayload;
 
         if (menuItems.length === 0) {
-            // Send DELETE request to remove the menu
             apiPayload = {
                 platform: 'messenger',
                 psid: project.facebookPageId, 
@@ -1685,7 +1692,6 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
                 params: { ...apiPayload, access_token: project.accessToken }
             });
         } else {
-             // Send POST request to create/update the menu
              apiPayload = {
                 persistent_menu: [
                     {
@@ -1706,18 +1712,15 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
             });
         }
 
-        await db.collection('projects').updateOne(
-            { _id: project._id },
-            { $set: { 'ecommSettings.persistentMenu': menuItems } }
+        await db.collection('ecomm_shops').updateOne(
+            { _id: shop._id },
+            { $set: { persistentMenu: menuItems } }
         );
         
-        revalidatePath('/dashboard/custom-ecommerce/settings');
-        revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/settings`);
         return { success: true, error: undefined };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
     
-
-

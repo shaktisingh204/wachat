@@ -4,11 +4,12 @@
 import { getEcommShopById } from '@/app/actions/custom-ecommerce.actions';
 import { getCustomDomains } from '@/app/actions/url-shortener.actions';
 import { EcommSettingsForm } from '@/components/wabasimplify/ecomm-settings-form';
+import { EcommCustomDomainForm } from '@/components/wabasimplify/ecomm-custom-domain-form';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, Settings } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
-import type { WithId, Project, EcommSettings, CustomDomain, EcommShop } from '@/lib/definitions';
+import type { WithId, CustomDomain, EcommShop } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
 import { PersistentMenuForm } from '@/components/wabasimplify/persistent-menu-form';
 import { useParams } from 'next/navigation';
@@ -68,6 +69,8 @@ export default function SettingsPage() {
             <EcommSettingsForm shop={shop} domains={domains} />
             <Separator />
             <PersistentMenuForm shop={shop} />
+            <Separator />
+            <EcommCustomDomainForm />
         </div>
     )
 }
