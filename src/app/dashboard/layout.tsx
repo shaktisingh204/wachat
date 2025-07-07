@@ -33,7 +33,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2, Server, Palette, Bot, BookCopy, LayoutGrid
 } from 'lucide-react';
-import { SabNodeBrandLogo, FacebookIcon as FacebookAppIcon, WhatsAppIcon, InstagramIcon, SeoIcon, CustomEcommerceIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon, CustomEcommerceIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getProjectCount, handleLogout, getSession, getProjects } from '@/app/actions';
 import { type Plan, type WithId, type Project } from '@/lib/definitions';
@@ -134,6 +134,7 @@ const facebookMenuGroups = [
       title: 'Configuration',
       items: [
         { href: '/dashboard/facebook/pages', label: 'All Pages', icon: Newspaper, featureKey: 'whatsappAds' },
+        { href: '/dashboard/facebook/webhooks', label: 'Webhooks', icon: Webhook, featureKey: 'whatsappAds' },
         { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, featureKey: 'whatsappAds' },
       ]
   }
@@ -160,15 +161,6 @@ const seoMenuItems = [
     { href: '/dashboard/seo', label: 'Dashboard', icon: TrendingUp, featureKey: 'overview' },
     { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss, featureKey: 'overview' },
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, featureKey: 'overview' },
-];
-
-const customEcommerceMenuItems = [
-  { href: '/dashboard/custom-ecommerce', label: 'Dashboard', icon: LayoutDashboard, featureKey: 'ecommerce' },
-  { href: '/dashboard/custom-ecommerce/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'ecommerce' },
-  { href: '/dashboard/custom-ecommerce/products', label: 'Products', icon: ShoppingBag, featureKey: 'ecommerce' },
-  { href: '/dashboard/custom-ecommerce/orders', label: 'Orders', icon: Package, featureKey: 'ecommerce' },
-  { href: '/dashboard/custom-ecommerce/appearance', label: 'Appearance', icon: Palette, featureKey: 'ecommerce' },
-  { href: '/dashboard/custom-ecommerce/settings', label: 'Settings', icon: Settings, featureKey: 'ecommerce' },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -199,8 +191,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setActiveApp('qr-code-maker');
     } else if (pathname.startsWith('/dashboard/seo')) {
         setActiveApp('seo-suite');
-    } else if (pathname.startsWith('/dashboard/custom-ecommerce')) {
-        setActiveApp('custom-ecommerce');
     } else {
         setActiveApp('whatsapp');
     }
@@ -250,7 +240,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       : activeApp === 'url-shortener' ? urlShortenerMenuItems 
       : activeApp === 'qr-code-maker' ? qrCodeMakerMenuItems 
       : activeApp === 'seo-suite' ? seoMenuItems 
-      : activeApp === 'custom-ecommerce' ? customEcommerceMenuItems 
       : wachatMenuItems }];
       
   const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
@@ -259,8 +248,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const appIcons = [
     { id: 'whatsapp', href: '/dashboard/overview', icon: WhatsAppIcon, label: 'Wachat Suite', className: 'bg-[#25D366] text-white', hoverClassName: 'bg-card text-[#25D366] hover:bg-accent' },
-    { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: FacebookAppIcon, label: 'Meta Suite', className: 'bg-blue-600 text-white', hoverClassName: 'bg-card text-blue-600 hover:bg-accent' },
-    { id: 'custom-ecommerce', href: '/dashboard/custom-ecommerce', icon: CustomEcommerceIcon, label: 'Custom Ecommerce', className: 'bg-amber-500 text-white', hoverClassName: 'bg-card text-amber-500 hover:bg-accent' },
+    { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite', className: 'bg-blue-600 text-white', hoverClassName: 'bg-card text-blue-600 hover:bg-accent' },
+    { id: 'seo-suite', href: '/dashboard/seo', icon: SeoIcon, label: 'SEO Suite', className: 'bg-indigo-500 text-white', hoverClassName: 'bg-card text-indigo-500 hover:bg-accent' },
     { id: 'url-shortener', href: '/dashboard/url-shortener', icon: LinkIcon, label: 'URL Shortener', className: 'bg-purple-600 text-white', hoverClassName: 'bg-card text-purple-600 hover:bg-accent' },
     { id: 'qr-code-maker', href: '/dashboard/qr-code-maker', icon: QrCode, label: 'QR Code Maker', className: 'bg-orange-500 text-white', hoverClassName: 'bg-card text-orange-500 hover:bg-accent' },
   ];

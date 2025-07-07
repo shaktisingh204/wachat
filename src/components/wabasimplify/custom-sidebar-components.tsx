@@ -3,6 +3,12 @@
 import * as React from 'react';
 import { Home, ShoppingBag } from 'lucide-react';
 
+export const MetaIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+        <path d="M12.012 2a10 10 0 0 0-9.42 6.56c-1.32 3.86.34 8.28 4.23 9.61 3.42 1.17 7.1-.48 8.87-3.41a.51.51 0 0 0-.23-.74.51.51 0 0 0-.74.23c-1.42 2.3-4.22 3.45-6.91 2.53-3.14-1.08-4.55-4.52-3.47-7.66C5.4 6.3 8.35 4.33 11.49 5.4c.83.29 1.57.74 2.22 1.32a.51.51 0 0 0 .7-.73c-.7-.62-1.5-1.1-2.4-1.4-3.86-1.32-8.28.34-9.61 4.23-1.32 3.86.34 8.28 4.23 9.61a10 10 0 0 0 12.38-4.23c1.32-3.86-.34-8.28-4.23-9.61a10.04 10.04 0 0 0-12.38 4.23.51.51 0 0 0 .74.23.51.51 0 0 0 .23-.74C6.3 6.69 8.65 5.2 11.23 5.4c3.14 1.08 4.55 4.52 3.47 7.66-1.08 3.14-4.52 4.55-7.66 3.47-2.69-.92-4.55-3.73-4.24-6.66a.51.51 0 0 0-.98-.2c-.37 3.47 1.83 6.64 5.22 7.57 3.86 1.08 7.82-1.03 9.17-4.64 1.57-4.22-.53-8.89-4.8-10.22Z" />
+    </svg>
+);
+
 export const FacebookIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
         <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
