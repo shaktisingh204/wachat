@@ -1,4 +1,5 @@
 
+
 import { notFound } from 'next/navigation';
 import { getEcommShopBySlug, getEcommProducts } from '@/app/actions/custom-ecommerce.actions';
 import type { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
@@ -308,6 +309,53 @@ const VideoBlock = ({ settings }: { settings: any }) => {
     );
 };
 
+const IconBlock = ({ settings }: { settings: any }) => {
+    // @ts-ignore
+    const LucideIcon = LucideIcons[settings.icon] || LucideIcons.Star;
+
+    const wrapperStyle: React.CSSProperties = {};
+    if (settings.shape === 'circle' || settings.shape === 'square') {
+        wrapperStyle.backgroundColor = settings.shapeColor || '#EEEEEE';
+        wrapperStyle.display = 'inline-flex';
+        wrapperStyle.alignItems = 'center';
+        wrapperStyle.justifyContent = 'center';
+        const padding = (settings.size || 48) / 4;
+        wrapperStyle.padding = `${padding}px`;
+        if (settings.shape === 'circle') {
+            wrapperStyle.borderRadius = '50%';
+        } else {
+            wrapperStyle.borderRadius = '0.5rem';
+        }
+    }
+
+    const iconStyle: React.CSSProperties = {
+        width: `${settings.size || 48}px`,
+        height: `${settings.size || 48}px`,
+        color: settings.color || '#000000',
+    };
+    
+    const animationClass = {
+        rotate: 'group-hover:rotate-180',
+        pulse: 'animate-pulse',
+        bounce: 'animate-bounce',
+    }[settings.animation || 'none'];
+    
+    const iconElement = (
+         <div style={wrapperStyle} className="group">
+            <LucideIcon style={iconStyle} className={cn('transition-transform duration-300', animationClass)} />
+        </div>
+    );
+
+    if (settings.link) {
+        return (
+            <a href={settings.link} target="_blank" rel="noopener noreferrer" className="inline-block">
+                {iconElement}
+            </a>
+        );
+    }
+    
+    return iconElement;
+};
 
 export default async function ShopPage({ params }: { params: { slug: string } }) {
     if (!params.slug) {
@@ -345,6 +393,8 @@ export default async function ShopPage({ params }: { params: { slug: string } })
                 return <ButtonBlock settings={block.settings} />;
             case 'video':
                 return <VideoBlock settings={block.settings} />;
+            case 'icon':
+                return <IconBlock settings={block.settings} />;
             default:
                 return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
         }

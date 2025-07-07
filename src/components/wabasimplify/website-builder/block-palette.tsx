@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video } from 'lucide-react';
+import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon } from 'lucide-react';
 import type { WebsiteBlock } from '@/lib/definitions';
 
 const blockSections = [
@@ -24,6 +25,7 @@ const blockSections = [
             { type: 'image', label: 'Image', icon: ImageIcon },
             { type: 'button', label: 'Button', icon: MousePointerClick },
             { type: 'video', label: 'Video', icon: Video },
+            { type: 'icon', label: 'Icon', icon: StarIcon },
             { type: 'customHtml', label: 'Custom HTML', icon: Code },
         ]
     }

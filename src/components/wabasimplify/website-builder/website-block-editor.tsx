@@ -1,8 +1,9 @@
 
+
 'use client';
 
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
-import { WebsiteBlockEditor } from './website-block-editor';
+import { WebsiteBlockEditor as BlockEditorWrapper } from './website-block-editor';
 import { HeroBlockEditor } from './hero-block-editor';
 import { FeaturedProductsBlockEditor } from './featured-products-block-editor';
 import { RichTextBlockEditor } from './rich-text-block-editor';
@@ -13,6 +14,7 @@ import { HeadingBlockEditor } from './heading-block-editor';
 import { ImageBlockEditor } from './image-block-editor';
 import { ButtonBlockEditor } from './button-block-editor';
 import { VideoBlockEditor } from './video-block-editor';
+import { IconBlockEditor } from './icon-block-editor';
 
 interface PropertiesPanelProps {
     selectedBlock: WebsiteBlock | undefined;
@@ -52,13 +54,15 @@ export function PropertiesPanel({ selectedBlock, availableProducts, onUpdate, on
                 return <ButtonBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'video':
                 return <VideoBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
+            case 'icon':
+                return <IconBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             default:
                 return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>
         }
     };
     
     return (
-        <WebsiteBlockEditor
+        <BlockEditorWrapper
             block={selectedBlock}
             onUpdate={onUpdate}
             onRemove={onRemove}
@@ -66,6 +70,6 @@ export function PropertiesPanel({ selectedBlock, availableProducts, onUpdate, on
             isDragging={false} // This prop is not needed here
         >
             {renderEditor()}
-        </WebsiteBlockEditor>
+        </BlockEditorWrapper>
     );
 }

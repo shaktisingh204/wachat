@@ -135,7 +135,7 @@ export type AbandonedCartSettings = {
 
 export type WebsiteBlock = {
     id: string;
-    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml' | 'heading' | 'image' | 'button' | 'video';
+    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml' | 'heading' | 'image' | 'button' | 'video' | 'icon';
     settings: any;
 };
 
