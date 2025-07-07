@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -102,14 +101,23 @@ const facebookMenuGroups = [
     ]
   },
   {
-    title: 'E-Commerce',
+    title: 'Meta Commerce',
     items: [
-        { href: '/dashboard/facebook/commerce/products', label: 'Products', icon: ShoppingBag, featureKey: 'ecommerce' },
-        { href: '/dashboard/facebook/commerce/collections', label: 'Collections', icon: ShoppingBag, featureKey: 'ecommerce' },
+        { href: '/dashboard/facebook/commerce/products', label: 'Products & Collections', icon: ShoppingBag, featureKey: 'ecommerce' },
         { href: '/dashboard/facebook/commerce/shop', label: 'Shop Setup', icon: LayoutGrid, featureKey: 'ecommerce' },
         { href: '/dashboard/facebook/commerce/orders', label: 'Orders', icon: Package, featureKey: 'ecommerce' },
         { href: '/dashboard/facebook/commerce/analytics', label: 'Analytics', icon: BarChart2, featureKey: 'ecommerce' },
         { href: '/dashboard/facebook/commerce/api', label: 'APIs', icon: Server, featureKey: 'ecommerce' },
+    ]
+  },
+  {
+    title: 'Custom Ecommerce',
+    items: [
+      { href: '/dashboard/facebook/custom-ecommerce/dashboard', label: 'Dashboard', icon: LayoutDashboard, featureKey: 'ecommerce' },
+      { href: '/dashboard/facebook/custom-ecommerce/products', label: 'Products', icon: ShoppingBag, featureKey: 'ecommerce' },
+      { href: '/dashboard/facebook/custom-ecommerce/orders', label: 'Orders', icon: Package, featureKey: 'ecommerce' },
+      { href: '/dashboard/facebook/custom-ecommerce/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'ecommerce' },
+      { href: '/dashboard/facebook/custom-ecommerce/settings', label: 'Settings', icon: Settings, featureKey: 'ecommerce' },
     ]
   },
    {
