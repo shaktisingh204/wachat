@@ -23,6 +23,7 @@ import { MapBlockEditor } from './map-block-editor';
 import { CountdownBlockEditor } from './countdown-block-editor';
 import { SocialShareBlockEditor } from './social-share-block-editor';
 import { RepeaterBlockEditor } from './repeater-block-editor';
+import { SectionBlockEditor } from './section-block-editor';
 
 interface PropertiesPanelProps {
     selectedBlock: WebsiteBlock | undefined;
@@ -82,6 +83,8 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
                 return <SocialShareBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'repeater':
                 return <RepeaterBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
+            case 'section':
+                return <SectionBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             default:
                 return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>
         }

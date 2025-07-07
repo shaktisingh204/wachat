@@ -135,8 +135,9 @@ export type AbandonedCartSettings = {
 
 export type WebsiteBlock = {
     id: string;
-    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml' | 'heading' | 'image' | 'button' | 'video' | 'icon' | 'spacer' | 'imageCarousel' | 'tabs' | 'accordion' | 'form' | 'map' | 'countdown' | 'socialShare' | 'repeater';
+    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml' | 'heading' | 'image' | 'button' | 'video' | 'icon' | 'spacer' | 'imageCarousel' | 'tabs' | 'accordion' | 'form' | 'map' | 'countdown' | 'socialShare' | 'repeater' | 'section';
     settings: any;
+    children?: WebsiteBlock[];
 };
 
 export type EcommShop = {

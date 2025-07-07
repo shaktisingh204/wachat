@@ -1,53 +1,46 @@
 
+
 'use client';
 
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { WebsiteBlock } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { ImageIcon } from 'lucide-react';
+import { ImageIcon, Trash2, GripVertical, LayoutDashboard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const BlockPreview = ({ block }: { block: WebsiteBlock }) => {
     switch (block.type) {
         case 'hero':
-            return <div className="p-4 text-center">
-                <h3 className="font-bold text-lg">{block.settings.title || 'Hero Section'}</h3>
-                <p className="text-sm text-muted-foreground">{block.settings.subtitle || 'Click to edit'}</p>
-            </div>;
+            return <p className="text-sm text-muted-foreground">Hero: {block.settings.title || 'Untitled'}</p>;
+        case 'section':
+             return <p className="text-sm text-muted-foreground">Section</p>;
         case 'featuredProducts':
-            return <div className="p-4 text-center">
-                <h3 className="font-bold text-lg">{block.settings.title || 'Featured Products'}</h3>
-                <p className="text-sm text-muted-foreground">{(block.settings.productIds || []).length} products selected</p>
-            </div>;
+            return <p className="text-sm text-muted-foreground">Products: {(block.settings.productIds || []).length} items</p>;
         case 'richText':
-             return <div className="p-4"><p className="text-sm text-muted-foreground line-clamp-2">{block.settings.htmlContent?.replace(/<[^>]*>?/gm, '') || 'Rich Text Content...'}</p></div>;
-        case 'testimonials':
-             return <div className="p-4"><p className="text-sm text-muted-foreground">{(block.settings.testimonials || []).length} testimonials</p></div>;
-        case 'faq':
-             return <div className="p-4"><p className="text-sm text-muted-foreground">{(block.settings.faqItems || []).length} FAQ items</p></div>;
-        case 'customHtml':
-             return <div className="p-4"><p className="text-sm text-muted-foreground font-mono">Custom HTML Block</p></div>;
+             return <p className="text-sm text-muted-foreground line-clamp-2">{block.settings.htmlContent?.replace(/<[^>]*>?/gm, '') || 'Rich Text Content...'}</p>;
         default:
-            return <p>Unknown Block</p>;
+            return <p className="text-sm text-muted-foreground">{block.type.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</p>;
     }
 };
 
 interface CanvasProps {
     layout: WebsiteBlock[];
-    setSelectedBlockId: (id: string | null) => void;
+    droppableId: string;
+    onBlockClick: (id: string) => void;
+    onRemoveBlock: (parentId: string, index: number) => void;
     selectedBlockId: string | null;
 }
 
-export function Canvas({ layout, setSelectedBlockId, selectedBlockId }: CanvasProps) {
+export function Canvas({ layout, droppableId, onBlockClick, onRemoveBlock, selectedBlockId }: CanvasProps) {
     return (
-        <Droppable droppableId="canvas">
+        <Droppable droppableId={droppableId} type="BLOCK">
             {(provided, snapshot) => (
                 <div 
                     {...provided.droppableProps}
                     ref={provided.innerRef}
                     className={cn(
-                        "p-4 md:p-8 space-y-4 min-h-full",
-                        snapshot.isDraggingOver && "bg-primary/5"
+                        "p-4 space-y-4 min-h-[10rem] rounded-lg",
+                        snapshot.isDraggingOver && "bg-primary/5 ring-2 ring-primary ring-dashed"
                     )}
                 >
                     {layout.map((block, index) => (
@@ -56,23 +49,45 @@ export function Canvas({ layout, setSelectedBlockId, selectedBlockId }: CanvasPr
                                 <div
                                     ref={provided.innerRef}
                                     {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    onClick={() => setSelectedBlockId(block.id)}
+                                    onClick={(e) => { e.stopPropagation(); onBlockClick(block.id); }}
                                     className={cn(
                                         "bg-background border rounded-lg hover:shadow-lg transition-all",
                                         selectedBlockId === block.id && "ring-2 ring-primary shadow-xl",
                                         snapshot.isDragging && "shadow-2xl opacity-80"
                                     )}
                                 >
-                                    <BlockPreview block={block} />
+                                     <div className="flex items-center justify-between p-2 pl-1 bg-slate-50 border-b rounded-t-lg">
+                                        <div {...provided.dragHandleProps} className="p-2 cursor-grab">
+                                            <GripVertical className="h-5 w-5 text-muted-foreground"/>
+                                        </div>
+                                        <div className="flex-1 text-left">
+                                            <BlockPreview block={block} />
+                                        </div>
+                                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); onRemoveBlock(droppableId, index)}}>
+                                            <Trash2 className="h-4 w-4 text-destructive"/>
+                                        </Button>
+                                    </div>
+                                    
+                                    {block.type === 'section' && (
+                                      <div className="p-4 border-t">
+                                        <Canvas // Recursive call
+                                          layout={block.children || []}
+                                          droppableId={block.id}
+                                          selectedBlockId={selectedBlockId}
+                                          onBlockClick={onBlockClick}
+                                          onRemoveBlock={onRemoveBlock}
+                                        />
+                                      </div>
+                                    )}
                                 </div>
                             )}
                         </Draggable>
                     ))}
                     {provided.placeholder}
                     {layout.length === 0 && (
-                        <div className="text-center text-muted-foreground py-24 border-2 border-dashed rounded-lg">
-                            <p>Add blocks from the left panel to build your page.</p>
+                        <div className="text-center text-muted-foreground py-10 border-2 border-dashed rounded-lg">
+                            <LayoutDashboard className="mx-auto h-8 w-8 text-muted-foreground/50"/>
+                            <p className="mt-2 text-sm">Drop blocks here</p>
                         </div>
                     )}
                 </div>
