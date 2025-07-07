@@ -27,6 +27,15 @@ function PageSkeleton() {
 }
 
 function ShopCard({ shop }: { shop: WithId<EcommShop> }) {
+    const [appUrl, setAppUrl] = useState('');
+
+    useEffect(() => {
+        // process.env.NEXT_PUBLIC_APP_URL is available on the client
+        setAppUrl(process.env.NEXT_PUBLIC_APP_URL || window.location.origin);
+    }, []);
+
+    const fullShopUrl = appUrl ? `${appUrl}/shop/${shop.slug}` : '';
+
     return (
         <Card className="hover:shadow-lg transition-transform hover:-translate-y-1 card-gradient card-gradient-blue">
             <CardHeader>
@@ -38,7 +47,13 @@ function ShopCard({ shop }: { shop: WithId<EcommShop> }) {
                 {shop.slug && (
                     <div className="mt-2">
                         <p className="text-xs font-medium text-foreground">Shop URL:</p>
-                        <p className="text-xs font-mono text-muted-foreground break-all">/shop/{shop.slug}</p>
+                        {fullShopUrl ? (
+                            <a href={fullShopUrl} target="_blank" rel="noopener noreferrer" className="text-xs font-mono text-primary hover:underline break-all">
+                                {fullShopUrl.replace(/^https?:\/\//, '')}
+                            </a>
+                        ) : (
+                            <Skeleton className="h-4 w-full mt-1" />
+                        )}
                     </div>
                 )}
             </CardContent>
