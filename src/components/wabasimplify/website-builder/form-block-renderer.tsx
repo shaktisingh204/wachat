@@ -106,7 +106,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
     }
 
     return (
-        <Card className="w-full max-w-lg mx-auto">
+        <Card className="max-w-lg mx-auto">
             <form onSubmit={handleSubmit(onSubmit)}>
                 <CardHeader>
                     <CardTitle>{settings.title || 'Contact Form'}</CardTitle>
@@ -154,5 +154,3 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
         </Card>
     );
 };
-
-    

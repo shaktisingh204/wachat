@@ -45,7 +45,7 @@ export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }
     : "data-[state=active]:animate-in data-[state=active]:fade-in-25";
 
   return (
-    <Tabs defaultValue={tabs[0].id} className={cn("w-full", layout === 'vertical' && 'flex gap-4')}>
+    <Tabs defaultValue={tabs[0].id} className={cn(layout === 'vertical' && 'flex gap-4')}>
       <TabsList className={cn(
         "w-full",
         layout === 'horizontal' && 'grid',

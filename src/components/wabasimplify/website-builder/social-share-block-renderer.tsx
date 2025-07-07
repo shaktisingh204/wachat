@@ -118,7 +118,7 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
     const buttonBaseClass = style === 'withLabel' ? {small: 'px-3 py-1', medium: 'px-4 py-2', large: 'px-6 py-3'}[size] : sizeClasses[size];
 
     return (
-        <div className={cn('w-full flex gap-2', alignmentClasses[alignment])}>
+        <div className={cn('flex gap-2', alignmentClasses[alignment])}>
             {platforms.map(platform => {
                 const Icon = platformIcons[platform];
                 if (!Icon) return null;
