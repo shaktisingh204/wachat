@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
@@ -10,7 +9,7 @@ import type { WithId } from 'mongodb';
 import { useFormStatus } from 'react-dom';
 import { useToast } from '@/hooks/use-toast';
 
-import { getProductsForCatalog, addProductToCatalog, deleteProductFromCatalog, listProductSets } from '@/app/actions/catalog.actions';
+import { getProductsForCatalog, addProductToCatalog, deleteProductFromCatalog, listProductSets, createProductSet } from '@/app/actions/catalog.actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -26,7 +25,6 @@ import { ViewTaggedMediaDialog } from '@/components/wabasimplify/view-tagged-med
 import { Badge } from '@/components/ui/badge';
 import { EditProductDialog } from '@/components/wabasimplify/edit-product-dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CreateCollectionDialog } from '@/components/wabasimplify/create-collection-dialog';
 import { DeleteCollectionButton } from '@/components/wabasimplify/delete-collection-button';
 import type { ProductSet } from '@/lib/definitions';
 
@@ -89,6 +87,71 @@ function AddProductDialog({ catalogId, projectId, onProductAdded }: { catalogId:
             </DialogContent>
         </Dialog>
     );
+}
+
+const addCollectionInitialState = { message: null, error: null };
+
+function CollectionSubmitButton() {
+  const { pending } = useFormStatus();
+
+  return (
+    <Button type="submit" disabled={pending}>
+      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : 'Create Collection'}
+    </Button>
+  );
+}
+
+function CreateCollectionDialog({ catalogId, projectId, onCollectionCreated }: { catalogId: string, projectId: string, onCollectionCreated: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [state, formAction] = useActionState(createProductSet, addCollectionInitialState);
+  const { toast } = useToast();
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (state.message) {
+      toast({ title: 'Success!', description: state.message });
+      formRef.current?.reset();
+      setOpen(false);
+      onCollectionCreated();
+    }
+    if (state.error) {
+      toast({ title: 'Error Creating Collection', description: state.error, variant: 'destructive' });
+    }
+  }, [state, toast, onCollectionCreated]);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" />
+          Create Collection
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <form action={formAction} ref={formRef}>
+          <input type="hidden" name="projectId" value={projectId} />
+          <input type="hidden" name="catalogId" value={catalogId} />
+          <DialogHeader>
+            <DialogTitle>Create New Collection</DialogTitle>
+            <DialogDescription>
+              Create a new product set within this catalog. You can add products later in Commerce Manager.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Collection Name</Label>
+              <Input id="name" name="name" placeholder="e.g., Summer Collection" required />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <CollectionSubmitButton />
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
 }
 
 const ProductsTable = ({ products, projectId, onAction }: { products: any[], projectId: string, onAction: () => void }) => {
@@ -310,100 +373,4 @@ export default function CatalogProductsPage() {
             </Tabs>
         </div>
     );
-}
-
-```
-  </change>
-  <change>
-    <file>/src/components/wabasimplify/create-collection-dialog.tsx</file>
-    <content><![CDATA[
-'use client';
-
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { useFormStatus } from 'react-dom';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { LoaderCircle, PlusCircle } from 'lucide-react';
-import { createProductSet } from '@/app/actions/catalog.actions';
-import { useToast } from '@/hooks/use-toast';
-
-const initialState = { message: null, error: null };
-
-function SubmitButton() {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button type="submit" disabled={pending}>
-      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : 'Create Collection'}
-    </Button>
-  );
-}
-
-interface CreateCollectionDialogProps {
-  projectId: string;
-  catalogId: string;
-  onCollectionCreated: () => void;
-}
-
-export function CreateCollectionDialog({ projectId, catalogId, onCollectionCreated }: CreateCollectionDialogProps) {
-  const [open, setOpen] = useState(false);
-  const [state, formAction] = useActionState(createProductSet, initialState);
-  const { toast } = useToast();
-  const formRef = useRef<HTMLFormElement>(null);
-
-  useEffect(() => {
-    if (state.message) {
-      toast({ title: 'Success!', description: state.message });
-      formRef.current?.reset();
-      setOpen(false);
-      onCollectionCreated();
-    }
-    if (state.error) {
-      toast({ title: 'Error Creating Collection', description: state.error, variant: 'destructive' });
-    }
-  }, [state, toast, onCollectionCreated]);
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Create Collection
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <form action={formAction} ref={formRef}>
-          <input type="hidden" name="projectId" value={projectId} />
-          <input type="hidden" name="catalogId" value={catalogId} />
-          <DialogHeader>
-            <DialogTitle>Create New Collection</DialogTitle>
-            <DialogDescription>
-              Create a new product set within this catalog. You can add products later in Commerce Manager.
-            </DialogDescription>
-          </DialogHeader>
-
-          <div className="grid gap-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Collection Name</Label>
-              <Input id="name" name="name" placeholder="e.g., Summer Collection" required />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <SubmitButton />
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
 }
