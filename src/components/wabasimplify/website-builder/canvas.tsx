@@ -8,6 +8,7 @@ import { Trash2, GripVertical, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BlockRenderer } from './block-renderer';
 import { Separator } from '@/components/ui/separator';
+import React from 'react';
 
 interface CanvasProps {
     layout: WebsiteBlock[];
@@ -28,6 +29,15 @@ const CanvasBlockWrapper = ({ block, index, products, onBlockClick, onRemoveBloc
     selectedBlockId: string | null;
 }) => {
     const isSelected = selectedBlockId === block.id;
+
+    const layoutStyle: React.CSSProperties = {
+        width: block.settings?.layout?.width,
+        height: block.settings?.layout?.height,
+        maxWidth: block.settings?.layout?.maxWidth,
+        minHeight: block.settings?.layout?.minHeight,
+        overflow: block.settings?.layout?.overflow as any,
+    };
+
     return (
         <Draggable draggableId={block.id} index={index}>
             {(provided, snapshot) => (
@@ -39,6 +49,7 @@ const CanvasBlockWrapper = ({ block, index, products, onBlockClick, onRemoveBloc
                         snapshot.isDragging && "shadow-2xl opacity-90 z-50"
                     )}
                     onClick={(e) => { e.stopPropagation(); onBlockClick(block.id); }}
+                    style={layoutStyle}
                 >
                     <div 
                         className={cn(
@@ -83,8 +94,9 @@ export function Canvas({ layout, droppableId, products, onBlockClick, onRemoveBl
                     {...provided.droppableProps}
                     ref={provided.innerRef}
                     className={cn(
-                        "space-y-4 min-h-[200px] rounded-lg w-full h-full transition-colors",
+                        "space-y-4 rounded-lg w-full h-full transition-colors",
                         !isNested && "p-4",
+                        isNested && "min-h-[200px]",
                         snapshot.isDraggingOver && "bg-primary/5 ring-1 ring-primary ring-dashed"
                     )}
                 >
