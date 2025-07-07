@@ -980,18 +980,12 @@ export type EcommOrder = {
     updatedAt: Date;
 };
 
-export type EcommFlowNode = {
-    id: string;
-    type: string;
-    data: any;
-    position: { x: number, y: number };
-};
-
 export type EcommFlowEdge = {
     id: string;
     source: string;
     target: string;
     sourceHandle?: string;
+    targetHandle?: string;
 };
 
 export type EcommFlow = {

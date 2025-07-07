@@ -70,7 +70,7 @@ export default function SettingsPage() {
         <div className="flex flex-col gap-8">
             <div>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Settings /> Shop Settings</h1>
-                <p className="text-muted-foreground">Configure your shop name, currency, custom domain, and Messenger menu.</p>
+                <p className="text-muted-foreground">Configure your shop name, currency, payment links, and Messenger menu.</p>
             </div>
             <EcommSettingsForm project={project} settings={settings} domains={domains} />
             <Separator />
