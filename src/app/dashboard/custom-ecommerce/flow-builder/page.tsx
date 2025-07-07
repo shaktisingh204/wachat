@@ -31,6 +31,7 @@ import {
     Clock,
     ShoppingCart,
     View,
+    PackageCheck,
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -52,7 +53,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 
-type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'carousel' | 'addToCart';
+type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'carousel' | 'addToCart' | 'orderConfirmation';
 
 type ButtonConfig = {
     id: string;
@@ -84,6 +85,7 @@ const blockTypes = [
     { type: 'delay', label: 'Add Delay', icon: Clock },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
     { type: 'addToCart', label: 'Add to Cart', icon: ShoppingCart },
+    { type: 'orderConfirmation', label: 'Order Confirmation', icon: PackageCheck },
 ];
 
 const NodePreview = ({ node }: { node: EcommFlowNode }) => {
@@ -105,6 +107,7 @@ const NodePreview = ({ node }: { node: EcommFlowNode }) => {
         switch (node.type) {
             case 'text':
             case 'input':
+            case 'orderConfirmation':
                 return <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text)}</p>;
             case 'image':
                 return (
@@ -338,6 +341,14 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                 );
             case 'text':
                 return <Textarea id="text-content" placeholder="Enter your message here..." value={selectedNode.data.text || ''} onChange={(e) => handleDataChange('text', e.target.value)} className="h-32" />;
+            case 'orderConfirmation':
+                return (
+                    <div className="space-y-2">
+                        <Label htmlFor="confirmation-text">Confirmation Message</Label>
+                        <Textarea id="confirmation-text" placeholder="Thank you for your order, {{name}}!" defaultValue={selectedNode.data.text || 'Thank you for your order, {{name}}! Your order ID is #{{order_id}}.'} onChange={(e) => handleDataChange('text', e.target.value)} className="h-32" />
+                        <p className="text-xs text-muted-foreground">Use variables like `{{order_id}}` which you should get from a preceding API call block.</p>
+                    </div>
+                );
              case 'image':
                  return (
                     <div className="space-y-4">

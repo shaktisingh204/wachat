@@ -1526,6 +1526,7 @@ async function executeEcommNode(db: Db, project: WithId<Project>, contact: WithI
                 if (startEdge) nextNodeId = startEdge.target;
                 break;
             case 'text':
+            case 'orderConfirmation':
                 await sendFlowMessage(db, project, contact, project.facebookPageId!, node.data.text, currentVariables);
                 const textEdge = flow.edges.find(e => e.source === nodeId);
                 if (textEdge) nextNodeId = textEdge.target;
