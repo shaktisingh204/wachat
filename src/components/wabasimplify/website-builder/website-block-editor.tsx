@@ -17,6 +17,7 @@ import { IconBlockEditor } from './icon-block-editor';
 import { SpacerBlockEditor } from './spacer-block-editor';
 import { ImageCarouselBlockEditor } from './image-carousel-block-editor';
 import { TabsBlockEditor } from './tabs-block-editor';
+import { AccordionBlockEditor } from './accordion-block-editor';
 
 interface PropertiesPanelProps {
     selectedBlock: WebsiteBlock | undefined;
@@ -64,6 +65,8 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
                 return <ImageCarouselBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'tabs':
                 return <TabsBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
+            case 'accordion':
+                return <AccordionBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             default:
                 return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>
         }
