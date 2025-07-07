@@ -3,11 +3,10 @@
 
 import { getEcommShopById } from '@/app/actions/custom-ecommerce.actions';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { WithId, EcommShop } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, LayoutDashboard, Package, Palette, Settings, GitFork, ShoppingBag, Bot, Brush } from 'lucide-react';
+import { ArrowLeft, Bot, Brush, Package, Settings, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -45,6 +44,8 @@ export default function ShopManagementLayout({
     const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    const isWebsiteBuilderPage = pathname.includes('/website-builder');
+
     useEffect(() => {
         if (shopId) {
             getEcommShopById(shopId).then(data => {
@@ -54,6 +55,10 @@ export default function ShopManagementLayout({
         }
     }, [shopId]);
     
+    if (isWebsiteBuilderPage) {
+        return <>{children}</>;
+    }
+
     if (isLoading) {
         return <LayoutSkeleton />;
     }
