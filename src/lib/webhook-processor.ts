@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -265,7 +263,18 @@ async function sendEcommFlowCarousel(db: Db, project: WithId<Project>, contact: 
         const finalElements = elements.map((el: any) => {
             const elementButtons = el.buttons?.map((btn: any) => {
                 if(btn.type === 'web_url') {
-                    return { type: 'web_url', title: btn.title, url: btn.url };
+                    const webUrlButton: any = { 
+                        type: 'web_url', 
+                        title: btn.title, 
+                        url: interpolate(btn.url, {...variables, psid: contact.psid}),
+                    };
+                    if (btn.webview_height_ratio) {
+                        webUrlButton.webview_height_ratio = btn.webview_height_ratio;
+                    }
+                    if (btn.messenger_extensions) {
+                        webUrlButton.messenger_extensions = true; // Value is always true if enabled
+                    }
+                    return webUrlButton;
                 }
                 return { type: 'postback', title: btn.title, payload: btn.payload };
             });
@@ -1423,7 +1432,7 @@ export async function processCatalogWebhook(db: Db, project: WithId<Project>, ca
     revalidatePath('/dashboard/notifications');
 }
 
-async function handleEcommFlowLogic(db: Db, project: WithId<Project>, contact: WithId<FacebookSubscriber>, messagingEvent: any): Promise<{ handled: boolean, logger?: FlowLogger, flowStatus?: 'finished' | 'waiting' | 'error' }> {
+export async function handleEcommFlowLogic(db: Db, project: WithId<Project>, contact: WithId<FacebookSubscriber>, messagingEvent: any): Promise<{ handled: boolean, logger?: FlowLogger, flowStatus?: 'finished' | 'waiting' | 'error' }> {
     const userInput = messagingEvent.message?.text?.trim() || messagingEvent.message?.quick_reply?.payload || messagingEvent.postback?.payload;
 
     if (contact.activeEcommFlow) {
