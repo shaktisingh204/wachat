@@ -1,10 +1,8 @@
 
 'use client';
 
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from '@/components/ui/button';
-import { GripVertical, Trash2 } from 'lucide-react';
-import type { WithId, EcommProduct, WebsiteBlock } from '@/lib/definitions';
+import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
+import { WebsiteBlockEditor } from './website-block-editor';
 import { HeroBlockEditor } from './hero-block-editor';
 import { FeaturedProductsBlockEditor } from './featured-products-block-editor';
 import { RichTextBlockEditor } from './rich-text-block-editor';
@@ -14,61 +12,60 @@ import { CustomHtmlBlockEditor } from './custom-html-block-editor';
 import { HeadingBlockEditor } from './heading-block-editor';
 import { ImageBlockEditor } from './image-block-editor';
 import { ButtonBlockEditor } from './button-block-editor';
-import { cn } from "@/lib/utils";
+import { VideoBlockEditor } from './video-block-editor';
 
-interface WebsiteBlockEditorProps {
-    block: WebsiteBlock;
+interface PropertiesPanelProps {
+    selectedBlock: WebsiteBlock | undefined;
+    availableProducts: WithId<EcommProduct>[];
     onUpdate: (id: string, newSettings: any) => void;
     onRemove: (id: string) => void;
-    availableProducts: WithId<EcommProduct>[];
-    isDragging: boolean;
 }
 
-export function WebsiteBlockEditor({ block, onUpdate, onRemove, availableProducts, isDragging }: WebsiteBlockEditorProps) {
-
-    const handleSettingsUpdate = (newSettings: any) => {
-        onUpdate(block.id, newSettings);
-    };
+export function PropertiesPanel({ selectedBlock, availableProducts, onUpdate, onRemove }: PropertiesPanelProps) {
+    if (!selectedBlock) {
+        return (
+            <div className="text-center text-muted-foreground p-8">
+                <p>Select a block on the canvas to edit its properties.</p>
+            </div>
+        );
+    }
 
     const renderEditor = () => {
-        switch (block.type) {
+        switch (selectedBlock.type) {
             case 'hero':
-                return <HeroBlockEditor settings={block.settings} onUpdate={handleSettingsUpdate} />;
+                return <HeroBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'featuredProducts':
-                return <FeaturedProductsBlockEditor settings={block.settings} onUpdate={handleSettingsUpdate} availableProducts={availableProducts} />;
+                return <FeaturedProductsBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} availableProducts={availableProducts} />;
             case 'richText':
-                return <RichTextBlockEditor settings={block.settings} onUpdate={handleSettingsUpdate} />;
+                return <RichTextBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'testimonials':
-                return <TestimonialsBlockEditor settings={block.settings} onUpdate={handleSettingsUpdate} />;
+                return <TestimonialsBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'faq':
-                return <FaqBlockEditor settings={block.settings} onUpdate={handleSettingsUpdate} />;
+                return <FaqBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'customHtml':
-                return <CustomHtmlBlockEditor settings={block.settings} onUpdate={handleSettingsUpdate} />;
+                return <CustomHtmlBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'heading':
-                return <HeadingBlockEditor settings={block.settings} onUpdate={handleSettingsUpdate} />;
+                return <HeadingBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'image':
-                return <ImageBlockEditor settings={block.settings} onUpdate={handleSettingsUpdate} />;
+                return <ImageBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'button':
-                return <ButtonBlockEditor settings={block.settings} onUpdate={handleSettingsUpdate} />;
+                return <ButtonBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
+            case 'video':
+                return <VideoBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             default:
                 return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>
         }
     };
-
+    
     return (
-        <div className={cn("bg-card rounded-lg border", isDragging && "shadow-2xl ring-2 ring-primary")}>
-            <CardHeader className="flex flex-row items-center justify-between p-3 bg-muted/50 rounded-t-lg border-b cursor-grab active:cursor-grabbing">
-                <div className="flex items-center gap-2">
-                    <GripVertical className="h-5 w-5 text-muted-foreground" />
-                    <CardTitle className="text-sm font-medium">{block.type.replace(/([A-Z])/g, ' $1').trim()}</CardTitle>
-                </div>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => onRemove(block.id)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                </Button>
-            </CardHeader>
-            <CardContent className="p-4">
-                {renderEditor()}
-            </CardContent>
-        </div>
+        <WebsiteBlockEditor
+            block={selectedBlock}
+            onUpdate={onUpdate}
+            onRemove={onRemove}
+            availableProducts={availableProducts}
+            isDragging={false} // This prop is not needed here
+        >
+            {renderEditor()}
+        </WebsiteBlockEditor>
     );
 }
