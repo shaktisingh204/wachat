@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -696,7 +697,10 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             edge = flow.edges.find(e => e.source === nodeId);
             if (edge) nextNodeId = edge.target;
             break;
-        
+        case 'addToCart':
+            edge = flow.edges.find(e => e.source === nodeId);
+            if (edge) nextNodeId = edge.target;
+            break;
         case 'sendTemplate':
             await sendFlowTemplate(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables, logger);
             edge = flow.edges.find(e => e.source === nodeId);
