@@ -7,7 +7,7 @@ import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { WithId, EcommShop } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { ArrowLeft, LayoutDashboard, Package, Palette, Settings, GitFork, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, LayoutDashboard, Package, Palette, Settings, GitFork, ShoppingBag, Bot } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -17,7 +17,7 @@ const navItems = [
     { href: "/appearance", label: "Appearance", icon: Palette },
     { href: "/products", label: "Products", icon: ShoppingBag },
     { href: "/orders", label: "Orders", icon: Package },
-    { href: "/flow-builder", label: "Flow Builder", icon: GitFork },
+    { href: "/flow-builder", label: "Chat Bot", icon: Bot },
 ];
 
 function LayoutSkeleton() {
