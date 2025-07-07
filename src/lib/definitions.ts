@@ -133,6 +133,12 @@ export type AbandonedCartSettings = {
     flowId: string;
 };
 
+export type EcommAppearanceSettings = {
+    primaryColor?: string;
+    fontFamily?: string;
+    bannerImageUrl?: string;
+};
+
 export type EcommSettings = {
     shopName: string;
     currency: string;
@@ -143,7 +149,8 @@ export type EcommSettings = {
     welcomeMessage?: string;
     persistentMenu?: { type: 'postback' | 'web_url'; title: string; payload?: string; url?: string; }[];
     abandonedCart?: AbandonedCartSettings;
-}
+    appearance?: EcommAppearanceSettings;
+};
 
 export type Project = {
     _id: ObjectId;

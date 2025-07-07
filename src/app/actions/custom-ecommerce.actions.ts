@@ -1,9 +1,10 @@
 
+
 'use server';
 
 import { getProjectById } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { EcommProduct, EcommOrder, EcommSettings, AbandonedCartSettings } from '@/lib/definitions';
+import type { EcommProduct, EcommOrder, EcommSettings, AbandonedCartSettings, EcommAppearanceSettings } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getErrorMessage } from '@/lib/utils';
@@ -131,8 +132,6 @@ export async function saveEcommShopSettings(prevState: any, formData: FormData):
         const existingSettings = project.ecommSettings || {};
         const updatedSettings: Partial<EcommSettings> = {};
 
-        // Dynamically build the update object only with fields from the form
-        // to avoid overwriting existing data with undefined.
         if (formData.has('shopName')) updatedSettings.shopName = formData.get('shopName') as string;
         if (formData.has('currency')) updatedSettings.currency = formData.get('currency') as string;
         if (formData.has('customDomain')) updatedSettings.customDomain = (formData.get('customDomain') as string) || undefined;
@@ -153,6 +152,25 @@ export async function saveEcommShopSettings(prevState: any, formData: FormData):
             const menuItemsJson = formData.get('persistentMenu') as string;
             updatedSettings.persistentMenu = menuItemsJson ? JSON.parse(menuItemsJson) : [];
         }
+        
+        const appearanceSettings: EcommAppearanceSettings = { ...existingSettings.appearance };
+        let hasAppearanceUpdate = false;
+        if (formData.has('appearance_primaryColor')) {
+            appearanceSettings.primaryColor = formData.get('appearance_primaryColor') as string;
+            hasAppearanceUpdate = true;
+        }
+        if (formData.has('appearance_fontFamily')) {
+            appearanceSettings.fontFamily = formData.get('appearance_fontFamily') as string;
+            hasAppearanceUpdate = true;
+        }
+        if (formData.has('appearance_bannerImageUrl')) {
+            appearanceSettings.bannerImageUrl = formData.get('appearance_bannerImageUrl') as string;
+            hasAppearanceUpdate = true;
+        }
+
+        if(hasAppearanceUpdate) {
+            updatedSettings.appearance = appearanceSettings;
+        }
 
 
         const finalSettings = { ...existingSettings, ...updatedSettings };
@@ -171,6 +189,8 @@ export async function saveEcommShopSettings(prevState: any, formData: FormData):
         revalidatePath('/dashboard/custom-ecommerce/settings');
         revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
         revalidatePath('/dashboard/facebook/custom-ecommerce/products');
+        revalidatePath('/dashboard/custom-ecommerce/appearance');
+        revalidatePath('/dashboard/facebook/custom-ecommerce/appearance');
         return { message: 'Shop settings saved successfully!' };
     } catch (e: any) {
         return { error: 'Failed to save shop settings.' };

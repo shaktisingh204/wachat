@@ -116,6 +116,7 @@ const facebookMenuGroups = [
       { href: '/dashboard/facebook/custom-ecommerce/dashboard', label: 'Dashboard', icon: LayoutDashboard, featureKey: 'ecommerce' },
       { href: '/dashboard/facebook/custom-ecommerce/products', label: 'Products', icon: ShoppingBag, featureKey: 'ecommerce' },
       { href: '/dashboard/facebook/custom-ecommerce/orders', label: 'Orders', icon: Package, featureKey: 'ecommerce' },
+      { href: '/dashboard/facebook/custom-ecommerce/appearance', label: 'Appearance', icon: Palette, featureKey: 'ecommerce' },
       { href: '/dashboard/facebook/custom-ecommerce/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'ecommerce' },
       { href: '/dashboard/facebook/custom-ecommerce/settings', label: 'Settings', icon: Settings, featureKey: 'ecommerce' },
     ]
