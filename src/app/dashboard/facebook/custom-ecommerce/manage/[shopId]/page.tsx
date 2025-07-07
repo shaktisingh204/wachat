@@ -1,18 +1,20 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import { useEffect } from 'react';
 import { LoaderCircle } from 'lucide-react';
 
-export default function ShopManageIndexPage({ params }: { params: { shopId: string }}) {
+export default function ShopManageIndexPage() {
     const router = useRouter();
+    const params = useParams();
+    const shopId = params.shopId as string;
 
     useEffect(() => {
-        if (params.shopId) {
-            router.replace(`/dashboard/facebook/custom-ecommerce/manage/${params.shopId}/settings`);
+        if (shopId) {
+            router.replace(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/settings`);
         }
-    }, [router, params.shopId]);
+    }, [router, shopId]);
 
     // Render a loading state while redirecting
     return (
