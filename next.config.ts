@@ -42,7 +42,13 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: '**.fbcdn.net',
+        hostname: '*.fbcdn.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static5.lenskart.com',
         port: '',
         pathname: '/**',
       },

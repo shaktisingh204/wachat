@@ -10,12 +10,22 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Image from 'next/image';
 
 type CarouselImage = {
   id: string;
   src: string;
   link?: string;
   caption?: string;
+};
+
+const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+        callback(reader.result as string);
+    };
+    reader.readAsDataURL(file);
 };
 
 export function ImageCarouselBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
@@ -59,11 +69,14 @@ export function ImageCarouselBlockEditor({ settings, onUpdate }: { settings: any
                     <AccordionContent className="space-y-4 pt-2">
                         {images.map((item: CarouselImage, index: number) => (
                             <div key={item.id} className="p-3 border rounded-md space-y-2 relative bg-background">
-                                <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1" onClick={() => removeImage(index)}>
+                                <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => removeImage(index)}>
                                     <Trash2 className="h-4 w-4 text-destructive" />
                                 </Button>
                                 <Label>Slide {index + 1}</Label>
-                                <Input placeholder="Image URL..." value={item.src || ''} onChange={(e) => handleImageChange(index, 'src', e.target.value)} />
+                                 <div className="flex items-center gap-2">
+                                    <Input type="file" accept="image/*" className="flex-1" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleImageChange(index, 'src', dataUri))} />
+                                    {item.src && <Image src={item.src} alt="preview" width={40} height={40} className="rounded-md object-cover" />}
+                                </div>
                                 <Input placeholder="Link URL (Optional)" value={item.link || ''} onChange={(e) => handleImageChange(index, 'link', e.target.value)} />
                                 <Input placeholder="Caption (Optional)" value={item.caption || ''} onChange={(e) => handleImageChange(index, 'caption', e.target.value)} />
                             </div>
