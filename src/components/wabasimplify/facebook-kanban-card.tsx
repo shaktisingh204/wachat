@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -15,7 +16,7 @@ export function FacebookKanbanCard({ conversation }: { conversation: WithId<Face
     };
 
     const handleGoToChat = () => {
-        router.push(`/dashboard/facebook/messages?psid=${conversation.psid}`);
+        router.push(`/dashboard/facebook/messages?conversationId=${conversation.psid}`);
     }
 
     return (
