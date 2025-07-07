@@ -1237,26 +1237,13 @@ export async function handleSendFacebookBroadcast(prevState: any, formData: Form
 
     try {
         const { db } = await connectToDatabase();
-        const { facebookPageId, accessToken } = project;
         
-        const allConversations: FacebookConversation[] = [];
-        let nextUrl: string | undefined = `https://graph.facebook.com/v23.0/${facebookPageId}/conversations?fields=participants&limit=100&access_token=${accessToken}`;
+        const subscribers = await db.collection<FacebookSubscriber>('facebook_subscribers')
+            .find({ projectId: project._id })
+            .project({ psid: 1 })
+            .toArray();
 
-        while (nextUrl) {
-            const response = await axios.get(nextUrl);
-            if (response.data?.data) {
-                allConversations.push(...response.data.data);
-            }
-            nextUrl = response.data.paging?.next;
-        }
-
-        const recipientIds = [
-            ...new Set(
-                allConversations
-                    .map(convo => convo.participants.data.find(p => p.id !== facebookPageId)?.id)
-                    .filter(Boolean)
-            ),
-        ];
+        const recipientIds = subscribers.map(s => s.psid);
         
         if (recipientIds.length === 0) {
             return { error: "No contacts found to broadcast to. A user must message your page first." };
@@ -1293,7 +1280,7 @@ export async function handleSendFacebookBroadcast(prevState: any, formData: Form
                         message: { text: message },
                         tag: "POST_PURCHASE_UPDATE"
                     },
-                    { params: { access_token: accessToken } }
+                    { params: { access_token: project.accessToken } }
                 ).then(() => {
                     successCount++;
                 }).catch(err => {
@@ -1734,4 +1721,5 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
 
 export * from './facebook-flow.actions';
     
+
 
