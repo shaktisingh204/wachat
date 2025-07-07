@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { ObjectId } from 'mongodb';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import React from 'react';
+import * as LucideIcons from 'lucide-react';
 
 
 const HeroBlock = ({ settings }: { settings: any }) => (
@@ -206,6 +207,48 @@ const ImageBlock = ({ settings }: { settings: any }) => {
     );
 };
 
+const ButtonBlock = ({ settings }: { settings: any }) => {
+    // @ts-ignore
+    const Icon = LucideIcons[settings.icon] || null;
+
+    const buttonStyle: React.CSSProperties = {
+        fontFamily: settings.fontFamily || 'inherit',
+        fontSize: settings.fontSize ? `${settings.fontSize}px` : undefined,
+        fontWeight: settings.fontWeight || 'normal',
+        fontStyle: settings.fontStyle || 'normal',
+        backgroundColor: settings.backgroundColor || undefined,
+        color: settings.textColor || undefined,
+        paddingTop: settings.padding?.y ? `${settings.padding.y}px` : undefined,
+        paddingBottom: settings.padding?.y ? `${settings.padding.y}px` : undefined,
+        paddingLeft: settings.padding?.x ? `${settings.padding.x}px` : undefined,
+        paddingRight: settings.padding?.x ? `${settings.padding.x}px` : undefined,
+        borderWidth: settings.border?.width ? `${settings.border.width}px` : undefined,
+        borderColor: settings.border?.color || undefined,
+        borderStyle: 'solid',
+    };
+
+    const shapeClasses = {
+        square: 'rounded-none',
+        rounded: 'rounded-md',
+        pill: 'rounded-full',
+    }[settings.shape || 'rounded'];
+
+    const hoverClasses = {
+        scale: 'hover:scale-105',
+        colorSwap: `hover:bg-[${settings.hoverBackgroundColor}] hover:text-[${settings.hoverTextColor}]`,
+    }[settings.hoverEffect || 'scale'];
+
+    return (
+         <Button asChild style={buttonStyle} className={cn(shapeClasses, hoverClasses, "transition-transform duration-300")}>
+            <Link href={settings.link || '#'}>
+                {Icon && settings.iconPosition === 'left' && <Icon className="mr-2 h-4 w-4" />}
+                {settings.text || 'Button'}
+                {Icon && settings.iconPosition === 'right' && <Icon className="ml-2 h-4 w-4" />}
+            </Link>
+        </Button>
+    )
+}
+
 
 export default async function ShopPage({ params }: { params: { slug: string } }) {
     if (!params.slug) {
@@ -239,6 +282,8 @@ export default async function ShopPage({ params }: { params: { slug: string } })
                 return <HeadingBlock settings={block.settings} />;
             case 'image':
                 return <ImageBlock settings={block.settings} />;
+            case 'button':
+                return <ButtonBlock settings={block.settings} />;
             default:
                 return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
         }
