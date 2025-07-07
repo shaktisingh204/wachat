@@ -6,20 +6,17 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, PlusCircle, ShoppingBag, Settings } from 'lucide-react';
-import { getEcommProducts, getEcommSettings } from '@/app/actions/custom-ecommerce.actions';
-import { getProjectById } from '@/app/actions';
-import type { WithId, Project, EcommProduct, EcommSettings } from '@/lib/definitions';
+import { getEcommProducts, getEcommShopById } from '@/app/actions/custom-ecommerce.actions';
+import type { WithId, EcommProduct, EcommShop } from '@/lib/definitions';
 import { EcommProductDialog } from '@/components/wabasimplify/ecomm-product-dialog';
 import { EcommProductCard } from '@/components/wabasimplify/ecomm-product-card';
 import { SyncCustomProductsDialog } from '@/components/wabasimplify/sync-custom-products-dialog';
-import { EcommQuickSetupDialog } from '@/components/wabasimplify/ecomm-quick-setup-dialog';
-
+import { useParams } from 'next/navigation';
 
 function PageSkeleton() {
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center"><Skeleton className="h-10 w-64" /><Skeleton className="h-10 w-32" /></div>
-            <Skeleton className="h-4 w-96"/>
+            <div className="flex justify-between items-center"><Skeleton className="h-10 w-32" /></div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-80 w-full" />)}
             </div>
@@ -28,36 +25,31 @@ function PageSkeleton() {
 }
 
 export default function ProductsPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
+    const params = useParams();
+    const shopId = params.shopId as string;
+    const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
     const [products, setProducts] = useState<WithId<EcommProduct>[]>([]);
-    const [settings, setSettings] = useState<EcommSettings | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<WithId<EcommProduct> | null>(null);
 
     const fetchData = () => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (storedProjectId) {
+        if (shopId) {
             startLoading(async () => {
-                const projectData = await getProjectById(storedProjectId);
-                setProject(projectData);
-                if (projectData) {
-                    const [productsData, settingsData] = await Promise.all([
-                        getEcommProducts(storedProjectId),
-                        getEcommSettings(storedProjectId),
-                    ]);
-                    setProducts(productsData);
-                    setSettings(settingsData);
-                }
+                 const [shopData, productsData] = await Promise.all([
+                    getEcommShopById(shopId),
+                    getEcommProducts(shopId),
+                ]);
+                setShop(shopData);
+                setProducts(productsData);
             });
-        } else {
-            startLoading(() => {}); // Set loading to false if no project
         }
     };
 
     useEffect(() => {
         fetchData();
-    }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [shopId]);
 
     const handleOpenDialog = (product: WithId<EcommProduct> | null) => {
         setEditingProduct(product);
@@ -68,30 +60,12 @@ export default function ProductsPage() {
         return <PageSkeleton />;
     }
 
-    if (!project) {
+    if (!shop) {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>Please select a project to manage its products.</AlertDescription>
-            </Alert>
-        );
-    }
-
-    if (!settings?.shopName) {
-        return (
-             <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Shop Not Configured</AlertTitle>
-                <AlertDescription className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2">
-                    <span>Please configure your shop name and currency before adding products.</span>
-                    <EcommQuickSetupDialog project={project} onSuccess={fetchData}>
-                        <Button variant="secondary">
-                            <Settings className="mr-2 h-4 w-4" />
-                            Configure Shop
-                        </Button>
-                    </EcommQuickSetupDialog>
-                </AlertDescription>
+                <AlertTitle>Shop Not Found</AlertTitle>
+                <AlertDescription>Please select a valid shop to manage its products.</AlertDescription>
             </Alert>
         );
     }
@@ -101,18 +75,18 @@ export default function ProductsPage() {
             <EcommProductDialog
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
-                project={project}
+                shop={shop}
                 product={editingProduct}
                 onSuccess={fetchData}
             />
             <div className="flex flex-col gap-8">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><ShoppingBag /> Products</h1>
+                        <h2 className="text-2xl font-bold">Products</h2>
                         <p className="text-muted-foreground">Manage products for your custom shop.</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        {project.businessId && <SyncCustomProductsDialog projectId={project._id.toString()} />}
+                        {shop.projectId && <SyncCustomProductsDialog projectId={shop.projectId.toString()} shopId={shop._id.toString()} />}
                         <Button onClick={() => handleOpenDialog(null)}>
                             <PlusCircle className="mr-2 h-4 w-4" />
                             Add Product
@@ -126,7 +100,7 @@ export default function ProductsPage() {
                             <EcommProductCard 
                                 key={product._id.toString()} 
                                 product={product}
-                                shopSettings={settings}
+                                shopSettings={shop}
                                 onEdit={() => handleOpenDialog(product)}
                                 onDelete={fetchData}
                             />

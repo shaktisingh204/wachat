@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type BusinessCapabilities = {
@@ -139,8 +138,11 @@ export type EcommAppearanceSettings = {
     bannerImageUrl?: string;
 };
 
-export type EcommSettings = {
-    shopName: string;
+export type EcommShop = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    name: string;
+    slug: string;
     currency: string;
     customDomain?: string;
     paymentLinkRazorpay?: string;
@@ -150,6 +152,8 @@ export type EcommSettings = {
     persistentMenu?: { type: 'postback' | 'web_url'; title: string; payload?: string; url?: string; }[];
     abandonedCart?: AbandonedCartSettings;
     appearance?: EcommAppearanceSettings;
+    createdAt: Date;
+    updatedAt: Date;
 };
 
 export type Project = {
@@ -186,7 +190,6 @@ export type Project = {
     kanbanStatuses?: string[];
     facebookKanbanStatuses?: string[];
     plan?: WithId<Plan> | null; // populated by aggregate
-    ecommSettings?: EcommSettings;
 };
 
 export type Template = {
@@ -943,6 +946,7 @@ export type EcommProductVariant = {
 export type EcommProduct = {
   _id: ObjectId;
   projectId: ObjectId;
+  shopId: ObjectId;
   name: string;
   description?: string;
   price: number;
@@ -964,6 +968,7 @@ export type EcommOrderItem = {
 export type EcommOrder = {
     _id: ObjectId;
     projectId: ObjectId;
+    shopId: ObjectId;
     contactId: ObjectId; // The customer from the main contacts collection
     items: EcommOrderItem[];
     subtotal: number;
