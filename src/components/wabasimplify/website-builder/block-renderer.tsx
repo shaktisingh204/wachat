@@ -22,6 +22,8 @@ import { ColumnsBlockRenderer } from './columns-block-renderer';
 import { HeroBlock } from './hero-block-renderer';
 import { FaqBlockRenderer } from './faq-block-renderer';
 import { TestimonialsBlockRenderer } from './testimonials-block-renderer';
+import { FeaturedProductsBlockRenderer } from './featured-products-block-renderer';
+import { Canvas } from './canvas';
 
 
 const RichTextBlock = ({ settings }: { settings: any }) => {
