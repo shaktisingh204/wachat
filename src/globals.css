@@ -170,6 +170,24 @@ body {
     --sidebar-background: 220 10% 12%;
     --sidebar-border: 220 10% 20%;
   }
+
+  /* SEO Suite Theme */
+  [data-theme="seo-suite"] {
+    --sidebar-primary: 210 90% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 90% 95%;
+    --sidebar-accent-foreground: 210 90% 25%;
+    --sidebar-background: 220 13% 98%;
+    --sidebar-border: 220 13% 91%;
+  }
+  .dark [data-theme="seo-suite"] {
+    --sidebar-primary: 210 90% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 50% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-background: 220 10% 12%;
+    --sidebar-border: 220 10% 20%;
+  }
 }
 
 @layer base {
@@ -203,6 +221,9 @@ body {
     }
     .card-gradient > * {
       @apply relative z-10;
+    }
+    .dnd-placeholder {
+        @apply bg-primary/10 border-2 border-dashed border-primary rounded-lg;
     }
 }
 
