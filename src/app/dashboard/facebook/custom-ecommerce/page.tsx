@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -34,6 +35,12 @@ function ShopCard({ shop }: { shop: WithId<EcommShop> }) {
             </CardHeader>
             <CardContent>
                 <p className="text-sm text-muted-foreground">Currency: {shop.currency}</p>
+                {shop.slug && (
+                    <div className="mt-2">
+                        <p className="text-xs font-medium text-foreground">Shop URL:</p>
+                        <p className="text-xs font-mono text-muted-foreground break-all">/shop/{shop.slug}</p>
+                    </div>
+                )}
             </CardContent>
             <CardFooter>
                 <Button asChild className="w-full">

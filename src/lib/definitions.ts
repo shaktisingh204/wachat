@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type BusinessCapabilities = {
@@ -990,6 +991,33 @@ export type EcommOrder = {
     paymentStatus: 'pending' | 'successful' | 'failed';
     createdAt: Date;
     updatedAt: Date;
+};
+
+export type EcommSettings = {
+    shopName: string;
+    currency: string;
+    customDomain?: string;
+    paymentLinkRazorpay?: string;
+    paymentLinkPaytm?: string;
+    paymentLinkGPay?: string;
+    welcomeMessage?: string;
+    persistentMenu?: MenuItem[];
+    abandonedCart?: AbandonedCartSettings;
+    appearance?: EcommAppearanceSettings;
+};
+
+export type MenuItem = { 
+    type: 'postback' | 'web_url';
+    title: string; 
+    payload?: string;
+    url?: string;
+};
+
+export type EcommFlowNode = {
+    id: string;
+    type: string;
+    data: any;
+    position: { x: number; y: number };
 };
 
 export type EcommFlowEdge = {
