@@ -12,20 +12,12 @@ interface PropertiesPanelProps {
 }
 
 export function PropertiesPanel({ selectedBlock, availableProducts, onUpdate, onRemove }: PropertiesPanelProps) {
-    if (!selectedBlock) {
-        return (
-            <div className="text-center text-muted-foreground p-8">
-                <p>Select a block on the canvas to edit its properties.</p>
-            </div>
-        );
-    }
     return (
         <WebsiteBlockEditor
-            block={selectedBlock}
+            selectedBlock={selectedBlock}
+            availableProducts={availableProducts}
             onUpdate={onUpdate}
             onRemove={onRemove}
-            availableProducts={availableProducts}
-            isDragging={false} // This prop is not needed here
         />
     );
 }
