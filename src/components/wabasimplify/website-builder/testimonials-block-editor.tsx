@@ -9,24 +9,41 @@ import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import Image from 'next/image';
 
 export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const testimonials = settings.testimonials || [];
 
-    const handleTestimonialChange = (index: number, field: string, value: string) => {
+    const handleUpdate = (field: string, value: any) => {
+        onUpdate({ ...settings, [field]: value });
+    };
+
+    const handleItemChange = (index: number, field: string, value: string) => {
         const newTestimonials = [...testimonials];
         newTestimonials[index] = { ...newTestimonials[index], [field]: value };
-        onUpdate({ ...settings, testimonials: newTestimonials });
+        handleUpdate('testimonials', newTestimonials);
+    };
+
+    const handleFileChange = (index: number, file: File | null) => {
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const newTestimonials = [...testimonials];
+            newTestimonials[index] = { ...newTestimonials[index], avatar: reader.result as string };
+            handleUpdate('testimonials', newTestimonials);
+        };
+        reader.readAsDataURL(file);
     };
 
     const addItem = () => {
-        const newTestimonials = [...testimonials, { id: uuidv4(), quote: '', author: '', title: '' }];
-        onUpdate({ ...settings, testimonials: newTestimonials });
+        const newTestimonials = [...testimonials, { id: uuidv4(), quote: '', author: '', title: '', avatar: '' }];
+        handleUpdate('testimonials', newTestimonials);
     };
 
     const removeItem = (index: number) => {
         const newTestimonials = testimonials.filter((_: any, i: number) => i !== index);
-        onUpdate({ ...settings, testimonials: newTestimonials });
+        handleUpdate('testimonials', newTestimonials);
     };
 
     const handleSubFieldUpdate = (mainField: string, subField: string, value: any) => {
@@ -55,9 +72,15 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
                                     <Trash2 className="h-4 w-4 text-destructive" />
                                 </Button>
                                 <Label>Testimonial {index + 1}</Label>
-                                <Textarea placeholder="Quote..." value={item.quote || ''} onChange={(e) => handleTestimonialChange(index, 'quote', e.target.value)} />
-                                <Input placeholder="Author Name" value={item.author || ''} onChange={(e) => handleTestimonialChange(index, 'author', e.target.value)} />
-                                <Input placeholder="Author Title" value={item.title || ''} onChange={(e) => handleTestimonialChange(index, 'title', e.target.value)} />
+                                <Textarea placeholder="Quote..." value={item.quote || ''} onChange={(e) => handleItemChange(index, 'quote', e.target.value)} />
+                                <div className="flex items-center gap-2">
+                                    <Input placeholder="Author Name" value={item.author || ''} onChange={(e) => handleItemChange(index, 'author', e.target.value)} />
+                                    <Input placeholder="Author Title" value={item.title || ''} onChange={(e) => handleItemChange(index, 'title', e.target.value)} />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <Input type="file" accept="image/*" className="text-xs" onChange={(e) => handleFileChange(index, e.target.files?.[0] || null)} />
+                                    {item.avatar && <Image src={item.avatar} alt="Avatar Preview" width={32} height={32} className="rounded-full object-cover" />}
+                                </div>
                             </div>
                         ))}
                         <Button type="button" variant="outline" onClick={addItem}><Plus className="mr-2 h-4 w-4" /> Add Testimonial</Button>

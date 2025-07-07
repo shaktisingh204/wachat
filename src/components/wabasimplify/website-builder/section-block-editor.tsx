@@ -21,6 +21,17 @@ export function SectionBlockEditor({ settings, onUpdate }: { settings: any, onUp
         });
     }
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            onUpdate({ ...settings, backgroundImageUrl: reader.result as string });
+        };
+        reader.readAsDataURL(file);
+    };
+
     return (
         <div className="space-y-4">
             <Accordion type="multiple" className="w-full" defaultValue={['layout', 'background']}>
@@ -74,8 +85,8 @@ export function SectionBlockEditor({ settings, onUpdate }: { settings: any, onUp
                         )}
                         {settings.backgroundType === 'image' && (
                              <div className="space-y-2">
-                                <Label>Background Image URL</Label>
-                                <Input value={settings.backgroundImageUrl || ''} onChange={(e) => handleUpdate('backgroundImageUrl', e.target.value)} />
+                                <Label htmlFor="backgroundImageFile">Background Image</Label>
+                                <Input id="backgroundImageFile" type="file" accept="image/*" onChange={handleFileChange} />
                             </div>
                         )}
                     </AccordionContent>
