@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React from 'react';
@@ -21,7 +20,7 @@ import { RepeaterBlockRenderer } from '@/components/wabasimplify/website-builder
 import { SectionBlockRenderer } from './section-block-renderer';
 import { ColumnsBlockRenderer } from './columns-block-renderer';
 import { FeaturedProductsBlockRenderer } from './featured-products-block-renderer';
-import { HeroBlockRenderer } from './hero-block-renderer';
+import { HeroBlock } from './hero-block-renderer';
 import { FaqBlockRenderer } from './faq-block-renderer';
 import { TestimonialsBlockRenderer } from './testimonials-block-renderer';
 
@@ -353,7 +352,7 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
     const safeSettings = block.settings || {};
 
     switch (block.type) {
-        case 'hero': return <HeroBlockRenderer settings={safeSettings} />;
+        case 'hero': return <HeroBlock settings={safeSettings} />;
         case 'featuredProducts': return <FeaturedProductsBlockRenderer settings={safeSettings} products={products} shopSlug={shopSlug}/>;
         case 'richText': return <RichTextBlock settings={safeSettings} />;
         case 'testimonials': return <TestimonialsBlockRenderer settings={safeSettings} />;
