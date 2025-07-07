@@ -309,7 +309,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         item.href === '/dashboard/url-shortener' ||
                         item.href === '/dashboard/qr-code-maker' ||
                         item.href === '/dashboard/facebook/all-projects' ||
-                        item.href === '/dashboard/facebook/custom-ecommerce' ||
                         item.href === '/dashboard/chatbot/agents' ||
                         item.href === '/dashboard/seo';
 
