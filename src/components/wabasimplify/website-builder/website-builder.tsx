@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
@@ -15,8 +16,6 @@ import { BlockPalette } from './block-palette';
 import { Canvas } from './canvas';
 import { PropertiesPanel } from './properties-panel';
 import Link from 'next/link';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const initialState = { message: null, error: undefined };
 
@@ -200,7 +199,7 @@ export function WebsiteBuilder({ shop, availableProducts }: { shop: WithId<Ecomm
                         <div className="col-span-2 bg-background border-r p-4 overflow-y-auto">
                             <BlockPalette onAddBlock={handleAddBlock} />
                         </div>
-                        <div className="col-span-7 bg-muted/50 overflow-y-auto">
+                        <div className="col-span-7 bg-muted/50 overflow-y-auto p-4">
                             <Canvas 
                                 layout={layout}
                                 droppableId="canvas"
@@ -208,6 +207,7 @@ export function WebsiteBuilder({ shop, availableProducts }: { shop: WithId<Ecomm
                                 selectedBlockId={selectedBlockId}
                                 onRemoveBlock={handleRemoveBlock}
                                 products={availableProducts}
+                                shopSlug={shop.slug}
                             />
                         </div>
                         <div className="col-span-3 bg-background border-l p-4 overflow-y-auto">

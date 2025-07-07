@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React from 'react';
@@ -12,12 +13,13 @@ interface SectionBlockRendererProps {
   children: WebsiteBlock[];
   products: WithId<EcommProduct>[];
   blockId: string;
+  shopSlug: string;
   selectedBlockId?: string | null;
   onBlockClick?: (id: string) => void;
   onRemoveBlock?: (id: string) => void;
 }
 
-export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = ({ settings, children, products, blockId, selectedBlockId, onBlockClick, onRemoveBlock }) => {
+export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = ({ settings, children, products, blockId, shopSlug, selectedBlockId, onBlockClick, onRemoveBlock }) => {
     const safeSettings = settings || {};
 
     const style: React.CSSProperties = {
@@ -49,6 +51,7 @@ export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = ({ sett
                     onBlockClick={onBlockClick!}
                     onRemoveBlock={onRemoveBlock!}
                     isNested={true}
+                    shopSlug={shopSlug}
                 />
             </div>
         </section>

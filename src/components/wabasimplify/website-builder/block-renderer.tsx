@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import React from 'react';
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -19,47 +20,11 @@ import { SocialShareBlockRenderer } from '@/components/wabasimplify/website-buil
 import { RepeaterBlockRenderer } from '@/components/wabasimplify/website-builder/repeater-block-renderer';
 import { SectionBlockRenderer } from './section-block-renderer';
 import { ColumnsBlockRenderer } from './columns-block-renderer';
+import { FeaturedProductsBlockRenderer } from './featured-products-block-renderer';
+import { HeroBlockRenderer } from './hero-block-renderer';
+import { FaqBlockRenderer } from './faq-block-renderer';
+import { TestimonialsBlockRenderer } from './testimonials-block-renderer';
 
-const HeroBlock = ({ settings }: { settings: any }) => (
-    <div className="relative w-full h-80 md:h-96 text-white rounded-lg overflow-hidden flex items-center justify-center text-center p-4" style={{ backgroundColor: settings.backgroundColor || '#111827' }}>
-        {settings.backgroundImageUrl && <Image src={settings.backgroundImageUrl} alt={settings.title || 'Banner'} layout="fill" objectFit="cover" className="opacity-30" data-ai-hint="store banner"/>}
-        <div className="relative z-10 space-y-4">
-            <h1 className="text-4xl md:text-6xl font-extrabold" style={{fontFamily: settings.fontFamily, color: settings.textColor || '#FFFFFF'}}>{settings.title || 'Welcome to Our Shop'}</h1>
-            <p className="text-lg md:text-xl text-white/80" style={{fontFamily: settings.fontFamily}}>{settings.subtitle || 'Discover our amazing products'}</p>
-            {settings.buttonText && <Button size="lg" style={{backgroundColor: settings.buttonColor, color: settings.buttonTextColor}}>{settings.buttonText}</Button>}
-        </div>
-    </div>
-);
-
-const FeaturedProductsBlock = ({ settings, products }: { settings: any, products: WithId<EcommProduct>[] }) => {
-    const productIds = settings.productIds || [];
-    const featuredProducts = products.filter(p => productIds.includes(p._id.toString()));
-    const gridCols = settings.columns === '4' ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2 md:grid-cols-3';
-
-    return (
-        <div className="w-full">
-            <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold">{settings.title || 'Featured Products'}</h2>
-                <p className="text-muted-foreground">{settings.subtitle}</p>
-            </div>
-             <div className={cn("grid gap-6", gridCols)}>
-                {featuredProducts.map(product => (
-                    <Card key={product._id.toString()}>
-                        <CardHeader className="p-0">
-                            <div className="relative aspect-square">
-                                <Image src={product.imageUrl || 'https://placehold.co/400x400.png'} alt={product.name} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="product image"/>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="p-4">
-                            <h3 className="font-semibold text-lg">{product.name}</h3>
-                            <p className="text-muted-foreground">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(product.price)}</p>
-                        </CardContent>
-                    </Card>
-                ))}
-            </div>
-        </div>
-    );
-};
 
 const RichTextBlock = ({ settings }: { settings: any }) => {
     const style: React.CSSProperties = {
@@ -79,43 +44,6 @@ const RichTextBlock = ({ settings }: { settings: any }) => {
 
     return <div style={style} className={cn("prose dark:prose-invert max-w-none", animationClass)} dangerouslySetInnerHTML={{ __html: settings.htmlContent || '' }} />;
 };
-
-const TestimonialsBlock = ({ settings }: { settings: any }) => (
-    <div className="w-full">
-        <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold">{settings.title || 'What Our Customers Say'}</h2>
-        </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {(settings.testimonials || []).map((item: any) => (
-                <Card key={item.id}>
-                    <CardContent className="p-6">
-                        <p className="italic">"{item.quote}"</p>
-                    </CardContent>
-                    <CardFooter>
-                        <p className="font-semibold">{item.author}</p>
-                        <p className="text-sm text-muted-foreground ml-2">- {item.title}</p>
-                    </CardFooter>
-                </Card>
-            ))}
-        </div>
-    </div>
-);
-
-const FaqBlock = ({ settings }: { settings: any }) => (
-     <div className="w-full max-w-3xl mx-auto">
-        <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold">{settings.title || 'Frequently Asked Questions'}</h2>
-        </div>
-        <Accordion type="single" collapsible className="w-full">
-            {(settings.faqItems || []).map((item: any, index: number) => (
-                <AccordionItem value={`item-${item.id || index}`} key={item.id || index}>
-                    <AccordionTrigger>{item.question}</AccordionTrigger>
-                    <AccordionContent>{item.answer}</AccordionContent>
-                </AccordionItem>
-            ))}
-        </Accordion>
-    </div>
-);
 
 const CustomHtmlBlock = ({ settings }: { settings: any }) => (
     <div dangerouslySetInnerHTML={{ __html: settings.html || '' }} />
@@ -246,15 +174,23 @@ const ButtonBlock = ({ settings }: { settings: any }) => {
         colorSwap: `hover:bg-[${settings.hoverBackgroundColor}] hover:text-[${settings.hoverTextColor}]`,
     }[settings.hoverEffect || 'scale'];
 
-    return (
-         <Button asChild style={buttonStyle} className={cn(shapeClasses, hoverClasses, "transition-transform duration-300")}>
-            <Link href={settings.link || '#'}>
-                {Icon && settings.iconPosition === 'left' && <Icon className="mr-2 h-4 w-4" />}
-                {settings.text || 'Button'}
-                {Icon && settings.iconPosition === 'right' && <Icon className="ml-2 h-4 w-4" />}
-            </Link>
-        </Button>
-    )
+    return React.createElement(Button, {
+        asChild: !!settings.link,
+        style: buttonStyle,
+        className: cn(shapeClasses, hoverClasses, "transition-transform duration-300")
+    }, settings.link ? (
+        <a href={settings.link}>
+            {Icon && settings.iconPosition === 'left' && React.createElement(Icon, { className: "mr-2 h-4 w-4" })}
+            {settings.text || 'Button'}
+            {Icon && settings.iconPosition === 'right' && React.createElement(Icon, { className: "ml-2 h-4 w-4" })}
+        </a>
+    ) : (
+        <>
+            {Icon && settings.iconPosition === 'left' && React.createElement(Icon, { className: "mr-2 h-4 w-4" })}
+            {settings.text || 'Button'}
+            {Icon && settings.iconPosition === 'right' && React.createElement(Icon, { className: "ml-2 h-4 w-4" })}
+        </>
+    ));
 };
 
 const VideoBlock = ({ settings }: { settings: any }) => {
@@ -406,37 +342,39 @@ const SpacerBlock = ({ settings }: { settings: any }) => {
 interface BlockRendererProps {
   block: WebsiteBlock;
   products: WithId<EcommProduct>[];
+  shopSlug: string;
   selectedBlockId?: string | null;
   onBlockClick?: (id: string) => void;
   onRemoveBlock?: (id: string) => void;
 }
 
 export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
-    const { block, products, selectedBlockId, onBlockClick, onRemoveBlock } = props;
+    const { block, products, shopSlug, selectedBlockId, onBlockClick, onRemoveBlock } = props;
+    const safeSettings = block.settings || {};
 
     switch (block.type) {
-        case 'hero': return <HeroBlock settings={block.settings} />;
-        case 'featuredProducts': return <FeaturedProductsBlock settings={block.settings} products={products} />;
-        case 'richText': return <RichTextBlock settings={block.settings} />;
-        case 'testimonials': return <TestimonialsBlock settings={block.settings} />;
-        case 'faq': return <FaqBlock settings={block.settings} />;
-        case 'customHtml': return <CustomHtmlBlock settings={block.settings} />;
-        case 'heading': return <HeadingBlock settings={block.settings} />;
-        case 'image': return <ImageBlock settings={block.settings} />;
-        case 'button': return <ButtonBlock settings={block.settings} />;
-        case 'video': return <VideoBlock settings={block.settings} />;
-        case 'icon': return <IconBlock settings={block.settings} />;
-        case 'spacer': return <SpacerBlock settings={block.settings} />;
-        case 'imageCarousel': return <ImageCarouselRenderer settings={block.settings} />;
-        case 'tabs': return <TabsBlockRenderer settings={block.settings} />;
-        case 'accordion': return <AccordionBlockRenderer settings={block.settings} />;
-        case 'form': return <FormBlockRenderer settings={block.settings} />;
-        case 'map': return <MapBlockRenderer settings={block.settings} />;
-        case 'countdown': return <CountdownBlockRenderer settings={block.settings} />;
-        case 'socialShare': return <SocialShareBlockRenderer settings={block.settings} />;
-        case 'repeater': return <RepeaterBlockRenderer settings={block.settings} />;
-        case 'section': return <SectionBlockRenderer settings={block.settings} blockId={block.id} products={products} selectedBlockId={selectedBlockId} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} children={block.children || []} />;
-        case 'columns': return <ColumnsBlockRenderer settings={block.settings} blockId={block.id} products={products} selectedBlockId={selectedBlockId} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} children={block.children || []} />;
+        case 'hero': return <HeroBlockRenderer settings={safeSettings} />;
+        case 'featuredProducts': return <FeaturedProductsBlockRenderer settings={safeSettings} products={products} shopSlug={shopSlug}/>;
+        case 'richText': return <RichTextBlock settings={safeSettings} />;
+        case 'testimonials': return <TestimonialsBlockRenderer settings={safeSettings} />;
+        case 'faq': return <FaqBlockRenderer settings={safeSettings} />;
+        case 'customHtml': return <CustomHtmlBlock settings={safeSettings} />;
+        case 'heading': return <HeadingBlock settings={safeSettings} />;
+        case 'image': return <ImageBlock settings={safeSettings} />;
+        case 'button': return <ButtonBlock settings={safeSettings} />;
+        case 'video': return <VideoBlock settings={safeSettings} />;
+        case 'icon': return <IconBlock settings={safeSettings} />;
+        case 'spacer': return <SpacerBlock settings={safeSettings} />;
+        case 'imageCarousel': return <ImageCarouselRenderer settings={safeSettings} />;
+        case 'tabs': return <TabsBlockRenderer settings={safeSettings} />;
+        case 'accordion': return <AccordionBlockRenderer settings={safeSettings} />;
+        case 'form': return <FormBlockRenderer settings={safeSettings} />;
+        case 'map': return <MapBlockRenderer settings={safeSettings} />;
+        case 'countdown': return <CountdownBlockRenderer settings={safeSettings} />;
+        case 'socialShare': return <SocialShareBlockRenderer settings={safeSettings} />;
+        case 'repeater': return <RepeaterBlockRenderer settings={safeSettings} />;
+        case 'section': return <SectionBlockRenderer settings={safeSettings} blockId={block.id} products={products} selectedBlockId={selectedBlockId} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} children={block.children || []} shopSlug={shopSlug} />;
+        case 'columns': return <ColumnsBlockRenderer settings={safeSettings} blockId={block.id} products={products} selectedBlockId={selectedBlockId} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} children={block.children || []} shopSlug={shopSlug} />;
         default: return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
     }
 };
