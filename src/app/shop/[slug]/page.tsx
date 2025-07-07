@@ -1,11 +1,54 @@
 
 import { notFound } from 'next/navigation';
-import { getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { getEcommShopBySlug, getEcommProducts } from '@/app/actions/custom-ecommerce.actions';
+import type { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import Image from 'next/image';
-import { connectToDatabase } from '@/lib/mongodb';
-import type { EcommProduct } from '@/lib/definitions';
+import { cn } from '@/lib/utils';
 import { ObjectId } from 'mongodb';
+
+
+const HeroBlock = ({ settings }: { settings: any }) => (
+    <div className="relative w-full h-80 md:h-96 text-white rounded-lg overflow-hidden flex items-center justify-center text-center p-4" style={{ backgroundColor: settings.backgroundColor || '#111827' }}>
+        {settings.backgroundImageUrl && <Image src={settings.backgroundImageUrl} alt={settings.title || 'Banner'} layout="fill" objectFit="cover" className="opacity-30" data-ai-hint="store banner"/>}
+        <div className="relative z-10 space-y-4">
+            <h1 className="text-4xl md:text-6xl font-extrabold" style={{fontFamily: settings.fontFamily, color: settings.textColor || '#FFFFFF'}}>{settings.title || 'Welcome to Our Shop'}</h1>
+            <p className="text-lg md:text-xl text-white/80" style={{fontFamily: settings.fontFamily}}>{settings.subtitle || 'Discover our amazing products'}</p>
+            {settings.buttonText && <Button size="lg" style={{backgroundColor: settings.buttonColor, color: settings.buttonTextColor}}>{settings.buttonText}</Button>}
+        </div>
+    </div>
+);
+
+const FeaturedProductsBlock = ({ settings, products }: { settings: any, products: WithId<EcommProduct>[] }) => {
+    const productIds = settings.productIds || [];
+    const featuredProducts = products.filter(p => productIds.includes(p._id.toString()));
+    const gridCols = settings.columns === '4' ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2 md:grid-cols-3';
+
+    return (
+        <div className="w-full">
+            <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold">{settings.title || 'Featured Products'}</h2>
+                <p className="text-muted-foreground">{settings.subtitle}</p>
+            </div>
+             <div className={cn("grid gap-6", gridCols)}>
+                {featuredProducts.map(product => (
+                    <Card key={product._id.toString()}>
+                        <CardHeader className="p-0">
+                            <div className="relative aspect-square">
+                                <Image src={product.imageUrl || 'https://placehold.co/400x400.png'} alt={product.name} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="product image"/>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="p-4">
+                            <h3 className="font-semibold text-lg">{product.name}</h3>
+                            <p className="text-muted-foreground">{new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(product.price)}</p>
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        </div>
+    );
+};
 
 export default async function ShopPage({ params }: { params: { slug: string } }) {
     if (!params.slug) {
@@ -18,42 +61,37 @@ export default async function ShopPage({ params }: { params: { slug: string } })
         notFound();
     }
     
-    const { db } = await connectToDatabase();
-    const products = await db.collection<EcommProduct>('ecomm_products')
-        .find({ shopId: new ObjectId(shop._id) })
-        .sort({ createdAt: -1 })
-        .toArray();
+    // Fetch all products for the shop to pass to blocks that need them
+    const products = await getEcommProducts(shop._id.toString());
+    const homepageLayout = shop.homepageLayout || [];
+
+    const BlockRenderer = ({ block }: { block: WebsiteBlock }) => {
+        switch (block.type) {
+            case 'hero':
+                return <HeroBlock settings={block.settings} />;
+            case 'featuredProducts':
+                return <FeaturedProductsBlock settings={block.settings} products={products} />;
+            default:
+                return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
+        }
+    };
+    
+    // Determine the global font for the body from the Hero block if it exists
+    const heroBlock = homepageLayout.find(b => b.type === 'hero');
+    const globalFontFamily = heroBlock?.settings?.fontFamily || 'Inter, sans-serif';
 
     return (
-        <div className="flex flex-col items-center p-4 md:p-8" style={{fontFamily: shop.appearance?.fontFamily || 'Inter, sans-serif'}}>
-            {shop.appearance?.bannerImageUrl && (
-                 <div className="relative w-full h-48 md:h-64 mb-8">
-                    <Image src={shop.appearance.bannerImageUrl} alt={`${shop.name} banner`} layout="fill" objectFit="cover" className="rounded-lg" data-ai-hint="store banner" />
-                 </div>
-            )}
-            <div className="text-center mb-12">
-                <h1 className="text-4xl font-bold" style={{color: shop.appearance?.primaryColor}}>{shop.name}</h1>
-                <p className="text-lg text-muted-foreground">Welcome to our shop!</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-7xl">
-                {products.map(product => (
-                    <Card key={product._id.toString()}>
-                        <CardHeader className="p-0">
-                            <div className="relative aspect-square">
-                                <Image src={product.imageUrl || 'https://placehold.co/400x400.png'} alt={product.name} layout="fill" objectFit="cover" className="rounded-t-lg" data-ai-hint="product image" />
-                            </div>
-                        </CardHeader>
-                        <CardContent className="p-4">
-                            <h3 className="font-semibold text-lg">{product.name}</h3>
-                            <p className="text-muted-foreground">{new Intl.NumberFormat('en-US', { style: 'currency', currency: shop.currency || 'USD' }).format(product.price)}</p>
-                        </CardContent>
-                    </Card>
-                ))}
-                {products.length === 0 && (
-                    <p className="md:col-span-2 lg:col-span-4 text-center text-muted-foreground">No products available in this shop yet.</p>
+        <div style={{ fontFamily: globalFontFamily }}>
+            <main className="flex flex-col items-center space-y-12 md:space-y-16 p-4 md:p-8">
+                {homepageLayout.length > 0 ? (
+                    homepageLayout.map(block => <BlockRenderer key={block.id} block={block} />)
+                ) : (
+                    <div className="text-center py-24">
+                        <h1 className="text-4xl font-bold">{shop.name}</h1>
+                        <p className="text-lg text-muted-foreground mt-4">This shop is under construction. Come back soon!</p>
+                    </div>
                 )}
-            </div>
+            </main>
         </div>
     );
 }
