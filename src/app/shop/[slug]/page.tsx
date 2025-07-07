@@ -1,5 +1,4 @@
 
-
 import { notFound } from 'next/navigation';
 import { getEcommShopBySlug, getPublicEcommProducts } from '@/app/actions/custom-ecommerce.actions';
 import { BlockRenderer } from '@/components/wabasimplify/website-builder/block-renderer';
@@ -21,7 +20,7 @@ export default async function ShopPage({ params }: { params: { slug: string } })
     return (
         <main className="flex flex-col items-center">
             {homepageLayout.length > 0 ? (
-                homepageLayout.map(block => <BlockRenderer key={block.id} block={block} products={products} shopSlug={shop.slug}/>)
+                homepageLayout.map(block => <BlockRenderer key={block.id} block={block} products={products} shopSlug={shop.slug} isEditable={false} />)
             ) : (
                 <div className="text-center py-24">
                     <h1 className="text-4xl font-bold">{shop.name}</h1>

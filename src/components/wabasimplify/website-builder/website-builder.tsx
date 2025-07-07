@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
@@ -208,6 +207,7 @@ export function WebsiteBuilder({ shop, availableProducts }: { shop: WithId<Ecomm
                                 onRemoveBlock={handleRemoveBlock}
                                 products={availableProducts}
                                 shopSlug={shop.slug}
+                                isEditable={true}
                             />
                         </div>
                         <div className="col-span-3 bg-background border-l p-4 overflow-y-auto">
