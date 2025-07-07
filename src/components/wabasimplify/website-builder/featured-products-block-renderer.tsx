@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import type { WithId, EcommProduct } from '@/lib/definitions';
 import { ProductCard } from './product-card';
 import { Button } from '@/components/ui/button';
+import React from 'react';
 
 export function FeaturedProductsBlockRenderer({ settings, products, shopSlug }: { settings: any, products: WithId<EcommProduct>[], shopSlug: string }) {
     const productIds = settings.productIds || [];
@@ -22,8 +23,17 @@ export function FeaturedProductsBlockRenderer({ settings, products, shopSlug }: 
     
     const gridCols = settings.columns === '4' ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2 md:grid-cols-3';
 
+    const layout = settings.layout || {};
+    const style: React.CSSProperties = {
+        width: layout.width || '100%',
+        height: layout.height || 'auto',
+        maxWidth: layout.maxWidth || undefined,
+        minHeight: layout.minHeight || undefined,
+        overflow: layout.overflow || 'visible',
+    };
+
     return (
-        <div>
+        <div style={style}>
             <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold">{settings.title || 'Featured Products'}</h2>
                 <p className="text-muted-foreground">{settings.subtitle}</p>

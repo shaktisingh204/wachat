@@ -86,7 +86,7 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
                         <Button type="button" variant="outline" onClick={addItem}><Plus className="mr-2 h-4 w-4" /> Add Testimonial</Button>
                     </AccordionContent>
                 </AccordionItem>
-                <AccordionItem value="layout">
+                 <AccordionItem value="layout">
                     <AccordionTrigger>Sizing &amp; Layout</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                         <div className="grid grid-cols-2 gap-4">

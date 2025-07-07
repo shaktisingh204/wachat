@@ -4,10 +4,20 @@
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Image from 'next/image';
+import React from 'react';
 
 export function TestimonialsBlockRenderer({ settings }: { settings: any }) {
+    const layout = settings.layout || {};
+    const style: React.CSSProperties = {
+        width: layout.width || '100%',
+        height: layout.height || 'auto',
+        maxWidth: layout.maxWidth || undefined,
+        minHeight: layout.minHeight || undefined,
+        overflow: layout.overflow || 'visible',
+    };
+
     return (
-     <div className="max-w-5xl mx-auto">
+     <div className="max-w-5xl mx-auto" style={style}>
         <div className="text-center mb-8">
             <h2 className="text-3xl font-bold">{settings.title || 'What Our Customers Say'}</h2>
         </div>
