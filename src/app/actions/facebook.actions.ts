@@ -1712,11 +1712,11 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
         );
         
         revalidatePath('/dashboard/custom-ecommerce/settings');
+        revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
         return { success: true, error: undefined };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
     
-export * from './facebook-flow.actions';
-    
+

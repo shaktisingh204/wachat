@@ -354,6 +354,7 @@ export async function addCustomDomain(prevState: any, formData: FormData): Promi
         );
 
         revalidatePath('/dashboard/url-shortener/settings');
+        revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
         return { success: true };
     } catch (e: any) {
         return { error: e.message || 'An unexpected error occurred.' };
@@ -373,6 +374,7 @@ export async function verifyCustomDomain(domainId: string): Promise<{ success: b
             { $set: { 'customDomains.$.verified': true } }
         );
         revalidatePath('/dashboard/url-shortener/settings');
+        revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: 'Failed to verify domain.' };
@@ -390,8 +392,10 @@ export async function deleteCustomDomain(domainId: string): Promise<{ success: b
             { $pull: { customDomains: { _id: new ObjectId(domainId) } } }
         );
         revalidatePath('/dashboard/url-shortener/settings');
+        revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
         return { success: true };
     } catch (e: any) {
         return { success: false, error: 'Failed to delete domain.' };
     }
 }
+
