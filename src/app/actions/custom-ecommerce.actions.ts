@@ -42,6 +42,24 @@ export async function getEcommShopById(shopId: string): Promise<WithId<EcommShop
     return JSON.parse(JSON.stringify(shop));
 }
 
+export async function getEcommShopBySlug(slug: string): Promise<WithId<EcommShop> | null> {
+    if (!slug) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const shop = await db.collection<EcommShop>('ecomm_shops').findOne({ slug });
+
+        if (!shop) return null;
+        
+        // This is a public page, so we don't need to check for user session access.
+        
+        return JSON.parse(JSON.stringify(shop));
+    } catch(e) {
+        console.error("Failed to get shop by slug:", e);
+        return null;
+    }
+}
+
 
 export async function createEcommShop(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, shopId?: string }> {
     const projectId = formData.get('projectId') as string;
@@ -83,34 +101,58 @@ export async function createEcommShop(prevState: any, formData: FormData): Promi
 }
 
 export async function updateEcommShopSettings(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
-    const shopId = formData.get('shopId') as string;
-    if (!shopId) return { error: 'Shop ID is missing.' };
+    const projectId = formData.get('projectId') as string;
+    const shopName = formData.get('shopName') as string;
 
-    const shop = await getEcommShopById(shopId);
-    if (!shop) return { error: 'Access denied or shop not found.' };
-    
+    if (!projectId) {
+        return { error: 'Project ID is missing.' };
+    }
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Access denied or project not found.' };
+
+    const currentSettings = project.ecommSettings || {};
+
     try {
-        const updatedSettings: Partial<EcommShop> = {
-            updatedAt: new Date(),
+        const updatedSettings: Partial<EcommSettings> = {
+            shopName: shopName || currentSettings.shopName,
+            currency: (formData.get('currency') as string) || currentSettings.currency,
         };
 
-        if (formData.has('shopName')) updatedSettings.name = formData.get('shopName') as string;
-        if (formData.has('currency')) updatedSettings.currency = formData.get('currency') as string;
-        if (formData.has('customDomain')) {
-            const domainValue = formData.get('customDomain') as string;
-            updatedSettings.customDomain = (domainValue === 'none' || !domainValue) ? undefined : domainValue;
-        }
+        const domainValue = formData.get('customDomain') as string;
+        updatedSettings.customDomain = (domainValue === 'none' || !domainValue) ? undefined : domainValue;
+        
         if (formData.has('paymentLinkRazorpay')) updatedSettings.paymentLinkRazorpay = (formData.get('paymentLinkRazorpay') as string) || undefined;
         if (formData.has('paymentLinkPaytm')) updatedSettings.paymentLinkPaytm = (formData.get('paymentLinkPaytm') as string) || undefined;
         if (formData.has('paymentLinkGPay')) updatedSettings.paymentLinkGPay = (formData.get('paymentLinkGPay') as string) || undefined;
-        
+
+        if (formData.has('appearance_primaryColor')) {
+             if(!updatedSettings.appearance) updatedSettings.appearance = {};
+             updatedSettings.appearance.primaryColor = formData.get('appearance_primaryColor') as string;
+        }
+        if (formData.has('appearance_fontFamily')) {
+             if(!updatedSettings.appearance) updatedSettings.appearance = {};
+             updatedSettings.appearance.fontFamily = formData.get('appearance_fontFamily') as string;
+        }
+        if (formData.has('appearance_bannerImageUrl')) {
+             if(!updatedSettings.appearance) updatedSettings.appearance = {};
+             updatedSettings.appearance.bannerImageUrl = formData.get('appearance_bannerImageUrl') as string;
+        }
+
+        if (formData.has('abandonedCart.enabled')) {
+            if(!updatedSettings.abandonedCart) updatedSettings.abandonedCart = {} as any;
+            updatedSettings.abandonedCart.enabled = formData.get('abandonedCart.enabled') === 'on';
+            updatedSettings.abandonedCart.delayMinutes = parseInt(formData.get('abandonedCart.delayMinutes') as string, 10);
+            updatedSettings.abandonedCart.flowId = formData.get('abandonedCart.flowId') as string;
+        }
+
         const { db } = await connectToDatabase();
-        await db.collection('ecomm_shops').updateOne(
-            { _id: new ObjectId(shopId) },
-            { $set: updatedSettings }
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { ecommSettings: { ...currentSettings, ...updatedSettings } } }
         );
 
-        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/settings`);
+        revalidatePath('/dashboard/custom-ecommerce/settings');
+        revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
         return { message: 'Shop settings saved successfully!' };
     } catch (e: any) {
         return { error: 'Failed to save shop settings.' };
