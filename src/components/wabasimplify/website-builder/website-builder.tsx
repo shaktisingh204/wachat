@@ -45,7 +45,7 @@ function BuilderSkeleton() {
 const findList = (items: WebsiteBlock[], droppableId: string): WebsiteBlock[] | null => {
     if (droppableId === 'canvas') return items;
     for (const item of items) {
-        if (item.id === droppableId) {
+        if (item.id === droppableId && (item.type === 'section' || item.type === 'column')) {
             if (!item.children) item.children = [];
             return item.children;
         }
@@ -108,6 +108,18 @@ export function WebsiteBuilder() {
             settings: {},
             ...(type === 'section' && { children: [] }),
         };
+        
+        if (type === 'columns') {
+            const columnCount = 2; // Default
+            newBlock.children = Array.from({ length: columnCount }, () => ({
+                id: uuidv4(),
+                type: 'column',
+                settings: {},
+                children: []
+            }));
+            newBlock.settings = { columnCount };
+        }
+
         const newLayout = [...layout, newBlock];
         setLayout(newLayout);
         setSelectedBlockId(newBlock.id);
@@ -117,7 +129,24 @@ export function WebsiteBuilder() {
         const updateRecursively = (items: WebsiteBlock[]): WebsiteBlock[] => {
             return items.map(block => {
                 if (block.id === id) {
-                    return { ...block, settings: newSettings };
+                    const updatedBlock = { ...block, settings: newSettings };
+
+                    // Special logic for columns block to adjust children array
+                    if (block.type === 'columns' && newSettings.columnCount !== (block.settings.columnCount || 0)) {
+                        const currentCount = block.children?.length || 0;
+                        const newCount = newSettings.columnCount || 0;
+                        let newChildren = [...(block.children || [])];
+
+                        if (newCount > currentCount) {
+                            for (let i = 0; i < newCount - currentCount; i++) {
+                                newChildren.push({ id: uuidv4(), type: 'column', settings: {}, children: [] });
+                            }
+                        } else if (newCount < currentCount) {
+                            newChildren = newChildren.slice(0, newCount);
+                        }
+                        updatedBlock.children = newChildren;
+                    }
+                    return updatedBlock;
                 }
                 if (block.children) {
                     return { ...block, children: updateRecursively(block.children) };
@@ -136,7 +165,7 @@ export function WebsiteBuilder() {
     };
     
     const onDragEnd = (result: DropResult) => {
-        const { source, destination } = result;
+        const { source, destination, draggableId } = result;
         if (!destination) return;
 
         const layoutCopy = JSON.parse(JSON.stringify(layout));
@@ -214,7 +243,7 @@ export function WebsiteBuilder() {
                             <Canvas 
                                 layout={layout}
                                 droppableId="canvas"
-                                setSelectedBlockId={setSelectedBlockId}
+                                onBlockClick={setSelectedBlockId}
                                 selectedBlockId={selectedBlockId}
                                 onRemoveBlock={(parentId, index) => {
                                     const layoutCopy = JSON.parse(JSON.stringify(layout));

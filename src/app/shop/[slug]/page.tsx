@@ -448,6 +448,8 @@ const BlockRenderer: React.FC<{ block: WebsiteBlock, products: WithId<EcommProdu
             return <RepeaterBlockRenderer settings={block.settings} />;
         case 'section':
             return <SectionBlock settings={block.settings} children={block.children || []} products={products} />;
+        case 'columns':
+            return <ColumnsBlockRenderer settings={block.settings} children={block.children || []} products={products} />;
         default:
             return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
     }
@@ -477,6 +479,35 @@ const SectionBlock: React.FC<{ settings: any, children: WebsiteBlock[], products
                 </div>
             </div>
         </section>
+    );
+};
+
+const ColumnsBlockRenderer: React.FC<{ settings: any, children: WebsiteBlock[], products: WithId<EcommProduct>[] }> = ({ settings, children, products }) => {
+    const { columnCount = 2, gap = 4, stackOnMobile = true, padding, margin } = settings;
+
+    const gridColsClasses: {[key: number]: string} = {
+        1: 'md:grid-cols-1', 2: 'md:grid-cols-2', 3: 'md:grid-cols-3',
+        4: 'md:grid-cols-4', 5: 'md:grid-cols-5', 6: 'md:grid-cols-6',
+    };
+    
+    const responsiveClass = stackOnMobile ? 'grid-cols-1' : `grid-cols-${columnCount}`;
+
+    const style = {
+        gap: `${gap}px`,
+        padding: padding ? `${padding.top || 0}px ${padding.right || 0}px ${padding.bottom || 0}px ${padding.left || 0}px` : undefined,
+        margin: margin ? `${margin.top || 0}px ${margin.right || 0}px ${margin.bottom || 0}px ${margin.left || 0}px` : undefined,
+    };
+
+    return (
+        <div className={cn('grid', responsiveClass, gridColsClasses[columnCount])} style={style}>
+            {children.map(column => (
+                <div key={column.id} className="flex flex-col gap-4">
+                     {(column.children || []).map(block => (
+                        <BlockRenderer key={block.id} block={block} products={products} />
+                    ))}
+                </div>
+            ))}
+        </div>
     );
 };
 
