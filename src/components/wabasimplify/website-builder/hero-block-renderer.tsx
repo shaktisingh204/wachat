@@ -4,7 +4,7 @@
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
-export const HeroBlock = ({ settings }: { settings: any }) => {
+export function HeroBlock({ settings }: { settings: any }) {
     if (settings.layout === 'offset-box') {
         return (
             <div className="relative h-[500px] md:h-[600px] w-full" style={{ backgroundColor: settings.backgroundColor || '#F3F4F6' }}>
@@ -33,3 +33,5 @@ export const HeroBlock = ({ settings }: { settings: any }) => {
         </div>
     );
 };
+
+    

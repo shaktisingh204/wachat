@@ -47,19 +47,6 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                             <Label htmlFor={`subtitle-${settings.id}`}>Subtitle</Label>
                             <Textarea id={`subtitle-${settings.id}`} value={settings.subtitle || ''} onChange={(e) => handleUpdate('subtitle', e.target.value)} />
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor={`font-family-${settings.id}`}>Font Family</Label>
-                            <Select value={settings.fontFamily || 'Inter'} onValueChange={(val) => handleUpdate('fontFamily', val)}>
-                                <SelectTrigger id={`font-family-${settings.id}`}><SelectValue /></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="Inter">Inter (sans-serif)</SelectItem>
-                                    <SelectItem value="Roboto">Roboto (sans-serif)</SelectItem>
-                                    <SelectItem value="Lato">Lato (sans-serif)</SelectItem>
-                                    <SelectItem value="Merriweather">Merriweather (serif)</SelectItem>
-                                    <SelectItem value="Playfair Display">Playfair Display (serif)</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
                     </AccordionContent>
                 </AccordionItem>
                  <AccordionItem value="background">
@@ -84,16 +71,35 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                 <AccordionItem value="cta">
                     <AccordionTrigger>Call to Action Button (Optional)</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
-                        <div className="grid grid-cols-3 gap-2">
-                            <Input className="col-span-3" placeholder="Button Text" value={settings.buttonText || ''} onChange={(e) => handleUpdate('buttonText', e.target.value)} />
-                            <Input type="color" value={settings.buttonColor || '#FFFFFF'} onChange={(e) => handleUpdate('buttonColor', e.target.value)} />
-                            <Input type="color" value={settings.buttonTextColor || '#000000'} onChange={(e) => handleUpdate('buttonTextColor', e.target.value)} />
+                        <div className="space-y-2">
+                            <Label>Button Text</Label>
+                            <Input placeholder="Button Text" value={settings.buttonText || ''} onChange={(e) => handleUpdate('buttonText', e.target.value)} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Button Color</Label>
+                                <Input type="color" value={settings.buttonColor || '#FFFFFF'} onChange={(e) => handleUpdate('buttonColor', e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Button Text Color</Label>
+                                <Input type="color" value={settings.buttonTextColor || '#000000'} onChange={(e) => handleUpdate('buttonTextColor', e.target.value)} />
+                            </div>
                         </div>
                     </AccordionContent>
                 </AccordionItem>
                  <AccordionItem value="layout">
-                    <AccordionTrigger>Sizing &amp; Layout</AccordionTrigger>
+                    <AccordionTrigger>Layout</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
+                        <div className="space-y-2">
+                            <Label>Content Layout</Label>
+                            <Select value={settings.layout || 'center'} onValueChange={(val) => handleUpdate('layout', val)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="center">Center</SelectItem>
+                                    <SelectItem value="offset-box">Offset Box</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label>Width</Label>
@@ -131,3 +137,5 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
         </div>
     );
 }
+
+    

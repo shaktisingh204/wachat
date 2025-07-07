@@ -58,7 +58,7 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
 
     return (
         <div className="space-y-4">
-            <Accordion type="multiple" defaultValue={['content']} className="w-full">
+            <Accordion type="multiple" className="w-full" defaultValue={['content']}>
                 <AccordionItem value="content">
                     <AccordionTrigger>Content</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
@@ -126,3 +126,5 @@ export function TestimonialsBlockEditor({ settings, onUpdate }: { settings: any,
         </div>
     );
 }
+
+    

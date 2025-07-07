@@ -149,3 +149,5 @@ export function FeaturedProductsBlockEditor({ settings, onUpdate, availableProdu
         </div>
     );
 }
+
+    

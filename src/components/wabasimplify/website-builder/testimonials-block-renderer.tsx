@@ -45,3 +45,5 @@ export function TestimonialsBlockRenderer({ settings }: { settings: any }) {
     </div>
     )
 }
+
+    

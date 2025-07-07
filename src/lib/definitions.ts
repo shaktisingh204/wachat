@@ -579,7 +579,7 @@ export type Contact = {
         waitingSince?: Date;
     };
     isOptedOut?: boolean;
-    hasReceivedWelcome?: boolean;
+    hasReceivedWelcome?: hasReceivedWelcome;
     status?: string;
     assignedAgentId?: string;
     tagIds?: string[];
@@ -1094,3 +1094,5 @@ export type Backlink = {
     domainAuthority: number;
     linkType: 'News' | 'Forum' | 'Blog' | 'Review';
 };
+
+    

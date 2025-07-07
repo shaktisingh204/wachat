@@ -174,7 +174,7 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
           subtitle: 'Complete your style with awesome clothes from us.',
           buttonText: 'Shop Now',
           backgroundImageUrl: 'https://placehold.co/1920x800.png',
-          "data-ai-hint": 'fashion model',
+          'data-ai-hint': 'fashion model',
           backgroundColor: '#f3f4f6', 
           textColor: '#11182c',
           buttonColor: '#11182c',
@@ -199,12 +199,12 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                 type: 'columns',
                 settings: { columnCount: 6, gap: 16, stackOnMobile: false },
                 children: [
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 1', "data-ai-hint": "brand logo" }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 2', "data-ai-hint": "brand logo" }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 3', "data-ai-hint": "brand logo" }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 4', "data-ai-hint": "brand logo" }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 5', "data-ai-hint": "brand logo" }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 6', "data-ai-hint": "brand logo" }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 1', 'data-ai-hint': 'brand logo' }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 2', 'data-ai-hint': 'brand logo' }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 3', 'data-ai-hint': 'brand logo' }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 4', 'data-ai-hint': 'brand logo' }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 5', 'data-ai-hint': 'brand logo' }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 6', 'data-ai-hint': 'brand logo' }}], settings: {} },
                 ]
             }
         ]
@@ -247,9 +247,9 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                 type: 'columns',
                 settings: { columnCount: 3, gap: 24, stackOnMobile: true },
                 children: [
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/400x500.png', alt: 'For Him', "data-ai-hint": "male fashion", caption: "For Him" }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/400x500.png', alt: 'For Her', "data-ai-hint": "female fashion", caption: "For Her" }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/400x500.png', alt: 'Accessories', "data-ai-hint": "fashion accessories", caption: "Accessories" }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/400x500.png', alt: 'For Him', 'data-ai-hint': 'male fashion', caption: "For Him" }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/400x500.png', alt: 'For Her', 'data-ai-hint': 'female fashion', caption: "For Her" }}], settings: {} },
+                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/400x500.png', alt: 'Accessories', 'data-ai-hint': 'fashion accessories', caption: "Accessories" }}], settings: {} },
                 ]
             }
         ]
@@ -263,7 +263,7 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
           subtitle: 'Get 50% off on all winter wear. Don\'t miss out!',
           buttonText: 'Explore Deals',
           backgroundImageUrl: 'https://placehold.co/1600x600.png',
-           "data-ai-hint": "sale banner",
+           'data-ai-hint': 'sale banner',
           backgroundColor: '#eab308',
           textColor: '#ffffff',
           buttonColor: '#ffffff',
@@ -288,9 +288,9 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                 settings: {
                 title: 'What Our Customers Say',
                 testimonials: [
-                    { id: uuidv4(), quote: "This is the best product I've ever used. Highly recommended!", author: 'Jane Doe', title: 'Verified Customer' },
-                    { id: uuidv4(), quote: "Amazing quality and fast shipping. I will definitely be back for more.", author: 'John Smith', title: 'Happy Client' },
-                    { id: uuidv4(), quote: "A game-changer for my daily routine. I can't imagine my life without it now.", author: 'Sam Wilson', title: 'Enthusiast' },
+                    { id: uuidv4(), quote: "This is the best product I've ever used. Highly recommended!", author: 'Jane Doe', title: 'Verified Customer', avatar: 'https://placehold.co/100x100.png' },
+                    { id: uuidv4(), quote: "Amazing quality and fast shipping. I will definitely be back for more.", author: 'John Smith', title: 'Happy Client', avatar: 'https://placehold.co/100x100.png' },
+                    { id: uuidv4(), quote: "A game-changer for my daily routine. I can't imagine my life without it now.", author: 'Sam Wilson', title: 'Enthusiast', avatar: 'https://placehold.co/100x100.png' },
                 ],
                 },
                 children: [],
@@ -645,3 +645,5 @@ export async function syncProductsToMetaCatalog(projectId: string, shopId: strin
         return { error: getErrorMessage(e) };
     }
 }
+
+    

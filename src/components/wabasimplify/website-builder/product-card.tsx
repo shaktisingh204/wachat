@@ -43,3 +43,5 @@ export function ProductCard({ product, shopSlug }: { product: any, shopSlug: str
     </Link>
   );
 }
+
+    
