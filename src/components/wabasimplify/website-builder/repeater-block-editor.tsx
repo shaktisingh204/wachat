@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
 import { Card, CardContent } from '@/components/ui/card';
 import Image from 'next/image';
 

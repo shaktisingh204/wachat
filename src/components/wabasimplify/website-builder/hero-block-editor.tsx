@@ -137,5 +137,3 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
         </div>
     );
 }
-
-    

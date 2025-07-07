@@ -196,6 +196,7 @@ export type Project = {
     kanbanStatuses?: string[];
     facebookKanbanStatuses?: string[];
     plan?: WithId<Plan> | null; // populated by aggregate
+    ecommSettings?: EcommSettings;
 };
 
 export type Template = {
@@ -579,7 +580,7 @@ export type Contact = {
         waitingSince?: Date;
     };
     isOptedOut?: boolean;
-    hasReceivedWelcome?: hasReceivedWelcome;
+    hasReceivedWelcome?: boolean;
     status?: string;
     assignedAgentId?: string;
     tagIds?: string[];
@@ -1094,5 +1095,3 @@ export type Backlink = {
     domainAuthority: number;
     linkType: 'News' | 'Forum' | 'Blog' | 'Review';
 };
-
-    
