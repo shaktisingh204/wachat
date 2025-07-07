@@ -9,6 +9,7 @@ import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getErrorMessage } from '@/lib/utils';
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 // --- Shop Actions ---
 
@@ -158,6 +159,77 @@ export async function updateEcommShopSettings(prevState: any, formData: FormData
     }
 }
 
+export async function applyEcommShopTheme(shopId: string): Promise<{ message?: string; error?: string }> {
+    if (!ObjectId.isValid(shopId)) return { error: 'Invalid Shop ID.' };
+
+    const shop = await getEcommShopById(shopId);
+    if (!shop) return { error: 'Access denied or shop not found.' };
+
+    const defaultShoppingTheme: WebsiteBlock[] = [
+        {
+            id: uuidv4(),
+            type: 'hero',
+            settings: {
+                title: 'Welcome to Our Store',
+                subtitle: 'Discover amazing products curated just for you.',
+                buttonText: 'Shop Now',
+                backgroundImageUrl: 'https://placehold.co/1600x600.png',
+                backgroundColor: '#111827',
+                textColor: '#FFFFFF',
+            },
+            children: [],
+        },
+        {
+            id: uuidv4(),
+            type: 'featuredProducts',
+            settings: {
+                title: 'Featured Products',
+                subtitle: 'Check out our best-selling items.',
+                columns: '4',
+                productIds: [], // User will populate this
+            },
+            children: [],
+        },
+        {
+            id: uuidv4(),
+            type: 'testimonials',
+            settings: {
+                title: 'What Our Customers Say',
+                testimonials: [
+                    { id: uuidv4(), quote: "This is the best product I've ever used. Highly recommended!", author: 'Jane Doe', title: 'Verified Customer' },
+                    { id: uuidv4(), quote: "Amazing quality and fast shipping. I will definitely be back for more.", author: 'John Smith', title: 'Happy Client' },
+                    { id: uuidv4(), quote: "A game-changer for my daily routine. I can't imagine my life without it now.", author: 'Sam Wilson', title: 'Enthusiast' },
+                ],
+            },
+            children: [],
+        },
+         {
+            id: uuidv4(),
+            type: 'faq',
+            settings: {
+                title: 'Frequently Asked Questions',
+                faqItems: [
+                    { id: uuidv4(), question: 'What is the shipping policy?', answer: 'We offer free shipping on all orders over $50. Standard shipping takes 3-5 business days.' },
+                    { id: uuidv4(), question: 'What is your return policy?', answer: 'We have a 30-day return policy. If you are not satisfied with your purchase, you can return it for a full refund.' },
+                ],
+            },
+            children: [],
+        },
+    ];
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('ecomm_shops').updateOne(
+            { _id: new ObjectId(shopId) },
+            { $set: { homepageLayout: defaultShoppingTheme, updatedAt: new Date() } }
+        );
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
+        return { message: 'Default shopping theme applied successfully! You can now customize it in the Website Builder.' };
+    } catch (e: any) {
+        return { error: 'Failed to apply theme.' };
+    }
+}
+
 
 // --- Product Actions ---
 
@@ -178,6 +250,23 @@ export async function getEcommProducts(shopId: string): Promise<WithId<EcommProd
         return [];
     }
 }
+
+export async function getPublicEcommProducts(shopId: string): Promise<WithId<EcommProduct>[]> {
+    if (!ObjectId.isValid(shopId)) return [];
+    
+    try {
+        const { db } = await connectToDatabase();
+        const products = await db.collection('ecomm_products')
+            .find({ shopId: new ObjectId(shopId) })
+            .sort({ createdAt: -1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(products));
+    } catch (e) {
+        console.error("Failed to get public e-commerce products:", e);
+        return [];
+    }
+}
+
 
 export async function saveEcommProduct(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const shopId = formData.get('shopId') as string;

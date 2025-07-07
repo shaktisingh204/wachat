@@ -1,7 +1,7 @@
 
 
 import { notFound } from 'next/navigation';
-import { getEcommShopBySlug, getEcommProducts } from '@/app/actions/custom-ecommerce.actions';
+import { getEcommShopBySlug, getPublicEcommProducts } from '@/app/actions/custom-ecommerce.actions';
 import { BlockRenderer } from '@/components/wabasimplify/website-builder/block-renderer';
 
 export default async function ShopPage({ params }: { params: { slug: string } }) {
@@ -15,7 +15,7 @@ export default async function ShopPage({ params }: { params: { slug: string } })
         notFound();
     }
     
-    const products = await getEcommProducts(shop._id.toString());
+    const products = await getPublicEcommProducts(shop._id.toString());
     const homepageLayout = shop.homepageLayout || [];
     
     const globalFontFamily = shop.appearance?.fontFamily || 'Inter, sans-serif';
