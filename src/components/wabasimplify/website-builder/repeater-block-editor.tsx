@@ -11,6 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent } from '@/components/ui/card';
+import Image from 'next/image';
 
 type RepeaterItem = {
   id: string;
@@ -79,7 +80,10 @@ export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onU
                                     <h4 className="font-medium">Item {index + 1}</h4>
                                     <div className="space-y-2">
                                         <Label>Image</Label>
-                                        <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleItemChange(index, 'imageUrl', dataUri))} />
+                                         <div className="flex items-center gap-2">
+                                            <Input type="file" accept="image/*" className="flex-1" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleItemChange(index, 'imageUrl', dataUri))} />
+                                            {item.imageUrl && <Image src={item.imageUrl} alt="preview" width={40} height={40} className="rounded-md object-cover" />}
+                                        </div>
                                     </div>
                                     <div className="space-y-2"><Label>Title</Label><Input placeholder="Item Title" value={item.title || ''} onChange={(e) => handleItemChange(index, 'title', e.target.value)} /></div>
                                     <div className="space-y-2"><Label>Description</Label><Textarea placeholder="Item description..." value={item.description || ''} onChange={(e) => handleItemChange(index, 'description', e.target.value)} /></div>

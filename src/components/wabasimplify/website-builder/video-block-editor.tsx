@@ -21,6 +21,17 @@ export function VideoBlockEditor({ settings, onUpdate }: { settings: any, onUpda
             }
         });
     }
+    
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            onUpdate({ ...settings, coverImageUrl: reader.result as string });
+        };
+        reader.readAsDataURL(file);
+    };
 
     return (
         <div className="space-y-4">
@@ -33,8 +44,8 @@ export function VideoBlockEditor({ settings, onUpdate }: { settings: any, onUpda
                             <Input id={`sourceUrl-${settings.id}`} value={settings.sourceUrl || ''} onChange={(e) => handleUpdate('sourceUrl', e.target.value)} placeholder="YouTube, Vimeo, or direct MP4 URL" />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor={`coverImageUrl-${settings.id}`}>Cover Image URL (Optional)</Label>
-                            <Input id={`coverImageUrl-${settings.id}`} value={settings.coverImageUrl || ''} onChange={(e) => handleUpdate('coverImageUrl', e.target.value)} placeholder="https://example.com/cover.jpg" />
+                            <Label htmlFor={`coverImageUrl-${settings.id}`}>Cover Image (Optional)</Label>
+                            <Input id={`coverImageUrl-${settings.id}`} type="file" accept="image/*" onChange={handleFileChange} />
                         </div>
                     </AccordionContent>
                 </AccordionItem>
