@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { ObjectId } from 'mongodb';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 
 const HeroBlock = ({ settings }: { settings: any }) => (
@@ -50,6 +51,52 @@ const FeaturedProductsBlock = ({ settings, products }: { settings: any, products
     );
 };
 
+const RichTextBlock = ({ settings }: { settings: any }) => (
+    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: settings.htmlContent || '' }} />
+);
+
+const TestimonialsBlock = ({ settings }: { settings: any }) => (
+    <div className="w-full">
+        <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold">{settings.title || 'What Our Customers Say'}</h2>
+        </div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {(settings.testimonials || []).map((item: any) => (
+                <Card key={item.id}>
+                    <CardContent className="p-6">
+                        <p className="italic">"{item.quote}"</p>
+                    </CardContent>
+                    <CardFooter>
+                        <p className="font-semibold">{item.author}</p>
+                        <p className="text-sm text-muted-foreground ml-2">- {item.title}</p>
+                    </CardFooter>
+                </Card>
+            ))}
+        </div>
+    </div>
+);
+
+const FaqBlock = ({ settings }: { settings: any }) => (
+     <div className="w-full max-w-3xl mx-auto">
+        <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold">{settings.title || 'Frequently Asked Questions'}</h2>
+        </div>
+        <Accordion type="single" collapsible className="w-full">
+            {(settings.faqItems || []).map((item: any, index: number) => (
+                <AccordionItem value={`item-${item.id || index}`} key={item.id || index}>
+                    <AccordionTrigger>{item.question}</AccordionTrigger>
+                    <AccordionContent>{item.answer}</AccordionContent>
+                </AccordionItem>
+            ))}
+        </Accordion>
+    </div>
+);
+
+const CustomHtmlBlock = ({ settings }: { settings: any }) => (
+    <div dangerouslySetInnerHTML={{ __html: settings.html || '' }} />
+);
+
+
 export default async function ShopPage({ params }: { params: { slug: string } }) {
     if (!params.slug) {
         notFound();
@@ -71,6 +118,14 @@ export default async function ShopPage({ params }: { params: { slug: string } })
                 return <HeroBlock settings={block.settings} />;
             case 'featuredProducts':
                 return <FeaturedProductsBlock settings={block.settings} products={products} />;
+            case 'richText':
+                return <RichTextBlock settings={block.settings} />;
+            case 'testimonials':
+                return <TestimonialsBlock settings={block.settings} />;
+            case 'faq':
+                return <FaqBlock settings={block.settings} />;
+            case 'customHtml':
+                return <CustomHtmlBlock settings={block.settings} />;
             default:
                 return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
         }
