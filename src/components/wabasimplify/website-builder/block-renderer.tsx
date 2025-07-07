@@ -17,6 +17,8 @@ import { MapBlockRenderer } from '@/components/wabasimplify/website-builder/map-
 import { CountdownBlockRenderer } from '@/components/wabasimplify/website-builder/countdown-block-renderer';
 import { SocialShareBlockRenderer } from '@/components/wabasimplify/website-builder/social-share-block-renderer';
 import { RepeaterBlockRenderer } from '@/components/wabasimplify/website-builder/repeater-block-renderer';
+import { SectionBlockRenderer } from './section-block-renderer';
+import { ColumnsBlockRenderer } from './columns-block-renderer';
 
 const HeroBlock = ({ settings }: { settings: any }) => (
     <div className="relative w-full h-80 md:h-96 text-white rounded-lg overflow-hidden flex items-center justify-center text-center p-4" style={{ backgroundColor: settings.backgroundColor || '#111827' }}>
@@ -401,110 +403,40 @@ const SpacerBlock = ({ settings }: { settings: any }) => {
     return <div style={spacerStyle}></div>;
 };
 
-const SectionBlock: React.FC<{ settings: any, children: WebsiteBlock[], products: WithId<EcommProduct>[] }> = ({ settings, children, products }) => {
-    const style: React.CSSProperties = {
-        paddingTop: `${settings.padding?.top || 64}px`,
-        paddingBottom: `${settings.padding?.bottom || 64}px`,
-        paddingLeft: `${settings.padding?.left || 16}px`,
-        paddingRight: `${settings.padding?.right || 16}px`,
-    };
+interface BlockRendererProps {
+  block: WebsiteBlock;
+  products: WithId<EcommProduct>[];
+  selectedBlockId?: string | null;
+  onBlockClick?: (id: string) => void;
+  onRemoveBlock?: (id: string) => void;
+}
 
-    if (settings.backgroundType === 'color') {
-        style.backgroundColor = settings.backgroundColor;
-    } else if (settings.backgroundType === 'image' && settings.backgroundImageUrl) {
-        style.backgroundImage = `url(${settings.backgroundImageUrl})`;
-        style.backgroundSize = 'cover';
-        style.backgroundPosition = 'center';
-    }
+export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
+    const { block, products, selectedBlockId, onBlockClick, onRemoveBlock } = props;
 
-    return (
-        <section style={style}>
-            <div className={cn("mx-auto", settings.width === 'boxed' ? 'max-w-7xl' : 'w-full')}>
-                <div className="flex flex-col" style={{ gap: `${settings.gap || 16}px` }}>
-                    {children.map(block => <BlockRenderer key={block.id} block={block} products={products} />)}
-                </div>
-            </div>
-        </section>
-    );
-};
-
-const ColumnsBlockRenderer: React.FC<{ settings: any, children: WebsiteBlock[], products: WithId<EcommProduct>[] }> = ({ settings, children, products }) => {
-    const { columnCount = 2, gap = 4, stackOnMobile = true, padding, margin } = settings;
-
-    const gridColsClasses: {[key: number]: string} = {
-        1: 'md:grid-cols-1', 2: 'md:grid-cols-2', 3: 'md:grid-cols-3',
-        4: 'md:grid-cols-4', 5: 'md:grid-cols-5', 6: 'md:grid-cols-6',
-    };
-    
-    const responsiveClass = stackOnMobile ? 'grid-cols-1' : `grid-cols-${columnCount}`;
-
-    const style = {
-        gap: `${gap}px`,
-        padding: padding ? `${padding.top || 0}px ${padding.right || 0}px ${padding.bottom || 0}px ${padding.left || 0}px` : undefined,
-        margin: margin ? `${margin.top || 0}px ${margin.right || 0}px ${margin.bottom || 0}px ${margin.left || 0}px` : undefined,
-    };
-
-    return (
-        <div className={cn('grid', responsiveClass, gridColsClasses[columnCount])} style={style}>
-            {children.map(column => (
-                <div key={column.id} className="flex flex-col gap-4">
-                     {(column.children || []).map(block => (
-                        <BlockRenderer key={block.id} block={block} products={products} />
-                    ))}
-                </div>
-            ))}
-        </div>
-    );
-};
-
-
-export const BlockRenderer: React.FC<{ block: WebsiteBlock, products: WithId<EcommProduct>[] }> = ({ block, products }) => {
     switch (block.type) {
-        case 'hero':
-            return <HeroBlock settings={block.settings} />;
-        case 'featuredProducts':
-            return <FeaturedProductsBlock settings={block.settings} products={products} />;
-        case 'richText':
-            return <RichTextBlock settings={block.settings} />;
-        case 'testimonials':
-            return <TestimonialsBlock settings={block.settings} />;
-        case 'faq':
-            return <FaqBlock settings={block.settings} />;
-        case 'customHtml':
-            return <CustomHtmlBlock settings={block.settings} />;
-        case 'heading':
-            return <HeadingBlock settings={block.settings} />;
-        case 'image':
-            return <ImageBlock settings={block.settings} />;
-        case 'button':
-            return <ButtonBlock settings={block.settings} />;
-        case 'video':
-            return <VideoBlock settings={block.settings} />;
-        case 'icon':
-            return <IconBlock settings={block.settings} />;
-        case 'spacer':
-            return <SpacerBlock settings={block.settings} />;
-        case 'imageCarousel':
-            return <ImageCarouselRenderer settings={block.settings} />;
-        case 'tabs':
-            return <TabsBlockRenderer settings={block.settings} />;
-        case 'accordion':
-            return <AccordionBlockRenderer settings={block.settings} />;
-        case 'form':
-            return <FormBlockRenderer settings={block.settings} />;
-        case 'map':
-            return <MapBlockRenderer settings={block.settings} />;
-        case 'countdown':
-            return <CountdownBlockRenderer settings={block.settings} />;
-        case 'socialShare':
-            return <SocialShareBlockRenderer settings={block.settings} />;
-        case 'repeater':
-            return <RepeaterBlockRenderer settings={block.settings} />;
-        case 'section':
-            return <SectionBlock settings={block.settings} children={block.children || []} products={products} />;
-        case 'columns':
-            return <ColumnsBlockRenderer settings={block.settings} children={block.children || []} products={products} />;
-        default:
-            return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
+        case 'hero': return <HeroBlock settings={block.settings} />;
+        case 'featuredProducts': return <FeaturedProductsBlock settings={block.settings} products={products} />;
+        case 'richText': return <RichTextBlock settings={block.settings} />;
+        case 'testimonials': return <TestimonialsBlock settings={block.settings} />;
+        case 'faq': return <FaqBlock settings={block.settings} />;
+        case 'customHtml': return <CustomHtmlBlock settings={block.settings} />;
+        case 'heading': return <HeadingBlock settings={block.settings} />;
+        case 'image': return <ImageBlock settings={block.settings} />;
+        case 'button': return <ButtonBlock settings={block.settings} />;
+        case 'video': return <VideoBlock settings={block.settings} />;
+        case 'icon': return <IconBlock settings={block.settings} />;
+        case 'spacer': return <SpacerBlock settings={block.settings} />;
+        case 'imageCarousel': return <ImageCarouselRenderer settings={block.settings} />;
+        case 'tabs': return <TabsBlockRenderer settings={block.settings} />;
+        case 'accordion': return <AccordionBlockRenderer settings={block.settings} />;
+        case 'form': return <FormBlockRenderer settings={block.settings} />;
+        case 'map': return <MapBlockRenderer settings={block.settings} />;
+        case 'countdown': return <CountdownBlockRenderer settings={block.settings} />;
+        case 'socialShare': return <SocialShareBlockRenderer settings={block.settings} />;
+        case 'repeater': return <RepeaterBlockRenderer settings={block.settings} />;
+        case 'section': return <SectionBlockRenderer {...props} children={block.children || []} blockId={block.id} />;
+        case 'columns': return <ColumnsBlockRenderer {...props} children={block.children || []} blockId={block.id} />;
+        default: return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
     }
 };
