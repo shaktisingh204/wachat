@@ -1,7 +1,8 @@
 
 import { notFound } from 'next/navigation';
 import { getEcommShopBySlug, getPublicEcommProducts } from '@/app/actions/custom-ecommerce.actions';
-import { BlockRenderer } from '@/components/wabasimplify/website-builder/block-renderer';
+import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
+import { LayoutGrid } from 'lucide-react';
 
 export default async function ShopPage({ params }: { params: { slug: string } }) {
     if (!params.slug) {
@@ -18,13 +19,19 @@ export default async function ShopPage({ params }: { params: { slug: string } })
     const homepageLayout = shop.homepageLayout || [];
     
     return (
-        <main className="flex flex-col items-center">
+        <main>
             {homepageLayout.length > 0 ? (
-                homepageLayout.map(block => <BlockRenderer key={block.id} block={block} products={products} shopSlug={shop.slug} isEditable={false} />)
+                <Canvas
+                    layout={homepageLayout}
+                    products={products}
+                    shopSlug={shop.slug}
+                    isEditable={false}
+                />
             ) : (
-                <div className="text-center py-24">
-                    <h1 className="text-4xl font-bold">{shop.name}</h1>
-                    <p className="text-lg text-muted-foreground mt-4">This shop is under construction. Come back soon!</p>
+                <div className="text-center py-24 text-muted-foreground">
+                    <LayoutGrid className="mx-auto h-12 w-12 text-muted-foreground/50"/>
+                    <h1 className="mt-4 text-2xl font-semibold">{shop.name}</h1>
+                    <p className="mt-2 text-sm">This shop is under construction. Come back soon!</p>
                 </div>
             )}
         </main>
