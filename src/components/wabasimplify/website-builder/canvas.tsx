@@ -5,7 +5,7 @@
 import { Droppable, Draggable } from 'react-beautiful-dnd';
 import { WebsiteBlock } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { ImageIcon, Trash2, GripVertical, LayoutDashboard } from 'lucide-react';
+import { Trash2, GripVertical, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const BlockPreview = ({ block }: { block: WebsiteBlock }) => {
@@ -14,6 +14,8 @@ const BlockPreview = ({ block }: { block: WebsiteBlock }) => {
             return <p className="text-sm text-muted-foreground">Hero: {block.settings.title || 'Untitled'}</p>;
         case 'section':
              return <p className="text-sm text-muted-foreground">Section</p>;
+        case 'columns':
+             return <p className="text-sm text-muted-foreground">Columns ({block.children?.length || 0})</p>;
         case 'featuredProducts':
             return <p className="text-sm text-muted-foreground">Products: {(block.settings.productIds || []).length} items</p>;
         case 'richText':
@@ -70,7 +72,7 @@ export function Canvas({ layout, droppableId, onBlockClick, onRemoveBlock, selec
                                     
                                     {block.type === 'section' && (
                                       <div className="p-4 border-t">
-                                        <Canvas // Recursive call
+                                        <Canvas
                                           layout={block.children || []}
                                           droppableId={block.id}
                                           selectedBlockId={selectedBlockId}
@@ -79,6 +81,24 @@ export function Canvas({ layout, droppableId, onBlockClick, onRemoveBlock, selec
                                         />
                                       </div>
                                     )}
+                                     {block.type === 'columns' && (
+                                        <div
+                                            className="grid p-2 gap-2"
+                                            style={{ gridTemplateColumns: `repeat(${block.settings.columnCount || 2}, 1fr)` }}
+                                        >
+                                            {(block.children || []).map(column => (
+                                            <div key={column.id} className="bg-muted/50 rounded-md">
+                                                <Canvas
+                                                    layout={column.children || []}
+                                                    droppableId={column.id}
+                                                    selectedBlockId={selectedBlockId}
+                                                    onBlockClick={onBlockClick}
+                                                    onRemoveBlock={onRemoveBlock}
+                                                />
+                                            </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </Draggable>
@@ -86,7 +106,7 @@ export function Canvas({ layout, droppableId, onBlockClick, onRemoveBlock, selec
                     {provided.placeholder}
                     {layout.length === 0 && (
                         <div className="text-center text-muted-foreground py-10 border-2 border-dashed rounded-lg">
-                            <LayoutDashboard className="mx-auto h-8 w-8 text-muted-foreground/50"/>
+                            <LayoutGrid className="mx-auto h-8 w-8 text-muted-foreground/50"/>
                             <p className="mt-2 text-sm">Drop blocks here</p>
                         </div>
                     )}
