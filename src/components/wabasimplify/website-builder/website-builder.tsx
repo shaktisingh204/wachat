@@ -11,12 +11,14 @@ import { useFormStatus } from 'react-dom';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, Plus, LoaderCircle, Save, ArrowLeft, Eye, Trash2 } from 'lucide-react';
+import { AlertCircle, Plus, LoaderCircle, Save, ArrowLeft, Eye, Trash2, AlertTriangle } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { BlockPalette } from './block-palette';
 import { Canvas } from './canvas';
 import { PropertiesPanel } from './properties-panel';
 import Link from 'next/link';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 const initialState = { message: null, error: undefined };
 
@@ -69,6 +71,35 @@ const removeBlockById = (items: WebsiteBlock[], idToRemove: string): WebsiteBloc
     });
 };
 
+function DangerZone({ onProceed }: { onProceed: () => void }) {
+    return (
+        <div className="flex items-center justify-center h-screen bg-muted">
+            <Card className="max-w-lg text-center shadow-2xl animate-fade-in-up">
+                <CardHeader>
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+                        <AlertTriangle className="h-6 w-6 text-destructive" />
+                    </div>
+                    <CardTitle className="mt-4">You are entering the Website Builder</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm text-muted-foreground">
+                    <p>
+                        This is a powerful, experimental tool that allows for direct manipulation of your shop's homepage.
+                    </p>
+                    <Separator />
+                    <ul className="list-disc list-inside text-left space-y-1">
+                        <li>Ensure your image URLs are correct and publicly accessible.</li>
+                        <li>Using the "Custom HTML" block can break your page layout or introduce security risks if used improperly.</li>
+                        <li>Always save your work before exiting.</li>
+                    </ul>
+                </CardContent>
+                <CardFooter className="flex justify-center">
+                    <Button size="lg" onClick={onProceed}>I understand, proceed to builder</Button>
+                </CardFooter>
+            </Card>
+        </div>
+    );
+}
+
 export function WebsiteBuilder() {
     const params = useParams();
     const router = useRouter();
@@ -80,6 +111,8 @@ export function WebsiteBuilder() {
     const [isLoading, startLoadingTransition] = useTransition();
     const [state, formAction] = useActionState(updateEcommShopSettings, initialState);
     const { toast } = useToast();
+    const [hasProceeded, setHasProceeded] = useState(false);
+
 
     useEffect(() => {
         if (shopId) {
@@ -194,6 +227,10 @@ export function WebsiteBuilder() {
         };
         return findRecursively(layout);
     }, [selectedBlockId, layout]);
+
+    if (!hasProceeded) {
+        return <DangerZone onProceed={() => setHasProceeded(true)} />;
+    }
 
     if (isLoading) {
         return <BuilderSkeleton />;
