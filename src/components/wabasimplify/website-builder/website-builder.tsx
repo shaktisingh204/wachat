@@ -1,21 +1,22 @@
 
 'use client';
 
-import { useEffect, useState, useTransition, useActionState, useRef, useMemo, useCallback } from 'react';
+import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
-import { getEcommShopById, getEcommProducts, updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
+import { updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
 import type { WithId, EcommShop, EcommProduct, WebsiteBlock } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Plus, LoaderCircle, Save, ArrowLeft, Eye } from 'lucide-react';
+import { Plus, LoaderCircle, Save, ArrowLeft, Eye } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { BlockPalette } from './block-palette';
 import { Canvas } from './canvas';
 import { PropertiesPanel } from './properties-panel';
 import Link from 'next/link';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 const initialState = { message: null, error: undefined };
 
