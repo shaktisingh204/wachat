@@ -5,12 +5,6 @@ import { WebhookLogs } from "@/components/wabasimplify/webhook-logs";
 import { Webhook } from "lucide-react";
 
 
-export const dynamic = 'force-dynamic';
-
-export const metadata = {
-  title: "Facebook Webhooks | SabNode",
-};
-
 export default function FacebookWebhooksPage() {
     return (
         <div className="flex flex-col gap-8">
@@ -23,7 +17,7 @@ export default function FacebookWebhooksPage() {
                     A real-time log of events received from Meta for your Facebook Page.
                 </p>
             </div>
-            <WebhookLogs />
+            <WebhookLogs filterByProject={true} />
         </div>
     )
 }
