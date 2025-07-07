@@ -3,7 +3,7 @@
 
 import { getProjectById } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { EcommProduct, EcommOrder, EcommSettings } from '@/lib/definitions';
+import type { EcommProduct, EcommOrder, EcommSettings, AbandonedCartSettings } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getErrorMessage } from '@/lib/utils';
@@ -66,6 +66,7 @@ export async function saveEcommProduct(prevState: any, formData: FormData): Prom
         }
         
         revalidatePath('/dashboard/custom-ecommerce/products');
+        revalidatePath('/dashboard/facebook/custom-ecommerce/products');
         return { message: `Product "${productData.name}" saved successfully!` };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -85,6 +86,7 @@ export async function deleteEcommProduct(productId: string): Promise<{ success: 
     try {
         await db.collection('ecomm_products').deleteOne({ _id: new ObjectId(productId) });
         revalidatePath('/dashboard/custom-ecommerce/products');
+        revalidatePath('/dashboard/facebook/custom-ecommerce/products');
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
@@ -126,21 +128,36 @@ export async function saveEcommShopSettings(prevState: any, formData: FormData):
     if (!project) return { error: 'Access denied or project not found.' };
 
     try {
-        const settings: EcommSettings = {
-            shopName: formData.get('shopName') as string,
-            currency: formData.get('currency') as string,
-            customDomain: formData.get('customDomain') as string || undefined,
-            paymentLinkRazorpay: formData.get('paymentLinkRazorpay') as string || undefined,
-            paymentLinkPaytm: formData.get('paymentLinkPaytm') as string || undefined,
-            paymentLinkGPay: formData.get('paymentLinkGPay') as string || undefined,
-            abandonedCart: {
-                enabled: formData.get('abandonedCart.enabled') === 'on',
-                delayMinutes: parseInt(formData.get('abandonedCart.delayMinutes') as string, 10) || 60,
-                flowId: formData.get('abandonedCart.flowId') as string,
-            }
-        };
+        const existingSettings = project.ecommSettings || {};
+        const updatedSettings: Partial<EcommSettings> = {};
 
-        if (!settings.shopName || !settings.currency) {
+        // Dynamically build the update object only with fields from the form
+        // to avoid overwriting existing data with undefined.
+        if (formData.has('shopName')) updatedSettings.shopName = formData.get('shopName') as string;
+        if (formData.has('currency')) updatedSettings.currency = formData.get('currency') as string;
+        if (formData.has('customDomain')) updatedSettings.customDomain = (formData.get('customDomain') as string) || undefined;
+        if (formData.has('paymentLinkRazorpay')) updatedSettings.paymentLinkRazorpay = (formData.get('paymentLinkRazorpay') as string) || undefined;
+        if (formData.has('paymentLinkPaytm')) updatedSettings.paymentLinkPaytm = (formData.get('paymentLinkPaytm') as string) || undefined;
+        if (formData.has('paymentLinkGPay')) updatedSettings.paymentLinkGPay = (formData.get('paymentLinkGPay') as string) || undefined;
+        
+        const abandonedCartSettings: Partial<AbandonedCartSettings> = {};
+        if (formData.has('abandonedCart.enabled')) abandonedCartSettings.enabled = formData.get('abandonedCart.enabled') === 'on';
+        if (formData.has('abandonedCart.delayMinutes')) abandonedCartSettings.delayMinutes = parseInt(formData.get('abandonedCart.delayMinutes') as string, 10) || 60;
+        if (formData.has('abandonedCart.flowId')) abandonedCartSettings.flowId = formData.get('abandonedCart.flowId') as string;
+
+        if (Object.keys(abandonedCartSettings).length > 0) {
+            updatedSettings.abandonedCart = { ...existingSettings.abandonedCart, ...abandonedCartSettings };
+        }
+        
+        if (formData.has('persistentMenu')) {
+            const menuItemsJson = formData.get('persistentMenu') as string;
+            updatedSettings.persistentMenu = menuItemsJson ? JSON.parse(menuItemsJson) : [];
+        }
+
+
+        const finalSettings = { ...existingSettings, ...updatedSettings };
+
+        if (!finalSettings.shopName || !finalSettings.currency) {
             return { error: 'Shop Name and Currency are required.' };
         }
 
@@ -148,10 +165,12 @@ export async function saveEcommShopSettings(prevState: any, formData: FormData):
         
         await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
-            { $set: { ecommSettings: settings } }
+            { $set: { ecommSettings: finalSettings } }
         );
 
         revalidatePath('/dashboard/custom-ecommerce/settings');
+        revalidatePath('/dashboard/facebook/custom-ecommerce/settings');
+        revalidatePath('/dashboard/facebook/custom-ecommerce/products');
         return { message: 'Shop settings saved successfully!' };
     } catch (e: any) {
         return { error: 'Failed to save shop settings.' };
