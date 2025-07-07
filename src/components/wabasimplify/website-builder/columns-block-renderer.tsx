@@ -19,7 +19,8 @@ interface ColumnsBlockRendererProps {
 
 export const ColumnsBlockRenderer: React.FC<ColumnsBlockRendererProps> = (props) => {
     const { settings, children, products, blockId, selectedBlockId, onBlockClick, onRemoveBlock } = props;
-    const { columnCount = 2, gap = 4, stackOnMobile = true, padding } = settings;
+    const safeSettings = settings || {};
+    const { columnCount = 2, gap = 4, stackOnMobile = true, padding } = safeSettings;
 
     const gridColsClasses: {[key: number]: string} = {
         1: 'md:grid-cols-1', 2: 'md:grid-cols-2', 3: 'md:grid-cols-3',

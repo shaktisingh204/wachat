@@ -18,17 +18,19 @@ interface SectionBlockRendererProps {
 }
 
 export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = ({ settings, children, products, blockId, selectedBlockId, onBlockClick, onRemoveBlock }) => {
+    const safeSettings = settings || {};
+
     const style: React.CSSProperties = {
-        paddingTop: `${settings.padding?.top || 64}px`,
-        paddingBottom: `${settings.padding?.bottom || 64}px`,
-        paddingLeft: `${settings.padding?.left || 16}px`,
-        paddingRight: `${settings.padding?.right || 16}px`,
+        paddingTop: `${safeSettings.padding?.top || 64}px`,
+        paddingBottom: `${safeSettings.padding?.bottom || 64}px`,
+        paddingLeft: `${safeSettings.padding?.left || 16}px`,
+        paddingRight: `${safeSettings.padding?.right || 16}px`,
     };
 
-    if (settings.backgroundType === 'color') {
-        style.backgroundColor = settings.backgroundColor;
-    } else if (settings.backgroundType === 'image' && settings.backgroundImageUrl) {
-        style.backgroundImage = `url(${settings.backgroundImageUrl})`;
+    if (safeSettings.backgroundType === 'color') {
+        style.backgroundColor = safeSettings.backgroundColor;
+    } else if (safeSettings.backgroundType === 'image' && safeSettings.backgroundImageUrl) {
+        style.backgroundImage = `url(${safeSettings.backgroundImageUrl})`;
         style.backgroundSize = 'cover';
         style.backgroundPosition = 'center';
     }
@@ -36,8 +38,8 @@ export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = ({ sett
     return (
         <section style={style}>
             <div 
-                className={cn("mx-auto flex flex-col", settings.width === 'boxed' ? 'max-w-7xl' : 'w-full')}
-                style={{ gap: `${settings.gap || 16}px` }}
+                className={cn("mx-auto flex flex-col", safeSettings.width === 'boxed' ? 'max-w-7xl' : 'w-full')}
+                style={{ gap: `${safeSettings.gap || 16}px` }}
             >
                 <Canvas
                     layout={children}
