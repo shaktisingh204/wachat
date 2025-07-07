@@ -18,6 +18,7 @@ import { FormBlockRenderer } from '@/components/wabasimplify/website-builder/for
 import { MapBlockRenderer } from '@/components/wabasimplify/website-builder/map-block-renderer';
 import { CountdownBlockRenderer } from '@/components/wabasimplify/website-builder/countdown-block-renderer';
 import { SocialShareBlockRenderer } from '@/components/wabasimplify/website-builder/social-share-block-renderer';
+import { RepeaterBlockRenderer } from '@/components/wabasimplify/website-builder/repeater-block-renderer';
 
 
 const HeroBlock = ({ settings }: { settings: any }) => (
@@ -458,6 +459,8 @@ export default async function ShopPage({ params }: { params: { slug: string } })
                 return <CountdownBlockRenderer settings={block.settings} />;
             case 'socialShare':
                 return <SocialShareBlockRenderer settings={block.settings} />;
+            case 'repeater':
+                return <RepeaterBlockRenderer settings={block.settings} />;
             default:
                 return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
         }
