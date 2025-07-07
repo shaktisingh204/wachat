@@ -95,7 +95,6 @@ const facebookMenuGroups = [
   {
     title: 'AI & Automation',
     items: [
-        { href: '/dashboard/facebook/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'whatsappAds' },
         { href: '/dashboard/facebook/agents', label: 'AI Agents', icon: Bot, featureKey: 'chatbot' },
         { href: '/dashboard/facebook/knowledge', label: 'Knowledge Base', icon: BookCopy, featureKey: 'chatbot' },
     ]
@@ -113,12 +112,7 @@ const facebookMenuGroups = [
   {
     title: 'Custom Ecommerce',
     items: [
-      { href: '/dashboard/facebook/custom-ecommerce/dashboard', label: 'Dashboard', icon: LayoutDashboard, featureKey: 'ecommerce' },
-      { href: '/dashboard/facebook/custom-ecommerce/products', label: 'Products', icon: ShoppingBag, featureKey: 'ecommerce' },
-      { href: '/dashboard/facebook/custom-ecommerce/orders', label: 'Orders', icon: Package, featureKey: 'ecommerce' },
-      { href: '/dashboard/facebook/custom-ecommerce/appearance', label: 'Appearance', icon: Palette, featureKey: 'ecommerce' },
-      { href: '/dashboard/facebook/custom-ecommerce/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'ecommerce' },
-      { href: '/dashboard/facebook/custom-ecommerce/settings', label: 'Settings', icon: Settings, featureKey: 'ecommerce' },
+      { href: '/dashboard/facebook/custom-ecommerce', label: 'Manage Shops', icon: LayoutDashboard, featureKey: 'ecommerce' },
     ]
   },
    {
@@ -315,7 +309,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         item.href === '/dashboard/url-shortener' ||
                         item.href === '/dashboard/qr-code-maker' ||
                         item.href === '/dashboard/facebook/all-projects' ||
-                        item.href === '/dashboard/custom-ecommerce' ||
+                        item.href === '/dashboard/facebook/custom-ecommerce' ||
                         item.href === '/dashboard/chatbot/agents' ||
                         item.href === '/dashboard/seo';
 
