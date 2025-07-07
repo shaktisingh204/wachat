@@ -51,3 +51,5 @@ export function FeaturedProductsBlockRenderer({ settings, products, shopSlug }: 
         </div>
     );
 };
+
+    

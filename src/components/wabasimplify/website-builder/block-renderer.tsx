@@ -379,3 +379,5 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
         default: return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
     }
 };
+
+    
