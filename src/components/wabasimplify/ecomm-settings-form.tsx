@@ -81,12 +81,12 @@ export function EcommSettingsForm({ project, settings, domains }: EcommSettingsF
                         </div>
                         <div className="space-y-2 md:col-span-2">
                             <Label htmlFor="customDomain">Custom Domain</Label>
-                            <Select name="customDomain" defaultValue={settings?.customDomain || ''}>
+                            <Select name="customDomain" defaultValue={settings?.customDomain || 'none'}>
                                 <SelectTrigger id="customDomain">
                                     <SelectValue placeholder="Select a verified domain..." />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">None (Use default)</SelectItem>
+                                    <SelectItem value="none">None (Use default)</SelectItem>
                                     {verifiedDomains.map(d => (
                                         <SelectItem key={d._id.toString()} value={d.hostname}>{d.hostname}</SelectItem>
                                     ))}

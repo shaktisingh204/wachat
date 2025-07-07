@@ -134,7 +134,10 @@ export async function saveEcommShopSettings(prevState: any, formData: FormData):
 
         if (formData.has('shopName')) updatedSettings.shopName = formData.get('shopName') as string;
         if (formData.has('currency')) updatedSettings.currency = formData.get('currency') as string;
-        if (formData.has('customDomain')) updatedSettings.customDomain = (formData.get('customDomain') as string) || undefined;
+        if (formData.has('customDomain')) {
+            const domainValue = formData.get('customDomain') as string;
+            updatedSettings.customDomain = (domainValue === 'none' || !domainValue) ? undefined : domainValue;
+        }
         if (formData.has('paymentLinkRazorpay')) updatedSettings.paymentLinkRazorpay = (formData.get('paymentLinkRazorpay') as string) || undefined;
         if (formData.has('paymentLinkPaytm')) updatedSettings.paymentLinkPaytm = (formData.get('paymentLinkPaytm') as string) || undefined;
         if (formData.has('paymentLinkGPay')) updatedSettings.paymentLinkGPay = (formData.get('paymentLinkGPay') as string) || undefined;
