@@ -4,7 +4,7 @@
 
 import { getProjectById } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { EcommProduct, EcommOrder, EcommShop, EcommSettings, AbandonedCartSettings } from '@/lib/definitions';
+import type { EcommProduct, EcommOrder, EcommShop, EcommSettings, AbandonedCartSettings, WebsiteBlock } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getErrorMessage } from '@/lib/utils';
@@ -88,6 +88,7 @@ export async function createEcommShop(prevState: any, formData: FormData): Promi
             currency,
             createdAt: new Date(),
             updatedAt: new Date(),
+            homepageLayout: [], // Initialize with an empty layout
         };
 
         const result = await db.collection('ecomm_shops').insertOne(newShop as any);
@@ -126,11 +127,12 @@ export async function updateEcommShopSettings(prevState: any, formData: FormData
         if (formData.has('paymentLinkPaytm')) updates.paymentLinkPaytm = (formData.get('paymentLinkPaytm') as string) || undefined;
         if (formData.has('paymentLinkGPay')) updates.paymentLinkGPay = (formData.get('paymentLinkGPay') as string) || undefined;
 
-        if (formData.has('appearance_primaryColor') || formData.has('appearance_fontFamily') || formData.has('appearance_bannerImageUrl')) {
-             updates.appearance = { ...shop.appearance };
-             if(formData.has('appearance_primaryColor')) updates.appearance.primaryColor = formData.get('appearance_primaryColor') as string;
-             if(formData.has('appearance_fontFamily')) updates.appearance.fontFamily = formData.get('appearance_fontFamily') as string;
-             if(formData.has('appearance_bannerImageUrl')) updates.appearance.bannerImageUrl = formData.get('appearance_bannerImageUrl') as string;
+        if (formData.has('homepageLayout')) {
+            try {
+                updates.homepageLayout = JSON.parse(formData.get('homepageLayout') as string);
+            } catch(e) {
+                return { error: 'Invalid homepage layout data format.' };
+            }
         }
 
         if (formData.has('abandonedCart.enabled')) {
@@ -148,7 +150,8 @@ export async function updateEcommShopSettings(prevState: any, formData: FormData
         }
 
         revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/settings`);
-        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/appearance`);
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
+        revalidatePath(`/shop/${shop.slug}`);
         return { message: 'Shop settings saved successfully!' };
     } catch (e: any) {
         return { error: 'Failed to save shop settings.' };

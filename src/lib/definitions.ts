@@ -133,10 +133,10 @@ export type AbandonedCartSettings = {
     flowId: string;
 };
 
-export type EcommAppearanceSettings = {
-    primaryColor?: string;
-    fontFamily?: string;
-    bannerImageUrl?: string;
+export type WebsiteBlock = {
+    id: string;
+    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq';
+    settings: any;
 };
 
 export type EcommShop = {
@@ -149,10 +149,9 @@ export type EcommShop = {
     paymentLinkRazorpay?: string;
     paymentLinkPaytm?: string;
     paymentLinkGPay?: string;
-    welcomeMessage?: string;
     persistentMenu?: { type: 'postback' | 'web_url'; title: string; payload?: string; url?: string; }[];
     abandonedCart?: AbandonedCartSettings;
-    appearance?: EcommAppearanceSettings;
+    homepageLayout: WebsiteBlock[];
     createdAt: Date;
     updatedAt: Date;
 };
@@ -1000,10 +999,8 @@ export type EcommSettings = {
     paymentLinkRazorpay?: string;
     paymentLinkPaytm?: string;
     paymentLinkGPay?: string;
-    welcomeMessage?: string;
     persistentMenu?: MenuItem[];
     abandonedCart?: AbandonedCartSettings;
-    appearance?: EcommAppearanceSettings;
 };
 
 export type MenuItem = { 
