@@ -12,6 +12,17 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
         onUpdate({ ...settings, [field]: value });
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            onUpdate({ ...settings, backgroundImageUrl: reader.result as string });
+        };
+        reader.readAsDataURL(file);
+    };
+
     const handleSubFieldUpdate = (mainField: string, subField: string, value: any) => {
         onUpdate({
             ...settings,
@@ -55,8 +66,8 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                     <AccordionTrigger>Background</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
-                            <Label htmlFor={`bg-image-${settings.id}`}>Background Image URL</Label>
-                            <Input id={`bg-image-${settings.id}`} type="url" value={settings.backgroundImageUrl || ''} onChange={(e) => handleUpdate('backgroundImageUrl', e.target.value)} />
+                            <Label htmlFor={`bg-image-${settings.id}`}>Background Image Upload</Label>
+                            <Input id={`bg-image-${settings.id}`} type="file" accept="image/*" onChange={handleFileChange} />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">

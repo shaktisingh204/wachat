@@ -88,6 +88,7 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                 <form action={formAction} ref={formRef}>
                     <input type="hidden" name="shopId" value={shop._id.toString()} />
                     {isEditing && <input type="hidden" name="productId" value={product._id.toString()} />}
+                     {isEditing && <input type="hidden" name="imageUrl" value={product.imageUrl || ''} />}
                     <input type="hidden" name="variants" value={JSON.stringify(variants)} />
                     <DialogHeader>
                         <DialogTitle>{isEditing ? 'Edit Product' : 'Add New Product'}</DialogTitle>
@@ -116,8 +117,9 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                                 </div>
                             </div>
                              <div className="space-y-2">
-                                <Label htmlFor="imageUrl">Image URL</Label>
-                                <Input id="imageUrl" name="imageUrl" type="url" defaultValue={product?.imageUrl} />
+                                <Label htmlFor="imageFile">Product Image</Label>
+                                <Input id="imageFile" name="imageFile" type="file" accept="image/*" />
+                                {product?.imageUrl && <p className="text-xs text-muted-foreground">Current image is set. Uploading a new file will replace it.</p>}
                             </div>
                             <Separator />
                             <div className="space-y-2">

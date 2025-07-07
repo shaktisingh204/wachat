@@ -299,7 +299,6 @@ export async function saveEcommProduct(prevState: any, formData: FormData): Prom
             description: formData.get('description') as string,
             price: parseFloat(formData.get('price') as string),
             stock: formData.get('stock') ? parseInt(formData.get('stock') as string, 10) : undefined,
-            imageUrl: formData.get('imageUrl') as string,
             variants: variants,
             updatedAt: new Date(),
         };
@@ -308,6 +307,16 @@ export async function saveEcommProduct(prevState: any, formData: FormData): Prom
             return { error: 'Product name and price are required.' };
         }
         
+        const imageFile = formData.get('imageFile') as File | null;
+        if (imageFile && imageFile.size > 0) {
+            const buffer = Buffer.from(await imageFile.arrayBuffer());
+            const dataUri = `data:${imageFile.type};base64,${buffer.toString('base64')}`;
+            productData.imageUrl = dataUri;
+        } else if (isEditing) {
+            productData.imageUrl = formData.get('imageUrl') as string;
+        }
+
+
         const { db } = await connectToDatabase();
 
         if (productId && ObjectId.isValid(productId)) {
