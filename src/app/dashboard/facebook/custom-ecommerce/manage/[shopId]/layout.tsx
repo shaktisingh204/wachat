@@ -44,8 +44,6 @@ export default function ShopManagementLayout({
     const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
-    const isWebsiteBuilderPage = pathname.includes('/website-builder');
-
     useEffect(() => {
         if (shopId) {
             getEcommShopById(shopId).then(data => {
@@ -55,7 +53,9 @@ export default function ShopManagementLayout({
         }
     }, [shopId]);
     
-    if (isWebsiteBuilderPage) {
+    // The root dashboard layout now handles hiding the chrome for the builder.
+    // This layout component will only render its chrome for non-builder pages.
+    if (pathname.includes('/website-builder')) {
         return <>{children}</>;
     }
 
