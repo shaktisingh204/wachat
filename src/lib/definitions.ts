@@ -135,7 +135,7 @@ export type AbandonedCartSettings = {
 
 export type WebsiteBlock = {
     id: string;
-    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq';
+    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml';
     settings: any;
 };
 
@@ -154,6 +154,11 @@ export type EcommShop = {
     homepageLayout: WebsiteBlock[];
     createdAt: Date;
     updatedAt: Date;
+    appearance?: {
+        primaryColor?: string;
+        fontFamily?: string;
+        bannerImageUrl?: string;
+    }
 };
 
 export type Project = {
@@ -1001,6 +1006,11 @@ export type EcommSettings = {
     paymentLinkGPay?: string;
     persistentMenu?: MenuItem[];
     abandonedCart?: AbandonedCartSettings;
+    appearance?: {
+        primaryColor?: string;
+        fontFamily?: string;
+        bannerImageUrl?: string;
+    }
 };
 
 export type MenuItem = { 

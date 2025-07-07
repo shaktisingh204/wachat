@@ -131,6 +131,10 @@ export default function WebsiteBuilderPage() {
                         <CardContent className="flex flex-wrap gap-4">
                             <Button type="button" variant="outline" onClick={() => handleAddBlock('hero')}>Hero Section</Button>
                             <Button type="button" variant="outline" onClick={() => handleAddBlock('featuredProducts')}>Featured Products</Button>
+                            <Button type="button" variant="outline" onClick={() => handleAddBlock('richText')}>Rich Text</Button>
+                            <Button type="button" variant="outline" onClick={() => handleAddBlock('testimonials')}>Testimonials</Button>
+                            <Button type="button" variant="outline" onClick={() => handleAddBlock('faq')}>FAQ</Button>
+                            <Button type="button" variant="destructive" onClick={() => handleAddBlock('customHtml')}>Custom HTML</Button>
                         </CardContent>
                     </Card>
                 </div>
