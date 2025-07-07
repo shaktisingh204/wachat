@@ -16,6 +16,7 @@ import { VideoBlockEditor } from './video-block-editor';
 import { IconBlockEditor } from './icon-block-editor';
 import { SpacerBlockEditor } from './spacer-block-editor';
 import { ImageCarouselBlockEditor } from './image-carousel-block-editor';
+import { TabsBlockEditor } from './tabs-block-editor';
 
 interface PropertiesPanelProps {
     selectedBlock: WebsiteBlock | undefined;
@@ -24,7 +25,7 @@ interface PropertiesPanelProps {
     onRemove: (id: string) => void;
 }
 
-export function PropertiesPanel({ selectedBlock, availableProducts, onUpdate, onRemove }: PropertiesPanelProps) {
+export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate, onRemove }: PropertiesPanelProps) {
     if (!selectedBlock) {
         return (
             <div className="text-center text-muted-foreground p-8">
@@ -61,6 +62,8 @@ export function PropertiesPanel({ selectedBlock, availableProducts, onUpdate, on
                 return <SpacerBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'imageCarousel':
                 return <ImageCarouselBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
+            case 'tabs':
+                return <TabsBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             default:
                 return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>
         }

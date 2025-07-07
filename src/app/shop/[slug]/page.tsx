@@ -12,6 +12,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
 import { ImageCarouselRenderer } from '@/components/wabasimplify/website-builder/image-carousel-renderer';
+import { TabsBlockRenderer } from '@/components/wabasimplify/website-builder/tabs-block-renderer';
 
 
 const HeroBlock = ({ settings }: { settings: any }) => (
@@ -440,6 +441,8 @@ export default async function ShopPage({ params }: { params: { slug: string } })
                 return <SpacerBlock settings={block.settings} />;
             case 'imageCarousel':
                 return <ImageCarouselRenderer settings={block.settings} />;
+            case 'tabs':
+                return <TabsBlockRenderer settings={block.settings} />;
             default:
                 return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
         }
