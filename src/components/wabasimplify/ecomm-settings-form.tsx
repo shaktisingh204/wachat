@@ -1,18 +1,20 @@
 
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useActionState, useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { LoaderCircle, Save, IndianRupee, CreditCard } from 'lucide-react';
+import { LoaderCircle, Save, IndianRupee, CreditCard, Bell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { saveEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
-import type { WithId, Project, EcommSettings, CustomDomain } from '@/lib/definitions';
+import { getEcommFlows } from '@/app/actions/custom-ecommerce-flow.actions';
+import type { WithId, Project, EcommSettings, CustomDomain, EcommFlow } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Separator } from '../ui/separator';
+import { Switch } from '../ui/switch';
 
 const initialState = { message: null, error: undefined };
 
@@ -29,12 +31,17 @@ function SubmitButton() {
 interface EcommSettingsFormProps {
     project: WithId<Project>;
     settings: EcommSettings | null;
-    domains: WithId<CustomDomain>[]; // Pass domains as a prop
+    domains: WithId<CustomDomain>[];
 }
 
 export function EcommSettingsForm({ project, settings, domains }: EcommSettingsFormProps) {
     const [state, formAction] = useActionState(saveEcommShopSettings, initialState);
     const { toast } = useToast();
+    const [ecommFlows, setEcommFlows] = useState<WithId<EcommFlow>[]>([]);
+
+    useEffect(() => {
+        getEcommFlows(project._id.toString()).then(setEcommFlows);
+    }, [project._id]);
 
     useEffect(() => {
         if (state.message) {
@@ -55,7 +62,7 @@ export function EcommSettingsForm({ project, settings, domains }: EcommSettingsF
                     <CardTitle>Basic Configuration</CardTitle>
                     <CardDescription>Set the fundamental properties for your custom shop.</CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="space-y-6">
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="shopName">Shop Name</Label>
@@ -89,7 +96,7 @@ export function EcommSettingsForm({ project, settings, domains }: EcommSettingsF
                             <p className="text-xs text-muted-foreground">Add and verify domains in the section below.</p>
                         </div>
                     </div>
-                    <Separator className="my-6" />
+                    <Separator />
                      <div>
                         <h3 className="text-base font-semibold mb-2 flex items-center gap-2"><CreditCard className="h-4 w-4"/>Payment Links</h3>
                         <p className="text-sm text-muted-foreground mb-4">Provide direct payment links for services like Razorpay, Paytm, or GPay to enable "Pay" buttons in your shop flows.</p>
@@ -105,6 +112,34 @@ export function EcommSettingsForm({ project, settings, domains }: EcommSettingsF
                              <div className="space-y-2">
                                 <Label htmlFor="paymentLinkGPay">Google Pay (GPay) Link</Label>
                                 <Input id="paymentLinkGPay" name="paymentLinkGPay" placeholder="gpay://..." defaultValue={settings?.paymentLinkGPay || ''} />
+                            </div>
+                        </div>
+                    </div>
+                     <Separator />
+                     <div>
+                        <h3 className="text-base font-semibold mb-2 flex items-center gap-2"><Bell className="h-4 w-4"/>Abandoned Cart Reminder</h3>
+                        <p className="text-sm text-muted-foreground mb-4">Automatically send a follow-up message to users who leave items in their cart.</p>
+                        <div className="space-y-4 rounded-lg border p-4">
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="abandonedCart.enabled" className="font-medium">Enable Reminder</Label>
+                                <Switch id="abandonedCart.enabled" name="abandonedCart.enabled" defaultChecked={settings?.abandonedCart?.enabled || false} />
+                            </div>
+                            <div className="grid md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="abandonedCart.delayMinutes">Delay (minutes)</Label>
+                                    <Input id="abandonedCart.delayMinutes" name="abandonedCart.delayMinutes" type="number" defaultValue={settings?.abandonedCart?.delayMinutes || 60} />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="abandonedCart.flowId">Reminder Flow</Label>
+                                    <Select name="abandonedCart.flowId" defaultValue={settings?.abandonedCart?.flowId}>
+                                        <SelectTrigger id="abandonedCart.flowId"><SelectValue placeholder="Select a flow..."/></SelectTrigger>
+                                        <SelectContent>
+                                            {ecommFlows.map(flow => (
+                                                <SelectItem key={flow._id.toString()} value={flow._id.toString()}>{flow.name}</SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                         </div>
                     </div>

@@ -133,6 +133,11 @@ export async function saveEcommShopSettings(prevState: any, formData: FormData):
             paymentLinkRazorpay: formData.get('paymentLinkRazorpay') as string || undefined,
             paymentLinkPaytm: formData.get('paymentLinkPaytm') as string || undefined,
             paymentLinkGPay: formData.get('paymentLinkGPay') as string || undefined,
+            abandonedCart: {
+                enabled: formData.get('abandonedCart.enabled') === 'on',
+                delayMinutes: parseInt(formData.get('abandonedCart.delayMinutes') as string, 10) || 60,
+                flowId: formData.get('abandonedCart.flowId') as string,
+            }
         };
 
         if (!settings.shopName || !settings.currency) {
