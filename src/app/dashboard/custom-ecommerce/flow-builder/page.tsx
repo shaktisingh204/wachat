@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -68,7 +67,10 @@ type CarouselElementButton = {
   title: string;
   url?: string;
   payload?: string;
+  webview_height_ratio?: 'compact' | 'tall' | 'full';
+  messenger_extensions?: boolean;
 };
+
 
 type CarouselElement = {
     id: string;
@@ -266,7 +268,7 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
         handleDataChange('elements', newElements);
     };
 
-    const handleElementButtonChange = (elementId: string, buttonIndex: number, field: keyof CarouselElementButton, value: string) => {
+    const handleElementButtonChange = (elementId: string, buttonIndex: number, field: keyof CarouselElementButton, value: any) => {
         const newElements = (selectedNode.data.elements || []).map((el: CarouselElement) => {
             if (el.id === elementId) {
                 const newButtons = [...(el.buttons || [])];
@@ -537,7 +539,26 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                                                 </RadioGroup>
                                                 <Input placeholder="Button Title (20 chars max)" value={btn.title} onChange={e => handleElementButtonChange(el.id, btnIndex, 'title', e.target.value)} maxLength={20} required/>
                                                 {btn.type === 'web_url' ? (
-                                                     <Input placeholder="https://example.com" value={btn.url || ''} onChange={e => handleElementButtonChange(el.id, btnIndex, 'url', e.target.value)} required/>
+                                                     <>
+                                                        <Input placeholder="https://example.com/cart?user_id={{psid}}" value={btn.url || ''} onChange={e => handleElementButtonChange(el.id, btnIndex, 'url', e.target.value)} required/>
+                                                        <div className="grid grid-cols-2 gap-2 pt-2">
+                                                            <div className="space-y-1">
+                                                                <Label htmlFor={`webview-height-${el.id}-${btnIndex}`} className="text-xs">Webview Height</Label>
+                                                                <Select value={btn.webview_height_ratio || 'full'} onValueChange={val => handleElementButtonChange(el.id, btnIndex, 'webview_height_ratio', val)}>
+                                                                    <SelectTrigger id={`webview-height-${el.id}-${btnIndex}`} className="h-8"><SelectValue /></SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectItem value="full">Full</SelectItem>
+                                                                        <SelectItem value="tall">Tall</SelectItem>
+                                                                        <SelectItem value="compact">Compact</SelectItem>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                            </div>
+                                                            <div className="space-y-1 pt-1 flex flex-col items-center">
+                                                                 <Label htmlFor={`messenger-ext-${el.id}-${btnIndex}`} className="text-xs">Extensions</Label>
+                                                                <Switch id={`messenger-ext-${el.id}-${btnIndex}`} checked={btn.messenger_extensions || false} onCheckedChange={checked => handleElementButtonChange(el.id, btnIndex, 'messenger_extensions', checked)} />
+                                                            </div>
+                                                        </div>
+                                                     </>
                                                 ) : (
                                                      <Input placeholder="Payload_for_webhook" value={btn.payload || ''} onChange={e => handleElementButtonChange(el.id, btnIndex, 'payload', e.target.value)} required/>
                                                 )}
