@@ -52,9 +52,24 @@ const FeaturedProductsBlock = ({ settings, products }: { settings: any, products
     );
 };
 
-const RichTextBlock = ({ settings }: { settings: any }) => (
-    <div className="prose dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: settings.htmlContent || '' }} />
-);
+const RichTextBlock = ({ settings }: { settings: any }) => {
+    const style: React.CSSProperties = {
+        fontFamily: settings.fontFamily || 'inherit',
+        fontSize: settings.fontSize ? `${settings.fontSize}px` : undefined,
+        lineHeight: settings.lineHeight || 'inherit',
+        color: settings.color || 'inherit',
+        textAlign: settings.textAlign || 'left',
+        padding: settings.padding ? `${settings.padding.top || 0}px ${settings.padding.right || 0}px ${settings.padding.bottom || 0}px ${settings.padding.left || 0}px` : undefined,
+    };
+
+    const animationClass = {
+        fade: 'animate-fade-in',
+        slide: 'animate-slide-in-up',
+        zoom: 'animate-in zoom-in-50',
+    }[settings.animation || 'none'];
+
+    return <div style={style} className={cn("prose dark:prose-invert max-w-none", animationClass)} dangerouslySetInnerHTML={{ __html: settings.htmlContent || '' }} />;
+};
 
 const TestimonialsBlock = ({ settings }: { settings: any }) => (
     <div className="w-full">
