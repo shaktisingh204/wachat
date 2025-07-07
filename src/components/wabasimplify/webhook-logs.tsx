@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
@@ -50,7 +49,12 @@ function ReprocessButton({ logId, onReprocessComplete }: { logId: string; onRepr
     )
 }
 
-export function WebhookLogs() {
+interface WebhookLogsProps {
+  filterByProject?: boolean;
+}
+
+
+export function WebhookLogs({ filterByProject = true }: WebhookLogsProps) {
     const [logs, setLogs] = useState<WebhookLogListItem[]>([]);
     const [isLoading, startLoadingTransition] = useTransition();
     const [isClearing, startClearingTransition] = useTransition();
@@ -72,15 +76,17 @@ export function WebhookLogs() {
     }, []);
 
     const fetchLogs = useCallback(async (page: number, query: string, showToast = false) => {
-        if (!projectId) {
+        const idToFetch = filterByProject ? projectId : null;
+
+        if (filterByProject && !projectId) {
             setLogs([]);
             setTotalPages(0);
             return;
-        };
+        }
 
         startLoadingTransition(async () => {
             try {
-                const { logs: newLogs, total } = await getWebhookLogs(projectId, page, LOGS_PER_PAGE, query);
+                const { logs: newLogs, total } = await getWebhookLogs(idToFetch, page, LOGS_PER_PAGE, query);
                 setLogs(newLogs);
                 setTotalPages(Math.ceil(total / LOGS_PER_PAGE));
                 if (showToast) {
@@ -90,10 +96,10 @@ export function WebhookLogs() {
                 toast({ title: "Error", description: "Failed to fetch webhook logs.", variant: "destructive" });
             }
         });
-    }, [projectId, toast]);
+    }, [projectId, toast, filterByProject]);
 
     useEffect(() => {
-        if (isClient && projectId) {
+        if (isClient) {
             fetchLogs(currentPage, searchQuery);
         }
     }, [currentPage, searchQuery, fetchLogs, isClient, projectId]);
@@ -158,7 +164,7 @@ export function WebhookLogs() {
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>
                         <CardTitle>Webhook Event Logs</CardTitle>
-                        <CardDescription>A real-time log of events received from Meta. Processed logs are cleared out periodically.</CardDescription>
+                        <CardDescription>{filterByProject ? "Real-time log of events for the selected project." : "A log of all webhook events received by the system."}</CardDescription>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
                          <div className="relative w-full sm:w-auto">
@@ -181,7 +187,7 @@ export function WebhookLogs() {
                 </div>
             </CardHeader>
             <CardContent>
-                {isClient && !projectId && !isLoading ? (
+                {isClient && filterByProject && !projectId && !isLoading ? (
                     <Alert variant="destructive">
                         <AlertCircle className="h-4 w-4" />
                         <AlertTitle>No Project Selected</AlertTitle>
@@ -216,7 +222,7 @@ export function WebhookLogs() {
                                         <TableCell>{log.eventSummary}</TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex items-center justify-end gap-1">
-                                                <ReprocessButton logId={log._id.toString()} onReprocessComplete={() => fetchLogs(currentPage, searchQuery)} />
+                                                <ReprocessButton logId={log._id.toString()} onReprocessComplete={() => fetchLogs(currentPage, searchQuery, false)} />
                                                 <Button variant="ghost" size="icon" onClick={() => handleViewLog(log)} className="h-7 w-7">
                                                     <Eye className="h-4 w-4" />
                                                     <span className="sr-only">View Payload</span>
@@ -228,7 +234,7 @@ export function WebhookLogs() {
                                 ) : (
                                     <TableRow>
                                         <TableCell colSpan={4} className="h-24 text-center">
-                                        No webhook logs found for this project.
+                                        No webhook logs found.
                                         </TableCell>
                                     </TableRow>
                                 )}
