@@ -24,7 +24,7 @@ import { SocialShareBlockEditor } from './social-share-block-editor';
 import { RepeaterBlockEditor } from './repeater-block-editor';
 import { SectionBlockEditor } from './section-block-editor';
 import { ColumnsBlockEditor } from './columns-block-editor';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 
