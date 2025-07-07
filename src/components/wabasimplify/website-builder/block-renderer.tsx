@@ -435,8 +435,8 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
         case 'countdown': return <CountdownBlockRenderer settings={block.settings} />;
         case 'socialShare': return <SocialShareBlockRenderer settings={block.settings} />;
         case 'repeater': return <RepeaterBlockRenderer settings={block.settings} />;
-        case 'section': return <SectionBlockRenderer {...props} children={block.children || []} blockId={block.id} />;
-        case 'columns': return <ColumnsBlockRenderer {...props} children={block.children || []} blockId={block.id} />;
+        case 'section': return <SectionBlockRenderer settings={block.settings} blockId={block.id} products={products} selectedBlockId={selectedBlockId} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} children={block.children || []} />;
+        case 'columns': return <ColumnsBlockRenderer settings={block.settings} blockId={block.id} products={products} selectedBlockId={selectedBlockId} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} children={block.children || []} />;
         default: return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
     }
 };
