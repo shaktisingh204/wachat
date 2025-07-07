@@ -33,6 +33,7 @@ import {
     ShoppingCart,
     View,
     PackageCheck,
+    ArrowRightLeft
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -54,7 +55,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 
-type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'carousel' | 'addToCart' | 'orderConfirmation';
+type NodeType = 'start' | 'text' | 'buttons' | 'input' | 'image' | 'delay' | 'condition' | 'carousel' | 'addToCart' | 'orderConfirmation' | 'api';
 
 type ButtonConfig = {
     id: string;
@@ -85,6 +86,7 @@ const blockTypes = [
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'delay', label: 'Add Delay', icon: Clock },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
+    { type: 'api', label: 'Call API', icon: ArrowRightLeft },
     { type: 'addToCart', label: 'Add to Cart', icon: ShoppingCart },
     { type: 'orderConfirmation', label: 'Order Confirmation', icon: PackageCheck },
 ];
@@ -316,6 +318,28 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
         });
         handleDataChange('elements', newElements);
     }
+    
+    const handleApiChange = (field: keyof any, value: any) => {
+        const currentApiRequest = selectedNode.data.apiRequest || {};
+        const newApiRequest = { ...currentApiRequest, [field]: value };
+        handleDataChange('apiRequest', newApiRequest);
+    };
+
+     const handleMappingChange = (index: number, field: 'variable' | 'path', value: string) => {
+        const mappings = [...(selectedNode.data.apiRequest?.responseMappings || [])];
+        mappings[index] = { ...mappings[index], [field]: value };
+        handleApiChange('responseMappings', mappings);
+    };
+
+    const addMapping = () => {
+        const mappings = [...(selectedNode.data.apiRequest?.responseMappings || []), { variable: '', path: '' }];
+        handleApiChange('responseMappings', mappings);
+    };
+
+    const removeMapping = (index: number) => {
+        const mappings = (selectedNode.data.apiRequest?.responseMappings || []).filter((_: any, i: number) => i !== index);
+        handleApiChange('responseMappings', mappings);
+    };
 
 
     const renderProperties = () => {
@@ -435,6 +459,59 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
                         <div className="space-y-2"><Label htmlFor="condition-operator">Operator</Label><Select value={selectedNode.data.operator || 'equals'} onValueChange={(val) => handleDataChange('operator', val)}><SelectTrigger id="condition-operator"><SelectValue/></SelectTrigger><SelectContent><SelectItem value="equals">Equals</SelectItem><SelectItem value="not_equals">Does not equal</SelectItem><SelectItem value="contains">Contains</SelectItem><SelectItem value="is_one_of">Is one of (comma-sep)</SelectItem><SelectItem value="is_not_one_of">Is not one of (comma-sep)</SelectItem></SelectContent></Select></div>
                         <div className="space-y-2"><Label htmlFor="condition-value">Value to Compare Against</Label><Input id="condition-value" placeholder="e.g., confirmed" value={selectedNode.data.value || ''} onChange={(e) => handleDataChange('value', e.target.value)} /></div>
                     </div>
+                );
+            case 'api':
+                return (
+                    <Tabs defaultValue="request">
+                        <TabsList className="grid w-full grid-cols-2">
+                            <TabsTrigger value="request">Request</TabsTrigger>
+                            <TabsTrigger value="response">Response</TabsTrigger>
+                        </TabsList>
+                        <TabsContent value="request" className="space-y-4 pt-2">
+                             <Select value={selectedNode.data.apiRequest?.method || 'GET'} onValueChange={(val) => handleApiChange('method', val)}>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="GET">GET</SelectItem>
+                                    <SelectItem value="POST">POST</SelectItem>
+                                    <SelectItem value="PUT">PUT</SelectItem>
+                                </SelectContent>
+                             </Select>
+                             <Input placeholder="https://api.example.com" value={selectedNode.data.apiRequest?.url || ''} onChange={(e) => handleApiChange('url', e.target.value)} />
+                             <Textarea placeholder='Headers (JSON format)\n{\n  "Authorization": "Bearer ..."\n}' className="font-mono text-xs h-24" value={selectedNode.data.apiRequest?.headers || ''} onChange={(e) => handleApiChange('headers', e.target.value)} />
+                             <Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={selectedNode.data.apiRequest?.body || ''} onChange={(e) => handleApiChange('body', e.target.value)} />
+                        </TabsContent>
+                        <TabsContent value="response" className="space-y-4 pt-2">
+                            <Label>Save Response to Variables</Label>
+                             <div className="space-y-3">
+                                {(selectedNode.data.apiRequest?.responseMappings || []).map((mapping: any, index: number) => (
+                                    <div key={index} className="p-2 border rounded-md space-y-2 relative">
+                                        <Button
+                                            type="button" variant="ghost" size="icon"
+                                            className="absolute top-1 right-1 h-6 w-6"
+                                            onClick={() => removeMapping(index)}
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                        <Input
+                                            placeholder="Variable Name (e.g. user_email)"
+                                            value={mapping.variable || ''}
+                                            onChange={(e) => handleMappingChange(index, 'variable', e.target.value)}
+                                        />
+                                        <Input
+                                            placeholder="Response Path (e.g. data.email)"
+                                            value={mapping.path || ''}
+                                            onChange={(e) => handleMappingChange(index, 'path', e.target.value)}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                            <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addMapping}>
+                                <Plus className="mr-2 h-4 w-4" />
+                                Add Mapping
+                            </Button>
+                            <p className="text-xs text-muted-foreground">e.g., to access a field, use {'{{variable_name}}'}</p>
+                        </TabsContent>
+                    </Tabs>
                 );
             case 'carousel':
                 const elements = selectedNode.data.elements || [];
@@ -722,7 +799,10 @@ export default function EcommFlowBuilderPage() {
         const newNode: EcommFlowNode = {
             id: `${type}-${Date.now()}`,
             type,
-            data: { label: `New ${type}` },
+            data: { 
+                label: `New ${type}`,
+                apiRequest: { method: 'GET', url: '', headers: '', body: '', responseMappings: [] } 
+            },
             position: { x: centerOfViewX, y: centerOfViewY },
         };
         setNodes(prev => [...prev, newNode]);
