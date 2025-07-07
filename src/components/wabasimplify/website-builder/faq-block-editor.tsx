@@ -10,6 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+
 export function FaqBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const faqItems = settings.faqItems || [];
 
@@ -45,7 +46,7 @@ export function FaqBlockEditor({ settings, onUpdate }: { settings: any, onUpdate
 
     return (
         <div className="space-y-4">
-            <Accordion type="multiple" defaultValue={['content']} className="w-full">
+            <Accordion type="multiple" className="w-full" defaultValue={['content']}>
                 <AccordionItem value="content">
                     <AccordionTrigger>Content</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
