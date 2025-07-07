@@ -3,7 +3,6 @@
 'use client';
 
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
-import { WebsiteBlockEditor as BlockEditorWrapper } from './website-block-editor';
 import { HeroBlockEditor } from './hero-block-editor';
 import { FeaturedProductsBlockEditor } from './featured-products-block-editor';
 import { RichTextBlockEditor } from './rich-text-block-editor';
@@ -16,6 +15,7 @@ import { ButtonBlockEditor } from './button-block-editor';
 import { VideoBlockEditor } from './video-block-editor';
 import { IconBlockEditor } from './icon-block-editor';
 import { SpacerBlockEditor } from './spacer-block-editor';
+import { ImageCarouselBlockEditor } from './image-carousel-block-editor';
 
 interface PropertiesPanelProps {
     selectedBlock: WebsiteBlock | undefined;
@@ -59,20 +59,16 @@ export function PropertiesPanel({ selectedBlock, availableProducts, onUpdate, on
                 return <IconBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             case 'spacer':
                 return <SpacerBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
+            case 'imageCarousel':
+                return <ImageCarouselBlockEditor settings={selectedBlock.settings} onUpdate={(newSettings) => onUpdate(selectedBlock.id, newSettings)} />;
             default:
                 return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>
         }
     };
     
     return (
-        <BlockEditorWrapper
-            block={selectedBlock}
-            onUpdate={onUpdate}
-            onRemove={onRemove}
-            availableProducts={availableProducts}
-            isDragging={false} // This prop is not needed here
-        >
+        <div>
             {renderEditor()}
-        </BlockEditorWrapper>
+        </div>
     );
 }

@@ -11,6 +11,7 @@ import { ObjectId } from 'mongodb';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import React from 'react';
 import * as LucideIcons from 'lucide-react';
+import { ImageCarouselRenderer } from '@/components/wabasimplify/website-builder/image-carousel-renderer';
 
 
 const HeroBlock = ({ settings }: { settings: any }) => (
@@ -437,6 +438,8 @@ export default async function ShopPage({ params }: { params: { slug: string } })
                 return <IconBlock settings={block.settings} />;
             case 'spacer':
                 return <SpacerBlock settings={block.settings} />;
+            case 'imageCarousel':
+                return <ImageCarouselRenderer settings={block.settings} />;
             default:
                 return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
         }
