@@ -13,6 +13,17 @@ export function ImageBlockEditor({ settings, onUpdate }: { settings: any, onUpda
         onUpdate({ ...settings, [field]: value });
     };
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            onUpdate({ ...settings, src: reader.result as string });
+        };
+        reader.readAsDataURL(file);
+    };
+
     const handleSubFieldUpdate = (mainField: string, subField: string, value: any) => {
         onUpdate({
             ...settings,
@@ -26,8 +37,8 @@ export function ImageBlockEditor({ settings, onUpdate }: { settings: any, onUpda
     return (
         <div className="space-y-4">
              <div className="space-y-2">
-                <Label htmlFor={`src-${settings.id}`}>Image URL</Label>
-                <Input id={`src-${settings.id}`} value={settings.src || ''} onChange={(e) => handleUpdate('src', e.target.value)} placeholder="https://example.com/image.png" />
+                <Label htmlFor={`src-${settings.id}`}>Image Upload</Label>
+                <Input id={`src-${settings.id}`} type="file" accept="image/*" onChange={handleFileChange} />
             </div>
              <div className="space-y-2">
                 <Label htmlFor={`alt-${settings.id}`}>Alt Text (for accessibility)</Label>

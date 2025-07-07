@@ -21,6 +21,16 @@ type RepeaterItem = {
   buttonLink?: string;
 };
 
+const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+        callback(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+};
+
+
 export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const items = settings.items || [];
 
@@ -67,7 +77,10 @@ export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onU
                                         <Trash2 className="h-4 w-4 text-destructive" />
                                     </Button>
                                     <h4 className="font-medium">Item {index + 1}</h4>
-                                    <div className="space-y-2"><Label>Image URL</Label><Input placeholder="https://..." value={item.imageUrl || ''} onChange={(e) => handleItemChange(index, 'imageUrl', e.target.value)} /></div>
+                                    <div className="space-y-2">
+                                        <Label>Image</Label>
+                                        <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleItemChange(index, 'imageUrl', dataUri))} />
+                                    </div>
                                     <div className="space-y-2"><Label>Title</Label><Input placeholder="Item Title" value={item.title || ''} onChange={(e) => handleItemChange(index, 'title', e.target.value)} /></div>
                                     <div className="space-y-2"><Label>Description</Label><Textarea placeholder="Item description..." value={item.description || ''} onChange={(e) => handleItemChange(index, 'description', e.target.value)} /></div>
                                     <div className="space-y-2"><Label>Button Text</Label><Input placeholder="e.g., Learn More" value={item.buttonText || ''} onChange={(e) => handleItemChange(index, 'buttonText', e.target.value)} /></div>
@@ -117,7 +130,7 @@ export function RepeaterBlockEditor({ settings, onUpdate }: { settings: any, onU
                                     <Switch checked={settings.autoplay || false} onCheckedChange={(val) => handleUpdate('autoplay', val)} />
                                 </div>
                                 {settings.autoplay && (
-                                    <div className="space-y-2"><Label>Autoplay Delay (sec)</Label><Input type="number" value={settings.autoplayDelay || 4} onChange={(e) => handleUpdate('autoplayDelay', Number(e.target.value))} /></div>
+                                    <div className="space-y-2"><Label>Autoplay Delay (sec)</Label><Input type="number" value={settings.autoplayDelay || 4} onChange={e => handleUpdate('autoplayDelay', Number(e.target.value))} /></div>
                                 )}
                             </div>
                         )}
