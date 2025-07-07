@@ -18,7 +18,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { LoaderCircle, Plus, Save, Trash2, List } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { savePersistentMenu } from '@/app/actions/facebook.actions';
-import type { WithId, Project, EcommSettings } from '@/lib/definitions';
+import type { WithId, EcommShop } from '@/lib/definitions';
 import { Separator } from '../ui/separator';
 
 const initialState = { success: false, error: undefined };
@@ -34,8 +34,7 @@ function SubmitButton() {
 }
 
 interface PersistentMenuFormProps {
-    project: WithId<Project>;
-    settings: EcommSettings | null;
+    shop: WithId<EcommShop>;
 }
 
 type MenuItem = {
@@ -45,14 +44,14 @@ type MenuItem = {
     url?: string;
 };
 
-export function PersistentMenuForm({ project, settings }: PersistentMenuFormProps) {
+export function PersistentMenuForm({ shop }: PersistentMenuFormProps) {
     const [state, formAction] = useActionState(savePersistentMenu, initialState);
     const { toast } = useToast();
     const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
 
     useEffect(() => {
-        setMenuItems(settings?.persistentMenu || []);
-    }, [settings]);
+        setMenuItems(shop?.persistentMenu || []);
+    }, [shop]);
 
     useEffect(() => {
         if (state.success) {
@@ -89,14 +88,14 @@ export function PersistentMenuForm({ project, settings }: PersistentMenuFormProp
 
     return (
         <form action={formAction}>
-            <input type="hidden" name="projectId" value={project._id.toString()} />
+            <input type="hidden" name="shopId" value={shop._id.toString()} />
             <input type="hidden" name="menuItems" value={JSON.stringify(menuItems)} />
 
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/>Persistent Menu</CardTitle>
                     <CardDescription>
-                        Set up a static menu that's always available to users in your Messenger chat window. You can have up to 3 top-level items.
+                        Set up a static menu that's always available to users in your Messenger chat window. You can have up to 3 top-level items. Note: This menu is set at the Page level and will be overwritten by the last shop saved.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">

@@ -10,9 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Key, LoaderCircle, Trash2, CheckCircle, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
-import { addCustomDomain, verifyCustomDomain, deleteCustomDomain, getCustomDomains } from '@/app/actions/url-shortener.actions';
-import { saveEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
-import type { WithId, CustomDomain, Project, EcommSettings } from '@/lib/definitions';
+import { addCustomDomain, getCustomDomains, verifyCustomDomain, deleteCustomDomain } from '@/app/actions/url-shortener.actions';
+import type { WithId, CustomDomain } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { Badge } from '@/components/ui/badge';
@@ -67,12 +66,8 @@ function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActi
     return <Button variant="ghost" size="icon" onClick={onDelete} disabled={isPending}>{isPending ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <Trash2 className="h-4 w-4 text-destructive"/>}</Button>;
 }
 
-interface EcommCustomDomainFormProps {
-    project: WithId<Project>;
-    settings: EcommSettings | null;
-}
 
-export function EcommCustomDomainForm({ project, settings }: EcommCustomDomainFormProps) {
+export function EcommCustomDomainForm() {
     const { toast } = useToast();
     const addFormRef = useRef<HTMLFormElement>(null);
     const [domains, setDomains] = useState<WithId<CustomDomain>[]>([]);
@@ -104,8 +99,8 @@ export function EcommCustomDomainForm({ project, settings }: EcommCustomDomainFo
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Custom Domain</CardTitle>
-                <CardDescription>Connect a custom domain to your shop (e.g., shop.mybrand.com).</CardDescription>
+                <CardTitle>Custom Domains</CardTitle>
+                <CardDescription>Use your own domain for branded shop URLs (e.g., shop.mybrand.com).</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 <form action={addAction} ref={addFormRef} className="space-y-2">
@@ -140,7 +135,7 @@ export function EcommCustomDomainForm({ project, settings }: EcommCustomDomainFo
                                         <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
                                             <span className="text-muted-foreground">Type:</span> <span>CNAME</span>
                                             <span className="text-muted-foreground">Host/Name:</span> <span>{domain.hostname}</span>
-                                            <span className="text-muted-foreground">Value:</span>
+                                            <span className="text-muted-foreground">Value/Target:</span>
                                             <div className="flex items-center gap-2">
                                                 <span className="break-all">cname.sabnode.com</span>
                                                 <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => copy('cname.sabnode.com')}><Copy className="h-3 w-3"/></Button>

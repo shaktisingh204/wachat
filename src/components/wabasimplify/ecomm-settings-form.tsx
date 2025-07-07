@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
@@ -8,9 +9,9 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle, Save, IndianRupee, CreditCard, Bell } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { saveEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
+import { updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
 import { getEcommFlows } from '@/app/actions/custom-ecommerce-flow.actions';
-import type { WithId, Project, EcommSettings, CustomDomain, EcommFlow } from '@/lib/definitions';
+import type { WithId, EcommShop, CustomDomain, EcommFlow } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Separator } from '../ui/separator';
 import { Switch } from '../ui/switch';
@@ -28,19 +29,18 @@ function SubmitButton() {
 }
 
 interface EcommSettingsFormProps {
-    project: WithId<Project>;
-    settings: EcommSettings | null;
+    shop: WithId<EcommShop>;
     domains: WithId<CustomDomain>[];
 }
 
-export function EcommSettingsForm({ project, settings, domains }: EcommSettingsFormProps) {
-    const [state, formAction] = useActionState(saveEcommShopSettings, initialState);
+export function EcommSettingsForm({ shop, domains }: EcommSettingsFormProps) {
+    const [state, formAction] = useActionState(updateEcommShopSettings, initialState);
     const { toast } = useToast();
     const [ecommFlows, setEcommFlows] = useState<WithId<EcommFlow>[]>([]);
 
     useEffect(() => {
-        getEcommFlows(project._id.toString()).then(setEcommFlows);
-    }, [project._id]);
+        getEcommFlows(shop.projectId.toString()).then(setEcommFlows);
+    }, [shop.projectId]);
 
     useEffect(() => {
         if (state.message) {
@@ -55,7 +55,7 @@ export function EcommSettingsForm({ project, settings, domains }: EcommSettingsF
 
     return (
         <form action={formAction}>
-            <input type="hidden" name="projectId" value={project._id.toString()} />
+            <input type="hidden" name="shopId" value={shop._id.toString()} />
             <Card>
                 <CardHeader>
                     <CardTitle>Basic Configuration</CardTitle>
@@ -65,11 +65,11 @@ export function EcommSettingsForm({ project, settings, domains }: EcommSettingsF
                     <div className="grid md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                             <Label htmlFor="shopName">Shop Name</Label>
-                            <Input id="shopName" name="shopName" placeholder="My Awesome Store" defaultValue={settings?.shopName || ''} required />
+                            <Input id="shopName" name="name" placeholder="My Awesome Store" defaultValue={shop.name || ''} required />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="currency">Currency</Label>
-                            <Select name="currency" defaultValue={settings?.currency || 'USD'} required>
+                            <Select name="currency" defaultValue={shop.currency || 'USD'} required>
                                 <SelectTrigger id="currency"><SelectValue /></SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="USD">USD - US Dollar</SelectItem>
@@ -81,7 +81,7 @@ export function EcommSettingsForm({ project, settings, domains }: EcommSettingsF
                         </div>
                         <div className="space-y-2 md:col-span-2">
                             <Label htmlFor="customDomain">Custom Domain</Label>
-                            <Select name="customDomain" defaultValue={settings?.customDomain || 'none'}>
+                            <Select name="customDomain" defaultValue={shop.customDomain || 'none'}>
                                 <SelectTrigger id="customDomain">
                                     <SelectValue placeholder="Select a verified domain..." />
                                 </SelectTrigger>
@@ -102,15 +102,15 @@ export function EcommSettingsForm({ project, settings, domains }: EcommSettingsF
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="paymentLinkRazorpay">Razorpay Link</Label>
-                                <Input id="paymentLinkRazorpay" name="paymentLinkRazorpay" placeholder="https://rzp.io/l/yourlink" defaultValue={settings?.paymentLinkRazorpay || ''} />
+                                <Input id="paymentLinkRazorpay" name="paymentLinkRazorpay" placeholder="https://rzp.io/l/yourlink" defaultValue={shop.paymentLinkRazorpay || ''} />
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="paymentLinkPaytm">Paytm Link</Label>
-                                <Input id="paymentLinkPaytm" name="paymentLinkPaytm" placeholder="https://p.paytm.me/yourlink" defaultValue={settings?.paymentLinkPaytm || ''} />
+                                <Input id="paymentLinkPaytm" name="paymentLinkPaytm" placeholder="https://p.paytm.me/yourlink" defaultValue={shop.paymentLinkPaytm || ''} />
                             </div>
                              <div className="space-y-2">
                                 <Label htmlFor="paymentLinkGPay">Google Pay (GPay) Link</Label>
-                                <Input id="paymentLinkGPay" name="paymentLinkGPay" placeholder="gpay://..." defaultValue={settings?.paymentLinkGPay || ''} />
+                                <Input id="paymentLinkGPay" name="paymentLinkGPay" placeholder="gpay://..." defaultValue={shop.paymentLinkGPay || ''} />
                             </div>
                         </div>
                     </div>
@@ -121,16 +121,16 @@ export function EcommSettingsForm({ project, settings, domains }: EcommSettingsF
                         <div className="space-y-4 rounded-lg border p-4">
                             <div className="flex items-center justify-between">
                                 <Label htmlFor="abandonedCart.enabled" className="font-medium">Enable Reminder</Label>
-                                <Switch id="abandonedCart.enabled" name="abandonedCart.enabled" defaultChecked={settings?.abandonedCart?.enabled || false} />
+                                <Switch id="abandonedCart.enabled" name="abandonedCart.enabled" defaultChecked={shop.abandonedCart?.enabled || false} />
                             </div>
                             <div className="grid md:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="abandonedCart.delayMinutes">Delay (minutes)</Label>
-                                    <Input id="abandonedCart.delayMinutes" name="abandonedCart.delayMinutes" type="number" defaultValue={settings?.abandonedCart?.delayMinutes || 60} />
+                                    <Input id="abandonedCart.delayMinutes" name="abandonedCart.delayMinutes" type="number" defaultValue={shop.abandonedCart?.delayMinutes || 60} />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="abandonedCart.flowId">Reminder Flow</Label>
-                                    <Select name="abandonedCart.flowId" defaultValue={settings?.abandonedCart?.flowId}>
+                                    <Select name="abandonedCart.flowId" defaultValue={shop.abandonedCart?.flowId}>
                                         <SelectTrigger id="abandonedCart.flowId"><SelectValue placeholder="Select a flow..."/></SelectTrigger>
                                         <SelectContent>
                                             {ecommFlows.map(flow => (
