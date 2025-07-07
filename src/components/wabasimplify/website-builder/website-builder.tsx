@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
+import { useEffect, useState, useTransition, useActionState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { getEcommShopById, getEcommProducts, updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
@@ -11,14 +11,12 @@ import { useFormStatus } from 'react-dom';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { AlertCircle, Plus, LoaderCircle, Save, ArrowLeft, Eye, Trash2, AlertTriangle } from 'lucide-react';
+import { AlertCircle, Plus, LoaderCircle, Save, ArrowLeft, Eye } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { BlockPalette } from './block-palette';
 import { Canvas } from './canvas';
 import { PropertiesPanel } from './properties-panel';
 import Link from 'next/link';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 
 const initialState = { message: null, error: undefined };
 
@@ -46,7 +44,7 @@ function BuilderSkeleton() {
 const findList = (items: WebsiteBlock[], droppableId: string): WebsiteBlock[] | null => {
     if (droppableId === 'canvas') return items;
     for (const item of items) {
-        if (item.id === droppableId && (item.type === 'section' || item.type === 'column')) {
+        if (item.id === droppableId) {
             if (!item.children) item.children = [];
             return item.children;
         }
@@ -71,35 +69,6 @@ const removeBlockById = (items: WebsiteBlock[], idToRemove: string): WebsiteBloc
     });
 };
 
-function DangerZone({ onProceed }: { onProceed: () => void }) {
-    return (
-        <div className="flex items-center justify-center h-screen bg-muted">
-            <Card className="max-w-lg text-center shadow-2xl animate-fade-in-up">
-                <CardHeader>
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
-                        <AlertTriangle className="h-6 w-6 text-destructive" />
-                    </div>
-                    <CardTitle className="mt-4">You are entering the Website Builder</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4 text-sm text-muted-foreground">
-                    <p>
-                        This is a powerful, experimental tool that allows for direct manipulation of your shop's homepage.
-                    </p>
-                    <Separator />
-                    <ul className="list-disc list-inside text-left space-y-1">
-                        <li>Ensure your image URLs are correct and publicly accessible.</li>
-                        <li>Using the "Custom HTML" block can break your page layout or introduce security risks if used improperly.</li>
-                        <li>Always save your work before exiting.</li>
-                    </ul>
-                </CardContent>
-                <CardFooter className="flex justify-center">
-                    <Button size="lg" onClick={onProceed}>I understand, proceed to builder</Button>
-                </CardFooter>
-            </Card>
-        </div>
-    );
-}
-
 export function WebsiteBuilder() {
     const params = useParams();
     const router = useRouter();
@@ -111,8 +80,6 @@ export function WebsiteBuilder() {
     const [isLoading, startLoadingTransition] = useTransition();
     const [state, formAction] = useActionState(updateEcommShopSettings, initialState);
     const { toast } = useToast();
-    const [hasProceeded, setHasProceeded] = useState(false);
-
 
     useEffect(() => {
         if (shopId) {
@@ -163,7 +130,6 @@ export function WebsiteBuilder() {
                 if (block.id === id) {
                     const updatedBlock = { ...block, settings: newSettings };
 
-                    // Special logic for columns block to adjust children array
                     if (block.type === 'columns' && newSettings.columnCount !== (block.settings.columnCount || 0)) {
                         const currentCount = block.children?.length || 0;
                         const newCount = newSettings.columnCount || 0;
@@ -189,19 +155,18 @@ export function WebsiteBuilder() {
         setLayout(prev => updateRecursively(prev));
     };
 
-    const handleRemoveBlock = (id: string) => {
-        setLayout(prev => removeBlockById(prev, id));
-        if (selectedBlockId === id) {
+    const handleRemoveBlock = (idToRemove: string) => {
+        setLayout(prev => removeBlockById(prev, idToRemove));
+        if (selectedBlockId === idToRemove) {
             setSelectedBlockId(null);
         }
     };
     
     const onDragEnd = (result: DropResult) => {
-        const { source, destination, draggableId } = result;
+        const { source, destination } = result;
         if (!destination) return;
 
         const layoutCopy = JSON.parse(JSON.stringify(layout));
-
         const sourceList = findList(layoutCopy, source.droppableId);
         const destList = findList(layoutCopy, destination.droppableId);
 
@@ -213,7 +178,7 @@ export function WebsiteBuilder() {
         setLayout(layoutCopy);
     };
 
-    const selectedBlock = useMemo(() => {
+    const selectedBlock = React.useMemo(() => {
         if (!selectedBlockId) return undefined;
         const findRecursively = (items: WebsiteBlock[]): WebsiteBlock | undefined => {
             for (const item of items) {
@@ -227,10 +192,6 @@ export function WebsiteBuilder() {
         };
         return findRecursively(layout);
     }, [selectedBlockId, layout]);
-
-    if (!hasProceeded) {
-        return <DangerZone onProceed={() => setHasProceeded(true)} />;
-    }
 
     if (isLoading) {
         return <BuilderSkeleton />;
@@ -281,17 +242,8 @@ export function WebsiteBuilder() {
                                 droppableId="canvas"
                                 onBlockClick={setSelectedBlockId}
                                 selectedBlockId={selectedBlockId}
-                                onRemoveBlock={(parentId, index) => {
-                                    const layoutCopy = JSON.parse(JSON.stringify(layout));
-                                    const parentList = findList(layoutCopy, parentId);
-                                    if(parentList) {
-                                        const removed = parentList.splice(index, 1);
-                                        if (selectedBlockId === removed[0]?.id) {
-                                            setSelectedBlockId(null);
-                                        }
-                                    }
-                                    setLayout(layoutCopy);
-                                }}
+                                onRemoveBlock={handleRemoveBlock}
+                                products={products}
                             />
                         </div>
                         <div className="col-span-3 bg-background border-l p-4 overflow-y-auto">

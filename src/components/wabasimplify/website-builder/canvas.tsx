@@ -1,39 +1,97 @@
 
-
 'use client';
 
 import { Droppable, Draggable } from 'react-beautiful-dnd';
-import { WebsiteBlock } from '@/lib/definitions';
+import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { Trash2, GripVertical, LayoutGrid } from 'lucide-react';
+import { Trash2, GripVertical, LayoutGrid, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-const BlockPreview = ({ block }: { block: WebsiteBlock }) => {
-    switch (block.type) {
-        case 'hero':
-            return <p className="text-sm text-muted-foreground">Hero: {block.settings.title || 'Untitled'}</p>;
-        case 'section':
-             return <p className="text-sm text-muted-foreground">Section</p>;
-        case 'columns':
-             return <p className="text-sm text-muted-foreground">Columns ({block.children?.length || 0})</p>;
-        case 'featuredProducts':
-            return <p className="text-sm text-muted-foreground">Products: {(block.settings.productIds || []).length} items</p>;
-        case 'richText':
-             return <p className="text-sm text-muted-foreground line-clamp-2">{block.settings.htmlContent?.replace(/<[^>]*>?/gm, '') || 'Rich Text Content...'}</p>;
-        default:
-            return <p className="text-sm text-muted-foreground">{block.type.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}</p>;
-    }
-};
+import { BlockRenderer } from './block-renderer';
 
 interface CanvasProps {
     layout: WebsiteBlock[];
     droppableId: string;
+    products: WithId<EcommProduct>[];
     onBlockClick: (id: string) => void;
-    onRemoveBlock: (parentId: string, index: number) => void;
+    onRemoveBlock: (id: string) => void;
     selectedBlockId: string | null;
 }
 
-export function Canvas({ layout, droppableId, onBlockClick, onRemoveBlock, selectedBlockId }: CanvasProps) {
+const CanvasBlockWrapper = ({ block, index, parentId, products, onBlockClick, onRemoveBlock, selectedBlockId }: {
+    block: WebsiteBlock;
+    index: number;
+    parentId: string;
+    products: WithId<EcommProduct>[];
+    onBlockClick: (id: string) => void;
+    onRemoveBlock: (id: string) => void;
+    selectedBlockId: string | null;
+}) => {
+    return (
+        <Draggable draggableId={block.id} index={index}>
+            {(provided, snapshot) => (
+                <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    className={cn(
+                        "relative group transition-all",
+                        selectedBlockId === block.id && "ring-2 ring-primary ring-offset-2 ring-offset-muted",
+                        snapshot.isDragging && "shadow-2xl opacity-90"
+                    )}
+                    onClick={(e) => { e.stopPropagation(); onBlockClick(block.id); }}
+                >
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 p-1 bg-background border rounded-full shadow-md opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                        <div {...provided.dragHandleProps} className="p-1 cursor-grab text-muted-foreground hover:text-foreground">
+                            <GripVertical className="h-5 w-5"/>
+                        </div>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); onBlockClick(block.id)}}>
+                            <Settings2 className="h-4 w-4 text-primary"/>
+                        </Button>
+                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); onRemoveBlock(block.id)}}>
+                            <Trash2 className="h-4 w-4 text-destructive"/>
+                        </Button>
+                    </div>
+
+                    <div className="pointer-events-none">
+                         {block.type === 'section' ? (
+                            <BlockRenderer block={block} products={products} >
+                                <div className="p-4 border-t">
+                                    <Canvas
+                                        layout={block.children || []}
+                                        droppableId={block.id}
+                                        selectedBlockId={selectedBlockId}
+                                        onBlockClick={onBlockClick}
+                                        onRemoveBlock={onRemoveBlock}
+                                        products={products}
+                                    />
+                                </div>
+                            </BlockRenderer>
+                         ) : block.type === 'columns' ? (
+                            <BlockRenderer block={block} products={products} >
+                                {(block.children || []).map(column => (
+                                    <div key={column.id} className="bg-muted/30 rounded-md">
+                                        <Canvas
+                                            layout={column.children || []}
+                                            droppableId={column.id}
+                                            selectedBlockId={selectedBlockId}
+                                            onBlockClick={onBlockClick}
+                                            onRemoveBlock={onRemoveBlock}
+                                            products={products}
+                                        />
+                                    </div>
+                                ))}
+                            </BlockRenderer>
+                         ) : (
+                            <BlockRenderer block={block} products={products} />
+                         )}
+                    </div>
+                </div>
+            )}
+        </Draggable>
+    );
+};
+
+
+export function Canvas({ layout, droppableId, products, onBlockClick, onRemoveBlock, selectedBlockId }: CanvasProps) {
     return (
         <Droppable droppableId={droppableId} type="BLOCK">
             {(provided, snapshot) => (
@@ -46,62 +104,16 @@ export function Canvas({ layout, droppableId, onBlockClick, onRemoveBlock, selec
                     )}
                 >
                     {layout.map((block, index) => (
-                        <Draggable key={block.id} draggableId={block.id} index={index}>
-                            {(provided, snapshot) => (
-                                <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    onClick={(e) => { e.stopPropagation(); onBlockClick(block.id); }}
-                                    className={cn(
-                                        "bg-background border rounded-lg hover:shadow-lg transition-all",
-                                        selectedBlockId === block.id && "ring-2 ring-primary shadow-xl",
-                                        snapshot.isDragging && "shadow-2xl opacity-80"
-                                    )}
-                                >
-                                     <div className="flex items-center justify-between p-2 pl-1 bg-slate-50 border-b rounded-t-lg">
-                                        <div {...provided.dragHandleProps} className="p-2 cursor-grab">
-                                            <GripVertical className="h-5 w-5 text-muted-foreground"/>
-                                        </div>
-                                        <div className="flex-1 text-left">
-                                            <BlockPreview block={block} />
-                                        </div>
-                                        <Button size="icon" variant="ghost" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); onRemoveBlock(droppableId, index)}}>
-                                            <Trash2 className="h-4 w-4 text-destructive"/>
-                                        </Button>
-                                    </div>
-                                    
-                                    {block.type === 'section' && (
-                                      <div className="p-4 border-t">
-                                        <Canvas
-                                          layout={block.children || []}
-                                          droppableId={block.id}
-                                          selectedBlockId={selectedBlockId}
-                                          onBlockClick={onBlockClick}
-                                          onRemoveBlock={onRemoveBlock}
-                                        />
-                                      </div>
-                                    )}
-                                     {block.type === 'columns' && (
-                                        <div
-                                            className="grid p-2 gap-2"
-                                            style={{ gridTemplateColumns: `repeat(${block.settings.columnCount || 2}, 1fr)` }}
-                                        >
-                                            {(block.children || []).map(column => (
-                                            <div key={column.id} className="bg-muted/50 rounded-md">
-                                                <Canvas
-                                                    layout={column.children || []}
-                                                    droppableId={column.id}
-                                                    selectedBlockId={selectedBlockId}
-                                                    onBlockClick={onBlockClick}
-                                                    onRemoveBlock={onRemoveBlock}
-                                                />
-                                            </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </Draggable>
+                        <CanvasBlockWrapper
+                            key={block.id}
+                            block={block}
+                            index={index}
+                            parentId={droppableId}
+                            products={products}
+                            onBlockClick={onBlockClick}
+                            onRemoveBlock={onRemoveBlock}
+                            selectedBlockId={selectedBlockId}
+                        />
                     ))}
                     {provided.placeholder}
                     {layout.length === 0 && (
