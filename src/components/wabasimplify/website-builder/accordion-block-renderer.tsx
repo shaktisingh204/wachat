@@ -42,7 +42,7 @@ export const AccordionBlockRenderer: React.FC<AccordionBlockRendererProps> = ({ 
     };
     
     return (
-        <Accordion type={settings.behavior || 'single'} collapsible className="w-full">
+        <Accordion type={settings.behavior || 'single'} collapsible>
             {items.map(item => (
                 <AccordionItem key={item.id} value={item.id} style={itemStyle} className="mb-2 last:mb-0 rounded-lg overflow-hidden px-4">
                     <AccordionTrigger>{item.title}</AccordionTrigger>

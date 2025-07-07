@@ -39,7 +39,7 @@ export function VideoBlockEditor({ settings, onUpdate }: { settings: any, onUpda
                     </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="playback">
-                    <AccordionTrigger>Playback & Controls</AccordionTrigger>
+                    <AccordionTrigger>Playback &amp; Controls</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                         <div className="flex items-center space-x-2">
                             <Switch id="autoplay" checked={settings.autoPlay || false} onCheckedChange={(val) => handleUpdate('autoPlay', val)} />
@@ -56,7 +56,7 @@ export function VideoBlockEditor({ settings, onUpdate }: { settings: any, onUpda
                     </AccordionContent>
                 </AccordionItem>
                  <AccordionItem value="style">
-                    <AccordionTrigger>Style & Appearance</AccordionTrigger>
+                    <AccordionTrigger>Style &amp; Appearance</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <Label>Aspect Ratio</Label>
@@ -70,7 +70,7 @@ export function VideoBlockEditor({ settings, onUpdate }: { settings: any, onUpda
                             </Select>
                         </div>
                          <div className="space-y-2">
-                            <Label>Border & Shadow</Label>
+                            <Label>Border &amp; Shadow</Label>
                             <div className="grid grid-cols-3 gap-2">
                                 <Input type="number" placeholder="Radius (px)" value={settings.border?.radius || '8'} onChange={(e) => handleSubFieldUpdate('border', 'radius', e.target.value)} />
                                 <Input type="number" placeholder="Width (px)" value={settings.border?.width || '0'} onChange={(e) => handleSubFieldUpdate('border', 'width', e.target.value)} />
@@ -86,6 +86,21 @@ export function VideoBlockEditor({ settings, onUpdate }: { settings: any, onUpda
                             <div className="grid grid-cols-2 gap-2">
                                  <Input type="number" placeholder="Size (px)" value={settings.playIconSize || '64'} onChange={(e) => handleUpdate('playIconSize', e.target.value)} />
                                 <Input type="color" value={settings.playIconColor || '#FFFFFF'} onChange={(e) => handleUpdate('playIconColor', e.target.value)} />
+                            </div>
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="layout">
+                    <AccordionTrigger>Sizing &amp; Layout</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Width</Label>
+                                <Input value={settings.layout?.width || '100%'} onChange={e => handleSubFieldUpdate('layout', 'width', e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Height</Label>
+                                <Input value={settings.layout?.height || '450px'} onChange={e => handleSubFieldUpdate('layout', 'height', e.target.value)} />
                             </div>
                         </div>
                     </AccordionContent>

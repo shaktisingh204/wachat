@@ -120,7 +120,7 @@ export const CountdownBlockRenderer: React.FC<CountdownBlockRendererProps> = ({ 
     const gridCols = style === 'circle' ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-4';
 
     return (
-        <div className="w-full p-8 rounded-lg" style={{backgroundColor}}>
+        <div className="p-8 rounded-lg" style={{backgroundColor}}>
              <div className={`grid ${gridCols} gap-4 md:gap-8 max-w-2xl mx-auto`}>
                 <TimeUnit value={timeLeft.days} label={labels.days || 'Days'} style={style} textColor={textColor} />
                 <TimeUnit value={timeLeft.hours} label={labels.hours || 'Hours'} style={style} textColor={textColor} />

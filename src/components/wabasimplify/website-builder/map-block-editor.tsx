@@ -14,6 +14,16 @@ export function MapBlockEditor({ settings, onUpdate }: { settings: any, onUpdate
     const handleUpdate = (field: string, value: any) => {
         onUpdate({ ...settings, [field]: value });
     };
+    
+    const handleSubFieldUpdate = (mainField: string, subField: string, value: any) => {
+        onUpdate({
+            ...settings,
+            [mainField]: {
+                ...(settings[mainField] || {}),
+                [subField]: value
+            }
+        });
+    }
 
     return (
         <div className="space-y-4">
@@ -65,19 +75,24 @@ export function MapBlockEditor({ settings, onUpdate }: { settings: any, onUpdate
                                 step={1}
                             />
                         </div>
-                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Width</Label>
-                                <Input value={settings.width || '100%'} onChange={(e) => handleUpdate('width', e.target.value)} placeholder="e.g. 100% or 600px"/>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Height</Label>
-                                <Input value={settings.height || '450px'} onChange={(e) => handleUpdate('height', e.target.value)} placeholder="e.g. 450px" />
-                            </div>
-                         </div>
                          <div className="flex items-center space-x-2 pt-2">
                             <Switch id="roundedCorners" checked={settings.rounded || false} onCheckedChange={(val) => handleUpdate('rounded', val)} />
                             <Label htmlFor="roundedCorners">Rounded Corners</Label>
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+                 <AccordionItem value="layout">
+                    <AccordionTrigger>Sizing &amp; Layout</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Width</Label>
+                                <Input value={settings.layout?.width || '100%'} onChange={e => handleSubFieldUpdate('layout', 'width', e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Height</Label>
+                                <Input value={settings.layout?.height || '450px'} onChange={e => handleSubFieldUpdate('layout', 'height', e.target.value)} />
+                            </div>
                         </div>
                     </AccordionContent>
                 </AccordionItem>

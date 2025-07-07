@@ -30,6 +30,16 @@ export function SocialShareBlockEditor({ settings, onUpdate }: { settings: any, 
         handleUpdate('platforms', newPlatforms);
     };
 
+    const handleSubFieldUpdate = (mainField: string, subField: string, value: any) => {
+        onUpdate({
+            ...settings,
+            [mainField]: {
+                ...(settings[mainField] || {}),
+                [subField]: value
+            }
+        });
+    }
+
     return (
         <div className="space-y-4">
             <Accordion type="multiple" className="w-full" defaultValue={['platforms', 'style']}>
@@ -59,7 +69,7 @@ export function SocialShareBlockEditor({ settings, onUpdate }: { settings: any, 
                     </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="style">
-                    <AccordionTrigger>Style & Appearance</AccordionTrigger>
+                    <AccordionTrigger>Style &amp; Appearance</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <Label>Style</Label>
@@ -107,6 +117,42 @@ export function SocialShareBlockEditor({ settings, onUpdate }: { settings: any, 
                                     <SelectItem value="left">Left</SelectItem>
                                     <SelectItem value="center">Center</SelectItem>
                                     <SelectItem value="right">Right</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+                 <AccordionItem value="layout">
+                    <AccordionTrigger>Sizing &amp; Layout</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Width</Label>
+                                <Input value={settings.layout?.width || '100%'} onChange={e => handleSubFieldUpdate('layout', 'width', e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Height</Label>
+                                <Input value={settings.layout?.height || 'auto'} onChange={e => handleSubFieldUpdate('layout', 'height', e.target.value)} />
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Max Width</Label>
+                                <Input value={settings.layout?.maxWidth || ''} placeholder="e.g. 1200px" onChange={e => handleSubFieldUpdate('layout', 'maxWidth', e.target.value)} />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Min Height</Label>
+                                <Input value={settings.layout?.minHeight || ''} placeholder="e.g. 200px" onChange={e => handleSubFieldUpdate('layout', 'minHeight', e.target.value)} />
+                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Overflow</Label>
+                            <Select value={settings.layout?.overflow || 'visible'} onValueChange={(val) => handleSubFieldUpdate('layout', 'overflow', val)}>
+                                <SelectTrigger><SelectValue/></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="visible">Visible</SelectItem>
+                                    <SelectItem value="hidden">Hidden</SelectItem>
+                                    <SelectItem value="scroll">Scroll</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
