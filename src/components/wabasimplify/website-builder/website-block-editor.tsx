@@ -5,7 +5,7 @@ import React from 'react';
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
 import { HeroBlockEditor } from './hero-block-editor';
 import { FeaturedProductsBlockEditor } from './featured-products-block-editor';
-import { RichTextBlockEditor } from './rich-text-block-editor';
+import { RichTextBlockEditor } from './rich-text-block-renderer';
 import { TestimonialsBlockEditor } from './testimonials-block-editor';
 import { CustomHtmlBlockEditor } from './custom-html-block-editor';
 import { HeadingBlockEditor } from './heading-block-editor';
@@ -20,7 +20,7 @@ import { AccordionBlockEditor } from './accordion-block-editor';
 import { FormBlockEditor } from './form-block-editor';
 import { MapBlockEditor } from './map-block-editor';
 import { CountdownBlockEditor } from './countdown-block-editor';
-import { SocialShareBlockEditor } from './social-share-block-editor';
+import { SocialShareBlockEditor } from './social-share-block-renderer';
 import { RepeaterBlockEditor } from './repeater-block-editor';
 import { SectionBlockEditor } from './section-block-editor';
 import { ColumnsBlockEditor } from './columns-block-editor';
@@ -28,7 +28,7 @@ import { ColumnBlockEditor } from './column-block-editor';
 import { CartBlockEditor } from './cart-block-editor';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2, CheckCircle } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { FaqBlockEditor } from './faq-block-editor';
 import { ProductBlockEditor } from './product-block-editor';
 
@@ -40,13 +40,6 @@ interface PropertiesPanelProps {
 }
 
 export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate, onRemove }: PropertiesPanelProps) {
-    const [localSettings, setLocalSettings] = React.useState(selectedBlock?.settings);
-    
-    React.useEffect(() => {
-        // When a new block is selected, update the local state.
-        setLocalSettings(selectedBlock?.settings);
-    }, [selectedBlock]);
-
     if (!selectedBlock) {
         return (
             <div className="text-center text-muted-foreground p-8 h-full flex flex-col items-center justify-center">
@@ -55,14 +48,10 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
         );
     }
     
-    const handleApplyChanges = () => {
-        onUpdate(selectedBlock.id, localSettings);
-    };
-
     const renderEditor = () => {
         const props = {
-            settings: localSettings,
-            onUpdate: setLocalSettings, // Pass the local state setter to the editors
+            settings: selectedBlock.settings,
+            onUpdate: (newSettings: any) => onUpdate(selectedBlock.id, newSettings),
         };
         
         const productProps = {
@@ -113,11 +102,7 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
             <CardContent className="flex-1 overflow-y-auto">
                  {renderEditor()}
             </CardContent>
-            <CardFooter className="border-t pt-4 flex-col items-stretch gap-2">
-                <Button className="w-full" onClick={handleApplyChanges}>
-                    <CheckCircle className="mr-2 h-4 w-4" />
-                    Apply Changes
-                </Button>
+            <CardFooter className="border-t pt-4">
                 <Button variant="destructive" className="w-full" onClick={() => onRemove(selectedBlock.id)}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Block
