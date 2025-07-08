@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -311,7 +312,7 @@ body {
         color: hsl(var(--instagram));
     }
     .animate-bob { animation: bob 1.5s ease-in-out infinite; }
-    .animate-wobbleHorizontal { animation: wobble-horizontal 1s ease-in-out infinite; }
+    .animate-wobble-horizontal { animation: wobble-horizontal 1s ease-in-out infinite; }
     .animate-fade-in-up {
         animation: fade-in-up 0.6s ease-in-out forwards;
         opacity: 0;
@@ -395,13 +396,11 @@ body {
             opacity: 1;
         }
     }
-
-    @keyframes bob {
+     @keyframes bob {
       0%, 100% { transform: translateY(-5%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
       50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
     }
-
-    @keyframes wobble-horizontal {
+     @keyframes wobble-horizontal {
       16.65% { transform: translateX(8px); }
       33.3% { transform: translateX(-6px); }
       49.95% { transform: translateX(4px); }

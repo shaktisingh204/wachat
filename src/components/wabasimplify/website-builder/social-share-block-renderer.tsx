@@ -74,9 +74,11 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
     } = settings;
 
     const [currentUrl, setCurrentUrl] = useState('');
+    const [pageTitle, setPageTitle] = useState('');
 
     useEffect(() => {
         setCurrentUrl(urlType === 'custom' && customUrl ? customUrl : window.location.href);
+        setPageTitle(document.title);
     }, [urlType, customUrl]);
 
     const buttonSizeClasses = { small: 'h-8 px-2', medium: 'h-10 px-3', large: 'h-12 px-4'}[size];
@@ -131,7 +133,7 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
                             </>
                         );
 
-                        const shareUrl = getShareUrl(platform, currentUrl, document.title);
+                        const shareUrl = getShareUrl(platform, currentUrl, pageTitle);
                         
                         return (
                             <Button

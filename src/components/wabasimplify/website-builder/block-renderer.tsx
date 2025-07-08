@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -77,8 +78,8 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
         case 'productDescription': return <ProductDescriptionRenderer product={productContext} settings={safeSettings} />;
         case 'productAddToCart': return <ProductAddToCartRenderer product={productContext} settings={safeSettings} />;
         case 'productBreadcrumbs': return <ProductBreadcrumbsRenderer product={productContext} settings={safeSettings} />;
-        case 'section': return <SectionBlockRenderer {...props} children={block.children || []} isEditable={isEditable} />;
-        case 'columns': return <ColumnsBlockRenderer {...props} children={block.children || []} isEditable={isEditable} />;
+        case 'section': return <SectionBlockRenderer {...props} children={block.children || []} />;
+        case 'columns': return <ColumnsBlockRenderer {...props} children={block.children || []} />;
         default: return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
     }
 };

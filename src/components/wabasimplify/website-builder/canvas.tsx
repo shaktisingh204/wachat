@@ -20,9 +20,10 @@ interface CanvasProps {
     isNested?: boolean;
     shopSlug: string;
     isEditable?: boolean;
+    contextData?: any;
 }
 
-const EditableCanvas = ({ layout, droppableId, products, onBlockClick, onRemoveBlock, selectedBlockId, isNested, shopSlug }: CanvasProps & { droppableId: string, onBlockClick: (id: string) => void, onRemoveBlock: (id: string) => void }) => {
+const EditableCanvas = ({ layout, droppableId, products, onBlockClick, onRemoveBlock, selectedBlockId, isNested, shopSlug, contextData }: CanvasProps & { droppableId: string, onBlockClick: (id: string) => void, onRemoveBlock: (id: string) => void }) => {
     return (
         <Droppable droppableId={droppableId} type="BLOCK">
             {(provided, snapshot) => (
@@ -61,7 +62,7 @@ const EditableCanvas = ({ layout, droppableId, products, onBlockClick, onRemoveB
                                         </Button>
                                     </div>
                                     <div className={cn("outline-dashed outline-1 outline-transparent group-hover/block:outline-primary transition-all rounded-lg p-1", selectedBlockId === block.id && "outline-solid outline-2 outline-primary")}>
-                                        <BlockRenderer block={block} products={products} shopSlug={shopSlug} isEditable={true} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} selectedBlockId={selectedBlockId} />
+                                        <BlockRenderer block={block} products={products} shopSlug={shopSlug} isEditable={true} onBlockClick={onBlockClick} onRemoveBlock={onRemoveBlock} selectedBlockId={selectedBlockId} contextData={contextData} />
                                     </div>
                                 </div>
                             )}
@@ -80,7 +81,7 @@ const EditableCanvas = ({ layout, droppableId, products, onBlockClick, onRemoveB
     );
 }
 
-const PublicCanvas = ({ layout, products, isNested, shopSlug }: CanvasProps) => {
+const PublicCanvas = ({ layout, products, isNested, shopSlug, contextData }: CanvasProps) => {
     return (
         <div className={cn("w-full h-full", !isNested && "space-y-4")}>
             {layout.map((block) => (
@@ -90,6 +91,7 @@ const PublicCanvas = ({ layout, products, isNested, shopSlug }: CanvasProps) => 
                     products={products}
                     shopSlug={shopSlug}
                     isEditable={false}
+                    contextData={contextData}
                 />
             ))}
         </div>
