@@ -8,11 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { Separator } from '../ui/separator';
-import { Slider } from '../ui/slider';
+import { Separator } from '@/components/ui/separator';
+import { Slider } from '@/components/ui/slider';
 
 const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
     if (!file) return;
@@ -41,7 +41,7 @@ export function ImageBlockEditor({ settings, onUpdate }: { settings: any, onUpda
 
     const handleAttributeChange = (index: number, field: 'key' | 'value', value: string) => {
         const newAttributes = [...(settings.customAttributes || [])];
-        newAttributes[index] = {...newAttributes[index], key: field === 'key' ? value : newAttributes[index].key, value: field === 'value' ? value : newAttributes[index].value};
+        newAttributes[index] = {...newAttributes[index], [field]: value};
         handleUpdate('customAttributes', newAttributes);
     }
     

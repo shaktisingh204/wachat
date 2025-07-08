@@ -18,7 +18,7 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
         viewHoverBackgroundColor, viewHoverBorderColor,
         hoverAnimation, transitionDuration = 0.3, border, boxShadow,
         margin, padding, zIndex, cssId, cssClasses, customCss, customAttributes, responsiveVisibility, animation, animationDuration, animationDelay,
-        tabletAlign, mobileAlign, filter, hoverFilter, iconStyle = {},
+        tabletAlign, mobileAlign, filter, hoverFilter,
     } = settings;
 
     // @ts-ignore
@@ -68,7 +68,7 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
     const animationDurationClasses = { slow: 'duration-1000', normal: 'duration-500', fast: 'duration-300' }[animationDuration || 'normal'];
 
     const hoverAnimationClass = {
-        grow: 'group-hover:scale-110', shrink: 'group-hover:scale-90', pulse: 'hover:animate-pulse', bob: 'animate-bob', wobbleHorizontal: 'animate-wobbleHorizontal',
+        grow: 'group-hover:scale-110', shrink: 'group-hover:scale-90', pulse: 'hover:animate-pulse', bob: 'animate-bob', wobbleHorizontal: 'animate-wobble-horizontal',
         rotate: 'group-hover:rotate-180',
     }[hoverAnimation || 'none'];
 

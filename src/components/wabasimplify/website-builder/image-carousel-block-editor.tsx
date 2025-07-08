@@ -12,7 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Image from 'next/image';
-import { Slider } from '../ui/slider';
+import { Slider } from '@/components/ui/slider';
 
 type CarouselImage = {
   id: string;
