@@ -11,9 +11,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from '../ui/switch';
+import { Switch } from '@/components/ui/switch';
 import * as LucideIcons from 'lucide-react';
-import { Separator } from '../ui/separator';
+import { Separator } from '@/components/ui/separator';
 
 const iconNames = Object.keys(LucideIcons).filter(key => typeof (LucideIcons as any)[key] === 'object' && /^[A-Z]/.test(key));
 
