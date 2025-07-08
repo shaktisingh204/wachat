@@ -26,7 +26,7 @@ import { getErrorMessage } from '@/lib/utils';
 // Re-exports for server actions are handled by direct imports in components now.
 import { headers } from 'next/headers';
 import { checkRateLimit } from '@/lib/rate-limiter';
-import jwt from 'jsonwebtoken';
+import { decodeJwt } from 'jose';
 
 
 import type {
@@ -2514,7 +2514,7 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
             return { error: 'Invalid credentials.' };
         }
 
-        const sessionToken = createSessionToken({ userId: user._id.toString(), email: user.email });
+        const sessionToken = await createSessionToken({ userId: user._id.toString(), email: user.email });
         cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
     } catch (e: any) {
         console.error('Login failed:', e);
@@ -2540,7 +2540,7 @@ export async function handleAdminLogin(prevState: any, formData: FormData): Prom
     const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
 
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        const adminSessionToken = createAdminSessionToken();
+        const adminSessionToken = await createAdminSessionToken();
         cookies().set('admin_session', adminSessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
         redirect('/admin/dashboard');
     }
@@ -2597,56 +2597,6 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
     redirect('/login');
 }
 
-
-export async function handleLogout() {
-    const cookieStore = cookies();
-    const sessionToken = cookieStore.get('session')?.value;
-
-    if (sessionToken) {
-        try {
-            // Decode token to get payload without verification
-            const payload = jwt.decode(sessionToken) as SessionPayload;
-            if (payload && payload.jti && payload.expires) {
-                const { db } = await connectToDatabase();
-                // We recommend creating a TTL index on `expireAt` for this collection.
-                // In mongosh: `db.revoked_tokens.createIndex( { "expireAt": 1 }, { expireAfterSeconds: 0 } )`
-                await db.collection('revoked_tokens').insertOne({
-                    jti: payload.jti,
-                    expireAt: new Date(payload.expires),
-                });
-            }
-        } catch (error) {
-            console.error("Error during token revocation on logout:", error);
-        }
-    }
-    
-    cookies().delete('session');
-    redirect('/login');
-}
-
-export async function handleAdminLogout() {
-    const cookieStore = cookies();
-    const adminSessionToken = cookieStore.get('admin_session')?.value;
-
-    if (adminSessionToken) {
-        try {
-            const payload = jwt.decode(adminSessionToken) as AdminSessionPayload;
-            if (payload && payload.jti && payload.expires) {
-                const { db } = await connectToDatabase();
-                // Add to blacklist. The 'expireAt' field will be used by MongoDB's TTL index.
-                await db.collection('revoked_tokens').insertOne({
-                    jti: payload.jti,
-                    expireAt: new Date(payload.expires),
-                });
-            }
-        } catch (error) {
-            console.error("Error during admin token revocation on logout:", error);
-        }
-    }
-
-    cookies().delete('admin_session');
-    redirect('/admin-login');
-}
 
 export async function handleUpdateUserProfile(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
