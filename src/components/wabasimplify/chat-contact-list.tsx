@@ -9,10 +9,11 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import { Button } from '../ui/button';
 import { LoaderCircle, MessageSquarePlus, Search } from 'lucide-react';
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { format } from 'date-fns';
+import { useDebouncedCallback } from 'use-debounce';
 
 interface ChatContactListProps {
     sessionUser: (Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null;
@@ -41,6 +42,21 @@ export function ChatContactList({
     selectedPhoneNumberId,
     onPhoneNumberChange
 }: ChatContactListProps) {
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const handleSearch = useDebouncedCallback((term: string) => {
+        setSearchQuery(term);
+    }, 300);
+
+    const filteredContacts = useMemo(() => {
+        if (!searchQuery) return contacts;
+        const lowercasedQuery = searchQuery.toLowerCase();
+        return contacts.filter(contact => 
+            contact.name.toLowerCase().includes(lowercasedQuery) ||
+            contact.waId.includes(searchQuery)
+        );
+    }, [contacts, searchQuery]);
+
 
     const ContactSkeleton = () => (
         <div className="flex items-center gap-3 p-3">
@@ -78,7 +94,11 @@ export function ChatContactList({
             <div className="p-3 border-b flex-shrink-0 space-y-3">
                  <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search or start new chat" className="pl-8" />
+                    <Input 
+                        placeholder="Search or start new chat" 
+                        className="pl-8" 
+                        onChange={(e) => handleSearch(e.target.value)}
+                    />
                 </div>
                  <Select value={selectedPhoneNumberId} onValueChange={onPhoneNumberChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
                     <SelectTrigger id="phoneNumberId">
@@ -98,9 +118,9 @@ export function ChatContactList({
                     <div className="p-2 space-y-1">
                         {[...Array(8)].map((_, i) => <ContactSkeleton key={i} />)}
                     </div>
-                ) : contacts.length > 0 ? (
+                ) : filteredContacts.length > 0 ? (
                     <>
-                        {contacts.map(contact => (
+                        {filteredContacts.map(contact => (
                             <button
                                 key={contact._id.toString()}
                                 onClick={() => onSelectContact(contact)}
@@ -138,7 +158,7 @@ export function ChatContactList({
                     </>
                 ) : (
                     <div className="p-8 text-center text-sm text-muted-foreground">
-                        No contacts found for this number.
+                        No contacts found{searchQuery ? ' for your search' : ' for this number'}.
                     </div>
                 )}
             </ScrollArea>

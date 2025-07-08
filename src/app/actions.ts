@@ -2472,7 +2472,6 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
         return { error: 'Email and password are required.' };
     }
     
-    // Basic email validation regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         return { error: 'Please enter a valid email address.' };
@@ -2534,7 +2533,6 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
     if (trimmedName.length > 50) {
         return { error: 'Name cannot exceed 50 characters.' };
     }
-    // Ensure the name is not just special characters or numbers
     if (!/[a-zA-Z]/.test(trimmedName)) {
         return { error: 'Name must contain at least one letter.' };
     }
@@ -3442,7 +3440,8 @@ export async function getContactsForProject(
     projectId: string,
     phoneNumberId: string,
     page: number,
-    limit: number
+    limit: number,
+    query?: string
 ): Promise<{ contacts: WithId<Contact>[], total: number }> {
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess || !phoneNumberId) {
@@ -3452,6 +3451,15 @@ export async function getContactsForProject(
     try {
         const { db } = await connectToDatabase();
         const filter: Filter<Contact> = { projectId: new ObjectId(projectId), phoneNumberId };
+        
+        if (query && query.trim() !== '') {
+            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const queryRegex = { $regex: escapedQuery, $options: 'i' };
+            filter.$or = [
+                { name: queryRegex },
+                { waId: queryRegex }
+            ];
+        }
         
         const skip = (page - 1) * limit;
 
@@ -3547,7 +3555,8 @@ export async function getContactsPageData(
     const filter: Filter<Contact> = { projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId };
     
     if (query) {
-        const queryRegex = { $regex: query, $options: 'i' };
+        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const queryRegex = { $regex: escapedQuery, $options: 'i' };
         filter.$or = [
             { name: queryRegex },
             { waId: queryRegex },
