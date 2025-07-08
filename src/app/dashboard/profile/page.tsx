@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useActionState, useRef } from 'react';
@@ -45,7 +46,7 @@ function ProfileForm({ user }: { user: Omit<User, 'password'> }) {
             <CardContent className="space-y-4">
                  <div className="space-y-2">
                     <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" name="name" defaultValue={user.name} required />
+                    <Input id="name" name="name" defaultValue={user.name} required maxLength={50} pattern="^[a-zA-Z\s'-]+$" title="Name can only contain letters, spaces, apostrophes, and hyphens."/>
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
