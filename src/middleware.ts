@@ -1,9 +1,7 @@
 
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { verifyAdminSessionToken, verifySessionToken } from './lib/auth';
-
-export const runtime = 'nodejs';
+import { verifyAdminJwtForMiddleware, verifyJwtForMiddleware } from './lib/auth';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -14,22 +12,22 @@ export async function middleware(request: NextRequest) {
   const isDashboard = pathname.startsWith('/dashboard');
   const isAdminDashboard = pathname.startsWith('/admin/dashboard');
 
-  const session = sessionToken ? await verifySessionToken(sessionToken) : null;
-  const adminSession = adminSessionToken ? await verifyAdminSessionToken(adminSessionToken) : null;
+  const sessionValid = sessionToken ? await verifyJwtForMiddleware(sessionToken) : false;
+  const adminSessionValid = adminSessionToken ? await verifyAdminJwtForMiddleware(adminSessionToken) : false;
 
-  if (isAdminDashboard && !adminSession) {
+  if (isAdminDashboard && !adminSessionValid) {
     return NextResponse.redirect(new URL('/admin-login', request.url));
   }
 
-  if (isDashboard && !session) {
+  if (isDashboard && !sessionValid) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
   if (isAuthPage) {
-    if (session && !pathname.startsWith('/admin')) {
+    if (sessionValid && !pathname.startsWith('/admin')) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-    if (adminSession && pathname.startsWith('/admin')) {
+    if (adminSessionValid && pathname.startsWith('/admin')) {
       return NextResponse.redirect(new URL('/admin/dashboard', request.url));
     }
   }
