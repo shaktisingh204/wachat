@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -424,7 +425,7 @@ async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithI
         const getVars = (text: string): number[] => {
             if (!text) return [];
             const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
-            return variableMatches ? [...new Set(matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
+            return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
         };
 
         const payloadComponents: any[] = [];
@@ -1180,11 +1181,11 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
             if (newStatus === 'FAILED' && currentStatus !== 'FAILED') {
                 const error = status.errors?.[0] || { title: 'Unknown Failure', code: 'N/A' };
                 const errorString = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
-                broadcastContactOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: 'FAILED', error: errorString } } } });
+                broadcastContactOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: 'FAILED', error: errorString } } });
                 broadcastCounterUpdates[broadcastIdStr].success -= 1;
                 broadcastCounterUpdates[broadcastIdStr].failed += 1;
             } else if (statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
-                broadcastContactOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: newStatus } } } });
+                broadcastContactOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: newStatus } } });
                 if (newStatus === 'DELIVERED') broadcastCounterUpdates[broadcastIdStr].delivered += 1;
                 if (newStatus === 'READ') broadcastCounterUpdates[broadcastIdStr].read += 1;
             }
@@ -1329,7 +1330,6 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
     const senderPsid = messagingEvent.sender?.id;
     const pageId = messagingEvent.recipient?.id;
 
-    // Don't process echos from the page itself
     if (!senderPsid || senderPsid === pageId) {
         return;
     }
@@ -1338,29 +1338,56 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
     const now = new Date();
     const snippet = messageText?.substring(0, 100) || (messagingEvent.message?.attachments ? '[Attachment]' : messagingEvent.postback?.title || '[Interaction]');
 
-    // Find or create subscriber, and update their status/info
-    const subscriberResult = await db.collection('facebook_subscribers').findOneAndUpdate(
+    // Use updateOne with upsert instead of findOneAndUpdate for better reliability.
+    const updateResult = await db.collection('facebook_subscribers').updateOne(
         { projectId: project._id, psid: senderPsid },
-        { 
+        {
             $set: { snippet, updated_time: now },
             $inc: { unread_count: 1 },
-            $setOnInsert: { 
-                projectId: project._id, 
-                psid: senderPsid, 
-                name: `User ${senderPsid.slice(-4)}`, // Name will be updated later if we fetch it
+            $setOnInsert: {
+                projectId: project._id,
+                psid: senderPsid,
+                name: `User (${senderPsid.slice(-4)})`, // Default name, will be updated
                 createdAt: now,
-                status: 'new' // Set default status for new conversations
-            }
+                status: 'new',
+            },
         },
-        { upsert: true, returnDocument: 'after' }
+        { upsert: true }
     );
     
-    if (!subscriberResult) return;
-    const isNewSubscriber = !subscriberResult.lastErrorObject?.updatedExisting;
+    const isNewSubscriber = updateResult.upsertedCount > 0;
+    const subscriber = await db.collection<FacebookSubscriber>('facebook_subscribers').findOne({ projectId: project._id, psid: senderPsid });
+
+    if (!subscriber) {
+        console.error(`Webhook Error: Failed to find or create subscriber with PSID ${senderPsid}`);
+        return;
+    }
+    
+    // If it's a new subscriber, fetch their real name from the Graph API.
+    if (isNewSubscriber) {
+        try {
+            const userProfileResponse = await axios.get(`https://graph.facebook.com/v23.0/${senderPsid}`, {
+                params: {
+                    fields: 'name',
+                    access_token: project.accessToken,
+                },
+            });
+            const fetchedName = userProfileResponse.data?.name;
+            if (fetchedName) {
+                await db.collection('facebook_subscribers').updateOne(
+                    { _id: subscriber._id },
+                    { $set: { name: fetchedName } }
+                );
+                subscriber.name = fetchedName; // Update in-memory object for subsequent logic
+            }
+        } catch (e: any) {
+            console.error(`Failed to fetch profile for PSID ${senderPsid}:`, getErrorMessage(e));
+        }
+    }
 
     // Handle incoming messages or postbacks
     if (messagingEvent.message || messagingEvent.postback) {
-        const { handled } = await handleEcommFlowLogic(db, project, subscriberResult, messagingEvent);
+        const { handled } = await handleEcommFlowLogic(db, project, subscriber, messagingEvent);
         if (handled) return; // Flow logic took precedence
         
         // If no flow was handled, check for other automations
@@ -1392,6 +1419,7 @@ export async function processMessengerWebhook(db: Db, project: WithId<Project>, 
     revalidatePath('/dashboard/facebook/kanban');
     revalidatePath('/dashboard/facebook/subscribers');
 }
+
 
 export async function processOrderWebhook(db: Db, project: WithId<Project>, orderData: any) {
     // This is a placeholder for full order processing logic.
@@ -1620,3 +1648,5 @@ async function executeEcommNode(db: Db, project: WithId<Project>, contact: WithI
         return 'finished';
     }
 }
+
+    
