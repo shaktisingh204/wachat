@@ -4,6 +4,7 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -205,7 +206,3 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
         </Card>
     );
 };
-```
-- `src/components/wabasimplify/website-builder/form-block-renderer.tsx`
-
-I've added all remaining properties to the form block, including full typography, border, shadow, and spacing controls for all elements. The renderer has been updated to apply these styles dynamically. This should provide the complete, professional-grade form builder you requested.

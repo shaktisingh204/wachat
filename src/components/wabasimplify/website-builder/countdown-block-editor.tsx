@@ -241,5 +241,3 @@ export function CountdownBlockEditor({ settings, onUpdate }: { settings: any, on
         </Tabs>
     );
 }
-
-    
