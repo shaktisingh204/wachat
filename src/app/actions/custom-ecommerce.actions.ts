@@ -99,7 +99,48 @@ export async function createEcommShop(prevState: any, formData: FormData): Promi
             projectId: new ObjectId(projectId),
             name: 'Home',
             slug: 'home', // Or derive from name
-            layout: [],
+            layout: [
+                {
+                    id: uuidv4(),
+                    type: "hero",
+                    settings: {
+                      title: "Your New Favorite Store",
+                      subtitle: "Discover amazing products and deals you won't find anywhere else. Quality and style delivered to your door.",
+                      buttonText: "Shop All Products",
+                      buttonLink: `/shop/${slug}/products`, // Assuming a future products page
+                      height: "60vh",
+                      backgroundColor: "#e2e8f0",
+                      textColor: "#1e293b",
+                      buttonColor: "#000000",
+                      buttonTextColor: "#FFFFFF",
+                      backgroundImageUrl: "https://placehold.co/1920x1080.png",
+                      "data-ai-hint": "modern storefront"
+                    },
+                },
+                {
+                    id: uuidv4(),
+                    type: "featuredProducts",
+                    settings: {
+                        title: "Featured Products",
+                        subtitle: "Check out our hand-picked selection of best-selling items.",
+                        columns: '3',
+                        productIds: [],
+                        showViewAllButton: true,
+                    }
+                },
+                 {
+                    id: uuidv4(),
+                    type: "testimonials",
+                    settings: {
+                        title: "What Our Customers Say",
+                        testimonials: [
+                            { id: uuidv4(), quote: "This is the best store ever! The quality is amazing and the shipping was so fast. Highly recommended.", author: "Jane Doe", title: "Happy Customer", avatar: "https://placehold.co/100x100.png" },
+                            { id: uuidv4(), quote: "I'm in love with the products. I will definitely be back for more. The customer service was also top-notch.", author: "John Smith", title: "Loyal Shopper", avatar: "https://placehold.co/100x100.png" },
+                            { id: uuidv4(), quote: "A fantastic experience from start to finish. The website is easy to use and my order arrived perfectly.", author: "Sam Wilson", title: "First-time Buyer", avatar: "https://placehold.co/100x100.png" },
+                        ]
+                    }
+                },
+            ],
             isHomepage: true,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -184,14 +225,40 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
 
       const defaultHeaderLayout: WebsiteBlock[] = [
         {
-            id: uuidv4(), type: 'section',
-            settings: { width: 'boxed', padding: { top: '16', bottom: '16', left: '16', right: '16' } },
+            id: uuidv4(),
+            type: 'section',
+            settings: {
+                width: 'boxed',
+                padding: { top: '16', bottom: '16', left: '16', right: '16' },
+                border: { width: { bottom: '1' }, type: 'solid', color: '#e5e7eb' },
+                sticky: 'top',
+                backgroundColor: '#ffffff'
+            },
             children: [{
-                id: uuidv4(), type: 'columns',
-                settings: { columnCount: 2 },
+                id: uuidv4(),
+                type: 'columns',
+                settings: { columnCount: 2, stackOnMobile: false },
                 children: [
-                    { id: uuidv4(), type: 'column', settings: { verticalAlign: 'center'}, children: [{ id: uuidv4(), type: 'heading', settings: { text: shop.name, htmlTag: 'h3', link: `/shop/${shop.slug}` } }] },
-                    { id: uuidv4(), type: 'column', settings: { horizontalAlign: 'flex-end', verticalAlign: 'center'}, children: [{ id: uuidv4(), type: 'button', settings: { text: 'Cart', link: `/shop/${shop.slug}/cart` } }] }
+                    {
+                        id: uuidv4(),
+                        type: 'column',
+                        settings: { verticalAlign: 'center'},
+                        children: [{
+                            id: uuidv4(),
+                            type: 'heading',
+                            settings: { text: shop.name, htmlTag: 'h3', link: `/shop/${shop.slug}`, color: '#000000' }
+                        }]
+                    },
+                    {
+                        id: uuidv4(),
+                        type: 'column',
+                        settings: { horizontalAlign: 'flex-end', verticalAlign: 'center'},
+                        children: [{
+                            id: uuidv4(),
+                            type: 'button',
+                            settings: { text: 'Cart', link: `/shop/${shop.slug}/cart`, size: 'sm', variant: 'outline', icon: 'ShoppingCart' }
+                        }]
+                    }
                 ]
             }]
         }
@@ -209,7 +276,8 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
             },
             children: [
               {
-                id: uuidv4(), type: 'columns',
+                id: uuidv4(),
+                type: 'columns',
                 settings: { columnCount: 4, gap: 32 },
                 children: [
                   { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'heading', settings: { text: 'About Us', htmlTag: 'h4', color: '#ffffff' } }, { id: uuidv4(), type: 'richText', settings: { htmlContent: '<p class="text-gray-400">Bringing you the latest trends with quality you can trust.</p>', color: '#9ca3af' } }] },
@@ -218,7 +286,7 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                   { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'heading', settings: { text: 'Newsletter', htmlTag: 'h4', color: '#ffffff' } }, { id: uuidv4(), type: 'richText', settings: { htmlContent: '<p class="text-gray-400">Subscribe for the latest deals.</p>' } }, { id: uuidv4(), type: 'form', settings: { fields: [{id: uuidv4(), type: 'email', label: ''}], submitButtonText: 'Subscribe' } }] },
                 ]
               },
-              { id: uuidv4(), type: 'spacer', settings: { type: 'divider', color: '#4b5563' } },
+              { id: uuidv4(), type: 'spacer', settings: { type: 'divider', color: '#4b5563', margin: {top: 32, bottom: 32}} },
               { id: uuidv4(), type: 'richText', settings: { htmlContent: `<p class="text-center text-gray-500 text-sm">© ${new Date().getFullYear()} SabNode Shops. All Rights Reserved.</p>` } }
             ]
           }
@@ -226,18 +294,25 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
 
        const defaultProductPageLayout: WebsiteBlock[] = [
         {
-            id: uuidv4(), type: 'section', settings: { width: 'boxed', padding: { top: '32', bottom: '32' }},
+            id: uuidv4(), type: 'section', settings: { width: 'boxed', padding: { top: '64', bottom: '64' }},
             children: [{
-                id: uuidv4(), type: 'columns', settings: { columnCount: 2, gap: 32 },
+                id: uuidv4(), type: 'columns', settings: { columnCount: 2, gap: 48, verticalAlign: 'flex-start' },
                 children: [
                     { id: uuidv4(), type: 'column', children: [{id: uuidv4(), type: 'productImage', settings: {}}] },
-                    { id: uuidv4(), type: 'column', children: [
-                        {id: uuidv4(), type: 'productBreadcrumbs', settings: {}},
-                        {id: uuidv4(), type: 'productTitle', settings: {}},
-                        {id: uuidv4(), type: 'productPrice', settings: {}},
-                        {id: uuidv4(), type: 'productDescription', settings: {}},
-                        {id: uuidv4(), type: 'productAddToCart', settings: {}},
-                    ]}
+                    { 
+                        id: uuidv4(), 
+                        type: 'column', 
+                        children: [
+                            {id: uuidv4(), type: 'productBreadcrumbs', settings: {}},
+                            {id: uuidv4(), type: 'heading', settings: {htmlTag: 'div'}, children: [{id: uuidv4(), type: 'productTitle', settings: {}}]},
+                            {id: uuidv4(), type: 'richText', settings: {htmlContent: '<div class="flex items-center gap-1"><span class="text-yellow-500">★★★★☆</span><span class="text-sm text-muted-foreground">(12 Reviews)</span></div>', margin: { bottom: '16' }}},
+                            {id: uuidv4(), type: 'productPrice', settings: {}},
+                            {id: uuidv4(), type: 'spacer', settings: {type: 'spacer', height: 16}},
+                            {id: uuidv4(), type: 'productDescription', settings: {}},
+                            {id: uuidv4(), type: 'spacer', settings: {type: 'spacer', height: 24}},
+                            {id: uuidv4(), type: 'productAddToCart', settings: {}},
+                        ]
+                    }
                 ]
             }]
         }
@@ -249,7 +324,9 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
             type: 'section',
             settings: { padding: { top: '64', bottom: '64', left: '16', right: '16' }, width: 'boxed' },
             children: [
-                { id: uuidv4(), type: 'cart', settings: {}, children: [] }
+                 { id: uuidv4(), type: 'heading', settings: { text: 'Your Shopping Cart', htmlTag: 'h1', textAlign: 'center' }},
+                 { id: uuidv4(), type: 'spacer', settings: { height: 48 }},
+                 { id: uuidv4(), type: 'cart', settings: {}, children: [] }
             ]
         }
       ];
@@ -303,7 +380,7 @@ export async function saveEcommPage(data: {
     const shop = await getEcommShopById(shopId);
     if (!shop) return { error: 'Access denied' };
     
-    const isNew = !pageId;
+    const isNew = !pageId || pageId.startsWith('temp_');
     
     const pageData: Omit<EcommPage, '_id' | 'createdAt' | 'isHomepage'> = {
         name,
