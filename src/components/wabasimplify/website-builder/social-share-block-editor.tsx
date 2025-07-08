@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from '../ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
@@ -14,6 +14,9 @@ import { Switch } from '../ui/switch';
 import { Textarea } from '../ui/textarea';
 import { Slider } from '../ui/slider';
 import { Separator } from '../ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Lightbulb } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 
 const availablePlatforms = [
     { id: 'facebook', name: 'Facebook' },
@@ -203,6 +206,3 @@ export function SocialShareBlockEditor({ settings, onUpdate }: { settings: any, 
         </Tabs>
     );
 }
-
-
-    

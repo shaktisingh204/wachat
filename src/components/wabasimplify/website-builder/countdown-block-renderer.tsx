@@ -50,6 +50,7 @@ interface CountdownBlockRendererProps {
     cssClasses?: string;
     customCss?: string;
     customAttributes?: {id: string, key: string, value: string}[];
+    zIndex?: number;
   };
 }
 
@@ -91,7 +92,7 @@ export const CountdownBlockRenderer: React.FC<CountdownBlockRendererProps> = ({ 
         separatorColor, separatorSize,
         animation, animationDuration, animationDelay,
         responsiveVisibility,
-        margin, padding, cssId, cssClasses, customCss, customAttributes, htmlTag
+        margin, padding, cssId, cssClasses, customCss, customAttributes, htmlTag, zIndex
     } = settings;
 
     const getEndDate = useCallback(() => {

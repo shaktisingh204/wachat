@@ -79,7 +79,7 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
         setCurrentUrl(urlType === 'custom' && customUrl ? customUrl : window.location.href);
     }, [urlType, customUrl]);
 
-    const sizeClasses = { small: 'h-8 px-2', medium: 'h-10 px-3', large: 'h-12 px-4'}[size];
+    const buttonSizeClasses = { small: 'h-8 px-2', medium: 'h-10 px-3', large: 'h-12 px-4'}[size];
     const iconSizeClasses = { small: 'h-4 w-4', medium: 'h-5 w-5', large: 'h-6 w-6'}[size];
     
     const shapeClasses = { square: 'rounded-none', rounded: 'rounded-md', circle: 'rounded-full' };
@@ -151,5 +151,3 @@ export const SocialShareBlockRenderer: React.FC<SocialShareBlockRendererProps> =
         </>
     );
 };
-
-    
