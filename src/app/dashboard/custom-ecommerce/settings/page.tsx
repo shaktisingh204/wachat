@@ -1,8 +1,7 @@
 
 'use client';
 
-import { getProjectById } from '@/app/actions';
-import { getEcommSettings } from '@/app/actions/custom-ecommerce.actions';
+import { getEcommShops } from '@/app/actions/custom-ecommerce.actions';
 import { getCustomDomains } from '@/app/actions/url-shortener.actions';
 import { EcommSettingsForm } from '@/components/wabasimplify/ecomm-settings-form';
 import { EcommCustomDomainForm } from '@/components/wabasimplify/ecomm-custom-domain-form';
@@ -10,7 +9,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { AlertCircle, Settings } from 'lucide-react';
 import { useEffect, useState, useTransition } from 'react';
-import type { WithId, Project, EcommSettings, CustomDomain } from '@/lib/definitions';
+import type { WithId, EcommShop, CustomDomain } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
 import { PersistentMenuForm } from '@/components/wabasimplify/persistent-menu-form';
 
@@ -28,8 +27,7 @@ function PageSkeleton() {
 }
 
 export default function SettingsPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
-    const [settings, setSettings] = useState<EcommSettings | null>(null);
+    const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
     const [domains, setDomains] = useState<WithId<CustomDomain>[]>([]);
     const [isLoading, startLoadingTransition] = useTransition();
 
@@ -38,13 +36,11 @@ export default function SettingsPage() {
             startLoadingTransition(async () => {
                 const storedProjectId = localStorage.getItem('activeProjectId');
                 if (storedProjectId) {
-                    const [projectData, settingsData, domainData] = await Promise.all([
-                        getProjectById(storedProjectId),
-                        getEcommSettings(storedProjectId),
-                        getCustomDomains()
-                    ]);
-                    setProject(projectData);
-                    setSettings(settingsData);
+                    const shops = await getEcommShops(storedProjectId);
+                    if (shops && shops.length > 0) {
+                        setShop(shops[0]);
+                    }
+                    const domainData = await getCustomDomains();
                     setDomains(domainData);
                 }
             });
@@ -56,12 +52,12 @@ export default function SettingsPage() {
         return <PageSkeleton />;
     }
     
-    if (!project) {
+    if (!shop) {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>Please select a project to manage its e-commerce settings.</AlertDescription>
+                <AlertTitle>No Shop Found</AlertTitle>
+                <AlertDescription>Please create a shop in the main Custom E-commerce dashboard first.</AlertDescription>
             </Alert>
         );
     }
@@ -72,11 +68,11 @@ export default function SettingsPage() {
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Settings /> Shop Settings</h1>
                 <p className="text-muted-foreground">Configure your shop name, currency, payment links, and Messenger menu.</p>
             </div>
-            <EcommSettingsForm project={project} settings={settings} domains={domains} />
+            <EcommSettingsForm shop={shop} domains={domains} />
             <Separator />
-            <PersistentMenuForm project={project} settings={settings} />
+            <PersistentMenuForm shop={shop} />
             <Separator />
-            <EcommCustomDomainForm project={project} settings={settings} />
+            <EcommCustomDomainForm />
         </div>
     )
 }

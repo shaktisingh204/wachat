@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import useEmblaCarousel, { EmblaOptionsType } from 'embla-carousel-react';
+import useEmblaCarousel, { type EmblaOptionsType } from 'embla-carousel-react';
 import Autoplay from 'embla-carousel-autoplay';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -93,7 +93,7 @@ export const RepeaterBlockRenderer: React.FC<RepeaterBlockRendererProps> = ({ se
                 <div className="embla__viewport" ref={emblaRef}>
                     <div className="embla__container">
                         {items.map((item) => (
-                            <div className="embla__slide" key={item.id} style={{ '--slide-size': `calc(100% / ${columns})` } as React.CSSProperties}>
+                            <div className="embla__slide" key={item.id} style={{ flex: `0 0 calc(100% / ${columns})` }}>
                                 <div className="h-full p-2">
                                     <RepeaterItemCard item={item} />
                                 </div>

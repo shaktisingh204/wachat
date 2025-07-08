@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getTemplates, getProjectById, getBroadcasts, handleStopBroadcast, handleSyncTemplates, handleRunCron, getProjects } from '@/app/actions';
 import { useRouter } from 'next/navigation';
-import type { Project, Template } from '@/lib/definitions';
+import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import {
@@ -37,6 +37,7 @@ import { RequeueBroadcastDialog } from '@/components/wabasimplify/requeue-broadc
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 
 
 type Broadcast = {
@@ -278,6 +279,7 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
 export default function BroadcastPage() {
   const [project, setProject] = useState<WithId<Project> | null>(null);
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
+  const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isSyncingTemplates, startTemplatesSyncTransition] = useTransition();
@@ -294,14 +296,16 @@ export default function BroadcastPage() {
   const fetchData = useCallback(async (projectId: string, page: number, showToast = false) => {
     startRefreshTransition(async () => {
         try {
-            const [projectData, templatesData, historyData] = await Promise.all([
+            const [projectData, templatesData, historyData, metaFlowsData] = await Promise.all([
                 getProjectById(projectId),
                 getTemplates(projectId),
                 getBroadcasts(projectId, page, BROADCASTS_PER_PAGE),
+                getMetaFlows(projectId),
             ]);
 
             setProject(projectData);
             setTemplates(templatesData || []);
+            setMetaFlows(metaFlowsData || []);
             setHistory(historyData.broadcasts || []);
             setTotalPages(Math.ceil(historyData.total / BROADCASTS_PER_PAGE));
             
@@ -409,7 +413,7 @@ export default function BroadcastPage() {
         {isLoadingData ? (
             <Skeleton className="h-64 w-full"/>
         ) : (
-            <BroadcastForm templates={templates} project={project} />
+            <BroadcastForm templates={templates} project={project} metaFlows={metaFlows} />
         )}
 
         <Card className="card-gradient card-gradient-blue">

@@ -232,7 +232,7 @@ export type Project = {
     adAccountId?: string;
     facebookPageId?: string;
     facebookCommentAutoReply?: FacebookCommentAutoReplySettings;
-    facebookWelcomeMessageSettings?: FacebookWelcomeMessageSettings;
+    facebookWelcomeMessage?: FacebookWelcomeMessageSettings;
     postRandomizer?: PostRandomizerSettings;
     tags?: Tag[];
     planId?: ObjectId;
@@ -242,6 +242,9 @@ export type Project = {
     kanbanStatuses?: string[];
     facebookKanbanStatuses?: string[];
     plan?: WithId<Plan> | null; // populated by aggregate
+    ecommSettings?: {
+        abandonedCart: AbandonedCartSettings;
+    }
 };
 
 export type Template = {
@@ -302,6 +305,31 @@ export type FacebookFlow = {
     nodes: FacebookFlowNode[];
     edges: FacebookFlowEdge[];
     triggerKeywords: string[];
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type EcommFlowNode = {
+    id: string;
+    type: string;
+    data: any;
+    position: { x: number, y: number };
+};
+
+export type EcommFlowEdge = {
+    id: string;
+    source: string;
+    target: string;
+    sourceHandle?: string;
+};
+
+export type EcommFlow = {
+    name: string;
+    projectId: ObjectId;
+    nodes: EcommFlowNode[];
+    edges: EcommFlowEdge[];
+    triggerKeywords: string[];
+    isWelcomeFlow?: boolean;
     createdAt: Date;
     updatedAt: Date;
 };

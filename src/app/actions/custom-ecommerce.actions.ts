@@ -181,6 +181,10 @@ export async function updateEcommShopSettings(prevState: any, formData: FormData
         if (formData.has('paymentLinkRazorpay')) updates.paymentLinkRazorpay = (formData.get('paymentLinkRazorpay') as string) || undefined;
         if (formData.has('paymentLinkPaytm')) updates.paymentLinkPaytm = (formData.get('paymentLinkPaytm') as string) || undefined;
         if (formData.has('paymentLinkGPay')) updates.paymentLinkGPay = (formData.get('paymentLinkGPay') as string) || undefined;
+        
+        if (formData.has('persistentMenu')) {
+            try { updates.persistentMenu = JSON.parse(formData.get('persistentMenu') as string); } catch(e) { return { error: 'Invalid persistent menu data format.'}; }
+        }
 
         if (formData.has('headerLayout')) {
             try { updates.headerLayout = JSON.parse(formData.get('headerLayout') as string); } catch(e) { return { error: 'Invalid header layout data format.' }; }
@@ -881,5 +885,3 @@ export async function importEcommShopTheme(shopId: string, themeJson: string): P
         return { success: false, error: 'An unexpected error occurred during import.' };
     }
 }
-
-    
