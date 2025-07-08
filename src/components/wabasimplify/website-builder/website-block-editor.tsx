@@ -24,6 +24,7 @@ import { RepeaterBlockEditor } from './repeater-block-editor';
 import { SectionBlockEditor } from './section-block-editor';
 import { ColumnsBlockEditor } from './columns-block-editor';
 import { ColumnBlockEditor } from './column-block-editor';
+import { CartBlockEditor } from './cart-block-editor';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
@@ -75,6 +76,7 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
             case 'section': return <SectionBlockEditor {...props} />;
             case 'columns': return <ColumnsBlockEditor {...props} />;
             case 'column': return <ColumnBlockEditor {...props} />;
+            case 'cart': return <CartBlockEditor {...props} />;
             default: return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>;
         }
     };

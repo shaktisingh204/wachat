@@ -3,7 +3,7 @@
 
 import { getProjectById } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { EcommProduct, EcommOrder, EcommShop, EcommSettings, AbandonedCartSettings, WebsiteBlock, EcommProductVariant } from '@/lib/definitions';
+import type { EcommProduct, EcommOrder, EcommShop, EcommSettings, AbandonedCartSettings, WebsiteBlock, EcommProductVariant, EcommPage } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getErrorMessage } from '@/lib/utils';
@@ -88,13 +88,26 @@ export async function createEcommShop(prevState: any, formData: FormData): Promi
             currency,
             createdAt: new Date(),
             updatedAt: new Date(),
-            homepageLayout: [], // Initialize with an empty layout
         };
 
         const result = await db.collection('ecomm_shops').insertOne(newShop as any);
+        const shopId = result.insertedId;
+        
+        // Automatically create a default homepage for the new shop
+        const homepage: Omit<EcommPage, '_id'> = {
+            shopId,
+            projectId: new ObjectId(projectId),
+            name: 'Home',
+            slug: 'home', // Or derive from name
+            layout: [],
+            isHomepage: true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+        await db.collection('ecomm_pages').insertOne(homepage as any);
         
         revalidatePath('/dashboard/facebook/custom-ecommerce');
-        return { message: `Shop "${name}" created successfully.`, shopId: result.insertedId.toString() };
+        return { message: `Shop "${name}" created successfully.`, shopId: shopId.toString() };
 
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -127,12 +140,17 @@ export async function updateEcommShopSettings(prevState: any, formData: FormData
         if (formData.has('paymentLinkPaytm')) updates.paymentLinkPaytm = (formData.get('paymentLinkPaytm') as string) || undefined;
         if (formData.has('paymentLinkGPay')) updates.paymentLinkGPay = (formData.get('paymentLinkGPay') as string) || undefined;
 
-        if (formData.has('homepageLayout')) {
-            try {
-                updates.homepageLayout = JSON.parse(formData.get('homepageLayout') as string);
-            } catch(e) {
-                return { error: 'Invalid homepage layout data format.' };
-            }
+        if (formData.has('headerLayout')) {
+            try { updates.headerLayout = JSON.parse(formData.get('headerLayout') as string); } catch(e) { return { error: 'Invalid header layout data format.' }; }
+        }
+        if (formData.has('footerLayout')) {
+            try { updates.footerLayout = JSON.parse(formData.get('footerLayout') as string); } catch(e) { return { error: 'Invalid footer layout data format.' }; }
+        }
+        if (formData.has('productPageLayout')) {
+            try { updates.productPageLayout = JSON.parse(formData.get('productPageLayout') as string); } catch(e) { return { error: 'Invalid product page layout data format.' }; }
+        }
+         if (formData.has('cartPageLayout')) {
+            try { updates.cartPageLayout = JSON.parse(formData.get('cartPageLayout') as string); } catch(e) { return { error: 'Invalid cart page layout data format.' }; }
         }
 
         if (formData.has('abandonedCart.enabled')) {
@@ -164,191 +182,204 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
     const shop = await getEcommShopById(shopId);
     if (!shop) return { error: 'Access denied or shop not found.' };
 
-      const defaultShoppingTheme: WebsiteBlock[] = [
-      // 1. Hero Section
-      {
-        id: uuidv4(),
-        type: 'hero',
-        settings: {
-          title: 'Feel The Best, Look The Best',
-          subtitle: 'Complete your style with awesome clothes from us.',
-          buttonText: 'Shop Now',
-          backgroundImageUrl: 'https://placehold.co/1920x800.png',
-          'data-ai-hint': 'fashion model',
-          backgroundColor: '#f3f4f6', 
-          textColor: '#11182c',
-          buttonColor: '#11182c',
-          buttonTextColor: '#ffffff',
-          layout: 'offset-box'
-        },
-        children: [],
-      },
-      // 2. Featured Brands/Logos Section
-      {
-        id: uuidv4(),
-        type: 'section',
-        settings: {
-          padding: { top: '32', bottom: '32', left: '16', right: '16' },
-          width: 'boxed',
-          backgroundType: 'color',
-          backgroundColor: '#ffffff'
-        },
-        children: [
-            {
-                id: uuidv4(),
-                type: 'columns',
-                settings: { columnCount: 6, gap: 16, stackOnMobile: false },
+      const defaultHeaderLayout: WebsiteBlock[] = [
+        {
+            id: uuidv4(), type: 'section',
+            settings: { width: 'boxed', padding: { top: '16', bottom: '16', left: '16', right: '16' } },
+            children: [{
+                id: uuidv4(), type: 'columns',
+                settings: { columnCount: 2 },
                 children: [
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 1', 'data-ai-hint': 'brand logo' }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 2', 'data-ai-hint': 'brand logo' }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 3', 'data-ai-hint': 'brand logo' }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 4', 'data-ai-hint': 'brand logo' }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 5', 'data-ai-hint': 'brand logo' }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/150x60.png', alt: 'Brand 6', 'data-ai-hint': 'brand logo' }}], settings: {} },
+                    { id: uuidv4(), type: 'column', settings: { verticalAlign: 'center'}, children: [{ id: uuidv4(), type: 'heading', settings: { text: shop.name, htmlTag: 'h3', link: `/shop/${shop.slug}` } }] },
+                    { id: uuidv4(), type: 'column', settings: { horizontalAlign: 'flex-end', verticalAlign: 'center'}, children: [{ id: uuidv4(), type: 'button', settings: { text: 'Cart', link: `/shop/${shop.slug}/cart` } }] }
                 ]
-            }
-        ]
-      },
-      // 3. Featured Products Section
-       {
-        id: uuidv4(),
-        type: 'section',
-        settings: {
-          padding: { top: '64', bottom: '64', left: '16', right: '16' },
-          width: 'boxed'
-        },
-        children: [
-            {
-                id: uuidv4(),
-                type: 'featuredProducts',
-                settings: {
-                title: 'Products of The Week',
-                columns: '4',
-                productIds: [],
-                showViewAllButton: true,
-                },
-                children: [],
-            }
-        ]
-      },
-       // 4. Categories Section
-      {
-        id: uuidv4(),
-        type: 'section',
-        settings: {
-          padding: { top: '64', bottom: '64', left: '16', right: '16' },
-          width: 'boxed',
-          backgroundType: 'color',
-          backgroundColor: '#ffffff'
-        },
-        children: [
-            {
-                id: uuidv4(),
-                type: 'columns',
-                settings: { columnCount: 3, gap: 24, stackOnMobile: true },
-                children: [
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/400x500.png', alt: 'For Him', 'data-ai-hint': 'male fashion', caption: "For Him" }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/400x500.png', alt: 'For Her', 'data-ai-hint': 'female fashion', caption: "For Her" }}], settings: {} },
-                    { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'image', settings: { src: 'https://placehold.co/400x500.png', alt: 'Accessories', 'data-ai-hint': 'fashion accessories', caption: "Accessories" }}], settings: {} },
-                ]
-            }
-        ]
-      },
-      // 5. Promotional Banner
-       {
-        id: uuidv4(),
-        type: 'hero',
-        settings: {
-          title: 'Limited Time Offer',
-          subtitle: 'Get 50% off on all winter wear. Don\'t miss out!',
-          buttonText: 'Explore Deals',
-          backgroundImageUrl: 'https://placehold.co/1600x600.png',
-           'data-ai-hint': 'sale banner',
-          backgroundColor: '#eab308',
-          textColor: '#ffffff',
-          buttonColor: '#ffffff',
-          buttonTextColor: '#eab308',
-          layout: 'center'
-        },
-        children: [],
-      },
-      // 6. Testimonials Section
-      {
-        id: uuidv4(),
-        type: 'section',
-        settings: {
-          padding: { top: '64', bottom: '64' },
-          backgroundType: 'color',
-          backgroundColor: '#f9fafb'
-        },
-        children: [
-           {
-                id: uuidv4(),
-                type: 'testimonials',
-                settings: {
-                title: 'What Our Customers Say',
-                testimonials: [
-                    { id: uuidv4(), quote: "This is the best product I've ever used. Highly recommended!", author: 'Jane Doe', title: 'Verified Customer', avatar: 'https://placehold.co/100x100.png' },
-                    { id: uuidv4(), quote: "Amazing quality and fast shipping. I will definitely be back for more.", author: 'John Smith', title: 'Happy Client', avatar: 'https://placehold.co/100x100.png' },
-                    { id: uuidv4(), quote: "A game-changer for my daily routine. I can't imagine my life without it now.", author: 'Sam Wilson', title: 'Enthusiast', avatar: 'https://placehold.co/100x100.png' },
-                ],
-                },
-                children: [],
-            }
-        ]
-      },
-      // 7. Footer
-      {
-        id: uuidv4(),
-        type: 'section',
-        settings: {
-          padding: { top: '64', bottom: '32', left: '16', right: '16' },
-          width: 'full',
-          backgroundType: 'color',
-          backgroundColor: '#11182c'
-        },
-        children: [
-          {
+            }]
+        }
+      ];
+
+      const defaultFooterLayout: WebsiteBlock[] = [
+         {
             id: uuidv4(),
-            type: 'columns',
-            settings: { columnCount: 4, gap: 32 },
+            type: 'section',
+            settings: {
+                padding: { top: '64', bottom: '32', left: '16', right: '16' },
+                width: 'full',
+                backgroundType: 'classic',
+                backgroundColor: '#11182c'
+            },
             children: [
-              { id: uuidv4(), type: 'column', children: [
-                { id: uuidv4(), type: 'heading', settings: { text: 'About Us', htmlTag: 'h4', color: '#ffffff' } },
-                { id: uuidv4(), type: 'richText', settings: { htmlContent: '<p class="text-gray-400">Bringing you the latest trends with quality you can trust.</p>', color: '#9ca3af' } }
-              ], settings: {} },
-              { id: uuidv4(), type: 'column', children: [
-                 { id: uuidv4(), type: 'heading', settings: { text: 'Quick Links', htmlTag: 'h4', color: '#ffffff' } },
-                 { id: uuidv4(), type: 'richText', settings: { htmlContent: '<ul><li><a href="#" class="text-gray-400 hover:text-white">Home</a></li><li><a href="#" class="text-gray-400 hover:text-white">Shop</a></li><li><a href="#" class="text-gray-400 hover:text-white">About</a></li></ul>' } }
-              ], settings: {} },
-              { id: uuidv4(), type: 'column', children: [
-                 { id: uuidv4(), type: 'heading', settings: { text: 'Support', htmlTag: 'h4', color: '#ffffff' } },
-                 { id: uuidv4(), type: 'richText', settings: { htmlContent: '<ul><li><a href="#" class="text-gray-400 hover:text-white">FAQ</a></li><li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li><li><a href="#" class="text-gray-400 hover:text-white">Shipping</a></li></ul>' } }
-              ], settings: {} },
-              { id: uuidv4(), type: 'column', children: [
-                 { id: uuidv4(), type: 'heading', settings: { text: 'Newsletter', htmlTag: 'h4', color: '#ffffff' } },
-                 { id: uuidv4(), type: 'richText', settings: { htmlContent: '<p class="text-gray-400">Subscribe for the latest deals.</p>' } },
-                 { id: uuidv4(), type: 'form', settings: { fields: [{id: uuidv4(), type: 'email', label: ''}], submitButtonText: 'Subscribe' } }
-              ], settings: {} },
+              {
+                id: uuidv4(), type: 'columns',
+                settings: { columnCount: 4, gap: 32 },
+                children: [
+                  { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'heading', settings: { text: 'About Us', htmlTag: 'h4', color: '#ffffff' } }, { id: uuidv4(), type: 'richText', settings: { htmlContent: '<p class="text-gray-400">Bringing you the latest trends with quality you can trust.</p>', color: '#9ca3af' } }] },
+                  { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'heading', settings: { text: 'Quick Links', htmlTag: 'h4', color: '#ffffff' } }, { id: uuidv4(), type: 'richText', settings: { htmlContent: '<ul><li><a href="#" class="text-gray-400 hover:text-white">Home</a></li><li><a href="#" class="text-gray-400 hover:text-white">Shop</a></li><li><a href="#" class="text-gray-400 hover:text-white">About</a></li></ul>' } }] },
+                  { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'heading', settings: { text: 'Support', htmlTag: 'h4', color: '#ffffff' } }, { id: uuidv4(), type: 'richText', settings: { htmlContent: '<ul><li><a href="#" class="text-gray-400 hover:text-white">FAQ</a></li><li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li><li><a href="#" class="text-gray-400 hover:text-white">Shipping</a></li></ul>' } }] },
+                  { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'heading', settings: { text: 'Newsletter', htmlTag: 'h4', color: '#ffffff' } }, { id: uuidv4(), type: 'richText', settings: { htmlContent: '<p class="text-gray-400">Subscribe for the latest deals.</p>' } }, { id: uuidv4(), type: 'form', settings: { fields: [{id: uuidv4(), type: 'email', label: ''}], submitButtonText: 'Subscribe' } }] },
+                ]
+              },
+              { id: uuidv4(), type: 'spacer', settings: { type: 'divider', color: '#4b5563' } },
+              { id: uuidv4(), type: 'richText', settings: { htmlContent: `<p class="text-center text-gray-500 text-sm">© ${new Date().getFullYear()} SabNode Shops. All Rights Reserved.</p>` } }
             ]
-          },
-          { id: uuidv4(), type: 'spacer', settings: { type: 'divider', color: '#4b5563' } },
-          { id: uuidv4(), type: 'richText', settings: { htmlContent: `<p class="text-center text-gray-500 text-sm">© ${new Date().getFullYear()} SabNode Shops. All Rights Reserved.</p>` } }
-        ]
-      }
-    ];
+          }
+      ];
+
+       const defaultProductPageLayout: WebsiteBlock[] = [
+        {
+            id: uuidv4(), type: 'section', settings: { width: 'boxed', padding: { top: '32', bottom: '32' }},
+            children: [{
+                id: uuidv4(), type: 'columns', settings: { columnCount: 2, gap: 32 },
+                children: [
+                    { id: uuidv4(), type: 'column', children: [{id: uuidv4(), type: 'productImage', settings: {}}] },
+                    { id: uuidv4(), type: 'column', children: [
+                        {id: uuidv4(), type: 'productBreadcrumbs', settings: {}},
+                        {id: uuidv4(), type: 'productTitle', settings: {}},
+                        {id: uuidv4(), type: 'productPrice', settings: {}},
+                        {id: uuidv4(), type: 'productDescription', settings: {}},
+                        {id: uuidv4(), type: 'productAddToCart', settings: {}},
+                    ]}
+                ]
+            }]
+        }
+      ];
+      
+      const defaultCartPageLayout: WebsiteBlock[] = [
+        {
+            id: uuidv4(),
+            type: 'section',
+            settings: { padding: { top: '64', bottom: '64', left: '16', right: '16' }, width: 'boxed' },
+            children: [
+                { id: uuidv4(), type: 'cart', settings: {}, children: [] }
+            ]
+        }
+      ];
 
     try {
         const { db } = await connectToDatabase();
         await db.collection('ecomm_shops').updateOne(
             { _id: new ObjectId(shopId) },
-            { $set: { homepageLayout: defaultShoppingTheme, updatedAt: new Date() } }
+            { $set: { 
+                headerLayout: defaultHeaderLayout, 
+                footerLayout: defaultFooterLayout,
+                productPageLayout: defaultProductPageLayout,
+                cartPageLayout: defaultCartPageLayout,
+                updatedAt: new Date() 
+            }}
         );
         revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
         return { message: 'Default shopping theme applied successfully! You can now customize it in the Website Builder.' };
     } catch (e: any) {
         return { error: 'Failed to apply theme.' };
     }
+}
+
+
+// --- Page Actions ---
+
+export async function getEcommPages(shopId: string): Promise<WithId<EcommPage>[]> {
+    if (!ObjectId.isValid(shopId)) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const pages = await db.collection<EcommPage>('ecomm_pages')
+            .find({ shopId: new ObjectId(shopId) })
+            .sort({ isHomepage: -1, name: 1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(pages));
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function saveEcommPage(data: {
+    pageId?: string;
+    shopId: string;
+    name: string;
+    slug: string;
+    layout: WebsiteBlock[];
+}): Promise<{ message?: string, error?: string, pageId?: string }> {
+    const { pageId, shopId, name, slug, layout } = data;
+    if (!shopId || !name || !slug) return { error: 'Shop ID, Page Name, and Slug are required.' };
+    
+    const shop = await getEcommShopById(shopId);
+    if (!shop) return { error: 'Access denied' };
+    
+    const isNew = !pageId;
+    
+    const pageData: Omit<EcommPage, '_id' | 'createdAt' | 'isHomepage'> = {
+        name,
+        slug,
+        shopId: new ObjectId(shopId),
+        projectId: shop.projectId,
+        layout,
+        updatedAt: new Date(),
+    };
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        if (isNew) {
+            const result = await db.collection('ecomm_pages').insertOne({ ...pageData, createdAt: new Date() } as any);
+            revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
+            return { message: 'Page created successfully.', pageId: result.insertedId.toString() };
+        } else {
+            await db.collection('ecomm_pages').updateOne(
+                { _id: new ObjectId(pageId) },
+                { $set: pageData }
+            );
+            revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
+            return { message: 'Page updated successfully.', pageId };
+        }
+    } catch (e: any) {
+        return { error: 'Failed to save page.' };
+    }
+}
+
+export async function deleteEcommPage(pageId: string): Promise<{ message?: string; error?: string }> {
+    if (!ObjectId.isValid(pageId)) return { error: 'Invalid Page ID.' };
+
+    const { db } = await connectToDatabase();
+    const page = await db.collection<EcommPage>('ecomm_pages').findOne({ _id: new ObjectId(pageId) });
+    if (!page) return { error: 'Page not found.' };
+
+    const shop = await getEcommShopById(page.shopId.toString());
+    if (!shop) return { error: 'Access denied' };
+    
+    if (page.isHomepage) return { error: 'Cannot delete the homepage. Please set another page as the homepage first.' };
+
+    try {
+        await db.collection('ecomm_pages').deleteOne({ _id: new ObjectId(pageId) });
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${page.shopId}/website-builder`);
+        return { message: 'Page deleted.' };
+    } catch (e) {
+        return { error: 'Failed to delete page.' };
+    }
+}
+
+export async function setAsHomepage(pageId: string, shopId: string): Promise<{ message?: string; error?: string }> {
+     if (!ObjectId.isValid(pageId) || !ObjectId.isValid(shopId)) return { error: 'Invalid IDs.' };
+     const shop = await getEcommShopById(shopId);
+     if (!shop) return { error: 'Access denied' };
+
+     try {
+        const { db } = await connectToDatabase();
+        
+        // Unset any existing homepage for this shop
+        await db.collection('ecomm_pages').updateMany(
+            { shopId: new ObjectId(shopId), isHomepage: true },
+            { $set: { isHomepage: false } }
+        );
+        
+        // Set the new homepage
+        await db.collection('ecomm_pages').updateOne(
+            { _id: new ObjectId(pageId), shopId: new ObjectId(shopId) },
+            { $set: { isHomepage: true } }
+        );
+
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
+        return { message: 'Homepage updated.' };
+     } catch(e) {
+        return { error: 'Failed to set homepage.' };
+     }
 }
 
 
@@ -645,5 +676,3 @@ export async function syncProductsToMetaCatalog(projectId: string, shopId: strin
         return { error: getErrorMessage(e) };
     }
 }
-
-    

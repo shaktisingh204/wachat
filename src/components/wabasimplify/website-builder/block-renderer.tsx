@@ -25,6 +25,7 @@ import { VideoBlockRenderer } from './video-block-renderer';
 import { ButtonBlockRenderer } from './button-block-renderer';
 import { SpacerBlockRenderer } from './spacer-block-renderer';
 import { IconBlockRenderer } from './icon-block-renderer';
+import { CartBlockRenderer } from './cart-block-renderer';
 
 
 const CustomHtmlBlock = ({ settings }: { settings: any }) => (
@@ -66,6 +67,7 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
         case 'countdown': return <CountdownBlockRenderer settings={safeSettings} />;
         case 'socialShare': return <SocialShareBlockRenderer settings={safeSettings} />;
         case 'repeater': return <RepeaterBlockRenderer settings={safeSettings} />;
+        case 'cart': return <CartBlockRenderer settings={safeSettings} />;
         case 'section': return <SectionBlockRenderer {...props} children={block.children || []} isEditable={isEditable} />;
         case 'columns': return <ColumnsBlockRenderer {...props} children={block.children || []} isEditable={isEditable} />;
         default: return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
