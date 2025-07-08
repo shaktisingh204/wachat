@@ -1371,17 +1371,18 @@ export async function handleScheduleLiveStream(prevState: any, formData: FormDat
             contentType: videoFile.type,
         });
         
-        const response = await axios.post(`https://graph-video.facebook.com/${apiVersion}/${facebookPageId}/videos`, form, {
-            headers: { ...form.getHeaders() },
-             maxContentLength: Infinity,
-             maxBodyLength: Infinity,
+        const response = await fetch(`https://graph-video.facebook.com/${apiVersion}/${facebookPageId}/videos`, {
+            method: 'POST',
+            body: form as any,
         });
 
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
+        const responseData = await response.json();
+
+        if (!response.ok) {
+            throw new Error(responseData.error?.message || 'Failed to upload video.');
         }
-        
-        const facebookVideoId = response.data.id;
+
+        const facebookVideoId = responseData.id;
         if (!facebookVideoId) {
             throw new Error('Facebook did not return a video ID after upload.');
         }

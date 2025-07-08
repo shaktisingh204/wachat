@@ -81,6 +81,9 @@ export default function LiveStudioPage() {
         }
         if (state.error) {
             toast({ title: "Error", description: state.error, variant: 'destructive' });
+            formRef.current?.reset();
+            setScheduledDate(undefined);
+            setVideoFile(null);
         }
     }, [state, toast, fetchData]);
 
