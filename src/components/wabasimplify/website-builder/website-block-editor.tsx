@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
@@ -20,7 +19,7 @@ import { AccordionBlockEditor } from './accordion-block-editor';
 import { FormBlockEditor } from './form-block-editor';
 import { MapBlockEditor } from './map-block-editor';
 import { CountdownBlockEditor } from './countdown-block-editor';
-import { SocialShareBlockEditor } from './social-share-block-renderer';
+import { SocialShareBlockEditor } from './social-share-block-editor';
 import { RepeaterBlockEditor } from './repeater-block-editor';
 import { SectionBlockEditor } from './section-block-editor';
 import { ColumnsBlockEditor } from './columns-block-editor';

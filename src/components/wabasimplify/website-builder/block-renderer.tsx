@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React from 'react';
@@ -27,141 +26,13 @@ import { RichTextBlockRenderer } from './rich-text-block-renderer';
 import { ImageBlockRenderer } from './image-block-renderer';
 import { VideoBlockRenderer } from './video-block-renderer';
 import { ButtonBlockRenderer } from './button-block-renderer';
+import { SpacerBlockRenderer } from './spacer-block-renderer';
+import { IconBlockRenderer } from './icon-block-renderer';
 
 
 const CustomHtmlBlock = ({ settings }: { settings: any }) => (
     <div dangerouslySetInnerHTML={{ __html: settings.html || '' }} />
 );
-
-const IconBlock = ({ settings }: { settings: any }) => {
-    // @ts-ignore
-    const LucideIcon = LucideIcons[settings.icon] || LucideIcons.Star;
-
-    const wrapperStyle: React.CSSProperties = {};
-    if (settings.shape === 'circle' || settings.shape === 'square') {
-        wrapperStyle.backgroundColor = settings.shapeColor || '#EEEEEE';
-        wrapperStyle.display = 'inline-flex';
-        wrapperStyle.alignItems = 'center';
-        wrapperStyle.justifyContent = 'center';
-        const padding = (settings.size || 48) / 4;
-        wrapperStyle.padding = `${padding}px`;
-        if (settings.shape === 'circle') {
-            wrapperStyle.borderRadius = '50%';
-        } else {
-            wrapperStyle.borderRadius = '0.5rem';
-        }
-    }
-
-    const iconStyle: React.CSSProperties = {
-        width: `${settings.size || 48}px`,
-        height: `${settings.size || 48}px`,
-        color: settings.color || '#000000',
-    };
-    
-    const animationClass = {
-        rotate: 'group-hover:rotate-180',
-        pulse: 'animate-pulse',
-        bounce: 'animate-bounce',
-    }[settings.animation || 'none'];
-    
-    const iconElement = (
-         <div style={wrapperStyle} className="group">
-            <LucideIcon style={iconStyle} className={cn('transition-transform duration-300', animationClass)} />
-        </div>
-    );
-
-    if (settings.link) {
-        return (
-            <a href={settings.link} target="_blank" rel="noopener noreferrer" className="inline-block">
-                {iconElement}
-            </a>
-        );
-    }
-    
-    return iconElement;
-};
-
-const SpacerBlock = ({ settings }: { settings: any }) => {
-    const type = settings.type || 'spacer';
-    
-    const responsiveClasses = cn({
-        'max-lg:hidden': settings.responsiveVisibility?.desktop === false,
-        'hidden md:max-lg:flex': settings.responsiveVisibility?.tablet === false,
-        'max-sm:hidden': settings.responsiveVisibility?.mobile === false,
-    });
-    
-    const animationClass = {
-        fadeIn: 'animate-in fade-in duration-500',
-        fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
-    }[settings.animation || 'none'];
-
-    const baseStyle: React.CSSProperties = {
-        marginTop: settings.margin?.top ? `${settings.margin.top}px` : undefined,
-        marginRight: settings.margin?.right ? `${settings.margin.right}px` : undefined,
-        marginBottom: settings.margin?.bottom ? `${settings.margin.bottom}px` : undefined,
-        marginLeft: settings.margin?.left ? `${settings.margin.left}px` : undefined,
-        paddingTop: settings.padding?.top ? `${settings.padding.top}px` : undefined,
-        paddingRight: settings.padding?.right ? `${settings.padding.right}px` : undefined,
-        paddingBottom: settings.padding?.bottom ? `${settings.padding.bottom}px` : undefined,
-        paddingLeft: settings.padding?.left ? `${settings.padding.left}px` : undefined,
-        zIndex: settings.zIndex || undefined,
-    };
-    
-    const customAttributes = (settings.customAttributes || []).reduce((acc: any, attr: any) => {
-        if(attr.key) acc[attr.key] = attr.value;
-        return acc;
-    }, {});
-
-    const customStyleTag = settings.customCss ? (
-        <style>{`#${settings.cssId || ''} { ${settings.customCss} }`}</style>
-    ) : null;
-
-    if (type === 'divider') {
-        const dividerStyle: React.CSSProperties = {
-            ...baseStyle,
-            width: settings.width || '100%',
-            borderTopStyle: settings.style || 'solid',
-            borderTopWidth: `${settings.thickness || 1}px`,
-            borderColor: settings.color || 'hsl(var(--border))',
-        };
-        
-        const alignmentClass = {
-            left: 'mr-auto',
-            center: 'mx-auto',
-            right: 'ml-auto',
-        }[settings.alignment || 'center'];
-
-        return (
-            <>
-                {customStyleTag}
-                <hr 
-                    id={settings.cssId} 
-                    style={dividerStyle} 
-                    className={cn(alignmentClass, responsiveClasses, animationClass, settings.cssClasses)} 
-                    {...customAttributes} 
-                />
-            </>
-        );
-    }
-
-    // Spacer
-    const spacerStyle: React.CSSProperties = {
-        ...baseStyle,
-        height: `${settings.height || 24}px`,
-    };
-
-    return (
-        <>
-            {customStyleTag}
-            <div 
-                id={settings.cssId} 
-                style={spacerStyle} 
-                className={cn(responsiveClasses, animationClass, settings.cssClasses)} 
-                {...customAttributes}
-            ></div>
-        </>
-    );
-};
 
 interface BlockRendererProps {
   block: WebsiteBlock;
@@ -188,8 +59,8 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
         case 'image': return <ImageBlockRenderer settings={safeSettings} />;
         case 'button': return <ButtonBlockRenderer settings={safeSettings} />;
         case 'video': return <VideoBlockRenderer settings={safeSettings} />;
-        case 'icon': return <IconBlock settings={safeSettings} />;
-        case 'spacer': return <SpacerBlock settings={safeSettings} />;
+        case 'icon': return <IconBlockRenderer settings={safeSettings} />;
+        case 'spacer': return <SpacerBlockRenderer settings={safeSettings} />;
         case 'imageCarousel': return <ImageCarouselRenderer settings={safeSettings} />;
         case 'tabs': return <TabsBlockRenderer settings={safeSettings} />;
         case 'accordion': return <AccordionBlockRenderer settings={safeSettings} />;
