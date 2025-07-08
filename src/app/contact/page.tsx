@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import { Separator } from '@/components/ui/separator';
 
 export default function ContactPage() {
   return (
@@ -34,6 +35,12 @@ export default function ContactPage() {
                 <Textarea id="message" placeholder="How can we help you?" className="min-h-[150px]" />
             </div>
             <Button className="w-full">Send Message</Button>
+            <Separator className="my-6" />
+            <div className="text-center text-muted-foreground space-y-2">
+                <h3 className="font-semibold text-lg text-foreground">Our Information</h3>
+                <p>Email: <a href="mailto:info@sabnode.in" className="text-primary">info@sabnode.in</a></p>
+                <p>Address: D829 sector 5 malviya nagar jaipur 302017</p>
+            </div>
           </CardContent>
         </Card>
       </div>
