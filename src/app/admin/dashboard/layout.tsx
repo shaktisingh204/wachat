@@ -28,7 +28,6 @@ import {
 } from '@/components/ui/sidebar';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users } from 'lucide-react';
-import { handleAdminLogout } from '@/app/actions';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -66,14 +65,12 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
         <SidebarFooter>
           <SidebarMenu>
             <SidebarMenuItem>
-                <form action={handleAdminLogout} className="w-full">
-                    <SidebarMenuButton asChild tooltip="Logout">
-                        <button type="submit" className="w-full">
-                            <LogOut className="h-4 w-4" />
-                            <span>Logout</span>
-                        </button>
-                    </SidebarMenuButton>
-                </form>
+                <SidebarMenuButton asChild tooltip="Logout">
+                    <Link href="/api/auth/admin-logout">
+                        <LogOut className="h-4 w-4" />
+                        <span>Logout</span>
+                    </Link>
+                </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarFooter>
@@ -100,12 +97,10 @@ export default function AdminDashboardLayout({ children }: { children: React.Rea
                 <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                  <DropdownMenuItem asChild>
-                    <form action={handleAdminLogout} className="w-full">
-                        <button type="submit" className="flex items-center w-full">
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span>Logout</span>
-                        </button>
-                    </form>
+                    <Link href="/api/auth/admin-logout">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Logout</span>
+                    </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
