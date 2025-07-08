@@ -21,6 +21,14 @@ import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
 import { PermissionErrorDialog } from '@/components/wabasimplify/permission-error-dialog';
 import { WhatsAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string | number, icon: React.ElementType, description?: string }) => (
     <Card className="card-gradient card-gradient-blue">
@@ -196,7 +204,7 @@ export default function FacebookDashboardPage() {
     const engagementRate = (insights && insights.pageReach > 0) ? Math.round((insights.postEngagement / insights.pageReach) * 100) : 0;
     const { topPosts, recentComments } = useMemo(() => {
         if (!posts || posts.length === 0) return { topPosts: [], recentComments: [] };
-        const calculatedTopPosts = posts.map(post => ({ ...post, engagementScore: (post.reactions?.summary?.total_count || 0) + (post.comments?.summary?.total_count || 0) })).sort((a, b) => b.engagementScore - a.engagementScore).slice(0, 3);
+        const calculatedTopPosts = [...posts].map(post => ({ ...post, engagementScore: (post.reactions?.summary?.total_count || 0) + (post.comments?.summary?.total_count || 0) })).sort((a, b) => b.engagementScore - a.engagementScore).slice(0, 3);
         const allComments = posts.flatMap(post => (post.comments?.data || []).map(comment => ({ ...comment, postLink: post.permalink_url }))).sort((a, b) => new Date(b.created_time).getTime() - new Date(a.created_time).getTime()).slice(0, 5);
         return { topPosts: calculatedTopPosts, recentComments: allComments };
     }, [posts]);
@@ -233,7 +241,18 @@ export default function FacebookDashboardPage() {
                     </h2>
                     <div className="flex items-center gap-2">
                         <div className="relative"><Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" /><Input placeholder="Search..." className="pl-8"/></div>
-                        <Button variant="outline"><SlidersHorizontal className="mr-2 h-4 w-4"/>Filters</Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline"><SlidersHorizontal className="mr-2 h-4 w-4"/>Filters</Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>Filter Posts</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem>Image Posts</DropdownMenuItem>
+                                <DropdownMenuItem>Video Posts</DropdownMenuItem>
+                                <DropdownMenuItem>Text Posts</DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                         <Button asChild><Link href="/dashboard/facebook/create-post"><Plus className="mr-2 h-4 w-4"/>Create Post</Link></Button>
                     </div>
                 </div>
