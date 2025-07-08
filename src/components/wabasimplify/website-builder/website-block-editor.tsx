@@ -1,5 +1,7 @@
+
 'use client';
 
+import React from 'react';
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
 import { HeroBlockEditor } from './hero-block-editor';
 import { FeaturedProductsBlockEditor } from './featured-products-block-editor';
@@ -24,9 +26,9 @@ import { SectionBlockEditor } from './section-block-editor';
 import { ColumnsBlockEditor } from './columns-block-editor';
 import { ColumnBlockEditor } from './column-block-editor';
 import { CartBlockEditor } from './cart-block-editor';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Trash2 } from 'lucide-react';
+import { Trash2, CheckCircle } from 'lucide-react';
 import { FaqBlockEditor } from './faq-block-editor';
 import { ProductBlockEditor } from './product-block-editor';
 
@@ -38,6 +40,13 @@ interface PropertiesPanelProps {
 }
 
 export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate, onRemove }: PropertiesPanelProps) {
+    const [localSettings, setLocalSettings] = React.useState(selectedBlock?.settings);
+    
+    React.useEffect(() => {
+        // When a new block is selected, update the local state.
+        setLocalSettings(selectedBlock?.settings);
+    }, [selectedBlock]);
+
     if (!selectedBlock) {
         return (
             <div className="text-center text-muted-foreground p-8 h-full flex flex-col items-center justify-center">
@@ -45,18 +54,22 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
             </div>
         );
     }
+    
+    const handleApplyChanges = () => {
+        onUpdate(selectedBlock.id, localSettings);
+    };
 
     const renderEditor = () => {
         const props = {
-            settings: selectedBlock.settings,
-            onUpdate: (newSettings: any) => onUpdate(selectedBlock.id, newSettings)
+            settings: localSettings,
+            onUpdate: setLocalSettings, // Pass the local state setter to the editors
         };
         
         const productProps = {
             ...props,
             availableProducts: availableProducts,
         };
-        
+
         const productBlockTypes = ['productImage', 'productTitle', 'productPrice', 'productDescription', 'productAddToCart', 'productBreadcrumbs'];
         if (productBlockTypes.includes(selectedBlock.type)) {
             return <ProductBlockEditor {...props} blockType={selectedBlock.type} />;
@@ -100,7 +113,11 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
             <CardContent className="flex-1 overflow-y-auto">
                  {renderEditor()}
             </CardContent>
-            <CardFooter className="border-t pt-4">
+            <CardFooter className="border-t pt-4 flex-col items-stretch gap-2">
+                <Button className="w-full" onClick={handleApplyChanges}>
+                    <CheckCircle className="mr-2 h-4 w-4" />
+                    Apply Changes
+                </Button>
                 <Button variant="destructive" className="w-full" onClick={() => onRemove(selectedBlock.id)}>
                     <Trash2 className="mr-2 h-4 w-4" />
                     Delete Block
