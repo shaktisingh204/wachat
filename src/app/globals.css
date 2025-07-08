@@ -199,45 +199,17 @@ body {
   }
 }
 
-@layer components {
-    .card-gradient {
-      @apply relative overflow-hidden;
-    }
-    .card-gradient::before {
-      content: '';
-      @apply absolute inset-0 opacity-[0.15] z-0;
-    }
-    .card-gradient-blue::before {
-      @apply bg-gradient-to-br from-blue-400 via-blue-200 to-sky-100;
-    }
-    .card-gradient-purple::before {
-      @apply bg-gradient-to-br from-purple-400 via-purple-200 to-violet-100;
-    }
-    .card-gradient-green::before {
-      @apply bg-gradient-to-br from-green-400 via-green-200 to-emerald-100;
-    }
-    .card-gradient-orange::before {
-      @apply bg-gradient-to-br from-orange-400 via-orange-200 to-amber-100;
-    }
-    .card-gradient > * {
-      @apply relative z-10;
-    }
-    .dnd-placeholder {
-        @apply bg-primary/10 border-2 border-dashed border-primary rounded-lg;
-    }
+.bg-chat-texture {
+    background-color: #E5DDD5;
 }
-
-
-.scroll-container {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+.dark .bg-chat-texture {
+     background-color: #0b141a;
 }
-.scroll-container::-webkit-scrollbar {
-  display: none; /* Chrome/Safari/Opera */
+.bg-instagram {
+    background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));
 }
-/* Also hide the custom Radix scrollbar used in the component */
-.scroll-container ~ [data-radix-scroll-area-scrollbar] {
-    display: none;
+.text-instagram {
+    color: hsl(var(--instagram));
 }
 
 @layer utilities {
@@ -250,19 +222,7 @@ body {
         background-color: #111827;
         background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23374151' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
     }
-
-    .bg-chat-texture {
-        background-color: #E5DDD5;
-    }
-    .dark .bg-chat-texture {
-         background-color: #0b141a;
-    }
-    .bg-instagram {
-        background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));
-    }
-    .text-instagram {
-        color: hsl(var(--instagram));
-    }
+    
     .animate-fade-in-up {
         animation: fade-in-up 0.6s ease-in-out forwards;
         opacity: 0;
