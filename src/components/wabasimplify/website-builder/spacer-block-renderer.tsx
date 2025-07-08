@@ -15,8 +15,15 @@ interface SpacerBlockRendererProps {
     color?: string;
     alignment?: 'left' | 'center' | 'right';
     // Advanced settings
-    margin?: { top?: number; bottom?: number };
+    margin?: { top?: number; right?: number; bottom?: number; left?: number };
+    padding?: { top?: number; right?: number; bottom?: number; left?: number };
+    zIndex?: number;
+    animation?: 'none' | 'fadeIn' | 'fadeInUp';
     responsiveVisibility?: { desktop?: boolean; tablet?: boolean; mobile?: boolean };
+    cssId?: string;
+    cssClasses?: string;
+    customCss?: string;
+    customAttributes?: {id: string, key: string, value: string}[];
   };
 }
 
@@ -29,10 +36,31 @@ export const SpacerBlockRenderer: React.FC<SpacerBlockRendererProps> = ({ settin
         'max-sm:hidden': settings.responsiveVisibility?.mobile === false,
     });
     
+    const animationClass = {
+        fadeIn: 'animate-in fade-in duration-500',
+        fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
+    }[settings.animation || 'none'];
+
     const baseStyle: React.CSSProperties = {
         marginTop: settings.margin?.top ? `${settings.margin.top}px` : undefined,
+        marginRight: settings.margin?.right ? `${settings.margin.right}px` : undefined,
         marginBottom: settings.margin?.bottom ? `${settings.margin.bottom}px` : undefined,
+        marginLeft: settings.margin?.left ? `${settings.margin.left}px` : undefined,
+        paddingTop: settings.padding?.top ? `${settings.padding.top}px` : undefined,
+        paddingRight: settings.padding?.right ? `${settings.padding.right}px` : undefined,
+        paddingBottom: settings.padding?.bottom ? `${settings.padding.bottom}px` : undefined,
+        paddingLeft: settings.padding?.left ? `${settings.padding.left}px` : undefined,
+        zIndex: settings.zIndex || undefined,
     };
+    
+    const customAttrs = (settings.customAttributes || []).reduce((acc: any, attr: any) => {
+        if(attr.key) acc[attr.key] = attr.value;
+        return acc;
+    }, {});
+
+    const customStyleTag = settings.customCss ? (
+        <style>{`#${settings.cssId || ''} { ${settings.customCss} }`}</style>
+    ) : null;
 
     if (type === 'divider') {
         const dividerStyle: React.CSSProperties = {
@@ -49,7 +77,17 @@ export const SpacerBlockRenderer: React.FC<SpacerBlockRendererProps> = ({ settin
             right: 'ml-auto',
         }[settings.alignment || 'center'];
 
-        return <hr style={dividerStyle} className={cn(alignmentClass, responsiveClasses)} />;
+        return (
+            <>
+                {customStyleTag}
+                <hr 
+                    id={settings.cssId} 
+                    style={dividerStyle} 
+                    className={cn(alignmentClass, responsiveClasses, animationClass, settings.cssClasses)} 
+                    {...customAttrs} 
+                />
+            </>
+        );
     }
 
     // Spacer
@@ -58,5 +96,15 @@ export const SpacerBlockRenderer: React.FC<SpacerBlockRendererProps> = ({ settin
         height: `${settings.height || 24}px`,
     };
 
-    return <div style={spacerStyle} className={cn(responsiveClasses)}></div>;
+    return (
+        <>
+            {customStyleTag}
+            <div 
+                id={settings.cssId} 
+                style={spacerStyle} 
+                className={cn(responsiveClasses, animationClass, settings.cssClasses)} 
+                {...customAttrs}
+            ></div>
+        </>
+    );
 };
