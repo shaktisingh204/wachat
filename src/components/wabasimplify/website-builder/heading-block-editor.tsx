@@ -33,7 +33,7 @@ export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUp
 
     const handleAttributeChange = (index: number, field: 'key' | 'value', value: string) => {
         const newAttributes = [...(settings.customAttributes || [])];
-        newAttributes[index] = {...newAttributes[index], key: field === 'key' ? value : newAttributes[index].key, value: field === 'value' ? value : newAttributes[index].value};
+        newAttributes[index] = {...newAttributes[index], [field]: value};
         handleUpdate('customAttributes', newAttributes);
     }
     
@@ -102,10 +102,10 @@ export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUp
                             </div>
                              <div className="space-y-2">
                                 <Label>Visual Size Override</Label>
-                                <Select value={settings.size || ''} onValueChange={(val) => handleUpdate('size', val)}>
+                                <Select value={settings.size || 'default'} onValueChange={(val) => handleUpdate('size', val === 'default' ? undefined : val)}>
                                     <SelectTrigger><SelectValue placeholder="Default"/></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">Default</SelectItem>
+                                        <SelectItem value="default">Default</SelectItem>
                                         <SelectItem value="text-sm">Small</SelectItem>
                                         <SelectItem value="text-lg">Medium</SelectItem>
                                         <SelectItem value="text-2xl">Large</SelectItem>
@@ -180,7 +180,7 @@ export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUp
                     <AccordionItem value="advanced_motion">
                         <AccordionTrigger>Motion Effects</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
-                            <div className="space-y-2"><Label>Entrance Animation</Label><Select value={settings.animation || 'none'} onValueChange={(val) => handleUpdate('animation', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="fadeIn">Fade In</SelectItem><SelectItem value="slide-up">Slide In Up</SelectItem><SelectItem value="zoom">Zoom In</SelectItem><SelectItem value="bounce">Bounce</SelectItem></SelectContent></Select></div>
+                            <div className="space-y-2"><Label>Entrance Animation</Label><Select value={settings.animation || 'none'} onValueChange={(val) => handleUpdate('animation', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="fadeIn">Fade In</SelectItem><SelectItem value="fadeInUp">Fade In Up</SelectItem><SelectItem value="zoomIn">Zoom In</SelectItem><SelectItem value="bounce">Bounce</SelectItem></SelectContent></Select></div>
                              <Alert><Lightbulb className="h-4 w-4" /><AlertTitle>Coming Soon</AlertTitle><AlertDescription>Advanced scrolling and mouse effects are planned for a future update.</AlertDescription></Alert>
                         </AccordionContent>
                     </AccordionItem>
