@@ -17,7 +17,7 @@ import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { intelligentTranslate } from '@/ai/flows/intelligent-translate-flow';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { hashPassword, comparePassword, createSessionToken, verifySessionToken, createAdminSessionToken, verifyAdminSessionToken } from '@/lib/auth';
+import { hashPassword, comparePassword, createSessionToken, verifySessionToken, createAdminSessionToken, verifyAdminSessionToken, type SessionPayload, type AdminSessionPayload } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import { premadeTemplates } from '@/lib/premade-templates';
@@ -26,6 +26,7 @@ import { getErrorMessage } from '@/lib/utils';
 // Re-exports for server actions are handled by direct imports in components now.
 import { headers } from 'next/headers';
 import { checkRateLimit } from '@/lib/rate-limiter';
+import jwt from 'jsonwebtoken';
 
 
 import type {
@@ -83,7 +84,7 @@ export async function getSession(): Promise<{ user: Omit<User, 'password' | 'pla
         return null;
     }
 
-    const payload = verifySessionToken(sessionToken);
+    const payload = await verifySessionToken(sessionToken);
     if (!payload) {
         return null;
     }
@@ -115,7 +116,7 @@ export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
         return { isAdmin: false };
     }
 
-    const payload = verifyAdminSessionToken(sessionToken);
+    const payload = await verifyAdminSessionToken(sessionToken);
     if (payload && payload.role === 'admin') {
         return { isAdmin: true };
     }
@@ -2598,11 +2599,51 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
 
 
 export async function handleLogout() {
+    const cookieStore = cookies();
+    const sessionToken = cookieStore.get('session')?.value;
+
+    if (sessionToken) {
+        try {
+            // Decode token to get payload without verification
+            const payload = jwt.decode(sessionToken) as SessionPayload;
+            if (payload && payload.jti && payload.expires) {
+                const { db } = await connectToDatabase();
+                // We recommend creating a TTL index on `expireAt` for this collection.
+                // In mongosh: `db.revoked_tokens.createIndex( { "expireAt": 1 }, { expireAfterSeconds: 0 } )`
+                await db.collection('revoked_tokens').insertOne({
+                    jti: payload.jti,
+                    expireAt: new Date(payload.expires),
+                });
+            }
+        } catch (error) {
+            console.error("Error during token revocation on logout:", error);
+        }
+    }
+    
     cookies().delete('session');
     redirect('/login');
 }
 
 export async function handleAdminLogout() {
+    const cookieStore = cookies();
+    const adminSessionToken = cookieStore.get('admin_session')?.value;
+
+    if (adminSessionToken) {
+        try {
+            const payload = jwt.decode(adminSessionToken) as AdminSessionPayload;
+            if (payload && payload.jti && payload.expires) {
+                const { db } = await connectToDatabase();
+                // Add to blacklist. The 'expireAt' field will be used by MongoDB's TTL index.
+                await db.collection('revoked_tokens').insertOne({
+                    jti: payload.jti,
+                    expireAt: new Date(payload.expires),
+                });
+            }
+        } catch (error) {
+            console.error("Error during admin token revocation on logout:", error);
+        }
+    }
+
     cookies().delete('admin_session');
     redirect('/admin-login');
 }
