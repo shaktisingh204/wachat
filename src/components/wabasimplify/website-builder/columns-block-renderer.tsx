@@ -4,7 +4,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import type { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
-import { BlockRenderer } from './block-renderer';
 import { Canvas } from './canvas';
 
 interface ColumnsBlockRendererProps {
@@ -20,9 +19,9 @@ interface ColumnsBlockRendererProps {
 }
 
 export const ColumnsBlockRenderer: React.FC<ColumnsBlockRendererProps> = (props) => {
-    const { settings, children, products, blockId, shopSlug, selectedBlockId, onBlockClick, onRemoveBlock, isEditable } = props;
+    const { settings, children, products, shopSlug, selectedBlockId, onBlockClick, onRemoveBlock, isEditable } = props;
     const safeSettings = settings || {};
-    const { columnCount = 2, gap = 4, stackOnMobile = true, padding } = safeSettings;
+    const { columnCount = 2, gap = 16, stackOnMobile = true, padding } = safeSettings;
 
     const gridColsClasses: {[key: number]: string} = {
         1: 'md:grid-cols-1', 2: 'md:grid-cols-2', 3: 'md:grid-cols-3',
@@ -38,9 +37,52 @@ export const ColumnsBlockRenderer: React.FC<ColumnsBlockRendererProps> = (props)
 
     return (
         <div className={cn('grid', responsiveClass, gridColsClasses[columnCount])} style={style}>
-            {children.map(column => (
-                <div key={column.id} className="flex flex-col">
-                     <Canvas
+            {children.map(column => {
+                const columnSettings = column.settings || {};
+                const HtmlTag = columnSettings.htmlTag || 'div';
+
+                const columnStyle: React.CSSProperties = {
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: columnSettings.verticalAlign || 'flex-start',
+                    alignItems: columnSettings.horizontalAlign || 'stretch',
+                    backgroundColor: columnSettings.backgroundColor,
+                    backgroundImage: columnSettings.gradient ? `linear-gradient(${columnSettings.gradient.angle || 180}deg, ${columnSettings.gradient.color1 || '#FFFFFF'}, ${columnSettings.gradient.color2 || '#F0F0F0'})` : undefined,
+                    padding: columnSettings.padding ? `${columnSettings.padding.top || 0}px ${columnSettings.padding.right || 0}px ${columnSettings.padding.bottom || 0}px ${columnSettings.padding.left || 0}px` : undefined,
+                    margin: columnSettings.margin ? `${columnSettings.margin.top || 0}px ${columnSettings.margin.right || 0}px ${columnSettings.margin.bottom || 0}px ${columnSettings.margin.left || 0}px` : undefined,
+                    borderStyle: columnSettings.border?.type,
+                    borderColor: columnSettings.border?.color,
+                    borderWidth: columnSettings.border?.width ? `${columnSettings.border.width}px` : undefined,
+                    borderRadius: columnSettings.border?.radius ? `${columnSettings.border.radius}px` : undefined,
+                    boxShadow: columnSettings.boxShadow,
+                    zIndex: columnSettings.zIndex,
+                };
+                
+                const animationClass = {
+                    fade: 'animate-fade-in',
+                    slide: 'animate-slide-in-up',
+                }[columnSettings.animation || 'none'];
+                
+                const responsiveClasses = cn({
+                    'max-md:hidden': columnSettings.visibility === 'desktop',
+                    'hidden sm:max-md:hidden': columnSettings.visibility === 'tablet',
+                    'hidden sm:flex': columnSettings.visibility === 'mobile',
+                });
+                
+                const customAttributes = (columnSettings.customAttributes || []).reduce((acc: any, attr: any) => {
+                    if(attr.key) acc[attr.key] = attr.value;
+                    return acc;
+                }, {});
+
+                return React.createElement(HtmlTag, {
+                        key: column.id,
+                        id: columnSettings.cssId,
+                        className: cn(animationClass, responsiveClasses, columnSettings.cssClasses),
+                        style: columnStyle,
+                        ...customAttributes,
+                        onClick: isEditable ? (e: React.MouseEvent) => { e.stopPropagation(); onBlockClick?.(column.id); } : undefined,
+                    }, 
+                    <Canvas
                         layout={column.children || []}
                         droppableId={column.id}
                         products={products}
@@ -51,8 +93,8 @@ export const ColumnsBlockRenderer: React.FC<ColumnsBlockRendererProps> = (props)
                         shopSlug={shopSlug}
                         isEditable={isEditable}
                     />
-                </div>
-            ))}
+                );
+            })}
         </div>
     );
 };
