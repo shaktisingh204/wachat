@@ -207,7 +207,7 @@ function CreateMetaFlowPageContent() {
             newFlowData.routing_model[newScreenId] = [];
         }
         setFlowData(newFlowData);
-        setSelectedScreenId(newScreenId);
+        toast({ title: 'Screen Added', description: 'The new screen has been added to your flow. You can select it from the list to edit.' });
     };
     
     const removeScreen = (screenId: string) => {
@@ -385,7 +385,7 @@ function CreateMetaFlowPageContent() {
                             </div>
                         </div>
 
-                        <div className="hidden lg:block">
+                        <div className="hidden lg:block sticky top-24">
                             <MetaFlowPreview flowJson={JSON.stringify(flowData)} />
                         </div>
                     </div>
