@@ -1,24 +1,43 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 interface CountdownBlockRendererProps {
   settings: {
     endDate?: string;
+    showLabels?: boolean;
     labels?: {
       days?: string;
       hours?: string;
       minutes?: string;
       seconds?: string;
     };
-    style?: 'digital' | 'circle';
     actionOnEnd?: 'hide' | 'showMessage' | 'redirect';
     endMessage?: string;
     redirectUrl?: string;
-    backgroundColor?: string;
-    textColor?: string;
+    
+    // Style
+    digitColor?: string;
+    digitBgColor?: string;
+    digitFontFamily?: string;
+    digitBorderRadius?: number;
+    digitPadding?: number;
+
+    labelColor?: string;
+    labelSpacing?: number;
+
+    // Advanced
+    margin?: { top?: number; bottom?: number; left?: number; right?: number };
+    animation?: string;
+    responsiveVisibility?: { desktop?: boolean; tablet?: boolean; mobile?: boolean };
+    cssId?: string;
+    cssClasses?: string;
+    customCss?: string;
+    customAttributes?: {id: string, key: string, value: string}[];
   };
 }
 
@@ -42,22 +61,22 @@ const calculateTimeLeft = (endDate: string) => {
     return timeLeft;
 };
 
-const TimeUnit = ({ value, label, style, textColor }: { value: number; label: string; style: 'digital' | 'circle', textColor?: string }) => {
-    if (style === 'circle') {
-        return (
-            <div className="flex flex-col items-center">
-                <div className="w-24 h-24 rounded-full border-4 border-primary/20 flex items-center justify-center bg-background/50 backdrop-blur-sm">
-                    <span className="text-4xl font-bold" style={{ color: textColor }}>{String(value).padStart(2, '0')}</span>
-                </div>
-                <span className="mt-2 text-sm uppercase" style={{ color: textColor }}>{label}</span>
-            </div>
-        );
-    }
-    // Digital style
+const TimeUnit = ({ value, label, settings }: { value: number; label: string; settings: CountdownBlockRendererProps['settings'] }) => {
+    const digitStyle: React.CSSProperties = {
+        color: settings.digitColor || '#000000',
+        backgroundColor: settings.digitBgColor || '#FFFFFF',
+        fontFamily: settings.digitFontFamily || 'monospace',
+        borderRadius: settings.digitBorderRadius ? `${settings.digitBorderRadius}px` : undefined,
+        padding: settings.digitPadding ? `${settings.digitPadding}px` : undefined,
+    };
+    const labelStyle: React.CSSProperties = {
+        color: settings.labelColor || '#64748b',
+        marginTop: settings.labelSpacing ? `${settings.labelSpacing}px` : undefined,
+    };
     return (
-        <div className="text-center p-4 rounded-lg bg-background/50 backdrop-blur-sm">
-            <div className="text-5xl font-bold" style={{ color: textColor }}>{String(value).padStart(2, '0')}</div>
-            <div className="text-sm uppercase" style={{ color: textColor }}>{label}</div>
+        <div className="text-center">
+            <div className="text-5xl font-bold p-4 rounded-lg" style={digitStyle}>{String(value).padStart(2, '0')}</div>
+            {settings.showLabels !== false && <div className="text-sm uppercase mt-2" style={labelStyle}>{label}</div>}
         </div>
     );
 }
@@ -66,12 +85,16 @@ export const CountdownBlockRenderer: React.FC<CountdownBlockRendererProps> = ({ 
     const { 
         endDate,
         labels = { days: 'Days', hours: 'Hours', minutes: 'Minutes', seconds: 'Seconds' },
-        style = 'digital',
         actionOnEnd = 'hide',
         endMessage,
         redirectUrl,
-        backgroundColor,
-        textColor
+        animation,
+        responsiveVisibility,
+        margin,
+        cssId,
+        cssClasses,
+        customCss,
+        customAttributes
     } = settings;
 
     const [timeLeft, setTimeLeft] = useState(calculateTimeLeft(endDate || ''));
@@ -112,21 +135,36 @@ export const CountdownBlockRenderer: React.FC<CountdownBlockRendererProps> = ({ 
     
     if (isFinished) {
         if (actionOnEnd === 'showMessage') {
-            return <div className="p-8 text-center text-2xl font-bold" style={{backgroundColor, color: textColor}}>{endMessage || "Time's up!"}</div>
+            return <div className="p-8 text-center text-2xl font-bold">{endMessage || "Time's up!"}</div>
         }
-        return null; // 'hide' is the default
+        return null;
     }
 
-    const gridCols = style === 'circle' ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-4';
+    const animationClass = {
+        fadeIn: 'animate-in fade-in duration-500',
+        fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
+    }[animation || 'none'];
+
+    const responsiveClasses = cn({
+        'max-lg:hidden': responsiveVisibility?.desktop === false,
+        'hidden md:max-lg:flex': responsiveVisibility?.tablet === false,
+        'max-sm:hidden': responsiveVisibility?.mobile === false,
+    });
+    
+    const wrapperStyle: React.CSSProperties = {
+        margin: margin ? `${margin.top || 0}px ${margin.right || 0}px ${margin.bottom || 0}px ${margin.left || 0}px` : undefined,
+    };
+    
+    const customAttrs = (customAttributes || []).reduce((acc: any, attr: any) => { if(attr.key) acc[attr.key] = attr.value; return acc; }, {});
+    const customStyleTag = customCss ? (<style>{`#${cssId || ''} { ${customCss} }`}</style>) : null;
 
     return (
-        <div className="p-8 rounded-lg" style={{backgroundColor}}>
-             <div className={`grid ${gridCols} gap-4 md:gap-8 max-w-2xl mx-auto`}>
-                <TimeUnit value={timeLeft.days} label={labels.days || 'Days'} style={style} textColor={textColor} />
-                <TimeUnit value={timeLeft.hours} label={labels.hours || 'Hours'} style={style} textColor={textColor} />
-                <TimeUnit value={timeLeft.minutes} label={labels.minutes || 'Minutes'} style={style} textColor={textColor} />
-                <TimeUnit value={timeLeft.seconds} label={labels.seconds || 'Seconds'} style={style} textColor={textColor} />
-            </div>
+        <div id={cssId} className={cn('flex justify-center items-center gap-2 md:gap-4', animationClass, responsiveClasses, cssClasses)} style={wrapperStyle} {...customAttrs}>
+            {customStyleTag}
+            <TimeUnit value={timeLeft.days} label={labels.days || 'Days'} settings={settings} />
+            <TimeUnit value={timeLeft.hours} label={labels.hours || 'Hours'} settings={settings} />
+            <TimeUnit value={timeLeft.minutes} label={labels.minutes || 'Minutes'} settings={settings} />
+            <TimeUnit value={timeLeft.seconds} label={labels.seconds || 'Seconds'} settings={settings} />
         </div>
     );
 };
