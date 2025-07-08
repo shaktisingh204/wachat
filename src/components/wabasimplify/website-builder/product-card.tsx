@@ -6,8 +6,9 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
+import type { WithId, EcommProduct } from '@/lib/definitions';
 
-export function ProductCard({ product, shopSlug }: { product: any, shopSlug: string }) {
+export function ProductCard({ product, shopSlug }: { product: WithId<EcommProduct>, shopSlug: string }) {
   return (
     <Link href={`/shop/${shopSlug}/product/${product._id.toString()}`} className="group block">
       <Card className="overflow-hidden h-full flex flex-col transition-all group-hover:shadow-lg">
@@ -43,5 +44,7 @@ export function ProductCard({ product, shopSlug }: { product: any, shopSlug: str
     </Link>
   );
 }
+
+    
 
     
