@@ -97,5 +97,3 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
         </Card>
     );
 }
-
-    

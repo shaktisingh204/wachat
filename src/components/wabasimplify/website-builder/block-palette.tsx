@@ -77,5 +77,3 @@ export function BlockPalette({ onAddBlock }: BlockPaletteProps) {
         </div>
     );
 }
-
-    
