@@ -170,7 +170,6 @@ export type EcommShop = {
     paymentLinkGPay?: string;
     persistentMenu?: { type: 'postback' | 'web_url'; title: string; payload?: string; url?: string; }[];
     abandonedCart?: AbandonedCartSettings;
-    homepageLayout: WebsiteBlock[];
     createdAt: Date;
     updatedAt: Date;
     appearance?: {
@@ -179,6 +178,19 @@ export type EcommShop = {
         bannerImageUrl?: string;
     }
 };
+
+export type EcommPage = {
+    _id: ObjectId;
+    shopId: ObjectId;
+    projectId: ObjectId;
+    name: string;
+    slug: string;
+    layout: WebsiteBlock[];
+    isHomepage?: boolean;
+    isPublished?: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+}
 
 export type Project = {
     _id: ObjectId;
