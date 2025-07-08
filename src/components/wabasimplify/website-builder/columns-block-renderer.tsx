@@ -46,8 +46,6 @@ export const ColumnsBlockRenderer: React.FC<ColumnsBlockRendererProps> = (props)
                     flexDirection: 'column',
                     justifyContent: columnSettings.verticalAlign || 'flex-start',
                     alignItems: columnSettings.horizontalAlign || 'stretch',
-                    backgroundColor: columnSettings.backgroundColor,
-                    backgroundImage: columnSettings.gradient ? `linear-gradient(${columnSettings.gradient.angle || 180}deg, ${columnSettings.gradient.color1 || '#FFFFFF'}, ${columnSettings.gradient.color2 || '#F0F0F0'})` : undefined,
                     padding: columnSettings.padding ? `${columnSettings.padding.top || 0}px ${columnSettings.padding.right || 0}px ${columnSettings.padding.bottom || 0}px ${columnSettings.padding.left || 0}px` : undefined,
                     margin: columnSettings.margin ? `${columnSettings.margin.top || 0}px ${columnSettings.margin.right || 0}px ${columnSettings.margin.bottom || 0}px ${columnSettings.margin.left || 0}px` : undefined,
                     borderStyle: columnSettings.border?.type,
@@ -56,7 +54,19 @@ export const ColumnsBlockRenderer: React.FC<ColumnsBlockRendererProps> = (props)
                     borderRadius: columnSettings.border?.radius ? `${columnSettings.border.radius}px` : undefined,
                     boxShadow: columnSettings.boxShadow,
                     zIndex: columnSettings.zIndex,
+                    order: columnSettings.order || undefined,
                 };
+                
+                 if (columnSettings.backgroundType === 'classic' && columnSettings.backgroundColor) {
+                    columnStyle.backgroundColor = columnSettings.backgroundColor;
+                } else if (columnSettings.backgroundType === 'gradient' && columnSettings.gradient) {
+                    const { color1, color2, type, angle } = columnSettings.gradient;
+                    if (type === 'radial') {
+                         columnStyle.backgroundImage = `radial-gradient(${color1}, ${color2})`;
+                    } else {
+                         columnStyle.backgroundImage = `linear-gradient(${angle || 180}deg, ${color1 || '#FFFFFF'}, ${color2 || '#F0F0F0'})`;
+                    }
+                }
                 
                 const animationClass = {
                     fade: 'animate-fade-in',
@@ -64,9 +74,9 @@ export const ColumnsBlockRenderer: React.FC<ColumnsBlockRendererProps> = (props)
                 }[columnSettings.animation || 'none'];
                 
                 const responsiveClasses = cn({
-                    'max-md:hidden': columnSettings.visibility === 'desktop',
-                    'hidden sm:max-md:hidden': columnSettings.visibility === 'tablet',
-                    'hidden sm:flex': columnSettings.visibility === 'mobile',
+                    'hidden': columnSettings.responsiveVisibility?.desktop === false,
+                    'md:hidden': columnSettings.responsiveVisibility?.tablet === false,
+                    'sm:hidden': columnSettings.responsiveVisibility?.mobile === false,
                 });
                 
                 const customAttributes = (columnSettings.customAttributes || []).reduce((acc: any, attr: any) => {
@@ -77,22 +87,28 @@ export const ColumnsBlockRenderer: React.FC<ColumnsBlockRendererProps> = (props)
                 return React.createElement(HtmlTag, {
                         key: column.id,
                         id: columnSettings.cssId,
-                        className: cn(animationClass, responsiveClasses, columnSettings.cssClasses),
+                        className: cn("relative", animationClass, responsiveClasses, columnSettings.cssClasses),
                         style: columnStyle,
                         ...customAttributes,
                         onClick: isEditable ? (e: React.MouseEvent) => { e.stopPropagation(); onBlockClick?.(column.id); } : undefined,
                     }, 
-                    <Canvas
-                        layout={column.children || []}
-                        droppableId={column.id}
-                        products={products}
-                        selectedBlockId={selectedBlockId}
-                        onBlockClick={onBlockClick}
-                        onRemoveBlock={onRemoveBlock}
-                        isNested={true}
-                        shopSlug={shopSlug}
-                        isEditable={isEditable}
-                    />
+                    <>
+                        {columnSettings.backgroundType === 'video' && columnSettings.backgroundVideoUrl && (
+                            <video src={columnSettings.backgroundVideoUrl} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover -z-10" />
+                        )}
+                        {columnSettings.backgroundOverlay?.type === 'classic' && <div className="absolute inset-0 -z-10" style={{ backgroundColor: columnSettings.backgroundOverlay.color, opacity: columnSettings.backgroundOverlay.opacity || 0.5}} />}
+                        <Canvas
+                            layout={column.children || []}
+                            droppableId={column.id}
+                            products={products}
+                            selectedBlockId={selectedBlockId}
+                            onBlockClick={onBlockClick}
+                            onRemoveBlock={onRemoveBlock}
+                            isNested={true}
+                            shopSlug={shopSlug}
+                            isEditable={isEditable}
+                        />
+                    </>
                 );
             })}
         </div>
