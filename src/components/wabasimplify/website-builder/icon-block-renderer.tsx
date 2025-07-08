@@ -13,18 +13,25 @@ interface IconBlockRendererProps {
 export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }) => {
     const {
         icon = 'Star', link, view = 'none', shape = 'circle', align = 'center',
-        size = 48, color, hoverColor, rotate,
-        viewBackgroundColor, viewBorderWidth, viewBorderColor, viewPadding, viewBorderRadius,
+        size = 48, color, hoverColor, rotate, flipHorizontal, flipVertical,
+        viewBackgroundColor, viewBorderWidth, viewBorderColor, viewPadding,
         viewHoverBackgroundColor, viewHoverBorderColor,
-        hoverAnimation, transitionDuration = 0.3,
-        margin, cssId, cssClasses, customCss, customAttributes, responsiveVisibility, animation
+        hoverAnimation, transitionDuration = 0.3, border, boxShadow,
+        margin, padding, zIndex, cssId, cssClasses, customCss, customAttributes, responsiveVisibility, animation, animationDuration, animationDelay,
+        tabletAlign, mobileAlign, filter, hoverFilter
     } = settings;
 
     // @ts-ignore
     const IconComponent = LucideIcons[icon] || LucideIcons.Star;
+    const Tag = link ? 'a' : (settings.htmlTag || 'div');
 
     const uniqueId = cssId || React.useId().replace(/:/g, "");
 
+    const getFilterString = (filterObj: any) => {
+        if (!filterObj) return 'none';
+        return `blur(${filterObj.blur || 0}px) brightness(${filterObj.brightness || 100}%) contrast(${filterObj.contrast || 100}%) saturate(${filterObj.saturate || 100}%) hue-rotate(${filterObj.hue || 0}deg)`;
+    };
+    
     const customStyleTag = (
         <style>{`
             #${uniqueId}:hover .icon-component {
@@ -33,6 +40,12 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
             #${uniqueId}:hover .view-wrapper {
                 background-color: ${viewHoverBackgroundColor || viewBackgroundColor};
                 border-color: ${viewHoverBorderColor || viewBorderColor};
+            }
+            #${uniqueId} .icon-component {
+                filter: ${getFilterString(filter)};
+            }
+            #${uniqueId}:hover .icon-component {
+                filter: ${getFilterString(hoverFilter)};
             }
             ${customCss || ''}
         `}</style>
@@ -44,11 +57,19 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
         'max-sm:hidden': responsiveVisibility?.mobile === false,
     });
     
-    const animationClass = {
+    const animationClasses = {
         fadeIn: 'animate-in fade-in',
         fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5',
         zoomIn: 'animate-in zoom-in-75',
+        bounce: 'animate-bounce',
+        none: '',
     }[animation || 'none'];
+    
+    const animationDurationClasses = {
+        slow: 'duration-1000',
+        normal: 'duration-500',
+        fast: 'duration-300',
+    }[animationDuration || 'normal'];
 
     const hoverAnimationClass = {
         grow: 'group-hover:scale-110',
@@ -58,21 +79,40 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
         wobbleHorizontal: 'hover:animate-wobble-horizontal',
         rotate: 'group-hover:rotate-180',
     }[hoverAnimation || 'none'];
-    
+
     const wrapperStyle: React.CSSProperties = {
         display: 'flex',
         justifyContent: align,
         margin: margin ? `${margin.top || 0}px ${margin.right || 0}px ${margin.bottom || 0}px ${margin.left || 0}px` : undefined,
+        padding: padding ? `${padding.top || 0}px ${padding.right || 0}px ${padding.bottom || 0}px ${padding.left || 0}px` : undefined,
+        zIndex: zIndex || undefined,
+        animationDelay: animationDelay ? `${animationDelay}ms` : undefined,
     };
     
+    const responsiveAlignmentClasses = cn({
+        'justify-start': align === 'left',
+        'justify-center': align === 'center',
+        'justify-right': align === 'right',
+        'md:justify-start': tabletAlign === 'left',
+        'md:justify-center': tabletAlign === 'center',
+        'md:justify-right': tabletAlign === 'right',
+        'sm:justify-start': mobileAlign === 'left',
+        'sm:justify-center': mobileAlign === 'center',
+        'sm:justify-right': mobileAlign === 'right',
+    });
+
     const viewStyle: React.CSSProperties = {
         display: 'inline-flex',
         padding: view !== 'none' ? `${viewPadding || 16}px` : undefined,
         backgroundColor: view !== 'none' ? viewBackgroundColor : undefined,
-        borderWidth: view === 'framed' ? `${viewBorderWidth || 2}px` : undefined,
-        borderStyle: view === 'framed' ? 'solid' : undefined,
+        borderStyle: view === 'framed' && border?.type !== 'none' ? (border?.type || 'solid') : undefined,
         borderColor: view === 'framed' ? viewBorderColor : undefined,
-        borderRadius: view !== 'none' ? (shape === 'circle' ? '50%' : `${viewBorderRadius || 0}%`) : undefined,
+        borderTopWidth: view === 'framed' ? `${border?.width?.top || 0}px` : undefined,
+        borderRightWidth: view === 'framed' ? `${border?.width?.right || 0}px` : undefined,
+        borderBottomWidth: view === 'framed' ? `${border?.width?.bottom || 0}px` : undefined,
+        borderLeftWidth: view === 'framed' ? `${border?.width?.left || 0}px` : undefined,
+        borderRadius: view !== 'none' ? (shape === 'circle' ? '50%' : `${border?.radius?.tl || 0}px ${border?.radius?.tr || 0}px ${border?.radius?.br || 0}px ${border?.radius?.bl || 0}px`) : undefined,
+        boxShadow: { sm: 'var(--tw-shadow)', md: 'var(--tw-shadow-md)', lg: 'var(--tw-shadow-lg)' }[boxShadow || 'none'],
         transition: `all ${transitionDuration}s ease-in-out`
     };
 
@@ -80,7 +120,7 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
         width: `${size}px`,
         height: `${size}px`,
         color: color || '#000000',
-        transform: rotate ? `rotate(${rotate}deg)` : undefined,
+        transform: `rotate(${rotate || 0}deg) scaleX(${flipHorizontal ? -1 : 1}) scaleY(${flipVertical ? -1 : 1})`,
         transition: `all ${transitionDuration}s ease-in-out`
     };
 
@@ -101,14 +141,15 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
       ...(settings.linkNofollow && { rel: (settings.linkNewWindow ? 'noopener noreferrer ' : '') + 'nofollow' }),
     };
 
-    const Tag = link ? 'a' : 'div';
-
-    return (
-        <div className={cn('relative group/icon', responsiveClasses, animationClass, cssClasses)} style={wrapperStyle} id={uniqueId} {...customAttrs}>
-            {customStyleTag}
-            <Tag {...(link ? linkProps : {})}>
-                {iconElement}
-            </Tag>
-        </div>
+    return React.createElement(Tag, {
+            id: uniqueId,
+            className: cn('relative group/icon flex', responsiveClasses, animationClasses, animationDurationClasses, responsiveAlignmentClasses, cssClasses),
+            style: wrapperStyle,
+            ...customAttrs,
+            ...(Tag === 'a' && linkProps)
+        },
+        customStyleTag,
+        iconElement
     );
 };
+
