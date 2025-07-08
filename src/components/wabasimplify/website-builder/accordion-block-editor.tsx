@@ -9,6 +9,7 @@ import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Separator } from '@/components/ui/separator';
 
 type AccordionItemData = {
   id: string;
@@ -51,7 +52,7 @@ export function AccordionBlockEditor({ settings, onUpdate }: { settings: any, on
 
     return (
         <div className="space-y-4">
-            <Accordion type="multiple" className="w-full" defaultValue={['items', 'settings']}>
+            <Accordion type="multiple" className="w-full" defaultValue={['items', 'settings', 'style_box', 'style_title', 'style_content', 'advanced_spacing']}>
                 <AccordionItem value="items">
                     <AccordionTrigger>Accordion Items</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
@@ -72,73 +73,52 @@ export function AccordionBlockEditor({ settings, onUpdate }: { settings: any, on
                     <AccordionTrigger>Settings</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
-                            <Label>Behavior</Label>
+                            <Label>Toggle Behavior</Label>
                             <Select value={settings.behavior || 'single'} onValueChange={(val) => handleUpdate('behavior', val)}>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="single">Single (Only one open at a time)</SelectItem>
-                                    <SelectItem value="multiple">Multiple (Allow several open)</SelectItem>
+                                    <SelectItem value="single">Accordion (One open at a time)</SelectItem>
+                                    <SelectItem value="multiple">Toggle (Multiple open)</SelectItem>
                                 </SelectContent>
                             </Select>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Background Color</Label>
-                            <Input type="color" value={settings.backgroundColor || '#FFFFFF'} onChange={(e) => handleUpdate('backgroundColor', e.target.value)} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Border</Label>
-                            <div className="grid grid-cols-3 gap-2">
-                                <Input type="number" placeholder="Width (px)" value={settings.border?.width || '1'} onChange={(e) => handleSubFieldUpdate('border', 'width', e.target.value)} />
-                                <Input type="color" value={settings.border?.color || '#e5e7eb'} onChange={(e) => handleSubFieldUpdate('border', 'color', e.target.value)} />
-                                <Select value={settings.border?.style || 'solid'} onValueChange={(val) => handleSubFieldUpdate('border', 'style', val)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="solid">Solid</SelectItem>
-                                        <SelectItem value="dashed">Dashed</SelectItem>
-                                        <SelectItem value="dotted">Dotted</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
                         </div>
                     </AccordionContent>
                 </AccordionItem>
-                 <AccordionItem value="layout">
-                    <AccordionTrigger>Sizing &amp; Layout</AccordionTrigger>
+                <AccordionItem value="style_box">
+                    <AccordionTrigger>Accordion Box Style</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Width</Label>
-                                <Input value={settings.layout?.width || '100%'} onChange={e => handleSubFieldUpdate('layout', 'width', e.target.value)} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Height</Label>
-                                <Input value={settings.layout?.height || 'auto'} onChange={e => handleSubFieldUpdate('layout', 'height', e.target.value)} />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Max Width</Label>
-                                <Input value={settings.layout?.maxWidth || ''} placeholder="e.g. 1200px" onChange={e => handleSubFieldUpdate('layout', 'maxWidth', e.target.value)} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Min Height</Label>
-                                <Input value={settings.layout?.minHeight || ''} placeholder="e.g. 200px" onChange={e => handleSubFieldUpdate('layout', 'minHeight', e.target.value)} />
-                            </div>
-                        </div>
-                        <div className="space-y-2">
-                            <Label>Overflow</Label>
-                            <Select value={settings.layout?.overflow || 'visible'} onValueChange={(val) => handleSubFieldUpdate('layout', 'overflow', val)}>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="visible">Visible</SelectItem>
-                                    <SelectItem value="hidden">Hidden</SelectItem>
-                                    <SelectItem value="scroll">Scroll</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+                        <div className="space-y-2"><Label>Space Between (px)</Label><Input type="number" placeholder="10" value={settings.spaceBetween || ''} onChange={e => handleUpdate('spaceBetween', e.target.value)} /></div>
+                        <div className="space-y-2"><Label>Border Type</Label><Select value={settings.border?.type || 'solid'} onValueChange={(val) => handleSubFieldUpdate('border', 'type', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="solid">Solid</SelectItem><SelectItem value="dashed">Dashed</SelectItem><SelectItem value="dotted">Dotted</SelectItem></SelectContent></Select></div>
+                        <div className="space-y-2"><Label>Border Width (px)</Label><Input type="number" placeholder="1" value={settings.border?.width ?? ''} onChange={e => handleSubFieldUpdate('border', 'width', e.target.value)} /></div>
+                        <div className="space-y-2"><Label>Border Color</Label><Input type="color" value={settings.border?.color || '#e5e7eb'} onChange={e => handleSubFieldUpdate('border', 'color', e.target.value)} /></div>
+                        <div className="space-y-2"><Label>Border Radius (px)</Label><Input type="number" placeholder="8" value={settings.border?.radius ?? ''} onChange={e => handleSubFieldUpdate('border', 'radius', e.target.value)} /></div>
+                        <div className="space-y-2"><Label>Box Shadow</Label><Select value={settings.boxShadow || 'none'} onValueChange={v => handleUpdate('boxShadow', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="sm">Small</SelectItem><SelectItem value="md">Medium</SelectItem><SelectItem value="lg">Large</SelectItem></SelectContent></Select></div>
+                    </AccordionContent>
+                </AccordionItem>
+                 <AccordionItem value="style_title">
+                    <AccordionTrigger>Title Style</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
+                        <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Background</Label><Input type="color" value={settings.titleBgColor || '#FFFFFF'} onChange={e => handleUpdate('titleBgColor', e.target.value)} /></div><div className="space-y-2"><Label>Text Color</Label><Input type="color" value={settings.titleColor || '#000000'} onChange={e => handleUpdate('titleColor', e.target.value)} /></div></div>
+                        <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Active BG</Label><Input type="color" value={settings.activeTitleBgColor || '#F9FAFB'} onChange={e => handleUpdate('activeTitleBgColor', e.target.value)} /></div><div className="space-y-2"><Label>Active Text</Label><Input type="color" value={settings.activeTitleColor || '#000000'} onChange={e => handleUpdate('activeTitleColor', e.target.value)} /></div></div>
+                        <div className="space-y-2"><Label>Padding (px)</Label><Input type="number" placeholder="16" value={settings.titlePadding || ''} onChange={e => handleUpdate('titlePadding', e.target.value)} /></div>
+                    </AccordionContent>
+                </AccordionItem>
+                 <AccordionItem value="style_content">
+                    <AccordionTrigger>Content Style</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
+                        <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Background</Label><Input type="color" value={settings.contentBgColor || '#FFFFFF'} onChange={e => handleUpdate('contentBgColor', e.target.value)} /></div><div className="space-y-2"><Label>Text Color</Label><Input type="color" value={settings.contentColor || '#333333'} onChange={e => handleUpdate('contentColor', e.target.value)} /></div></div>
+                        <div className="space-y-2"><Label>Padding (px)</Label><Input type="number" placeholder="16" value={settings.contentPadding || ''} onChange={e => handleUpdate('contentPadding', e.target.value)} /></div>
+                    </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="advanced_spacing">
+                    <AccordionTrigger>Advanced Spacing</AccordionTrigger>
+                    <AccordionContent className="space-y-4 pt-2">
+                         <div className="space-y-2"><Label>Margin (Top, Bottom) in px</Label><div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Top" value={settings.margin?.top ?? ''} onChange={(e) => handleSubFieldUpdate('margin', 'top', e.target.value, true)} /><Input type="number" placeholder="Bottom" value={settings.margin?.bottom ?? ''} onChange={(e) => handleSubFieldUpdate('margin', 'bottom', e.target.value, true)} /></div></div>
+                         <div className="space-y-2"><Label>Padding (Top, Bottom) in px</Label><div className="grid grid-cols-2 gap-2"><Input type="number" placeholder="Top" value={settings.padding?.top ?? ''} onChange={(e) => handleSubFieldUpdate('padding', 'top', e.target.value, true)} /><Input type="number" placeholder="Bottom" value={settings.padding?.bottom ?? ''} onChange={(e) => handleSubFieldUpdate('padding', 'bottom', e.target.value, true)} /></div></div>
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>
         </div>
     );
 }
+
