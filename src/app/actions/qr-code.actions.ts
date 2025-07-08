@@ -1,6 +1,5 @@
 
-
-'use server';
+'use client';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
@@ -8,6 +7,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
 import { createShortUrl } from './url-shortener.actions';
 import type { QrCode, QrCodeWithShortUrl } from '@/lib/definitions';
+import { nanoid } from 'nanoid';
 
 
 export async function createQrCode(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
@@ -19,7 +19,21 @@ export async function createQrCode(prevState: any, formData: FormData): Promise<
         
         const isDynamic = formData.get('isDynamic') === 'on';
         const dataType = formData.get('dataType') as QrCode['dataType'];
+        const data = JSON.parse(formData.get('data') as string);
         const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
+
+        // --- Server-side Validation ---
+        if (dataType === 'email') {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!data.email || !emailRegex.test(data.email)) {
+                return { error: 'Invalid email address provided.' };
+            }
+            // Sanitize other fields to prevent injection
+            data.emailSubject = data.emailSubject ? data.emailSubject.toString().substring(0, 255) : '';
+            data.emailBody = data.emailBody ? data.emailBody.toString().substring(0, 2000) : '';
+        }
+        // You can add validation for other types here as needed.
+        // --- End Validation ---
 
         let shortUrlId: ObjectId | undefined = undefined;
 
@@ -52,7 +66,7 @@ export async function createQrCode(prevState: any, formData: FormData): Promise<
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             dataType,
-            data: JSON.parse(formData.get('data') as string),
+            data: data,
             config: JSON.parse(formData.get('config') as string),
             tagIds,
             ...(shortUrlId && { shortUrlId }),
