@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type BusinessCapabilities = {
@@ -1098,3 +1097,6 @@ export type Backlink = {
     linkType: 'News' | 'Forum' | 'Blog' | 'Review';
 };
 
+
+
+    
