@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -425,7 +426,7 @@ async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithI
         const getVars = (text: string): number[] => {
             if (!text) return [];
             const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
-            return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
+            return variableMatches ? [...new Set(matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
         };
 
         const payloadComponents: any[] = [];
@@ -1181,11 +1182,21 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
             if (newStatus === 'FAILED' && currentStatus !== 'FAILED') {
                 const error = status.errors?.[0] || { title: 'Unknown Failure', code: 'N/A' };
                 const errorString = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
-                broadcastContactOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: 'FAILED', error: errorString } } });
+                broadcastContactOps.push({
+                    updateOne: {
+                        filter: { _id: contact._id },
+                        update: { $set: { status: 'FAILED', error: errorString } }
+                    }
+                });
                 broadcastCounterUpdates[broadcastIdStr].success -= 1;
                 broadcastCounterUpdates[broadcastIdStr].failed += 1;
             } else if (statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
-                broadcastContactOps.push({ updateOne: { filter: { _id: contact._id }, update: { $set: { status: newStatus } } });
+                broadcastContactOps.push({
+                    updateOne: {
+                        filter: { _id: contact._id },
+                        update: { $set: { status: newStatus } }
+                    }
+                });
                 if (newStatus === 'DELIVERED') broadcastCounterUpdates[broadcastIdStr].delivered += 1;
                 if (newStatus === 'READ') broadcastCounterUpdates[broadcastIdStr].read += 1;
             }
@@ -1648,5 +1659,3 @@ async function executeEcommNode(db: Db, project: WithId<Project>, contact: WithI
         return 'finished';
     }
 }
-
-    

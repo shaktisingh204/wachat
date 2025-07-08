@@ -1,5 +1,4 @@
 
-'use client';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, type WithId } from 'mongodb';
