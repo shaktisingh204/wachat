@@ -78,7 +78,7 @@ export function CreateCatalogDialog({ projectId, onCatalogCreated }: CreateCatal
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="catalogName">Catalog Name</Label>
-              <Input id="catalogName" name="catalogName" placeholder="e.g., My Online Store" required />
+              <Input id="catalogName" name="catalogName" placeholder="e.g., My Online Store" required maxLength={100} />
             </div>
           </div>
           <DialogFooter>
