@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { verifyAdminJwtForMiddleware, verifyJwtForMiddleware } from './lib/auth';
+import { verifyAdminJwtForMiddleware, verifyJwtForMiddleware } from './lib/jwt';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -12,8 +12,11 @@ export async function middleware(request: NextRequest) {
   const isDashboard = pathname.startsWith('/dashboard');
   const isAdminDashboard = pathname.startsWith('/admin/dashboard');
 
-  const sessionValid = sessionToken ? await verifyJwtForMiddleware(sessionToken) : false;
-  const adminSessionValid = adminSessionToken ? await verifyAdminJwtForMiddleware(adminSessionToken) : false;
+  const sessionPayload = sessionToken ? await verifyJwtForMiddleware(sessionToken) : null;
+  const adminSessionPayload = adminSessionToken ? await verifyAdminJwtForMiddleware(adminSessionToken) : null;
+  
+  const sessionValid = !!sessionPayload;
+  const adminSessionValid = !!adminSessionPayload;
 
   if (isAdminDashboard && !adminSessionValid) {
     return NextResponse.redirect(new URL('/admin-login', request.url));

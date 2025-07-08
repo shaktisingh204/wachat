@@ -1,17 +1,10 @@
 
 import bcrypt from 'bcryptjs';
-import { SignJWT, jwtVerify } from 'jose';
-import { nanoid } from 'nanoid';
+import { decodeJwt } from 'jose';
 import { connectToDatabase } from './mongodb';
-
-function getJwtSecretKey(): Uint8Array {
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-        console.error("CRITICAL: JWT_SECRET environment variable is not set.");
-        throw new Error('JWT_SECRET is not defined in the environment variables.');
-    }
-    return new TextEncoder().encode(secret);
-}
+export { createSessionToken, createAdminSessionToken } from './jwt'; // re-export
+import { verifyJwtForMiddleware, verifyAdminJwtForMiddleware } from './jwt';
+import type { SessionPayload, AdminSessionPayload } from './definitions';
 
 const SALT_ROUNDS = 10;
 
@@ -23,23 +16,6 @@ export async function comparePassword(password: string, hash: string): Promise<b
     return await bcrypt.compare(password, hash);
 }
 
-export interface SessionPayload {
-    userId: string;
-    email: string;
-    jti: string; // JWT ID
-    expires: number;
-}
-
-export async function createSessionToken(payload: Omit<SessionPayload, 'expires' | 'jti'>): Promise<string> {
-    const jti = nanoid();
-    return new SignJWT({ ...payload })
-        .setProtectedHeader({ alg: 'HS256' })
-        .setJti(jti)
-        .setIssuedAt()
-        .setExpirationTime('7d')
-        .sign(getJwtSecretKey());
-}
-
 async function isTokenRevoked(jti: string): Promise<boolean> {
     try {
         const { db } = await connectToDatabase();
@@ -47,103 +23,40 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
         return !!revokedToken;
     } catch (error) {
         console.error("Error checking for revoked token:", error);
-        // Fail safe: if DB check fails, treat token as potentially revoked.
         return true; 
     }
 }
 
 // Full verification for server components (with DB access)
 export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
-    try {
-        const { payload } = await jwtVerify(token, getJwtSecretKey(), {
-            algorithms: ['HS256']
-        });
-        
-        if (!payload.jti || !payload.exp) {
-            return null;
-        }
-        
-        if (await isTokenRevoked(payload.jti)) {
-            console.warn(`Attempted to use a revoked token: ${payload.jti}`);
-            return null;
-        }
-
-        return {
-            userId: payload.userId as string,
-            email: payload.email as string,
-            jti: payload.jti,
-            expires: payload.exp * 1000,
-        };
-    } catch (error) {
-        // Log the error for debugging but don't expose details
-        console.error("JWT verification failed:", (error as Error).message);
+    // First, verify the signature and expiry using the edge-compatible function
+    const payload = await verifyJwtForMiddleware(token);
+    if (!payload) {
         return null;
     }
-}
-
-// Lightweight verification for middleware (edge-compatible)
-export async function verifyJwtForMiddleware(token: string): Promise<boolean> {
-    try {
-        await jwtVerify(token, getJwtSecretKey(), { algorithms: ['HS256'] });
-        return true;
-    } catch (error) {
-        return false;
+    
+    // Then, check against the database for revocation
+    if (await isTokenRevoked(payload.jti)) {
+        console.warn(`Attempted to use a revoked token: ${payload.jti}`);
+        return null;
     }
-}
 
-// --- Admin Session ---
-
-export interface AdminSessionPayload {
-    role: 'admin';
-    loggedInAt: number;
-    jti: string;
-    expires: number;
-}
-
-export async function createAdminSessionToken(): Promise<string> {
-    const jti = nanoid();
-    return new SignJWT({ role: 'admin', loggedInAt: Date.now() })
-        .setProtectedHeader({ alg: 'HS256' })
-        .setJti(jti)
-        .setIssuedAt()
-        .setExpirationTime('1d')
-        .sign(getJwtSecretKey());
+    return payload;
 }
 
 // Full admin verification for server components (with DB access)
 export async function verifyAdminSessionToken(token: string): Promise<AdminSessionPayload | null> {
-    try {
-        const { payload } = await jwtVerify(token, getJwtSecretKey(), {
-            algorithms: ['HS256']
-        });
-        
-        if (!payload.jti || !payload.exp || payload.role !== 'admin') {
-            return null;
-        }
-        
-        if (await isTokenRevoked(payload.jti)) {
-            console.warn(`Attempted to use a revoked admin token: ${payload.jti}`);
-            return null;
-        }
-        
-        return {
-            role: 'admin',
-            loggedInAt: payload.loggedInAt as number,
-            jti: payload.jti,
-            expires: payload.exp * 1000
-        };
-    } catch (error) {
-        console.error("Admin JWT verification failed:", (error as Error).message);
+    // First, verify signature and role using edge-compatible function
+    const payload = await verifyAdminJwtForMiddleware(token);
+    if (!payload) {
         return null;
     }
-}
-
-// Lightweight admin verification for middleware (edge-compatible)
-export async function verifyAdminJwtForMiddleware(token: string): Promise<boolean> {
-     try {
-        const { payload } = await jwtVerify(token, getJwtSecretKey(), { algorithms: ['HS256'] });
-        return payload.role === 'admin';
-    } catch (error) {
-        return false;
+    
+    // Then, check revocation
+    if (await isTokenRevoked(payload.jti)) {
+        console.warn(`Attempted to use a revoked admin token: ${payload.jti}`);
+        return null;
     }
+    
+    return payload;
 }
