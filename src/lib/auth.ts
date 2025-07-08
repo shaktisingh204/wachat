@@ -52,6 +52,7 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
     }
 }
 
+// Full verification for server components (with DB access)
 export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey(), {
@@ -80,6 +81,16 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
     }
 }
 
+// Lightweight verification for middleware (edge-compatible)
+export async function verifyJwtForMiddleware(token: string): Promise<boolean> {
+    try {
+        await jwtVerify(token, getJwtSecretKey(), { algorithms: ['HS256'] });
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+
 // --- Admin Session ---
 
 export interface AdminSessionPayload {
@@ -99,13 +110,14 @@ export async function createAdminSessionToken(): Promise<string> {
         .sign(getJwtSecretKey());
 }
 
+// Full admin verification for server components (with DB access)
 export async function verifyAdminSessionToken(token: string): Promise<AdminSessionPayload | null> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey(), {
             algorithms: ['HS256']
         });
         
-        if (!payload.jti || !payload.exp) {
+        if (!payload.jti || !payload.exp || payload.role !== 'admin') {
             return null;
         }
         
@@ -113,8 +125,6 @@ export async function verifyAdminSessionToken(token: string): Promise<AdminSessi
             console.warn(`Attempted to use a revoked admin token: ${payload.jti}`);
             return null;
         }
-
-        if (payload.role !== 'admin') return null;
         
         return {
             role: 'admin',
@@ -125,5 +135,15 @@ export async function verifyAdminSessionToken(token: string): Promise<AdminSessi
     } catch (error) {
         console.error("Admin JWT verification failed:", (error as Error).message);
         return null;
+    }
+}
+
+// Lightweight admin verification for middleware (edge-compatible)
+export async function verifyAdminJwtForMiddleware(token: string): Promise<boolean> {
+     try {
+        const { payload } = await jwtVerify(token, getJwtSecretKey(), { algorithms: ['HS256'] });
+        return payload.role === 'admin';
+    } catch (error) {
+        return false;
     }
 }
