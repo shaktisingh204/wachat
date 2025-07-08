@@ -244,42 +244,43 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
       const defaultHomepageLayout: WebsiteBlock[] = [
         {
             id: uuidv4(),
-            type: "hero",
+            type: "imageCarousel",
             settings: {
-              title: "Your New Favorite Store",
-              subtitle: "Discover amazing products and deals you won't find anywhere else. Quality and style delivered to your door.",
-              buttonText: "Shop All Products",
-              buttonLink: `/shop/${shop.slug}/products`,
-              height: "60vh",
-              backgroundColor: "#e2e8f0",
-              textColor: "#1e293b",
-              buttonColor: "#000000",
-              buttonTextColor: "#FFFFFF",
-              backgroundImageUrl: "https://placehold.co/1920x1080.png",
-              "data-ai-hint": "modern storefront"
+                slidesToShow: 1,
+                autoplay: true,
+                loop: true,
+                navigation: 'dots',
+                images: [
+                    { id: uuidv4(), src: "https://placehold.co/1200x400.png", link: "#", 'data-ai-hint': "ecommerce sale banner" },
+                    { id: uuidv4(), src: "https://placehold.co/1200x400.png", link: "#", 'data-ai-hint': "product promotion" },
+                    { id: uuidv4(), src: "https://placehold.co/1200x400.png", link: "#", 'data-ai-hint': "fashion electronics" },
+                ]
+            }
+        },
+        {
+            id: uuidv4(),
+            type: "repeater",
+            settings: {
+                layout: 'grid',
+                columns: 6,
+                items: [
+                    { id: uuidv4(), imageUrl: "https://placehold.co/150x150.png", title: "Mobiles", "data-ai-hint": 'smartphone' },
+                    { id: uuidv4(), imageUrl: "https://placehold.co/150x150.png", title: "Fashion", "data-ai-hint": 'clothing model' },
+                    { id: uuidv4(), imageUrl: "https://placehold.co/150x150.png", title: "Electronics", "data-ai-hint": 'laptop' },
+                    { id: uuidv4(), imageUrl: "https://placehold.co/150x150.png", title: "Home", "data-ai-hint": 'sofa furniture' },
+                    { id: uuidv4(), imageUrl: "https://placehold.co/150x150.png", title: "Appliances", "data-ai-hint": 'refrigerator' },
+                    { id: uuidv4(), imageUrl: "https://placehold.co/150x150.png", title: "Travel", "data-ai-hint": 'airplane travel' },
+                ],
             },
         },
         {
             id: uuidv4(),
             type: "featuredProducts",
             settings: {
-                title: "Featured Products",
-                subtitle: "Check out our hand-picked selection of best-selling items.",
-                columns: '3',
+                title: "Deals of the Day",
+                columns: '4',
                 productIds: [],
                 showViewAllButton: true,
-            }
-        },
-         {
-            id: uuidv4(),
-            type: "testimonials",
-            settings: {
-                title: "What Our Customers Say",
-                testimonials: [
-                    { id: uuidv4(), quote: "This is the best store ever! The quality is amazing and the shipping was so fast. Highly recommended.", author: "Jane Doe", title: "Happy Customer", avatar: "https://placehold.co/100x100.png" },
-                    { id: uuidv4(), quote: "I'm in love with the products. I will definitely be back for more. The customer service was also top-notch.", author: "John Smith", title: "Loyal Shopper", avatar: "https://placehold.co/100x100.png" },
-                    { id: uuidv4(), quote: "A fantastic experience from start to finish. The website is easy to use and my order arrived perfectly.", author: "Sam Wilson", title: "First-time Buyer", avatar: "https://placehold.co/100x100.png" },
-                ]
             }
         },
     ];
@@ -289,25 +290,36 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
             id: uuidv4(),
             type: 'section',
             settings: {
-                width: 'boxed',
-                padding: { top: '16', bottom: '16', left: '16', right: '16' },
-                border: { width: { bottom: '1' }, type: 'solid', color: '#e5e7eb' },
+                width: 'full',
+                padding: { top: '12', bottom: '12', left: '24', right: '24' },
+                backgroundColor: 'hsl(var(--primary))',
                 sticky: 'top',
-                backgroundColor: '#ffffff'
             },
             children: [{
                 id: uuidv4(),
                 type: 'columns',
-                settings: { columnCount: 2, stackOnMobile: false },
+                settings: { columnCount: 3, verticalAlign: 'center', gap: 24, columns: [ { width: '20%' }, { width: '50%' }, { width: '30%' } ] },
                 children: [
                     {
                         id: uuidv4(),
                         type: 'column',
-                        settings: { verticalAlign: 'center'},
                         children: [{
                             id: uuidv4(),
                             type: 'heading',
-                            settings: { text: shop.name, htmlTag: 'h3', link: `/shop/${shop.slug}`, color: '#000000' }
+                            settings: { text: shop.name, htmlTag: 'h1', link: `/shop/${shop.slug}`, color: '#FFFFFF', size: 'text-2xl', fontFamily: "'Roboto', sans-serif" }
+                        }]
+                    },
+                    {
+                        id: uuidv4(),
+                        type: 'column',
+                        children: [{
+                            id: uuidv4(),
+                            type: 'form',
+                            settings: {
+                                fields: [{ id: uuidv4(), type: 'text', placeholder: 'Search for products, brands and more', fieldId: 'search' }],
+                                submitButtonText: 'Search',
+                                buttonIcon: 'Search'
+                            }
                         }]
                     },
                     {
@@ -317,7 +329,7 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                         children: [{
                             id: uuidv4(),
                             type: 'button',
-                            settings: { text: 'Cart', link: `/shop/${shop.slug}/cart`, size: 'sm', variant: 'outline', icon: 'ShoppingCart' }
+                            settings: { text: 'Cart', link: `/shop/${shop.slug}/cart`, size: 'default', variant: 'secondary', icon: 'ShoppingCart' }
                         }]
                     }
                 ]
@@ -330,10 +342,9 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
             id: uuidv4(),
             type: 'section',
             settings: {
-                padding: { top: '64', bottom: '32', left: '16', right: '16' },
+                padding: { top: '48', bottom: '48', left: '16', right: '16' },
                 width: 'full',
-                backgroundType: 'classic',
-                backgroundColor: '#11182c'
+                backgroundColor: '#212529'
             },
             children: [
               {
@@ -341,14 +352,14 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                 type: 'columns',
                 settings: { columnCount: 4, gap: 32 },
                 children: [
-                  { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'heading', settings: { text: 'About Us', htmlTag: 'h4', color: '#ffffff' } }, { id: uuidv4(), type: 'richText', settings: { htmlContent: '<p class="text-gray-400">Bringing you the latest trends with quality you can trust.</p>', color: '#9ca3af' } }] },
-                  { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'heading', settings: { text: 'Quick Links', htmlTag: 'h4', color: '#ffffff' } }, { id: uuidv4(), type: 'richText', settings: { htmlContent: '<ul><li><a href="#" class="text-gray-400 hover:text-white">Home</a></li><li><a href="#" class="text-gray-400 hover:text-white">Shop</a></li><li><a href="#" class="text-gray-400 hover:text-white">About</a></li></ul>' } }] },
-                  { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'heading', settings: { text: 'Support', htmlTag: 'h4', color: '#ffffff' } }, { id: uuidv4(), type: 'richText', settings: { htmlContent: '<ul><li><a href="#" class="text-gray-400 hover:text-white">FAQ</a></li><li><a href="#" class="text-gray-400 hover:text-white">Contact</a></li><li><a href="#" class="text-gray-400 hover:text-white">Shipping</a></li></ul>' } }] },
-                  { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'heading', settings: { text: 'Newsletter', htmlTag: 'h4', color: '#ffffff' } }, { id: uuidv4(), type: 'richText', settings: { htmlContent: '<p class="text-gray-400">Subscribe for the latest deals.</p>' } }, { id: uuidv4(), type: 'form', settings: { fields: [{id: uuidv4(), type: 'email', label: ''}], submitButtonText: 'Subscribe' } }] },
+                  { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'richText', settings: { htmlContent: '<h4 style="color: white; margin-bottom: 1rem;">ABOUT</h4><ul style="list-style: none; padding: 0; color: #adb5bd;"><li><a href="#">Contact Us</a></li><li><a href="#">About Us</a></li></ul>' } }] },
+                  { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'richText', settings: { htmlContent: '<h4 style="color: white; margin-bottom: 1rem;">HELP</h4><ul style="list-style: none; padding: 0; color: #adb5bd;"><li><a href="#">Payments</a></li><li><a href="#">Shipping</a></li></ul>' } }] },
+                  { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'richText', settings: { htmlContent: '<h4 style="color: white; margin-bottom: 1rem;">POLICY</h4><ul style="list-style: none; padding: 0; color: #adb5bd;"><li><a href="#">Return Policy</a></li><li><a href="#">Terms Of Use</a></li></ul>' } }] },
+                  { id: uuidv4(), type: 'column', children: [{ id: uuidv4(), type: 'richText', settings: { htmlContent: '<h4 style="color: white; margin-bottom: 1rem;">SOCIAL</h4><ul style="list-style: none; padding: 0; color: #adb5bd;"><li><a href="#">Facebook</a></li><li><a href="#">Twitter</a></li></ul>' } }] },
                 ]
               },
-              { id: uuidv4(), type: 'spacer', settings: { type: 'divider', color: '#4b5563', margin: {top: 32, bottom: 32}} },
-              { id: uuidv4(), type: 'richText', settings: { htmlContent: `<p class="text-center text-gray-500 text-sm">© ${new Date().getFullYear()} SabNode Shops. All Rights Reserved.</p>` } }
+              { id: uuidv4(), type: 'spacer', settings: { type: 'divider', color: '#495057', margin: {top: 48, bottom: 24}} },
+              { id: uuidv4(), type: 'richText', settings: { htmlContent: `<p style="color: #6c757d; font-size: 0.875rem; text-align: center;">© ${new Date().getFullYear()} SabNode Shops. All Rights Reserved.</p>` } }
             ]
           }
       ];
@@ -426,7 +437,7 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
 
         revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
         revalidatePath(`/shop/${shop.slug}`);
-        return { message: 'Default shopping theme applied successfully! You can now customize it in the Website Builder.' };
+        return { message: 'Flipkart-style theme applied successfully! You can now customize it in the Website Builder.' };
     } catch (e: any) {
         return { error: 'Failed to apply theme.' };
     }
