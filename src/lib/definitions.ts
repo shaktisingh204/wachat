@@ -134,18 +134,18 @@ export type AbandonedCartSettings = {
 
 export type FormField = {
   id: string;
-  type: 'text' | 'email' | 'textarea' | 'url' | 'tel' | 'radio' | 'checkbox' | 'select' | 'number' | 'date' | 'time' | 'file' | 'password' | 'hidden' | 'html';
+  type: 'text' | 'email' | 'textarea' | 'url' | 'tel' | 'radio' | 'checkbox' | 'select' | 'number' | 'date' | 'time' | 'file' | 'password' | 'hidden' | 'html' | 'acceptance';
   label: string;
   placeholder?: string;
   required?: boolean;
   defaultValue?: string;
-  options?: string;
   columnWidth?: string;
   fieldId?: string;
   labelPosition?: 'above' | 'inline' | 'hidden';
   description?: string;
   size?: 'sm' | 'md' | 'lg';
   multiple?: boolean;
+  options?: string;
   maxFileSize?: number;
   allowedFileTypes?: string;
   htmlContent?: string;
