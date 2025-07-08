@@ -1,10 +1,9 @@
 
+
 'use client';
 
 import React from 'react';
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import * as LucideIcons from 'lucide-react';
@@ -27,61 +26,12 @@ import { HeadingBlock } from './heading-block-renderer';
 import { RichTextBlockRenderer } from './rich-text-block-renderer';
 import { ImageBlockRenderer } from './image-block-renderer';
 import { VideoBlockRenderer } from './video-block-renderer';
+import { ButtonBlockRenderer } from './button-block-renderer';
 
 
 const CustomHtmlBlock = ({ settings }: { settings: any }) => (
     <div dangerouslySetInnerHTML={{ __html: settings.html || '' }} />
 );
-
-const ButtonBlock = ({ settings }: { settings: any }) => {
-    // @ts-ignore
-    const Icon = LucideIcons[settings.icon] || null;
-
-    const buttonStyle: React.CSSProperties = {
-        fontFamily: settings.fontFamily || 'inherit',
-        fontSize: settings.fontSize ? `${settings.fontSize}px` : undefined,
-        fontWeight: settings.fontWeight || 'normal',
-        fontStyle: settings.fontStyle || 'normal',
-        backgroundColor: settings.backgroundColor || undefined,
-        color: settings.textColor || undefined,
-        paddingTop: settings.padding?.y ? `${settings.padding.y}px` : undefined,
-        paddingBottom: settings.padding?.y ? `${settings.padding.y}px` : undefined,
-        paddingLeft: settings.padding?.x ? `${settings.padding.x}px` : undefined,
-        paddingRight: settings.padding?.x ? `${settings.padding.x}px` : undefined,
-        borderWidth: settings.border?.width ? `${settings.border.width}px` : undefined,
-        borderColor: settings.border?.color || undefined,
-        borderStyle: 'solid',
-    };
-
-    const shapeClasses = {
-        square: 'rounded-none',
-        rounded: 'rounded-md',
-        pill: 'rounded-full',
-    }[settings.shape || 'rounded'];
-
-    const hoverClasses = {
-        scale: 'hover:scale-105',
-        colorSwap: `hover:bg-[${settings.hoverBackgroundColor}] hover:text-[${settings.hoverTextColor}]`,
-    }[settings.hoverEffect || 'scale'];
-
-    return React.createElement(Button, {
-        asChild: !!settings.link,
-        style: buttonStyle,
-        className: cn(shapeClasses, hoverClasses, "transition-transform duration-300")
-    }, settings.link ? (
-        <a href={settings.link}>
-            {Icon && settings.iconPosition === 'left' && React.createElement(Icon, { className: "mr-2 h-4 w-4" })}
-            {settings.text || 'Button'}
-            {Icon && settings.iconPosition === 'right' && React.createElement(Icon, { className: "ml-2 h-4 w-4" })}
-        </a>
-    ) : (
-        <>
-            {Icon && settings.iconPosition === 'left' && React.createElement(Icon, { className: "mr-2 h-4 w-4" })}
-            {settings.text || 'Button'}
-            {Icon && settings.iconPosition === 'right' && React.createElement(Icon, { className: "ml-2 h-4 w-4" })}
-        </>
-    ));
-};
 
 const IconBlock = ({ settings }: { settings: any }) => {
     // @ts-ignore
@@ -136,7 +86,7 @@ const SpacerBlock = ({ settings }: { settings: any }) => {
     
     const responsiveClasses = cn({
         'max-lg:hidden': settings.responsiveVisibility?.desktop === false,
-        'max-md:hidden lg:hidden': settings.responsiveVisibility?.tablet === false,
+        'hidden md:max-lg:flex': settings.responsiveVisibility?.tablet === false,
         'max-sm:hidden': settings.responsiveVisibility?.mobile === false,
     });
     
@@ -236,7 +186,7 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
         case 'customHtml': return <CustomHtmlBlock settings={safeSettings} />;
         case 'heading': return <HeadingBlock settings={safeSettings} />;
         case 'image': return <ImageBlockRenderer settings={safeSettings} />;
-        case 'button': return <ButtonBlock settings={safeSettings} />;
+        case 'button': return <ButtonBlockRenderer settings={safeSettings} />;
         case 'video': return <VideoBlockRenderer settings={safeSettings} />;
         case 'icon': return <IconBlock settings={safeSettings} />;
         case 'spacer': return <SpacerBlock settings={safeSettings} />;
