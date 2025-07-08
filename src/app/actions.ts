@@ -2471,10 +2471,17 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
     if (!email || !password) {
         return { error: 'Email and password are required.' };
     }
+    
+    // Basic email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+        return { error: 'Please enter a valid email address.' };
+    }
+
 
     try {
         const { db } = await connectToDatabase();
-        const user = await db.collection<User>('users').findOne({ email });
+        const user = await db.collection<User>('users').findOne({ email: email.toLowerCase() });
 
         if (!user || !user.password) {
             return { error: 'Invalid credentials.' };
@@ -2538,7 +2545,7 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
 
     try {
         const { db } = await connectToDatabase();
-        const existingUser = await db.collection('users').findOne({ email });
+        const existingUser = await db.collection('users').findOne({ email: email.toLowerCase() });
         if (existingUser) {
             return { error: 'An account with this email already exists.' };
         }
@@ -2547,7 +2554,7 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
         
         const newUser: Omit<User, '_id'> = {
             name: trimmedName,
-            email,
+            email: email.toLowerCase(),
             password: hashedPassword,
             createdAt: new Date(),
         };
