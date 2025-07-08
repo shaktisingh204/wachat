@@ -88,16 +88,16 @@ function PasswordForm() {
             <CardContent className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="currentPassword">Current Password</Label>
-                    <Input id="currentPassword" name="currentPassword" type="password" required />
+                    <Input id="currentPassword" name="currentPassword" type="password" required autoComplete="current-password" />
                 </div>
                 <Separator />
                 <div className="space-y-2">
                     <Label htmlFor="newPassword">New Password</Label>
-                    <Input id="newPassword" name="newPassword" type="password" required />
+                    <Input id="newPassword" name="newPassword" type="password" required autoComplete="new-password" />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                    <Input id="confirmPassword" name="confirmPassword" type="password" required />
+                    <Input id="confirmPassword" name="confirmPassword" type="password" required autoComplete="new-password" />
                 </div>
             </CardContent>
             <CardFooter>
