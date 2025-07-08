@@ -5,9 +5,6 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 const nextConfig = {
   /* config options here */
-  serverActions: {
-    bodySizeLimit: '50mb',
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -43,6 +40,12 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '*.fbcdn.net',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'static5.lenskart.com',
         port: '',
         pathname: '/**',
       },

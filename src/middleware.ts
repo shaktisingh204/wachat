@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { verifyAdminSessionToken, verifySessionToken } from './lib/auth';
 
+export const runtime = 'nodejs';
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const sessionToken = request.cookies.get('session')?.value
