@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -146,46 +147,51 @@ export default function FacebookDashboardPage() {
     const [isLoading, startLoading] = useTransition();
     const [projectId, setProjectId] = useState<string | null>(null);
     const [actionCounter, setActionCounter] = useState(0);
+    const searchParams = useSearchParams();
 
-    const fetchPageData = useCallback(() => {
-        if (projectId) {
-            startLoading(async () => {
-                const projectData = await getProjectById(projectId);
-                setProject(projectData);
-                if (!projectData) {
-                    setError("Project not found or you don't have access.");
-                    return;
-                }
-                const [detailsResult, insightsResult, postsResult, igResult] = await Promise.all([
-                    getPageDetails(projectId), 
-                    getPageInsights(projectId), 
-                    getFacebookPosts(projectId),
-                    getInstagramAccountForPage(projectId)
-                ]);
+    const fetchPageData = useCallback((id: string) => {
+        startLoading(async () => {
+            const projectData = await getProjectById(id);
+            setProject(projectData);
+            if (!projectData) {
+                setError("Project not found or you don't have access.");
+                return;
+            }
+            const [detailsResult, insightsResult, postsResult, igResult] = await Promise.all([
+                getPageDetails(id), 
+                getPageInsights(id), 
+                getFacebookPosts(id),
+                getInstagramAccountForPage(id)
+            ]);
 
-                const firstError = detailsResult.error || insightsResult.error || postsResult.error || igResult.error;
-                if (firstError) {
-                    if (firstError.includes('permission') || firstError.includes('(#100)') || firstError.includes('(#200)')) {
-                        setPermissionError(firstError); setError(null);
-                    } else { setError(firstError); }
-                }
+            const firstError = detailsResult.error || insightsResult.error || postsResult.error || igResult.error;
+            if (firstError) {
+                if (firstError.includes('permission') || firstError.includes('(#100)') || firstError.includes('(#200)')) {
+                    setPermissionError(firstError); setError(null);
+                } else { setError(firstError); }
+            }
 
-                if (detailsResult.page) setPageDetails(detailsResult.page);
-                if (insightsResult.insights) setInsights(insightsResult.insights);
-                if (postsResult.posts) setPosts(postsResult.posts);
-                if (igResult.instagramId) setInstagramId(igResult.instagramId);
-            });
-        }
-    }, [projectId]);
+            if (detailsResult.page) setPageDetails(detailsResult.page);
+            if (insightsResult.insights) setInsights(insightsResult.insights);
+            if (postsResult.posts) setPosts(postsResult.posts);
+            if (igResult.instagramId) setInstagramId(igResult.instagramId);
+        });
+    }, []);
 
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         setProjectId(storedProjectId);
-    }, []);
-
-    useEffect(() => { fetchPageData(); }, [projectId, fetchPageData, actionCounter]);
+        if (storedProjectId) {
+            fetchPageData(storedProjectId);
+        }
+    }, [searchParams, fetchPageData]);
     
-    const onSuccessfulReconnect = () => { setPermissionError(null); setActionCounter(p => p + 1); }
+    const onSuccessfulReconnect = () => {
+        setPermissionError(null);
+        if (projectId) {
+            fetchPageData(projectId);
+        }
+    }
 
     const engagementRate = (insights && insights.pageReach > 0) ? Math.round((insights.postEngagement / insights.pageReach) * 100) : 0;
     const { topPosts, recentComments } = useMemo(() => {
