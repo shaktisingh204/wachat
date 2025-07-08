@@ -153,7 +153,7 @@ export type FormField = {
 
 export type WebsiteBlock = {
     id: string;
-    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml' | 'heading' | 'image' | 'button' | 'video' | 'icon' | 'spacer' | 'imageCarousel' | 'tabs' | 'accordion' | 'form' | 'map' | 'countdown' | 'socialShare' | 'repeater' | 'section' | 'columns' | 'column' | 'productImage' | 'productTitle' | 'productPrice' | 'productDescription' | 'productAddToCart' | 'productBreadcrumbs';
+    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml' | 'heading' | 'image' | 'button' | 'video' | 'icon' | 'spacer' | 'imageCarousel' | 'tabs' | 'accordion' | 'form' | 'map' | 'countdown' | 'socialShare' | 'repeater' | 'section' | 'columns' | 'column' | 'productImage' | 'productTitle' | 'productPrice' | 'productDescription' | 'productAddToCart' | 'productBreadcrumbs' | 'cart';
     settings: any;
     children?: WebsiteBlock[];
 };
@@ -175,6 +175,7 @@ export type EcommShop = {
     headerLayout?: WebsiteBlock[];
     footerLayout?: WebsiteBlock[];
     productPageLayout?: WebsiteBlock[];
+    cartPageLayout?: WebsiteBlock[];
     appearance?: {
         primaryColor?: string;
         fontFamily?: string;

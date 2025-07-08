@@ -3,7 +3,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon, Minus, GalleryVertical, Rows as TabsIcon, PanelTopClose, ClipboardList, MapPin, Timer, Share2, Repeat, LayoutGrid } from 'lucide-react';
+import { Type, Star, FileQuestion, Code, ShoppingBag, LayoutDashboard, Heading1, Image as ImageIcon, MousePointerClick, Video, Star as StarIcon, Minus, GalleryVertical, Rows as TabsIcon, PanelTopClose, ClipboardList, MapPin, Timer, Share2, Repeat, LayoutGrid, ShoppingCart as CartIcon } from 'lucide-react';
 import type { WebsiteBlock } from '@/lib/definitions';
 
 const blockSections = [
@@ -39,6 +39,12 @@ const blockSections = [
             { type: 'testimonials', label: 'Testimonials', icon: Star },
             { type: 'faq', label: 'FAQ', icon: FileQuestion },
             { type: 'repeater', label: 'Repeater', icon: Repeat },
+        ]
+    },
+    {
+        title: 'Shop',
+        blocks: [
+            { type: 'cart', label: 'Cart', icon: CartIcon },
         ]
     },
     {
