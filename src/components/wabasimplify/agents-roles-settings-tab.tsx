@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Plus, Trash2, Loader2 } from 'lucide-react';
+import { Plus, Trash2, LoaderCircle } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 import { Separator } from '@/components/ui/separator';
 import { Label } from '@/components/ui/label';
@@ -24,12 +24,89 @@ interface AgentsRolesSettingsTabProps {
 }
 
 const removeAgentInitialState = { message: null, error: null };
+const inviteAgentInitialState = { message: null, error: null };
+
+
+function RemoveAgentForm({ agent, project }: { agent: any, project: any }) {
+    const [state, formAction] = useActionState(handleRemoveAgent, removeAgentInitialState);
+    const { pending } = useFormStatus();
+    const { toast } = useToast();
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Success!', description: state.message });
+        }
+        if (state?.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast]);
+
+    return (
+         <form action={formAction}>
+            <input type="hidden" name="projectId" value={project._id.toString()} />
+            <input type="hidden" name="agentUserId" value={agent.userId.toString()} />
+            <Button type="submit" variant="destructive" size="icon" disabled={pending}>
+               {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
+            </Button>
+        </form>
+    );
+}
+
+function InviteAgentForm({ project, isDisabled }: { project: any, isDisabled: boolean }) {
+    const [state, formAction] = useActionState(handleInviteAgent, inviteAgentInitialState);
+    const { pending } = useFormStatus();
+    const { toast } = useToast();
+    const formRef = useRef<HTMLFormElement>(null);
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Success!', description: state.message });
+            formRef.current?.reset();
+        }
+        if (state?.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast]);
+    
+    return (
+       <Card className="p-4 border-dashed">
+            <CardHeader>
+                <CardTitle>Invite a New Team Member</CardTitle>
+                <CardDescription>Assign a role to the new user.</CardDescription>
+            </CardHeader>
+            <CardContent>
+            <form action={formAction} ref={formRef}>
+                <input type="hidden" name="projectId" value={project._id} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                        <Label htmlFor="email">Email</Label>
+                        <Input id="email" name="email" type="email" placeholder="Enter agent's email" required />
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="role">Role</Label>
+                        <Select name="role" defaultValue="agent">
+                            <SelectTrigger id="role"><SelectValue placeholder="Select role" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="agent">Agent</SelectItem>
+                                <SelectItem value="admin">Admin</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <Button type="submit" disabled={pending || isDisabled} className="mt-4">
+                  {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
+                  Invite Agent
+                </Button>
+            </form>
+            </CardContent>
+        </Card>
+    );
+}
+
 
 export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTabProps) {
     const [isClient, setIsClient] = useState(false);
-    const [removeState, removeAction] = useActionState(handleRemoveAgent, removeAgentInitialState);
-
-    const { toast } = useToast();
+    
     const plan = user?.plan;
     const limit = plan?.agentLimit ?? 0;
     const isAtLimit = (project.agents?.length || 0) >= limit;
@@ -38,11 +115,6 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
     useEffect(() => {
         setIsClient(true);
     }, []);
-
-     useEffect(() => {
-        if (removeState?.message) toast({ title: 'Success!', description: removeState.message });
-        if (removeState?.error) toast({ title: 'Error', description: removeState.error, variant: 'destructive' });
-    }, [removeState, toast]);
 
     const TeamMemberCard = ({ agent }: { agent: any }) => {
         return (
@@ -96,73 +168,5 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
                 </div>
              </CardContent>
         </Card>
-    );
-}
-
-const inviteAgentInitialState = { message: null, error: null };
-
-function InviteAgentForm({ project, isDisabled }: { project: any, isDisabled: boolean }) {
-    const [state, formAction] = useActionState(handleInviteAgent, inviteAgentInitialState);
-    const { pending } = useFormStatus();
-    const { toast } = useToast();
-    const formRef = useRef<HTMLFormElement>(null);
-
-    useEffect(() => {
-        if (state?.message) {
-            toast({ title: 'Success!', description: state.message });
-            formRef.current?.reset();
-        }
-        if (state?.error) {
-            toast({ title: 'Error', description: state.error, variant: 'destructive' });
-        }
-    }, [state, toast]);
-    
-    return (
-       <Card className="p-4 border-dashed">
-            <CardHeader>
-                <CardTitle>Invite a New Team Member</CardTitle>
-                <CardDescription>Assign a role to the new user.</CardDescription>
-            </CardHeader>
-            <CardContent>
-            <form action={formAction} ref={formRef}>
-                <input type="hidden" name="projectId" value={project._id} />
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                     <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <Input id="email" name="email" type="email" placeholder="Enter agent's email" required />
-                    </div>
-                     <div className="space-y-2">
-                        <Label htmlFor="role">Role</Label>
-                        <Select name="role" defaultValue="agent">
-                            <SelectTrigger id="role"><SelectValue placeholder="Select role" /></SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="agent">Agent</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
-                <Button type="submit" disabled={pending || isDisabled} className="mt-4">
-                  {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                  Invite Agent
-                </Button>
-            </form>
-            </CardContent>
-        </Card>
-    );
-}
-
-function RemoveAgentForm({ agent, project }: { agent: any, project: any }) {
-    const [state, formAction] = useActionState(handleRemoveAgent, removeAgentInitialState);
-    const { pending } = useFormStatus();
-
-    return (
-         <form action={formAction}>
-            <input type="hidden" name="projectId" value={project._id} />
-            <input type="hidden" name="agentUserId" value={agent.userId} />
-            <Button type="submit" variant="destructive" size="icon" disabled={pending}>
-               {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
-            </Button>
-        </form>
     );
 }
