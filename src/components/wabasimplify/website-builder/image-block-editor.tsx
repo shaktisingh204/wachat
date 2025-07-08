@@ -12,8 +12,6 @@ import { Button } from '../ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Separator } from '../ui/separator';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import { Lightbulb } from 'lucide-react';
 import { Slider } from '../ui/slider';
 
 const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
@@ -149,6 +147,8 @@ export function ImageBlockEditor({ settings, onUpdate }: { settings: any, onUpda
                             <div className="space-y-2"><Label>Transition Duration (s)</Label><Input type="number" step="0.1" value={settings.transitionDuration || '0.3'} onChange={e => handleUpdate('transitionDuration', e.target.value)} /></div>
                             <div className="space-y-2"><Label>Hover Animation</Label><Select value={settings.hoverAnimation || 'none'} onValueChange={v => handleUpdate('hoverAnimation', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="zoom">Zoom</SelectItem><SelectItem value="grow">Grow</SelectItem><SelectItem value="shrink">Shrink</SelectItem></SelectContent></Select></div>
                             <Separator />
+                            <div className="space-y-2"><Label>Border Type</Label><Select value={settings.border?.type || 'none'} onValueChange={(val) => handleSubFieldUpdate('border', 'type', val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="solid">Solid</SelectItem><SelectItem value="dashed">Dashed</SelectItem><SelectItem value="dotted">Dotted</SelectItem></SelectContent></Select></div>
+                            <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Border Width (px)</Label><Input type="number" value={settings.border?.width || '1'} onChange={(e) => handleSubFieldUpdate('border', 'width', e.target.value)} /></div><div className="space-y-2"><Label>Border Color</Label><Input type="color" value={settings.border?.color || '#000000'} onChange={(e) => handleSubFieldUpdate('border', 'color', e.target.value)} /></div></div>
                             <div className="space-y-2"><Label>Border Radius (px)</Label><Input type="number" value={settings.borderRadius || '8'} onChange={e => handleUpdate('borderRadius', e.target.value)} /></div>
                             <div className="space-y-2"><Label>Box Shadow</Label><Select value={settings.boxShadow || 'none'} onValueChange={v => handleUpdate('boxShadow', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="sm">Small</SelectItem><SelectItem value="md">Medium</SelectItem><SelectItem value="lg">Large</SelectItem></SelectContent></Select></div>
                         </AccordionContent>
@@ -166,7 +166,7 @@ export function ImageBlockEditor({ settings, onUpdate }: { settings: any, onUpda
                         <AccordionTrigger>Caption Style</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
                             <div className="space-y-2"><Label>Text Color</Label><Input type="color" value={settings.captionStyle?.color || '#64748b'} onChange={e => handleSubFieldUpdate('captionStyle', 'color', e.target.value)} /></div>
-                            <div className="space-y-2"><Label>Font Family</Label><Input value={settings.captionStyle?.fontFamily || ''} onChange={e => handleSubFieldUpdate('captionStyle', 'fontFamily', e.target.value)} placeholder="inherit"/></div>
+                            <div className="space-y-2"><Label>Typography</Label><Select value={settings.captionStyle?.fontFamily || 'inherit'} onValueChange={(val) => handleSubFieldUpdate('captionStyle', 'fontFamily', val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="inherit">Theme Default</SelectItem><SelectItem value="Inter, sans-serif">Inter</SelectItem><SelectItem value="'Roboto', sans-serif">Roboto</SelectItem></SelectContent></Select></div>
                              <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Size (px)</Label><Input type="number" value={settings.captionStyle?.fontSize || ''} onChange={e => handleSubFieldUpdate('captionStyle', 'fontSize', e.target.value, true)} /></div><div className="space-y-2"><Label>Weight</Label><Input value={settings.captionStyle?.fontWeight || ''} onChange={e => handleSubFieldUpdate('captionStyle', 'fontWeight', e.target.value)} /></div></div>
                             <div className="space-y-2"><Label>Spacing (px)</Label><Input type="number" value={settings.captionStyle?.spacing || '8'} onChange={e => handleSubFieldUpdate('captionStyle', 'spacing', e.target.value, true)} /></div>
                         </AccordionContent>
