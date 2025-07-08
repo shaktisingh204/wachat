@@ -29,7 +29,7 @@ type DashboardStats = {
 };
 
 const StatCard = ({ title, value, icon: Icon, description, gradientClass }: { title: string, value: string | number, icon: React.ElementType, description?: string, gradientClass?: string }) => (
-    <Card className={cn("card-gradient", gradientClass)}>
+    <Card className={cn(gradientClass)}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{title}</CardTitle>
             <Icon className="h-4 w-4 text-muted-foreground" />
@@ -114,9 +114,9 @@ export default function DashboardOverviewPage() {
                     </>
                 ) : stats ? (
                     <>
-                        <StatCard title="Total Campaigns" value={stats.totalCampaigns} icon={Send} description="All-time broadcasts initiated." gradientClass="card-gradient-purple" />
-                        <StatCard title="Total Queued" value={stats.totalMessages} icon={MessagesSquare} description="All-time messages queued for sending." gradientClass="card-gradient-blue" />
-                        <StatCard title="Total Sent" value={stats.totalSent} icon={CheckCircle} description={`${sentPercentage}% of queued messages sent.`} gradientClass="card-gradient-green" />
+                        <StatCard title="Total Campaigns" value={stats.totalCampaigns} icon={Send} description="All-time broadcasts initiated." />
+                        <StatCard title="Total Queued" value={stats.totalMessages} icon={MessagesSquare} description="All-time messages queued for sending." />
+                        <StatCard title="Total Sent" value={stats.totalSent} icon={CheckCircle} description={`${sentPercentage}% of queued messages sent.`} />
                         <StatCard title="Total Delivered" value={stats.totalDelivered} icon={CheckCheck} description={`${deliveredPercentage}% of sent messages delivered.`} />
                         <StatCard title="Total Read" value={stats.totalRead} icon={Eye} description={`${readPercentage}% of delivered messages read.`} />
                         <StatCard title="Total Failed" value={stats.totalFailed} icon={XCircle} />

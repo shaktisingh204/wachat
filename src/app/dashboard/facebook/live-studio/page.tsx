@@ -124,7 +124,7 @@ export default function LiveStudioPage() {
                     <input type="hidden" name="projectId" value={projectId} />
                     {scheduledDate && <input type="hidden" name="scheduledDate" value={scheduledDate.toISOString().split('T')[0]} />}
 
-                    <Card className="card-gradient card-gradient-green">
+                    <Card>
                         <CardHeader>
                             <CardTitle>Schedule a Premiere</CardTitle>
                         </CardHeader>
@@ -174,7 +174,7 @@ export default function LiveStudioPage() {
                     </Card>
                 </form>
 
-                <Card className="lg:col-span-2 card-gradient card-gradient-purple">
+                <Card className="lg:col-span-2">
                     <CardHeader>
                         <CardTitle>Upcoming & Past Streams</CardTitle>
                     </CardHeader>

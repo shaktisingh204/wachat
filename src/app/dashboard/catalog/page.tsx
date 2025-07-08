@@ -30,7 +30,7 @@ function WhatsAppCatalogCard({ catalog, project, onConnect }: { catalog: WithId<
     }
 
     return (
-        <Card className={cn("flex flex-col card-gradient card-gradient-purple transition-all", isConnected && "border-2 border-primary")}>
+        <Card className={cn("flex flex-col transition-all", isConnected && "border-2 border-primary")}>
             <CardHeader>
                 <div className="flex justify-between items-start">
                     <CardTitle className="text-base">{catalog.name}</CardTitle>
@@ -149,7 +149,7 @@ export default function CatalogPage() {
                 )}
             </div>
              {!hasCatalogAccess ? (
-                <Card className="card-gradient card-gradient-orange text-center">
+                <Card className="text-center">
                     <CardHeader><div className="mx-auto bg-destructive text-destructive-foreground rounded-full h-16 w-16 flex items-center justify-center mb-4"><Lock className="h-8 w-8" /></div><CardTitle>Catalog Management Locked</CardTitle><CardDescription>This project was set up without catalog management permissions.</CardDescription></CardHeader>
                     <CardContent><p className="text-sm text-muted-foreground max-w-md mx-auto">To use product catalogs, you need to re-authorize the application and grant the 'catalog_management' and 'business_management' permissions.</p></CardContent>
                     <CardFooter className="justify-center"><Button asChild><Link href="/dashboard/setup"><Repeat className="mr-2 h-4 w-4" /> Go to Setup to Re-authorize</Link></Button></CardFooter>

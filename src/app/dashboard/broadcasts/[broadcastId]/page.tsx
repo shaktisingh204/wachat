@@ -239,7 +239,7 @@ export default function BroadcastReportPage() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-            <Card className="card-gradient card-gradient-blue">
+            <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Total Contacts</CardTitle>
                     <Users className="h-4 w-4 text-muted-foreground" />
@@ -248,7 +248,7 @@ export default function BroadcastReportPage() {
                     <div className="text-2xl font-bold">{broadcast.contactCount}</div>
                 </CardContent>
             </Card>
-            <Card className="card-gradient card-gradient-green">
+            <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Sent</CardTitle>
                     <Send className="h-4 w-4 text-muted-foreground" />
@@ -257,7 +257,7 @@ export default function BroadcastReportPage() {
                     <div className="text-2xl font-bold">{broadcast.successCount ?? 0}</div>
                 </CardContent>
             </Card>
-            <Card className="card-gradient card-gradient-purple">
+            <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Delivered</CardTitle>
                     <CheckCheck className="h-4 w-4 text-muted-foreground" />
@@ -266,7 +266,7 @@ export default function BroadcastReportPage() {
                     <div className="text-2xl font-bold">{broadcast.deliveredCount ?? 0}</div>
                 </CardContent>
             </Card>
-            <Card className="card-gradient card-gradient-blue">
+            <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Read</CardTitle>
                     <Eye className="h-4 w-4 text-muted-foreground" />
@@ -275,7 +275,7 @@ export default function BroadcastReportPage() {
                     <div className="text-2xl font-bold">{broadcast.readCount ?? 0}</div>
                 </CardContent>
             </Card>
-            <Card className="card-gradient card-gradient-orange">
+            <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">Failed</CardTitle>
                     <AlertTriangle className="h-4 w-4 text-muted-foreground" />
@@ -286,7 +286,7 @@ export default function BroadcastReportPage() {
             </Card>
         </div>
 
-        <Card className="card-gradient card-gradient-blue">
+        <Card>
             <CardHeader>
                 <div className="flex flex-wrap items-center justify-between gap-4">
                     <div>

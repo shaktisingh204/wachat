@@ -23,9 +23,9 @@ const PlanFeature = ({ children, included }: { children: React.ReactNode, includ
 );
 
 const creditPacks = [
-    { credits: 5000, amount: 500, description: 'Starter Pack', gradient: 'card-gradient-blue' },
-    { credits: 12000, amount: 1000, description: 'Growth Pack', gradient: 'card-gradient-green' },
-    { credits: 30000, amount: 2500, description: 'Business Pack', gradient: 'card-gradient-purple' },
+    { credits: 5000, amount: 500, description: 'Starter Pack' },
+    { credits: 12000, amount: 1000, description: 'Growth Pack' },
+    { credits: 30000, amount: 2500, description: 'Business Pack' },
 ];
 
 export default function BillingPage() {
@@ -75,7 +75,7 @@ export default function BillingPage() {
                 </CardHeader>
                 <CardContent className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
                     {creditPacks.map(pack => (
-                        <Card key={pack.credits} className={cn("flex flex-col text-center card-gradient", pack.gradient)}>
+                        <Card key={pack.credits} className="flex flex-col text-center">
                             <CardHeader>
                                 <CardTitle>{pack.credits.toLocaleString()} Credits</CardTitle>
                                 <CardDescription>{pack.description}</CardDescription>
@@ -99,7 +99,7 @@ export default function BillingPage() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-start">
                 {plans.map((plan: WithId<Plan>, index) => (
-                    <Card key={plan._id.toString()} className={cn("flex flex-col card-gradient", gradientClasses[index % gradientClasses.length], userPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
+                    <Card key={plan._id.toString()} className={cn("flex flex-col", userPlanId?.toString() === plan._id.toString() && "border-2 border-primary")}>
                         <CardHeader className="flex-grow">
                             <CardTitle>{plan.name}</CardTitle>
                             <div className="text-4xl font-bold pt-4">{plan.currency || 'INR'} {plan.price} <span className="text-sm font-normal text-muted-foreground">/ month</span></div>

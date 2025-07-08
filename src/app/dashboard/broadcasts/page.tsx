@@ -416,7 +416,7 @@ export default function BroadcastPage() {
             <BroadcastForm templates={templates} project={project} metaFlows={metaFlows} />
         )}
 
-        <Card className="card-gradient card-gradient-blue">
+        <Card>
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -538,7 +538,7 @@ export default function BroadcastPage() {
                 {/* Mobile Card View */}
                 <div className="md:hidden space-y-4">
                   {history.map((item) => (
-                      <Card key={item._id.toString()} className="border card-gradient card-gradient-blue">
+                      <Card key={item._id.toString()} className="border">
                         <CardHeader>
                           <div className="flex justify-between items-start">
                               <CardTitle className="text-base leading-snug">{item.templateName}</CardTitle>

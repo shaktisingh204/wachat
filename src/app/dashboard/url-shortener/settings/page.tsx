@@ -2,7 +2,7 @@
 'use client';
 
 import { useActionState, useEffect, useRef, useTransition, useState } from 'react';
-import type { WithId } from 'mongodb';
+import { useFormStatus } from 'react-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,8 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { addCustomDomain, getCustomDomains, verifyCustomDomain, deleteCustomDomain } from '@/app/actions/url-shortener.actions';
-import type { CustomDomain } from '@/lib/definitions';
-import { useFormStatus } from 'react-dom';
+import type { WithId, CustomDomain } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
 import { Badge } from '@/components/ui/badge';
@@ -98,7 +97,7 @@ export default function UrlShortenerSettingsPage() {
                 <p className="text-muted-foreground">Configure custom domains and developer settings for your short links.</p>
             </div>
             
-            <Card className="card-gradient card-gradient-blue">
+            <Card>
                 <CardHeader>
                     <CardTitle>Custom Domains</CardTitle>
                     <CardDescription>Use your own domain for branded short links (e.g., links.mybrand.com).</CardDescription>
@@ -174,7 +173,7 @@ export default function UrlShortenerSettingsPage() {
                 </CardContent>
             </Card>
             
-            <Card className="card-gradient card-gradient-purple">
+            <Card>
                 <CardHeader>
                     <CardTitle>Developer Options</CardTitle>
                     <CardDescription>For programmatic access and integrations.</CardDescription>

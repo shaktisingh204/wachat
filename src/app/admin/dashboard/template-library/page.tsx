@@ -63,7 +63,7 @@ export default function AdminTemplateLibraryPage() {
 
             <Separator />
 
-            <Card className="card-gradient card-gradient-purple">
+            <Card>
                 <CardHeader>
                     <CardTitle>Custom Library Templates</CardTitle>
                     <CardDescription>Templates you have added to the library. These can be deleted.</CardDescription>
@@ -91,7 +91,7 @@ export default function AdminTemplateLibraryPage() {
                 </CardContent>
             </Card>
 
-            <Card className="card-gradient card-gradient-blue">
+            <Card>
                 <CardHeader>
                     <CardTitle>Pre-made Templates</CardTitle>
                     <CardDescription>Core templates included with the application. These cannot be deleted.</CardDescription>

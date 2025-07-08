@@ -16,7 +16,7 @@ export default async function PaymentStatusPage({ params }: { params: { transact
     if (!transaction) {
         return (
             <div className="flex items-center justify-center min-h-[50vh]">
-                <Card className="w-full max-w-md text-center card-gradient card-gradient-orange">
+                <Card className="w-full max-w-md text-center">
                     <CardHeader>
                         <div className="mx-auto bg-destructive text-destructive-foreground rounded-full h-12 w-12 flex items-center justify-center">
                             <AlertCircle className="h-8 w-8" />
@@ -42,7 +42,7 @@ export default async function PaymentStatusPage({ params }: { params: { transact
 
     return (
         <div className="flex items-center justify-center min-h-[50vh]">
-            <Card className={cn("w-full max-w-md text-center card-gradient", isSuccess ? 'card-gradient-green' : 'card-gradient-orange')}>
+            <Card className={cn("w-full max-w-md text-center", isSuccess ? '' : '')}>
                 <CardHeader>
                     <div className={`mx-auto rounded-full h-12 w-12 flex items-center justify-center ${isSuccess ? 'bg-primary text-primary-foreground' : 'bg-destructive text-destructive-foreground'}`}>
                         {isSuccess ? <CheckCircle className="h-8 w-8" /> : <XCircle className="h-8 w-8" />}

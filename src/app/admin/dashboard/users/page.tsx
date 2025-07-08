@@ -46,7 +46,7 @@ export default async function AdminUsersPage({
         <p className="text-muted-foreground">View all users on the platform. Plans and credits are managed per-project on the main admin dashboard.</p>
       </div>
 
-      <Card className="card-gradient card-gradient-purple">
+      <Card>
         <CardHeader>
           <CardTitle>All Users</CardTitle>
           <CardDescription>Total users found: {total.toLocaleString()}</CardDescription>

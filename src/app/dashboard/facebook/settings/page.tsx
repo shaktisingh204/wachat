@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -72,7 +71,7 @@ export default function FacebookSettingsPage() {
                 <p className="text-muted-foreground">Review your connected Facebook Page and Ad Account for project "{project.name}".</p>
             </div>
             
-            <Card className="card-gradient card-gradient-blue">
+            <Card>
                 <CardHeader>
                     <CardTitle>Connected Accounts</CardTitle>
                     <CardDescription>

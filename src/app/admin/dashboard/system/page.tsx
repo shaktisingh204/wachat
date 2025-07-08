@@ -20,7 +20,7 @@ export default async function SystemHealthPage() {
                 </p>
             </div>
 
-            <Card className="card-gradient card-gradient-green">
+            <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <ShieldCheck className="h-5 w-5" />

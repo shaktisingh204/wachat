@@ -34,7 +34,7 @@ export const metadata: Metadata = {
 const PROJECTS_PER_PAGE = 10;
 
 const StatCard = ({ title, value, icon: Icon, gradientClass }: { title: string, value: string, icon: React.ElementType, gradientClass?: string }) => (
-    <Card className={cn("card-gradient", gradientClass)}>
+    <Card className={cn(gradientClass)}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{title}</CardTitle>
             <Icon className="h-4 w-4 text-muted-foreground" />
@@ -67,7 +67,7 @@ export default async function AdminDashboardPage({
       </div>
 
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="card-gradient card-gradient-blue">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Projects</CardTitle>
             <Briefcase className="h-4 w-4 text-muted-foreground" />
@@ -77,7 +77,7 @@ export default async function AdminDashboardPage({
             <p className="text-xs text-muted-foreground">Total projects created on the platform.</p>
           </CardContent>
         </Card>
-        <Card className="card-gradient card-gradient-green">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Active WABAs</CardTitle>
             <CheckSquare className="h-4 w-4 text-muted-foreground" />
@@ -87,7 +87,7 @@ export default async function AdminDashboardPage({
             <p className="text-xs text-muted-foreground">+120 since last month</p>
           </CardContent>
         </Card>
-        <Card className="card-gradient card-gradient-orange">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">System Uptime</CardTitle>
              <Server className="h-4 w-4 text-muted-foreground" />
@@ -97,7 +97,7 @@ export default async function AdminDashboardPage({
              <p className="text-xs text-muted-foreground">Last 30 days</p>
           </CardContent>
         </Card>
-        <Card className="card-gradient card-gradient-purple">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">API Error Rate</CardTitle>
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
@@ -109,7 +109,7 @@ export default async function AdminDashboardPage({
         </Card>
       </div>
       
-      <Card className="card-gradient card-gradient-purple">
+      <Card>
         <CardHeader>
           <CardTitle>Platform Insights</CardTitle>
           <CardDescription>View key metrics over different time periods.</CardDescription>
@@ -122,28 +122,28 @@ export default async function AdminDashboardPage({
               <TabsTrigger value="30d">30 Days</TabsTrigger>
             </TabsList>
             <TabsContent value="24h" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <StatCard title="Total Chats" value="1,205" icon={MessageSquare} gradientClass="card-gradient-blue" />
-              <StatCard title="Campaigns Sent" value="89" icon={Send} gradientClass="card-gradient-green" />
-              <StatCard title="Flowbuilder Triggers" value="3,450" icon={GitFork} gradientClass="card-gradient-purple" />
-              <StatCard title="Meta Flows Used" value="1,890" icon={ServerCog} gradientClass="card-gradient-orange" />
+              <StatCard title="Total Chats" value="1,205" icon={MessageSquare} />
+              <StatCard title="Campaigns Sent" value="89" icon={Send} />
+              <StatCard title="Flowbuilder Triggers" value="3,450" icon={GitFork} />
+              <StatCard title="Meta Flows Used" value="1,890" icon={ServerCog} />
             </TabsContent>
             <TabsContent value="7d" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Chats" value="9,820" icon={MessageSquare} gradientClass="card-gradient-blue" />
-                <StatCard title="Campaigns Sent" value="621" icon={Send} gradientClass="card-gradient-green" />
-                <StatCard title="Flowbuilder Triggers" value="25,102" icon={GitFork} gradientClass="card-gradient-purple" />
-                <StatCard title="Meta Flows Used" value="14,331" icon={ServerCog} gradientClass="card-gradient-orange" />
+                <StatCard title="Total Chats" value="9,820" icon={MessageSquare} />
+                <StatCard title="Campaigns Sent" value="621" icon={Send} />
+                <StatCard title="Flowbuilder Triggers" value="25,102" icon={GitFork} />
+                <StatCard title="Meta Flows Used" value="14,331" icon={ServerCog} />
             </TabsContent>
             <TabsContent value="30d" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Chats" value="45,231" icon={MessageSquare} gradientClass="card-gradient-blue" />
-                <StatCard title="Campaigns Sent" value="2,845" icon={Send} gradientClass="card-gradient-green" />
-                <StatCard title="Flowbuilder Triggers" value="112,899" icon={GitFork} gradientClass="card-gradient-purple" />
-                <StatCard title="Meta Flows Used" value="65,443" icon={ServerCog} gradientClass="card-gradient-orange" />
+                <StatCard title="Total Chats" value="45,231" icon={MessageSquare} />
+                <StatCard title="Campaigns Sent" value="2,845" icon={Send} />
+                <StatCard title="Flowbuilder Triggers" value="112,899" icon={GitFork} />
+                <StatCard title="Meta Flows Used" value="65,443" icon={ServerCog} />
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
 
-      <Card className="card-gradient card-gradient-blue">
+      <Card>
         <CardHeader>
           <CardTitle>All Projects</CardTitle>
           <CardDescription>Total projects found: {total.toLocaleString()}</CardDescription>

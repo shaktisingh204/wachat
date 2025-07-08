@@ -75,7 +75,7 @@ export default function FlowLogsPage() {
                         A detailed log of every time a flow is run for a contact.
                     </p>
                 </div>
-                <Card className="card-gradient card-gradient-purple">
+                <Card>
                     <CardHeader>
                         <CardTitle>All Executions</CardTitle>
                          <div className="relative w-full sm:max-w-sm">

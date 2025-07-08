@@ -49,7 +49,7 @@ function MetaFlowCard({ flow, onDelete }: { flow: WithId<MetaFlow>, onDelete: (f
     };
 
     return (
-        <Card className={cn("flex flex-col card-gradient card-gradient-blue transition-transform hover:-translate-y-1")}>
+        <Card className={cn("flex flex-col transition-transform hover:-translate-y-1")}>
             <CardHeader>
                 <div className="flex justify-between items-start">
                     <CardTitle className="text-base">{flow.name}</CardTitle>

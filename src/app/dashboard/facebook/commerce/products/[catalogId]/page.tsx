@@ -344,7 +344,7 @@ export default function CatalogProductsPage() {
                     <TabsTrigger value="collections"><Package className="mr-2 h-4 w-4"/>Collections</TabsTrigger>
                 </TabsList>
                 <TabsContent value="products" className="mt-4">
-                    <Card className="card-gradient card-gradient-blue">
+                    <Card>
                         <CardHeader>
                             <div className="flex justify-between items-center">
                                 <div>
@@ -360,7 +360,7 @@ export default function CatalogProductsPage() {
                     </Card>
                 </TabsContent>
                 <TabsContent value="collections" className="mt-4">
-                    <Card className="card-gradient card-gradient-green">
+                    <Card>
                          <CardHeader>
                             <CardTitle>Collections (Product Sets)</CardTitle>
                             <CardDescription>Group products into sets for ads and promotions.</CardDescription>

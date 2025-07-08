@@ -39,7 +39,7 @@ export default async function BillingHistoryPage() {
                 <p className="text-muted-foreground">A record of all your plan upgrades and credit purchases.</p>
             </div>
 
-            <Card className="card-gradient card-gradient-blue">
+            <Card>
                 <CardHeader>
                     <CardTitle>Your Transactions</CardTitle>
                 </CardHeader>
