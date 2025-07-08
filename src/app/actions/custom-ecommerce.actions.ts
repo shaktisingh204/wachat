@@ -114,53 +114,13 @@ export async function createEcommShop(prevState: any, formData: FormData): Promi
             projectId: new ObjectId(projectId),
             name: 'Home',
             slug: 'home', // Or derive from name
-            layout: [
-                {
-                    id: uuidv4(),
-                    type: "hero",
-                    settings: {
-                      title: "Your New Favorite Store",
-                      subtitle: "Discover amazing products and deals you won't find anywhere else. Quality and style delivered to your door.",
-                      buttonText: "Shop All Products",
-                      buttonLink: `/shop/${slug}/products`, // Assuming a future products page
-                      height: "60vh",
-                      backgroundColor: "#e2e8f0",
-                      textColor: "#1e293b",
-                      buttonColor: "#000000",
-                      buttonTextColor: "#FFFFFF",
-                      backgroundImageUrl: "https://placehold.co/1920x1080.png",
-                      "data-ai-hint": "modern storefront"
-                    },
-                },
-                {
-                    id: uuidv4(),
-                    type: "featuredProducts",
-                    settings: {
-                        title: "Featured Products",
-                        subtitle: "Check out our hand-picked selection of best-selling items.",
-                        columns: '3',
-                        productIds: [],
-                        showViewAllButton: true,
-                    }
-                },
-                 {
-                    id: uuidv4(),
-                    type: "testimonials",
-                    settings: {
-                        title: "What Our Customers Say",
-                        testimonials: [
-                            { id: uuidv4(), quote: "This is the best store ever! The quality is amazing and the shipping was so fast. Highly recommended.", author: "Jane Doe", title: "Happy Customer", avatar: "https://placehold.co/100x100.png" },
-                            { id: uuidv4(), quote: "I'm in love with the products. I will definitely be back for more. The customer service was also top-notch.", author: "John Smith", title: "Loyal Shopper", avatar: "https://placehold.co/100x100.png" },
-                            { id: uuidv4(), quote: "A fantastic experience from start to finish. The website is easy to use and my order arrived perfectly.", author: "Sam Wilson", title: "First-time Buyer", avatar: "https://placehold.co/100x100.png" },
-                        ]
-                    }
-                },
-            ],
+            layout: [],
             isHomepage: true,
             createdAt: new Date(),
             updatedAt: new Date(),
         };
         await db.collection('ecomm_pages').insertOne(homepage as any);
+        await applyEcommShopTheme(shopId.toString());
         
         revalidatePath('/dashboard/facebook/custom-ecommerce');
         return { message: `Shop "${name}" created successfully.`, shopId: shopId.toString() };
@@ -377,7 +337,7 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                         children: [
                             {id: uuidv4(), type: 'productBreadcrumbs', settings: {}},
                             {id: uuidv4(), type: 'heading', settings: {htmlTag: 'div'}, children: [{id: uuidv4(), type: 'productTitle', settings: {}}]},
-                            {id: uuidv4(), type: 'richText', settings: {htmlContent: '<div class="flex items-center gap-1"><span class="text-yellow-500">★★★★☆</span><span class="text-sm text-muted-foreground">(12 Reviews)</span></div>', margin: { bottom: '16' }}},
+                            {id: uuidv4(), type: 'richText', settings: { htmlContent: '<div class="flex items-center gap-1"><span class="text-yellow-500">★★★★☆</span><span class="text-sm text-muted-foreground">(12 Reviews)</span></div>', margin: { bottom: '16' }}},
                             {id: uuidv4(), type: 'productPrice', settings: {}},
                             {id: uuidv4(), type: 'spacer', settings: {type: 'spacer', height: 16}},
                             {id: uuidv4(), type: 'productDescription', settings: {}},
@@ -399,6 +359,45 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                  { id: uuidv4(), type: 'heading', settings: { text: 'Your Shopping Cart', htmlTag: 'h1', textAlign: 'center' }},
                  { id: uuidv4(), type: 'spacer', settings: { height: 48 }},
                  { id: uuidv4(), type: 'cart', settings: {}, children: [] }
+            ]
+        }
+      ];
+
+      const defaultProductsPageLayout: WebsiteBlock[] = [
+        {
+            id: uuidv4(),
+            type: 'section',
+            settings: { padding: { top: '64', bottom: '64', left: '16', right: '16' }, width: 'boxed' },
+            children: [
+                 { id: uuidv4(), type: 'heading', settings: { text: 'All Products', htmlTag: 'h1', textAlign: 'center' }},
+                 { id: uuidv4(), type: 'spacer', settings: { height: 48 }},
+                 { id: uuidv4(), type: 'featuredProducts', settings: { columns: '4', showViewAllButton: false }}
+            ]
+        }
+      ];
+
+      const defaultCategoryPageLayout: WebsiteBlock[] = [
+        {
+            id: uuidv4(),
+            type: 'section',
+            settings: { padding: { top: '64', bottom: '64', left: '16', right: '16' }, width: 'boxed' },
+            children: [
+                 { id: uuidv4(), type: 'heading', settings: { text: 'Products in {{categoryName}}', htmlTag: 'h1', textAlign: 'center' }},
+                 { id: uuidv4(), type: 'spacer', settings: { height: 48 }},
+                 { id: uuidv4(), type: 'featuredProducts', settings: { columns: '4', showViewAllButton: false }}
+            ]
+        }
+      ];
+      
+       const defaultSearchPageLayout: WebsiteBlock[] = [
+        {
+            id: uuidv4(),
+            type: 'section',
+            settings: { padding: { top: '64', bottom: '64', left: '16', right: '16' }, width: 'boxed' },
+            children: [
+                 { id: uuidv4(), type: 'heading', settings: { text: 'Search Results for "{{searchQuery}}"', htmlTag: 'h1', textAlign: 'center' }},
+                 { id: uuidv4(), type: 'spacer', settings: { height: 48 }},
+                 { id: uuidv4(), type: 'featuredProducts', settings: { columns: '4', showViewAllButton: false }}
             ]
         }
       ];
@@ -430,6 +429,9 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                 headerLayout: defaultHeaderLayout, 
                 footerLayout: defaultFooterLayout,
                 productPageLayout: defaultProductPageLayout,
+                productsPageLayout: defaultProductsPageLayout,
+                categoryPageLayout: defaultCategoryPageLayout,
+                searchPageLayout: defaultSearchPageLayout,
                 cartPageLayout: defaultCartPageLayout,
                 updatedAt: new Date() 
             }}
@@ -557,15 +559,24 @@ export async function setAsHomepage(pageId: string, shopId: string): Promise<{ m
 
 // --- Product Actions ---
 
-export async function getEcommProducts(shopId: string): Promise<WithId<EcommProduct>[]> {
+export async function getEcommProducts(shopId: string, { category, subcategory, searchQuery }: { category?: string, subcategory?: string, searchQuery?: string } = {}): Promise<WithId<EcommProduct>[]> {
     if (!ObjectId.isValid(shopId)) return [];
     const shop = await getEcommShopById(shopId);
     if (!shop) return [];
     
     try {
         const { db } = await connectToDatabase();
+        const filter: any = { shopId: new ObjectId(shopId) };
+        if (category) filter.category = category;
+        if (subcategory) filter.subcategory = subcategory;
+        if (searchQuery) {
+            filter.$text = { $search: searchQuery };
+            // Ensure you have a text index on name, description, category, etc.
+            // e.g., db.ecomm_products.createIndex({ name: "text", description: "text", category: "text" })
+        }
+        
         const products = await db.collection('ecomm_products')
-            .find({ shopId: new ObjectId(shopId) })
+            .find(filter)
             .sort({ createdAt: -1 })
             .toArray();
         return JSON.parse(JSON.stringify(products));
@@ -575,13 +586,25 @@ export async function getEcommProducts(shopId: string): Promise<WithId<EcommProd
     }
 }
 
-export async function getPublicEcommProducts(shopId: string): Promise<WithId<EcommProduct>[]> {
+export async function getPublicEcommProducts(shopId: string, { category, subcategory, searchQuery }: { category?: string, subcategory?: string, searchQuery?: string } = {}): Promise<WithId<EcommProduct>[]> {
     if (!ObjectId.isValid(shopId)) return [];
     
     try {
         const { db } = await connectToDatabase();
+        const filter: any = { shopId: new ObjectId(shopId) };
+        if (category) filter.category = category;
+        if (subcategory) filter.subcategory = subcategory;
+        if (searchQuery) {
+            filter.$or = [
+                { name: { $regex: searchQuery, $options: 'i' } },
+                { description: { $regex: searchQuery, $options: 'i' } },
+                { category: { $regex: searchQuery, $options: 'i' } },
+                { subcategory: { $regex: searchQuery, $options: 'i' } },
+            ];
+        }
+
         const products = await db.collection('ecomm_products')
-            .find({ shopId: new ObjectId(shopId) })
+            .find(filter)
             .sort({ createdAt: -1 })
             .toArray();
         return JSON.parse(JSON.stringify(products));
@@ -625,6 +648,8 @@ export async function saveEcommProduct(prevState: any, formData: FormData): Prom
             description: formData.get('description') as string,
             price: parseFloat(formData.get('price') as string),
             stock: formData.get('stock') ? parseInt(formData.get('stock') as string, 10) : undefined,
+            category: formData.get('category') as string,
+            subcategory: formData.get('subcategory') as string,
             variants: variants,
             updatedAt: new Date(),
         };

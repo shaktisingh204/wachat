@@ -5,7 +5,15 @@ import React from 'react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
 
-export function HeadingBlock({ settings }: { settings: any }) {
+function interpolate(text: string, variables: Record<string, any>): string {
+    if (!text || typeof text !== 'string') return '';
+    return text.replace(/{{\s*([\w\d._]+)\s*}}/g, (match, key) => {
+        const value = key.split('.').reduce((o: any, i: string) => o?.[i], variables);
+        return value !== undefined ? String(value) : match;
+    });
+}
+
+export function HeadingBlock({ settings, contextData }: { settings: any, contextData?: any }) {
     const Tag = settings.htmlTag || 'h2';
     const SubheadingTag = settings.subheadingHtmlTag || 'p';
 
@@ -54,7 +62,7 @@ export function HeadingBlock({ settings }: { settings: any }) {
     
     const responsiveClasses = cn({
         'max-lg:hidden': settings.responsiveVisibility?.desktop === false,
-        'max-md:hidden lg:hidden': settings.responsiveVisibility?.tablet === false,
+        'hidden md:max-lg:flex': settings.responsiveVisibility?.tablet === false,
         'max-sm:hidden': settings.responsiveVisibility?.mobile === false,
     });
     
@@ -63,10 +71,13 @@ export function HeadingBlock({ settings }: { settings: any }) {
         return acc;
     }, {});
 
+    const headingText = interpolate(settings.text || 'Heading Text', contextData || {});
+    const subheadingText = interpolate(settings.subheadingText || '', contextData || {});
+
     const headingContent = (
         <>
-            {settings.subheadingText && React.createElement(SubheadingTag, { style: subheadingStyle }, settings.subheadingText)}
-            {React.createElement(Tag, { style, className: cn(settings.size) }, settings.text || 'Heading Text')}
+            {subheadingText && React.createElement(SubheadingTag, { style: subheadingStyle }, subheadingText)}
+            {React.createElement(Tag, { style, className: cn(settings.size) }, headingText)}
         </>
     );
     
