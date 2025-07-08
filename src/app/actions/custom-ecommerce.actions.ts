@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { getProjectById } from '@/app/actions';
@@ -41,6 +42,19 @@ export async function getEcommShopById(shopId: string): Promise<WithId<EcommShop
 
     return JSON.parse(JSON.stringify(shop));
 }
+
+export async function getPublicEcommShopById(shopId: string): Promise<WithId<EcommShop> | null> {
+    if (!ObjectId.isValid(shopId)) return null;
+    try {
+        const { db } = await connectToDatabase();
+        const shop = await db.collection<EcommShop>('ecomm_shops').findOne({ _id: new ObjectId(shopId) });
+        return shop ? JSON.parse(JSON.stringify(shop)) : null;
+    } catch (e) {
+        console.error("Failed to get public e-commerce shop by ID:", e);
+        return null;
+    }
+}
+
 
 export async function getEcommShopBySlug(slug: string): Promise<WithId<EcommShop> | null> {
     if (!slug) return null;
@@ -227,6 +241,49 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
     const shop = await getEcommShopById(shopId);
     if (!shop) return { error: 'Access denied or shop not found.' };
 
+      const defaultHomepageLayout: WebsiteBlock[] = [
+        {
+            id: uuidv4(),
+            type: "hero",
+            settings: {
+              title: "Your New Favorite Store",
+              subtitle: "Discover amazing products and deals you won't find anywhere else. Quality and style delivered to your door.",
+              buttonText: "Shop All Products",
+              buttonLink: `/shop/${shop.slug}/products`,
+              height: "60vh",
+              backgroundColor: "#e2e8f0",
+              textColor: "#1e293b",
+              buttonColor: "#000000",
+              buttonTextColor: "#FFFFFF",
+              backgroundImageUrl: "https://placehold.co/1920x1080.png",
+              "data-ai-hint": "modern storefront"
+            },
+        },
+        {
+            id: uuidv4(),
+            type: "featuredProducts",
+            settings: {
+                title: "Featured Products",
+                subtitle: "Check out our hand-picked selection of best-selling items.",
+                columns: '3',
+                productIds: [],
+                showViewAllButton: true,
+            }
+        },
+         {
+            id: uuidv4(),
+            type: "testimonials",
+            settings: {
+                title: "What Our Customers Say",
+                testimonials: [
+                    { id: uuidv4(), quote: "This is the best store ever! The quality is amazing and the shipping was so fast. Highly recommended.", author: "Jane Doe", title: "Happy Customer", avatar: "https://placehold.co/100x100.png" },
+                    { id: uuidv4(), quote: "I'm in love with the products. I will definitely be back for more. The customer service was also top-notch.", author: "John Smith", title: "Loyal Shopper", avatar: "https://placehold.co/100x100.png" },
+                    { id: uuidv4(), quote: "A fantastic experience from start to finish. The website is easy to use and my order arrived perfectly.", author: "Sam Wilson", title: "First-time Buyer", avatar: "https://placehold.co/100x100.png" },
+                ]
+            }
+        },
+    ];
+
       const defaultHeaderLayout: WebsiteBlock[] = [
         {
             id: uuidv4(),
@@ -337,6 +394,25 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
 
     try {
         const { db } = await connectToDatabase();
+        
+        // Find or create the homepage for this shop
+        await db.collection('ecomm_pages').updateOne(
+            { shopId: new ObjectId(shopId), isHomepage: true },
+            { 
+                $set: { layout: defaultHomepageLayout, updatedAt: new Date() },
+                $setOnInsert: {
+                    shopId: new ObjectId(shopId),
+                    projectId: shop.projectId,
+                    name: 'Home',
+                    slug: 'home',
+                    isHomepage: true,
+                    createdAt: new Date()
+                }
+            },
+            { upsert: true }
+        );
+        
+        // Also update the shop document with other layouts
         await db.collection('ecomm_shops').updateOne(
             { _id: new ObjectId(shopId) },
             { $set: { 
@@ -347,7 +423,9 @@ export async function applyEcommShopTheme(shopId: string): Promise<{ message?: s
                 updatedAt: new Date() 
             }}
         );
+
         revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
+        revalidatePath(`/shop/${shop.slug}`);
         return { message: 'Default shopping theme applied successfully! You can now customize it in the Website Builder.' };
     } catch (e: any) {
         return { error: 'Failed to apply theme.' };
@@ -408,6 +486,7 @@ export async function saveEcommPage(data: {
                 { $set: pageData }
             );
             revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
+            revalidatePath(`/shop/${shop.slug}/${slug}`);
             return { message: 'Page updated successfully.', pageId };
         }
     } catch (e: any) {
@@ -457,6 +536,7 @@ export async function setAsHomepage(pageId: string, shopId: string): Promise<{ m
         );
 
         revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
+        revalidatePath(`/shop/${shop.slug}`);
         return { message: 'Homepage updated.' };
      } catch(e) {
         return { error: 'Failed to set homepage.' };
