@@ -6,15 +6,15 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from '../ui/button';
+import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { Switch } from '../ui/switch';
-import { Textarea } from '../ui/textarea';
-import { Slider } from '../ui/slider';
-import { DatePicker } from '../ui/date-picker';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import { Separator } from '../ui/separator';
+import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
+import { Slider } from '@/components/ui/slider';
+import { DatePicker } from '@/components/wabasimplify/date-picker';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
 
 export function CountdownBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const handleUpdate = (field: string, value: any) => {
@@ -241,3 +241,5 @@ export function CountdownBlockEditor({ settings, onUpdate }: { settings: any, on
         </Tabs>
     );
 }
+
+    
