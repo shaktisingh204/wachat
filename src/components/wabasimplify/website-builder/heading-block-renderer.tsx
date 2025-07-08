@@ -7,6 +7,20 @@ import Link from 'next/link';
 
 export function HeadingBlock({ settings }: { settings: any }) {
     const Tag = settings.htmlTag || 'h2';
+    const SubheadingTag = settings.subheadingHtmlTag || 'p';
+
+    const responsiveAlignmentClasses = cn({
+        'text-left': settings.textAlign === 'left',
+        'text-center': settings.textAlign === 'center',
+        'text-right': settings.textAlign === 'right',
+        'text-justify': settings.textAlign === 'justify',
+        'md:text-left': settings.tabletTextAlign === 'left',
+        'md:text-center': settings.tabletTextAlign === 'center',
+        'md:text-right': settings.tabletTextAlign === 'right',
+        'sm:text-left': settings.mobileTextAlign === 'left',
+        'sm:text-center': settings.mobileTextAlign === 'center',
+        'sm:text-right': settings.mobileTextAlign === 'right',
+    });
 
     const style: React.CSSProperties = {
         fontFamily: settings.fontFamily || 'inherit',
@@ -17,11 +31,18 @@ export function HeadingBlock({ settings }: { settings: any }) {
         lineHeight: settings.lineHeight || 'inherit',
         letterSpacing: settings.letterSpacing ? `${settings.letterSpacing}px` : undefined,
         color: settings.color || 'inherit',
-        textAlign: settings.textAlign || 'left',
+        mixBlendMode: settings.blendMode || 'normal',
         textShadow: settings.textShadow ? `${settings.textShadow.x || 0}px ${settings.textShadow.y || 0}px ${settings.textShadow.blur || 0}px ${settings.textShadow.color || 'transparent'}` : 'none',
         margin: settings.margin ? `${settings.margin.top || 0}px ${settings.margin.right || 0}px ${settings.margin.bottom || 0}px ${settings.margin.left || 0}px` : undefined,
         padding: settings.padding ? `${settings.padding.top || 0}px ${settings.padding.right || 0}px ${settings.padding.bottom || 0}px ${settings.padding.left || 0}px` : undefined,
         zIndex: settings.zIndex || undefined,
+    };
+    
+    const subheadingStyle: React.CSSProperties = {
+        fontFamily: settings.subheading?.fontFamily || 'inherit',
+        fontSize: settings.subheading?.fontSize ? `${settings.subheading.fontSize}px` : undefined,
+        fontWeight: settings.subheading?.fontWeight || 'normal',
+        color: settings.subheading?.color || 'inherit',
     };
     
     const animationClass = {
@@ -42,11 +63,12 @@ export function HeadingBlock({ settings }: { settings: any }) {
         return acc;
     }, {});
 
-    const headingContent = React.createElement(Tag, {
-        style,
-        className: cn(animationClass, responsiveClasses, settings.cssClasses),
-        ...customAttributes
-    }, settings.text || 'Heading Text');
+    const headingContent = (
+        <>
+            {settings.subheadingText && React.createElement(SubheadingTag, { style: subheadingStyle }, settings.subheadingText)}
+            {React.createElement(Tag, { style, className: cn(settings.size) }, settings.text || 'Heading Text')}
+        </>
+    );
     
     const customStyleTag = settings.customCss ? (
         <style>{`#${settings.cssId || ''} { ${settings.customCss} }`}</style>
@@ -60,7 +82,7 @@ export function HeadingBlock({ settings }: { settings: any }) {
     };
 
     return (
-        <div id={settings.cssId}>
+        <div id={settings.cssId} className={cn(animationClass, responsiveClasses, responsiveAlignmentClasses, settings.cssClasses)} {...customAttributes}>
             {customStyleTag}
             <WrapperElement>
                 {headingContent}
