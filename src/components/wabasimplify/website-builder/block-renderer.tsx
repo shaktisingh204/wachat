@@ -24,6 +24,7 @@ import { FaqBlockRenderer } from './faq-block-renderer';
 import { TestimonialsBlockRenderer } from './testimonials-block-renderer';
 import { FeaturedProductsBlockRenderer } from './featured-products-block-renderer';
 import { Canvas } from './canvas';
+import { HeadingBlock } from './heading-block-renderer';
 
 
 const RichTextBlock = ({ settings }: { settings: any }) => {
@@ -48,33 +49,6 @@ const RichTextBlock = ({ settings }: { settings: any }) => {
 const CustomHtmlBlock = ({ settings }: { settings: any }) => (
     <div dangerouslySetInnerHTML={{ __html: settings.html || '' }} />
 );
-
-const HeadingBlock = ({ settings }: { settings: any }) => {
-    const Tag = settings.htmlTag || 'h2';
-    const style: React.CSSProperties = {
-        fontFamily: settings.fontFamily || 'inherit',
-        fontSize: settings.fontSize ? `${settings.fontSize}px` : undefined,
-        fontWeight: settings.fontWeight || 'normal',
-        fontStyle: settings.fontStyle || 'normal',
-        color: settings.color || 'inherit',
-        textAlign: settings.textAlign || 'left',
-        textShadow: settings.textShadow ? `${settings.textShadow.x || 0}px ${settings.textShadow.y || 0}px ${settings.textShadow.blur || 0}px ${settings.textShadow.color || 'transparent'}` : 'none',
-        margin: settings.margin ? `${settings.margin.top || 0}px ${settings.margin.right || 0}px ${settings.margin.bottom || 0}px ${settings.margin.left || 0}px` : undefined,
-        padding: settings.padding ? `${settings.padding.top || 0}px ${settings.padding.right || 0}px ${settings.padding.bottom || 0}px ${settings.padding.left || 0}px` : undefined,
-    };
-
-    const animationClass = {
-        fade: 'animate-fade-in',
-        slide: 'animate-slide-in-up',
-        zoom: 'animate-in zoom-in-50',
-        bounce: 'animate-bounce',
-    }[settings.animation || 'none'];
-
-    return React.createElement(Tag, {
-        style,
-        className: cn(animationClass)
-    }, settings.text || 'Heading Text');
-};
 
 const ImageBlock = ({ settings }: { settings: any }) => {
     const sizeClasses = {
@@ -302,41 +276,84 @@ const IconBlock = ({ settings }: { settings: any }) => {
 
 const SpacerBlock = ({ settings }: { settings: any }) => {
     const type = settings.type || 'spacer';
-    const marginTop = settings.margin?.top || '16';
-    const marginBottom = settings.margin?.bottom || '16';
+    
+    const responsiveClasses = cn({
+        'max-lg:hidden': settings.responsiveVisibility?.desktop === false,
+        'max-md:hidden lg:hidden': settings.responsiveVisibility?.tablet === false,
+        'max-sm:hidden': settings.responsiveVisibility?.mobile === false,
+    });
+    
+    const animationClass = {
+        fadeIn: 'animate-in fade-in duration-500',
+        fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
+    }[settings.animation || 'none'];
 
-    const style: React.CSSProperties = {
-        marginTop: `${marginTop}px`,
-        marginBottom: `${marginBottom}px`,
+    const baseStyle: React.CSSProperties = {
+        marginTop: settings.margin?.top ? `${settings.margin.top}px` : undefined,
+        marginRight: settings.margin?.right ? `${settings.margin.right}px` : undefined,
+        marginBottom: settings.margin?.bottom ? `${settings.margin.bottom}px` : undefined,
+        marginLeft: settings.margin?.left ? `${settings.margin.left}px` : undefined,
+        paddingTop: settings.padding?.top ? `${settings.padding.top}px` : undefined,
+        paddingRight: settings.padding?.right ? `${settings.padding.right}px` : undefined,
+        paddingBottom: settings.padding?.bottom ? `${settings.padding.bottom}px` : undefined,
+        paddingLeft: settings.padding?.left ? `${settings.padding.left}px` : undefined,
+        zIndex: settings.zIndex || undefined,
     };
+    
+    const customAttributes = (settings.customAttributes || []).reduce((acc: any, attr: any) => {
+        if(attr.key) acc[attr.key] = attr.value;
+        return acc;
+    }, {});
+
+    const customStyleTag = settings.customCss ? (
+        <style>{`#${settings.cssId || ''} { ${settings.customCss} }`}</style>
+    ) : null;
 
     if (type === 'divider') {
         const dividerStyle: React.CSSProperties = {
-            ...style,
+            ...baseStyle,
             width: settings.width || '100%',
             borderTopStyle: settings.style || 'solid',
             borderTopWidth: `${settings.thickness || 1}px`,
             borderColor: settings.color || 'hsl(var(--border))',
-            marginRight: 'auto',
-            marginLeft: 'auto',
         };
-         if (settings.alignment === 'left') {
-            dividerStyle.marginRight = 'auto';
-            dividerStyle.marginLeft = '0';
-        } else if (settings.alignment === 'right') {
-            dividerStyle.marginLeft = 'auto';
-            dividerStyle.marginRight = '0';
-        }
-        return <hr style={dividerStyle} />;
+        
+        const alignmentClass = {
+            left: 'mr-auto',
+            center: 'mx-auto',
+            right: 'ml-auto',
+        }[settings.alignment || 'center'];
+
+        return (
+            <>
+                {customStyleTag}
+                <hr 
+                    id={settings.cssId} 
+                    style={dividerStyle} 
+                    className={cn(alignmentClass, responsiveClasses, animationClass, settings.cssClasses)} 
+                    {...customAttributes} 
+                />
+            </>
+        );
     }
 
     // Spacer
     const spacerStyle: React.CSSProperties = {
-        ...style,
+        ...baseStyle,
         height: `${settings.height || 24}px`,
     };
 
-    return <div style={spacerStyle}></div>;
+    return (
+        <>
+            {customStyleTag}
+            <div 
+                id={settings.cssId} 
+                style={spacerStyle} 
+                className={cn(responsiveClasses, animationClass, settings.cssClasses)} 
+                {...customAttributes}
+            ></div>
+        </>
+    );
 };
 
 interface BlockRendererProps {
