@@ -197,62 +197,6 @@ body {
   body {
     @apply bg-background text-foreground;
   }
-  .embla {
-    position: relative;
-  }
-  .embla__viewport {
-    overflow: hidden;
-  }
-  .embla__container {
-    display: flex;
-    user-select: none;
-    -webkit-touch-callout: none;
-    -khtml-user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  .embla__slide {
-    position: relative;
-  }
-  .embla__button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    border: none;
-    z-index: 1;
-  }
-  .embla__button:disabled {
-      opacity: 0.3;
-      cursor: default;
-  }
-  .embla__button--prev {
-      left: 1rem;
-  }
-  .embla__button--next {
-      right: 1rem;
-  }
-  .embla__button__svg {
-      width: 50%;
-      height: 50%;
-  }
-  .embla__dots {
-      display: flex;
-      gap: 0.5rem;
-      z-index: 1;
-      justify-content: center;
-  }
-  .embla__dot {
-      border-radius: 50%;
-      cursor: pointer;
-      border: none;
-      padding: 0;
-  }
 }
 
 @layer components {
@@ -281,14 +225,6 @@ body {
     .dnd-placeholder {
         @apply bg-primary/10 border-2 border-dashed border-primary rounded-lg;
     }
-    .has-drop-cap p:first-of-type::first-letter {
-        font-size: 3.5em;
-        font-weight: bold;
-        float: left;
-        line-height: 0.8;
-        margin-right: 0.1em;
-        color: hsl(var(--primary));
-    }
 }
 
 
@@ -311,8 +247,6 @@ body {
     .text-instagram {
         color: hsl(var(--instagram));
     }
-    .animate-bob { animation: bob 1.5s ease-in-out infinite; }
-    .animate-wobbleHorizontal { animation: wobble-horizontal 1s ease-in-out infinite; }
     .animate-fade-in-up {
         animation: fade-in-up 0.6s ease-in-out forwards;
         opacity: 0;
@@ -395,19 +329,5 @@ body {
             box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
             opacity: 1;
         }
-    }
-
-    @keyframes bob {
-      0%, 100% { transform: translateY(-5%); animation-timing-function: cubic-bezier(0.8, 0, 1, 1); }
-      50% { transform: translateY(0); animation-timing-function: cubic-bezier(0, 0, 0.2, 1); }
-    }
-
-    @keyframes wobble-horizontal {
-      16.65% { transform: translateX(8px); }
-      33.3% { transform: translateX(-6px); }
-      49.95% { transform: translateX(4px); }
-      66.6% { transform: translateX(-2px); }
-      83.25% { transform: translateX(1px); }
-      100% { transform: translateX(0); }
     }
 }
