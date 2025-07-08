@@ -2519,6 +2519,19 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
     if (!name || !email || !password) {
         return { error: 'All fields are required.' };
     }
+
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+        return { error: 'Name cannot be empty.' };
+    }
+    if (trimmedName.length > 50) {
+        return { error: 'Name cannot exceed 50 characters.' };
+    }
+    // Ensure the name is not just special characters or numbers
+    if (!/[a-zA-Z]/.test(trimmedName)) {
+        return { error: 'Name must contain at least one letter.' };
+    }
+
     if (password.length < 6) {
         return { error: 'Password must be at least 6 characters long.' };
     }
@@ -2533,7 +2546,7 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
         const hashedPassword = await hashPassword(password);
         
         const newUser: Omit<User, '_id'> = {
-            name,
+            name: trimmedName,
             email,
             password: hashedPassword,
             createdAt: new Date(),
@@ -2547,6 +2560,7 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
 
     redirect('/login');
 }
+
 
 export async function handleLogout() {
     cookies().delete('session');
