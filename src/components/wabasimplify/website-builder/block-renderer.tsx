@@ -1,4 +1,3 @@
-
 'use client';
 
 import React from 'react';
@@ -26,6 +25,7 @@ import { ButtonBlockRenderer } from './button-block-renderer';
 import { SpacerBlockRenderer } from './spacer-block-renderer';
 import { IconBlockRenderer } from './icon-block-renderer';
 import { CartBlockRenderer } from './cart-block-renderer';
+import { ProductImageRenderer, ProductTitleRenderer, ProductPriceRenderer, ProductDescriptionRenderer, ProductAddToCartRenderer, ProductBreadcrumbsRenderer } from './product-block-renderers';
 
 
 const CustomHtmlBlock = ({ settings }: { settings: any }) => (
@@ -40,11 +40,14 @@ interface BlockRendererProps {
   onBlockClick?: (id: string) => void;
   onRemoveBlock?: (id: string) => void;
   isEditable?: boolean;
+  contextData?: any;
 }
 
 export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
-    const { block, products, shopSlug, isEditable } = props;
+    const { block, products, shopSlug, isEditable, contextData } = props;
     const safeSettings = block.settings || {};
+
+    const productContext = contextData?.product || null;
 
     switch (block.type) {
         case 'hero': return <HeroBlock settings={safeSettings} />;
@@ -68,6 +71,12 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
         case 'socialShare': return <SocialShareBlockRenderer settings={safeSettings} />;
         case 'repeater': return <RepeaterBlockRenderer settings={safeSettings} />;
         case 'cart': return <CartBlockRenderer settings={safeSettings} />;
+        case 'productImage': return <ProductImageRenderer product={productContext} settings={safeSettings} />;
+        case 'productTitle': return <ProductTitleRenderer product={productContext} settings={safeSettings} />;
+        case 'productPrice': return <ProductPriceRenderer product={productContext} settings={safeSettings} />;
+        case 'productDescription': return <ProductDescriptionRenderer product={productContext} settings={safeSettings} />;
+        case 'productAddToCart': return <ProductAddToCartRenderer product={productContext} settings={safeSettings} />;
+        case 'productBreadcrumbs': return <ProductBreadcrumbsRenderer product={productContext} settings={safeSettings} />;
         case 'section': return <SectionBlockRenderer {...props} children={block.children || []} isEditable={isEditable} />;
         case 'columns': return <ColumnsBlockRenderer {...props} children={block.children || []} isEditable={isEditable} />;
         default: return <div className="text-center text-muted-foreground">Unsupported block type: {block.type}</div>;
