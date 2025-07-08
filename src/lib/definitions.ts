@@ -153,7 +153,7 @@ export type FormField = {
 
 export type WebsiteBlock = {
     id: string;
-    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml' | 'heading' | 'image' | 'button' | 'video' | 'icon' | 'spacer' | 'imageCarousel' | 'tabs' | 'accordion' | 'form' | 'map' | 'countdown' | 'socialShare' | 'repeater' | 'section' | 'columns' | 'column';
+    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml' | 'heading' | 'image' | 'button' | 'video' | 'icon' | 'spacer' | 'imageCarousel' | 'tabs' | 'accordion' | 'form' | 'map' | 'countdown' | 'socialShare' | 'repeater' | 'section' | 'columns' | 'column' | 'productImage' | 'productTitle' | 'productPrice' | 'productDescription' | 'productAddToCart' | 'productBreadcrumbs';
     settings: any;
     children?: WebsiteBlock[];
 };
@@ -172,6 +172,9 @@ export type EcommShop = {
     abandonedCart?: AbandonedCartSettings;
     createdAt: Date;
     updatedAt: Date;
+    headerLayout?: WebsiteBlock[];
+    footerLayout?: WebsiteBlock[];
+    productPageLayout?: WebsiteBlock[];
     appearance?: {
         primaryColor?: string;
         fontFamily?: string;
@@ -216,7 +219,7 @@ export type Project = {
     adAccountId?: string;
     facebookPageId?: string;
     facebookCommentAutoReply?: FacebookCommentAutoReplySettings;
-    facebookWelcomeMessage?: FacebookWelcomeMessageSettings;
+    facebookWelcomeMessageSettings?: FacebookWelcomeMessageSettings;
     postRandomizer?: PostRandomizerSettings;
     tags?: Tag[];
     planId?: ObjectId;
@@ -1128,3 +1131,5 @@ export type Backlink = {
     domainAuthority: number;
     linkType: 'News' | 'Forum' | 'Blog' | 'Review';
 };
+
+    

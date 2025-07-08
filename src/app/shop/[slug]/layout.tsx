@@ -4,7 +4,8 @@ import React from 'react';
 import { getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
 import { notFound } from 'next/navigation';
 import { CartProvider } from '@/context/cart-context';
-import { ShopHeader } from '@/components/wabasimplify/website-builder/shop-header';
+import { BlockRenderer } from '@/components/wabasimplify/website-builder/block-renderer';
+import { getPublicEcommProducts } from '@/app/actions/custom-ecommerce.actions';
 
 export default async function ShopLayout({
     children,
@@ -18,16 +19,33 @@ export default async function ShopLayout({
         notFound();
     }
     
+    // Fetch products once at the layout level if needed by header/footer
+    const products = await getPublicEcommProducts(shop._id.toString());
+    
     const globalFontFamily = shop.appearance?.fontFamily || 'Inter, sans-serif';
     const primaryColor = shop.appearance?.primaryColor || '#000000';
 
     return (
         <CartProvider>
             <div style={{ fontFamily: globalFontFamily, '--shop-primary-color': primaryColor } as React.CSSProperties}>
-                <ShopHeader shopName={shop.name} />
+                {shop.headerLayout && shop.headerLayout.length > 0 && (
+                     <header className="sticky top-0 z-40">
+                        {shop.headerLayout.map(block => (
+                            <BlockRenderer key={block.id} block={block} products={products} shopSlug={shop.slug} />
+                        ))}
+                    </header>
+                )}
                 <main>{children}</main>
-                {/* You can add a shared footer here */}
+                 {shop.footerLayout && shop.footerLayout.length > 0 && (
+                     <footer>
+                        {shop.footerLayout.map(block => (
+                            <BlockRenderer key={block.id} block={block} products={products} shopSlug={shop.slug} />
+                        ))}
+                    </footer>
+                )}
             </div>
         </CartProvider>
     );
 }
+
+    
