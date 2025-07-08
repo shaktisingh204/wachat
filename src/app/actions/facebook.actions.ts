@@ -1,5 +1,6 @@
 
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -11,7 +12,7 @@ import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
 import { getEcommShopById } from './custom-ecommerce.actions';
-import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder } from '@/lib/definitions';
+import type { AdCampaign, Project, FacebookPage, CustomAudience, FacebookPost, FacebookPageDetails, PageInsights, FacebookConversation, FacebookMessage, FacebookCommentAutoReplySettings, PostRandomizerSettings, RandomizerPost, FacebookBroadcast, FacebookLiveStream, FacebookSubscriber, FacebookWelcomeMessageSettings, FacebookOrder, User } from '@/lib/definitions';
 import { processMessengerWebhook } from '@/lib/webhook-processor';
 
 
@@ -114,6 +115,14 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
         const longLivedToken = longLivedResponse.data.access_token;
         if (!longLivedToken) return { success: false, error: 'Could not obtain a long-lived token from Facebook.' };
 
+        // 2.5 Save user token to user document
+        const { db } = await connectToDatabase();
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $set: { facebookUserAccessToken: longLivedToken } }
+        );
+
+
         // 3. Fetch user's business ID
         let businessId: string | undefined;
         try {
@@ -172,7 +181,6 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
         const validPages = userPages.filter(Boolean);
 
         // 6. For each page, create or update a project
-        const { db } = await connectToDatabase();
         const bulkOps = validPages.map((page: any) => ({
             updateOne: {
                 filter: { userId: new ObjectId(session.user._id), facebookPageId: page.id },
@@ -450,17 +458,22 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
     }
 }
 
-export async function getFacebookPages(projectId: string): Promise<{ pages?: FacebookPage[], error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.accessToken) {
-        return { error: 'Project not found or access token is missing.' };
+export async function getFacebookPages(): Promise<{ pages?: FacebookPage[], error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'User not logged in.' };
+    
+    const { db } = await connectToDatabase();
+    const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
+
+    if (!user || !user.facebookUserAccessToken) {
+        return { error: 'Facebook account not connected or user access token is missing. Please go to Project Connections and reconnect.' };
     }
 
     try {
         const response = await axios.get(`https://graph.facebook.com/v23.0/me/accounts`, {
             params: {
                 fields: 'id,name,category,tasks',
-                access_token: project.accessToken,
+                access_token: user.facebookUserAccessToken,
             }
         });
 
@@ -471,7 +484,11 @@ export async function getFacebookPages(projectId: string): Promise<{ pages?: Fac
         return { pages: response.data.data || [] };
 
     } catch (e: any) {
-        return { error: getErrorMessage(e) };
+        const errorMessage = getErrorMessage(e);
+        if (errorMessage.includes('Session has expired') || errorMessage.includes('invalid') || errorMessage.includes('token')) {
+             return { error: 'Your Facebook connection has expired or is invalid. Please go to Project Connections and reconnect.' };
+        }
+        return { error: errorMessage };
     }
 }
 
@@ -893,7 +910,7 @@ export async function handleLikeObject(objectId: string, projectId: string): Pro
         return { success: true };
     } catch (e: any) {
         // Facebook returns an error if you try to like something twice, so we can ignore that specific error.
-        if (e.response?.data?.error?.code === 1705) {
+        if (getErrorMessage(e).includes('already liked')) {
              return { success: true }; // Already liked
         }
         return { success: false, error: getErrorMessage(e) };
