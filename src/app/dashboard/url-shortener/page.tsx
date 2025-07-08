@@ -216,7 +216,7 @@ export default function UrlShortenerPage() {
     return (
         <>
             <QrCodeDialog
-                url={selectedUrlForQr}
+                dataString={selectedUrlForQr}
                 open={!!selectedUrlForQr}
                 onOpenChange={(open) => !open && setSelectedUrlForQr(null)}
             />
