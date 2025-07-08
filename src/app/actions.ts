@@ -945,17 +945,29 @@ export async function handleCreateTemplate(
             return { error: 'App ID is not configured for this project, and no fallback is set in environment variables. Please set NEXT_PUBLIC_META_APP_ID in the .env file or re-configure the project.' };
         }
 
-        const name = cleanText(formData.get('name') as string);
+        const name = (formData.get('name') as string || '').trim();
+        const nameRegex = /^[a-z0-9_]+$/;
+
+        if (!name) {
+            return { error: 'Template name is required.' };
+        }
+        if (name.length > 512) {
+            return { error: 'Template name cannot exceed 512 characters.' };
+        }
+        if (!nameRegex.test(name)) {
+            return { error: 'Template name can only contain lowercase letters, numbers, and underscores (_).' };
+        }
+
         const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
         const language = formData.get('language') as string;
 
-         if (!name || !category || !language) {
-            return { error: 'Name, Language, and Category are required.' };
+         if (!category || !language) {
+            return { error: 'Language, and Category are required.' };
         }
         
         const { wabaId, accessToken } = project;
         let payload: any = {
-            name: name.toLowerCase().replace(/\s+/g, '_'),
+            name,
             language,
             category,
             allow_category_change: true,
@@ -3756,8 +3768,21 @@ export async function saveLibraryTemplate(prevState: any, formData: FormData): P
     if (!isAdmin) return { error: 'Permission denied.' };
     
     try {
+        const name = (formData.get('name') as string || '').trim();
+        const nameRegex = /^[a-z0-9_]+$/;
+
+        if (!name) {
+            return { error: 'Template name is required.' };
+        }
+        if (name.length > 512) {
+            return { error: 'Template name cannot exceed 512 characters.' };
+        }
+        if (!nameRegex.test(name)) {
+            return { error: 'Template name can only contain lowercase letters, numbers, and underscores (_).' };
+        }
+
         const templateData: LibraryTemplate = {
-            name: formData.get('name') as string,
+            name: name,
             category: formData.get('category') as Template['category'],
             language: formData.get('language') as string,
             body: formData.get('body') as string,
@@ -3766,8 +3791,8 @@ export async function saveLibraryTemplate(prevState: any, formData: FormData): P
             createdAt: new Date(),
         };
 
-        if (!templateData.name || !templateData.category || !templateData.language || !templateData.body) {
-            return { error: 'Name, category, language, and body are required.' };
+        if (!templateData.category || !templateData.language || !templateData.body) {
+            return { error: 'Category, language, and body are required.' };
         }
 
         const { db } = await connectToDatabase();
