@@ -5,7 +5,6 @@ import React from 'react';
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import * as LucideIcons from 'lucide-react';
@@ -26,78 +25,12 @@ import { FeaturedProductsBlockRenderer } from './featured-products-block-rendere
 import { Canvas } from './canvas';
 import { HeadingBlock } from './heading-block-renderer';
 import { RichTextBlockRenderer } from './rich-text-block-renderer';
+import { ImageBlockRenderer } from './image-block-renderer';
 
 
 const CustomHtmlBlock = ({ settings }: { settings: any }) => (
     <div dangerouslySetInnerHTML={{ __html: settings.html || '' }} />
 );
-
-const ImageBlock = ({ settings }: { settings: any }) => {
-    const sizeClasses = {
-        small: 'w-1/3',
-        medium: 'w-1/2',
-        large: 'w-3/4',
-        full: 'w-full',
-    }[settings.size || 'medium'];
-
-    const alignClasses = {
-        left: 'justify-start',
-        center: 'justify-center',
-        right: 'justify-end',
-    }[settings.align || 'center'];
-
-    const shapeClasses = {
-        square: 'rounded-none',
-        rounded: 'rounded-lg',
-        circle: 'rounded-full aspect-square object-cover',
-    }[settings.shape || 'rounded'];
-
-    const shadowClasses = {
-        none: 'shadow-none',
-        sm: 'shadow-sm',
-        md: 'shadow-md',
-        lg: 'shadow-lg',
-    }[settings.shadow || 'none'];
-
-    const hoverClasses = {
-        none: '',
-        zoom: 'group-hover:scale-105',
-        grayscale: 'group-hover:grayscale',
-    }[settings.hoverEffect || 'none'];
-
-    const borderStyle = settings.border?.enabled ? {
-        borderWidth: `${settings.border.width || 1}px`,
-        borderColor: settings.border.color || '#000000',
-        borderStyle: 'solid',
-    } : {};
-    
-    const imageElement = (
-        <Image
-            src={settings.src || 'https://placehold.co/600x400.png'}
-            alt={settings.alt || 'Shop image'}
-            width={800}
-            height={600}
-            className={cn('transition-transform duration-300', shapeClasses, hoverClasses)}
-            style={borderStyle}
-            data-ai-hint="shop image"
-        />
-    );
-
-    return (
-        <figure className={cn('flex', alignClasses)}>
-            <div className={cn('group space-y-2', sizeClasses, shadowClasses, shapeClasses !== 'rounded-full' ? '' : 'overflow-hidden')}>
-                {settings.link ? (
-                    <a href={settings.link} target="_blank" rel="noopener noreferrer">
-                        {imageElement}
-                    </a>
-                ) : (
-                    imageElement
-                )}
-                {settings.caption && <figcaption className="text-sm text-center text-muted-foreground">{settings.caption}</figcaption>}
-            </div>
-        </figure>
-    );
-};
 
 const ButtonBlock = ({ settings }: { settings: any }) => {
     // @ts-ignore
@@ -360,7 +293,7 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
         case 'faq': return <FaqBlockRenderer settings={safeSettings} />;
         case 'customHtml': return <CustomHtmlBlock settings={safeSettings} />;
         case 'heading': return <HeadingBlock settings={safeSettings} />;
-        case 'image': return <ImageBlock settings={safeSettings} />;
+        case 'image': return <ImageBlockRenderer settings={safeSettings} />;
         case 'button': return <ButtonBlock settings={safeSettings} />;
         case 'video': return <VideoBlock settings={safeSettings} />;
         case 'icon': return <IconBlock settings={safeSettings} />;
