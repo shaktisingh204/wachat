@@ -29,25 +29,37 @@ interface ImageCarouselRendererProps {
     navigation?: 'none' | 'arrows' | 'dots' | 'arrows_dots';
     imageStretch?: boolean;
     
-    // Style
+    // Style props
     spacing?: number;
-    borderRadius?: number;
-    border?: { type?: string; width?: number; color?: string };
+    border?: { type?: string; width?: {top?: string, right?: string, bottom?: string, left?: string}, color?: string };
+    borderRadius?: {tl?: string, tr?: string, br?: string, bl?: string};
     boxShadow?: 'none' | 'sm' | 'md' | 'lg';
-    hoverAnimation?: 'none' | 'zoom' | 'grow' | 'shrink';
+    hoverAnimation?: string;
+    filter?: { blur?: number, brightness?: number, contrast?: number, saturate?: number, hue?: number };
+    hoverFilter?: { blur?: number, brightness?: number, contrast?: number, saturate?: number, hue?: number };
+    transitionDuration?: number;
+
     arrowPosition?: 'inside' | 'outside';
     arrowSize?: number;
     arrowColor?: string;
     arrowBgColor?: string;
+    arrowHoverColor?: string;
+    arrowHoverBgColor?: string;
+    arrowBorderRadius?: number;
+
+    dotPosition?: 'outside' | 'inside';
     dotSize?: number;
     dotSpacing?: number;
+    dotAlignment?: 'flex-start' | 'center' | 'flex-end';
     dotColor?: string;
     activeDotColor?: string;
     
     // Advanced
     margin?: { top?: number; right?: number; bottom?: number; left?: number };
     padding?: { top?: number; right?: number; bottom?: number; left?: number };
-    animation?: 'none' | 'fadeIn' | 'fadeInUp';
+    animation?: 'none' | 'fadeIn' | 'fadeInUp' | 'fadeInDown' | 'fadeInLeft' | 'fadeInRight';
+    animationDuration?: 'slow' | 'normal' | 'fast';
+    animationDelay?: number;
     responsiveVisibility?: { desktop?: boolean; tablet?: boolean; mobile?: boolean };
     cssId?: string;
     cssClasses?: string;
@@ -88,28 +100,15 @@ export const ImageCarouselRenderer: React.FC<ImageCarouselRendererProps> = ({ se
         return <div className="p-4 text-center border-2 border-dashed rounded-lg text-muted-foreground">Image Carousel: No images added.</div>;
     }
     
-    const hoverClass = {
-        none: '',
-        zoom: 'group-hover:scale-105',
-        grow: 'group-hover:scale-110',
-        shrink: 'group-hover:scale-95',
-    }[settings.hoverAnimation || 'none'];
-    
-    const shadowClass = {
-        none: 'shadow-none',
-        sm: 'shadow-sm',
-        md: 'shadow-md',
-        lg: 'shadow-lg',
-    }[settings.boxShadow || 'none'];
+    const hoverClass = settings.hoverAnimation && settings.hoverAnimation !== 'none' ? `group-hover:${settings.hoverAnimation}` : '';
+    const shadowClass = { sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg'}[settings.boxShadow || 'none'] || 'shadow-none';
 
-    const animationClass = {
-        fadeIn: 'animate-in fade-in duration-500',
-        fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
-    }[settings.animation || 'none'];
+    const animationDurationClass = { slow: 'duration-1000', normal: 'duration-500', fast: 'duration-300'}[settings.animationDuration || 'normal'];
+    const animationClass = settings.animation && settings.animation !== 'none' ? `animate-in ${settings.animation} ${animationDurationClass}` : '';
     
     const responsiveClasses = cn({
         'max-lg:hidden': settings.responsiveVisibility?.desktop === false,
-        'max-md:hidden lg:hidden': settings.responsiveVisibility?.tablet === false,
+        'hidden md:max-lg:flex': settings.responsiveVisibility?.tablet === false,
         'max-sm:hidden': settings.responsiveVisibility?.mobile === false,
     });
     
@@ -120,49 +119,77 @@ export const ImageCarouselRenderer: React.FC<ImageCarouselRendererProps> = ({ se
     
     const uniqueId = React.useId().replace(/:/g, "");
 
+    const getFilterString = (filter: any) => {
+        if (!filter) return 'none';
+        return `blur(${filter.blur || 0}px) brightness(${filter.brightness || 100}%) contrast(${filter.contrast || 100}%) saturate(${filter.saturate || 100}%) hue-rotate(${filter.hue || 0}deg)`;
+    };
+
     const dynamicStyles = `
-        .embla__slide--${uniqueId} {
+        .embla--${uniqueId} .embla__slide {
             flex: 0 0 ${100 / slidesToShow}%;
             min-width: 0;
             padding-left: ${spacing / 2}px;
             padding-right: ${spacing / 2}px;
         }
-        .embla__button--${uniqueId} {
+        .embla--${uniqueId} .embla__button {
             width: ${settings.arrowSize || 40}px;
             height: ${settings.arrowSize || 40}px;
             background-color: ${settings.arrowBgColor || 'rgba(0,0,0,0.5)'};
+            border-radius: ${settings.arrowBorderRadius || 50}%;
         }
-        .embla__button__svg--${uniqueId} {
+         .embla--${uniqueId} .embla__button:hover {
+            background-color: ${settings.arrowHoverBgColor || 'rgba(0,0,0,0.8)'};
+         }
+        .embla--${uniqueId} .embla__button__svg {
             width: 50%;
             height: 50%;
             color: ${settings.arrowColor || '#ffffff'};
         }
-        .embla__dot--${uniqueId} {
+        .embla--${uniqueId} .embla__button:hover .embla__button__svg {
+            color: ${settings.arrowHoverColor || '#ffffff'};
+        }
+        .embla--${uniqueId} .embla__dots {
+            justify-content: ${settings.dotAlignment || 'center'};
+            gap: ${settings.dotSpacing || 8}px;
+            ${settings.dotPosition === 'inside' ? 'position: absolute; bottom: 1rem; left: 0; right: 0;' : 'margin-top: 1rem;'}
+        }
+        .embla--${uniqueId} .embla__dot {
             width: ${settings.dotSize || 12}px;
             height: ${settings.dotSize || 12}px;
-            margin: 0 ${settings.dotSpacing / 2 || 4}px;
             background-color: ${settings.dotColor || 'hsla(0, 0%, 100%, 0.3)'};
         }
-        .embla__dot--${uniqueId}.embla__dot--selected {
+        .embla--${uniqueId} .embla__dot--selected {
             background-color: ${settings.activeDotColor || 'hsl(var(--primary))'};
+        }
+        .image--${uniqueId} {
+            filter: ${getFilterString(settings.filter)};
+            transition: filter ${settings.transitionDuration || 0.3}s ease-in-out;
+        }
+        .group:hover .image--${uniqueId} {
+            filter: ${getFilterString(settings.hoverFilter)};
         }
         ${settings.customCss || ''}
     `;
 
     return (
-        <div id={settings.cssId} className={cn("embla w-full relative", animationClass, responsiveClasses, settings.cssClasses)} {...customAttributes}>
+        <div id={settings.cssId} className={cn("embla", `embla--${uniqueId}`, "w-full relative", animationClass, responsiveClasses, settings.cssClasses)} {...customAttributes}>
             <style>{dynamicStyles}</style>
             <div className={cn("embla__viewport", arrowPosition === 'outside' && 'overflow-visible')} ref={emblaRef}>
                 <div className="embla__container" style={{ marginLeft: `-${spacing / 2}px`, marginRight: `-${spacing / 2}px` }}>
                     {images.map((image, index) => (
-                        <div className={cn("embla__slide", `embla__slide--${uniqueId}`)} key={image.id || index}>
+                        <div className="embla__slide" key={image.id || index}>
                             <Link href={image.link || '#'} className="group block overflow-hidden" target={image.link ? '_blank' : undefined} rel="noopener noreferrer">
                                 <div className="relative aspect-video">
                                     <Image
-                                        className={cn("transition-transform", hoverClass, shadowClass)}
+                                        className={cn("transition-transform", `image--${uniqueId}`, hoverClass, shadowClass)}
                                         style={{
-                                            borderRadius: settings.borderRadius ? `${settings.borderRadius}px` : undefined,
-                                            border: settings.border?.type !== 'none' ? `${settings.border?.width || 1}px ${settings.border?.type || 'solid'} ${settings.border?.color || '#000'}` : undefined,
+                                            borderTopWidth: `${settings.border?.width?.top || 0}px`,
+                                            borderRightWidth: `${settings.border?.width?.right || 0}px`,
+                                            borderBottomWidth: `${settings.border?.width?.bottom || 0}px`,
+                                            borderLeftWidth: `${settings.border?.width?.left || 0}px`,
+                                            borderStyle: settings.border?.type,
+                                            borderColor: settings.border?.color,
+                                            borderRadius: `${settings.borderRadius?.tl || 0}px ${settings.borderRadius?.tr || 0}px ${settings.borderRadius?.br || 0}px ${settings.borderRadius?.bl || 0}px`,
                                             transitionDuration: settings.transitionDuration ? `${settings.transitionDuration}s` : undefined
                                         }}
                                         src={image.src || 'https://placehold.co/800x450.png'}
@@ -181,8 +208,8 @@ export const ImageCarouselRenderer: React.FC<ImageCarouselRendererProps> = ({ se
             
             {(navigation === 'arrows' || navigation === 'arrows_dots') && (
                 <>
-                    <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} className={cn(`embla__button--${uniqueId}`, arrowPosition === 'outside' && '-left-16')} />
-                    <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} className={cn(`embla__button--${uniqueId}`, arrowPosition === 'outside' && '-right-16')} />
+                    <PrevButton onClick={onPrevButtonClick} disabled={prevBtnDisabled} className={cn(arrowPosition === 'outside' && '-left-16')} />
+                    <NextButton onClick={onNextButtonClick} disabled={nextBtnDisabled} className={cn(arrowPosition === 'outside' && '-right-16')} />
                 </>
             )}
 
@@ -192,7 +219,7 @@ export const ImageCarouselRenderer: React.FC<ImageCarouselRendererProps> = ({ se
                         <DotButton
                             key={index}
                             onClick={() => onDotButtonClick(index)}
-                            className={cn('embla__dot', `embla__dot--${uniqueId}`, index === selectedIndex && 'embla__dot--selected')}
+                            className={cn('embla__dot', index === selectedIndex && 'embla__dot--selected')}
                         />
                     ))}
                 </div>
