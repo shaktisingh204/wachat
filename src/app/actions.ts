@@ -24,6 +24,9 @@ import { premadeTemplates } from '@/lib/premade-templates';
 import { getMetaFlows } from './actions/meta-flow.actions';
 import { getErrorMessage } from '@/lib/utils';
 // Re-exports for server actions are handled by direct imports in components now.
+import { headers } from 'next/headers';
+import { checkRateLimit } from '@/lib/rate-limiter';
+
 
 import type {
     Plan,
@@ -2477,6 +2480,14 @@ export async function getTransactionStatus(transactionId: string): Promise<WithI
 }
 
 export async function handleLogin(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const headersList = headers();
+    const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
+
+    const { success: rateLimitSuccess, error: rateLimitError } = await checkRateLimit(ip, 5, 60 * 1000); // 5 requests per minute
+    if (!rateLimitSuccess) {
+        return { error: rateLimitError };
+    }
+    
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
@@ -2488,7 +2499,6 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
     if (!emailRegex.test(email)) {
         return { error: 'Please enter a valid email address.' };
     }
-
 
     try {
         const { db } = await connectToDatabase();
@@ -2514,6 +2524,14 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
 }
 
 export async function handleAdminLogin(prevState: any, formData: FormData): Promise<{ error?: string }> {
+    const headersList = headers();
+    const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
+
+    const { success: rateLimitSuccess, error: rateLimitError } = await checkRateLimit(`admin:${ip}`, 5, 60 * 1000); // 5 requests per minute
+    if (!rateLimitSuccess) {
+        return { error: rateLimitError };
+    }
+
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
@@ -3767,20 +3785,20 @@ export async function saveLibraryTemplate(prevState: any, formData: FormData): P
     const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { error: 'Permission denied.' };
     
+    const name = (formData.get('name') as string || '').trim();
+    const nameRegex = /^[a-z0-9_]+$/;
+
+    if (!name) {
+        return { error: 'Template name is required.' };
+    }
+    if (name.length > 512) {
+        return { error: 'Template name cannot exceed 512 characters.' };
+    }
+    if (!nameRegex.test(name)) {
+        return { error: 'Template name can only contain lowercase letters, numbers, and underscores (_).' };
+    }
+
     try {
-        const name = (formData.get('name') as string || '').trim();
-        const nameRegex = /^[a-z0-9_]+$/;
-
-        if (!name) {
-            return { error: 'Template name is required.' };
-        }
-        if (name.length > 512) {
-            return { error: 'Template name cannot exceed 512 characters.' };
-        }
-        if (!nameRegex.test(name)) {
-            return { error: 'Template name can only contain lowercase letters, numbers, and underscores (_).' };
-        }
-
         const templateData: LibraryTemplate = {
             name: name,
             category: formData.get('category') as Template['category'],
