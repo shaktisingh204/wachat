@@ -18,7 +18,7 @@ import { TabsBlockEditor } from './tabs-block-editor';
 import { AccordionBlockEditor } from './accordion-block-editor';
 import { FormBlockEditor } from './form-block-editor';
 import { MapBlockEditor } from './map-block-editor';
-import { CountdownBlockRenderer } from './countdown-block-renderer';
+import { CountdownBlockEditor } from './countdown-block-editor';
 import { SocialShareBlockEditor } from './social-share-block-editor';
 import { RepeaterBlockEditor } from './repeater-block-editor';
 import { SectionBlockEditor } from './section-block-editor';
@@ -28,8 +28,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { FaqBlockEditor } from './faq-block-editor';
-import { CountdownBlockEditor } from './countdown-block-editor';
-
 
 interface PropertiesPanelProps {
     selectedBlock: WebsiteBlock | undefined;

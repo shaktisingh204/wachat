@@ -65,7 +65,7 @@ export function BlockPalette({ onAddBlock }: BlockPaletteProps) {
                     <div key={section.title} className="space-y-2">
                         <h3 className="font-semibold text-sm text-muted-foreground px-2">{section.title}</h3>
                         {section.blocks.map(block => (
-                            <Button key={block.type} variant="outline" className="w-full justify-start" onClick={() => onAddBlock(block.type as WebsiteBlock['type'])}>
+                            <Button key={block.type} variant="outline" className="w-full justify-start mb-2" onClick={() => onAddBlock(block.type as WebsiteBlock['type'])}>
                                 <block.icon className="mr-2 h-4 w-4" />
                                 {block.label}
                             </Button>
