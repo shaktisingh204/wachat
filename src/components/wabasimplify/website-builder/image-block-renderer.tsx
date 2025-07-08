@@ -17,6 +17,9 @@ export function ImageBlockRenderer({ settings }: { settings: any }) {
     const wrapperStyle: React.CSSProperties = {
         display: 'flex',
         justifyContent: alignClasses,
+        margin: settings.margin ? `${settings.margin.top || 0}px ${settings.margin.right || 0}px ${settings.margin.bottom || 0}px ${settings.margin.left || 0}px` : undefined,
+        padding: settings.padding ? `${settings.padding.top || 0}px ${settings.padding.right || 0}px ${settings.padding.bottom || 0}px ${settings.padding.left || 0}px` : undefined,
+        zIndex: settings.zIndex || undefined,
     };
     
     const figureStyle: React.CSSProperties = {
@@ -51,6 +54,22 @@ export function ImageBlockRenderer({ settings }: { settings: any }) {
         grow: 'group-hover:scale-110',
         shrink: 'group-hover:scale-95',
     }[settings.hoverAnimation || 'none'];
+
+    const animationClass = {
+        fadeIn: 'animate-in fade-in duration-500',
+        fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
+    }[settings.animation || 'none'];
+
+    const responsiveClasses = cn({
+        'max-lg:hidden': settings.responsiveVisibility?.desktop === false,
+        'max-md:hidden lg:hidden': settings.responsiveVisibility?.tablet === false,
+        'max-sm:hidden': settings.responsiveVisibility?.mobile === false,
+    });
+    
+    const customAttributes = (settings.customAttributes || []).reduce((acc: any, attr: any) => {
+        if(attr.key) acc[attr.key] = attr.value;
+        return acc;
+    }, {});
 
     const ImageElement = (
         <Image
@@ -87,16 +106,25 @@ export function ImageBlockRenderer({ settings }: { settings: any }) {
         </>
     );
 
+    const customStyleTag = settings.customCss ? (
+        <style>{`#${settings.cssId || ''} { ${settings.customCss} }`}</style>
+    ) : null;
+
+    const WrapperElement = ({ children }: { children: React.ReactNode }) => {
+        if (settings.link) {
+            const rel = settings.linkNofollow ? 'nofollow' : undefined;
+            return <Link href={settings.link} target={settings.linkNewTab ? '_blank' : '_self'} rel={rel}>{children}</Link>;
+        }
+        return <>{children}</>;
+    };
+
     return (
-        <div style={wrapperStyle}>
+        <div id={settings.cssId} style={wrapperStyle} className={cn('relative', animationClass, responsiveClasses, settings.cssClasses)} {...customAttributes}>
+            {customStyleTag}
             <Tag style={figureStyle} className={cn('group space-y-2', shadowClasses)}>
-                {settings.link ? (
-                    <Link href={settings.link} target={settings.linkNewTab ? '_blank' : '_self'} rel={settings.linkNofollow ? 'nofollow' : ''}>
-                        {content}
-                    </Link>
-                ) : (
-                    content
-                )}
+                <WrapperElement>
+                    {content}
+                </WrapperElement>
                 {Tag !== 'figure' && CaptionElement}
             </Tag>
         </div>
