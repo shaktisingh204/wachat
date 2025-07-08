@@ -42,7 +42,7 @@ export default function AllFacebookPagesPage() {
     useEffect(() => {
         if (projectId) {
             startTransition(async () => {
-                const { pages: fetchedPages, error: fetchError } = await getFacebookPages(projectId);
+                const { pages: fetchedPages, error: fetchError } = await getFacebookPages();
                 if (fetchError) {
                     setError(fetchError);
                 } else if (fetchedPages) {
