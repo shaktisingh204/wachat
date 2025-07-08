@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {
-  Send, Megaphone, Newspaper, MessageSquare, ArrowRight, Star, ChevronDown, Check, Users, Settings, Edit, Trash2, Calendar, ThumbsUp, Share2
+  Send, Megaphone, Newspaper, MessageSquare, ArrowRight, Star, ChevronDown, Check, Users, Settings, Edit, Trash2, Calendar, ThumbsUp, Share2, Facebook as FacebookIcon, Instagram as InstagramIcon, Bot, LayoutDashboard, Wrench
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '../ui/label';
 import { Switch } from '../ui/switch';
+import { Separator } from '../ui/separator';
 
 const OverviewFeatureCard = ({ icon: Icon, title, description, gradient }: { icon: React.ElementType, title: string, description: string, gradient?: string }) => (
     <Card className={cn("hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col card-gradient", gradient)}>
@@ -35,7 +36,7 @@ export const MetaSuiteShowcase = () => {
         { icon: Newspaper, title: 'Unified Content Scheduler', description: "Plan and publish content across both Facebook and Instagram from a single, intuitive interface.", gradient: 'card-gradient-blue' },
         { icon: Megaphone, title: 'Click-to-WhatsApp Ads', description: "Launch and monitor ad campaigns that drive conversations directly from Facebook to your WhatsApp.", gradient: 'card-gradient-blue' },
         { icon: Users, title: 'Audience Management', description: "View your custom audiences and prepare targeted campaigns for maximum impact.", gradient: 'card-gradient-blue' },
-        { icon: MessageSquare, title: 'Unified Inbox', description: "Engage with customers from Messenger and Instagram DMs in one centralized location.", gradient: 'card-gradient-blue' }
+        { icon: Bot, title: 'Messenger Automation', description: "Build interactive chat bots and auto-replies for your Messenger and Instagram conversations.", gradient: 'card-gradient-blue' }
     ];
 
     const [animationKey, setAnimationKey] = React.useState(0);
