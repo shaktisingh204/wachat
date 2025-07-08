@@ -11,7 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Lightbulb } from 'lucide-react';
+import { Lightbulb, Plus, Trash2 } from 'lucide-react';
+import { v4 as uuidv4 } from 'uuid';
 
 const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
     if (!file) return;
@@ -37,6 +38,22 @@ export function SectionBlockEditor({ settings, onUpdate }: { settings: any, onUp
                 [subField]: parsedValue
             }
         });
+    }
+    
+    const handleAttributeChange = (index: number, field: 'key' | 'value', value: string) => {
+        const newAttributes = [...(settings.customAttributes || [])];
+        newAttributes[index] = {...newAttributes[index], [field]: value};
+        handleUpdate('customAttributes', newAttributes);
+    }
+    
+    const addAttribute = () => {
+        const newAttributes = [...(settings.customAttributes || []), {id: uuidv4(), key: '', value: ''}];
+        handleUpdate('customAttributes', newAttributes);
+    }
+
+    const removeAttribute = (index: number) => {
+        const newAttributes = (settings.customAttributes || []).filter((_: any, i:number) => i !== index);
+        handleUpdate('customAttributes', newAttributes);
     }
 
     return (
@@ -134,6 +151,8 @@ export function SectionBlockEditor({ settings, onUpdate }: { settings: any, onUp
                                      <SelectContent>
                                          <SelectItem value="none">None</SelectItem>
                                          <SelectItem value="classic">Classic (Color/Image)</SelectItem>
+                                         <SelectItem value="gradient">Gradient</SelectItem>
+                                         <SelectItem value="video">Video</SelectItem>
                                      </SelectContent>
                                  </Select>
                             </div>
@@ -147,6 +166,35 @@ export function SectionBlockEditor({ settings, onUpdate }: { settings: any, onUp
                                     <div className="space-y-2"><Label>Size</Label><Select value={settings.backgroundSize || 'cover'} onValueChange={v => handleUpdate('backgroundSize', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="cover">Cover</SelectItem><SelectItem value="contain">Contain</SelectItem><SelectItem value="auto">Auto</SelectItem></SelectContent></Select></div>
                                 </div>
                             )}
+                             {settings.backgroundType === 'gradient' && (
+                                <div className="p-3 border rounded-md space-y-4">
+                                    <div className="space-y-2"><Label>Color 1</Label><Input type="color" value={settings.gradient?.color1 || '#FFFFFF'} onChange={e => handleSubFieldUpdate('gradient', 'color1', e.target.value)} /></div>
+                                    <div className="space-y-2"><Label>Color 2</Label><Input type="color" value={settings.gradient?.color2 || '#F0F0F0'} onChange={e => handleSubFieldUpdate('gradient', 'color2', e.target.value)} /></div>
+                                    <div className="space-y-2"><Label>Type</Label><Select value={settings.gradient?.type || 'linear'} onValueChange={v => handleSubFieldUpdate('gradient', 'type', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="linear">Linear</SelectItem><SelectItem value="radial">Radial</SelectItem></SelectContent></Select></div>
+                                    <div className="space-y-2"><Label>Angle (deg)</Label><Input type="number" value={settings.gradient?.angle || 180} onChange={e => handleSubFieldUpdate('gradient', 'angle', e.target.value)} /></div>
+                                </div>
+                             )}
+                            {settings.backgroundType === 'video' && (
+                                <div className="p-3 border rounded-md space-y-4">
+                                    <div className="space-y-2"><Label>Video URL</Label><Input placeholder="https://example.com/video.mp4" value={settings.backgroundVideoUrl || ''} onChange={e => handleUpdate('backgroundVideoUrl', e.target.value)} /></div>
+                                    <div className="space-y-2"><Label>Start Time (s)</Label><Input type="number" value={settings.backgroundVideoStartTime || 0} onChange={e => handleUpdate('backgroundVideoStartTime', e.target.value)} /></div>
+                                    <div className="space-y-2"><Label>End Time (s)</Label><Input type="number" value={settings.backgroundVideoEndTime || ''} onChange={e => handleUpdate('backgroundVideoEndTime', e.target.value)} placeholder="End of video" /></div>
+                                    <div className="space-y-2"><Label>Fallback Image</Label><Input type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleUpdate('backgroundVideoFallbackImageUrl', dataUri))} /></div>
+                                </div>
+                            )}
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="style_overlay">
+                        <AccordionTrigger>Background Overlay</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
+                             <div className="space-y-2"><Label>Overlay Type</Label><Select value={settings.backgroundOverlay?.type || 'none'} onValueChange={(val) => handleSubFieldUpdate('backgroundOverlay', 'type', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="classic">Color</SelectItem><SelectItem value="gradient">Gradient</SelectItem></SelectContent></Select></div>
+                             {settings.backgroundOverlay?.type === 'classic' && (
+                                 <div className="space-y-2"><Label>Color</Label><Input type="color" value={settings.backgroundOverlay?.color || '#000000'} onChange={(e) => handleSubFieldUpdate('backgroundOverlay', 'color', e.target.value)} /></div>
+                             )}
+                            <div className="space-y-2">
+                                <Label>Opacity</Label>
+                                <Slider value={[settings.backgroundOverlay?.opacity || 0.5]} onValueChange={v => handleSubFieldUpdate('backgroundOverlay', 'opacity', v[0])} min={0} max={1} step={0.05} />
+                            </div>
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="style_border">
@@ -159,10 +207,10 @@ export function SectionBlockEditor({ settings, onUpdate }: { settings: any, onUp
                              <div className="space-y-2"><Label>Box Shadow</Label><Select value={settings.boxShadow || 'none'} onValueChange={(val) => handleUpdate('boxShadow', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="sm">Small</SelectItem><SelectItem value="md">Medium</SelectItem><SelectItem value="lg">Large</SelectItem><SelectItem value="xl">Extra Large</SelectItem></SelectContent></Select></div>
                         </AccordionContent>
                     </AccordionItem>
-                     <AccordionItem value="style_shape_divider">
+                     <AccordionItem value="style_shape_divider" disabled>
                         <AccordionTrigger>Shape Divider</AccordionTrigger>
                         <AccordionContent className="pt-2">
-                             <Alert variant="destructive"><Lightbulb className="h-4 w-4" /><AlertTitle>Feature Coming Soon!</AlertTitle><AlertDescription>Shape dividers are planned for a future update.</AlertDescription></Alert>
+                             <Alert><Lightbulb className="h-4 w-4" /><AlertTitle>Coming Soon!</AlertTitle><AlertDescription>Shape dividers are planned for a future update.</AlertDescription></Alert>
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
@@ -176,9 +224,10 @@ export function SectionBlockEditor({ settings, onUpdate }: { settings: any, onUp
                              <div className="space-y-2"><Label>Padding (Top, Right, Bottom, Left) in px</Label><div className="grid grid-cols-4 gap-2"><Input type="number" placeholder="Top" value={settings.padding?.top ?? '64'} onChange={(e) => handleSubFieldUpdate('padding', 'top', e.target.value, true)} /><Input type="number" placeholder="Right" value={settings.padding?.right ?? '16'} onChange={(e) => handleSubFieldUpdate('padding', 'right', e.target.value, true)} /><Input type="number" placeholder="Bottom" value={settings.padding?.bottom ?? '64'} onChange={(e) => handleSubFieldUpdate('padding', 'bottom', e.target.value, true)} /><Input type="number" placeholder="Left" value={settings.padding?.left ?? '16'} onChange={(e) => handleSubFieldUpdate('padding', 'left', e.target.value, true)} /></div></div>
                         </AccordionContent>
                     </AccordionItem>
-                     <AccordionItem value="advanced_motion">
+                     <AccordionItem value="advanced_motion" disabled>
                         <AccordionTrigger>Motion Effects</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
+                            <Alert><Lightbulb className="h-4 w-4" /><AlertTitle>Coming Soon!</AlertTitle><AlertDescription>Scrolling effects and advanced animations are planned for a future update.</AlertDescription></Alert>
                             <div className="space-y-2"><Label>Entrance Animation</Label><Select value={settings.animation || 'none'} onValueChange={(val) => handleUpdate('animation', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="fadeIn">Fade In</SelectItem><SelectItem value="fadeInUp">Fade In Up</SelectItem><SelectItem value="fadeInDown">Fade In Down</SelectItem><SelectItem value="fadeInLeft">Fade In Left</SelectItem><SelectItem value="fadeInRight">Fade In Right</SelectItem></SelectContent></Select></div>
                             <div className="space-y-2"><Label>Sticky</Label><Select value={settings.sticky || 'none'} onValueChange={(val) => handleUpdate('sticky', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="top">Top of screen</SelectItem></SelectContent></Select></div>
                         </AccordionContent>
@@ -194,8 +243,21 @@ export function SectionBlockEditor({ settings, onUpdate }: { settings: any, onUp
                             </div>
                         </AccordionContent>
                     </AccordionItem>
+                    <AccordionItem value="advanced_attributes">
+                        <AccordionTrigger>Attributes</AccordionTrigger>
+                         <AccordionContent className="space-y-4 pt-2">
+                             {(settings.customAttributes || []).map((attr: any, index: number) => (
+                                 <div key={attr.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center">
+                                     <Input placeholder="Key" value={attr.key} onChange={e => handleAttributeChange(index, 'key', e.target.value)} />
+                                     <Input placeholder="Value" value={attr.value} onChange={e => handleAttributeChange(index, 'value', e.target.value)} />
+                                     <Button type="button" variant="ghost" size="icon" onClick={() => removeAttribute(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                                 </div>
+                             ))}
+                             <Button type="button" variant="outline" className="w-full" onClick={addAttribute}><Plus className="mr-2 h-4 w-4"/>Add Attribute</Button>
+                         </AccordionContent>
+                    </AccordionItem>
                      <AccordionItem value="advanced_custom">
-                        <AccordionTrigger>Custom Attributes & CSS</AccordionTrigger>
+                        <AccordionTrigger>Custom CSS</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
                             <div className="space-y-2"><Label>CSS ID</Label><Input value={settings.cssId || ''} onChange={e => handleUpdate('cssId', e.target.value)} /></div>
                             <div className="space-y-2"><Label>CSS Classes</Label><Input value={settings.cssClasses || ''} onChange={e => handleUpdate('cssClasses', e.target.value)} /></div>

@@ -42,17 +42,32 @@ export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = (props)
     };
     
     // Background styles
-    if (safeSettings.backgroundType === 'classic') {
-        if (safeSettings.backgroundColor) {
-            sectionStyle.backgroundColor = safeSettings.backgroundColor;
+    if (safeSettings.backgroundType === 'classic' && safeSettings.backgroundColor) {
+        sectionStyle.backgroundColor = safeSettings.backgroundColor;
+    } else if (safeSettings.backgroundType === 'gradient' && safeSettings.gradient) {
+        const { color1, color2, type, angle } = safeSettings.gradient;
+        if (type === 'radial') {
+             sectionStyle.backgroundImage = `radial-gradient(${color1}, ${color2})`;
+        } else {
+             sectionStyle.backgroundImage = `linear-gradient(${angle || 180}deg, ${color1 || '#FFFFFF'}, ${color2 || '#F0F0F0'})`;
         }
-        if (safeSettings.backgroundImageUrl) {
-            sectionStyle.backgroundImage = `url(${safeSettings.backgroundImageUrl})`;
-            sectionStyle.backgroundSize = safeSettings.backgroundSize || 'cover';
-            sectionStyle.backgroundPosition = safeSettings.backgroundPosition || 'center center';
-            sectionStyle.backgroundRepeat = safeSettings.backgroundRepeat || 'no-repeat';
-            sectionStyle.backgroundAttachment = safeSettings.backgroundAttachment || 'scroll';
-        }
+    }
+    
+    const backgroundImageStyle: React.CSSProperties = {
+        backgroundImage: safeSettings.backgroundType === 'classic' && safeSettings.backgroundImageUrl ? `url(${safeSettings.backgroundImageUrl})` : undefined,
+        backgroundSize: safeSettings.backgroundSize || 'cover',
+        backgroundPosition: safeSettings.backgroundPosition || 'center center',
+        backgroundRepeat: safeSettings.backgroundRepeat || 'no-repeat',
+        backgroundAttachment: safeSettings.backgroundAttachment || 'scroll',
+    };
+    
+    const overlayStyle: React.CSSProperties = {
+        position: 'absolute', inset: 0, zIndex: 0, pointerEvents: 'none',
+        opacity: safeSettings.backgroundOverlay?.opacity || 0.5,
+    };
+
+    if (safeSettings.backgroundOverlay?.type === 'classic') {
+        overlayStyle.backgroundColor = safeSettings.backgroundOverlay?.color;
     }
     
     // Border styles
@@ -71,18 +86,12 @@ export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = (props)
     }
 
     const shadowClasses = {
-        none: '',
-        sm: 'shadow-sm',
-        md: 'shadow-md',
-        lg: 'shadow-lg',
-        xl: 'shadow-xl',
+        none: '', sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg', xl: 'shadow-xl',
     };
     const shadowClass = shadowClasses[safeSettings.boxShadow as keyof typeof shadowClasses] || '';
 
     const alignmentClasses = {
-        top: 'items-start',
-        middle: 'items-center',
-        bottom: 'items-end',
+        top: 'items-start', middle: 'items-center', bottom: 'items-end',
     }[safeSettings.verticalAlign || 'top'];
     
     const responsiveClasses = cn({
@@ -104,16 +113,35 @@ export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = (props)
     
     // Scoped CSS for custom styles
     const customStyleTag = safeSettings.customCss ? (
-        <style>{`#${blockId} { ${safeSettings.customCss} }`}</style>
+        <style>{`#${safeSettings.cssId || blockId} { ${safeSettings.customCss} }`}</style>
     ) : null;
+    
+    const customAttributes = (safeSettings.customAttributes || []).reduce((acc: any, attr: any) => {
+        if(attr.key) acc[attr.key] = attr.value;
+        return acc;
+    }, {});
 
     return React.createElement(HtmlTag, {
         id: safeSettings.cssId || blockId,
         className: cn('w-full', alignmentClasses, responsiveClasses, shadowClass, safeSettings.cssClasses),
         style: sectionStyle,
+        ...customAttributes
     },
     <>
         {customStyleTag}
+        <div className="absolute inset-0" style={backgroundImageStyle} />
+        {safeSettings.backgroundType === 'video' && safeSettings.backgroundVideoUrl && (
+            <video
+                src={safeSettings.backgroundVideoUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="absolute inset-0 w-full h-full object-cover"
+                poster={safeSettings.backgroundVideoFallbackImageUrl}
+            />
+        )}
+        {safeSettings.backgroundOverlay?.type !== 'none' && <div style={overlayStyle} />}
         <div style={innerContainerStyle}>
             <Canvas
                 layout={children}
