@@ -7,13 +7,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import * as LucideIcons from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '../ui/switch';
-import { Slider } from '../ui/slider';
-import { Textarea } from '../ui/textarea';
-import { Button } from '../ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { Separator } from '../ui/separator';
+import { Separator } from '@/components/ui/separator';
 
 const iconNames = Object.keys(LucideIcons).filter(key => 
     typeof (LucideIcons as any)[key] === 'object' && 
@@ -85,7 +85,7 @@ export function IconBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         <AccordionContent className="space-y-4 pt-2">
                             <div className="space-y-2"><Label>URL</Label><Input type="url" placeholder="https://..." value={settings.link || ''} onChange={(e) => handleUpdate('link', e.target.value)} /></div>
                             <div className="flex items-center space-x-2"><Switch id="linkNewWindow" checked={settings.linkNewWindow} onCheckedChange={(val) => handleUpdate('linkNewWindow', val)} /><Label htmlFor="linkNewWindow">Open in new window</Label></div>
-                             <div className="flex items-center space-x-2"><Switch id="linkNofollow" checked={settings.linkNofollow} onCheckedChange={(val) => handleUpdate('linkNofollow', val)} /><Label htmlFor="linkNofollow">Add nofollow</Label></div>
+                             <div className="flex items-center space-x-2"><Switch id="linkNofollow" checked={settings.linkNofollow} onCheckedChange={(val) => handleUpdate('linkNofollow', val)} /><Label htmlFor="linkNofollow">Add "nofollow" attribute</Label></div>
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
@@ -228,4 +228,3 @@ export function IconBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
         </Tabs>
     );
 }
-
