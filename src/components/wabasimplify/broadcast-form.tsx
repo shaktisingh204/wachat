@@ -13,7 +13,7 @@ import { Input } from '../ui/input';
 import { Button } from '../ui/button';
 import { LoaderCircle, Send, AlertCircle, UploadCloud, Link, Check, ChevronsUpDown } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
-import type { Project, Template, Tag } from '@/lib/definitions';
+import type { Project, Template, Tag, MetaFlow } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -50,9 +50,10 @@ function SubmitButton() {
 interface BroadcastFormProps {
     templates: WithId<Template>[];
     project: Pick<WithId<Project>, '_id' | 'phoneNumbers' | 'tags'> | null;
+    metaFlows: WithId<MetaFlow>[];
 }
 
-export function BroadcastForm({ templates, project }: BroadcastFormProps) {
+export function BroadcastForm({ templates, project, metaFlows }: BroadcastFormProps) {
   const [state, formAction] = useActionState(handleStartBroadcast, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);

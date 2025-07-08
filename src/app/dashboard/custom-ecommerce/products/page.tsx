@@ -6,10 +6,9 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, PlusCircle, ShoppingBag } from 'lucide-react';
-import { getEcommProducts, getEcommSettings } from '@/app/actions/custom-ecommerce.actions';
+import { getEcommProducts, getEcommShopById } from '@/app/actions/custom-ecommerce.actions';
 import { getProjectById } from '@/app/actions';
-import { getCatalogs } from '@/app/actions/catalog.actions';
-import type { WithId, Project, EcommProduct, EcommSettings, Catalog } from '@/lib/definitions';
+import type { WithId, Project, EcommProduct, EcommShop } from '@/lib/definitions';
 import { EcommProductDialog } from '@/components/wabasimplify/ecomm-product-dialog';
 import { EcommProductCard } from '@/components/wabasimplify/ecomm-product-card';
 import { SyncCustomProductsDialog } from '@/components/wabasimplify/sync-custom-products-dialog';
@@ -27,9 +26,8 @@ function PageSkeleton() {
 }
 
 export default function ProductsPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
+    const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
     const [products, setProducts] = useState<WithId<EcommProduct>[]>([]);
-    const [settings, setSettings] = useState<EcommSettings | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<WithId<EcommProduct> | null>(null);
@@ -38,19 +36,14 @@ export default function ProductsPage() {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (storedProjectId) {
             startLoading(async () => {
-                const projectData = await getProjectById(storedProjectId);
-                setProject(projectData);
-                if (projectData) {
-                    const [productsData, settingsData] = await Promise.all([
-                        getEcommProducts(storedProjectId),
-                        getEcommSettings(storedProjectId),
-                    ]);
+                const shops = await getEcommShops(storedProjectId);
+                if (shops && shops.length > 0) {
+                    const shopData = shops[0];
+                    setShop(shopData);
+                    const productsData = await getEcommProducts(shopData._id.toString());
                     setProducts(productsData);
-                    setSettings(settingsData);
                 }
             });
-        } else {
-            startLoading(() => {}); // Set loading to false if no project
         }
     };
 
@@ -67,22 +60,12 @@ export default function ProductsPage() {
         return <PageSkeleton />;
     }
 
-    if (!project) {
+    if (!shop) {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>Please select a project to manage its products.</AlertDescription>
-            </Alert>
-        );
-    }
-
-    if (!settings?.shopName) {
-        return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Shop Not Configured</AlertTitle>
-                <AlertDescription>Please configure your shop name and currency in the settings page before adding products.</AlertDescription>
+                <AlertTitle>No Shop Found</AlertTitle>
+                <AlertDescription>Please create a shop first before adding products.</AlertDescription>
             </Alert>
         );
     }
@@ -92,7 +75,7 @@ export default function ProductsPage() {
             <EcommProductDialog
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
-                project={project}
+                shop={shop}
                 product={editingProduct}
                 onSuccess={fetchData}
             />
@@ -103,7 +86,7 @@ export default function ProductsPage() {
                         <p className="text-muted-foreground">Manage products for your custom shop.</p>
                     </div>
                     <div className="flex items-center gap-2">
-                        {project.businessId && <SyncCustomProductsDialog projectId={project._id.toString()} />}
+                        {shop.projectId && <SyncCustomProductsDialog projectId={shop.projectId.toString()} shopId={shop._id.toString()} />}
                         <Button onClick={() => handleOpenDialog(null)}>
                             <PlusCircle className="mr-2 h-4 w-4" />
                             Add Product
@@ -117,7 +100,7 @@ export default function ProductsPage() {
                             <EcommProductCard 
                                 key={product._id.toString()} 
                                 product={product}
-                                shopSettings={settings}
+                                shopSettings={shop}
                                 onEdit={() => handleOpenDialog(product)}
                                 onDelete={fetchData}
                             />

@@ -1,12 +1,11 @@
 
 'use client';
 
-import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
 import { getEcommPages, saveEcommPage } from '@/app/actions/custom-ecommerce.actions';
 import type { WithId, EcommShop, EcommProduct, WebsiteBlock, EcommPage } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
-import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plus, LoaderCircle, Save, ArrowLeft, Eye } from 'lucide-react';
@@ -16,18 +15,8 @@ import { Canvas } from './canvas';
 import { PropertiesPanel } from './properties-panel';
 import Link from 'next/link';
 import { PageManagerPanel } from './page-manager-panel';
-
-const initialState = { message: null, error: undefined };
-
-function SaveButton({ disabled }: { disabled?: boolean }) {
-    const { pending } = useFormStatus();
-    return (
-        <Button size="lg" disabled={pending || disabled}>
-            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
-            Save & Publish
-        </Button>
-    )
-}
+import { Separator } from '@/components/ui/separator';
+import { WebsiteBuilderHeader } from './website-builder-header';
 
 function BuilderSkeleton() {
     return (
@@ -82,7 +71,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
             // If no pages exist, create a default homepage
             const newHomePage: WebsiteBlock[] = []; // You might want a default template
             const newPage: WithId<EcommPage> = {
-                _id: new ObjectId(), // Temp client-side ID
+                _id: `temp_${uuidv4()}` as any,
                 name: 'Home',
                 slug: 'home',
                 isHomepage: true,
@@ -96,7 +85,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
             setActivePageId(newPage._id.toString());
             setLayout(newHomePage);
         }
-    }, []); // Run only once on initial load
+    }, []); 
 
     const activePage = useMemo(() => pages.find(p => p._id.toString() === activePageId), [pages, activePageId]);
 
@@ -191,13 +180,14 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
         setLayout(layoutCopy);
     };
 
-    const handleSelectPage = (pageId: string) => {
-        const page = pages.find(p => p._id.toString() === pageId);
+    const handleSelectSurface = (surfaceId: string) => {
+        const page = pages.find(p => p._id.toString() === surfaceId);
         if (page) {
-            setActivePageId(pageId);
+            setActivePageId(surfaceId);
             setLayout(page.layout || []);
             setSelectedBlockId(null);
         }
+        // TODO: Add logic to switch to editing site parts (header, footer, etc.)
     };
     
     const selectedBlock = useMemo(() => {
@@ -219,30 +209,10 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
         <form action={handleSavePage}>
             <DragDropContext onDragEnd={onDragEnd}>
                 <div className="h-screen w-screen bg-muted flex flex-col">
-                    <header className="flex-shrink-0 h-16 bg-background border-b flex items-center justify-between px-4">
-                        <Button variant="outline" asChild>
-                            <Link href="/dashboard/facebook/custom-ecommerce">
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back to Shops
-                            </Link>
-                        </Button>
-                        <div className="text-center">
-                            <p className="font-semibold">{shop.name}</p>
-                            <p className="text-xs text-muted-foreground">Editing: {activePage?.name || 'New Page'}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <Button variant="secondary" asChild>
-                                <Link href={`/shop/${shop.slug}/${activePage?.slug || ''}`} target="_blank">
-                                    <Eye className="mr-2 h-4 w-4" />
-                                    Preview
-                                </Link>
-                            </Button>
-                            <SaveButton />
-                        </div>
-                    </header>
+                    <WebsiteBuilderHeader shop={shop} pages={pages} activeSurface={activePageId || ''} onSwitchSurface={handleSelectSurface} />
                     <div className="flex-1 grid grid-cols-12 min-h-0">
                         <div className="col-span-2 bg-background border-r p-4 overflow-y-auto">
-                            <PageManagerPanel pages={pages} activePageId={activePageId} onSelectPage={handleSelectPage} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
+                            <PageManagerPanel pages={pages} activePageId={activePageId} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
                             <Separator className="my-4"/>
                             <BlockPalette onAddBlock={handleAddBlock} />
                         </div>
@@ -271,14 +241,4 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
             </DragDropContext>
         </form>
     );
-}
-
-// Temporary ObjectId for client-side creation
-class ObjectId {
-    readonly _id: string;
-    constructor() {
-        this._id = `temp_${Math.random().toString(36).substring(2, 15)}`;
-    }
-    toString() { return this._id }
-    toHexString() { return this._id }
 }

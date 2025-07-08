@@ -1,9 +1,7 @@
 
-
 import { notFound } from 'next/navigation';
 import { getPublicEcommProductById, getEcommShopById } from '@/app/actions/custom-ecommerce.actions';
 import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
-import { notFound } from 'next/navigation';
 
 export default async function ProductDetailPage({ params }: { params: { productId: string, slug: string }}) {
     const product = await getPublicEcommProductById(params.productId);
@@ -30,5 +28,3 @@ export default async function ProductDetailPage({ params }: { params: { productI
         />
     );
 }
-
-    

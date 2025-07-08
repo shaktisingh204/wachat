@@ -6,9 +6,11 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
-import type { WithId, EcommProduct } from '@/lib/definitions';
+import type { WithId, EcommProduct, EcommShop } from '@/lib/definitions';
 
-export function ProductCard({ product, shopSlug }: { product: WithId<EcommProduct>, shopSlug: string }) {
+export function ProductCard({ product, shopSettings, shopSlug }: { product: WithId<EcommProduct>, shopSettings: WithId<EcommShop> | null, shopSlug: string }) {
+  const currency = shopSettings?.currency || 'USD';
+
   return (
     <Link href={`/shop/${shopSlug}/product/${product._id.toString()}`} className="group block">
       <Card className="overflow-hidden h-full flex flex-col transition-all group-hover:shadow-lg">
@@ -29,9 +31,9 @@ export function ProductCard({ product, shopSlug }: { product: WithId<EcommProduc
             </div>
             <div className="flex justify-between items-center mt-2">
                 <p className="text-lg font-bold text-primary">
-                {new Intl.NumberFormat('en-IN', {
+                {new Intl.NumberFormat('en-US', {
                     style: 'currency',
-                    currency: 'INR',
+                    currency: currency,
                 }).format(product.price)}
                 </p>
                  <Button size="sm" variant="outline">
@@ -44,7 +46,3 @@ export function ProductCard({ product, shopSlug }: { product: WithId<EcommProduc
     </Link>
   );
 }
-
-    
-
-    
