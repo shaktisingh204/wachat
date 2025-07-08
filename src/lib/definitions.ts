@@ -1,5 +1,3 @@
-
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type BusinessCapabilities = {
@@ -158,6 +156,19 @@ export type WebsiteBlock = {
     children?: WebsiteBlock[];
 };
 
+export type EcommTheme = {
+    _id: ObjectId;
+    name: string;
+    description?: string;
+    createdAt: Date;
+    layouts: {
+        headerLayout: WebsiteBlock[],
+        footerLayout: WebsiteBlock[],
+        productPageLayout: WebsiteBlock[],
+        cartPageLayout: WebsiteBlock[],
+    };
+};
+
 export type EcommShop = {
     _id: ObjectId;
     projectId: ObjectId;
@@ -176,6 +187,7 @@ export type EcommShop = {
     footerLayout?: WebsiteBlock[];
     productPageLayout?: WebsiteBlock[];
     cartPageLayout?: WebsiteBlock[];
+    themes?: EcommTheme[];
     appearance?: {
         primaryColor?: string;
         fontFamily?: string;
@@ -230,7 +242,6 @@ export type Project = {
     kanbanStatuses?: string[];
     facebookKanbanStatuses?: string[];
     plan?: WithId<Plan> | null; // populated by aggregate
-    ecommSettings?: EcommSettings;
 };
 
 export type Template = {
@@ -1044,55 +1055,6 @@ export type EcommOrder = {
     updatedAt: Date;
 };
 
-export type EcommSettings = {
-    shopName: string;
-    currency: string;
-    customDomain?: string;
-    paymentLinkRazorpay?: string;
-    paymentLinkPaytm?: string;
-    paymentLinkGPay?: string;
-    persistentMenu?: MenuItem[];
-    abandonedCart?: AbandonedCartSettings;
-    appearance?: {
-        primaryColor?: string;
-        fontFamily?: string;
-        bannerImageUrl?: string;
-    }
-};
-
-export type MenuItem = { 
-    type: 'postback' | 'web_url';
-    title: string; 
-    payload?: string;
-    url?: string;
-};
-
-export type EcommFlowNode = {
-    id: string;
-    type: string;
-    data: any;
-    position: { x: number; y: number };
-};
-
-export type EcommFlowEdge = {
-    id: string;
-    source: string;
-    target: string;
-    sourceHandle?: string;
-    targetHandle?: string;
-};
-
-export type EcommFlow = {
-    name: string;
-    projectId: ObjectId;
-    nodes: EcommFlowNode[];
-    edges: EcommFlowEdge[];
-    triggerKeywords: string[];
-    isWelcomeFlow?: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-};
-
 // --- SEO Suite Types ---
 
 export type BrandMention = {
@@ -1132,5 +1094,3 @@ export type Backlink = {
     domainAuthority: number;
     linkType: 'News' | 'Forum' | 'Blog' | 'Review';
 };
-
-    
