@@ -3441,8 +3441,11 @@ export async function getContactsForProject(
     phoneNumberId: string,
     page: number,
     limit: number,
-    query?: string
-): Promise<{ contacts: WithId<Contact>[], total: number }> {
+    query?: string,
+): Promise<{
+    contacts: WithId<Contact>[],
+    total: number,
+}> {
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess || !phoneNumberId) {
         return { contacts: [], total: 0 };

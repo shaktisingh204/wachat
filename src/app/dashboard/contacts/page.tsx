@@ -74,7 +74,7 @@ function TagsFilter({ tags, selectedTags, onSelectionChange }: { tags: Tag[], se
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[200px] p-0" align="start">
+            <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
                 <Command>
                     <CommandInput placeholder="Search tags..." />
                     <CommandList>
@@ -112,7 +112,7 @@ export default function ContactsPage() {
 
     const currentPage = Number(searchParams.get('page')) || 1;
     const searchQuery = searchParams.get('query') || '';
-    const selectedTags = searchParams.get('tags')?.split(',') || [];
+    const selectedTags = searchParams.get('tags')?.split(',').filter(Boolean) || [];
     
     const [totalPages, setTotalPages] = useState(0);
     
@@ -123,13 +123,15 @@ export default function ContactsPage() {
             setProject(data.project);
             setContacts(data.contacts);
             setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
-            setSelectedPhoneNumberId(data.selectedPhoneNumberId);
+            
+            if (!phoneId && data.selectedPhoneNumberId) {
+                setSelectedPhoneNumberId(data.selectedPhoneNumberId);
+            }
         });
     }, [startTransition]);
 
     useEffect(() => {
         setIsClient(true);
-        document.title = 'Contacts | SabNode';
         const storedProjectId = localStorage.getItem('activeProjectId');
         setActiveProjectId(storedProjectId);
     }, []);
@@ -147,7 +149,8 @@ export default function ContactsPage() {
                 }
             });
         }
-    }, [isClient, activeProjectId, fetchData, selectedPhoneNumberId, currentPage, searchQuery, selectedTags, router]);
+    // The dependency array is refined to prevent infinite loops. `fetchData` and `router` are stable.
+    }, [isClient, activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags]);
 
 
     const updateSearchParam = useDebouncedCallback((key: string, value: string | null) => {
