@@ -6,7 +6,7 @@ import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, Server, Check, ChevronsUpDown, Switch as SwitchIcon, GitBranch, MessageSquare, Image as ImageIcon, CaseSensitive, Calendar, List, Link as LinkIcon, Hand, Footprints, MousePointerClick, FileUp, Heading1, PanelLeft } from 'lucide-react';
+import { ChevronLeft, LoaderCircle, Save, FileJson, Plus, Trash2, Settings, Server, Check, ChevronsUpDown, Switch as SwitchIcon, GitBranch, MessageSquare, ImageIcon, CaseSensitive, Calendar, List, Link as LinkIcon, Hand, Footprints, MousePointerClick, FileUp, Heading1, PanelLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -27,7 +27,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { ComponentEditor } from '@/components/wabasimplify/meta-flow-editor/component-editor';
 
 
-const createFlowInitialState = { message: null, error: null, payload: null };
+const createFlowInitialState = { message: null, error: null, payload: null, debugInfo: null };
 
 function SubmitButton({ isEditing }: { isEditing: boolean }) {
     const { pending } = useFormStatus();
@@ -79,7 +79,7 @@ function AddComponentDialog({ isOpen, onOpenChange, onAddComponent }: { isOpen: 
                                                         onAddComponent(component.type);
                                                         onOpenChange(false);
                                                     }}
-                                                    className="p-4 border rounded-lg text-left hover:bg-accent hover:border-primary transition-all space-y-2 h-full flex flex-col card-gradient card-gradient-green"
+                                                    className="p-4 border rounded-lg text-left hover:bg-accent hover:border-primary transition-all space-y-2 h-full flex flex-col"
                                                     >
                                                         <Icon className="h-6 w-6 text-primary" />
                                                         <p className="font-semibold flex-grow">{component.label}</p>
@@ -305,7 +305,7 @@ function CreateMetaFlowPageContent() {
 
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
                         <div className="space-y-6">
-                            <Card className="p-2 card-gradient card-gradient-green">
+                            <Card className="p-2">
                                 <CardHeader className="p-4">
                                     <CardTitle>Flow Configuration</CardTitle>
                                 </CardHeader>

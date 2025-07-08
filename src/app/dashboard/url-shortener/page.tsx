@@ -231,7 +231,7 @@ export default function UrlShortenerPage() {
                     </p>
                 </div>
 
-                <Card className="card-gradient card-gradient-blue">
+                <Card>
                     <form action={formAction} ref={formRef}>
                         <input type="hidden" name="tagIds" value={selectedTagIds.join(',')} />
                         <input type="hidden" name="expiresAt" value={expiresAt?.toISOString() || ''} />
@@ -281,7 +281,7 @@ export default function UrlShortenerPage() {
                     </form>
                 </Card>
 
-                <Card className="card-gradient card-gradient-purple">
+                <Card>
                     <CardHeader>
                         <CardTitle>Your Links</CardTitle>
                     </CardHeader>

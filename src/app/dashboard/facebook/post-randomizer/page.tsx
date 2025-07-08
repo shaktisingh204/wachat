@@ -147,7 +147,7 @@ export default function PostRandomizerPage() {
                     </Alert>
                 ) : (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-                        <Card className="lg:col-span-1 card-gradient card-gradient-blue">
+                        <Card className="lg:col-span-1">
                             <CardHeader>
                                 <CardTitle>Settings</CardTitle>
                                 <CardDescription>Configure the randomizer schedule.</CardDescription>
@@ -173,7 +173,7 @@ export default function PostRandomizerPage() {
                             </CardFooter>
                         </Card>
 
-                        <Card className="lg:col-span-2 card-gradient card-gradient-green">
+                        <Card className="lg:col-span-2">
                             <CardHeader>
                                 <div className="flex justify-between items-center">
                                     <div>

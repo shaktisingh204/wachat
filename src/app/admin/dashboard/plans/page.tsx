@@ -28,7 +28,7 @@ export default async function PlansManagementPage() {
                     </Link>
                 </Button>
             </div>
-            <Card className="card-gradient card-gradient-green">
+            <Card>
                 <CardHeader>
                     <CardTitle>Existing Plans</CardTitle>
                     <CardDescription>A list of all configurable plans in the system.</CardDescription>

@@ -56,7 +56,7 @@ export default function BroadcastLogPage() {
                     A raw log of all broadcasts in the database for debugging purposes.
                 </p>
             </div>
-            <Card className="card-gradient card-gradient-blue">
+            <Card>
                 <CardHeader>
                     <div className="flex flex-wrap items-center justify-between gap-2">
                         <div>

@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useActionState, useRef } from 'react';
@@ -190,8 +189,8 @@ export default function ProfilePage() {
                 <p className="text-muted-foreground">View and manage your account settings.</p>
             </div>
              <div className="grid md:grid-cols-2 gap-8 items-start">
-                <Card className="card-gradient card-gradient-green"><ProfileForm user={user} /></Card>
-                <Card className="card-gradient card-gradient-blue"><PasswordForm /></Card>
+                <Card><ProfileForm user={user} /></Card>
+                <Card><PasswordForm /></Card>
             </div>
         </div>
     )
