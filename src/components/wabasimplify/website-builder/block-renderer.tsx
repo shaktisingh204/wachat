@@ -25,26 +25,8 @@ import { TestimonialsBlockRenderer } from './testimonials-block-renderer';
 import { FeaturedProductsBlockRenderer } from './featured-products-block-renderer';
 import { Canvas } from './canvas';
 import { HeadingBlock } from './heading-block-renderer';
+import { RichTextBlockRenderer } from './rich-text-block-renderer';
 
-
-const RichTextBlock = ({ settings }: { settings: any }) => {
-    const style: React.CSSProperties = {
-        fontFamily: settings.fontFamily || 'inherit',
-        fontSize: settings.fontSize ? `${settings.fontSize}px` : undefined,
-        lineHeight: settings.lineHeight || 'inherit',
-        color: settings.color || 'inherit',
-        textAlign: settings.textAlign || 'left',
-        padding: settings.padding ? `${settings.padding.top || 0}px ${settings.padding.right || 0}px ${settings.padding.bottom || 0}px ${settings.padding.left || 0}px` : undefined,
-    };
-
-    const animationClass = {
-        fade: 'animate-fade-in',
-        slide: 'animate-slide-in-up',
-        zoom: 'animate-in zoom-in-50',
-    }[settings.animation || 'none'];
-
-    return <div style={style} className={cn("prose dark:prose-invert max-w-none", animationClass)} dangerouslySetInnerHTML={{ __html: settings.htmlContent || '' }} />;
-};
 
 const CustomHtmlBlock = ({ settings }: { settings: any }) => (
     <div dangerouslySetInnerHTML={{ __html: settings.html || '' }} />
@@ -373,7 +355,7 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
     switch (block.type) {
         case 'hero': return <HeroBlock settings={safeSettings} />;
         case 'featuredProducts': return <FeaturedProductsBlockRenderer settings={safeSettings} products={products} shopSlug={shopSlug}/>;
-        case 'richText': return <RichTextBlock settings={safeSettings} />;
+        case 'richText': return <RichTextBlockRenderer settings={safeSettings} />;
         case 'testimonials': return <TestimonialsBlockRenderer settings={safeSettings} />;
         case 'faq': return <FaqBlockRenderer settings={safeSettings} />;
         case 'customHtml': return <CustomHtmlBlock settings={safeSettings} />;
