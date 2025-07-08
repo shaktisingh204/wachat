@@ -16,13 +16,16 @@ type Tab = {
 interface TabsBlockRendererProps {
   settings: {
     tabs?: Tab[];
-    layout?: 'horizontal' | 'vertical';
+    defaultActiveTab?: string;
+    htmlTag?: string;
     alignment?: 'start' | 'center' | 'end';
-    animation?: 'fade' | 'slide';
+    stretchTabs?: boolean;
+    tabSpacing?: number;
     
     // Style props
     tabsListBgColor?: string;
     tabsListBorderRadius?: number;
+    tabsListShadow?: string;
     tabTextColor?: string;
     activeTabTextColor?: string;
     activeTabBgColor?: string;
@@ -30,16 +33,23 @@ interface TabsBlockRendererProps {
     contentTextColor?: string;
     contentPadding?: number;
     contentBorderRadius?: number;
+    contentBorderType?: string;
+    contentShadow?: string;
     
     // Advanced props
     margin?: { top?: number; right?: number; bottom?: number; left?: number };
     padding?: { top?: number; right?: number; bottom?: number; left?: number };
+    animation?: 'none' | 'fadeIn' | 'fadeInUp';
+    responsiveVisibility?: { desktop?: boolean; tablet?: boolean; mobile?: boolean };
+    cssId?: string;
+    cssClasses?: string;
+    customCss?: string;
+    customAttributes?: {id: string, key: string, value: string}[];
   };
 }
 
 export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }) => {
   const tabs = settings.tabs || [];
-  const layout = settings.layout || 'horizontal';
   const alignment = settings.alignment || 'start';
 
   if (tabs.length === 0) {
@@ -65,39 +75,56 @@ export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }
     backgroundColor: settings.tabsListBgColor || 'hsl(var(--muted))',
     borderRadius: settings.tabsListBorderRadius ? `${settings.tabsListBorderRadius}px` : undefined,
     justifyContent: alignment,
+    gap: settings.tabSpacing ? `${settings.tabSpacing}px` : undefined,
   };
-
+  
   const contentStyle: React.CSSProperties = {
     backgroundColor: settings.contentBgColor,
     color: settings.contentTextColor,
     padding: settings.contentPadding ? `${settings.contentPadding}px` : undefined,
     borderRadius: settings.contentBorderRadius ? `${settings.contentBorderRadius}px` : undefined,
+    border: settings.contentBorderType !== 'none' ? `1px ${settings.contentBorderType || 'solid'} hsl(var(--border))` : 'none',
   };
   
-  const animationClass = settings.animation === 'slide' 
-    ? "data-[state=active]:animate-in data-[state=active]:slide-in-from-left-4" 
-    : "data-[state=active]:animate-in data-[state=active]:fade-in-25";
+  const shadowClasses: Record<string, string> = { sm: 'shadow-sm', md: 'shadow-md', lg: 'shadow-lg' };
+
+  const animationClass = {
+    fadeIn: 'animate-in fade-in duration-500',
+    fadeInUp: 'animate-in fade-in-0 slide-in-from-bottom-5 duration-500',
+  }[settings.animation || 'none'];
+
+  const responsiveClasses = cn({
+    'max-lg:hidden': settings.responsiveVisibility?.desktop === false,
+    'max-md:hidden lg:hidden': settings.responsiveVisibility?.tablet === false,
+    'max-sm:hidden': settings.responsiveVisibility?.mobile === false,
+  });
+  
+  const customAttributes = (settings.customAttributes || []).reduce((acc: any, attr: any) => {
+    if(attr.key) acc[attr.key] = attr.value;
+    return acc;
+  }, {});
 
   return (
-    <div style={wrapperStyle}>
-      <Tabs defaultValue={tabs[0].id} className={cn(layout === 'vertical' && 'flex gap-4')}>
-        <style>{`
+    <div id={settings.cssId} style={wrapperStyle} className={cn(animationClass, responsiveClasses, settings.cssClasses)} {...customAttributes}>
+      {settings.customCss && <style>{settings.customCss}</style>}
+      <style>{`
           [data-radix-collection-item][data-state="active"] {
             background-color: ${settings.activeTabBgColor || 'hsl(var(--background))'} !important;
             color: ${settings.activeTabTextColor || 'hsl(var(--foreground))'} !important;
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            box-shadow: ${settings.contentShadow && settings.contentShadow !== 'none' ? '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)' : 'none'};
           }
         `}</style>
-        <TabsList 
-            className={cn(
-                "w-full h-auto p-1",
-                layout === 'horizontal' && 'grid',
-                layout === 'vertical' && 'flex flex-col w-48'
-            )}
-            style={{
-                 ...tabsListStyle,
-                 ...(layout === 'horizontal' && { gridTemplateColumns: `repeat(${tabs.length}, 1fr)`})
-            }}
+      <Tabs defaultValue={settings.defaultActiveTab || tabs[0]?.id}>
+        <TabsList
+          className={cn(
+            "w-full h-auto p-1",
+            settings.stretchTabs && 'grid',
+            shadowClasses[settings.tabsListShadow || 'none']
+          )}
+          style={{
+            ...tabsListStyle,
+            ...(settings.stretchTabs && { gridTemplateColumns: `repeat(${tabs.length}, 1fr)`})
+          }}
         >
           {tabs.map(tab => {
             // @ts-ignore
@@ -107,15 +134,16 @@ export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }
                 key={tab.id}
                 value={tab.id}
                 style={{ color: settings.tabTextColor }}
+                className="flex-row-reverse"
               >
-                {Icon && <Icon className="mr-2 h-4 w-4" />}
                 {tab.label}
+                {Icon && <Icon className="mr-2 h-4 w-4" />}
               </TabsTrigger>
             );
           })}
         </TabsList>
         {tabs.map(tab => (
-          <TabsContent key={tab.id} value={tab.id} className={cn("mt-4 p-4 border rounded-lg", animationClass)} style={contentStyle}>
+          <TabsContent key={tab.id} value={tab.id} className={cn("mt-4 p-4 border rounded-lg", shadowClasses[settings.contentShadow || 'none'])} style={contentStyle}>
             <p>{tab.content}</p>
           </TabsContent>
         ))}
