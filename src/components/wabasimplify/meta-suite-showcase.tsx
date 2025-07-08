@@ -5,7 +5,7 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import {
-  Send, Megaphone, Newspaper, MessageSquare, ArrowRight, Star, ChevronDown, Check, Users, Settings, Edit, Trash2, Calendar, ThumbsUp, Share2, Facebook as FacebookIcon, Instagram as InstagramIcon, Bot, LayoutDashboard, Wrench, LayoutGrid, Brush
+  Send, Megaphone, Newspaper, MessageSquare, ArrowRight, Star, ChevronDown, Check, Users, Settings, Edit, Trash2, Calendar, ThumbsUp, Share2, Facebook as FacebookIcon, Instagram as InstagramIcon, Bot, LayoutDashboard, Wrench, LayoutGrid, Brush, ShoppingBag
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
