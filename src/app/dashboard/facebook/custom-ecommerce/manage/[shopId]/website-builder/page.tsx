@@ -3,6 +3,7 @@
 import { WebsiteBuilder } from '@/components/wabasimplify/website-builder/website-builder';
 import { getEcommShopById, getEcommPages, getEcommProducts } from '@/app/actions/custom-ecommerce.actions';
 import { notFound } from 'next/navigation';
+import { CartProvider } from '@/context/cart-context';
 
 export const dynamic = 'force-dynamic';
 
@@ -17,5 +18,9 @@ export default async function WebsiteBuilderPage({ params }: { params: { shopId:
         notFound();
     }
 
-    return <WebsiteBuilder shop={shop} initialPages={pages} availableProducts={products} />;
+    return (
+        <CartProvider>
+            <WebsiteBuilder shop={shop} initialPages={pages} availableProducts={products} />
+        </CartProvider>
+    );
 }
