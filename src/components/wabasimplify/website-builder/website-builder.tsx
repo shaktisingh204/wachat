@@ -209,7 +209,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
         <form action={handleSavePage}>
             <DragDropContext onDragEnd={onDragEnd}>
                 <div className="h-screen w-screen bg-muted flex flex-col">
-                    <WebsiteBuilderHeader shop={shop} pages={pages} activeSurface={activePageId || ''} onSwitchSurface={handleSelectSurface} />
+                    <WebsiteBuilderHeader shop={shop} pages={pages} activeSurface={activePageId || ''} onSwitchSurface={handleSelectSurface} onSave={handleSavePage} isSaving={false}/>
                     <div className="flex-1 grid grid-cols-12 min-h-0">
                         <div className="col-span-2 bg-background border-r p-4 overflow-y-auto">
                             <PageManagerPanel pages={pages} activePageId={activePageId} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
