@@ -67,7 +67,7 @@ export default function CustomEcommerceDashboard() {
         startLoading(async () => {
             const projectData = await getProjectById(projectId);
             if (projectData) {
-                const shopsData = await getEcommShops(projectData.projectId?.toString() || projectId);
+                const shopsData = await getEcommShops(projectData._id.toString());
                 setProject(projectData);
                 setShops(shopsData);
             }
@@ -135,9 +135,4 @@ export default function CustomEcommerceDashboard() {
                 <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
                     <Store className="mx-auto h-12 w-12" />
                     <h3 className="mt-4 text-lg font-semibold">No Shops Created Yet</h3>
-                    <p className="mt-1 text-sm">Click "Create New Shop" to get started.</p>
-                </div>
-            )}
-        </div>
-    );
-}
+                    <p className="mt-1 text-sm">Click "Create New Shop" to get started.</

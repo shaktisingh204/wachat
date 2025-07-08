@@ -1,13 +1,15 @@
 
+
 import { WebsiteBuilder } from '@/components/wabasimplify/website-builder/website-builder';
-import { getEcommShopById, getEcommProducts } from '@/app/actions/custom-ecommerce.actions';
+import { getEcommShopById, getEcommPages, getEcommProducts } from '@/app/actions/custom-ecommerce.actions';
 import { notFound } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
 export default async function WebsiteBuilderPage({ params }: { params: { shopId: string } }) {
-    const [shop, products] = await Promise.all([
+    const [shop, pages, products] = await Promise.all([
         getEcommShopById(params.shopId),
+        getEcommPages(params.shopId),
         getEcommProducts(params.shopId)
     ]);
 
@@ -15,5 +17,5 @@ export default async function WebsiteBuilderPage({ params }: { params: { shopId:
         notFound();
     }
 
-    return <WebsiteBuilder shop={shop} availableProducts={products} />;
+    return <WebsiteBuilder shop={shop} initialPages={pages} availableProducts={products} />;
 }

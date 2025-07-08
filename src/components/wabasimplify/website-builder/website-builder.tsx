@@ -3,8 +3,8 @@
 
 import { useEffect, useState, useTransition, useActionState, useRef, useMemo } from 'react';
 import { DragDropContext, DropResult } from 'react-beautiful-dnd';
-import { updateEcommShopSettings } from '@/app/actions/custom-ecommerce.actions';
-import type { WithId, EcommShop, EcommProduct, WebsiteBlock } from '@/lib/definitions';
+import { getEcommPages, saveEcommPage } from '@/app/actions/custom-ecommerce.actions';
+import type { WithId, EcommShop, EcommProduct, WebsiteBlock, EcommPage } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
@@ -15,13 +15,14 @@ import { BlockPalette } from './block-palette';
 import { Canvas } from './canvas';
 import { PropertiesPanel } from './properties-panel';
 import Link from 'next/link';
+import { PageManagerPanel } from './page-manager-panel';
 
 const initialState = { message: null, error: undefined };
 
 function SaveButton({ disabled }: { disabled?: boolean }) {
     const { pending } = useFormStatus();
     return (
-        <Button type="submit" size="lg" disabled={pending || disabled}>
+        <Button size="lg" disabled={pending || disabled}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save & Publish
         </Button>
@@ -38,7 +39,6 @@ function BuilderSkeleton() {
     );
 }
 
-// Helper function to find a list (children array) in a nested structure
 const findList = (items: WebsiteBlock[], droppableId: string): WebsiteBlock[] | null => {
     if (droppableId === 'canvas') return items;
     for (const item of items) {
@@ -54,7 +54,6 @@ const findList = (items: WebsiteBlock[], droppableId: string): WebsiteBlock[] | 
     return null;
 };
 
-// Helper function to find and remove a block recursively
 const removeBlockById = (items: WebsiteBlock[], idToRemove: string): WebsiteBlock[] => {
     return items.filter(item => {
         if (item.id === idToRemove) {
@@ -67,16 +66,62 @@ const removeBlockById = (items: WebsiteBlock[], idToRemove: string): WebsiteBloc
     });
 };
 
-export function WebsiteBuilder({ shop, availableProducts }: { shop: WithId<EcommShop>, availableProducts: WithId<EcommProduct>[] }) {
-    const [layout, setLayout] = useState<WebsiteBlock[]>(shop.homepageLayout || []);
+export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop: WithId<EcommShop>, initialPages: WithId<EcommPage>[], availableProducts: WithId<EcommProduct>[] }) {
+    const [pages, setPages] = useState<WithId<EcommPage>[]>(initialPages);
+    const [activePageId, setActivePageId] = useState<string | null>(null);
+    const [layout, setLayout] = useState<WebsiteBlock[]>([]);
     const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-    const [state, formAction] = useActionState(updateEcommShopSettings, initialState);
     const { toast } = useToast();
 
     useEffect(() => {
-        if (state.message) toast({ title: 'Success', description: state.message });
-        if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
-    }, [state, toast]);
+        const homepage = pages.find(p => p.isHomepage) || pages[0];
+        if (homepage) {
+            setActivePageId(homepage._id.toString());
+            setLayout(homepage.layout || []);
+        } else if (pages.length === 0) {
+            // If no pages exist, create a default homepage
+            const newHomePage: WebsiteBlock[] = []; // You might want a default template
+            const newPage: WithId<EcommPage> = {
+                _id: new ObjectId(), // Temp client-side ID
+                name: 'Home',
+                slug: 'home',
+                isHomepage: true,
+                layout: newHomePage,
+                shopId: shop._id,
+                projectId: shop.projectId,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+            setPages([newPage]);
+            setActivePageId(newPage._id.toString());
+            setLayout(newHomePage);
+        }
+    }, []); // Run only once on initial load
+
+    const activePage = useMemo(() => pages.find(p => p._id.toString() === activePageId), [pages, activePageId]);
+
+    const handleSavePage = async () => {
+        if (!activePage) return;
+        const result = await saveEcommPage({
+            pageId: activePage._id.toString().startsWith('temp_') ? undefined : activePage._id.toString(),
+            shopId: shop._id.toString(),
+            name: activePage.name,
+            slug: activePage.slug,
+            layout: layout,
+        });
+
+        if (result.error) {
+            toast({ title: 'Error Saving Page', description: result.error, variant: 'destructive' });
+        } else {
+            toast({ title: 'Page Saved!', description: result.message });
+            fetchPages();
+        }
+    };
+    
+    const fetchPages = async () => {
+        const newPages = await getEcommPages(shop._id.toString());
+        setPages(newPages);
+    };
 
     const handleAddBlock = (type: WebsiteBlock['type']) => {
         const newBlock: WebsiteBlock = {
@@ -88,17 +133,11 @@ export function WebsiteBuilder({ shop, availableProducts }: { shop: WithId<Ecomm
         
         if (type === 'columns') {
             const columnCount = 2; // Default
-            newBlock.children = Array.from({ length: columnCount }, () => ({
-                id: uuidv4(),
-                type: 'column',
-                settings: {},
-                children: []
-            }));
+            newBlock.children = Array.from({ length: columnCount }, () => ({ id: uuidv4(), type: 'column', settings: {}, children: [] }));
             newBlock.settings = { columnCount };
         }
 
-        const newLayout = [...layout, newBlock];
-        setLayout(newLayout);
+        setLayout(prev => [...prev, newBlock]);
         setSelectedBlockId(newBlock.id);
     };
 
@@ -107,12 +146,10 @@ export function WebsiteBuilder({ shop, availableProducts }: { shop: WithId<Ecomm
             return items.map(block => {
                 if (block.id === id) {
                     const updatedBlock = { ...block, settings: newSettings };
-
                     if (block.type === 'columns' && newSettings.columnCount !== (block.settings.columnCount || 0)) {
                         const currentCount = block.children?.length || 0;
                         const newCount = newSettings.columnCount || 0;
                         let newChildren = [...(block.children || [])];
-
                         if (newCount > currentCount) {
                             for (let i = 0; i < newCount - currentCount; i++) {
                                 newChildren.push({ id: uuidv4(), type: 'column', settings: {}, children: [] });
@@ -135,13 +172,11 @@ export function WebsiteBuilder({ shop, availableProducts }: { shop: WithId<Ecomm
 
     const handleRemoveBlock = (idToRemove: string) => {
         setLayout(prev => removeBlockById(prev, idToRemove));
-        if (selectedBlockId === idToRemove) {
-            setSelectedBlockId(null);
-        }
+        if (selectedBlockId === idToRemove) setSelectedBlockId(null);
     };
     
     const onDragEnd = (result: DropResult) => {
-        const { source, destination } = result;
+        const { source, destination, type } = result;
         if (!destination) return;
 
         const layoutCopy = JSON.parse(JSON.stringify(layout));
@@ -156,6 +191,15 @@ export function WebsiteBuilder({ shop, availableProducts }: { shop: WithId<Ecomm
         setLayout(layoutCopy);
     };
 
+    const handleSelectPage = (pageId: string) => {
+        const page = pages.find(p => p._id.toString() === pageId);
+        if (page) {
+            setActivePageId(pageId);
+            setLayout(page.layout || []);
+            setSelectedBlockId(null);
+        }
+    };
+    
     const selectedBlock = useMemo(() => {
         if (!selectedBlockId) return undefined;
         const findRecursively = (items: WebsiteBlock[]): WebsiteBlock | undefined => {
@@ -172,21 +216,23 @@ export function WebsiteBuilder({ shop, availableProducts }: { shop: WithId<Ecomm
     }, [selectedBlockId, layout]);
     
     return (
-        <form action={formAction}>
-            <input type="hidden" name="shopId" value={shop._id.toString()} />
-            <input type="hidden" name="homepageLayout" value={JSON.stringify(layout)} />
+        <form action={handleSavePage}>
             <DragDropContext onDragEnd={onDragEnd}>
                 <div className="h-screen w-screen bg-muted flex flex-col">
                     <header className="flex-shrink-0 h-16 bg-background border-b flex items-center justify-between px-4">
                         <Button variant="outline" asChild>
-                            <Link href={`/dashboard/facebook/custom-ecommerce/manage/${shop._id.toString()}`}>
+                            <Link href="/dashboard/facebook/custom-ecommerce">
                                 <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back to Shop
+                                Back to Shops
                             </Link>
                         </Button>
+                        <div className="text-center">
+                            <p className="font-semibold">{shop.name}</p>
+                            <p className="text-xs text-muted-foreground">Editing: {activePage?.name || 'New Page'}</p>
+                        </div>
                         <div className="flex items-center gap-2">
                             <Button variant="secondary" asChild>
-                                <Link href={`/shop/${shop.slug}`} target="_blank">
+                                <Link href={`/shop/${shop.slug}/${activePage?.slug || ''}`} target="_blank">
                                     <Eye className="mr-2 h-4 w-4" />
                                     Preview
                                 </Link>
@@ -196,6 +242,8 @@ export function WebsiteBuilder({ shop, availableProducts }: { shop: WithId<Ecomm
                     </header>
                     <div className="flex-1 grid grid-cols-12 min-h-0">
                         <div className="col-span-2 bg-background border-r p-4 overflow-y-auto">
+                            <PageManagerPanel pages={pages} activePageId={activePageId} onSelectPage={handleSelectPage} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
+                            <Separator className="my-4"/>
                             <BlockPalette onAddBlock={handleAddBlock} />
                         </div>
                         <div className="col-span-7 bg-muted/50 overflow-y-auto p-4">
@@ -223,4 +271,14 @@ export function WebsiteBuilder({ shop, availableProducts }: { shop: WithId<Ecomm
             </DragDropContext>
         </form>
     );
+}
+
+// Temporary ObjectId for client-side creation
+class ObjectId {
+    readonly _id: string;
+    constructor() {
+        this._id = `temp_${Math.random().toString(36).substring(2, 15)}`;
+    }
+    toString() { return this._id }
+    toHexString() { return this._id }
 }
