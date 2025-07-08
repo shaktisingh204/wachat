@@ -6,7 +6,7 @@ import { HeroBlockEditor } from './hero-block-editor';
 import { FeaturedProductsBlockEditor } from './featured-products-block-editor';
 import { RichTextBlockEditor } from './rich-text-block-editor';
 import { TestimonialsBlockEditor } from './testimonials-block-editor';
-import { FaqBlockEditor } from './faq-block-editor';
+import { FaqBlockRenderer } from './faq-block-renderer';
 import { CustomHtmlBlockEditor } from './custom-html-block-editor';
 import { HeadingBlockEditor } from './heading-block-editor';
 import { ImageBlockEditor } from './image-block-editor';
@@ -20,14 +20,17 @@ import { AccordionBlockEditor } from './accordion-block-editor';
 import { FormBlockEditor } from './form-block-editor';
 import { MapBlockEditor } from './map-block-editor';
 import { CountdownBlockEditor } from './countdown-block-editor';
-import { SocialShareBlockEditor } from './social-share-block-editor';
-import { RepeaterBlockEditor } from './repeater-block-editor';
+import { SocialShareBlockRenderer } from './social-share-block-renderer';
+import { RepeaterBlockRenderer } from './repeater-block-renderer';
 import { SectionBlockEditor } from './section-block-editor';
 import { ColumnsBlockEditor } from './columns-block-editor';
 import { ColumnBlockEditor } from './column-block-editor';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
+import { SocialShareBlockEditor } from './social-share-block-editor';
+import { RepeaterBlockEditor } from './repeater-block-editor';
+import { FaqBlockEditor } from './faq-block-editor';
 
 
 interface PropertiesPanelProps {
