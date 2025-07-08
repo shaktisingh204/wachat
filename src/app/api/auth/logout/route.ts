@@ -1,9 +1,8 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
+import { decodeJwt } from 'jose';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { SessionPayload } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
     const cookieStore = cookies();
@@ -11,12 +10,12 @@ export async function GET(request: NextRequest) {
 
     if (sessionToken) {
         try {
-            const payload = jwt.decode(sessionToken) as SessionPayload;
-            if (payload && payload.jti && payload.expires) {
+            const payload = decodeJwt(sessionToken);
+            if (payload && payload.jti && payload.exp) {
                 const { db } = await connectToDatabase();
                 await db.collection('revoked_tokens').insertOne({
                     jti: payload.jti,
-                    expireAt: new Date(payload.expires),
+                    expireAt: new Date(payload.exp * 1000), // exp is in seconds, Date needs ms
                 });
             }
         } catch (error) {

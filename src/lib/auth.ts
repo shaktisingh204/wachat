@@ -1,16 +1,16 @@
 
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { SignJWT, jwtVerify } from 'jose';
 import { nanoid } from 'nanoid';
 import { connectToDatabase } from './mongodb';
 
-function getJwtSecret(): string {
+function getJwtSecretKey(): Uint8Array {
     const secret = process.env.JWT_SECRET;
     if (!secret) {
         console.error("CRITICAL: JWT_SECRET environment variable is not set.");
         throw new Error('JWT_SECRET is not defined in the environment variables.');
     }
-    return secret;
+    return new TextEncoder().encode(secret);
 }
 
 const SALT_ROUNDS = 10;
@@ -30,10 +30,14 @@ export interface SessionPayload {
     expires: number;
 }
 
-export function createSessionToken(payload: Omit<SessionPayload, 'expires' | 'jti'>): string {
-    const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
-    const sessionPayload: SessionPayload = { ...payload, jti: nanoid(), expires };
-    return jwt.sign(sessionPayload, getJwtSecret(), { expiresIn: '7d', jwtid: sessionPayload.jti });
+export async function createSessionToken(payload: Omit<SessionPayload, 'expires' | 'jti'>): Promise<string> {
+    const jti = nanoid();
+    return new SignJWT({ ...payload })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setJti(jti)
+        .setIssuedAt()
+        .setExpirationTime('7d')
+        .sign(getJwtSecretKey());
 }
 
 async function isTokenRevoked(jti: string): Promise<boolean> {
@@ -50,15 +54,25 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
 
 export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
     try {
-        const secret = getJwtSecret();
-        const decoded = jwt.verify(token, secret) as SessionPayload;
-
-        if (await isTokenRevoked(decoded.jti)) {
-            console.warn(`Attempted to use a revoked token: ${decoded.jti}`);
+        const { payload } = await jwtVerify(token, getJwtSecretKey(), {
+            algorithms: ['HS256']
+        });
+        
+        if (!payload.jti || !payload.exp) {
             return null;
         }
         
-        return decoded;
+        if (await isTokenRevoked(payload.jti)) {
+            console.warn(`Attempted to use a revoked token: ${payload.jti}`);
+            return null;
+        }
+
+        return {
+            userId: payload.userId as string,
+            email: payload.email as string,
+            jti: payload.jti,
+            expires: payload.exp * 1000,
+        };
     } catch (error) {
         // Log the error for debugging but don't expose details
         console.error("JWT verification failed:", (error as Error).message);
@@ -75,25 +89,39 @@ export interface AdminSessionPayload {
     expires: number;
 }
 
-export function createAdminSessionToken(): string {
-    const expires = Date.now() + 1 * 24 * 60 * 60 * 1000; // 1 day for admin
-    const sessionPayload: AdminSessionPayload = { role: 'admin', loggedInAt: Date.now(), jti: nanoid(), expires };
-    return jwt.sign(sessionPayload, getJwtSecret(), { expiresIn: '1d', jwtid: sessionPayload.jti });
+export async function createAdminSessionToken(): Promise<string> {
+    const jti = nanoid();
+    return new SignJWT({ role: 'admin', loggedInAt: Date.now() })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setJti(jti)
+        .setIssuedAt()
+        .setExpirationTime('1d')
+        .sign(getJwtSecretKey());
 }
 
 export async function verifyAdminSessionToken(token: string): Promise<AdminSessionPayload | null> {
     try {
-        const secret = getJwtSecret();
-        const decoded = jwt.verify(token, secret) as AdminSessionPayload;
-
-        if (await isTokenRevoked(decoded.jti)) {
-            console.warn(`Attempted to use a revoked admin token: ${decoded.jti}`);
+        const { payload } = await jwtVerify(token, getJwtSecretKey(), {
+            algorithms: ['HS256']
+        });
+        
+        if (!payload.jti || !payload.exp) {
+            return null;
+        }
+        
+        if (await isTokenRevoked(payload.jti)) {
+            console.warn(`Attempted to use a revoked admin token: ${payload.jti}`);
             return null;
         }
 
-        if (decoded.role !== 'admin') return null;
+        if (payload.role !== 'admin') return null;
         
-        return decoded;
+        return {
+            role: 'admin',
+            loggedInAt: payload.loggedInAt as number,
+            jti: payload.jti,
+            expires: payload.exp * 1000
+        };
     } catch (error) {
         console.error("Admin JWT verification failed:", (error as Error).message);
         return null;
