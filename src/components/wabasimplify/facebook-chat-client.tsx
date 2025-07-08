@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useCallback, useTransition } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getFacebookChatInitialData, getFacebookConversationMessages, markFacebookConversationAsRead } from '@/app/actions/facebook.actions';
+import { getFacebookChatInitialData, getFacebookConversationMessages, markFacebookConversationAsRead, getProjects } from '@/app/actions/facebook.actions';
 import { getSession } from '@/app/actions';
 import type { WithId, Project, FacebookConversation, FacebookMessage, User, Plan } from '@/lib/definitions';
 import { FacebookConversationList } from './facebook-conversation-list';
@@ -13,7 +13,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, MessageSquare } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PermissionErrorDialog } from './permission-error-dialog';
-import { Card } from '@/components/ui/card';
+import { Card } from '../ui/card';
 
 export function FacebookChatClient() {
     const router = useRouter();
@@ -58,24 +58,39 @@ export function FacebookChatClient() {
                 if (convo) {
                     handleSelectConversation(convo, pid);
                 }
+            } else {
+                 setSelectedConversation(null);
+                 setMessages([]);
             }
         });
     }, [conversationIdFromUrl]);
 
-    useEffect(() => {
+    // This effect ensures we always have the latest projectId from localStorage
+    // after any navigation event or page refresh.
+     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         setProjectId(storedProjectId);
-        if (storedProjectId) {
-            fetchInitialData(storedProjectId);
+    }, [searchParams]);
+
+    // This effect fetches data ONLY when the projectId changes.
+    useEffect(() => {
+        if (projectId) {
+            fetchInitialData(projectId);
+        } else {
+            // If no project is selected, clear out the data.
+            setProject(null);
+            setConversations([]);
+            setMessages([]);
+            setSelectedConversation(null);
         }
-    }, [fetchInitialData]);
+    }, [projectId, fetchInitialData]);
 
     const handleSelectConversation = useCallback(async (conversation: FacebookConversation, pid?: string) => {
         const currentProjectId = pid || projectId;
         if (!currentProjectId) return;
 
         setSelectedConversation(conversation);
-        router.push(`/dashboard/facebook/messages?conversationId=${conversation.id}`);
+        router.push(`/dashboard/facebook/messages?conversationId=${conversation.id}`, { scroll: false });
 
         // Mark as read on server if needed
         if (conversation.unread_count > 0) {
@@ -111,6 +126,10 @@ export function FacebookChatClient() {
         }
     }
 
+    if (isLoading && !project) {
+        return <Skeleton className="h-full w-full rounded-xl"/>
+    }
+
     if (!projectId) {
         return (
             <div className="h-full flex items-center justify-center p-4">
@@ -125,10 +144,6 @@ export function FacebookChatClient() {
         );
     }
     
-    if (isLoading) {
-        return <Skeleton className="h-full w-full rounded-xl"/>
-    }
-
     return (
         <>
             <PermissionErrorDialog 
