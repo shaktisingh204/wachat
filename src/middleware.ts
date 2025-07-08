@@ -1,9 +1,9 @@
+
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { verifyAdminSessionToken, verifySessionToken } from './lib/auth';
 
-// This middleware only handles authentication now.
-// Custom domain routing is handled by the page structure.
-export default function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const sessionToken = request.cookies.get('session')?.value
   const adminSessionToken = request.cookies.get('admin_session')?.value
@@ -12,19 +12,22 @@ export default function middleware(request: NextRequest) {
   const isDashboard = pathname.startsWith('/dashboard');
   const isAdminDashboard = pathname.startsWith('/admin/dashboard');
 
-  if (isDashboard && !sessionToken) {
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
+  const session = sessionToken ? await verifySessionToken(sessionToken) : null;
+  const adminSession = adminSessionToken ? await verifyAdminSessionToken(adminSessionToken) : null;
 
-  if (isAdminDashboard && !adminSessionToken) {
+  if (isAdminDashboard && !adminSession) {
     return NextResponse.redirect(new URL('/admin-login', request.url));
   }
 
+  if (isDashboard && !session) {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
   if (isAuthPage) {
-    if (sessionToken && !pathname.startsWith('/admin')) {
+    if (session && !pathname.startsWith('/admin')) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
-    if (adminSessionToken && pathname.startsWith('/admin')) {
+    if (adminSession && pathname.startsWith('/admin')) {
       return NextResponse.redirect(new URL('/admin/dashboard', request.url));
     }
   }
