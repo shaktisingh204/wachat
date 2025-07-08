@@ -31,13 +31,14 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2, Server, Palette, Bot, BookCopy, LayoutGrid
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2, Server, Palette, Bot, BookCopy, LayoutGrid, Brush
 } from 'lucide-react';
-import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon, CustomEcommerceIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getProjectCount, getSession, getProjects } from '@/app/actions';
 import { type Plan, type WithId, type Project } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
+import { Badge } from '@/components/ui/badge';
 
 function FullPageSkeleton() {
     return (
@@ -59,7 +60,7 @@ const wachatMenuItems = [
   { href: '/dashboard/templates', label: 'Templates', icon: FileText, featureKey: 'templates' },
   { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, featureKey: 'catalog' },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'flowBuilder' },
-  { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, featureKey: 'metaFlows' },
+  { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, featureKey: 'metaFlows', beta: true },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, featureKey: 'numbers' },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, featureKey: 'webhooks' },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings, featureKey: 'settings' },
@@ -112,7 +113,7 @@ const facebookMenuGroups = [
   {
     title: 'Custom Ecommerce',
     items: [
-      { href: '/dashboard/facebook/custom-ecommerce', label: 'Manage Shops', icon: LayoutDashboard, featureKey: 'ecommerce' },
+      { href: '/dashboard/facebook/custom-ecommerce', label: 'Website Builder', icon: Brush, featureKey: 'ecommerce', beta: true },
     ]
   },
    {
@@ -297,7 +298,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
                     </SidebarGroupLabel>
                 )}
-                {group.items.map((item) => {
+                {group.items.map((item: any) => {
                   const isAllowed = !planFeatures ? true : (planFeatures as any)[item.featureKey] ?? true;
                   const isDisabled = (hasNoProjects && !isSetupPage) || !isAllowed;
                   
@@ -333,6 +334,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <Link href={isDisabled ? '#' : item.href} className={cn(isDisabled && 'pointer-events-none')}>
                           <item.icon />
                           <span>{item.label}</span>
+                          {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
