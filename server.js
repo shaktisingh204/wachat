@@ -5,7 +5,7 @@ const cluster = require('cluster');
 const os = require('os');
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = 'localhost';
+const hostname = '0.0.0.0'; // Changed from 'localhost' for production environments
 const port = parseInt(process.env.PORT, 10) || 3001;
 
 // For Next.js app
@@ -43,7 +43,7 @@ if (cluster.isPrimary) {
         process.exit(1);
     })
     .listen(port, () => {
-      console.log(`\x1b[36m[Worker ${process.pid}]\x1b[0m Next.js server ready on http://${hostname}:${port}`);
+      console.log(`\x1b[36m[Worker ${process.pid}]\x1b[0m Next.js server ready on http://localhost:${port}`);
     });
   });
 }
