@@ -1097,3 +1097,4 @@ export type Backlink = {
     domainAuthority: number;
     linkType: 'News' | 'Forum' | 'Blog' | 'Review';
 };
+
