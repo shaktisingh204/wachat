@@ -1,6 +1,7 @@
 
+
 import { notFound } from 'next/navigation';
-import { getPublicEcommProductById, getEcommShopById } from '@/app/actions/custom-ecommerce.actions';
+import { getPublicEcommProductById, getPublicEcommShopById } from '@/app/actions/custom-ecommerce.actions';
 import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
 
 export default async function ProductDetailPage({ params }: { params: { productId: string, slug: string }}) {
@@ -9,7 +10,7 @@ export default async function ProductDetailPage({ params }: { params: { productI
         notFound();
     }
 
-    const shop = await getEcommShopById(product.shopId.toString());
+    const shop = await getPublicEcommShopById(product.shopId.toString());
     if (!shop || shop.slug !== params.slug) {
         notFound();
     }
