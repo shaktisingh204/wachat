@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 interface RichTextBlockRendererProps {
   settings: {
     htmlContent?: string;
+    htmlTag?: string;
+    dropCap?: boolean;
     fontFamily?: string;
     fontSize?: string;
     fontWeight?: string;
@@ -16,6 +18,8 @@ interface RichTextBlockRendererProps {
     letterSpacing?: string;
     color?: string;
     textAlign?: 'left' | 'center' | 'right' | 'justify';
+    blendMode?: string;
+    textShadow?: { x?: number, y?: number, blur?: number, color?: string };
     margin?: { top?: number; right?: number; bottom?: number; left?: number };
     padding?: { top?: number; right?: number; bottom?: number; left?: number };
     zIndex?: number;
@@ -29,6 +33,8 @@ interface RichTextBlockRendererProps {
 }
 
 export const RichTextBlockRenderer: React.FC<RichTextBlockRendererProps> = ({ settings }) => {
+    const Tag = settings.htmlTag || 'div';
+    
     const style: React.CSSProperties = {
         fontFamily: settings.fontFamily || 'inherit',
         fontSize: settings.fontSize ? `${settings.fontSize}px` : undefined,
@@ -39,6 +45,8 @@ export const RichTextBlockRenderer: React.FC<RichTextBlockRendererProps> = ({ se
         letterSpacing: settings.letterSpacing ? `${settings.letterSpacing}px` : undefined,
         color: settings.color || 'inherit',
         textAlign: settings.textAlign || 'left',
+        mixBlendMode: settings.blendMode as any || 'normal',
+        textShadow: settings.textShadow ? `${settings.textShadow.x || 0}px ${settings.textShadow.y || 0}px ${settings.textShadow.blur || 0}px ${settings.textShadow.color || 'transparent'}` : 'none',
         margin: settings.margin ? `${settings.margin.top || 0}px ${settings.margin.right || 0}px ${settings.margin.bottom || 0}px ${settings.margin.left || 0}px` : undefined,
         padding: settings.padding ? `${settings.padding.top || 0}px ${settings.padding.right || 0}px ${settings.padding.bottom || 0}px ${settings.padding.left || 0}px` : undefined,
         zIndex: settings.zIndex || undefined,
@@ -64,15 +72,17 @@ export const RichTextBlockRenderer: React.FC<RichTextBlockRendererProps> = ({ se
         <style>{`#${settings.cssId || ''} { ${settings.customCss} }`}</style>
     ) : null;
     
-    return (
-        <div 
-            id={settings.cssId} 
-            className={cn("prose dark:prose-invert max-w-none", animationClass, responsiveClasses, settings.cssClasses)} 
-            style={style}
-            dangerouslySetInnerHTML={{ __html: settings.htmlContent || '' }}
-            {...customAttributes}
-        >
-            {customStyleTag}
-        </div>
-    );
+    return React.createElement(Tag, {
+        id: settings.cssId,
+        className: cn(
+            "prose dark:prose-invert max-w-none",
+            settings.dropCap && "has-drop-cap",
+            animationClass,
+            responsiveClasses,
+            settings.cssClasses
+        ),
+        style: style,
+        dangerouslySetInnerHTML: { __html: settings.htmlContent || '' },
+        ...customAttributes
+    }, customStyleTag);
 };

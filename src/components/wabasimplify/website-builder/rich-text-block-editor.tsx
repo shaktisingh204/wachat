@@ -10,7 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
-import { Switch } from '../ui/switch';
+import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
 
 export function RichTextBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const handleUpdate = (field: string, value: any) => {
@@ -27,20 +28,20 @@ export function RichTextBlockEditor({ settings, onUpdate }: { settings: any, onU
             }
         });
     }
-    
+
     const handleAttributeChange = (index: number, field: 'key' | 'value', value: string) => {
         const newAttributes = [...(settings.customAttributes || [])];
-        newAttributes[index] = {...newAttributes[index], [field]: value};
+        newAttributes[index] = { ...newAttributes[index], [field]: value };
         handleUpdate('customAttributes', newAttributes);
     }
     
     const addAttribute = () => {
-        const newAttributes = [...(settings.customAttributes || []), {id: uuidv4(), key: '', value: ''}];
+        const newAttributes = [...(settings.customAttributes || []), { id: uuidv4(), key: '', value: '' }];
         handleUpdate('customAttributes', newAttributes);
     }
 
     const removeAttribute = (index: number) => {
-        const newAttributes = (settings.customAttributes || []).filter((_: any, i:number) => i !== index);
+        const newAttributes = (settings.customAttributes || []).filter((_: any, i: number) => i !== index);
         handleUpdate('customAttributes', newAttributes);
     }
 
@@ -51,29 +52,66 @@ export function RichTextBlockEditor({ settings, onUpdate }: { settings: any, onU
                 <TabsTrigger value="style">Style</TabsTrigger>
                 <TabsTrigger value="advanced">Advanced</TabsTrigger>
             </TabsList>
-            
+
             <TabsContent value="content" className="pt-4">
-                 <div className="space-y-2">
-                    <Label htmlFor={`html-content-${settings.id}`}>Content</Label>
-                    <Textarea
-                        id={`html-content-${settings.id}`}
-                        value={settings.htmlContent || ''}
-                        onChange={(e) => handleUpdate('htmlContent', e.target.value)}
-                        placeholder="Enter your formatted text or HTML here..."
-                        className="h-48 font-mono"
-                    />
-                </div>
+                 <Accordion type="multiple" className="w-full" defaultValue={['content_main']}>
+                    <AccordionItem value="content_main">
+                        <AccordionTrigger>Text Editor</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
+                             <div className="space-y-2">
+                                <Label htmlFor={`html-content-${settings.id}`}>Content</Label>
+                                <Textarea
+                                    id={`html-content-${settings.id}`}
+                                    value={settings.htmlContent || ''}
+                                    onChange={(e) => handleUpdate('htmlContent', e.target.value)}
+                                    placeholder="Enter your formatted text or HTML here..."
+                                    className="h-48 font-mono"
+                                />
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="content_structure">
+                        <AccordionTrigger>Structure</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
+                            <div className="space-y-2">
+                                <Label>HTML Tag</Label>
+                                <Select value={settings.htmlTag || 'div'} onValueChange={(val) => handleUpdate('htmlTag', val)}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="div">div</SelectItem>
+                                        <SelectItem value="section">section</SelectItem>
+                                        <SelectItem value="article">article</SelectItem>
+                                        <SelectItem value="p">p</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                                <Switch id="dropCap" checked={settings.dropCap} onCheckedChange={(val) => handleUpdate('dropCap', val)} />
+                                <Label htmlFor="dropCap">Enable Drop Cap</Label>
+                            </div>
+                        </AccordionContent>
+                    </AccordionItem>
+                 </Accordion>
             </TabsContent>
             
             <TabsContent value="style" className="pt-4">
-                 <Accordion type="multiple" className="w-full" defaultValue={['style_typography', 'style_layout']}>
+                 <Accordion type="multiple" className="w-full" defaultValue={['style_typography']}>
                     <AccordionItem value="style_typography">
                         <AccordionTrigger>Typography</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
                              <div className="space-y-2"><Label>Text Color</Label><Input type="color" value={settings.color || '#333333'} onChange={(e) => handleUpdate('color', e.target.value)} /></div>
                              <div className="space-y-2"><Label>Alignment</Label><Select value={settings.textAlign || 'left'} onValueChange={(val) => handleUpdate('textAlign', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="left">Left</SelectItem><SelectItem value="center">Center</SelectItem><SelectItem value="right">Right</SelectItem><SelectItem value="justify">Justify</SelectItem></SelectContent></Select></div>
                              <div className="space-y-2"><Label>Font Family</Label><Select value={settings.fontFamily || 'inherit'} onValueChange={(val) => handleUpdate('fontFamily', val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="inherit">Theme Default</SelectItem><SelectItem value="Inter, sans-serif">Inter</SelectItem><SelectItem value="'Roboto', sans-serif">Roboto</SelectItem><SelectItem value="'Lato', sans-serif">Lato</SelectItem><SelectItem value="'Merriweather', serif">Merriweather</SelectItem><SelectItem value="'Playfair Display', serif">Playfair Display</SelectItem></SelectContent></Select></div>
-                             <div className="grid grid-cols-2 gap-2"><div className="space-y-2"><Label>Font Size (px)</Label><Input type="number" value={settings.fontSize || ''} onChange={(e) => handleUpdate('fontSize', e.target.value)} placeholder="e.g. 16" /></div><div className="space-y-2"><Label>Line Height</Label><Input type="number" step="0.1" value={settings.lineHeight || ''} onChange={(e) => handleUpdate('lineHeight', e.target.value)} placeholder="e.g. 1.6" /></div></div>
+                             <div className="grid grid-cols-2 gap-2"><div className="space-y-2"><Label>Font Size (px)</Label><Input type="number" value={settings.fontSize || ''} onChange={(e) => handleUpdate('fontSize', e.target.value)} placeholder="e.g. 16" /></div><div className="space-y-2"><Label>Weight</Label><Select value={settings.fontWeight || 'normal'} onValueChange={(val) => handleUpdate('fontWeight', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="normal">Normal</SelectItem><SelectItem value="bold">Bold</SelectItem><SelectItem value="300">300</SelectItem><SelectItem value="500">500</SelectItem><SelectItem value="700">700</SelectItem></SelectContent></Select></div></div>
+                            <div className="grid grid-cols-2 gap-2"><div className="space-y-2"><Label>Transform</Label><Select value={settings.textTransform || 'none'} onValueChange={v => handleUpdate('textTransform', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="uppercase">Uppercase</SelectItem><SelectItem value="lowercase">Lowercase</SelectItem><SelectItem value="capitalize">Capitalize</SelectItem></SelectContent></Select></div><div className="space-y-2"><Label>Style</Label><Select value={settings.fontStyle || 'normal'} onValueChange={(val) => handleUpdate('fontStyle', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="normal">Normal</SelectItem><SelectItem value="italic">Italic</SelectItem></SelectContent></Select></div></div>
+                            <div className="grid grid-cols-2 gap-2"><div className="space-y-2"><Label>Line Height</Label><Input type="number" step="0.1" value={settings.lineHeight || ''} onChange={(e) => handleUpdate('lineHeight', e.target.value)} placeholder="e.g. 1.6" /></div><div className="space-y-2"><Label>Letter Spacing (px)</Label><Input type="number" value={settings.letterSpacing || ''} onChange={(e) => handleUpdate('letterSpacing', e.target.value)} placeholder="e.g. 1.2" /></div></div>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="style_shadow">
+                        <AccordionTrigger>Text Shadow & Blend Mode</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
+                             <div className="space-y-2"><Label>Text Shadow</Label><div className="grid grid-cols-4 gap-2"><Input type="number" placeholder="X" value={settings.textShadow?.x || '0'} onChange={(e) => handleSubFieldUpdate('textShadow', 'x', e.target.value, true)} /><Input type="number" placeholder="Y" value={settings.textShadow?.y || '0'} onChange={(e) => handleSubFieldUpdate('textShadow', 'y', e.target.value, true)} /><Input type="number" placeholder="Blur" value={settings.textShadow?.blur || '0'} onChange={(e) => handleSubFieldUpdate('textShadow', 'blur', e.target.value, true)} /><Input type="color" value={settings.textShadow?.color || '#000000'} onChange={(e) => handleSubFieldUpdate('textShadow', 'color', e.target.value)} /></div></div>
+                             <div className="space-y-2"><Label>Blend Mode</Label><Select value={settings.blendMode || 'normal'} onValueChange={(val) => handleUpdate('blendMode', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="normal">Normal</SelectItem><SelectItem value="multiply">Multiply</SelectItem><SelectItem value="screen">Screen</SelectItem><SelectItem value="overlay">Overlay</SelectItem></SelectContent></Select></div>
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>
@@ -91,7 +129,7 @@ export function RichTextBlockEditor({ settings, onUpdate }: { settings: any, onU
                     <AccordionItem value="advanced_motion">
                         <AccordionTrigger>Motion Effects</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
-                             <div className="space-y-2"><Label>Entrance Animation</Label><Select value={settings.animation || 'none'} onValueChange={(val) => handleUpdate('animation', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="fadeIn">Fade In</SelectItem><SelectItem value="fadeInUp">Fade In Up</SelectItem></SelectContent></Select></div>
+                            <div className="space-y-2"><Label>Entrance Animation</Label><Select value={settings.animation || 'none'} onValueChange={(val) => handleUpdate('animation', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="fadeIn">Fade In</SelectItem><SelectItem value="fadeInUp">Fade In Up</SelectItem></SelectContent></Select></div>
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="advanced_responsive">
