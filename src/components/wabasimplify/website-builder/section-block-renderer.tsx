@@ -24,10 +24,10 @@ export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = (props)
     const HtmlTag = safeSettings.htmlTag || 'section';
 
     const sectionStyle: React.CSSProperties = {
-        paddingTop: safeSettings.padding?.top ? `${safeSettings.padding.top}px` : '64px',
-        paddingBottom: safeSettings.padding?.bottom ? `${safeSettings.padding.bottom}px` : '64px',
-        paddingLeft: safeSettings.padding?.left ? `${safeSettings.padding.left}px` : '16px',
-        paddingRight: safeSettings.padding?.right ? `${safeSettings.padding.right}px` : '16px',
+        paddingTop: safeSettings.padding?.top ? `${safeSettings.padding.top}px` : undefined,
+        paddingBottom: safeSettings.padding?.bottom ? `${safeSettings.padding.bottom}px` : undefined,
+        paddingLeft: safeSettings.padding?.left ? `${safeSettings.padding.left}px` : undefined,
+        paddingRight: safeSettings.padding?.right ? `${safeSettings.padding.right}px` : undefined,
         marginTop: safeSettings.margin?.top ? `${safeSettings.margin.top}px` : undefined,
         marginRight: safeSettings.margin?.right ? `${safeSettings.margin.right}px` : undefined,
         marginBottom: safeSettings.margin?.bottom ? `${safeSettings.margin.bottom}px` : undefined,
@@ -35,10 +35,13 @@ export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = (props)
         zIndex: safeSettings.zIndex || undefined,
         minHeight: safeSettings.heightMode === 'minHeight' ? `${safeSettings.minHeight || 50}vh` : undefined,
         height: safeSettings.heightMode === 'fitToScreen' ? '100vh' : undefined,
+        overflow: safeSettings.overflow || 'visible',
+        position: safeSettings.sticky === 'top' ? 'sticky' : 'relative',
+        top: safeSettings.sticky === 'top' ? 0 : undefined,
         display: 'flex',
-        position: 'relative',
     };
-
+    
+    // Background styles
     if (safeSettings.backgroundType === 'classic') {
         if (safeSettings.backgroundColor) {
             sectionStyle.backgroundColor = safeSettings.backgroundColor;
@@ -48,14 +51,45 @@ export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = (props)
             sectionStyle.backgroundSize = safeSettings.backgroundSize || 'cover';
             sectionStyle.backgroundPosition = safeSettings.backgroundPosition || 'center center';
             sectionStyle.backgroundRepeat = safeSettings.backgroundRepeat || 'no-repeat';
+            sectionStyle.backgroundAttachment = safeSettings.backgroundAttachment || 'scroll';
         }
     }
     
+    // Border styles
+    if (safeSettings.border?.type && safeSettings.border.type !== 'none') {
+        sectionStyle.borderStyle = safeSettings.border.type;
+        sectionStyle.borderColor = safeSettings.border.color || '#000000';
+        if (safeSettings.border.width) {
+            sectionStyle.borderTopWidth = `${safeSettings.border.width.top || 0}px`;
+            sectionStyle.borderRightWidth = `${safeSettings.border.width.right || 0}px`;
+            sectionStyle.borderBottomWidth = `${safeSettings.border.width.bottom || 0}px`;
+            sectionStyle.borderLeftWidth = `${safeSettings.border.width.left || 0}px`;
+        }
+        if(safeSettings.border.radius) {
+            sectionStyle.borderRadius = `${safeSettings.border.radius.tl || 0}px ${safeSettings.border.radius.tr || 0}px ${safeSettings.border.radius.br || 0}px ${safeSettings.border.radius.bl || 0}px`;
+        }
+    }
+
+    const shadowClasses = {
+        none: '',
+        sm: 'shadow-sm',
+        md: 'shadow-md',
+        lg: 'shadow-lg',
+        xl: 'shadow-xl',
+    };
+    const shadowClass = shadowClasses[safeSettings.boxShadow as keyof typeof shadowClasses] || '';
+
     const alignmentClasses = {
         top: 'items-start',
         middle: 'items-center',
         bottom: 'items-end',
     }[safeSettings.verticalAlign || 'top'];
+    
+    const responsiveClasses = cn({
+        'hidden': safeSettings.responsiveVisibility?.desktop === false,
+        'md:hidden': safeSettings.responsiveVisibility?.tablet === false,
+        'sm:hidden': safeSettings.responsiveVisibility?.mobile === false,
+    });
 
     const innerContainerStyle: React.CSSProperties = {
         width: '100%',
@@ -75,7 +109,7 @@ export const SectionBlockRenderer: React.FC<SectionBlockRendererProps> = (props)
 
     return React.createElement(HtmlTag, {
         id: safeSettings.cssId || blockId,
-        className: cn('w-full', alignmentClasses, safeSettings.cssClasses),
+        className: cn('w-full', alignmentClasses, responsiveClasses, shadowClass, safeSettings.cssClasses),
         style: sectionStyle,
     },
     <>
