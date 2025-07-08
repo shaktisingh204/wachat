@@ -337,7 +337,7 @@ export async function handleCreateWhatsAppAd(prevState: any, formData: FormData)
 
     const { adAccountId, facebookPageId, accessToken } = hasAccess;
     if (!adAccountId || !facebookPageId || !accessToken) {
-        return { error: 'Project is missing Ad Account ID, Facebook Page ID, or Access Token. Please configure these in Project Settings > Marketing.' };
+        return { error: 'Project is missing Ad Account ID, Facebook Page ID, or Access Token. Please configure these in Project Connections.' };
     }
 
     const campaignName = formData.get('campaignName') as string;

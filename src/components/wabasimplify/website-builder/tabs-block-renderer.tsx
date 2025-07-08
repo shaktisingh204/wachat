@@ -21,6 +21,7 @@ interface TabsBlockRendererProps {
     alignment?: 'start' | 'center' | 'end';
     stretchTabs?: boolean;
     tabSpacing?: number;
+    iconPosition?: 'left' | 'right';
     
     // Style props
     tabsListBgColor?: string;
@@ -47,6 +48,15 @@ interface TabsBlockRendererProps {
     customAttributes?: {id: string, key: string, value: string}[];
   };
 }
+
+const IconRenderer = ({ iconName, className }: { iconName?: string; className?: string }) => {
+    if (!iconName) return null;
+    // @ts-ignore
+    const IconComponent = LucideIcons[iconName];
+    if (!IconComponent) return null;
+    return <IconComponent className={cn('h-4 w-4', className)} />;
+};
+
 
 export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }) => {
   const tabs = settings.tabs || [];
@@ -127,17 +137,17 @@ export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }
           }}
         >
           {tabs.map(tab => {
-            // @ts-ignore
-            const Icon = tab.icon ? LucideIcons[tab.icon] : null;
+            const iconPosition = settings.iconPosition || 'left';
+            const iconElement = <IconRenderer iconName={tab.icon} className={cn(iconPosition === 'left' ? 'mr-2' : 'ml-2')} />;
             return (
               <TabsTrigger
                 key={tab.id}
                 value={tab.id}
                 style={{ color: settings.tabTextColor }}
-                className="flex-row-reverse"
+                className={cn('flex items-center gap-2', iconPosition === 'right' && 'flex-row-reverse')}
               >
+                {iconElement}
                 {tab.label}
-                {Icon && <Icon className="mr-2 h-4 w-4" />}
               </TabsTrigger>
             );
           })}

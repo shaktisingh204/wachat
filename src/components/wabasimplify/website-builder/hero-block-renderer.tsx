@@ -51,7 +51,7 @@ export function HeroBlock({ settings }: { settings: any }) {
         'max-sm:hidden': responsiveVisibility?.mobile === false
     });
 
-    const shadowClasses = { 'none': 'shadow-none', 'sm': 'shadow-sm', 'md': 'shadow-md', 'lg': 'shadow-lg' }[boxShadow] || 'shadow-none';
+    const shadowClasses = { 'none': 'shadow-none', 'sm': 'shadow-sm', 'md': 'shadow-md', 'lg': 'shadow-lg' }[boxShadow || 'none'];
 
     const sectionStyle: React.CSSProperties = {
         backgroundColor: backgroundType === 'classic' ? backgroundColor : undefined,

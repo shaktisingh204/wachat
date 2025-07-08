@@ -101,16 +101,21 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         <div className="space-y-2"><Label>Background Type</Label><Select value={settings.backgroundType || 'classic'} onValueChange={(val) => handleUpdate('backgroundType', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="classic">Classic (Color/Image)</SelectItem><SelectItem value="video">Video</SelectItem><SelectItem value="slideshow">Slideshow</SelectItem></SelectContent></Select></div>
                         
                         {settings.backgroundType === 'classic' && (
-                            <div className="p-3 border rounded-md space-y-4"><div className="space-y-2"><Label>Background Color</Label><Input type="color" value={settings.backgroundColor || '#111827'} onChange={(e) => handleUpdate('backgroundColor', e.target.value)} /></div><div className="space-y-2"><Label>Background Image</Label><Input type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleUpdate('backgroundImageUrl', dataUri))} /></div></div>
+                            <div className="p-3 border rounded-md space-y-4">
+                                <div className="space-y-2"><Label>Background Color</Label><Input type="color" value={settings.backgroundColor || '#111827'} onChange={(e) => handleUpdate('backgroundColor', e.target.value)} /></div>
+                                <div className="space-y-2"><Label>Background Image</Label><Input type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleUpdate('backgroundImageUrl', dataUri))} /></div>
+                            </div>
                         )}
                         {settings.backgroundType === 'video' && (
-                            <div className="p-3 border rounded-md space-y-4"><div className="space-y-2"><Label>Background Video URL</Label><Input placeholder="https://example.com/video.mp4" value={settings.backgroundVideoUrl || ''} onChange={(e) => handleUpdate('backgroundVideoUrl', e.target.value)} /></div></div>
+                            <div className="p-3 border rounded-md space-y-4">
+                                <div className="space-y-2"><Label>Background Video URL</Label><Input placeholder="https://example.com/video.mp4" value={settings.backgroundVideoUrl || ''} onChange={(e) => handleUpdate('backgroundVideoUrl', e.target.value)} /></div>
+                            </div>
                         )}
                         {settings.backgroundType === 'slideshow' && (
                             <div className="p-3 border rounded-md space-y-4">
                                 {(settings.slideshowImages || []).map((img: any, index: number) => (
                                     <div key={img.id} className="flex items-center gap-2">
-                                        <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleSlideshowImageChange(index, dataUri))} />
+                                        <Input type="file" accept="image/*" className="flex-1" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleSlideshowImageChange(index, dataUri))} />
                                         {img.src && <Image src={img.src} alt="preview" width={32} height={32} className="rounded-sm object-cover" />}
                                         <Button type="button" variant="ghost" size="icon" onClick={() => removeSlideshowImage(index)}><Trash2 className="h-4 w-4"/></Button>
                                     </div>
@@ -171,7 +176,6 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         <div className="space-y-2"><Label>Z-Index</Label><Input type="number" placeholder="auto" value={settings.zIndex || ''} onChange={e => handleUpdate('zIndex', e.target.value)} /></div>
                         <div className="space-y-2"><Label>CSS ID</Label><Input value={settings.cssId || ''} onChange={e => handleUpdate('cssId', e.target.value)} /></div>
                         <div className="space-y-2"><Label>CSS Classes</Label><Input value={settings.cssClasses || ''} onChange={e => handleUpdate('cssClasses', e.target.value)} /></div>
-                        <div className="space-y-2"><Label>Custom CSS</Label><Textarea value={settings.customCss || ''} onChange={e => handleUpdate('customCss', e.target.value)} className="font-mono" placeholder={`selector {\n  color: red;\n}`}/></div>
                     </AccordionContent>
                 </AccordionItem>
             </Accordion>

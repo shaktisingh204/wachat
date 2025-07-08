@@ -57,7 +57,7 @@ export function CrosspostDialog({ isOpen, onOpenChange, postId, projectId, onSuc
               if(result.error) {
                   toast({ title: "Error", description: `Could not fetch eligible pages: ${result.error}`, variant: "destructive"});
               } else {
-                  setEligiblePages(result.pages);
+                  setEligiblePages(result.pages || []);
               }
           })
       }

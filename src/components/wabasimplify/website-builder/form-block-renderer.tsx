@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useTransition } from 'react';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoaderCircle, CheckCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -27,6 +27,7 @@ interface FormBlockRendererProps {
 export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }) => {
     const [submissionStatus, setSubmissionStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
     const [errorMessage, setErrorMessage] = useState('');
+    const [isPending, startTransition] = useTransition();
 
     const validationSchema = useMemo(() => {
         const schemaObject: { [key: string]: z.ZodType<any, any> } = {};
@@ -77,26 +78,28 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
 
     const { control, handleSubmit, formState: { errors } } = form;
 
-    const onSubmit = async (data: any) => {
-        setSubmissionStatus('submitting');
-        setErrorMessage('');
-        
-        try {
-            if (settings.webhookUrl) {
-                const response = await fetch(settings.webhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
-                if (!response.ok) throw new Error(`Submission failed with status: ${response.status}`);
+    async function onSubmit(data: any) {
+        startTransition(async () => {
+            setSubmissionStatus('submitting');
+            setErrorMessage('');
+            
+            try {
+                if (settings.webhookUrl) {
+                    const response = await fetch(settings.webhookUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    if (!response.ok) throw new Error(`Submission failed with status: ${response.status}`);
+                }
+                setSubmissionStatus('success');
+                if (settings.redirectUrl) window.location.href = settings.redirectUrl;
+            } catch (error: any) {
+                setSubmissionStatus('error');
+                setErrorMessage(error.message || "An unknown error occurred.");
             }
-            setSubmissionStatus('success');
-            if (settings.redirectUrl) window.location.href = settings.redirectUrl;
-        } catch (error: any) {
-            setSubmissionStatus('error');
-            setErrorMessage(error.message || "An unknown error occurred.");
-        }
-    };
+        });
+    }
     
     if (submissionStatus === 'success') {
         return <div className="p-8 text-center border-2 border-dashed rounded-lg text-green-600 border-green-200 bg-green-50"><CheckCircle className="mx-auto h-12 w-12" /><h3 className="mt-4 text-lg font-semibold">{settings.successMessage || 'Thank you! Your submission has been received.'}</h3></div>;
@@ -189,8 +192,8 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
                      {submissionStatus === 'error' && <div className="col-span-12 p-4 bg-destructive/10 text-destructive text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
                 </CardContent>
                 <CardFooter style={{justifyContent: settings.buttonAlign || 'flex-start'}}>
-                    <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={submissionStatus === 'submitting'}>
-                        {submissionStatus === 'submitting' && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                    <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={isPending}>
+                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                         {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}
                         {settings.submitButtonText || 'Submit'}
                         {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}

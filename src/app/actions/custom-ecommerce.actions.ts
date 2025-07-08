@@ -3,7 +3,7 @@
 
 import { getProjectById } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { EcommProduct, EcommOrder, EcommShop, EcommSettings, AbandonedCartSettings, WebsiteBlock, EcommProductVariant, EcommPage } from '@/lib/definitions';
+import type { EcommProduct, EcommOrder, EcommShop, AbandonedCartSettings, WebsiteBlock, EcommProductVariant, EcommPage } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getErrorMessage } from '@/lib/utils';
