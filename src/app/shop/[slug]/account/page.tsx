@@ -1,21 +1,26 @@
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
+import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
+import { notFound } from 'next/navigation';
 
-export default function AccountDashboardPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function AccountDashboardPage({ params }: { params: { slug: string }}) {
+    const shop = await getEcommShopBySlug(params.slug);
+    if (!shop) {
+        notFound();
+    }
+    
+    const layout = shop.accountPageLayout || [];
+    
     return (
-        <div>
-            <h1 className="text-2xl font-bold mb-4">My Account</h1>
-            <Card>
-                <CardHeader>
-                    <CardTitle>Welcome back, Customer!</CardTitle>
-                    <CardDescription>
-                        From your account dashboard you can view your recent orders, manage your shipping and billing addresses, and edit your password and account details.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p>This is your main account dashboard. Navigation links are on the left.</p>
-                </CardContent>
-            </Card>
-        </div>
+        <main>
+            <Canvas
+                layout={layout}
+                products={[]}
+                shopSlug={shop.slug}
+                isEditable={false}
+            />
+        </main>
     );
 }

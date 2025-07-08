@@ -11,6 +11,10 @@ import {
   MapPin,
   LogOut,
   ChevronLeft,
+  Download,
+  GitCompare,
+  ArrowRightLeft,
+  Key
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -21,7 +25,9 @@ const navItems = [
   { href: '/profile', label: 'Profile Details', icon: User },
   { href: '/address-book', label: 'Address Book', icon: MapPin },
   { href: '/wishlist', label: 'Wishlist', icon: Heart },
-  { href: '/returns', label: 'Returns', icon: ChevronLeft },
+  { href: '/returns', label: 'Returns', icon: ArrowRightLeft },
+  { href: '/downloads', label: 'Downloads', icon: Download },
+  { href: '/compare', label: 'Compare', icon: GitCompare },
 ];
 
 export default function AccountLayout({
@@ -57,6 +63,16 @@ export default function AccountLayout({
               );
             })}
              <Button
+              asChild
+              variant="ghost"
+              className="justify-start"
+            >
+                <Link href={`/shop/${params.slug}/account/login`}>
+                    <Key className="mr-2 h-4 w-4" />
+                    Login / Register
+                </Link>
+            </Button>
+             <Button
               variant="ghost"
               className="justify-start text-destructive hover:text-destructive hover:bg-destructive/10"
             >
@@ -65,8 +81,4 @@ export default function AccountLayout({
             </Button>
           </nav>
         </aside>
-        <main className="md:col-span-9">{children}</main>
-      </div>
-    </div>
-  );
-}
+        <main className="md:col-span-9">{children}</
