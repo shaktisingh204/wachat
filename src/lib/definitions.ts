@@ -10,7 +10,6 @@ export type BusinessCapabilities = {
 export type PaymentConfiguration = {
     configuration_name: string;
     provider_name: string;
-    provider_mid: string;
     status: string;
     created_timestamp: number;
     updated_timestamp: number;
@@ -481,7 +480,6 @@ export type PlanMessageCosts = {
     marketing: number;
     utility: number;
     authentication: number;
-    service?: number;
 };
 
 export type Plan = {
@@ -774,9 +772,11 @@ export type VariableMapping = {
 export type BroadcastJob = {
     _id: ObjectId;
     projectId: ObjectId;
-    broadcastType: 'template';
+    broadcastType: 'template' | 'flow';
     templateId?: ObjectId;
     templateName: string;
+    flowId?: ObjectId;
+    flowName?: string;
     phoneNumberId: string;
     accessToken: string;
     status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled';
@@ -803,6 +803,8 @@ export type AdminUserView = Omit<User, 'password'>;
 export type CreateTemplateState = {
     message?: string | null;
     error?: string | null;
+    payload?: string | null;
+    debugInfo?: string | null;
 };
 
 export type BroadcastState = {

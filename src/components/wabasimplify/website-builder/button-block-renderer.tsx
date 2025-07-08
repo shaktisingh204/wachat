@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import React from 'react';
@@ -18,37 +17,38 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
         text, link, linkNewWindow, linkNofollow, htmlTag = 'a', align, size = 'default',
         icon, iconPosition = 'left', iconSpacing = 8, typography = {}, color, backgroundColor,
         border, padding, hover, boxShadow, transitionDuration = 0.3, iconStyle = {},
-        animation, responsiveVisibility, cssId, cssClasses, customCss, customAttributes
+        animation, animationDuration = 'normal', animationDelay, responsiveVisibility, cssId, cssClasses, customCss, customAttributes,
+        tabletAlign, mobileAlign
     } = safeSettings;
 
     const Tag = link ? 'a' : (htmlTag || 'button');
     
     const alignmentClasses = {
-        left: 'justify-start',
-        center: 'justify-center',
-        right: 'justify-end',
-        justify: 'justify-stretch', // children will stretch
-    }[align || 'left'];
-
-    const responsiveClasses = cn({
-        'max-lg:hidden': responsiveVisibility?.desktop === false,
-        'max-md:hidden lg:hidden': responsiveVisibility?.tablet === false,
-        'max-sm:hidden': responsiveVisibility?.mobile === false,
-    });
+        left: 'justify-start', center: 'justify-center', right: 'justify-end', justify: 'justify-stretch',
+    };
     
-    const animationClass = {
-        fade: 'animate-fade-in',
-        slide: 'animate-slide-in-up',
-        zoom: 'animate-in zoom-in-75',
-        bounce: 'animate-bounce',
-    }[animation || 'none'];
+    const responsiveClasses = cn(
+        'flex w-full',
+        alignmentClasses[align as keyof typeof alignmentClasses] || 'justify-start',
+        tabletAlign && `md:justify-${tabletAlign}`,
+        mobileAlign && `sm:justify-${mobileAlign}`,
+        {
+            'max-lg:hidden': responsiveVisibility?.desktop === false,
+            'max-md:hidden lg:hidden': responsiveVisibility?.tablet === false,
+            'max-sm:hidden': responsiveVisibility?.mobile === false,
+        }
+    );
+    
+    const animationDelayStyle: React.CSSProperties = animationDelay ? { animationDelay: `${animationDelay}ms` } : {};
+    const animationClasses = {
+        fade: 'animate-in fade-in',
+        'slide-up': 'animate-in fade-in-0 slide-in-from-bottom-5',
+        none: '',
+    };
+    const animationDurationClasses = { slow: 'duration-1000', normal: 'duration-500', fast: 'duration-300' };
 
     const hoverAnimationClass = {
-        grow: 'hover:scale-110',
-        shrink: 'hover:scale-90',
-        pulse: 'hover:animate-pulse',
-        bob: 'hover:animate-bob',
-        wobbleHorizontal: 'hover:animate-wobbleHorizontal',
+        grow: 'hover:scale-110', shrink: 'hover:scale-90', pulse: 'hover:animate-pulse', bob: 'hover:animate-bob', wobbleHorizontal: 'hover:animate-wobbleHorizontal',
     }[hover?.animation || 'none'];
 
     const customAttrs = (customAttributes || []).reduce((acc: any, attr: any) => {
@@ -87,7 +87,7 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
             box-shadow: ${hover?.boxShadow?.type === 'inset' ? 'inset ' : ''} ${hover?.boxShadow?.x || boxShadow?.x || 0}px ${hover?.boxShadow?.y || boxShadow?.y || 0}px ${hover?.boxShadow?.blur || boxShadow?.blur || 0}px ${hover?.boxShadow?.spread || boxShadow?.spread || 0}px ${hover?.boxShadow?.color || boxShadow?.color || 'transparent'};
         }
          #${uniqueId}:hover .icon-component {
-            color: ${iconStyle?.hoverColor || iconStyle?.color || hover?.color};
+            color: ${hover?.iconColor || iconStyle?.color || hover?.color};
         }
     `}</style>
     );
@@ -115,8 +115,9 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
     );
     
     const buttonClasses = cn(
-        buttonVariants({ size }),
-        'gap-2', // Default gap, can be overridden by iconSpacing
+        buttonVariants({ size, variant: 'default' }),
+        animationClasses[animation as keyof typeof animationClasses],
+        animationDurationClasses[animationDuration as keyof typeof animationDurationClasses],
         hoverAnimationClass,
         cssClasses
     );
@@ -124,7 +125,7 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
     const buttonProps = {
         id: uniqueId,
         className: buttonClasses,
-        style: { gap: iconSpacing ? `${iconSpacing}px` : undefined },
+        style: { gap: iconSpacing ? `${iconSpacing}px` : undefined, ...animationDelayStyle },
         ...customAttrs,
         ...(Tag === 'a' && {
             href: link,
@@ -137,7 +138,7 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
     };
 
     return (
-        <div className={cn("flex w-full", alignmentClasses, responsiveClasses)}>
+        <div className={responsiveClasses}>
             {customStyleTag}
             {React.createElement(Tag, buttonProps, content)}
         </div>
