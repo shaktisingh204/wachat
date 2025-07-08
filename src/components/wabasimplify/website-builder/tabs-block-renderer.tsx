@@ -95,7 +95,7 @@ export const TabsBlockRenderer: React.FC<TabsBlockRendererProps> = ({ settings }
 
   const responsiveClasses = cn({
     'max-lg:hidden': settings.responsiveVisibility?.desktop === false,
-    'max-md:hidden lg:hidden': settings.responsiveVisibility?.tablet === false,
+    'hidden md:max-lg:flex': settings.responsiveVisibility?.tablet === false,
     'max-sm:hidden': settings.responsiveVisibility?.mobile === false,
   });
   

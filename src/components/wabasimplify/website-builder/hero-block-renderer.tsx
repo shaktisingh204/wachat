@@ -34,8 +34,8 @@ export function HeroBlock({ settings }: { settings: any }) {
         layout = 'center', title = 'Hero Title', subtitle = 'Hero subtitle text goes here.', buttonText, buttonLink,
         backgroundImageUrl, backgroundColor, textColor, buttonColor, buttonTextColor, height = '600px', verticalAlign = 'center',
         textAlign = 'center', overlayColor, overlayOpacity, animation, borderRadius, boxShadow, zIndex,
-        padding, margin, cssId, cssClasses, hideDesktop, hideTablet, hideMobile,
-        backgroundType, backgroundVideoUrl, slideshowImages, topShape, topShapeColor, topShapeHeight, bottomShape, bottomShapeColor, bottomShapeHeight, sticky
+        padding, margin, cssId, cssClasses,
+        backgroundType, backgroundVideoUrl, slideshowImages, topShape, topShapeColor, topShapeHeight, bottomShape, bottomShapeColor, bottomShapeHeight, sticky, responsiveVisibility
     } = safeSettings;
     
     const [isClient, setIsClient] = useState(false);
@@ -46,9 +46,9 @@ export function HeroBlock({ settings }: { settings: any }) {
     const animationClasses = { 'fade': 'animate-fade-in', 'slide-up': 'animate-fade-in-up', 'zoom': 'animate-in zoom-in-50' }[animation || 'none'];
     
     const responsiveClasses = cn({
-        'hidden lg:flex': hideDesktop,
-        'hidden md:max-lg:flex': hideTablet, // Using max-lg to avoid conflict with larger screens
-        'max-md:hidden': hideMobile
+        'max-lg:hidden': responsiveVisibility?.desktop === false,
+        'hidden md:max-lg:flex': responsiveVisibility?.tablet === false,
+        'max-sm:hidden': responsiveVisibility?.mobile === false
     });
 
     const shadowClasses = { 'none': 'shadow-none', 'sm': 'shadow-sm', 'md': 'shadow-md', 'lg': 'shadow-lg' }[boxShadow] || 'shadow-none';

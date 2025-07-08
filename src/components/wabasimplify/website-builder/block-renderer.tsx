@@ -18,7 +18,6 @@ import { HeroBlock } from './hero-block-renderer';
 import { FaqBlockRenderer } from './faq-block-renderer';
 import { TestimonialsBlockRenderer } from './testimonials-block-renderer';
 import { FeaturedProductsBlockRenderer } from './featured-products-block-renderer';
-import { Canvas } from './canvas';
 import { HeadingBlock } from './heading-block-renderer';
 import { RichTextBlockRenderer } from './rich-text-block-renderer';
 import { ImageBlockRenderer } from './image-block-renderer';

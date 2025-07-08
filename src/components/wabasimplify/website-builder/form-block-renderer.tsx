@@ -4,6 +4,7 @@
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -11,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { useState, useMemo } from 'react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoaderCircle, CheckCircle, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import React from 'react';
@@ -65,7 +66,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
         return z.object(schemaObject);
     }, [settings.fields]);
 
-    const form = useForm({
+    const form = useForm<z.infer<typeof validationSchema>>({
         resolver: zodResolver(validationSchema),
         defaultValues: (settings.fields || []).reduce((acc: any, field: FormField) => {
             const fieldName = field.fieldId || field.id;
@@ -74,7 +75,7 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
         }, {})
     });
 
-    const { control, handleSubmit, formState: { errors, isSubmitting } } = form;
+    const { control, handleSubmit, formState: { errors } } = form;
 
     const onSubmit = async (data: any) => {
         setSubmissionStatus('submitting');
@@ -100,6 +101,11 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
     if (submissionStatus === 'success') {
         return <div className="p-8 text-center border-2 border-dashed rounded-lg text-green-600 border-green-200 bg-green-50"><CheckCircle className="mx-auto h-12 w-12" /><h3 className="mt-4 text-lg font-semibold">{settings.successMessage || 'Thank you! Your submission has been received.'}</h3></div>;
     }
+
+    const descriptionStyle: React.CSSProperties = {
+        color: settings.descriptionColor,
+        fontFamily: settings.descriptionTypography?.fontFamily,
+    };
 
     const uniqueId = React.useId().replace(/:/g, "");
     
@@ -183,8 +189,8 @@ export const FormBlockRenderer: React.FC<FormBlockRendererProps> = ({ settings }
                      {submissionStatus === 'error' && <div className="col-span-12 p-4 bg-destructive/10 text-destructive text-sm rounded-md flex items-center gap-2"><AlertCircle className="h-4 w-4"/><p>{errorMessage}</p></div>}
                 </CardContent>
                 <CardFooter style={{justifyContent: settings.buttonAlign || 'flex-start'}}>
-                    <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={isSubmitting}>
-                        {isSubmitting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                    <Button id={settings.buttonId} type="submit" size={settings.buttonSize} className="submit-button" disabled={submissionStatus === 'submitting'}>
+                        {submissionStatus === 'submitting' && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                         {SubmitIcon && settings.buttonIconPosition === 'left' && <SubmitIcon className="mr-2 h-4 w-4" style={{marginRight: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}
                         {settings.submitButtonText || 'Submit'}
                         {SubmitIcon && settings.buttonIconPosition === 'right' && <SubmitIcon className="ml-2 h-4 w-4" style={{marginLeft: `${settings.buttonIconSpacing || 8}px`, width: settings.buttonIconSize, height: settings.buttonIconSize}}/>}

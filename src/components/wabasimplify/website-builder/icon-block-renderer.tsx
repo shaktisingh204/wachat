@@ -18,7 +18,7 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
         viewHoverBackgroundColor, viewHoverBorderColor,
         hoverAnimation, transitionDuration = 0.3, border, boxShadow,
         margin, padding, zIndex, cssId, cssClasses, customCss, customAttributes, responsiveVisibility, animation, animationDuration, animationDelay,
-        tabletAlign, mobileAlign, filter, hoverFilter
+        tabletAlign, mobileAlign, filter, hoverFilter, iconStyle = {},
     } = settings;
 
     // @ts-ignore
@@ -65,41 +65,27 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
         none: '',
     }[animation || 'none'];
     
-    const animationDurationClasses = {
-        slow: 'duration-1000',
-        normal: 'duration-500',
-        fast: 'duration-300',
-    }[animationDuration || 'normal'];
+    const animationDurationClasses = { slow: 'duration-1000', normal: 'duration-500', fast: 'duration-300' }[animationDuration || 'normal'];
 
     const hoverAnimationClass = {
-        grow: 'group-hover:scale-110',
-        shrink: 'group-hover:scale-90',
-        pulse: 'hover:animate-pulse',
-        bob: 'hover:animate-bob',
-        wobbleHorizontal: 'hover:animate-wobble-horizontal',
+        grow: 'group-hover:scale-110', shrink: 'group-hover:scale-90', pulse: 'hover:animate-pulse', bob: 'animate-bob', wobbleHorizontal: 'animate-wobbleHorizontal',
         rotate: 'group-hover:rotate-180',
     }[hoverAnimation || 'none'];
 
     const wrapperStyle: React.CSSProperties = {
         display: 'flex',
-        justifyContent: align,
         margin: margin ? `${margin.top || 0}px ${margin.right || 0}px ${margin.bottom || 0}px ${margin.left || 0}px` : undefined,
         padding: padding ? `${padding.top || 0}px ${padding.right || 0}px ${padding.bottom || 0}px ${padding.left || 0}px` : undefined,
         zIndex: zIndex || undefined,
         animationDelay: animationDelay ? `${animationDelay}ms` : undefined,
     };
     
-    const responsiveAlignmentClasses = cn({
-        'justify-start': align === 'left',
-        'justify-center': align === 'center',
-        'justify-right': align === 'right',
-        'md:justify-start': tabletAlign === 'left',
-        'md:justify-center': tabletAlign === 'center',
-        'md:justify-right': tabletAlign === 'right',
-        'sm:justify-start': mobileAlign === 'left',
-        'sm:justify-center': mobileAlign === 'center',
-        'sm:justify-right': mobileAlign === 'right',
-    });
+    const responsiveAlignmentClasses = cn(
+        'flex',
+        { 'justify-start': align === 'left', 'justify-center': align === 'center', 'justify-end': align === 'right' },
+        { 'md:justify-start': tabletAlign === 'left', 'md:justify-center': tabletAlign === 'center', 'md:justify-end': tabletAlign === 'right' },
+        { 'sm:justify-start': mobileAlign === 'left', 'sm:justify-center': mobileAlign === 'center', 'sm:justify-end': mobileAlign === 'right' },
+    );
 
     const viewStyle: React.CSSProperties = {
         display: 'inline-flex',
@@ -143,7 +129,7 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
 
     return React.createElement(Tag, {
             id: uniqueId,
-            className: cn('relative group/icon flex', responsiveClasses, animationClasses, animationDurationClasses, responsiveAlignmentClasses, cssClasses),
+            className: cn('relative group/icon', responsiveAlignmentClasses, animationClasses, animationDurationClasses, responsiveClasses, cssClasses),
             style: wrapperStyle,
             ...customAttrs,
             ...(Tag === 'a' && linkProps)
@@ -152,4 +138,3 @@ export const IconBlockRenderer: React.FC<IconBlockRendererProps> = ({ settings }
         iconElement
     );
 };
-
