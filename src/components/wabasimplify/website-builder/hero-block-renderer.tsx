@@ -5,71 +5,53 @@ import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import useEmblaCarousel, { EmblaOptionsType } from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
+import { ShapeDivider } from './shape-divider';
+
+const BackgroundSlideshow = ({ images }: { images: {src: string}[] }) => {
+    const options: EmblaOptionsType = { loop: true, align: 'start' };
+    const plugins = [Autoplay({ delay: 5000, stopOnInteraction: false })];
+    const [emblaRef] = useEmblaCarousel(options, plugins);
+
+    return (
+         <div className="embla absolute inset-0 overflow-hidden" ref={emblaRef}>
+            <div className="embla__container h-full">
+                {images.map((image, index) => (
+                    <div className="embla__slide relative h-full" key={index}>
+                        <Image src={image.src} alt={`Slideshow image ${index + 1}`} layout="fill" objectFit="cover" data-ai-hint="hero background" />
+                    </div>
+                ))}
+            </div>
+        </div>
+    )
+}
 
 export function HeroBlock({ settings }: { settings: any }) {
     const safeSettings = settings || {};
     const { 
-        layout = 'center',
-        title = 'Hero Title',
-        subtitle = 'Hero subtitle text goes here.',
-        buttonText,
-        buttonLink,
-        backgroundImageUrl,
-        backgroundColor,
-        textColor,
-        buttonColor,
-        buttonTextColor,
-        height = '600px',
-        verticalAlign = 'center',
-        textAlign = 'center',
-        overlayColor,
-        overlayOpacity,
-        animation,
-        borderRadius,
-        boxShadow,
-        zIndex,
-        padding,
-        margin,
-        cssId,
-        cssClasses,
-        hideDesktop,
-        hideTablet,
-        hideMobile,
-        backgroundType,
-        backgroundVideoUrl
+        layout = 'center', title = 'Hero Title', subtitle = 'Hero subtitle text goes here.', buttonText, buttonLink,
+        backgroundImageUrl, backgroundColor, textColor, buttonColor, buttonTextColor, height = '600px', verticalAlign = 'center',
+        textAlign = 'center', overlayColor, overlayOpacity, animation, borderRadius, boxShadow, zIndex,
+        padding, margin, cssId, cssClasses, hideDesktop, hideTablet, hideMobile,
+        backgroundType, backgroundVideoUrl, slideshowImages, topShape, topShapeColor, topShapeHeight, bottomShape, bottomShapeColor, bottomShapeHeight, sticky
     } = safeSettings;
     
-    const alignmentClasses = {
-        'flex-start': 'items-start',
-        'center': 'items-center',
-        'flex-end': 'items-end'
-    }[verticalAlign] || 'items-center';
+    const [isClient, setIsClient] = useState(false);
+    useEffect(() => { setIsClient(true) }, []);
 
-    const textAlignClasses = {
-        'left': 'text-left',
-        'center': 'text-center',
-        'right': 'text-right'
-    }[textAlign] || 'text-center';
-
-    const animationClasses = {
-        'fade': 'animate-fade-in',
-        'slide-up': 'animate-fade-in-up',
-        'zoom': 'animate-in zoom-in-50'
-    }[animation || 'none'];
-
+    const alignmentClasses = { 'flex-start': 'items-start', 'center': 'items-center', 'flex-end': 'items-end' }[verticalAlign] || 'items-center';
+    const textAlignClasses = { 'left': 'text-left', 'center': 'text-center', 'right': 'text-right' }[textAlign] || 'text-center';
+    const animationClasses = { 'fade': 'animate-fade-in', 'slide-up': 'animate-fade-in-up', 'zoom': 'animate-in zoom-in-50' }[animation || 'none'];
+    
     const responsiveClasses = cn({
         'hidden lg:flex': hideDesktop,
-        'hidden md:flex lg:hidden': hideTablet,
-        'hidden sm:flex': hideMobile,
+        'hidden md:max-lg:flex': hideTablet, // Using max-lg to avoid conflict with larger screens
+        'max-md:hidden': hideMobile
     });
 
-    const shadowClasses = {
-        'none': 'shadow-none',
-        'sm': 'shadow-sm',
-        'md': 'shadow-md',
-        'lg': 'shadow-lg'
-    }[boxShadow] || 'shadow-none';
+    const shadowClasses = { 'none': 'shadow-none', 'sm': 'shadow-sm', 'md': 'shadow-md', 'lg': 'shadow-lg' }[boxShadow] || 'shadow-none';
 
     const sectionStyle: React.CSSProperties = {
         backgroundColor: backgroundType === 'classic' ? backgroundColor : undefined,
@@ -81,9 +63,9 @@ export function HeroBlock({ settings }: { settings: any }) {
         paddingBottom: padding?.bottom ? `${padding.bottom}px` : undefined,
         paddingLeft: padding?.left ? `${padding.left}px` : undefined,
         marginTop: margin?.top ? `${margin.top}px` : undefined,
-        marginRight: margin?.right ? `${margin.right}px` : undefined,
         marginBottom: margin?.bottom ? `${margin.bottom}px` : undefined,
-        marginLeft: margin?.left ? `${margin.left}px` : undefined,
+        position: sticky === 'top' ? 'sticky' : 'relative',
+        top: sticky === 'top' ? 0 : undefined,
     };
     
     const content = (
@@ -101,15 +83,10 @@ export function HeroBlock({ settings }: { settings: any }) {
     );
     
     if (layout === 'offset-box') {
-        const offsetBoxStyles: React.CSSProperties = {
-            backgroundColor: backgroundColor || '#F3F4F6', 
-            height,
-            borderRadius: borderRadius ? `${borderRadius}px` : undefined,
-        };
-
+        const offsetBoxStyles: React.CSSProperties = { ...sectionStyle, backgroundColor: backgroundColor || '#F3F4F6' };
         return (
             <div className={cn("relative w-full flex", responsiveClasses)} style={offsetBoxStyles}>
-                {backgroundImageUrl && <Image src={backgroundImageUrl} alt={title || 'Banner'} layout="fill" objectFit="cover" className="opacity-90" />}
+                {backgroundImageUrl && <Image src={backgroundImageUrl} alt={title || 'Banner'} layout="fill" objectFit="cover" className="opacity-90" data-ai-hint="hero banner" />}
                 <div className="relative z-10 h-full flex items-center max-w-7xl mx-auto px-4 w-full">
                     <div className={cn("max-w-md bg-background/80 backdrop-blur-sm p-8 rounded-lg", animationClasses)}>
                         <h1 className="text-4xl md:text-5xl font-extrabold" style={{color: textColor || '#11182c'}}>{title}</h1>
@@ -123,21 +100,18 @@ export function HeroBlock({ settings }: { settings: any }) {
 
     return (
         <div id={cssId} className={cn("relative w-full flex flex-col justify-center overflow-hidden", alignmentClasses, shadowClasses, responsiveClasses, cssClasses)} style={sectionStyle}>
-            {backgroundType === 'classic' && backgroundImageUrl && <Image src={backgroundImageUrl} alt={title} layout="fill" objectFit="cover" />}
-            {backgroundType === 'video' && backgroundVideoUrl && (
-                <video
-                    src={backgroundVideoUrl}
-                    autoPlay loop muted playsInline
-                    className="absolute w-full h-full object-cover top-0 left-0"
-                />
-            )}
-            {overlayColor && (
-                <div 
-                    className="absolute inset-0"
-                    style={{ backgroundColor: overlayColor, opacity: overlayOpacity || 0.3 }}
-                />
-            )}
+            {topShape && topShape !== 'none' && isClient && <ShapeDivider type={topShape} color={topShapeColor} height={topShapeHeight} position="top" />}
+            
+            {/* Background Layers */}
+            {backgroundType === 'classic' && backgroundImageUrl && <Image src={backgroundImageUrl} alt={title} layout="fill" objectFit="cover" data-ai-hint="hero banner" />}
+            {backgroundType === 'video' && backgroundVideoUrl && <video src={backgroundVideoUrl} autoPlay loop muted playsInline className="absolute w-full h-full object-cover top-0 left-0" />}
+            {backgroundType === 'slideshow' && isClient && Array.isArray(slideshowImages) && slideshowImages.length > 0 && <BackgroundSlideshow images={slideshowImages} />}
+            
+            {overlayColor && <div className="absolute inset-0" style={{ backgroundColor: overlayColor, opacity: overlayOpacity || 0.3 }} />}
+            
             {content}
+
+            {bottomShape && bottomShape !== 'none' && isClient && <ShapeDivider type={bottomShape} color={bottomShapeColor} height={bottomShapeHeight} position="bottom" />}
         </div>
     );
 };
