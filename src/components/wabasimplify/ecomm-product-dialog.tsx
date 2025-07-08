@@ -126,6 +126,16 @@ export function EcommProductDialog({ isOpen, onOpenChange, shop, product, onSucc
                                     <Input id="stock" name="stock" type="number" step="1" defaultValue={product?.stock} placeholder="Leave blank for unlimited"/>
                                 </div>
                             </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="category">Category</Label>
+                                    <Input id="category" name="category" defaultValue={product?.category} placeholder="e.g., Clothing" />
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label htmlFor="subcategory">Subcategory</Label>
+                                    <Input id="subcategory" name="subcategory" defaultValue={product?.subcategory} placeholder="e.g., T-Shirts"/>
+                                </div>
+                            </div>
                              <div className="space-y-2">
                                 <Label htmlFor="imageFile">Product Image</Label>
                                 <Input id="imageFile" name="imageFile" type="file" accept="image/*" ref={fileInputRef} />

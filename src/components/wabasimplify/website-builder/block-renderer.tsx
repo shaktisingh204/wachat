@@ -49,29 +49,34 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
     const safeSettings = block.settings || {};
 
     const productContext = contextData?.product || null;
+    
+    const rendererProps = {
+      settings: safeSettings,
+      contextData: contextData,
+    };
 
     switch (block.type) {
-        case 'hero': return <HeroBlock settings={safeSettings} />;
+        case 'hero': return <HeroBlock {...rendererProps} />;
         case 'featuredProducts': return <FeaturedProductsBlockRenderer settings={safeSettings} products={products} shopSlug={shopSlug}/>;
-        case 'richText': return <RichTextBlockRenderer settings={safeSettings} />;
-        case 'testimonials': return <TestimonialsBlockRenderer settings={safeSettings} />;
-        case 'faq': return <FaqBlockRenderer settings={safeSettings} />;
-        case 'customHtml': return <CustomHtmlBlock settings={safeSettings} />;
-        case 'heading': return <HeadingBlock settings={safeSettings} />;
-        case 'image': return <ImageBlockRenderer settings={safeSettings} />;
-        case 'button': return <ButtonBlockRenderer settings={safeSettings} />;
-        case 'video': return <VideoBlockRenderer settings={safeSettings} />;
-        case 'icon': return <IconBlockRenderer settings={safeSettings} />;
-        case 'spacer': return <SpacerBlockRenderer settings={safeSettings} />;
-        case 'imageCarousel': return <ImageCarouselRenderer settings={safeSettings} />;
-        case 'tabs': return <TabsBlockRenderer settings={safeSettings} />;
-        case 'accordion': return <AccordionBlockRenderer settings={safeSettings} />;
-        case 'form': return <FormBlockRenderer settings={safeSettings} />;
-        case 'map': return <MapBlockRenderer settings={safeSettings} />;
-        case 'countdown': return <CountdownBlockRenderer settings={safeSettings} />;
-        case 'socialShare': return <SocialShareBlockRenderer settings={safeSettings} />;
-        case 'repeater': return <RepeaterBlockRenderer settings={safeSettings} />;
-        case 'cart': return <CartBlockRenderer settings={safeSettings} />;
+        case 'richText': return <RichTextBlockRenderer {...rendererProps} />;
+        case 'testimonials': return <TestimonialsBlockRenderer {...rendererProps} />;
+        case 'faq': return <FaqBlockRenderer {...rendererProps} />;
+        case 'customHtml': return <CustomHtmlBlock {...rendererProps} />;
+        case 'heading': return <HeadingBlock {...rendererProps} />;
+        case 'image': return <ImageBlockRenderer {...rendererProps} />;
+        case 'button': return <ButtonBlockRenderer {...rendererProps} />;
+        case 'video': return <VideoBlockRenderer {...rendererProps} />;
+        case 'icon': return <IconBlockRenderer {...rendererProps} />;
+        case 'spacer': return <SpacerBlockRenderer {...rendererProps} />;
+        case 'imageCarousel': return <ImageCarouselRenderer {...rendererProps} />;
+        case 'tabs': return <TabsBlockRenderer {...rendererProps} />;
+        case 'accordion': return <AccordionBlockRenderer {...rendererProps} />;
+        case 'form': return <FormBlockRenderer {...rendererProps} />;
+        case 'map': return <MapBlockRenderer {...rendererProps} />;
+        case 'countdown': return <CountdownBlockRenderer {...rendererProps} />;
+        case 'socialShare': return <SocialShareBlockRenderer {...rendererProps} />;
+        case 'repeater': return <RepeaterBlockRenderer {...rendererProps} />;
+        case 'cart': return <CartBlockRenderer {...rendererProps} />;
         case 'productImage': return <ProductImageRenderer product={productContext} settings={safeSettings} />;
         case 'productTitle': return <ProductTitleRenderer product={productContext} settings={safeSettings} />;
         case 'productPrice': return <ProductPriceRenderer product={productContext} settings={safeSettings} />;

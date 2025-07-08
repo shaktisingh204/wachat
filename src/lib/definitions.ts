@@ -186,6 +186,9 @@ export type EcommShop = {
     headerLayout?: WebsiteBlock[];
     footerLayout?: WebsiteBlock[];
     productPageLayout?: WebsiteBlock[];
+    productsPageLayout?: WebsiteBlock[];
+    categoryPageLayout?: WebsiteBlock[];
+    searchPageLayout?: WebsiteBlock[];
     cartPageLayout?: WebsiteBlock[];
     themes?: EcommTheme[];
     appearance?: {
@@ -1036,6 +1039,8 @@ export type EcommProduct = {
   imageUrl?: string;
   stock?: number;
   variants?: EcommProductVariant[];
+  category?: string;
+  subcategory?: string;
   createdAt: Date;
   updatedAt: Date;
 };
