@@ -9,10 +9,10 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Package, Eye, RefreshCw, LoaderCircle } from 'lucide-react';
-import { getProjectById } from '@/app/actions';
-import { getEcommOrders } from '@/app/actions/custom-ecommerce.actions';
-import type { WithId, Project, EcommOrder } from '@/lib/definitions';
+import { getEcommShops, getEcommOrders } from '@/app/actions/custom-ecommerce.actions';
+import type { WithId, EcommShop, EcommOrder } from '@/lib/definitions';
 import { format } from 'date-fns';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 function PageSkeleton() {
     return (
@@ -27,27 +27,37 @@ function PageSkeleton() {
 }
 
 export default function OrdersPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
+    const [shops, setShops] = useState<WithId<EcommShop>[]>([]);
+    const [selectedShopId, setSelectedShopId] = useState<string>('');
     const [orders, setOrders] = useState<WithId<EcommOrder>[]>([]);
     const [isLoading, startLoading] = useTransition();
+    const [projectId, setProjectId] = useState<string | null>(null);
 
-    const fetchData = () => {
+    useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (storedProjectId) {
+            setProjectId(storedProjectId);
             startLoading(async () => {
-                const projectData = await getProjectById(storedProjectId);
-                setProject(projectData);
-                if (projectData) {
-                    const ordersData = await getEcommOrders(storedProjectId);
+                const shopsData = await getEcommShops(storedProjectId);
+                setShops(shopsData);
+                if (shopsData.length > 0) {
+                    const shopIdToLoad = selectedShopId || shopsData[0]._id.toString();
+                    setSelectedShopId(shopIdToLoad);
+                    const ordersData = await getEcommOrders(shopIdToLoad);
                     setOrders(ordersData);
                 }
             });
         }
-    };
+    }, [projectId, selectedShopId]);
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+
+    const handleShopChange = async (shopId: string) => {
+        setSelectedShopId(shopId);
+        startLoading(async () => {
+            const ordersData = await getEcommOrders(shopId);
+            setOrders(ordersData);
+        });
+    }
 
     const getStatusVariant = (status?: string) => {
         if (!status) return 'outline';
@@ -58,11 +68,11 @@ export default function OrdersPage() {
         return 'outline';
     };
 
-    if (isLoading) {
+    if (isLoading && orders.length === 0) {
         return <PageSkeleton />;
     }
 
-    if (!project) {
+    if (!projectId) {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
@@ -79,14 +89,31 @@ export default function OrdersPage() {
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Package /> Orders</h1>
                     <p className="text-muted-foreground">View and manage orders from your custom shop.</p>
                 </div>
-                 <Button onClick={fetchData} variant="outline" disabled={isLoading}>
+                 <Button onClick={() => handleShopChange(selectedShopId)} variant="outline" disabled={isLoading}>
                     {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <RefreshCw className="mr-2 h-4 w-4"/>}
                     Refresh
                 </Button>
             </div>
             <Card>
                 <CardHeader>
-                    <CardTitle>Recent Orders</CardTitle>
+                    <div className="flex flex-wrap items-center justify-between gap-4">
+                        <div>
+                            <CardTitle>Recent Orders</CardTitle>
+                            <CardDescription>Orders from your selected shop.</CardDescription>
+                        </div>
+                         <Select value={selectedShopId} onValueChange={handleShopChange} disabled={shops.length === 0}>
+                            <SelectTrigger className="w-full sm:w-auto sm:min-w-[200px]">
+                                <SelectValue placeholder="Select a shop..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {shops.map((shop) => (
+                                    <SelectItem key={shop._id.toString()} value={shop._id.toString()}>
+                                        {shop.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                 </CardHeader>
                 <CardContent>
                      <div className="border rounded-md">
@@ -109,7 +136,7 @@ export default function OrdersPage() {
                                             <TableCell>{format(new Date(order.createdAt), 'PPp')}</TableCell>
                                             <TableCell>{order.customerInfo?.name || 'N/A'}</TableCell>
                                             <TableCell><Badge variant={getStatusVariant(order.status)} className="capitalize">{order.status}</Badge></TableCell>
-                                            <TableCell>{new Intl.NumberFormat('en-US', { style: 'currency', currency: project.ecommSettings?.currency || 'USD' }).format(order.total)}</TableCell>
+                                            <TableCell>{new Intl.NumberFormat('en-US', { style: 'currency', currency: shops.find(s=> s._id.toString() === selectedShopId)?.currency || 'USD' }).format(order.total)}</TableCell>
                                             <TableCell className="text-right">
                                                 <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
                                             </TableCell>
@@ -128,3 +155,5 @@ export default function OrdersPage() {
         </div>
     );
 }
+
+    
