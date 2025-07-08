@@ -1,4 +1,3 @@
-
 'use client';
 
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
@@ -29,6 +28,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { FaqBlockEditor } from './faq-block-editor';
+import { ProductBlockEditor } from './product-block-editor';
 
 interface PropertiesPanelProps {
     selectedBlock: WebsiteBlock | undefined;
@@ -51,10 +51,20 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
             settings: selectedBlock.settings,
             onUpdate: (newSettings: any) => onUpdate(selectedBlock.id, newSettings)
         };
+        
+        const productProps = {
+            ...props,
+            availableProducts: availableProducts,
+        };
+        
+        const productBlockTypes = ['productImage', 'productTitle', 'productPrice', 'productDescription', 'productAddToCart', 'productBreadcrumbs'];
+        if (productBlockTypes.includes(selectedBlock.type)) {
+            return <ProductBlockEditor {...props} blockType={selectedBlock.type} />;
+        }
 
         switch (selectedBlock.type) {
             case 'hero': return <HeroBlockEditor {...props} />;
-            case 'featuredProducts': return <FeaturedProductsBlockEditor {...props} availableProducts={availableProducts} />;
+            case 'featuredProducts': return <FeaturedProductsBlockEditor {...productProps} />;
             case 'richText': return <RichTextBlockEditor {...props} />;
             case 'testimonials': return <TestimonialsBlockEditor {...props} />;
             case 'faq': return <FaqBlockEditor {...props} />;
