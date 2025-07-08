@@ -33,7 +33,7 @@ export function BaseEditorDialog({ isOpen, onOpenChange, onSave, componentType, 
         </ScrollArea>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={onSave}>Save Changes</Button>
+          <Button onClick={onSave}>Apply</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
