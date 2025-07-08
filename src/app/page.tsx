@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
 import {
-  Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Wifi, Type, Clock
+  Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Wifi, Type, Clock,
+  Facebook, Twitter, Linkedin
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -732,8 +733,50 @@ export default function HomePage() {
             </div>
         </div>
       </main>
-      <footer className="border-t">
-        <div className="container mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between items-center gap-4"><p className="text-sm text-muted-foreground">© {new Date().getFullYear()} SabNode. All Rights Reserved.</p><div className="flex gap-4"><Link href="/terms-and-conditions" className="text-sm text-muted-foreground hover:text-primary">Terms & Conditions</Link><Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link></div></div>
+      <footer className="bg-card text-card-foreground border-t">
+        <div className="container mx-auto px-4 py-12">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div className="space-y-4">
+                    <SabNodeLogo className="h-10 w-auto" />
+                    <p className="text-sm text-muted-foreground max-w-xs">Your All-in-One Business Communication Platform.</p>
+                    <div className="flex space-x-4">
+                        <Link href="#"><Facebook className="h-5 w-5 hover:text-primary" /></Link>
+                        <Link href="#"><Twitter className="h-5 w-5 hover:text-primary" /></Link>
+                        <Link href="#"><Linkedin className="h-5 w-5 hover:text-primary" /></Link>
+                    </div>
+                </div>
+                <div>
+                    <h3 className="font-semibold text-foreground mb-4">Product</h3>
+                    <ul className="space-y-2 text-sm">
+                        <li><Link href="#" className="text-muted-foreground hover:text-primary">Wachat Suite</Link></li>
+                        <li><Link href="#" className="text-muted-foreground hover:text-primary">Meta Suite</Link></li>
+                        <li><Link href="#" className="text-muted-foreground hover:text-primary">URL Shortener</Link></li>
+                        <li><Link href="#" className="text-muted-foreground hover:text-primary">QR Code Maker</Link></li>
+                        <li><Link href="#" className="text-muted-foreground hover:text-primary">Pricing</Link></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 className="font-semibold text-foreground mb-4">Company</h3>
+                    <ul className="space-y-2 text-sm">
+                        <li><Link href="#" className="text-muted-foreground hover:text-primary">About Us</Link></li>
+                        <li><Link href="#" className="text-muted-foreground hover:text-primary">Contact</Link></li>
+                        <li><Link href="#" className="text-muted-foreground hover:text-primary">Careers</Link></li>
+                        <li><Link href="#" className="text-muted-foreground hover:text-primary">Blog</Link></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 className="font-semibold text-foreground mb-4">Legal</h3>
+                    <ul className="space-y-2 text-sm">
+                        <li><Link href="/terms-and-conditions" className="text-muted-foreground hover:text-primary">Terms & Conditions</Link></li>
+                        <li><Link href="/privacy-policy" className="text-muted-foreground hover:text-primary">Privacy Policy</Link></li>
+                    </ul>
+                </div>
+            </div>
+            <Separator className="my-8 bg-border" />
+            <div className="text-center text-sm text-muted-foreground">
+                <p>© {new Date().getFullYear()} SabNode. All Rights Reserved.</p>
+            </div>
+        </div>
       </footer>
     </div>
   );
