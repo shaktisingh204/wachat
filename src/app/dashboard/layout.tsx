@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -159,7 +159,6 @@ const seoMenuItems = [
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const router = useRouter();
   const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string, credits?: number, plan?: WithId<Plan> } | null>(null);
   const [projects, setProjects] = React.useState<WithId<Project>[]>([]);
@@ -219,7 +218,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         const id = localStorage.getItem('activeProjectId');
         setActiveProjectName(name || (id ? 'Loading project...' : 'No Project Selected'));
     }
-  }, [pathname, isClient, searchParams]);
+  }, [pathname, isClient]);
 
   const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
 
