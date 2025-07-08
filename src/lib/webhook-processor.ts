@@ -426,7 +426,7 @@ async function sendFlowTemplate(db: Db, project: WithId<Project>, contact: WithI
         const getVars = (text: string): number[] => {
             if (!text) return [];
             const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
-            return variableMatches ? [...new Set(matches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
+            return variableMatches ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] : [];
         };
 
         const payloadComponents: any[] = [];
@@ -868,7 +868,7 @@ async function handleFlowLogic(db: Db, project: WithId<Project>, contact: WithId
         const startNode = triggeredFlow.nodes.find(n => n.type === 'start');
         if (!startNode) return { handled: false };
 
-        const logger = new FlowLogger(db, triggeredFlow, currentContact);
+        const logger = new FlowLogger(db, triggeredFlow, contact);
         logger.log(`Flow triggered by keyword.`, { keyword: triggerText });
         
         currentContact.activeFlow = {
@@ -1155,7 +1155,9 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
 
         const contactsMap = new Map<string, WithId<any>>();
         const contactsCursor = db.collection('broadcast_contacts').find({ messageId: { $in: wamids } });
-        for await (const contact of contactsCursor) contactsMap.set(contact.messageId, contact);
+        for await (const contact of contactsCursor) {
+            contactsMap.set(contact.messageId, contact);
+        }
 
         const liveChatOps: any[] = [];
         const broadcastContactOps: any[] = [];
@@ -1166,15 +1168,22 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
             const wamid = status.id;
             const newStatus = (status.status || 'unknown').toUpperCase();
             
-            const liveChatUpdatePayload: any = { status: status.status, [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000) };
-            if (newStatus === 'FAILED' && status.errors?.[0]) liveChatUpdatePayload.error = `${status.errors[0].title} (Code: ${status.errors[0].code})${status.errors[0].details ? `: ${status.errors[0].details}` : ''}`;
+            const liveChatUpdatePayload: any = { 
+                status: status.status, 
+                [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000)
+            };
+            if (newStatus === 'FAILED' && status.errors?.[0]) {
+                liveChatUpdatePayload.error = `${status.errors[0].title} (Code: ${status.errors[0].code})${status.errors[0].details ? `: ${status.errors[0].details}` : ''}`;
+            }
             liveChatOps.push({ updateOne: { filter: { wamid }, update: { $set: liveChatUpdatePayload } } });
 
             const contact = contactsMap.get(wamid);
             if (!contact) continue;
 
             const broadcastIdStr = contact.broadcastId.toString();
-            if (!broadcastCounterUpdates[broadcastIdStr]) broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0, failed: 0, success: 0 };
+            if (!broadcastCounterUpdates[broadcastIdStr]) {
+                broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0, failed: 0, success: 0 };
+            }
 
             const currentStatus = (contact.status || 'PENDING').toUpperCase();
             const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, FAILED: 1, DELIVERED: 2, READ: 3 };
@@ -1182,21 +1191,23 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
             if (newStatus === 'FAILED' && currentStatus !== 'FAILED') {
                 const error = status.errors?.[0] || { title: 'Unknown Failure', code: 'N/A' };
                 const errorString = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
-                broadcastContactOps.push({
+                const updateOperation = {
                     updateOne: {
                         filter: { _id: contact._id },
                         update: { $set: { status: 'FAILED', error: errorString } }
                     }
-                });
+                };
+                broadcastContactOps.push(updateOperation);
                 broadcastCounterUpdates[broadcastIdStr].success -= 1;
                 broadcastCounterUpdates[broadcastIdStr].failed += 1;
             } else if (statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
-                broadcastContactOps.push({
+                const updateOperation = {
                     updateOne: {
                         filter: { _id: contact._id },
                         update: { $set: { status: newStatus } }
                     }
-                });
+                };
+                broadcastContactOps.push(updateOperation);
                 if (newStatus === 'DELIVERED') broadcastCounterUpdates[broadcastIdStr].delivered += 1;
                 if (newStatus === 'READ') broadcastCounterUpdates[broadcastIdStr].read += 1;
             }
@@ -1209,7 +1220,17 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
         const broadcastCounterOps = Object.entries(broadcastCounterUpdates)
             .filter(([_, counts]) => Object.values(counts).some(v => v !== 0))
             .map(([broadcastId, counts]) => ({
-                updateOne: { filter: { _id: new ObjectId(broadcastId) }, update: { $inc: { deliveredCount: counts.delivered, readCount: counts.read, errorCount: counts.failed, successCount: counts.success } } }
+                updateOne: { 
+                    filter: { _id: new ObjectId(broadcastId) }, 
+                    update: { 
+                        $inc: { 
+                            deliveredCount: counts.delivered, 
+                            readCount: counts.read, 
+                            errorCount: counts.failed, 
+                            successCount: counts.success 
+                        } 
+                    } 
+                }
             }));
 
         if (broadcastCounterOps.length > 0) promises.push(db.collection('broadcasts').bulkWrite(broadcastCounterOps, { ordered: false }));
