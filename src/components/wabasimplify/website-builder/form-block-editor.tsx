@@ -9,22 +9,37 @@ import { Plus, Trash2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
+import { Switch } from '../ui/switch';
+import { Separator } from '../ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Lightbulb } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
+
+const iconNames = Object.keys(LucideIcons).filter(key => typeof (LucideIcons as any)[key] === 'object' && /^[A-Z]/.test(key));
+
+const hoverAnimationOptions = [
+    { value: 'none', label: 'None' }, { value: 'grow', label: 'Grow' }, { value: 'shrink', label: 'Shrink' },
+    { value: 'pulse', label: 'Pulse' }, { value: 'bob', label: 'Bob' }, { value: 'wobbleHorizontal', label: 'Wobble Horizontal' },
+];
 
 type FormField = {
   id: string;
-  type: 'text' | 'email' | 'textarea' | 'dropdown' | 'checkbox';
+  type: 'text' | 'email' | 'textarea' | 'url' | 'tel' | 'radio' | 'checkbox' | 'select' | 'number' | 'date' | 'time' | 'file' | 'password' | 'hidden' | 'html';
   label: string;
   placeholder?: string;
   required?: boolean;
-  options?: string; // Comma-separated for dropdown/checkbox
+  defaultValue?: string;
+  options?: string;
   columnWidth?: string;
   fieldId?: string;
-  defaultValue?: string;
+  labelPosition?: 'above' | 'inline' | 'hidden';
+  description?: string;
+  size?: 'sm' | 'md' | 'lg';
+  multiple?: boolean;
+  maxFileSize?: number;
+  allowedFileTypes?: string;
+  htmlContent?: string;
 };
 
 export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
@@ -41,7 +56,7 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
     };
 
     const addField = () => {
-        const newFields = [...fields, { id: uuidv4(), type: 'text', label: 'New Field', required: false, columnWidth: '100%' }];
+        const newFields = [...fields, { id: uuidv4(), type: 'text', label: 'New Field', required: false, columnWidth: '100%', size: 'md', labelPosition: 'above' }];
         handleUpdate('fields', newFields);
     };
 
@@ -59,6 +74,22 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                 [subField]: parsedValue
             }
         });
+    }
+    
+    const handleAttributeChange = (index: number, field: 'key' | 'value', value: string) => {
+        const newAttributes = [...(settings.customAttributes || [])];
+        newAttributes[index] = {...newAttributes[index], [field]: value};
+        handleUpdate('customAttributes', newAttributes);
+    }
+    
+    const addAttribute = () => {
+        const newAttributes = [...(settings.customAttributes || []), {id: uuidv4(), key: '', value: ''}];
+        handleUpdate('customAttributes', newAttributes);
+    }
+
+    const removeAttribute = (index: number) => {
+        const newAttributes = (settings.customAttributes || []).filter((_: any, i:number) => i !== index);
+        handleUpdate('customAttributes', newAttributes);
     }
 
     return (
@@ -88,12 +119,16 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                                         <AccordionItem value="field-content" className="border-b-0">
                                             <AccordionTrigger className="p-3 text-sm">{field.label || `Field ${index+1}`}</AccordionTrigger>
                                             <AccordionContent className="px-3 pb-3 space-y-4">
-                                                <div className="space-y-2"><Label>Type</Label><Select value={field.type} onValueChange={(val) => handleFieldChange(index, 'type', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="text">Text</SelectItem><SelectItem value="email">Email</SelectItem><SelectItem value="textarea">Text Area</SelectItem><SelectItem value="url">URL</SelectItem><SelectItem value="tel">Tel</SelectItem><SelectItem value="radio">Radio</SelectItem><SelectItem value="checkbox">Checkbox</SelectItem><SelectItem value="select">Select</SelectItem><SelectItem value="number">Number</SelectItem><SelectItem value="date">Date</SelectItem><SelectItem value="time">Time</SelectItem><SelectItem value="file">File Upload</SelectItem><SelectItem value="password">Password</SelectItem><SelectItem value="hidden">Hidden</SelectItem></SelectContent></Select></div>
+                                                <div className="space-y-2"><Label>Type</Label><Select value={field.type} onValueChange={(val) => handleFieldChange(index, 'type', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="text">Text</SelectItem><SelectItem value="email">Email</SelectItem><SelectItem value="textarea">Text Area</SelectItem><SelectItem value="url">URL</SelectItem><SelectItem value="tel">Tel</SelectItem><SelectItem value="radio">Radio</SelectItem><SelectItem value="checkbox">Checkbox</SelectItem><SelectItem value="select">Select</SelectItem><SelectItem value="number">Number</SelectItem><SelectItem value="date">Date</SelectItem><SelectItem value="time">Time</SelectItem><SelectItem value="file">File Upload</SelectItem><SelectItem value="password">Password</SelectItem><SelectItem value="hidden">Hidden</SelectItem><SelectItem value="html">HTML</SelectItem></SelectContent></Select></div>
                                                 <div className="space-y-2"><Label>Label</Label><Input value={field.label} onChange={(e) => handleFieldChange(index, 'label', e.target.value)} placeholder="e.g., Your Name" /></div>
                                                 <div className="space-y-2"><Label>Placeholder</Label><Input value={field.placeholder || ''} onChange={(e) => handleFieldChange(index, 'placeholder', e.target.value)} /></div>
+                                                <div className="space-y-2"><Label>Default Value</Label><Input value={field.defaultValue || ''} onChange={(e) => handleFieldChange(index, 'defaultValue', e.target.value)} /></div>
                                                 <div className="space-y-2"><Label>Column Width</Label><Select value={field.columnWidth || '100%'} onValueChange={(val) => handleFieldChange(index, 'columnWidth', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="100%">100%</SelectItem><SelectItem value="50%">50%</SelectItem><SelectItem value="33.33%">33%</SelectItem><SelectItem value="25%">25%</SelectItem></SelectContent></Select></div>
                                                 <div className="flex items-center space-x-2 pt-2"><Switch id={`required-${field.id}`} checked={field.required} onCheckedChange={(val) => handleFieldChange(index, 'required', val)} /><Label htmlFor={`required-${field.id}`}>Required</Label></div>
                                                 {(field.type === 'select' || field.type === 'radio' || field.type === 'checkbox') && <div className="space-y-2"><Label>Options (one per line)</Label><Textarea value={field.options || ''} onChange={(e) => handleFieldChange(index, 'options', e.target.value)} /></div>}
+                                                {field.type === 'select' && <div className="flex items-center space-x-2 pt-2"><Switch id={`multiple-${field.id}`} checked={field.multiple} onCheckedChange={(val) => handleFieldChange(index, 'multiple', val)} /><Label htmlFor={`multiple-${field.id}`}>Multiple Selection</Label></div>}
+                                                {field.type === 'file' && <div className="space-y-2"><Label>Allowed File Types</Label><Input value={field.allowedFileTypes || ''} onChange={(e) => handleFieldChange(index, 'allowedFileTypes', e.target.value)} placeholder="e.g. jpg, png, pdf" /></div>}
+                                                {field.type === 'html' && <div className="space-y-2"><Label>HTML Content</Label><Textarea value={field.htmlContent || ''} onChange={(e) => handleFieldChange(index, 'htmlContent', e.target.value)} /></div>}
                                             </AccordionContent>
                                         </AccordionItem>
                                     </Accordion>
@@ -107,6 +142,9 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         <AccordionContent className="space-y-4 pt-2">
                             <div className="space-y-2"><Label>Text</Label><Input value={settings.submitButtonText || 'Submit'} onChange={(e) => handleUpdate('submitButtonText', e.target.value)} /></div>
                             <div className="space-y-2"><Label>Size</Label><Select value={settings.buttonSize || 'default'} onValueChange={v => handleUpdate('buttonSize', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="sm">Small</SelectItem><SelectItem value="default">Medium</SelectItem><SelectItem value="lg">Large</SelectItem></SelectContent></Select></div>
+                            <div className="space-y-2"><Label>Icon</Label><Select value={settings.buttonIcon || ''} onValueChange={(val) => handleUpdate('buttonIcon', val)}><SelectTrigger><SelectValue placeholder="No Icon"/></SelectTrigger><SelectContent>{iconNames.map(iconName => (<SelectItem key={iconName} value={iconName}>{iconName}</SelectItem>))}</SelectContent></Select></div>
+                            <div className="space-y-2"><Label>Icon Position</Label><Select value={settings.buttonIconPosition || 'left'} onValueChange={(val) => handleUpdate('buttonIconPosition', val)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="left">Before</SelectItem><SelectItem value="right">After</SelectItem></SelectContent></Select></div>
+                             <div className="space-y-2"><Label>Icon Spacing (px)</Label><Input type="number" value={settings.buttonIconSpacing || 8} onChange={e => handleUpdate('buttonIconSpacing', e.target.value)} /></div>
                             <div className="space-y-2"><Label>Alignment</Label><Select value={settings.buttonAlign || 'left'} onValueChange={v => handleUpdate('buttonAlign', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="left">Left</SelectItem><SelectItem value="center">Center</SelectItem><SelectItem value="right">Right</SelectItem><SelectItem value="justify">Justify</SelectItem></SelectContent></Select></div>
                         </AccordionContent>
                     </AccordionItem>
@@ -132,13 +170,23 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                              <div className="space-y-2"><Label>Border Color</Label><Input type="color" value={settings.fieldBorderColor || '#e5e7eb'} onChange={e => handleUpdate('fieldBorderColor', e.target.value)} /></div>
                              <div className="space-y-2"><Label>Focus Border Color</Label><Input type="color" value={settings.fieldFocusBorderColor || '#2563eb'} onChange={e => handleUpdate('fieldFocusBorderColor', e.target.value)} /></div>
                              <div className="space-y-2"><Label>Border Radius (px)</Label><Input type="number" value={settings.fieldBorderRadius || '8'} onChange={e => handleUpdate('fieldBorderRadius', e.target.value)} /></div>
+                             <div className="space-y-2"><Label>Padding (px)</Label><Input type="number" value={settings.fieldPadding || '12'} onChange={e => handleUpdate('fieldPadding', e.target.value)} /></div>
+                             <div className="space-y-2"><Label>Typography</Label><Select value={settings.fieldTypography?.fontFamily || 'inherit'} onValueChange={v => handleSubFieldUpdate('fieldTypography', 'fontFamily', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="inherit">Default</SelectItem><SelectItem value="sans-serif">Sans-serif</SelectItem><SelectItem value="serif">Serif</SelectItem></SelectContent></Select></div>
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="style_labels">
                         <AccordionTrigger>Labels</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
-                            <div className="space-y-2"><Label>Label Color</Label><Input type="color" value={settings.labelColor || '#111827'} onChange={e => handleUpdate('labelColor', e.target.value)} /></div>
+                            <div className="space-y-2"><Label>Text Color</Label><Input type="color" value={settings.labelColor || '#111827'} onChange={e => handleUpdate('labelColor', e.target.value)} /></div>
                              <div className="space-y-2"><Label>Spacing below label (px)</Label><Input type="number" value={settings.labelSpacing || '8'} onChange={e => handleUpdate('labelSpacing', e.target.value)} /></div>
+                            <div className="space-y-2"><Label>Typography</Label><Select value={settings.labelTypography?.fontFamily || 'inherit'} onValueChange={v => handleSubFieldUpdate('labelTypography', 'fontFamily', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="inherit">Default</SelectItem><SelectItem value="sans-serif">Sans-serif</SelectItem><SelectItem value="serif">Serif</SelectItem></SelectContent></Select></div>
+                        </AccordionContent>
+                    </AccordionItem>
+                    <AccordionItem value="style_description">
+                        <AccordionTrigger>Field Description</AccordionTrigger>
+                        <AccordionContent className="space-y-4 pt-2">
+                            <div className="space-y-2"><Label>Text Color</Label><Input type="color" value={settings.descriptionColor || '#64748b'} onChange={e => handleUpdate('descriptionColor', e.target.value)} /></div>
+                            <div className="space-y-2"><Label>Typography</Label><Select value={settings.descriptionTypography?.fontFamily || 'inherit'} onValueChange={v => handleSubFieldUpdate('descriptionTypography', 'fontFamily', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="inherit">Default</SelectItem><SelectItem value="sans-serif">Sans-serif</SelectItem><SelectItem value="serif">Serif</SelectItem></SelectContent></Select></div>
                         </AccordionContent>
                     </AccordionItem>
                     <AccordionItem value="style_button">
@@ -147,6 +195,8 @@ export function FormBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                              <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Text Color</Label><Input type="color" value={settings.buttonColor || '#FFFFFF'} onChange={e => handleUpdate('buttonColor', e.target.value)} /></div><div className="space-y-2"><Label>Background Color</Label><Input type="color" value={settings.buttonBgColor || '#16a34a'} onChange={e => handleUpdate('buttonBgColor', e.target.value)} /></div></div>
                              <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><Label>Hover Text</Label><Input type="color" value={settings.buttonHoverColor || '#FFFFFF'} onChange={e => handleUpdate('buttonHoverColor', e.target.value)} /></div><div className="space-y-2"><Label>Hover Background</Label><Input type="color" value={settings.buttonHoverBgColor || '#15803d'} onChange={e => handleUpdate('buttonHoverBgColor', e.target.value)} /></div></div>
                              <div className="space-y-2"><Label>Border Radius (px)</Label><Input type="number" value={settings.buttonBorderRadius || '8'} onChange={e => handleUpdate('buttonBorderRadius', e.target.value)} /></div>
+                             <div className="space-y-2"><Label>Padding (px)</Label><Input type="number" value={settings.buttonPadding || '16'} onChange={e => handleUpdate('buttonPadding', e.target.value)} /></div>
+                             <div className="space-y-2"><Label>Hover Animation</Label><Select value={settings.buttonHoverAnimation || 'none'} onValueChange={v => handleUpdate('buttonHoverAnimation', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{hoverAnimationOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent></Select></div>
                         </AccordionContent>
                     </AccordionItem>
                 </Accordion>

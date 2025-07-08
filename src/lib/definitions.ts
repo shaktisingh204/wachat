@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type BusinessCapabilities = {
@@ -129,6 +130,25 @@ export type AbandonedCartSettings = {
     enabled: boolean;
     delayMinutes: number;
     flowId: string;
+};
+
+export type FormField = {
+  id: string;
+  type: 'text' | 'email' | 'textarea' | 'url' | 'tel' | 'radio' | 'checkbox' | 'select' | 'number' | 'date' | 'time' | 'file' | 'password' | 'hidden' | 'html';
+  label: string;
+  placeholder?: string;
+  required?: boolean;
+  defaultValue?: string;
+  options?: string;
+  columnWidth?: string;
+  fieldId?: string;
+  labelPosition?: 'above' | 'inline' | 'hidden';
+  description?: string;
+  size?: 'sm' | 'md' | 'lg';
+  multiple?: boolean;
+  maxFileSize?: number;
+  allowedFileTypes?: string;
+  htmlContent?: string;
 };
 
 export type WebsiteBlock = {
@@ -1096,5 +1116,3 @@ export type Backlink = {
     domainAuthority: number;
     linkType: 'News' | 'Forum' | 'Blog' | 'Review';
 };
-
-    
