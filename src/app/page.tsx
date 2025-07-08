@@ -14,7 +14,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { WhatsAppIcon, FacebookIcon as FacebookAppIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { WhatsAppIcon, FacebookIcon as FacebookAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { MetaSuiteShowcase } from '@/components/wabasimplify/meta-suite-showcase';
