@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { WithId } from 'mongodb';
 import type { Project, User, Plan } from '@/lib/definitions';
 import { handleInviteAgent, handleRemoveAgent } from '@/app/actions';
@@ -23,12 +23,10 @@ interface AgentsRolesSettingsTabProps {
     user: (Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null }) | null;
 }
 
-const inviteAgentInitialState = { message: null, error: null };
 const removeAgentInitialState = { message: null, error: null };
 
 export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTabProps) {
     const [isClient, setIsClient] = useState(false);
-    const [inviteState, inviteAction] = useActionState(handleInviteAgent, inviteAgentInitialState);
     const [removeState, removeAction] = useActionState(handleRemoveAgent, removeAgentInitialState);
 
     const { toast } = useToast();
@@ -39,9 +37,7 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
     
     useEffect(() => {
         setIsClient(true);
-        if (inviteState?.message) toast({ title: 'Success!', description: inviteState.message });
-        if (inviteState?.error) toast({ title: 'Error', description: inviteState.error, variant: 'destructive' });
-    }, [inviteState, toast]);
+    }, []);
 
      useEffect(() => {
         if (removeState?.message) toast({ title: 'Success!', description: removeState.message });
@@ -103,9 +99,23 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
     );
 }
 
+const inviteAgentInitialState = { message: null, error: null };
+
 function InviteAgentForm({ project, isDisabled }: { project: any, isDisabled: boolean }) {
     const [state, formAction] = useActionState(handleInviteAgent, inviteAgentInitialState);
     const { pending } = useFormStatus();
+    const { toast } = useToast();
+    const formRef = useRef<HTMLFormElement>(null);
+
+    useEffect(() => {
+        if (state?.message) {
+            toast({ title: 'Success!', description: state.message });
+            formRef.current?.reset();
+        }
+        if (state?.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast]);
     
     return (
        <Card className="p-4 border-dashed">
@@ -114,7 +124,7 @@ function InviteAgentForm({ project, isDisabled }: { project: any, isDisabled: bo
                 <CardDescription>Assign a role to the new user.</CardDescription>
             </CardHeader>
             <CardContent>
-            <form action={formAction}>
+            <form action={formAction} ref={formRef}>
                 <input type="hidden" name="projectId" value={project._id} />
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                      <div className="space-y-2">
