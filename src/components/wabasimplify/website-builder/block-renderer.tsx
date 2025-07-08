@@ -1,12 +1,9 @@
 
-
 'use client';
 
 import React from 'react';
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import * as LucideIcons from 'lucide-react';
 import { ImageCarouselRenderer } from '@/components/wabasimplify/website-builder/image-carousel-renderer';
 import { TabsBlockRenderer } from '@/components/wabasimplify/website-builder/tabs-block-renderer';
 import { AccordionBlockRenderer } from '@/components/wabasimplify/website-builder/accordion-block-renderer';
