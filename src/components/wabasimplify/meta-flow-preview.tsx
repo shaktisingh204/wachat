@@ -218,7 +218,7 @@ export const MetaFlowPreview = ({ flowJson }: { flowJson: string }) => {
            
             {/* Flow Screen Modal */}
             <div className="absolute inset-0 bg-black/30 flex flex-col justify-end">
-                <div className="bg-white rounded-t-xl h-[85%] flex flex-col">
+                <div className="bg-white rounded-t-xl h-[95%] flex flex-col animate-slide-in-up" style={{ animationDelay: '3.3s' }}>
                     <CardHeader className="p-3 flex flex-row items-center justify-between border-b flex-shrink-0">
                         <Button variant="ghost" size="icon" className="text-gray-600"><ArrowLeft className="h-5 w-5" /></Button>
                         <p className="font-semibold text-gray-800">{currentScreen.title || 'Flow Preview'}</p>
