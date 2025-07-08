@@ -7,37 +7,25 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
+const handleFileChange = (file: File | null, callback: (dataUri: string) => void) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onloadend = () => {
+        callback(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+};
+
 export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
-    const handleUpdate = (field: string, value: string) => {
+    const handleUpdate = (field: string, value: any) => {
         onUpdate({ ...settings, [field]: value });
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            onUpdate({ ...settings, backgroundImageUrl: reader.result as string });
-        };
-        reader.readAsDataURL(file);
-    };
-
-    const handleSubFieldUpdate = (mainField: string, subField: string, value: any) => {
-        onUpdate({
-            ...settings,
-            [mainField]: {
-                ...(settings[mainField] || {}),
-                [subField]: value
-            }
-        });
-    }
-
     return (
         <div className="space-y-4">
-            <Accordion type="multiple" defaultValue={['content']} className="w-full">
+            <Accordion type="multiple" defaultValue={['content', 'background', 'cta', 'layout']} className="w-full">
                 <AccordionItem value="content">
-                    <AccordionTrigger>Content</AccordionTrigger>
+                    <AccordionTrigger>Content & Typography</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <Label htmlFor={`title-${settings.id}`}>Title</Label>
@@ -47,6 +35,21 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                             <Label htmlFor={`subtitle-${settings.id}`}>Subtitle</Label>
                             <Textarea id={`subtitle-${settings.id}`} value={settings.subtitle || ''} onChange={(e) => handleUpdate('subtitle', e.target.value)} />
                         </div>
+                         <div className="space-y-2">
+                            <Label>Text Color</Label>
+                            <Input type="color" value={settings.textColor || '#FFFFFF'} onChange={(e) => handleUpdate('textColor', e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Text Alignment</Label>
+                            <Select value={settings.textAlign || 'center'} onValueChange={(val) => handleUpdate('textAlign', val)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="left">Left</SelectItem>
+                                    <SelectItem value="center">Center</SelectItem>
+                                    <SelectItem value="right">Right</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </AccordionContent>
                 </AccordionItem>
                  <AccordionItem value="background">
@@ -54,26 +57,32 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                     <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <Label htmlFor={`bg-image-${settings.id}`}>Background Image Upload</Label>
-                            <Input id={`bg-image-${settings.id}`} type="file" accept="image/*" onChange={handleFileChange} />
+                            <Input id={`bg-image-${settings.id}`} type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleUpdate('backgroundImageUrl', dataUri))} />
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label htmlFor={`bg-color-${settings.id}`}>Background Color</Label>
-                                <Input id={`bg-color-${settings.id}`} type="color" value={settings.backgroundColor || '#111827'} onChange={(e) => handleUpdate('backgroundColor', e.target.value)} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor={`text-color-${settings.id}`}>Text Color</Label>
-                                <Input id={`text-color-${settings.id}`} type="color" value={settings.textColor || '#FFFFFF'} onChange={(e) => handleUpdate('textColor', e.target.value)} />
-                            </div>
+                        <div className="space-y-2">
+                            <Label>Background Color (Fallback)</Label>
+                            <Input type="color" value={settings.backgroundColor || '#111827'} onChange={(e) => handleUpdate('backgroundColor', e.target.value)} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label>Overlay Color</Label>
+                            <Input type="color" value={settings.overlayColor || '#000000'} onChange={(e) => handleUpdate('overlayColor', e.target.value)} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label>Overlay Opacity</Label>
+                            <Input type="range" min="0" max="1" step="0.1" value={settings.overlayOpacity || 0.3} onChange={(e) => handleUpdate('overlayOpacity', e.target.value)} />
                         </div>
                     </AccordionContent>
                 </AccordionItem>
                 <AccordionItem value="cta">
-                    <AccordionTrigger>Call to Action Button (Optional)</AccordionTrigger>
+                    <AccordionTrigger>Call to Action Button</AccordionTrigger>
                     <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <Label>Button Text</Label>
-                            <Input placeholder="Button Text" value={settings.buttonText || ''} onChange={(e) => handleUpdate('buttonText', e.target.value)} />
+                            <Input placeholder="Shop Now" value={settings.buttonText || ''} onChange={(e) => handleUpdate('buttonText', e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Button URL</Label>
+                            <Input type="url" placeholder="https://..." value={settings.buttonLink || ''} onChange={(e) => handleUpdate('buttonLink', e.target.value)} />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -87,9 +96,9 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                         </div>
                     </AccordionContent>
                 </AccordionItem>
-                 <AccordionItem value="layout">
-                    <AccordionTrigger>Layout</AccordionTrigger>
-                    <AccordionContent className="space-y-4 pt-2">
+                <AccordionItem value="layout">
+                    <AccordionTrigger>Layout & Sizing</AccordionTrigger>
+                     <AccordionContent className="space-y-4 pt-2">
                         <div className="space-y-2">
                             <Label>Content Layout</Label>
                             <Select value={settings.layout || 'center'} onValueChange={(val) => handleUpdate('layout', val)}>
@@ -100,36 +109,44 @@ export function HeroBlockEditor({ settings, onUpdate }: { settings: any, onUpdat
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Width</Label>
-                                <Input value={settings.layout?.width || '100%'} onChange={e => handleSubFieldUpdate('layout', 'width', e.target.value)} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Height</Label>
-                                <Input value={settings.layout?.height || 'auto'} onChange={e => handleSubFieldUpdate('layout', 'height', e.target.value)} />
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Max Width</Label>
-                                <Input value={settings.layout?.maxWidth || ''} placeholder="e.g. 1200px" onChange={e => handleSubFieldUpdate('layout', 'maxWidth', e.target.value)} />
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Min Height</Label>
-                                <Input value={settings.layout?.minHeight || ''} placeholder="e.g. 200px" onChange={e => handleSubFieldUpdate('layout', 'minHeight', e.target.value)} />
-                            </div>
-                        </div>
                         <div className="space-y-2">
-                            <Label>Overflow</Label>
-                            <Select value={settings.layout?.overflow || 'visible'} onValueChange={(val) => handleSubFieldUpdate('layout', 'overflow', val)}>
-                                <SelectTrigger><SelectValue/></SelectTrigger>
+                            <Label>Height</Label>
+                            <Input placeholder="e.g. 500px or 80vh" value={settings.height || '600px'} onChange={e => handleUpdate('height', e.target.value)} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label>Vertical Align</Label>
+                             <Select value={settings.verticalAlign || 'center'} onValueChange={(val) => handleUpdate('verticalAlign', val)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="visible">Visible</SelectItem>
-                                    <SelectItem value="hidden">Hidden</SelectItem>
-                                    <SelectItem value="scroll">Scroll</SelectItem>
+                                    <SelectItem value="flex-start">Top</SelectItem>
+                                    <SelectItem value="center">Center</SelectItem>
+                                    <SelectItem value="flex-end">Bottom</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+                    </AccordionContent>
+                </AccordionItem>
+                 <AccordionItem value="advanced">
+                    <AccordionTrigger>Advanced</AccordionTrigger>
+                     <AccordionContent className="space-y-4 pt-2">
+                         <div className="space-y-2">
+                            <Label>Entrance Animation</Label>
+                             <Select value={settings.animation || 'fade'} onValueChange={(val) => handleUpdate('animation', val)}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">None</SelectItem>
+                                    <SelectItem value="fade">Fade In</SelectItem>
+                                    <SelectItem value="slide-up">Slide In Up</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>CSS ID</Label>
+                            <Input value={settings.cssId || ''} onChange={e => handleUpdate('cssId', e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>CSS Classes</Label>
+                            <Input value={settings.cssClasses || ''} onChange={e => handleUpdate('cssClasses', e.target.value)} />
                         </div>
                     </AccordionContent>
                 </AccordionItem>
