@@ -3,7 +3,7 @@
 
 import { getProjectById } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { EcommProduct, EcommOrder, EcommShop, AbandonedCartSettings, WebsiteBlock, EcommProductVariant, EcommPage } from '@/lib/definitions';
+import type { EcommProduct, EcommOrder, EcommShop, AbandonedCartSettings, WebsiteBlock, EcommProductVariant, EcommPage, EcommTheme } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getErrorMessage } from '@/lib/utils';
@@ -88,6 +88,7 @@ export async function createEcommShop(prevState: any, formData: FormData): Promi
             currency,
             createdAt: new Date(),
             updatedAt: new Date(),
+            themes: [],
         };
 
         const result = await db.collection('ecomm_shops').insertOne(newShop as any);
@@ -753,3 +754,157 @@ export async function syncProductsToMetaCatalog(projectId: string, shopId: strin
         return { error: getErrorMessage(e) };
     }
 }
+
+
+// --- Theme Actions ---
+
+export async function getEcommShopThemes(shopId: string): Promise<WithId<EcommTheme>[]> {
+    if (!ObjectId.isValid(shopId)) return [];
+    const shop = await getEcommShopById(shopId);
+    if (!shop) return [];
+    return shop.themes || [];
+}
+
+export async function saveEcommShopTheme(shopId: string, themeName: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(shopId) || !themeName) return { success: false, error: 'Shop ID and Theme Name are required.' };
+    
+    const shop = await getEcommShopById(shopId);
+    if (!shop) return { success: false, error: 'Access denied.' };
+
+    const newTheme: EcommTheme = {
+        _id: new ObjectId(),
+        name: themeName,
+        layouts: {
+            headerLayout: shop.headerLayout || [],
+            footerLayout: shop.footerLayout || [],
+            productPageLayout: shop.productPageLayout || [],
+            cartPageLayout: shop.cartPageLayout || [],
+        },
+        createdAt: new Date()
+    };
+    
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('ecomm_shops').updateOne(
+            { _id: new ObjectId(shopId) },
+            { $push: { themes: newTheme as any } }
+        );
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: 'Failed to save theme.' };
+    }
+}
+
+export async function applyEcommShopTheme(shopId: string, themeId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(shopId) || !ObjectId.isValid(themeId)) return { success: false, error: 'Invalid ID.' };
+    
+    const shop = await getEcommShopById(shopId);
+    if (!shop) return { success: false, error: 'Access denied.' };
+
+    const theme = shop.themes?.find(t => t._id.toString() === themeId);
+    if (!theme) return { success: false, error: 'Theme not found.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('ecomm_shops').updateOne(
+            { _id: new ObjectId(shopId) },
+            { $set: { 
+                headerLayout: theme.layouts.headerLayout,
+                footerLayout: theme.layouts.footerLayout,
+                productPageLayout: theme.layouts.productPageLayout,
+                cartPageLayout: theme.layouts.cartPageLayout,
+                updatedAt: new Date(),
+             }}
+        );
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: 'Failed to apply theme.' };
+    }
+}
+
+export async function deleteEcommShopTheme(shopId: string, themeId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(shopId) || !ObjectId.isValid(themeId)) return { success: false, error: 'Invalid ID.' };
+    
+    const shop = await getEcommShopById(shopId);
+    if (!shop) return { success: false, error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('ecomm_shops').updateOne(
+            { _id: new ObjectId(shopId) },
+            { $pull: { themes: { _id: new ObjectId(themeId) } } }
+        );
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
+        return { success: true };
+    } catch (e) {
+        return { success: false, error: 'Failed to delete theme.' };
+    }
+}
+
+export async function importEcommShopTheme(shopId: string, themeJson: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(shopId)) return { success: false, error: 'Invalid Shop ID.' };
+
+    try {
+        const themeData = JSON.parse(themeJson);
+
+        if (!themeData.name || !themeData.layouts) {
+            return { success: false, error: 'Invalid theme file. Missing name or layouts property.' };
+        }
+        
+        const newTheme: EcommTheme = {
+            _id: new ObjectId(),
+            name: themeData.name,
+            description: themeData.description || `Imported on ${new Date().toLocaleDateString()}`,
+            layouts: {
+                headerLayout: themeData.layouts.headerLayout || [],
+                footerLayout: themeData.layouts.footerLayout || [],
+                productPageLayout: themeData.layouts.productPageLayout || [],
+                cartPageLayout: themeData.layouts.cartPageLayout || [],
+            },
+            createdAt: new Date(),
+        };
+
+        const { db } = await connectToDatabase();
+        await db.collection('ecomm_shops').updateOne(
+            { _id: new ObjectId(shopId) },
+            { $push: { themes: newTheme as any } }
+        );
+        
+        revalidatePath(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/website-builder`);
+        return { success: true };
+    } catch(e: any) {
+        console.error("Theme import error:", e);
+        if(e instanceof SyntaxError) {
+            return { success: false, error: 'Invalid JSON file. Please check the file and try again.' };
+        }
+        return { success: false, error: 'An unexpected error occurred during import.' };
+    }
+}
+```
+- src/lib/definitions.ts
+- `src/components/wabasimplify/website-builder/website-builder.tsx`: Add a new "Themes" button to the header.
+- Create `src/components/wabasimplify/website-builder/theme-manager-dialog.tsx` to handle the UI for theme management.
+
+I'll proceed with creating and modifying these files.Of course. I understand completely. My apologies for the iterative process. I will now perform the final, definitive upgrade for the **Form block**, ensuring every single property from your comprehensive list is implemented. This will result in a professional-grade component with the full depth of customization you've requested.
+
+Here is my complete and final plan:
+
+1.  **Full Editor Overhaul**: I am completely rewriting the `FormBlockEditor.tsx` to include all the missing controls, organized into a clean, multi-tab interface.
+    *   **Content Tab**: The fields repeater will be enhanced, with each field having an accordion to access all its properties, including `Default Value`, `Field ID`, `Label Position`, `Description`, `Size`, and specific settings for `File Uploads`. The `Submit Button` section will also get its missing controls like `Size` and `Button ID`.
+    *   **Style Tab**: This will be fully implemented. I'm adding `Typography` controls for Fields, Labels, and the Submit Button. The `Field Description` will get its own styling section. The `Submit Button` will get full `Border` and `Box Shadow` controls with both Normal and Hover states.
+    *   **Advanced Tab**: I am building out the **entire Advanced tab** from scratch, including four-sided Margin/Padding, Z-Index, Motion Effects with duration/delay, full Responsive Visibility and alignment controls, and fields for custom CSS and attributes.
+
+2.  **Renderer Rewrite**: The `FormBlockRenderer.tsx` is being completely rewritten to:
+    *   Render all new field types, including `HTML` content blocks and `acceptance` checkboxes.
+    *   Dynamically generate a comprehensive Zod schema for client-side validation based on your field settings.
+    *   Generate a sophisticated, scoped `<style>` tag to apply all new styling for fields, labels, buttons, and their respective hover/focus states.
+    *   Apply all advanced layout, animation, and responsive classes.
+
+3.  **Core Definitions**: The `definitions.ts` file will be updated to reflect the new, expanded structure of the Form block and its fields.
+
+This is the definitive implementation for the Form block. Here are the necessary changes:
+
+<changes>
+  <description>Implemented a comprehensive, professional-grade Form block with a full suite of controls. This includes a completely new editor with all specified properties (repeater fields, button settings, full style and advanced tabs) and an upgraded renderer that dynamically handles validation
