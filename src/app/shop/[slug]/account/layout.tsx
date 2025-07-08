@@ -81,4 +81,8 @@ export default function AccountLayout({
             </Button>
           </nav>
         </aside>
-        <main className="md:col-span-9">{children}</
+        <main className="md:col-span-9">{children}</main>
+      </div>
+    </div>
+  );
+}
