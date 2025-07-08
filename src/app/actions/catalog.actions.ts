@@ -71,9 +71,19 @@ export async function getCatalogs(projectId: string): Promise<WithId<Catalog>[]>
 
 export async function createCatalog(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
-    const catalogName = formData.get('catalogName') as string;
+    const catalogName = (formData.get('catalogName') as string)?.trim();
 
-    if (!projectId || !catalogName) return { error: 'Project ID and Catalog Name are required.' };
+    if (!projectId || !catalogName) {
+        return { error: 'Project ID and Catalog Name are required.' };
+    }
+    
+    if (catalogName.length > 100) {
+        return { error: 'Catalog name cannot exceed 100 characters.' };
+    }
+    // This unicode regex checks for any letter or number
+    if (!/[\p{L}\p{N}]/u.test(catalogName)) {
+        return { error: 'Catalog name must contain at least one letter or number.' };
+    }
 
     const project = await getProjectById(projectId);
     if (!project) return { error: 'Project not found.' };
