@@ -2615,7 +2615,23 @@ export async function handleUpdateUserProfile(prevState: any, formData: FormData
     const tagsJson = formData.get('tags') as string;
 
     const updates: any = {};
-    if (name) updates.name = name;
+    if (name) {
+        const trimmedName = name.trim();
+        if (!trimmedName) {
+            return { error: 'Name cannot be empty.' };
+        }
+        if (trimmedName.length > 50) {
+            return { error: 'Name cannot exceed 50 characters.' };
+        }
+        if (!/^[a-zA-Z\s'-]+$/.test(trimmedName)) {
+             return { error: 'Name can only contain letters, spaces, apostrophes, and hyphens.' };
+        }
+         if (!/[a-zA-Z]/.test(trimmedName)) {
+            return { error: 'Name must contain at least one letter.' };
+        }
+        updates.name = trimmedName;
+    }
+    
     if (tagsJson) {
       try {
         updates.tags = JSON.parse(tagsJson);
