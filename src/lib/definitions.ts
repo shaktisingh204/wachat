@@ -1023,6 +1023,24 @@ export type FacebookOrder = {
 
 // --- Custom Ecommerce ---
 
+export type EcommCustomer = {
+    _id: ObjectId;
+    shopId: ObjectId;
+    name: string;
+    email: string;
+    password?: string;
+    phone?: string;
+    addresses?: {
+        street: string;
+        city: string;
+        state: string;
+        zip: string;
+        country: string;
+        isDefault: boolean;
+    }[];
+    createdAt: Date;
+};
+
 export type EcommProductVariant = {
   id: string; // e.g., color, size
   name: string; // e.g., Color, Size
@@ -1065,6 +1083,7 @@ export type EcommOrder = {
     _id: ObjectId;
     projectId: ObjectId;
     shopId: ObjectId;
+    customerId?: ObjectId;
     items: EcommOrderItem[];
     subtotal: number;
     shipping: number;
