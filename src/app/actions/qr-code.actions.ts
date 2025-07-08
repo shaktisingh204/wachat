@@ -32,7 +32,21 @@ export async function createQrCode(prevState: any, formData: FormData): Promise<
             data.emailSubject = data.emailSubject ? data.emailSubject.toString().substring(0, 255) : '';
             data.emailBody = data.emailBody ? data.emailBody.toString().substring(0, 2000) : '';
         }
-        // You can add validation for other types here as needed.
+        if (dataType === 'phone') {
+            const phoneRegex = /^\+?[0-9\s\-()]{7,20}$/;
+            if (!data.phone || !phoneRegex.test(data.phone)) {
+                return { error: 'Invalid phone number provided.' };
+            }
+            data.phone = data.phone.replace(/[^\d+]/g, ''); // Sanitize
+        }
+        if (dataType === 'sms') {
+            const phoneRegex = /^\+?[0-9\s\-()]{7,20}$/;
+            if (!data.sms || !phoneRegex.test(data.sms)) {
+                return { error: 'Invalid phone number for SMS provided.' };
+            }
+            data.sms = data.sms.replace(/[^\d+]/g, ''); // Sanitize
+            data.smsMessage = data.smsMessage ? data.smsMessage.toString().substring(0, 500) : '';
+        }
         // --- End Validation ---
 
         let shortUrlId: ObjectId | undefined = undefined;
