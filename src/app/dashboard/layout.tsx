@@ -35,7 +35,7 @@ import {
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon, CustomEcommerceIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { getProjectCount, handleLogout, getSession, getProjects } from '@/app/actions';
+import { getProjectCount, getSession, getProjects } from '@/app/actions';
 import { type Plan, type WithId, type Project } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 
@@ -378,12 +378,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <DropdownMenuItem asChild><Link href="/dashboard/settings">Settings</Link></DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <form action={handleLogout} className="w-full">
-                        <button type="submit" className="flex items-center w-full">
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span>Logout</span>
-                        </button>
-                    </form>
+                    <Link href="/api/auth/logout">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Logout</span>
+                    </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -433,12 +431,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <DropdownMenuItem asChild><Link href="/dashboard/settings">Settings</Link></DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                    <form action={handleLogout} className="w-full">
-                        <button type="submit" className="flex items-center w-full">
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span>Logout</span>
-                        </button>
-                    </form>
+                    <Link href="/api/auth/logout">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Logout</span>
+                    </Link>
                   </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
