@@ -196,7 +196,7 @@ export default function FacebookDashboardPage() {
     const engagementRate = (insights && insights.pageReach > 0) ? Math.round((insights.postEngagement / insights.pageReach) * 100) : 0;
     const { topPosts, recentComments } = useMemo(() => {
         if (!posts || posts.length === 0) return { topPosts: [], recentComments: [] };
-        const calculatedTopPosts = posts.map(post => ({ ...post, engagementScore: (post.reactions?.summary.total_count || 0) + (post.comments?.summary.total_count || 0) })).sort((a, b) => b.engagementScore - a.engagementScore).slice(0, 3);
+        const calculatedTopPosts = posts.map(post => ({ ...post, engagementScore: (post.reactions?.summary?.total_count || 0) + (post.comments?.summary?.total_count || 0) })).sort((a, b) => b.engagementScore - a.engagementScore).slice(0, 3);
         const allComments = posts.flatMap(post => (post.comments?.data || []).map(comment => ({ ...comment, postLink: post.permalink_url }))).sort((a, b) => new Date(b.created_time).getTime() - new Date(a.created_time).getTime()).slice(0, 5);
         return { topPosts: calculatedTopPosts, recentComments: allComments };
     }, [posts]);
