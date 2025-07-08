@@ -55,8 +55,8 @@ export default function LoginPage() {
                         </Alert>
                     )}
                     <div className="space-y-2">
-                        <Label htmlFor="email" className="sr-only">Email or Phone</Label>
-                        <Input id="email" name="email" type="email" placeholder="Enter Email / Phone No" required />
+                        <Label htmlFor="email" className="sr-only">Email</Label>
+                        <Input id="email" name="email" type="email" placeholder="Enter your email" required />
                     </div>
                     <div className="relative space-y-2">
                         <Label htmlFor="password"className="sr-only">Password</Label>
