@@ -96,7 +96,11 @@ export type CrmDeal = {
     ownerId?: ObjectId; // User ID
     createdAt: Date;
     updatedAt?: Date;
-    notes?: any[];
+    notes?: {
+        content: string;
+        createdAt: Date;
+        author: string;
+    }[];
     products?: { name: string; quantity: number; price: number }[];
 };
 

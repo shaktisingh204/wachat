@@ -17,6 +17,7 @@ import { Separator } from '@/components/ui/separator';
 import { CrmTaskList } from '@/components/wabasimplify/crm-task-list';
 import { getCrmTasks } from '@/app/actions/crm-tasks.actions';
 import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
+import { CrmDealNotes } from '@/components/wabasimplify/crm-deal-notes';
 
 function DealDetailPageSkeleton() {
     return (
@@ -104,14 +105,7 @@ export default function CrmDealDetailPage() {
                              {contacts.length > 0 && <div className="flex items-start gap-3"><Users className="h-4 w-4 text-muted-foreground mt-1"/><div className="flex flex-col">{contacts.map(c => <Link key={c._id.toString()} href={`/dashboard/crm/contacts/${c._id.toString()}`} className="text-primary hover:underline">{c.name}</Link>)}</div></div>}
                         </CardContent>
                     </Card>
-                    <Card>
-                         <CardHeader>
-                            <CardTitle>Info</CardTitle>
-                        </CardHeader>
-                        <CardContent className="text-sm text-muted-foreground">
-                            This deal was created on {new Date(deal.createdAt).toLocaleDateString()}.
-                        </CardContent>
-                    </Card>
+                    <CrmDealNotes dealId={deal._id.toString()} notes={deal.notes || []} />
                 </div>
                  <div className="lg:col-span-2 space-y-6">
                     <Card>
