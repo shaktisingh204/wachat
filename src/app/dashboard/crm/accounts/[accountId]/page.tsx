@@ -62,7 +62,7 @@ export default function CrmAccountDetailPage() {
             <ComposeEmailDialog 
                 isOpen={isComposeOpen} 
                 onOpenChange={setIsComposeOpen}
-                initialTo={contacts[0]?.email}
+                initialTo={contacts.map(c => c.email).join(', ')}
                 initialSubject={`Regarding your account: ${account.name}`}
             />
             <div className="space-y-6">
@@ -83,10 +83,16 @@ export default function CrmAccountDetailPage() {
                             </CardHeader>
                             <CardContent className="text-sm space-y-3">
                                 <Button className="w-full" variant="outline" onClick={() => setIsComposeOpen(true)}>
-                                    <Mail className="mr-2 h-4 w-4" /> Send Email
+                                    <Mail className="mr-2 h-4 w-4" /> Email All Contacts
                                 </Button>
                                  <div className="flex items-center gap-3 pt-2"><LinkIcon className="h-4 w-4 text-muted-foreground"/><a href={account.website || '#'} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">{account.website || 'No website'}</a></div>
-                                 <div className="flex items-center gap-3"><Phone className="h-4 w-4 text-muted-foreground"/><span>{account.phone || 'N/A'}</span></div>
+                                 <div className="flex items-center gap-3"><Phone className="h-4 w-4 text-muted-foreground"/>
+                                    {account.phone ? (
+                                        <a href={`tel:${account.phone}`} className="hover:underline">{account.phone}</a>
+                                    ) : (
+                                        <span>N/A</span>
+                                    )}
+                                </div>
                             </CardContent>
                         </Card>
                         <CrmAccountNotes accountId={account._id.toString()} notes={account.notes || []} />
