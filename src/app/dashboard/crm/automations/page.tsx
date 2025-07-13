@@ -34,7 +34,7 @@ import {
     PackageCheck,
     ArrowRightLeft,
     Tag,
-    FolderKan
+    FolderKanban
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -58,7 +58,7 @@ type NodeType = 'triggerTagAdded' | 'actionSendEmail' | 'actionCreateTask' | 'ac
 
 const blockTypes = [
     { type: 'triggerTagAdded', label: 'Trigger: Tag Added', icon: Tag },
-    { type: 'actionCreateTask', label: 'Action: Create Task', icon: FolderKan },
+    { type: 'actionCreateTask', label: 'Action: Create Task', icon: FolderKanban },
     { type: 'actionAddTag', label: 'Action: Add Tag', icon: Tag },
     { type: 'actionSendEmail', label: 'Action: Send Email', icon: MessageSquare },
     { type: 'delay', label: 'Add Delay', icon: Clock },
@@ -283,7 +283,7 @@ export default function CrmAutomationsPage() {
             <div className="grid grid-cols-12 gap-4 flex-1 min-h-0">
                 <div className="col-span-2 flex flex-col gap-4">
                     {blockTypes.map(({ type, label, icon: Icon }) => (
-                        <Button key={type} variant="outline" className="justify-start" onClick={() => addNode(type)}><Icon className="mr-2 h-4 w-4" />{label}</Button>
+                        <Button key={type} variant="outline" className="justify-start" onClick={() => addNode(type as NodeType)}><Icon className="mr-2 h-4 w-4" />{label}</Button>
                     ))}
                 </div>
                 <div className="col-span-7">

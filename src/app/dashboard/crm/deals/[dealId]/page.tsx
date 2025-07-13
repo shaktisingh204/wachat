@@ -11,13 +11,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Building, DollarSign, Users, Calendar, Handshake, Info } from 'lucide-react';
+import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { CrmTaskList } from '@/components/wabasimplify/crm-task-list';
 import { getCrmTasks } from '@/app/actions/crm-tasks.actions';
 import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
-import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 
 function DealDetailPageSkeleton() {
     return (

@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Handshake, Users, FolderKan, BarChart, Settings, Building, Mail, Zap, MessageSquare, ShoppingBag, Truck } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, FolderKanban, BarChart2, Settings, Building, Mail, Zap, MessageSquare, ShoppingBag, Truck } from 'lucide-react';
 
 const crmNavItems = [
     { href: '/dashboard/crm', label: 'Dashboard', icon: LayoutDashboard },
@@ -14,10 +14,10 @@ const crmNavItems = [
     { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
     { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingBag },
     { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck },
-    { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKan },
+    { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKanban },
     { href: '/dashboard/crm/email', label: 'Email', icon: Mail },
     { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare },
-    { href: '/dashboard/crm/analytics', label: 'Analytics', icon: BarChart },
+    { href: '/dashboard/crm/analytics', label: 'Analytics', icon: BarChart2 },
     { href: '/dashboard/crm/automations', label: 'Automations', icon: Zap },
     { href: '/dashboard/crm/settings', label: 'Settings', icon: Settings },
 ];
