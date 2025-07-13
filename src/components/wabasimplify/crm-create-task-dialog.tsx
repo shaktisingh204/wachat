@@ -37,9 +37,11 @@ function SubmitButton() {
 interface CrmCreateTaskDialogProps {
     projectId: string;
     onTaskCreated: () => void;
+    contactId?: string;
+    dealId?: string;
 }
 
-export function CrmCreateTaskDialog({ projectId, onTaskCreated }: CrmCreateTaskDialogProps) {
+export function CreateTaskDialog({ projectId, onTaskCreated, contactId, dealId }: CrmCreateTaskDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(createCrmTask, initialState);
   const { toast } = useToast();
@@ -71,6 +73,9 @@ export function CrmCreateTaskDialog({ projectId, onTaskCreated }: CrmCreateTaskD
         <form action={formAction} ref={formRef}>
             <input type="hidden" name="projectId" value={projectId} />
             <input type="hidden" name="dueDate" value={dueDate?.toISOString()} />
+            {contactId && <input type="hidden" name="contactId" value={contactId} />}
+            {dealId && <input type="hidden" name="dealId" value={dealId} />}
+
             <DialogHeader>
                 <DialogTitle>Create New Task</DialogTitle>
                 <DialogDescription>Add a new to-do item for your team.</DialogDescription>

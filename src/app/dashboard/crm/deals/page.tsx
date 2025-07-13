@@ -2,6 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { getCrmDeals, updateCrmDealStage } from '@/app/actions/crm-deals.actions';
 import { getCrmContacts } from '@/app/actions/crm.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
@@ -16,6 +17,7 @@ import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { CrmDealCard } from '@/components/wabasimplify/crm-deal-card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
+import { getCrmTasks } from '@/app/actions/crm-tasks.actions';
 
 const defaultStages = ['New', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost'];
 
@@ -36,23 +38,27 @@ export default function DealsPage() {
     const [deals, setDeals] = useState<WithId<CrmDeal>[]>([]);
     const [contacts, setContacts] = useState<WithId<CrmContact>[]>([]);
     const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
+    const [tasks, setTasks] = useState<WithId<any>[]>([]);
     const [isLoading, startLoading] = useTransition();
     const [projectId, setProjectId] = useState<string | null>(null);
     const { toast } = useToast();
+    const router = useRouter();
 
     const fetchData = () => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (storedProjectId) {
             setProjectId(storedProjectId);
             startLoading(async () => {
-                const [dealsData, contactsData, accountsData] = await Promise.all([
+                const [dealsData, contactsData, accountsData, tasksData] = await Promise.all([
                     getCrmDeals(storedProjectId),
                     getCrmContacts(storedProjectId, 1, 1000), // Fetch all for dialog
-                    getCrmAccounts(storedProjectId, 1, 1000)
+                    getCrmAccounts(storedProjectId, 1, 1000),
+                    getCrmTasks(storedProjectId)
                 ]);
                 setDeals(dealsData);
                 setContacts(contactsData.contacts);
                 setAccounts(accountsData.accounts);
+                setTasks(tasksData);
             });
         }
     };
@@ -68,7 +74,6 @@ export default function DealsPage() {
         const dealToMove = deals.find(d => d._id.toString() === draggableId);
         if (!dealToMove) return;
         
-        // Optimistic UI update
         const newDeals = deals.map(d => d._id.toString() === draggableId ? { ...d, stage: destination.droppableId as any } : d);
         setDeals(newDeals);
 
@@ -76,7 +81,7 @@ export default function DealsPage() {
             const updateResult = await updateCrmDealStage(draggableId, destination.droppableId);
             if (!updateResult.success) {
                 toast({ title: "Error", description: "Failed to update deal stage.", variant: "destructive" });
-                setDeals(deals); // Revert UI on failure
+                setDeals(deals); 
             } else {
                 toast({ title: "Success", description: "Deal stage updated."});
             }
@@ -128,8 +133,14 @@ export default function DealsPage() {
                                                                 ref={provided.innerRef}
                                                                 {...provided.draggableProps}
                                                                 {...provided.dragHandleProps}
+                                                                onClick={() => router.push(`/dashboard/crm/deals/${deal._id.toString()}`)}
                                                             >
-                                                                <CrmDealCard deal={deal} contact={contacts.find(c => deal.contactIds?.includes(c._id))} account={accounts.find(a => a._id.toString() === deal.accountId?.toString())} />
+                                                                <CrmDealCard 
+                                                                    deal={deal} 
+                                                                    contact={contacts.find(c => deal.contactIds?.map(id => id.toString()).includes(c._id.toString()))} 
+                                                                    account={accounts.find(a => a._id.toString() === deal.accountId?.toString())} 
+                                                                    taskCount={tasks.filter(t => t.dealId?.toString() === deal._id.toString()).length}
+                                                                />
                                                             </div>
                                                         )}
                                                      </Draggable>
@@ -148,4 +159,3 @@ export default function DealsPage() {
         </div>
     );
 }
-

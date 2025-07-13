@@ -1,13 +1,50 @@
 
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Users, UserPlus, Trophy, DollarSign } from 'lucide-react';
 import type { Metadata } from 'next';
+import { connectToDatabase } from '@/lib/mongodb';
+import { getSession } from '@/app/actions';
+import { ObjectId } from 'mongodb';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'CRM Dashboard | SabNode',
 };
 
-const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string, icon: React.ElementType, description?: string }) => (
+async function getCrmStats() {
+    const session = await getSession();
+    if (!session?.user) return { contactCount: 0, dealCount: 0, dealsWon: 0, pipelineValue: 0 };
+    
+    const projectId = session.user.activeProjectId;
+    if (!projectId) return { contactCount: 0, dealCount: 0, dealsWon: 0, pipelineValue: 0 };
+
+    try {
+        const { db } = await connectToDatabase();
+        const projectObjectId = new ObjectId(projectId);
+
+        const [contactCount, deals] = await Promise.all([
+            db.collection('crm_contacts').countDocuments({ projectId: projectObjectId }),
+            db.collection('crm_deals').find({ projectId: projectObjectId }).project({ value: 1, stage: 1, currency: 1 }).toArray()
+        ]);
+        
+        const dealsWon = deals.filter(d => d.stage === 'Won').length;
+        const pipelineValue = deals.filter(d => d.stage !== 'Won' && d.stage !== 'Lost').reduce((sum, deal) => sum + deal.value, 0);
+
+        return {
+            contactCount,
+            dealCount: deals.length,
+            dealsWon,
+            pipelineValue,
+            currency: deals[0]?.currency || 'USD'
+        }
+    } catch(e) {
+        return { contactCount: 0, dealCount: 0, dealsWon: 0, pipelineValue: 0 };
+    }
+}
+
+const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string | number, icon: React.ElementType, description?: string }) => (
     <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{title}</CardTitle>
@@ -21,6 +58,8 @@ const StatCard = ({ title, value, icon: Icon, description }: { title: string, va
 );
 
 export default async function CrmDashboardPage() {
+  const stats = await getCrmStats();
+
   return (
     <div className="flex flex-col gap-8">
       <div>
@@ -29,10 +68,10 @@ export default async function CrmDashboardPage() {
       </div>
 
        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <StatCard title="Total Contacts" value="1,254" icon={Users} description="+82 this month" />
-            <StatCard title="New Leads" value="98" icon={UserPlus} description="+15 this week" />
-            <StatCard title="Deals Won" value="32" icon={Trophy} description="This quarter" />
-            <StatCard title="Pipeline Revenue" value="$45,231" icon={DollarSign} description="Total value of open deals" />
+            <StatCard title="Total Contacts" value={stats.contactCount.toLocaleString()} icon={Users} />
+            <StatCard title="Total Deals" value={stats.dealCount.toLocaleString()} icon={Handshake}/>
+            <StatCard title="Deals Won" value={stats.dealsWon.toLocaleString()} icon={Trophy} />
+            <StatCard title="Pipeline Revenue" value={new Intl.NumberFormat('en-US', { style: 'currency', currency: stats.currency || 'USD' }).format(stats.pipelineValue)} icon={DollarSign} />
         </div>
         
         <Card>
