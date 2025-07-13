@@ -373,10 +373,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <DropdownMenuContent side="right" align="start">
                   <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/dashboard/billing/history">Billing History</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><Link href="/dashboard/settings">Settings</Link></DropdownMenuItem>
+                  <Link href="/dashboard/profile" passHref legacyBehavior><DropdownMenuItem>Profile</DropdownMenuItem></Link>
+                  <Link href="/dashboard/billing" passHref legacyBehavior><DropdownMenuItem>Billing</DropdownMenuItem></Link>
+                  <Link href="/dashboard/billing/history" passHref legacyBehavior><DropdownMenuItem>Billing History</DropdownMenuItem></Link>
+                  <Link href="/dashboard/settings" passHref legacyBehavior><DropdownMenuItem>Settings</DropdownMenuItem></Link>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/api/auth/logout">
@@ -426,10 +426,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/dashboard/billing/history">Billing History</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/dashboard/settings">Settings</Link></DropdownMenuItem>
+                <Link href="/dashboard/profile" passHref legacyBehavior><DropdownMenuItem>Profile</DropdownMenuItem></Link>
+                <Link href="/dashboard/billing" passHref legacyBehavior><DropdownMenuItem>Billing</DropdownMenuItem></Link>
+                <Link href="/dashboard/billing/history" passHref legacyBehavior><DropdownMenuItem>Billing History</DropdownMenuItem></Link>
+                <Link href="/dashboard/settings" passHref legacyBehavior><DropdownMenuItem>Settings</DropdownMenuItem></Link>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                     <Link href="/api/auth/logout">
