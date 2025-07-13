@@ -135,6 +135,10 @@ const facebookMenuGroups = [
   }
 ];
 
+const crmMenuItems = [
+    { href: '/dashboard/crm', label: 'CRM Dashboard', icon: LayoutDashboard, featureKey: 'overview' },
+];
+
 const instagramMenuItems = [
     { href: '/dashboard/instagram/feed', label: 'Feed', icon: LayoutDashboard, featureKey: 'instagramFeed' },
     { href: '/dashboard/instagram/stories', label: 'Stories', icon: Clapperboard, featureKey: 'instagramStories' },
@@ -183,6 +187,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setActiveApp('facebook');
     } else if (pathname.startsWith('/dashboard/instagram')) {
         setActiveApp('instagram');
+    } else if (pathname.startsWith('/dashboard/crm')) {
+        setActiveApp('crm');
     } else if (pathname.startsWith('/dashboard/url-shortener')) {
         setActiveApp('url-shortener');
     } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
@@ -240,6 +246,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const menuGroups = 
       activeApp === 'facebook' ? facebookMenuGroups 
+      : activeApp === 'crm' ? [{ title: 'CRM Tools', items: crmMenuItems }]
       : [{ title: null, items: activeApp === 'instagram' ? instagramMenuItems 
       : activeApp === 'url-shortener' ? urlShortenerMenuItems 
       : activeApp === 'qr-code-maker' ? qrCodeMakerMenuItems 
@@ -252,6 +259,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const appIcons = [
     { id: 'whatsapp', href: '/dashboard/overview', icon: WhatsAppIcon, label: 'Wachat Suite', className: 'bg-[#25D366] text-white', hoverClassName: 'bg-card text-[#25D366] hover:bg-accent' },
     { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite', className: 'bg-blue-600 text-white', hoverClassName: 'bg-card text-blue-600 hover:bg-accent' },
+    { id: 'crm', href: '/dashboard/crm', icon: Users, label: 'CRM Suite', className: 'bg-rose-500 text-white', hoverClassName: 'bg-card text-rose-500 hover:bg-accent' },
     { id: 'seo-suite', href: '/dashboard/seo', icon: SeoIcon, label: 'SEO Suite', className: 'bg-indigo-500 text-white', hoverClassName: 'bg-card text-indigo-500 hover:bg-accent' },
     { id: 'url-shortener', href: '/dashboard/url-shortener', icon: LinkIcon, label: 'URL Shortener', className: 'bg-purple-600 text-white', hoverClassName: 'bg-card text-purple-600 hover:bg-accent' },
     { id: 'qr-code-maker', href: '/dashboard/qr-code-maker', icon: QrCode, label: 'QR Code Maker', className: 'bg-orange-500 text-white', hoverClassName: 'bg-card text-orange-500 hover:bg-accent' },
@@ -302,9 +310,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 {group.items.map((item: any) => {
                   const isAllowedByPlan = !planFeatures ? true : (planFeatures as any)[item.featureKey] ?? true;
                   const isConnectionLink = item.href.includes('all-projects');
-                  const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp';
-                  const hasActiveProjectForSuite = (activeApp === 'facebook' && hasActiveFacebookProject) || (activeApp === 'whatsapp' && hasActiveWhatsAppProject);
+                  const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp' || activeApp === 'crm';
                   
+                  const hasActiveProjectForSuite = 
+                      (activeApp === 'facebook' && hasActiveFacebookProject) ||
+                      (activeApp === 'whatsapp' && hasActiveWhatsAppProject) ||
+                      (activeApp === 'crm'); // Add CRM project check here if needed
+
                   const isDisabled = !isConnectionLink && ((suiteRequiresProject && !hasActiveProjectForSuite) || !isAllowedByPlan);
                   
                   let tooltipText = item.label;
@@ -323,7 +335,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         item.href === '/dashboard/qr-code-maker' ||
                         item.href === '/dashboard/facebook/all-projects' ||
                         item.href === '/dashboard/chatbot/agents' ||
-                        item.href === '/dashboard/seo';
+                        item.href === '/dashboard/seo' ||
+                        item.href === '/dashboard/crm';
 
                   const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
 
