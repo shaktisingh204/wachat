@@ -1,9 +1,8 @@
 
 import bcrypt from 'bcryptjs';
-import { decodeJwt } from 'jose';
 import { connectToDatabase } from './mongodb';
 export { createSessionToken, createAdminSessionToken } from './jwt'; // re-export
-import { verifyJwtForMiddleware, verifyAdminJwtForMiddleware } from './jwt';
+import { verifyJwt, verifyAdminJwt } from './jwt';
 import type { SessionPayload, AdminSessionPayload } from './definitions';
 
 const SALT_ROUNDS = 10;
@@ -29,8 +28,7 @@ async function isTokenRevoked(jti: string): Promise<boolean> {
 
 // Full verification for server components (with DB access)
 export async function verifySessionToken(token: string): Promise<SessionPayload | null> {
-    // First, verify the signature and expiry using the edge-compatible function
-    const payload = await verifyJwtForMiddleware(token);
+    const payload = await verifyJwt(token);
     if (!payload) {
         return null;
     }
@@ -46,8 +44,7 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
 
 // Full admin verification for server components (with DB access)
 export async function verifyAdminSessionToken(token: string): Promise<AdminSessionPayload | null> {
-    // First, verify signature and role using edge-compatible function
-    const payload = await verifyAdminJwtForMiddleware(token);
+    const payload = await verifyAdminJwt(token);
     if (!payload) {
         return null;
     }
