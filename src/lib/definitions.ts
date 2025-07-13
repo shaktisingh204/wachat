@@ -360,6 +360,9 @@ export type Project = {
     plan?: WithId<Plan> | null; // populated by aggregate
     ecommSettings?: {
         abandonedCart: AbandonedCartSettings;
+    },
+    crm?: {
+        whatsappProjectId?: ObjectId;
     }
 };
 
@@ -1260,3 +1263,7 @@ export type Backlink = {
     domainAuthority: number;
     linkType: 'News' | 'Forum' | 'Blog' | 'Review';
 };
+
+// --- Security Types ---
+export type SessionPayload = { userId: string; email: string; jti: string; expires: number; };
+export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; expires: number; };

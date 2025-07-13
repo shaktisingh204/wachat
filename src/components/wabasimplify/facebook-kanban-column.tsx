@@ -1,48 +1,21 @@
 
 'use client';
 
-import { useState } from 'react';
 import { CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { FacebookKanbanCard } from './facebook-kanban-card';
 import type { WithId, FacebookSubscriber } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
+import { Draggable } from 'react-beautiful-dnd';
 
 interface FacebookKanbanColumnProps {
     title: string;
     conversations: WithId<FacebookSubscriber>[];
-    onDrop: (subscriberId: string, newStatus: string) => void;
 }
 
-export function FacebookKanbanColumn({ title, conversations, onDrop }: FacebookKanbanColumnProps) {
-    const [isOver, setIsOver] = useState(false);
-    
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        setIsOver(true);
-    };
-
-    const handleDragLeave = () => {
-        setIsOver(false);
-    };
-
-    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        setIsOver(false);
-        const subscriberId = e.dataTransfer.getData('subscriberId');
-        onDrop(subscriberId, title);
-    };
-    
+export function FacebookKanbanColumn({ title, conversations }: FacebookKanbanColumnProps) {
     return (
-        <div 
-            className={cn(
-                'w-80 flex-shrink-0 h-full flex flex-col rounded-lg transition-colors',
-                isOver ? 'bg-muted' : 'bg-muted/50'
-            )}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-        >
+        <div className="w-80 flex-shrink-0 h-full flex flex-col rounded-lg bg-muted/50">
             <CardHeader className="flex-shrink-0">
                 <CardTitle className="flex items-center gap-2 capitalize">
                     <span>{title.replace(/_/g, ' ')}</span>
@@ -51,8 +24,18 @@ export function FacebookKanbanColumn({ title, conversations, onDrop }: FacebookK
             </CardHeader>
             <ScrollArea className="flex-1 p-2">
                 <div className="space-y-3">
-                    {conversations.map(convo => (
-                        <FacebookKanbanCard key={convo._id.toString()} conversation={convo} />
+                    {conversations.map((convo, index) => (
+                         <Draggable key={convo._id.toString()} draggableId={convo._id.toString()} index={index}>
+                            {(provided) => (
+                                <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                >
+                                    <FacebookKanbanCard conversation={convo} />
+                                </div>
+                            )}
+                        </Draggable>
                     ))}
                 </div>
             </ScrollArea>

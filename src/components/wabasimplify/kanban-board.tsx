@@ -12,6 +12,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { DragDropContext } from 'react-beautiful-dnd';
 
 function KanbanPageSkeleton() {
     return (
@@ -104,42 +105,35 @@ export function KanbanBoard() {
         });
     };
 
-    const handleDrop = async (contactId: string, newStatus: string) => {
-        if (!project) return;
+    const handleOnDragEnd = (result: any) => {
+        if (!result.destination) return;
+
+        const { source, destination, draggableId } = result;
+        
+        if (source.droppableId === destination.droppableId) return;
+
         let movedContact: WithId<Contact> | undefined;
-        let originalStatus: string | undefined;
+        let sourceColumnIndex = boardData.findIndex(col => col.name === source.droppableId);
+        let destColumnIndex = boardData.findIndex(col => col.name === destination.droppableId);
 
-        for (const col of boardData) {
-            const contact = col.contacts.find(c => c._id.toString() === contactId);
-            if (contact) {
-                movedContact = { ...contact };
-                originalStatus = col.name;
-                break;
-            }
-        }
-        
-        if (!movedContact || !originalStatus || originalStatus === newStatus) {
-            return;
-        }
+        if (sourceColumnIndex === -1 || destColumnIndex === -1) return;
 
-        const newBoardData = boardData.map(col => {
-            if (col.name === originalStatus) {
-                return { ...col, contacts: col.contacts.filter(c => c._id.toString() !== contactId) };
-            }
-            if (col.name === newStatus) {
-                movedContact!.status = newStatus;
-                return { ...col, contacts: [movedContact!, ...col.contacts] };
-            }
-            return col;
-        });
+        const sourceColumn = boardData[sourceColumnIndex];
+        const destColumn = boardData[destColumnIndex];
         
+        const sourceContacts = Array.from(sourceColumn.contacts);
+        [movedContact] = sourceContacts.splice(source.index, 1);
+        
+        const destContacts = Array.from(destColumn.contacts);
+        destContacts.splice(destination.index, 0, movedContact);
+        
+        const newBoardData = [...boardData];
+        newBoardData[sourceColumnIndex] = { ...sourceColumn, contacts: sourceContacts };
+        newBoardData[destColumnIndex] = { ...destColumn, contacts: destContacts };
         setBoardData(newBoardData);
-        
-        const result = await handleUpdateContactStatus(contactId, newStatus, movedContact.assignedAgentId || '');
-        if (!result.success) {
-            toast({ title: "Error", description: "Could not update contact status.", variant: "destructive" });
-            fetchData(); // Revert on failure
-        }
+
+        // Call the server action to persist the change
+        handleUpdateContactStatus(draggableId, destination.droppableId, movedContact?.assignedAgentId || '');
     };
 
     if (!isClient || isLoading) {
@@ -161,18 +155,20 @@ export function KanbanBoard() {
     }
     
     return (
-        <div className="h-full w-full">
-            <ScrollArea className="h-full w-full">
-                 <div style={{minWidth: "100%", display: "table", height: '100%'}}>
-                    <div className="flex h-full w-max p-4 gap-4">
-                        {boardData.map(column => (
-                            <KanbanColumn key={column.name} title={column.name} contacts={column.contacts} onDrop={handleDrop} />
-                        ))}
-                        <AddList onAddList={handleAddList} />
+        <DragDropContext onDragEnd={handleOnDragEnd}>
+            <div className="h-full w-full">
+                <ScrollArea className="h-full w-full">
+                    <div style={{minWidth: "100%", display: "table", height: '100%'}}>
+                        <div className="flex h-full w-max p-4 gap-4">
+                            {boardData.map(column => (
+                                <KanbanColumn key={column.name} title={column.name} contacts={column.contacts} />
+                            ))}
+                            <AddList onAddList={handleAddList} />
+                        </div>
                     </div>
-                </div>
-                <ScrollBar orientation="horizontal" />
-            </ScrollArea>
-        </div>
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+            </div>
+        </DragDropContext>
     );
 }

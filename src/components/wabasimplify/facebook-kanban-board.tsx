@@ -12,6 +12,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 
 type FacebookKanbanColumnData = {
     name: string;
@@ -109,42 +110,34 @@ export function FacebookKanbanBoard() {
         });
     };
 
-    const handleDrop = async (subscriberId: string, newStatus: string) => {
-        if (!project) return;
+    const handleOnDragEnd = (result: any) => {
+        if (!result.destination) return;
+        
+        const { source, destination, draggableId } = result;
+
+        if (source.droppableId === destination.droppableId) return;
+
         let movedSubscriber: WithId<FacebookSubscriber> | undefined;
-        let originalStatus: string | undefined;
+        let sourceColumnIndex = boardData.findIndex(col => col.name === source.droppableId);
+        let destColumnIndex = boardData.findIndex(col => col.name === destination.droppableId);
 
-        for (const col of boardData) {
-            const subscriber = col.conversations.find(c => c._id.toString() === subscriberId);
-            if (subscriber) {
-                movedSubscriber = { ...subscriber };
-                originalStatus = col.name;
-                break;
-            }
-        }
-        
-        if (!movedSubscriber || !originalStatus || originalStatus === newStatus) {
-            return;
-        }
+        if (sourceColumnIndex === -1 || destColumnIndex === -1) return;
 
-        const newBoardData = boardData.map(col => {
-            if (col.name === originalStatus) {
-                return { ...col, conversations: col.conversations.filter(c => c._id.toString() !== subscriberId) };
-            }
-            if (col.name === newStatus) {
-                movedSubscriber!.status = newStatus;
-                return { ...col, conversations: [movedSubscriber!, ...col.conversations] };
-            }
-            return col;
-        });
+        const sourceColumn = boardData[sourceColumnIndex];
+        const destColumn = boardData[destColumnIndex];
         
+        const sourceConversations = Array.from(sourceColumn.conversations);
+        [movedSubscriber] = sourceConversations.splice(source.index, 1);
+        
+        const destConversations = Array.from(destColumn.conversations);
+        destConversations.splice(destination.index, 0, movedSubscriber);
+        
+        const newBoardData = [...boardData];
+        newBoardData[sourceColumnIndex] = { ...sourceColumn, conversations: sourceConversations };
+        newBoardData[destColumnIndex] = { ...destColumn, conversations: destConversations };
         setBoardData(newBoardData);
         
-        const result = await handleUpdateFacebookSubscriberStatus(subscriberId, newStatus);
-        if (!result.success) {
-            toast({ title: "Error", description: result.error, variant: "destructive" });
-            fetchData(); // Revert on failure
-        }
+        handleUpdateFacebookSubscriberStatus(draggableId, destination.droppableId);
     };
 
     if (!isClient || isLoading) {
@@ -166,18 +159,27 @@ export function FacebookKanbanBoard() {
     }
     
     return (
-        <div className="h-full w-full">
-            <ScrollArea className="h-full w-full">
-                 <div style={{minWidth: "100%", display: "table", height: '100%'}}>
-                    <div className="flex h-full w-max p-4 gap-4">
-                        {boardData.map(column => (
-                            <FacebookKanbanColumn key={column.name} title={column.name} conversations={column.conversations} onDrop={handleDrop} />
-                        ))}
-                        <AddList onAddList={handleAddList} />
+        <DragDropContext onDragEnd={handleOnDragEnd}>
+            <div className="h-full w-full">
+                <ScrollArea className="h-full w-full">
+                    <div style={{minWidth: "100%", display: "table", height: '100%'}}>
+                        <div className="flex h-full w-max p-4 gap-4">
+                            {boardData.map(column => (
+                                <Droppable key={column.name} droppableId={column.name}>
+                                    {(provided) => (
+                                        <div ref={provided.innerRef} {...provided.droppableProps}>
+                                            <FacebookKanbanColumn title={column.name} conversations={column.conversations} />
+                                            {provided.placeholder}
+                                        </div>
+                                    )}
+                                </Droppable>
+                            ))}
+                            <AddList onAddList={handleAddList} />
+                        </div>
                     </div>
-                </div>
-                <ScrollBar orientation="horizontal" />
-            </ScrollArea>
-        </div>
+                    <ScrollBar orientation="horizontal" />
+                </ScrollArea>
+            </div>
+        </DragDropContext>
     );
 }

@@ -1,62 +1,43 @@
 
-
 'use client';
 
-import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { KanbanCard } from './kanban-card';
 import type { WithId, Contact } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
+import { Droppable } from 'react-beautiful-dnd';
 
 interface KanbanColumnProps {
     title: string;
     contacts: WithId<Contact>[];
-    onDrop: (contactId: string, newStatus: string) => void;
 }
 
-export function KanbanColumn({ title, contacts, onDrop }: KanbanColumnProps) {
-    const [isOver, setIsOver] = useState(false);
-    
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        setIsOver(true);
-    };
-
-    const handleDragLeave = () => {
-        setIsOver(false);
-    };
-
-    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
-        setIsOver(false);
-        const contactId = e.dataTransfer.getData('contactId');
-        onDrop(contactId, title);
-    };
-    
+export function KanbanColumn({ title, contacts }: KanbanColumnProps) {
     return (
-        <div 
-            className={cn(
-                'w-80 flex-shrink-0 h-full flex flex-col rounded-lg transition-colors',
-                isOver ? 'bg-muted' : 'bg-muted/50'
-            )}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-        >
+        <div className="w-80 flex-shrink-0 h-full flex flex-col rounded-lg bg-muted/50">
             <CardHeader className="flex-shrink-0">
                 <CardTitle className="flex items-center gap-2 capitalize">
                     <span>{title.replace(/_/g, ' ')}</span>
                     <span className="text-sm font-normal bg-primary/10 text-primary px-2 py-0.5 rounded-full">{contacts.length}</span>
                 </CardTitle>
             </CardHeader>
-            <ScrollArea className="flex-1 p-2">
-                <div className="space-y-3">
-                    {contacts.map(contact => (
-                        <KanbanCard key={contact._id.toString()} contact={contact} />
-                    ))}
-                </div>
-            </ScrollArea>
+            <Droppable droppableId={title}>
+                {(provided, snapshot) => (
+                     <ScrollArea 
+                        className={cn("flex-1 p-2 rounded-b-lg", snapshot.isDraggingOver && 'bg-primary/10')}
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                    >
+                        <div className="space-y-3">
+                            {contacts.map((contact, index) => (
+                                <KanbanCard key={contact._id.toString()} contact={contact} index={index}/>
+                            ))}
+                            {provided.placeholder}
+                        </div>
+                    </ScrollArea>
+                )}
+            </Droppable>
         </div>
     );
 }
