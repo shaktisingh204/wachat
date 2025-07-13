@@ -34,16 +34,16 @@ export function CrmProductCard({ product, currency, onEdit, onDelete, shopSlug }
     };
     
     const stockStatus = () => {
-        if (product.stock === undefined || product.stock === null) {
-            return <Badge variant="secondary">Unlimited</Badge>;
-        }
-        if (product.stock <= 0) {
+        // This is a simplified sum for display. Real logic would be per-warehouse.
+        const totalStock = product.inventory?.reduce((sum, inv) => sum + inv.stock, 0) ?? product.stock ?? 0;
+
+        if (totalStock <= 0) {
             return <Badge variant="destructive">Out of Stock</Badge>;
         }
-        if (product.stock <= 10) {
-            return <Badge variant="secondary" className="bg-yellow-500 text-white">Low Stock ({product.stock})</Badge>;
+        if (totalStock <= 10) {
+            return <Badge variant="secondary" className="bg-yellow-500 text-white">Low Stock ({totalStock})</Badge>;
         }
-        return <Badge variant="default">{product.stock} in Stock</Badge>;
+        return <Badge variant="default">{totalStock} in Stock</Badge>;
     }
 
     return (

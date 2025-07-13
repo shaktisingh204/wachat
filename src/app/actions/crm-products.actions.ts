@@ -46,7 +46,7 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
             name: formData.get('name') as string,
             description: formData.get('description') as string,
             price: parseFloat(formData.get('price') as string),
-            stock: formData.get('stock') ? parseInt(formData.get('stock') as string, 10) : undefined,
+            sku: formData.get('sku') as string,
             category: formData.get('category') as string,
             subcategory: formData.get('subcategory') as string,
             variants: variants,
@@ -75,6 +75,10 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
             );
         } else {
             productData.createdAt = new Date();
+            // When creating a new product, we also initialize its inventory across all warehouses for this project
+            const warehouses = await db.collection('crm_warehouses').find({ projectId: new ObjectId(projectId) }).toArray();
+            productData.inventory = warehouses.map(w => ({ warehouseId: w._id, stock: 0 }));
+
             await db.collection('crm_products').insertOne(productData as EcommProduct);
         }
         
@@ -97,7 +101,11 @@ export async function deleteCrmProduct(productId: string): Promise<{ success: bo
 
     try {
         await db.collection('crm_products').deleteOne({ _id: new ObjectId(productId) });
+        // Also delete any related stock adjustments
+        await db.collection('crm_stock_adjustments').deleteMany({ productId: new ObjectId(productId) });
+
         revalidatePath(`/dashboard/crm/products`);
+        revalidatePath('/dashboard/crm/inventory/adjustments');
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
