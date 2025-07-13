@@ -3,7 +3,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User, Building, FolderKan } from 'lucide-react';
+import { User, Building, FolderKanban } from 'lucide-react';
 import type { WithId, CrmDeal, CrmContact, CrmAccount } from '@/lib/definitions';
 
 interface CrmDealCardProps {
@@ -27,7 +27,7 @@ export function CrmDealCard({ deal, contact, account, taskCount = 0 }: CrmDealCa
             </CardContent>
             <CardFooter className="p-3 flex justify-between items-center">
                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <FolderKan className="h-3 w-3" />
+                    <FolderKanban className="h-3 w-3" />
                     <span>{taskCount}</span>
                 </div>
                 <Avatar className="h-6 w-6">
