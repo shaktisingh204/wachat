@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -5,7 +6,10 @@ import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCirc
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
-import { getCrmEmailSettings, getProjects, saveCrmProviders, saveCrmPermissions } from '@/app/actions';
+import { getProjects } from '@/app/actions';
+import { getCrmEmailSettings } from '@/app/actions/crm-email.actions';
+import { saveCrmProviders } from '@/app/actions/crm.actions';
+import { saveCrmPermissions } from '@/app/actions/crm.actions';
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
 import type { CrmEmailSettings, Project, WithId } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -255,4 +259,3 @@ export default function CrmSettingsPage() {
         </Suspense>
     )
 }
-
