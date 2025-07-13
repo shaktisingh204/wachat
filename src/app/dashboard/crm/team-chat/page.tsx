@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Send, MessageSquare, Search } from 'lucide-react';
+import { Send, MessageSquare, Search, Bell } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
@@ -35,9 +35,15 @@ export default function TeamChatPage() {
 
     return (
         <div className="flex flex-col gap-8 h-full">
-            <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><MessageSquare /> Team Chat</h1>
-                <p className="text-muted-foreground">Communicate with your team members directly within the CRM.</p>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><MessageSquare /> Team Chat</h1>
+                    <p className="text-muted-foreground">Communicate with your team members directly within the CRM.</p>
+                </div>
+                 <Button variant="outline" disabled>
+                    <Bell className="mr-2 h-4 w-4" />
+                    Enable Notifications
+                </Button>
             </div>
             <Card className="flex-1 flex overflow-hidden">
                 <div className="w-1/3 border-r flex flex-col">
