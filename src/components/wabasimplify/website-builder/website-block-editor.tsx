@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import React from 'react';
 import { WebsiteBlock, EcommProduct, WithId } from '@/lib/definitions';
 import { HeroBlockEditor } from './hero-block-editor';
 import { FeaturedProductsBlockEditor } from './featured-products-block-editor';
-import { RichTextBlockEditor } from './rich-text-block-renderer';
+import { RichTextBlockEditor } from './rich-text-block-editor';
 import { TestimonialsBlockEditor } from './testimonials-block-editor';
 import { CustomHtmlBlockEditor } from './custom-html-block-editor';
 import { HeadingBlockEditor } from './heading-block-editor';
@@ -20,7 +21,7 @@ import { AccordionBlockEditor } from './accordion-block-editor';
 import { FormBlockEditor } from './form-block-editor';
 import { MapBlockEditor } from './map-block-editor';
 import { CountdownBlockEditor } from './countdown-block-editor';
-import { SocialShareBlockEditor } from './social-share-block-renderer';
+import { SocialShareBlockEditor } from './social-share-block-editor';
 import { RepeaterBlockEditor } from './repeater-block-editor';
 import { SectionBlockEditor } from './section-block-editor';
 import { ColumnsBlockEditor } from './columns-block-editor';
@@ -31,6 +32,7 @@ import { Button } from '@/components/ui/button';
 import { Trash2 } from 'lucide-react';
 import { FaqBlockEditor } from './faq-block-editor';
 import { ProductBlockEditor } from './product-block-editor';
+import { CrmAutomationBlockEditor } from './crm-automation-block-editor';
 
 interface PropertiesPanelProps {
     selectedBlock: WebsiteBlock | undefined;
@@ -89,6 +91,7 @@ export function WebsiteBlockEditor({ selectedBlock, availableProducts, onUpdate,
             case 'columns': return <ColumnsBlockEditor {...props} />;
             case 'column': return <ColumnBlockEditor {...props} />;
             case 'cart': return <CartBlockEditor {...props} />;
+            case 'crmAutomation': return <CrmAutomationBlockEditor {...props} />;
             default: return <p className="text-sm text-muted-foreground">Editor not available for this block type.</p>;
         }
     };

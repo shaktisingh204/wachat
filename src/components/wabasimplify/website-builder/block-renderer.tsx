@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React from 'react';
@@ -44,6 +45,8 @@ interface BlockRendererProps {
   contextData?: any;
 }
 
+const CrmAutomationBlockRenderer = () => <div className="hidden"></div>;
+
 export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
     const { block, products, shopSlug, isEditable, contextData } = props;
     const safeSettings = block.settings || {};
@@ -77,6 +80,7 @@ export const BlockRenderer: React.FC<BlockRendererProps> = (props) => {
         case 'socialShare': return <SocialShareBlockRenderer {...rendererProps} />;
         case 'repeater': return <RepeaterBlockRenderer {...rendererProps} />;
         case 'cart': return <CartBlockRenderer {...rendererProps} />;
+        case 'crmAutomation': return <CrmAutomationBlockRenderer />;
         case 'productImage': return <ProductImageRenderer product={productContext} settings={safeSettings} />;
         case 'productTitle': return <ProductTitleRenderer product={productContext} settings={safeSettings} />;
         case 'productPrice': return <ProductPriceRenderer product={productContext} settings={safeSettings} />;
