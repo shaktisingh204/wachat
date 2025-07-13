@@ -2,6 +2,22 @@
 
 import type { ObjectId, WithId } from 'mongodb';
 
+export type CrmTask = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    contactId?: ObjectId;
+    dealId?: ObjectId;
+    title: string;
+    description?: string;
+    dueDate?: Date;
+    status: 'To-Do' | 'In Progress' | 'Completed';
+    priority: 'High' | 'Medium' | 'Low';
+    type: 'Call' | 'Meeting' | 'Follow-up' | 'WhatsApp' | 'Email';
+    assignedTo?: ObjectId;
+    createdAt: Date;
+    updatedAt?: Date;
+};
+
 export type CrmDeal = {
     _id: ObjectId;
     projectId: ObjectId;
