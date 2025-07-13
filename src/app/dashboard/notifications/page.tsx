@@ -36,11 +36,18 @@ export default function NotificationsPage() {
     const [filter, setFilter] = useState('');
     const { toast } = useToast();
     const router = useRouter();
+    const [projectId, setProjectId] = useState<string | null>(null);
+
+    useEffect(() => {
+        document.title = 'All Notifications | Wachat';
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        setProjectId(storedProjectId);
+    }, []);
 
     const fetchNotifications = useCallback(async (page: number, currentFilter: string, showToast = false) => {
         startRefreshTransition(async () => {
             try {
-                const { notifications: newNotifications, total } = await getAllNotifications(page, NOTIFICATIONS_PER_PAGE, currentFilter);
+                const { notifications: newNotifications, total } = await getAllNotifications(page, NOTIFICATIONS_PER_PAGE, currentFilter, projectId);
                 setNotifications(newNotifications);
                 setTotalPages(Math.ceil(total / NOTIFICATIONS_PER_PAGE));
                 if (showToast) {
@@ -50,10 +57,9 @@ export default function NotificationsPage() {
                 toast({ title: "Error", description: "Failed to fetch notifications.", variant: "destructive" });
             }
         });
-    }, [toast]);
+    }, [projectId, toast]);
 
     useEffect(() => {
-        document.title = 'All Notifications | Wachat';
         setLoading(true);
         fetchNotifications(currentPage, filter).finally(() => setLoading(false));
     }, [currentPage, filter, fetchNotifications]);

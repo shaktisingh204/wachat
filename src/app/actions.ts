@@ -3124,7 +3124,8 @@ export async function handleRespondToInvite(invitationId: string, accepted: bool
 export async function getAllNotifications(
     page: number = 1,
     limit: number = 20,
-    eventTypeFilter?: string
+    eventTypeFilter?: string,
+    projectId?: string | null,
 ): Promise<{ notifications: WithId<NotificationWithProject>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { notifications: [], total: 0 };
@@ -3132,13 +3133,26 @@ export async function getAllNotifications(
     try {
         const { db } = await connectToDatabase();
         
-        const projectFilter: Filter<Project> = {
-            $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
-        };
-        const accessibleProjects = await db.collection('projects').find(projectFilter).project({_id: 1}).toArray();
-        const accessibleProjectIds = accessibleProjects.map(p => p._id);
+        const filter: Filter<Notification> = {};
+
+        if (projectId && ObjectId.isValid(projectId)) {
+            // Ensure the user has access to this specific project
+            const hasAccess = await db.collection('projects').findOne({
+                _id: new ObjectId(projectId),
+                $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
+            });
+            if (!hasAccess) return { notifications: [], total: 0 };
+            filter.projectId = new ObjectId(projectId);
+        } else {
+             // If no specific project, get notifications for all accessible projects
+            const projectFilter: Filter<Project> = {
+                $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
+            };
+            const accessibleProjects = await db.collection('projects').find(projectFilter).project({_id: 1}).toArray();
+            const accessibleProjectIds = accessibleProjects.map(p => p._id);
+            filter.projectId = { $in: accessibleProjectIds };
+        }
         
-        const filter: Filter<Notification> = { projectId: { $in: accessibleProjectIds } };
         if (eventTypeFilter) {
             filter.eventType = eventTypeFilter;
         }
