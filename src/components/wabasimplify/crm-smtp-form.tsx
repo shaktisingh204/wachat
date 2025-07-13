@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef } from 'react';
@@ -40,8 +41,7 @@ interface CrmSmtpFormProps {
 export function CrmSmtpForm({ settings }: CrmSmtpFormProps) {
     const [state, formAction] = useActionState(saveCrmEmailSettings, initialState);
     const { toast } = useToast();
-    const projectId = typeof window !== 'undefined' ? localStorage.getItem('activeProjectId') : '';
-
+    
     useEffect(() => {
         if (state.message) toast({ title: 'Success!', description: state.message });
         if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
@@ -49,7 +49,6 @@ export function CrmSmtpForm({ settings }: CrmSmtpFormProps) {
 
     return (
         <form action={formAction}>
-            <input type="hidden" name="projectId" value={projectId || ''} />
              <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2"><Server className="h-5 w-5"/>Custom SMTP</CardTitle>

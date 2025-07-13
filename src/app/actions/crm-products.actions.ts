@@ -1,21 +1,22 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getSession } from '@/app/actions';
 import type { EcommProduct } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
 
-export async function getCrmProducts(projectId: string): Promise<WithId<EcommProduct>[]> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
+export async function getCrmProducts(): Promise<WithId<EcommProduct>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
     
     try {
         const { db } = await connectToDatabase();
-        const filter: any = { projectId: new ObjectId(projectId) };
+        const filter: any = { userId: new ObjectId(session.user._id) };
         
         const products = await db.collection('crm_products')
             .find(filter)
@@ -29,20 +30,18 @@ export async function getCrmProducts(projectId: string): Promise<WithId<EcommPro
 }
 
 export async function saveCrmProduct(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
-    const projectId = formData.get('projectId') as string;
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied or project not found.' };
+
     const productId = formData.get('productId') as string | null;
     const isEditing = !!productId;
-
-    if (!projectId) return { error: 'Project ID is missing.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied or project not found.' };
 
     try {
         const variantsString = formData.get('variants') as string;
         const variants = variantsString ? JSON.parse(variantsString) : [];
 
         const productData: Partial<EcommProduct> = {
-            projectId: new ObjectId(projectId),
+            userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             description: formData.get('description') as string,
             price: parseFloat(formData.get('price') as string),
@@ -70,13 +69,13 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
 
         if (productId && ObjectId.isValid(productId)) {
             await db.collection('crm_products').updateOne(
-                { _id: new ObjectId(productId), projectId: new ObjectId(projectId) },
+                { _id: new ObjectId(productId), userId: new ObjectId(session.user._id) },
                 { $set: productData }
             );
         } else {
             productData.createdAt = new Date();
-            // When creating a new product, we also initialize its inventory across all warehouses for this project
-            const warehouses = await db.collection('crm_warehouses').find({ projectId: new ObjectId(projectId) }).toArray();
+            // When creating a new product, we also initialize its inventory across all warehouses for this user
+            const warehouses = await db.collection('crm_warehouses').find({ userId: new ObjectId(session.user._id) }).toArray();
             productData.inventory = warehouses.map(w => ({ warehouseId: w._id, stock: 0 }));
 
             await db.collection('crm_products').insertOne(productData as EcommProduct);
@@ -92,12 +91,12 @@ export async function saveCrmProduct(prevState: any, formData: FormData): Promis
 export async function deleteCrmProduct(productId: string): Promise<{ success: boolean; error?: string }> {
     if (!ObjectId.isValid(productId)) return { success: false, error: 'Invalid Product ID.' };
     
-    const { db } = await connectToDatabase();
-    const product = await db.collection('crm_products').findOne({ _id: new ObjectId(productId) });
-    if (!product) return { success: false, error: 'Product not found.' };
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
 
-    const hasAccess = await getProjectById(product.projectId.toString());
-    if(!hasAccess) return { success: false, error: 'Access denied.' };
+    const { db } = await connectToDatabase();
+    const product = await db.collection('crm_products').findOne({ _id: new ObjectId(productId), userId: new ObjectId(session.user._id) });
+    if (!product) return { success: false, error: 'Product not found or you do not have permission to delete it.' };
 
     try {
         await db.collection('crm_products').deleteOne({ _id: new ObjectId(productId) });

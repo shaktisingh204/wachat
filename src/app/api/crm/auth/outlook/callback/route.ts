@@ -1,4 +1,5 @@
 
+
 import { outlookAuthClient } from '@/lib/crm-auth';
 import { saveOAuthTokens } from '@/app/actions/crm-email.actions';
 import { getSession } from '@/app/actions';
@@ -8,10 +9,6 @@ export async function GET(request: NextRequest) {
     const session = await getSession();
     if (!session?.user) {
         return NextResponse.redirect(new URL('/login', request.url));
-    }
-    const projectId = request.cookies.get('activeProjectId')?.value;
-    if (!projectId) {
-        return NextResponse.redirect(new URL('/dashboard?error=noproject', request.url));
     }
 
     const code = request.nextUrl.searchParams.get('code');
@@ -33,7 +30,7 @@ export async function GET(request: NextRequest) {
         }
         
         await saveOAuthTokens({
-            projectId,
+            userId: session.user._id.toString(),
             provider: 'outlook',
             accessToken: response.accessToken,
             refreshToken: response.refreshToken!,

@@ -1,21 +1,22 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getSession } from '@/app/actions';
 import type { CrmVendor } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
-export async function getCrmVendors(projectId: string): Promise<WithId<CrmVendor>[]> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
+export async function getCrmVendors(): Promise<WithId<CrmVendor>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
         const vendors = await db.collection<CrmVendor>('crm_vendors')
-            .find({ projectId: new ObjectId(projectId) })
+            .find({ userId: new ObjectId(session.user._id) })
             .sort({ name: 1 })
             .toArray();
         return JSON.parse(JSON.stringify(vendors));
@@ -26,17 +27,15 @@ export async function getCrmVendors(projectId: string): Promise<WithId<CrmVendor
 }
 
 export async function saveCrmVendor(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
+
     const vendorId = formData.get('vendorId') as string | null;
     const isEditing = !!vendorId;
 
-    if (!projectId) return { error: 'Project ID is missing.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied or project not found.' };
-
     try {
         const vendorData: Omit<CrmVendor, '_id' | 'createdAt'> = {
-            projectId: new ObjectId(projectId),
+            userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             contactPerson: formData.get('contactPerson') as string,
             email: formData.get('email') as string,
@@ -51,7 +50,7 @@ export async function saveCrmVendor(prevState: any, formData: FormData): Promise
 
         const { db } = await connectToDatabase();
         if (isEditing && ObjectId.isValid(vendorId)) {
-            await db.collection('crm_vendors').updateOne({ _id: new ObjectId(vendorId), projectId: new ObjectId(projectId) }, { $set: vendorData });
+            await db.collection('crm_vendors').updateOne({ _id: new ObjectId(vendorId), userId: new ObjectId(session.user._id) }, { $set: vendorData });
         } else {
             vendorData.createdAt = new Date();
             await db.collection('crm_vendors').insertOne(vendorData as CrmVendor);
@@ -67,13 +66,13 @@ export async function saveCrmVendor(prevState: any, formData: FormData): Promise
 export async function deleteCrmVendor(vendorId: string): Promise<{ success: boolean; error?: string }> {
     if (!ObjectId.isValid(vendorId)) return { success: false, error: 'Invalid Vendor ID.' };
     
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
     const { db } = await connectToDatabase();
-    const vendor = await db.collection('crm_vendors').findOne({ _id: new ObjectId(vendorId) });
-    if (!vendor) return { success: false, error: 'Vendor not found.' };
-
-    const hasAccess = await getProjectById(vendor.projectId.toString());
-    if(!hasAccess) return { success: false, error: 'Access denied.' };
-
+    const vendor = await db.collection('crm_vendors').findOne({ _id: new ObjectId(vendorId), userId: new ObjectId(session.user._id) });
+    if (!vendor) return { success: false, error: 'Vendor not found or you do not have permission.' };
+    
     try {
         await db.collection('crm_vendors').deleteOne({ _id: new ObjectId(vendorId) });
         revalidatePath(`/dashboard/crm/inventory/vendors`);

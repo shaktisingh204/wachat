@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -38,13 +39,12 @@ function SubmitButton({ isEditing }: { isEditing: boolean }) {
 interface CrmProductDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  projectId: string;
   currency: string;
   product?: WithId<EcommProduct> | null;
   onSuccess: () => void;
 }
 
-export function CrmProductDialog({ isOpen, onOpenChange, projectId, currency, product, onSuccess }: CrmProductDialogProps) {
+export function CrmProductDialog({ isOpen, onOpenChange, currency, product, onSuccess }: CrmProductDialogProps) {
     const [state, formAction] = useActionState(saveCrmProduct, initialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
@@ -97,7 +97,6 @@ export function CrmProductDialog({ isOpen, onOpenChange, projectId, currency, pr
         <Dialog open={isOpen} onOpenChange={onDialogChange}>
             <DialogContent className="sm:max-w-xl">
                 <form action={formAction} ref={formRef}>
-                    <input type="hidden" name="projectId" value={projectId} />
                     {isEditing && <input type="hidden" name="productId" value={product._id.toString()} />}
                      {isEditing && <input type="hidden" name="imageUrl" value={product.imageUrl || ''} />}
                     <input type="hidden" name="variants" value={JSON.stringify(variants)} />
