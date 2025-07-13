@@ -5,13 +5,14 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Handshake, Users, FolderKan, BarChart, Settings, Building, Mail, Zap, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, FolderKan, BarChart, Settings, Building, Mail, Zap, MessageSquare, ShoppingBag } from 'lucide-react';
 
 const crmNavItems = [
     { href: '/dashboard/crm', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/dashboard/crm/contacts', label: 'Leads & Contacts', icon: Users },
     { href: '/dashboard/crm/accounts', label: 'Accounts', icon: Building },
     { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
+    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingBag },
     { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKan },
     { href: '/dashboard/crm/email', label: 'Email', icon: Mail },
     { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare },
