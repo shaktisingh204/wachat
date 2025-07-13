@@ -122,26 +122,25 @@ export function CrmProductDialog({ isOpen, onOpenChange, projectId, currency, pr
                                     <Label htmlFor="price">Price ({currency})</Label>
                                     <Input id="price" name="price" type="number" step="0.01" defaultValue={product?.price} required />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="stock">Stock</Label>
-                                    <Input id="stock" name="stock" type="number" step="1" defaultValue={product?.stock} placeholder="Leave blank for unlimited"/>
-                                </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
+                                 <div className="space-y-2">
                                     <Label htmlFor="category">Category</Label>
                                     <Input id="category" name="category" defaultValue={product?.category} placeholder="e.g., Clothing" />
                                 </div>
-                                 <div className="space-y-2">
-                                    <Label htmlFor="subcategory">Subcategory</Label>
-                                    <Input id="subcategory" name="subcategory" defaultValue={product?.subcategory} placeholder="e.g., T-Shirts"/>
-                                </div>
                             </div>
-                             <div className="space-y-2">
+                            <div className="space-y-2">
                                 <Label htmlFor="imageFile">Product Image</Label>
                                 <Input id="imageFile" name="imageFile" type="file" accept="image/*" ref={fileInputRef} />
                                 {product?.imageUrl && <p className="text-xs text-muted-foreground">Current image is set. Uploading a new file will replace it.</p>}
                             </div>
+                            <Separator />
+                             <div className="space-y-2">
+                                <h4 className="font-medium text-sm">Inventory</h4>
+                                <div className="p-3 border rounded-md space-y-2">
+                                    <Label htmlFor="stock">Stock Quantity</Label>
+                                    <Input id="stock" name="stock" type="number" step="1" defaultValue={product?.stock} placeholder="Leave blank for unlimited"/>
+                                    <p className="text-xs text-muted-foreground">Set a number to track stock. Leave it empty if stock is not tracked.</p>
+                                </div>
+                             </div>
                             <Separator />
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center">
