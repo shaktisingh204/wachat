@@ -7,7 +7,7 @@ import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
 import {
   Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Wifi, Type, Clock,
-  Facebook, Twitter, Linkedin
+  Facebook, Twitter, Linkedin, Handshake
 } from 'lucide-react';
 import Image from 'next/image';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,7 +15,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
-import { WhatsAppIcon, FacebookIcon as FacebookAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { WhatsAppIcon, MetaIcon, FacebookIcon as FacebookAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { MetaSuiteShowcase } from '@/components/wabasimplify/meta-suite-showcase';
@@ -591,10 +591,11 @@ export default function HomePage() {
   const appIcons = [
     { id: 'overview', icon: Home, label: 'Overview' },
     { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat Suite' },
-    { id: 'crm', icon: Users, label: 'CRM Suite' },
-    { id: 'facebook', icon: FacebookAppIcon, label: 'Meta Suite' },
-    { id: 'url-shortener', icon: LinkIcon, label: 'URL Shortener' },
-    { id: 'qr-code-maker', icon: QrCode, label: 'QR Code Maker' },
+    { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
+    { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite' },
+    { id: 'seo-suite', href: '/dashboard/seo', icon: SeoIcon, label: 'SEO Suite' },
+    { id: 'url-shortener', href: '/dashboard/url-shortener', icon: LinkIcon, label: 'URL Shortener' },
+    { id: 'qr-code-maker', href: '/dashboard/qr-code-maker', icon: QrCode, label: 'QR Code Maker' },
   ];
 
   const renderContent = () => {
