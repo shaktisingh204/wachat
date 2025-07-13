@@ -186,7 +186,38 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [activeApp, setActiveApp] = React.useState('whatsapp');
 
   const isWebsiteBuilderPage = pathname.includes('/website-builder');
+  const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
   
+  // All hooks are now at the top level
+  const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
+  const hasActiveWhatsAppProject = activeProjectId && projects.some(p => p._id.toString() === activeProjectId && p.wabaId);
+  const hasActiveFacebookProject = activeProjectId && facebookProjects.some(p => p._id.toString() === activeProjectId);
+
+  const currentUserRole = React.useMemo(() => {
+    if (!sessionUser || !activeProject) return 'owner'; 
+    if (sessionUser._id === activeProject.userId.toString()) return 'owner';
+    const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id);
+    return agentInfo?.role || 'none';
+  }, [sessionUser, activeProject]);
+
+  const menuGroups = React.useMemo(() => {
+    let items;
+    switch (activeApp) {
+        case 'facebook': items = facebookMenuGroups.map(group => ({ ...group, items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent']}))})); break;
+        case 'crm': items = [{ title: 'CRM Tools', items: crmMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        case 'instagram': items = [{ title: null, items: instagramMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        case 'url-shortener': items = [{ title: null, items: urlShortenerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        case 'qr-code-maker': items = [{ title: null, items: qrCodeMakerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        case 'seo-suite': items = [{ title: null, items: seoMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        default: items = [{ title: null, items: wachatMenuItems }]; break;
+    }
+    
+    return items.map(group => ({
+        ...group,
+        items: group.items.filter(item => item.roles?.includes(currentUserRole))
+    }));
+  }, [activeApp, currentUserRole]);
+
   React.useEffect(() => {
     setIsClient(true);
   }, []);
@@ -244,47 +275,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         });
     }
   }, [isClient, activeProjectId]);
-  
-  const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
-
-  if (!isClient || isVerifying) {
-      return <FullPageSkeleton />;
-  }
-  
-  if (isWebsiteBuilderPage) {
-    return <>{children}</>;
-  }
-
-  const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
-  
-  const currentUserRole = React.useMemo(() => {
-    if (!sessionUser || !activeProject) return 'owner'; // Default to owner if no session or project
-    if (sessionUser._id === activeProject.userId.toString()) return 'owner';
-    const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id);
-    return agentInfo?.role || 'none'; // 'none' if they are not the owner or an agent
-  }, [sessionUser, activeProject]);
-
-  const menuGroups = React.useMemo(() => {
-    let items;
-    switch (activeApp) {
-        case 'facebook': items = facebookMenuGroups.map(group => ({ ...group, items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent']}))})); break; // No specific roles for FB yet
-        case 'crm': items = [{ title: 'CRM Tools', items: crmMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break; // No specific roles for CRM yet
-        case 'instagram': items = [{ title: null, items: instagramMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        case 'url-shortener': items = [{ title: null, items: urlShortenerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        case 'qr-code-maker': items = [{ title: null, items: qrCodeMakerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        case 'seo-suite': items = [{ title: null, items: seoMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        default: items = [{ title: null, items: wachatMenuItems }]; break;
-    }
-    
-    // Filter items based on role
-    return items.map(group => ({
-        ...group,
-        items: group.items.filter(item => item.roles?.includes(currentUserRole))
-    }));
-  }, [activeApp, currentUserRole]);
-
-  const hasActiveWhatsAppProject = activeProjectId && projects.some(p => p._id.toString() === activeProjectId && p.wabaId);
-  const hasActiveFacebookProject = activeProjectId && facebookProjects.some(p => p._id.toString() === activeProjectId);
 
   const appIcons = [
     { id: 'whatsapp', href: '/dashboard/overview', icon: WhatsAppIcon, label: 'Wachat Suite', className: 'bg-[#25D366] text-white', hoverClassName: 'bg-card text-[#25D366] hover:bg-accent' },
@@ -294,6 +284,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { id: 'url-shortener', href: '/dashboard/url-shortener', icon: LinkIcon, label: 'URL Shortener', className: 'bg-purple-600 text-white', hoverClassName: 'bg-card text-purple-600 hover:bg-accent' },
     { id: 'qr-code-maker', href: '/dashboard/qr-code-maker', icon: QrCode, label: 'QR Code Maker', className: 'bg-orange-500 text-white', hoverClassName: 'bg-card text-orange-500 hover:bg-accent' },
   ];
+  
+  if (!isClient || isVerifying) {
+      return <FullPageSkeleton />;
+  }
+  
+  if (isWebsiteBuilderPage) {
+    return <>{children}</>;
+  }
 
   return (
     <div data-theme={activeApp}>
