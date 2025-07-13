@@ -2597,6 +2597,18 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
     redirect('/login');
 }
 
+export async function handleForgotPassword(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const email = formData.get('email') as string;
+    if (!email) return { error: 'Email address is required.' };
+    
+    // In a real app, you would generate a unique token, save it to the DB with an expiry,
+    // and send an email with a reset link.
+    // For this prototype, we'll just simulate success.
+    console.log(`Password reset requested for: ${email}`);
+    
+    return { message: 'If an account with that email exists, a password reset link has been sent.' };
+}
+
 
 export async function handleUpdateUserProfile(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
