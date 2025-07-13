@@ -30,8 +30,16 @@ export const ButtonBlockRenderer: React.FC<ButtonBlockRendererProps> = ({ settin
     const responsiveClasses = cn(
         'flex w-full',
         alignmentClasses[align as keyof typeof alignmentClasses] || 'justify-start',
-        tabletAlign && `md:justify-${tabletAlign}`,
-        mobileAlign && `sm:justify-${mobileAlign}`,
+        {
+          'md:justify-start': tabletAlign === 'left',
+          'md:justify-center': tabletAlign === 'center',
+          'md:justify-end': tabletAlign === 'right',
+        },
+        {
+          'sm:justify-start': mobileAlign === 'left',
+          'sm:justify-center': mobileAlign === 'center',
+          'sm:justify-end': mobileAlign === 'right',
+        },
         {
             'max-lg:hidden': responsiveVisibility?.desktop === false,
             'max-md:hidden lg:hidden': responsiveVisibility?.tablet === false,

@@ -206,3 +206,30 @@ export async function addCrmNote(prevState: any, formData: FormData): Promise<{ 
         return { error: getErrorMessage(e) };
     }
 }
+
+export async function saveCrmProviders(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const whatsappProjectId = formData.get('whatsappProjectId') as string;
+
+    const project = await getProjectById(projectId);
+    if (!project) return { error: "Access denied" };
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        const updateData: { 'crm.whatsappProjectId'?: ObjectId } = {};
+        if (whatsappProjectId && ObjectId.isValid(whatsappProjectId)) {
+            updateData['crm.whatsappProjectId'] = new ObjectId(whatsappProjectId);
+        }
+
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: updateData }
+        );
+        
+        revalidatePath('/dashboard/crm/settings');
+        return { message: 'Provider settings saved successfully.' };
+    } catch(e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
