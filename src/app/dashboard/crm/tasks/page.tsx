@@ -8,10 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, FolderKan, Plus } from 'lucide-react';
+import { AlertCircle, FolderKanban, Plus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CrmTaskList } from '@/components/wabasimplify/crm-task-list';
-import { CrmCreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
+import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
 
 function TasksPageSkeleton() {
     return (
@@ -64,10 +64,10 @@ export default function TasksPage() {
         <div className="flex flex-col gap-8 h-full">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><FolderKan /> Tasks</h1>
+                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><FolderKanban /> Tasks</h1>
                     <p className="text-muted-foreground">Organize and track your sales and support tasks.</p>
                 </div>
-                 <CrmCreateTaskDialog projectId={projectId} onTaskCreated={fetchData} />
+                 <CreateTaskDialog projectId={projectId} onTaskCreated={fetchData} />
             </div>
             
             <Tabs defaultValue="todo" className="flex-1 flex flex-col">
