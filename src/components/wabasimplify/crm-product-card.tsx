@@ -6,20 +6,21 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Edit, Trash2, ShoppingBag } from 'lucide-react';
-import type { WithId, EcommProduct } from '@/lib/definitions';
+import type { WithId, EcommProduct, EcommShop } from '@/lib/definitions';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { deleteCrmProduct } from '@/app/actions/crm-products.actions';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { deleteCrmProduct } from '@/app/actions/crm-products.actions';
 
 interface CrmProductCardProps {
     product: WithId<EcommProduct>;
     currency: string;
     onEdit: () => void;
     onDelete: () => void;
+    shopSlug?: string;
 }
 
-export function CrmProductCard({ product, currency, onEdit, onDelete }: CrmProductCardProps) {
+export function CrmProductCard({ product, currency, onEdit, onDelete, shopSlug }: CrmProductCardProps) {
     const { toast } = useToast();
 
     const handleDelete = async () => {
@@ -32,6 +33,19 @@ export function CrmProductCard({ product, currency, onEdit, onDelete }: CrmProdu
         }
     };
     
+    const stockStatus = () => {
+        if (product.stock === undefined || product.stock === null) {
+            return <Badge variant="secondary">Unlimited</Badge>;
+        }
+        if (product.stock <= 0) {
+            return <Badge variant="destructive">Out of Stock</Badge>;
+        }
+        if (product.stock <= 10) {
+            return <Badge variant="secondary" className="bg-yellow-500 text-white">Low Stock ({product.stock})</Badge>;
+        }
+        return <Badge variant="default">{product.stock} in Stock</Badge>;
+    }
+
     return (
         <Card className="flex flex-col">
             <div className="group block flex-grow flex flex-col">
@@ -47,9 +61,7 @@ export function CrmProductCard({ product, currency, onEdit, onDelete }: CrmProdu
                     <p className="text-sm text-muted-foreground line-clamp-2 h-10">{product.description}</p>
                     <div className="flex justify-between items-center mt-4">
                         <p className="text-lg font-semibold">{new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(product.price)}</p>
-                        <Badge variant={product.stock && product.stock > 0 ? 'default' : 'destructive'}>
-                            {product.stock && product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
-                        </Badge>
+                        {stockStatus()}
                     </div>
                 </CardContent>
             </div>
