@@ -170,7 +170,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [activeApp, setActiveApp] = React.useState('whatsapp');
 
   const isWebsiteBuilderPage = pathname.includes('/website-builder');
-
+  const activeProjectId = isClient ? localStorage.getItem('activeProjectId') : null;
+  
   React.useEffect(() => {
     setIsClient(true);
   }, []);
@@ -216,10 +217,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   React.useEffect(() => {
     if (isClient) {
         const name = localStorage.getItem('activeProjectName');
-        const id = localStorage.getItem('activeProjectId');
-        setActiveProjectName(name || (id ? 'Loading project...' : 'No Project Selected'));
+        setActiveProjectName(name || (activeProjectId ? 'Loading project...' : 'No Project Selected'));
     }
-  }, [pathname, isClient]);
+  }, [pathname, isClient, activeProjectId]);
 
   const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
 
@@ -233,8 +233,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   const hasNoProjects = projectCount === 0;
-  const isSetupPage = pathname.startsWith('/dashboard/setup') || pathname.startsWith('/dashboard/profile') || pathname.startsWith('/dashboard/billing') || pathname.startsWith('/dashboard/settings');
   const planFeatures = sessionUser?.plan?.features;
+
+  const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
+  const activeFacebookProject = facebookProjects.find(p => p._id.toString() === activeProjectId);
 
   const menuGroups = 
       activeApp === 'facebook' ? facebookMenuGroups 
@@ -244,9 +246,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       : activeApp === 'seo-suite' ? seoMenuItems 
       : wachatMenuItems }];
       
-  const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
-  const activeProjectId = isClient ? localStorage.getItem('activeProjectId') : null;
-  const activeFacebookProject = facebookProjects.find(p => p._id.toString() === activeProjectId);
+  const hasActiveWhatsAppProject = activeProjectId && projects.some(p => p._id.toString() === activeProjectId && p.wabaId);
+  const hasActiveFacebookProject = activeProjectId && facebookProjects.some(p => p._id.toString() === activeProjectId);
 
   const appIcons = [
     { id: 'whatsapp', href: '/dashboard/overview', icon: WhatsAppIcon, label: 'Wachat Suite', className: 'bg-[#25D366] text-white', hoverClassName: 'bg-card text-[#25D366] hover:bg-accent' },
@@ -299,14 +300,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </SidebarGroupLabel>
                 )}
                 {group.items.map((item: any) => {
-                  const isAllowed = !planFeatures ? true : (planFeatures as any)[item.featureKey] ?? true;
-                  const isDisabled = (hasNoProjects && !isSetupPage) || !isAllowed;
+                  const isAllowedByPlan = !planFeatures ? true : (planFeatures as any)[item.featureKey] ?? true;
+                  const isConnectionLink = item.href.includes('all-projects');
+                  const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp';
+                  const hasActiveProjectForSuite = (activeApp === 'facebook' && hasActiveFacebookProject) || (activeApp === 'whatsapp' && hasActiveWhatsAppProject);
+                  
+                  const isDisabled = !isConnectionLink && ((suiteRequiresProject && !hasActiveProjectForSuite) || !isAllowedByPlan);
                   
                   let tooltipText = item.label;
-                  if (hasNoProjects && !isSetupPage) {
-                    tooltipText = `${item.label} (connect a project first)`;
-                  } else if (!isAllowed) {
-                    tooltipText = `${item.label} (Upgrade plan)`;
+                  if (!isAllowedByPlan) {
+                      tooltipText = `${item.label} (Upgrade plan)`;
+                  } else if (suiteRequiresProject && !hasActiveProjectForSuite && !isConnectionLink) {
+                      tooltipText = `${item.label} (Select a project first)`;
                   }
                   
                   const isBasePage = 
