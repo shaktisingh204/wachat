@@ -137,6 +137,17 @@ const facebookMenuGroups = [
 
 const crmMenuItems = [
     { href: '/dashboard/crm', label: 'CRM Dashboard', icon: LayoutDashboard },
+    { href: '/dashboard/crm/contacts', label: 'Leads & Contacts', icon: Users },
+    { href: '/dashboard/crm/accounts', label: 'Accounts', icon: Building },
+    { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
+    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingBag },
+    { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck },
+    { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKan },
+    { href: '/dashboard/crm/email', label: 'Email', icon: Mail },
+    { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare },
+    { href: '/dashboard/crm/analytics', label: 'Analytics', icon: BarChart2 },
+    { href: '/dashboard/crm/automations', label: 'Automations', icon: Zap },
+    { href: '/dashboard/crm/settings', label: 'Settings', icon: Settings },
 ];
 
 const instagramMenuItems = [
@@ -169,41 +180,48 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [projects, setProjects] = React.useState<WithId<Project>[]>([]);
   const [activeProject, setActiveProject] = React.useState<WithId<Project> | null>(null);
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
+  const [activeProjectId, setActiveProjectId] = React.useState<string | null>(null);
   const [isClient, setIsClient] = React.useState(false);
   const [isVerifying, setIsVerifying] = React.useState(true);
   const [activeApp, setActiveApp] = React.useState('whatsapp');
 
   const isWebsiteBuilderPage = pathname.includes('/website-builder');
-  const activeProjectId = isClient ? localStorage.getItem('activeProjectId') : null;
   
   React.useEffect(() => {
     setIsClient(true);
   }, []);
 
   React.useEffect(() => {
-    if (!isClient) return;
+    if (isClient) {
+      const storedProjectId = localStorage.getItem('activeProjectId');
+      setActiveProjectId(storedProjectId);
 
-    if (pathname.startsWith('/dashboard/facebook')) {
-        setActiveApp('facebook');
-    } else if (pathname.startsWith('/dashboard/instagram')) {
-        setActiveApp('instagram');
-    } else if (pathname.startsWith('/dashboard/crm')) {
-        setActiveApp('crm');
-    } else if (pathname.startsWith('/dashboard/url-shortener')) {
-        setActiveApp('url-shortener');
-    } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
-        setActiveApp('qr-code-maker');
-    } else if (pathname.startsWith('/dashboard/seo')) {
-        setActiveApp('seo-suite');
-    } else {
-        setActiveApp('whatsapp');
-    }
+      if (pathname.startsWith('/dashboard/facebook')) {
+          setActiveApp('facebook');
+      } else if (pathname.startsWith('/dashboard/instagram')) {
+          setActiveApp('instagram');
+      } else if (pathname.startsWith('/dashboard/crm')) {
+          setActiveApp('crm');
+      } else if (pathname.startsWith('/dashboard/url-shortener')) {
+          setActiveApp('url-shortener');
+      } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
+          setActiveApp('qr-code-maker');
+      } else if (pathname.startsWith('/dashboard/seo')) {
+          setActiveApp('seo-suite');
+      } else {
+          setActiveApp('whatsapp');
+      }
 
-    const isDashboardHome = pathname === '/dashboard';
-    
-    if (isDashboardHome) {
-      localStorage.removeItem('activeProjectId');
-      localStorage.removeItem('activeProjectName');
+      const isDashboardHome = pathname === '/dashboard';
+      if (isDashboardHome) {
+        localStorage.removeItem('activeProjectId');
+        localStorage.removeItem('activeProjectName');
+        setActiveProjectId(null);
+        setActiveProjectName(null);
+      } else {
+        const name = localStorage.getItem('activeProjectName');
+        setActiveProjectName(name || (storedProjectId ? 'Loading project...' : 'No Project Selected'));
+      }
     }
   }, [pathname, isClient]);
 
@@ -214,22 +232,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 setSessionUser(session.user as any);
                 getProjects().then(fetchedProjects => {
                     setProjects(fetchedProjects);
-                    const currentActiveProject = fetchedProjects.find(p => p._id.toString() === activeProjectId);
-                    setActiveProject(currentActiveProject || null);
+                    if (activeProjectId) {
+                        const currentActiveProject = fetchedProjects.find(p => p._id.toString() === activeProjectId);
+                        setActiveProject(currentActiveProject || null);
+                    } else {
+                        setActiveProject(null);
+                    }
                 });
             }
             setIsVerifying(false);
         });
     }
   }, [isClient, activeProjectId]);
-
-  React.useEffect(() => {
-    if (isClient) {
-        const name = localStorage.getItem('activeProjectName');
-        setActiveProjectName(name || (activeProjectId ? 'Loading project...' : 'No Project Selected'));
-    }
-  }, [pathname, isClient, activeProjectId]);
-
+  
   const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
 
   if (!isClient || isVerifying) {
@@ -475,7 +490,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </DropdownMenuItem>
                  <DropdownMenuItem asChild>
                     <Link href="/dashboard/settings">Settings</Link>
-                </DropdownMenuItem>
+                  </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                     <Link href="/api/auth/logout">
