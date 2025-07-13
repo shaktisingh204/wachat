@@ -260,7 +260,7 @@ const WhatsAppShowcase = ({ id }: { id?: string }) => {
                             </div>
                         </div>
                         {/* Kanban Board Mockup */}
-                        <div className="flex flex-col lg:flex-row items-center gap-8 lg:gap-12" key={`showcase-3-${animationKey}`}>
+                        <div className="flex flex-col lg:flex-row-reverse items-center gap-8 lg:gap-12" key={`showcase-3-${animationKey}`}>
                             <div className="lg:w-1/3 space-y-4 text-center lg:text-left">
                                 <h3 className="text-2xl font-bold font-headline">Visualize Your Workflow</h3>
                                 <p className="text-muted-foreground">
@@ -591,6 +591,7 @@ export default function HomePage() {
   const appIcons = [
     { id: 'overview', icon: Home, label: 'Overview' },
     { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat Suite' },
+    { id: 'crm', icon: Users, label: 'CRM Suite' },
     { id: 'facebook', icon: FacebookAppIcon, label: 'Meta Suite' },
     { id: 'url-shortener', icon: LinkIcon, label: 'URL Shortener' },
     { id: 'qr-code-maker', icon: QrCode, label: 'QR Code Maker' },
@@ -715,6 +716,8 @@ export default function HomePage() {
                 </AppShowcase>
             </section>
         );
+      case 'crm':
+        return <section id="crm-suite"><OverviewShowcase /></section>; // Placeholder, can create a new component later
       case 'overview':
       default:
         return <section id="overview"><OverviewShowcase /></section>;
@@ -778,6 +781,8 @@ export default function HomePage() {
             </div>
             <Separator className="my-8 bg-border" />
             <div className="text-center text-sm text-muted-foreground">
+                <p>info@sabnode.in</p>
+                <p>D829 sector 5 malviya nagar jaipur 302017</p>
                 <p>© {new Date().getFullYear()} SabNode. All Rights Reserved.</p>
             </div>
         </div>
