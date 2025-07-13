@@ -1,9 +1,29 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
+
+export type CrmAccount = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    name: string;
+    industry?: string;
+    website?: string;
+    phone?: string;
+    notes?: {
+        content: string;
+        createdAt: Date;
+        author: string;
+    }[];
+    contactIds?: ObjectId[];
+    dealIds?: ObjectId[];
+    createdAt: Date;
+    updatedAt?: Date;
+};
 
 export type CrmContact = {
     _id: ObjectId;
     projectId: ObjectId;
+    accountId?: ObjectId;
     name: string;
     email: string;
     phone?: string;

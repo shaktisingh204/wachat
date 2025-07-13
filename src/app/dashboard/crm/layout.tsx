@@ -5,11 +5,12 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, Handshake, Users, FolderKan, BarChart, Settings } from 'lucide-react';
+import { LayoutDashboard, Handshake, Users, FolderKan, BarChart, Settings, Building } from 'lucide-react';
 
 const crmNavItems = [
     { href: '/dashboard/crm', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/dashboard/crm/contacts', label: 'Leads & Contacts', icon: Users },
+    { href: '/dashboard/crm/accounts', label: 'Accounts', icon: Building },
     { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
     { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKan },
     { href: '/dashboard/crm/analytics', label: 'Analytics', icon: BarChart },
@@ -30,7 +31,9 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
                             href={item.href}
                             className={cn(
                                 'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm',
-                                pathname === item.href ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                                pathname === item.href || (item.href !== '/dashboard/crm' && pathname.startsWith(item.href)) 
+                                ? 'border-primary text-primary' 
+                                : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                             )}
                         >
                            <item.icon className="inline-block mr-2 h-4 w-4" />
