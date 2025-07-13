@@ -1,8 +1,9 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getCrmTasks } from '@/app/actions/crm-tasks.actions';
+import { getCrmTasks, createCrmTask, getSession } from '@/app/actions/crm-tasks.actions';
 import type { WithId, CrmTask } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -25,20 +26,17 @@ function TasksPageSkeleton() {
 export default function TasksPage() {
     const [tasks, setTasks] = useState<WithId<CrmTask>[]>([]);
     const [isLoading, startLoading] = useTransition();
-    const [projectId, setProjectId] = useState<string | null>(null);
+    const [isClient, setIsClient] = useState(false);
 
     const fetchData = () => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (storedProjectId) {
-            setProjectId(storedProjectId);
-            startLoading(async () => {
-                const tasksData = await getCrmTasks(storedProjectId);
-                setTasks(tasksData);
-            });
-        }
+        startLoading(async () => {
+            const tasksData = await getCrmTasks();
+            setTasks(tasksData);
+        });
     };
 
     useEffect(() => {
+        setIsClient(true);
         fetchData();
     }, []);
 
@@ -46,14 +44,8 @@ export default function TasksPage() {
         return <TasksPageSkeleton />;
     }
     
-    if (!projectId) {
-        return (
-            <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>Please select a project to manage its tasks.</AlertDescription>
-            </Alert>
-        );
+    if (!isClient) {
+        return <TasksPageSkeleton />;
     }
     
     const todoTasks = tasks.filter(t => t.status === 'To-Do');
@@ -67,7 +59,7 @@ export default function TasksPage() {
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><FolderKanban /> Tasks</h1>
                     <p className="text-muted-foreground">Organize and track your sales and support tasks.</p>
                 </div>
-                 <CreateTaskDialog projectId={projectId} onTaskCreated={fetchData} />
+                 <CreateTaskDialog onTaskCreated={fetchData} />
             </div>
             
             <Tabs defaultValue="todo" className="flex-1 flex flex-col">

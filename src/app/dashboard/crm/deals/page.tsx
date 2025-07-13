@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { getCrmDeals, updateCrmDealStage } from '@/app/actions/crm-deals.actions';
 import { getCrmContacts } from '@/app/actions/crm.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import type { WithId, CrmDeal, CrmContact, CrmAccount } from '@/lib/definitions';
+import { getSession } from '@/app/actions';
+import type { WithId, CrmDeal, CrmContact, CrmAccount, User, Plan } from '@/lib/definitions';
 import { Handshake, Plus, LoaderCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,8 +19,7 @@ import { CrmDealCard } from '@/components/wabasimplify/crm-deal-card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { getCrmTasks } from '@/app/actions/crm-tasks.actions';
-
-const defaultStages = ['New', 'Qualified', 'Proposal Sent', 'Negotiation', 'Won', 'Lost'];
+import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
 
 function DealsPageSkeleton() {
     return (
@@ -39,33 +39,33 @@ export default function DealsPage() {
     const [contacts, setContacts] = useState<WithId<CrmContact>[]>([]);
     const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
     const [tasks, setTasks] = useState<WithId<any>[]>([]);
+    const [user, setUser] = useState<(Omit<User, 'password'> & { plan?: WithId<Plan> | null }) | null>(null);
     const [isLoading, startLoading] = useTransition();
-    const [projectId, setProjectId] = useState<string | null>(null);
     const { toast } = useToast();
     const router = useRouter();
 
     const fetchData = () => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (storedProjectId) {
-            setProjectId(storedProjectId);
-            startLoading(async () => {
-                const [dealsData, contactsData, accountsData, tasksData] = await Promise.all([
-                    getCrmDeals(storedProjectId),
-                    getCrmContacts(storedProjectId, 1, 1000), // Fetch all for dialog
-                    getCrmAccounts(storedProjectId, 1, 1000),
-                    getCrmTasks(storedProjectId)
-                ]);
-                setDeals(dealsData);
-                setContacts(contactsData.contacts);
-                setAccounts(accountsData.accounts);
-                setTasks(tasksData);
-            });
-        }
+        startLoading(async () => {
+             const [sessionData, dealsData, contactsData, accountsData, tasksData] = await Promise.all([
+                getSession(),
+                getCrmDeals(),
+                getCrmContacts(1, 1000), // Fetch all for dialog
+                getCrmAccounts(1, 1000),
+                getCrmTasks()
+            ]);
+            setUser(sessionData?.user || null);
+            setDeals(dealsData);
+            setContacts(contactsData.contacts);
+            setAccounts(accountsData.accounts);
+            setTasks(tasksData);
+        });
     };
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    const dealStages = getDealStagesForIndustry(user?.crmIndustry);
 
     const onDragEnd = (result: any) => {
         const { destination, source, draggableId } = result;
@@ -92,12 +92,12 @@ export default function DealsPage() {
         return <DealsPageSkeleton />;
     }
     
-    if (!projectId) {
+    if (!user) {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>No Project Selected</AlertTitle>
-                <AlertDescription>Please select a project to manage its deals.</AlertDescription>
+                <AlertTitle>Not Logged In</AlertTitle>
+                <AlertDescription>Please log in to manage your deals.</AlertDescription>
             </Alert>
         );
     }
@@ -109,13 +109,13 @@ export default function DealsPage() {
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><Handshake /> Deals</h1>
                     <p className="text-muted-foreground">Manage your sales pipeline and track deals.</p>
                 </div>
-                <CreateDealDialog projectId={projectId} contacts={contacts} accounts={accounts} onDealCreated={fetchData} />
+                <CreateDealDialog contacts={contacts} accounts={accounts} onDealCreated={fetchData} dealStages={dealStages} />
             </div>
             
             <DragDropContext onDragEnd={onDragEnd}>
                 <ScrollArea className="flex-1 w-full">
                     <div className="flex h-full w-max p-1 gap-4">
-                        {defaultStages.map(stage => (
+                        {dealStages.map(stage => (
                             <Droppable key={stage} droppableId={stage}>
                                 {(provided, snapshot) => (
                                     <div

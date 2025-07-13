@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
-import type { CrmContact, CrmPermissions } from '@/lib/definitions';
+import type { CrmContact, CrmPermissions, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -255,7 +255,7 @@ export async function saveCrmPermissions(prevState: any, formData: FormData): Pr
     const newPermissions: CrmPermissions = { agent: {} };
 
     for(const module of modules) {
-        newPermissions.agent[module] = {
+        newPermissions.agent[module as keyof CrmPermissions['agent']] = {
             view: formData.get(`${module}_view`) === 'on',
             create: formData.get(`${module}_create`) === 'on',
             edit: formData.get(`${module}_edit`) === 'on',
@@ -274,5 +274,30 @@ export async function saveCrmPermissions(prevState: any, formData: FormData): Pr
         return { message: "CRM permissions saved successfully." };
     } catch(e: any) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+export async function saveCrmIndustry(industry: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { success: false, error: "You must be logged in to perform this action." };
+    }
+
+    if (!industry) {
+        return { success: false, error: "An industry must be selected." };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection<User>('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $set: { crmIndustry: industry } }
+        );
+        
+        revalidatePath('/dashboard/crm');
+        
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: "Failed to save industry selection." };
     }
 }

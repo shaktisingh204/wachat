@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -35,13 +36,13 @@ function SubmitButton() {
 }
 
 interface CreateDealDialogProps {
-    projectId: string;
     contacts: WithId<CrmContact>[];
     accounts: WithId<CrmAccount>[];
     onDealCreated: () => void;
+    dealStages: string[];
 }
 
-export function CreateDealDialog({ projectId, contacts, accounts, onDealCreated }: CreateDealDialogProps) {
+export function CreateDealDialog({ contacts, accounts, onDealCreated, dealStages }: CreateDealDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(createCrmDeal, initialState);
   const { toast } = useToast();
@@ -71,7 +72,6 @@ export function CreateDealDialog({ projectId, contacts, accounts, onDealCreated 
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <form action={formAction} ref={formRef}>
-            <input type="hidden" name="projectId" value={projectId} />
             <input type="hidden" name="closeDate" value={closeDate?.toISOString()} />
             <DialogHeader>
                 <DialogTitle>Create New Deal</DialogTitle>
@@ -84,7 +84,17 @@ export function CreateDealDialog({ projectId, contacts, accounts, onDealCreated 
                     <div className="space-y-2"><Label htmlFor="currency">Currency</Label><Select name="currency" defaultValue="USD" required><SelectTrigger id="currency"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="USD">USD</SelectItem><SelectItem value="INR">INR</SelectItem><SelectItem value="EUR">EUR</SelectItem></SelectContent></Select></div>
                 </div>
                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2"><Label htmlFor="stage">Stage</Label><Select name="stage" defaultValue="New" required><SelectTrigger id="stage"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="New">New</SelectItem><SelectItem value="Qualified">Qualified</SelectItem><SelectItem value="Proposal Sent">Proposal Sent</SelectItem><SelectItem value="Negotiation">Negotiation</SelectItem></SelectContent></Select></div>
+                    <div className="space-y-2">
+                        <Label htmlFor="stage">Stage</Label>
+                        <Select name="stage" defaultValue={dealStages[0]} required>
+                            <SelectTrigger id="stage"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                {dealStages.map(stage => (
+                                    <SelectItem key={stage} value={stage}>{stage}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
                     <div className="space-y-2"><Label>Expected Close Date</Label><DatePicker date={closeDate} setDate={setCloseDate} /></div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
@@ -101,4 +111,3 @@ export function CreateDealDialog({ projectId, contacts, accounts, onDealCreated 
     </Dialog>
   );
 }
-

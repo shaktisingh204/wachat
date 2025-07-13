@@ -8,6 +8,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
 import type { CrmDeal } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
 
 export async function getCrmDeals(): Promise<WithId<CrmDeal>[]> {
     const session = await getSession();
@@ -51,12 +52,13 @@ export async function createCrmDeal(prevState: any, formData: FormData): Promise
     if (!session?.user) return { error: "Access denied" };
 
     try {
+        const dealStages = getDealStagesForIndustry(session.user.crmIndustry);
         const newDeal: Omit<CrmDeal, '_id'> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             value: parseFloat(formData.get('value') as string),
             currency: formData.get('currency') as string,
-            stage: (formData.get('stage') as CrmDeal['stage']) || 'New',
+            stage: (formData.get('stage') as CrmDeal['stage']) || dealStages[0],
             closeDate: new Date(formData.get('closeDate') as string),
             accountId: new ObjectId(formData.get('accountId') as string),
             contactIds: [new ObjectId(formData.get('contactId') as string)],

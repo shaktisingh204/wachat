@@ -34,7 +34,7 @@ export type CrmAutomationEdge = {
 
 export type CrmAutomation = {
     name: string;
-    projectId: ObjectId;
+    userId: ObjectId;
     nodes: CrmAutomationNode[];
     edges: CrmAutomationEdge[];
     createdAt: Date;
@@ -43,7 +43,7 @@ export type CrmAutomation = {
 
 export type CrmEmailSettings = {
     _id: ObjectId;
-    projectId: ObjectId;
+    userId: ObjectId;
     provider: 'smtp' | 'google' | 'outlook';
     fromName?: string;
     fromEmail?: string;
@@ -68,7 +68,7 @@ export type CrmEmailSettings = {
 
 export type CrmTask = {
     _id: ObjectId;
-    projectId: ObjectId;
+    userId: ObjectId;
     contactId?: ObjectId;
     dealId?: ObjectId;
     title: string;
@@ -84,13 +84,13 @@ export type CrmTask = {
 
 export type CrmDeal = {
     _id: ObjectId;
-    projectId: ObjectId;
+    userId: ObjectId;
     accountId?: ObjectId;
     contactIds?: ObjectId[];
     name: string;
     value: number;
     currency: string;
-    stage: 'New' | 'Qualified' | 'Proposal Sent' | 'Negotiation' | 'Won' | 'Lost';
+    stage: string;
     closeDate?: Date;
     probability?: number;
     ownerId?: ObjectId; // User ID
@@ -106,7 +106,7 @@ export type CrmDeal = {
 
 export type CrmAccount = {
     _id: ObjectId;
-    projectId: ObjectId;
+    userId: ObjectId;
     name: string;
     industry?: string;
     website?: string;
@@ -124,7 +124,7 @@ export type CrmAccount = {
 
 export type CrmContact = {
     _id: ObjectId;
-    projectId: ObjectId;
+    userId: ObjectId;
     accountId?: ObjectId;
     name: string;
     email: string;
@@ -404,10 +404,6 @@ export type Project = {
     ecommSettings?: {
         abandonedCart: AbandonedCartSettings;
     },
-    crm?: {
-        whatsappProjectId?: ObjectId;
-        permissions?: CrmPermissions;
-    }
 };
 
 export type Template = {
@@ -749,6 +745,7 @@ export type User = {
     customDomains?: CustomDomain[];
     facebookUserAccessToken?: string;
     activeProjectId?: string;
+    crmIndustry?: string;
 };
 
 export type Invitation = {
@@ -1185,46 +1182,6 @@ export type FacebookOrder = {
 
 // --- Custom Ecommerce ---
 
-export type EcommCustomer = {
-    _id: ObjectId;
-    shopId: ObjectId;
-    name: string;
-    email: string;
-    password?: string;
-    phone?: string;
-    addresses?: {
-        street: string;
-        city: string;
-        state: string;
-        zip: string;
-        country: string;
-        isDefault: boolean;
-    }[];
-    createdAt: Date;
-};
-
-export type EcommProductVariant = {
-  id: string; // e.g., color, size
-  name: string; // e.g., Color, Size
-  options: string; // Comma-separated, e.g., "Red, Blue, Green"
-};
-
-export type EcommProduct = {
-  _id: ObjectId;
-  projectId: ObjectId;
-  shopId: ObjectId;
-  name: string;
-  description?: string;
-  price: number;
-  imageUrl?: string;
-  stock?: number;
-  variants?: EcommProductVariant[];
-  category?: string;
-  subcategory?: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
 export type EcommCartItem = {
     productId: string;
     name: string;
@@ -1267,6 +1224,66 @@ export type EcommOrder = {
     paymentStatus: 'pending' | 'successful' | 'failed';
     createdAt: Date;
     updatedAt: Date;
+};
+
+export type EcommProductVariant = {
+  id: string;
+  name: string;
+  options: string;
+};
+
+export type EcommProduct = {
+  _id: ObjectId;
+  userId: ObjectId;
+  name: string;
+  description?: string;
+  price: number;
+  imageUrl?: string;
+  sku?: string;
+  category?: string;
+  subcategory?: string;
+  variants?: EcommProductVariant[];
+  inventory?: {
+      warehouseId: ObjectId,
+      stock: number,
+  }[];
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type CrmWarehouse = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    location?: string;
+    isDefault?: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmVendor = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    contactPerson?: string;
+    email?: string;
+    phone?: string;
+    address?: string;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CrmStockAdjustment = {
+    _id: ObjectId;
+    userId: ObjectId;
+    productId: ObjectId;
+    warehouseId: ObjectId;
+    date: Date;
+    quantity: number; // can be positive or negative
+    reason: 'Initial Stock' | 'Stock Take' | 'Goods In' | 'Damaged' | 'Theft/Loss' | 'Sale' | 'Return';
+    notes?: string;
+    relatedPurchaseOrderId?: ObjectId;
+    relatedSaleId?: ObjectId;
 };
 
 // --- SEO Suite Types ---
