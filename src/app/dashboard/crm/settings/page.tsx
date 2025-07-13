@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle, Link as LinkIcon } from 'lucide-react';
 import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-icons';
+import Link from "next/link";
 
 
 function PageSkeleton() {
@@ -56,17 +57,16 @@ export default function CrmSettingsPage() {
                 <CardContent className="space-y-4">
                      <p className="text-sm text-muted-foreground">Connect a provider to get started. We recommend using a dedicated app password for security.</p>
                      <div className="flex flex-wrap gap-4 p-4 border rounded-lg justify-center bg-muted/50">
-                        <Button variant="outline" disabled className="w-full sm:w-auto">
-                            <GoogleIcon className="mr-2 h-5 w-5"/> Connect Gmail
+                        <Button asChild className="w-full sm:w-auto" variant="outline">
+                           <Link href="/api/crm/auth/google/connect">
+                                <GoogleIcon className="mr-2 h-5 w-5"/> Connect Gmail
+                           </Link>
                         </Button>
-                        <Button variant="outline" disabled className="w-full sm:w-auto">
-                            <OutlookIcon className="mr-2 h-5 w-5"/> Connect Outlook
+                        <Button asChild className="w-full sm:w-auto" variant="outline">
+                            <Link href="/api/crm/auth/outlook/connect">
+                                <OutlookIcon className="mr-2 h-5 w-5"/> Connect Outlook
+                            </Link>
                         </Button>
-                         <Alert className="w-full">
-                            <AlertCircle className="h-4 w-4"/>
-                            <AlertTitle>Coming Soon</AlertTitle>
-                            <AlertDescription>Direct integration with Google and Outlook via OAuth is under development for enhanced security and ease of use.</AlertDescription>
-                        </Alert>
                      </div>
                 </CardContent>
             </Card>

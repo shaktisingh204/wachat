@@ -3,18 +3,28 @@
 import type { ObjectId, WithId } from 'mongodb';
 
 export type CrmEmailSettings = {
-    _id: 'email_settings';
+    _id: ObjectId;
     projectId: ObjectId;
-    provider: 'smtp';
-    fromName: string;
-    fromEmail: string;
-    smtp: {
+    provider: 'smtp' | 'google' | 'outlook';
+    fromName?: string;
+    fromEmail?: string;
+    smtp?: {
         host: string;
         port: number;
         secure: boolean;
         user: string;
         pass: string;
-    }
+    };
+    googleOAuth?: {
+        accessToken: string;
+        refreshToken: string;
+        expiryDate: number;
+    };
+    outlookOAuth?: {
+        accessToken: string;
+        refreshToken: string;
+        expiryDate: number;
+    };
 }
 
 export type CrmTask = {
