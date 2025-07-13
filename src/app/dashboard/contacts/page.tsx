@@ -128,7 +128,7 @@ export default function ContactsPage() {
                 setSelectedPhoneNumberId(data.selectedPhoneNumberId);
             }
         });
-    }, [startTransition]);
+    }, []);
 
     useEffect(() => {
         setIsClient(true);
@@ -149,8 +149,7 @@ export default function ContactsPage() {
                 }
             });
         }
-    // The dependency array is refined to prevent infinite loops. `fetchData` and `router` are stable.
-    }, [isClient, activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags]);
+    }, [isClient, activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags, fetchData, router, startTransition]);
 
 
     const updateSearchParam = useDebouncedCallback((key: string, value: string | null) => {
