@@ -1,6 +1,29 @@
 
 import type { ObjectId, WithId } from 'mongodb';
 
+export type CrmContact = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    name: string;
+    email: string;
+    phone?: string;
+    company?: string;
+    jobTitle?: string;
+    avatarUrl?: string;
+    status: 'new_lead' | 'contacted' | 'qualified' | 'unqualified' | 'customer' | 'imported';
+    leadScore?: number;
+    assignedTo?: string; // User ID or name
+    lastActivity?: Date;
+    notes?: {
+        content: string;
+        createdAt: Date;
+        author: string;
+    }[];
+    tags?: string[];
+    createdAt: Date;
+    updatedAt?: Date;
+};
+
 export type BusinessCapabilities = {
     max_daily_conversation_per_phone: number;
     max_phone_numbers_per_business: number;
