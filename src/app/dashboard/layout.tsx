@@ -31,7 +31,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2, Server, Palette, Bot, BookCopy, LayoutGrid, Brush
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -259,7 +259,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const appIcons = [
     { id: 'whatsapp', href: '/dashboard/overview', icon: WhatsAppIcon, label: 'Wachat Suite', className: 'bg-[#25D366] text-white', hoverClassName: 'bg-card text-[#25D366] hover:bg-accent' },
     { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite', className: 'bg-blue-600 text-white', hoverClassName: 'bg-card text-blue-600 hover:bg-accent' },
-    { id: 'crm', href: '/dashboard/crm', icon: Users, label: 'CRM Suite', className: 'bg-rose-500 text-white', hoverClassName: 'bg-card text-rose-500 hover:bg-accent' },
+    { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite', className: 'bg-rose-500 text-white', hoverClassName: 'bg-card text-rose-500 hover:bg-accent' },
     { id: 'seo-suite', href: '/dashboard/seo', icon: SeoIcon, label: 'SEO Suite', className: 'bg-indigo-500 text-white', hoverClassName: 'bg-card text-indigo-500 hover:bg-accent' },
     { id: 'url-shortener', href: '/dashboard/url-shortener', icon: LinkIcon, label: 'URL Shortener', className: 'bg-purple-600 text-white', hoverClassName: 'bg-card text-purple-600 hover:bg-accent' },
     { id: 'qr-code-maker', href: '/dashboard/qr-code-maker', icon: QrCode, label: 'QR Code Maker', className: 'bg-orange-500 text-white', hoverClassName: 'bg-card text-orange-500 hover:bg-accent' },
@@ -391,10 +391,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <DropdownMenuContent side="right" align="start">
                   <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <Link href="/dashboard/profile" passHref legacyBehavior><DropdownMenuItem>Profile</DropdownMenuItem></Link>
-                  <Link href="/dashboard/billing" passHref legacyBehavior><DropdownMenuItem>Billing</DropdownMenuItem></Link>
-                  <Link href="/dashboard/billing/history" passHref legacyBehavior><DropdownMenuItem>Billing History</DropdownMenuItem></Link>
-                  <Link href="/dashboard/settings" passHref legacyBehavior><DropdownMenuItem>Settings</DropdownMenuItem></Link>
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/profile">Profile</Link>
+                  </DropdownMenuItem>
+                   <DropdownMenuItem asChild>
+                    <Link href="/dashboard/billing">Billing</Link>
+                  </DropdownMenuItem>
+                   <DropdownMenuItem asChild>
+                    <Link href="/dashboard/billing/history">Billing History</Link>
+                  </DropdownMenuItem>
+                   <DropdownMenuItem asChild>
+                    <Link href="/dashboard/settings">Settings</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
                     <Link href="/api/auth/logout">
@@ -444,10 +452,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <Link href="/dashboard/profile" passHref legacyBehavior><DropdownMenuItem>Profile</DropdownMenuItem></Link>
-                <Link href="/dashboard/billing" passHref legacyBehavior><DropdownMenuItem>Billing</DropdownMenuItem></Link>
-                <Link href="/dashboard/billing/history" passHref legacyBehavior><DropdownMenuItem>Billing History</DropdownMenuItem></Link>
-                <Link href="/dashboard/settings" passHref legacyBehavior><DropdownMenuItem>Settings</DropdownMenuItem></Link>
+                <DropdownMenuItem asChild>
+                    <Link href="/dashboard/profile">Profile</Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                    <Link href="/dashboard/billing">Billing</Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                    <Link href="/dashboard/billing/history">Billing History</Link>
+                </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                    <Link href="/dashboard/settings">Settings</Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
                     <Link href="/api/auth/logout">
