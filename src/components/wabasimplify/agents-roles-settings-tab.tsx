@@ -122,7 +122,7 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
                 <div className="flex items-center gap-4">
                     <Avatar>
                         <AvatarImage src={`https://api.dicebear.com/7.x/lorelei/svg?seed=${agent.email}`} alt={agent.name} />
-                        <AvatarFallback>{agent.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                        <AvatarFallback>{agent.name.substring(0, 2).toUpperCase()} </AvatarFallback>
                     </Avatar>
                     <div className="space-y-0.5">
                         <p className="text-sm font-medium leading-none">{agent.name}</p>
@@ -139,7 +139,7 @@ export function AgentsRolesSettingsTab({ project, user }: AgentsRolesSettingsTab
     return (
         <Card className="card-gradient card-gradient-green">
             <CardHeader>
-                <CardTitle>Agents & Roles</CardTitle>
+                <CardTitle>Agents &amp; Roles</CardTitle>
                 <CardDescription>Manage agents and their roles for this project.</CardDescription>
             </CardHeader>
              <CardContent className="space-y-6">
