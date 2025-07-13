@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
 import { ObjectId } from 'mongodb';
+import { redirect } from 'next/navigation';
 
 export const dynamic = 'force-dynamic';
 
@@ -55,6 +56,16 @@ const StatCard = ({ title, value, icon: Icon, description }: { title: string, va
 );
 
 export default async function CrmDashboardPage() {
+  const session = await getSession();
+  if (!session?.user) {
+      redirect('/login');
+  }
+  
+  // Redirect to setup if industry is not set
+  if (!session.user.crmIndustry) {
+      redirect('/dashboard/crm/setup');
+  }
+
   const stats = await getCrmStats();
 
   return (
@@ -82,5 +93,3 @@ export default async function CrmDashboardPage() {
     </div>
   );
 }
-
-

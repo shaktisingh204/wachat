@@ -4,17 +4,17 @@
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getSession } from '@/app/actions';
 import type { CrmTask } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
-export async function getCrmTasks(projectId: string, status?: 'To-Do' | 'In Progress' | 'Completed'): Promise<WithId<CrmTask>[]> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
+export async function getCrmTasks(status?: 'To-Do' | 'In Progress' | 'Completed'): Promise<WithId<CrmTask>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
-        const filter: Filter<CrmTask> = { projectId: new ObjectId(projectId) };
+        const filter: Filter<CrmTask> = { userId: new ObjectId(session.user._id) };
         if (status) {
             filter.status = status;
         }
@@ -32,14 +32,13 @@ export async function getCrmTasks(projectId: string, status?: 'To-Do' | 'In Prog
 }
 
 export async function createCrmTask(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const project = await getProjectById(projectId);
-    if (!project) return { error: "Access denied" };
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
 
     try {
         const dueDate = formData.get('dueDate') as string;
         const newTaskData: Omit<CrmTask, '_id'> = {
-            projectId: new ObjectId(projectId),
+            userId: new ObjectId(session.user._id),
             title: formData.get('title') as string,
             description: formData.get('description') as string | undefined,
             status: 'To-Do',
@@ -73,13 +72,12 @@ export async function updateCrmTaskStatus(taskId: string, status: CrmTask['statu
     if (!ObjectId.isValid(taskId)) {
         return { success: false, error: 'Invalid Task ID.' };
     }
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
 
     const { db } = await connectToDatabase();
-    const task = await db.collection('crm_tasks').findOne({ _id: new ObjectId(taskId) });
+    const task = await db.collection('crm_tasks').findOne({ _id: new ObjectId(taskId), userId: new ObjectId(session.user._id) });
     if (!task) return { success: false, error: 'Task not found.' };
-
-    const hasAccess = await getProjectById(task.projectId.toString());
-    if (!hasAccess) return { success: false, error: 'Access denied.' };
 
     try {
         await db.collection('crm_tasks').updateOne(
@@ -98,13 +96,12 @@ export async function deleteCrmTask(taskId: string): Promise<{ success: boolean;
     if (!ObjectId.isValid(taskId)) {
         return { success: false, error: 'Invalid Task ID.' };
     }
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
 
     const { db } = await connectToDatabase();
-    const task = await db.collection('crm_tasks').findOne({ _id: new ObjectId(taskId) });
+    const task = await db.collection('crm_tasks').findOne({ _id: new ObjectId(taskId), userId: new ObjectId(session.user._id) });
     if (!task) return { success: false, error: 'Task not found.' };
-
-    const hasAccess = await getProjectById(task.projectId.toString());
-    if (!hasAccess) return { success: false, error: 'Access denied.' };
 
     try {
         await db.collection('crm_tasks').deleteOne({ _id: new ObjectId(taskId) });

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -35,13 +36,12 @@ function SubmitButton() {
 }
 
 interface CrmCreateTaskDialogProps {
-    projectId: string;
     onTaskCreated: () => void;
     contactId?: string;
     dealId?: string;
 }
 
-export function CreateTaskDialog({ projectId, onTaskCreated, contactId, dealId }: CrmCreateTaskDialogProps) {
+export function CreateTaskDialog({ onTaskCreated, contactId, dealId }: CrmCreateTaskDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(createCrmTask, initialState);
   const { toast } = useToast();
@@ -71,7 +71,6 @@ export function CreateTaskDialog({ projectId, onTaskCreated, contactId, dealId }
       </DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <form action={formAction} ref={formRef}>
-            <input type="hidden" name="projectId" value={projectId} />
             <input type="hidden" name="dueDate" value={dueDate?.toISOString()} />
             {contactId && <input type="hidden" name="contactId" value={contactId} />}
             {dealId && <input type="hidden" name="dealId" value={dealId} />}
