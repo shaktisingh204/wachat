@@ -11,11 +11,13 @@ function getJwtSecretKey(): Uint8Array {
     return new TextEncoder().encode(secret);
 }
 
-export async function verifyJwtForMiddleware(token: string): Promise<SessionPayload | null> {
+// This function is safe for both Edge and Node.js runtimes.
+export async function verifyJwt(token: string): Promise<SessionPayload | null> {
     try {
-        const { payload } = await jwtVerify(token, getJwtSecretKey(), { algorithms: ['HS256'] });
+        const { payload } = await jwtVerify(token, getJwtSecretKey());
         
-        if (!payload.jti || !payload.exp) {
+        if (!payload.jti || !payload.exp || !payload.userId || !payload.email) {
+            console.error('JWT payload missing required fields');
             return null;
         }
 
@@ -26,13 +28,15 @@ export async function verifyJwtForMiddleware(token: string): Promise<SessionPayl
             expires: payload.exp * 1000,
         };
     } catch (error) {
+        console.error('Error verifying JWT:', error);
         return null;
     }
 }
 
-export async function verifyAdminJwtForMiddleware(token: string): Promise<AdminSessionPayload | null> {
+// This function is safe for both Edge and Node.js runtimes.
+export async function verifyAdminJwt(token: string): Promise<AdminSessionPayload | null> {
     try {
-        const { payload } = await jwtVerify(token, getJwtSecretKey(), { algorithms: ['HS256'] });
+        const { payload } = await jwtVerify(token, getJwtSecretKey());
 
         if (payload.role !== 'admin' || !payload.jti || !payload.exp) {
             return null;
