@@ -154,8 +154,6 @@ export default function FacebookDashboardPage() {
     const [permissionError, setPermissionError] = useState<string | null>(null);
     const [isLoading, startLoading] = useTransition();
     const [projectId, setProjectId] = useState<string | null>(null);
-    const [actionCounter, setActionCounter] = useState(0);
-    const searchParams = useSearchParams();
 
     const fetchPageData = useCallback((id: string) => {
         startLoading(async () => {
@@ -189,10 +187,13 @@ export default function FacebookDashboardPage() {
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         setProjectId(storedProjectId);
-        if (storedProjectId) {
-            fetchPageData(storedProjectId);
+    }, []);
+
+    useEffect(() => {
+        if (projectId) {
+            fetchPageData(projectId);
         }
-    }, [searchParams, fetchPageData]);
+    }, [projectId, fetchPageData]);
     
     const onSuccessfulReconnect = () => {
         setPermissionError(null);
