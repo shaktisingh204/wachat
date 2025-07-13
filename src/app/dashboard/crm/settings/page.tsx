@@ -1,13 +1,11 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCircle } from 'lucide-react';
+import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCircle, Users, KeyRound, Shield } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
-import { getCrmEmailSettings, getProjects } from '@/app/actions';
-import { saveCrmProviders } from '@/app/actions/crm.actions';
+import { getCrmEmailSettings, getProjects, saveCrmProviders, saveCrmPermissions } from '@/app/actions';
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
 import type { CrmEmailSettings, Project, WithId } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -19,6 +17,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useFormStatus } from "react-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
 
 function PageSkeleton() {
@@ -33,6 +36,7 @@ function PageSkeleton() {
 }
 
 const providerInitialState = { message: null, error: undefined };
+const permissionsInitialState = { message: null, error: undefined };
 
 function ProviderSubmitButton() {
     const { pending } = useFormStatus();
@@ -40,6 +44,16 @@ function ProviderSubmitButton() {
         <Button type="submit" disabled={pending}>
             {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Save Provider Settings
+        </Button>
+    )
+}
+
+function PermissionsSubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Save Permissions
         </Button>
     )
 }
@@ -89,7 +103,69 @@ function CrmProvidersForm({ project, allProjects }: { project: WithId<Project>, 
     )
 }
 
-export default function CrmSettingsPage() {
+function PermissionsForm({ project }: { project: WithId<Project> }) {
+    const [state, formAction] = useActionState(saveCrmPermissions, permissionsInitialState);
+    const { toast } = useToast();
+
+    useEffect(() => {
+        if (state.message) toast({ title: 'Success!', description: state.message });
+        if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    }, [state, toast]);
+    
+    const modules = ['contacts', 'accounts', 'deals', 'tasks'];
+    const permissions = ['view', 'create', 'edit', 'delete'];
+    const currentPermissions = project.crm?.permissions?.agent || {};
+
+    return (
+        <form action={formAction}>
+            <input type="hidden" name="projectId" value={project._id.toString()} />
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Shield className="h-5 w-5" />Agent Permissions</CardTitle>
+                    <CardDescription>Define what users with the "Agent" role can see and do within this CRM project.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="border rounded-md">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Module</TableHead>
+                                    <TableHead className="text-center">View</TableHead>
+                                    <TableHead className="text-center">Create</TableHead>
+                                    <TableHead className="text-center">Edit</TableHead>
+                                    <TableHead className="text-center">Delete</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {modules.map(module => (
+                                    <TableRow key={module}>
+                                        <TableCell className="font-medium capitalize">{module}</TableCell>
+                                        {permissions.map(perm => (
+                                            <TableCell key={perm} className="text-center">
+                                                <Checkbox
+                                                    name={`${module}_${perm}`}
+                                                    defaultChecked={currentPermissions[module]?.[perm] ?? false}
+                                                />
+                                            </TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <PermissionsSubmitButton />
+                </CardFooter>
+            </Card>
+        </form>
+    )
+}
+
+
+function CrmSettingsPageContent() {
+    const searchParams = useSearchParams();
+    const initialTab = searchParams.get('tab') || 'providers';
     const [project, setProject] = useState<WithId<Project> | null>(null);
     const [allProjects, setAllProjects] = useState<WithId<Project>[]>([]);
     const [settings, setSettings] = useState<CrmEmailSettings | null>(null);
@@ -130,36 +206,53 @@ export default function CrmSettingsPage() {
                 <p className="text-muted-foreground">Configure your CRM pipelines, automation, and integrations.</p>
             </div>
             
-            <CrmProvidersForm project={project} allProjects={allProjects} />
-            
-            <Separator />
-            
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5"/>Email Integration</CardTitle>
-                    <CardDescription>Connect your email accounts to sync conversations and send emails from within the CRM.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                     <p className="text-sm text-muted-foreground">Connect a provider to get started. We recommend using a dedicated app password for security.</p>
-                     <div className="flex flex-wrap gap-4 p-4 border rounded-lg justify-center bg-muted/50">
-                        <Button asChild className="w-full sm:w-auto" variant="outline">
-                           <Link href="/api/crm/auth/google/connect">
-                                <GoogleIcon className="mr-2 h-5 w-5"/> Connect Gmail
-                           </Link>
-                        </Button>
-                        <Button asChild className="w-full sm:w-auto" variant="outline">
-                            <Link href="/api/crm/auth/outlook/connect">
-                                <OutlookIcon className="mr-2 h-5 w-5"/> Connect Outlook
-                            </Link>
-                        </Button>
-                     </div>
-                </CardContent>
-            </Card>
-
-            <Separator />
-
-            <CrmSmtpForm settings={settings} />
-            
+            <Tabs defaultValue={initialTab}>
+                <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="providers">Providers</TabsTrigger>
+                    <TabsTrigger value="email">Email Setup</TabsTrigger>
+                    <TabsTrigger value="permissions">Permissions</TabsTrigger>
+                </TabsList>
+                <TabsContent value="providers" className="mt-6">
+                    <CrmProvidersForm project={project} allProjects={allProjects} />
+                </TabsContent>
+                <TabsContent value="email" className="mt-6 space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Mail className="h-5 w-5"/>Connect Email Account</CardTitle>
+                            <CardDescription>Connect your email accounts to sync conversations and send emails from within the CRM.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <p className="text-sm text-muted-foreground">Connect a provider to get started. We recommend using a dedicated app password for security.</p>
+                            <div className="flex flex-wrap gap-4 p-4 border rounded-lg justify-center bg-muted/50">
+                                <Button asChild className="w-full sm:w-auto" variant="outline">
+                                <Link href="/api/crm/auth/google/connect">
+                                        <GoogleIcon className="mr-2 h-5 w-5"/> Connect Gmail
+                                </Link>
+                                </Button>
+                                <Button asChild className="w-full sm:w-auto" variant="outline">
+                                    <Link href="/api/crm/auth/outlook/connect">
+                                        <OutlookIcon className="mr-2 h-5 w-5"/> Connect Outlook
+                                    </Link>
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Separator />
+                    <CrmSmtpForm settings={settings} />
+                </TabsContent>
+                 <TabsContent value="permissions" className="mt-6">
+                    <PermissionsForm project={project} />
+                </TabsContent>
+            </Tabs>
         </div>
     );
 }
+
+export default function CrmSettingsPage() {
+    return (
+        <Suspense fallback={<PageSkeleton/>}>
+            <CrmSettingsPageContent/>
+        </Suspense>
+    )
+}
+
