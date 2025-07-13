@@ -2,6 +2,21 @@
 
 import type { ObjectId, WithId } from 'mongodb';
 
+export type CrmEmailSettings = {
+    _id: 'email_settings';
+    projectId: ObjectId;
+    provider: 'smtp';
+    fromName: string;
+    fromEmail: string;
+    smtp: {
+        host: string;
+        port: number;
+        secure: boolean;
+        user: string;
+        pass: string;
+    }
+}
+
 export type CrmTask = {
     _id: ObjectId;
     projectId: ObjectId;
