@@ -1,12 +1,46 @@
 
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Settings, Mail, Bot, Handshake } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
+import { getCrmEmailSettings } from '@/app/actions/crm-email.actions';
+import { useEffect, useState, useTransition } from 'react';
+import type { CrmEmailSettings } from '@/lib/definitions';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { AlertCircle, Link as LinkIcon } from 'lucide-react';
+import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-icons';
+
+
+function PageSkeleton() {
+    return (
+        <div className="flex flex-col gap-8">
+            <Skeleton className="h-10 w-64" />
+            <Skeleton className="h-4 w-96" />
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-48 w-full" />
+        </div>
+    );
+}
 
 export default function CrmSettingsPage() {
+    const [settings, setSettings] = useState<CrmEmailSettings | null>(null);
+    const [isLoading, startLoading] = useTransition();
+
+    useEffect(() => {
+        startLoading(async () => {
+            const fetchedSettings = await getCrmEmailSettings(localStorage.getItem('activeProjectId') || '');
+            setSettings(fetchedSettings);
+        });
+    }, []);
+
+    if (isLoading) {
+        return <PageSkeleton />;
+    }
+    
     return (
         <div className="flex flex-col gap-8">
             <div>
@@ -20,44 +54,27 @@ export default function CrmSettingsPage() {
                     <CardDescription>Connect your email accounts to sync conversations and send emails from within the CRM.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                     <p className="text-sm text-muted-foreground">Connect your email provider to get started.</p>
-                     <div className="flex flex-wrap gap-4">
-                        <Button variant="outline" disabled>Connect Gmail</Button>
-                        <Button variant="outline" disabled>Connect Outlook</Button>
-                        <Button variant="outline" disabled>Connect via IMAP</Button>
+                     <p className="text-sm text-muted-foreground">Connect a provider to get started. We recommend using a dedicated app password for security.</p>
+                     <div className="flex flex-wrap gap-4 p-4 border rounded-lg justify-center bg-muted/50">
+                        <Button variant="outline" disabled className="w-full sm:w-auto">
+                            <GoogleIcon className="mr-2 h-5 w-5"/> Connect Gmail
+                        </Button>
+                        <Button variant="outline" disabled className="w-full sm:w-auto">
+                            <OutlookIcon className="mr-2 h-5 w-5"/> Connect Outlook
+                        </Button>
+                         <Alert className="w-full">
+                            <AlertCircle className="h-4 w-4"/>
+                            <AlertTitle>Coming Soon</AlertTitle>
+                            <AlertDescription>Direct integration with Google and Outlook via OAuth is under development for enhanced security and ease of use.</AlertDescription>
+                        </Alert>
                      </div>
                 </CardContent>
             </Card>
 
             <Separator />
+
+            <CrmSmtpForm settings={settings} />
             
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Handshake className="h-5 w-5"/>Pipeline & Stages</CardTitle>
-                    <CardDescription>Customize the stages in your deal pipeline.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">Pipeline customization is coming soon.</p>
-                </CardContent>
-                 <CardFooter>
-                    <Button disabled>Manage Stages</Button>
-                </CardFooter>
-            </Card>
-
-            <Separator />
-
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Bot className="h-5 w-5"/>Lead Automation</CardTitle>
-                    <CardDescription>Set up rules for lead assignment and scoring.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-muted-foreground">Lead automation rules are coming soon.</p>
-                </CardContent>
-                <CardFooter>
-                    <Button disabled>Create New Rule</Button>
-                </CardFooter>
-            </Card>
         </div>
     );
 }
