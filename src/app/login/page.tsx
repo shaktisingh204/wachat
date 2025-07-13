@@ -66,7 +66,7 @@ export default function LoginPage() {
                         </button>
                     </div>
                         <div className="text-right">
-                        <Link href="#" className="text-sm text-muted-foreground hover:text-primary">Having trouble signing in?</Link>
+                        <Link href="/forgot-password" className="text-sm text-muted-foreground hover:text-primary">Having trouble signing in?</Link>
                     </div>
                     <SubmitButton />
                      <div className="relative my-4">
