@@ -6,10 +6,11 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, PlusCircle, ShoppingBag } from 'lucide-react';
-import { getEcommProducts, getEcommShops } from '@/app/actions/custom-ecommerce.actions';
-import type { WithId, EcommProduct, EcommShop } from '@/lib/definitions';
-import { EcommProductDialog } from '@/components/wabasimplify/ecomm-product-dialog';
-import { EcommProductCard } from '@/components/wabasimplify/ecomm-product-card';
+import { getCrmProducts } from '@/app/actions/crm-products.actions';
+import type { WithId, EcommProduct } from '@/lib/definitions';
+import { CrmProductDialog } from '@/components/wabasimplify/crm-product-dialog';
+import { CrmProductCard } from '@/components/wabasimplify/crm-product-card';
+import { getProjectById } from '@/app/actions';
 
 function PageSkeleton() {
     return (
@@ -25,7 +26,7 @@ function PageSkeleton() {
 
 export default function CrmProductsPage() {
     const [projectId, setProjectId] = useState<string | null>(null);
-    const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
+    const [projectCurrency, setProjectCurrency] = useState<string>('USD');
     const [products, setProducts] = useState<WithId<EcommProduct>[]>([]);
     const [isLoading, startLoading] = useTransition();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -36,13 +37,12 @@ export default function CrmProductsPage() {
         if (storedProjectId) {
             setProjectId(storedProjectId);
             startLoading(async () => {
-                const shops = await getEcommShops(storedProjectId);
-                if (shops && shops.length > 0) {
-                    const shopData = shops[0];
-                    setShop(shopData);
-                    const productsData = await getEcommProducts(shopData._id.toString());
-                    setProducts(productsData);
-                }
+                const [projectData, productsData] = await Promise.all([
+                    getProjectById(storedProjectId),
+                    getCrmProducts(storedProjectId)
+                ]);
+                setProjectCurrency(projectData?.plan?.currency || 'USD');
+                setProducts(productsData);
             });
         }
     };
@@ -59,23 +59,24 @@ export default function CrmProductsPage() {
     if (isLoading) {
         return <PageSkeleton />;
     }
-
-    if (!shop) {
+    
+    if (!projectId) {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Setup Required</AlertTitle>
-                <AlertDescription>The CRM Product Catalog uses the E-commerce Shop backend. Please create a shop in the "Custom E-commerce" section first.</AlertDescription>
+                <AlertTitle>Project Not Found</AlertTitle>
+                <AlertDescription>Please select a project to manage its products.</AlertDescription>
             </Alert>
         );
     }
     
     return (
         <>
-            <EcommProductDialog
+            <CrmProductDialog
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
-                shop={shop}
+                projectId={projectId}
+                currency={projectCurrency}
                 product={editingProduct}
                 onSuccess={fetchData}
             />
@@ -96,10 +97,10 @@ export default function CrmProductsPage() {
                 {products.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {products.map(product => (
-                            <EcommProductCard 
+                            <CrmProductCard 
                                 key={product._id.toString()} 
                                 product={product}
-                                shopSettings={shop}
+                                currency={projectCurrency}
                                 onEdit={() => handleOpenDialog(product)}
                                 onDelete={fetchData}
                             />
