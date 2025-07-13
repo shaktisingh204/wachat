@@ -15,7 +15,8 @@ export async function getCrmContacts(
     projectId: string,
     page: number = 1,
     limit: number = 20,
-    query?: string
+    query?: string,
+    accountId?: string,
 ): Promise<{ contacts: WithId<CrmContact>[], total: number }> {
     const hasAccess = await getProjectById(projectId);
     if (!hasAccess) return { contacts: [], total: 0 };
@@ -32,6 +33,9 @@ export async function getCrmContacts(
                 { email: queryRegex },
                 { company: queryRegex }
             ];
+        }
+        if (accountId && ObjectId.isValid(accountId)) {
+            filter.accountId = new ObjectId(accountId);
         }
 
         const skip = (page - 1) * limit;
