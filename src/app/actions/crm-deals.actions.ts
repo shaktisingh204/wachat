@@ -25,6 +25,24 @@ export async function getCrmDeals(projectId: string): Promise<WithId<CrmDeal>[]>
     }
 }
 
+export async function getCrmDealById(dealId: string): Promise<WithId<CrmDeal> | null> {
+    if (!ObjectId.isValid(dealId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const deal = await db.collection<CrmDeal>('crm_deals').findOne({ _id: new ObjectId(dealId) });
+        if (!deal) return null;
+        
+        const hasAccess = await getProjectById(deal.projectId.toString());
+        if (!hasAccess) return null;
+
+        return JSON.parse(JSON.stringify(deal));
+    } catch(e) {
+        return null;
+    }
+}
+
+
 export async function createCrmDeal(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const project = await getProjectById(projectId);
@@ -75,5 +93,35 @@ export async function updateCrmDealStage(dealId: string, newStage: CrmDeal['stag
         return { success: true };
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function addCrmDealNote(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const dealId = formData.get('dealId') as string;
+    const content = formData.get('noteContent') as string;
+
+    if (!dealId || !content) {
+        return { error: 'Note content cannot be empty.' };
+    }
+    
+    const deal = await getCrmDealById(dealId);
+    if (!deal) return { error: "Deal not found" };
+
+    const note = {
+        content,
+        author: "Admin User", // Placeholder
+        createdAt: new Date(),
+    };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('crm_deals').updateOne(
+            { _id: new ObjectId(dealId) },
+            { $push: { notes: { $each: [note], $position: 0 } } }
+        );
+        revalidatePath(`/dashboard/crm/deals/${dealId}`);
+        return { message: 'Note added successfully.' };
+    } catch(e: any) {
+        return { error: getErrorMessage(e) };
     }
 }
