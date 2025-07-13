@@ -1,17 +1,17 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getSession } from '@/app/actions';
 import type { CrmEmailSettings } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
 export async function saveCrmEmailSettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const project = await getProjectById(projectId);
-    if (!project) return { error: "Access denied or project not found." };
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied or project not found." };
     
     try {
         const settings: Partial<CrmEmailSettings> = {
@@ -35,7 +35,7 @@ export async function saveCrmEmailSettings(prevState: any, formData: FormData): 
         const { db } = await connectToDatabase();
         
         await db.collection('crm_email_settings').updateOne(
-            { projectId: project._id },
+            { userId: new ObjectId(session.user._id) },
             { $set: settings },
             { upsert: true }
         );
@@ -48,19 +48,16 @@ export async function saveCrmEmailSettings(prevState: any, formData: FormData): 
     }
 }
 
-export async function saveOAuthTokens({ projectId, provider, accessToken, refreshToken, expiryDate }: {
-    projectId: string;
+export async function saveOAuthTokens({ userId, provider, accessToken, refreshToken, expiryDate }: {
+    userId: string;
     provider: 'google' | 'outlook';
     accessToken: string;
     refreshToken: string;
     expiryDate: number;
 }): Promise<{ success: boolean; error?: string }> {
-     if (!projectId || !ObjectId.isValid(projectId)) {
-        return { success: false, error: 'Invalid project ID.' };
+     if (!userId || !ObjectId.isValid(userId)) {
+        return { success: false, error: 'Invalid user ID.' };
     }
-    
-    const project = await getProjectById(projectId);
-    if (!project) return { success: false, error: "Access denied or project not found." };
     
     try {
         const { db } = await connectToDatabase();
@@ -75,8 +72,8 @@ export async function saveOAuthTokens({ projectId, provider, accessToken, refres
         };
 
         await db.collection('crm_email_settings').updateOne(
-            { projectId: new ObjectId(projectId) },
-            { $set: updatePayload, $setOnInsert: { projectId: new ObjectId(projectId) } },
+            { userId: new ObjectId(userId) },
+            { $set: updatePayload, $setOnInsert: { userId: new ObjectId(userId) } },
             { upsert: true }
         );
 
@@ -87,15 +84,15 @@ export async function saveOAuthTokens({ projectId, provider, accessToken, refres
 }
 
 
-export async function getCrmEmailSettings(projectId: string): Promise<WithId<CrmEmailSettings> | null> {
-    if (!projectId || !ObjectId.isValid(projectId)) return null;
+export async function getCrmEmailSettings(userId: string): Promise<WithId<CrmEmailSettings> | null> {
+    if (!userId || !ObjectId.isValid(userId)) return null;
     
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return null;
+    const session = await getSession();
+    if (session?.user?._id.toString() !== userId) return null;
 
     try {
         const { db } = await connectToDatabase();
-        const settings = await db.collection<CrmEmailSettings>('crm_email_settings').findOne({ projectId: new ObjectId(projectId) });
+        const settings = await db.collection<CrmEmailSettings>('crm_email_settings').findOne({ userId: new ObjectId(userId) });
         return settings ? JSON.parse(JSON.stringify(settings)) : null;
     } catch(e) {
         console.error("Failed to fetch CRM email settings:", e);

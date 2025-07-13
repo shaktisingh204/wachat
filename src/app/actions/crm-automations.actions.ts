@@ -1,21 +1,21 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getSession } from '@/app/actions';
 import type { CrmAutomation, CrmAutomationNode, CrmAutomationEdge } from '@/lib/definitions';
 
-export async function getCrmAutomations(projectId: string): Promise<WithId<CrmAutomation>[]> {
-    if (!ObjectId.isValid(projectId)) return [];
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
+export async function getCrmAutomations(): Promise<WithId<CrmAutomation>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
         const automations = await db.collection<CrmAutomation>('crm_automations')
-            .find({ projectId: new ObjectId(projectId) })
+            .find({ userId: new ObjectId(session.user._id) })
             .project({ name: 1, updatedAt: 1 })
             .sort({ updatedAt: -1 })
             .toArray();
@@ -27,33 +27,36 @@ export async function getCrmAutomations(projectId: string): Promise<WithId<CrmAu
 
 export async function getCrmAutomationById(automationId: string): Promise<WithId<CrmAutomation> | null> {
     if (!ObjectId.isValid(automationId)) return null;
-    const { db } = await connectToDatabase();
-    const automation = await db.collection<CrmAutomation>('crm_automations').findOne({ _id: new ObjectId(automationId) });
-    if (!automation) return null;
+    
+    const session = await getSession();
+    if (!session?.user) return null;
 
-    const hasAccess = await getProjectById(automation.projectId.toString());
-    if (!hasAccess) return null;
+    const { db } = await connectToDatabase();
+    const automation = await db.collection<CrmAutomation>('crm_automations').findOne({ 
+        _id: new ObjectId(automationId),
+        userId: new ObjectId(session.user._id) 
+    });
 
     return automation ? JSON.parse(JSON.stringify(automation)) : null;
 }
 
 export async function saveCrmAutomation(data: {
     flowId?: string;
-    projectId: string;
     name: string;
     nodes: CrmAutomationNode[];
     edges: CrmAutomationEdge[];
 }): Promise<{ message?: string, error?: string, flowId?: string }> {
-    const { flowId, projectId, name, nodes, edges } = data;
-    if (!projectId || !name) return { error: 'Project ID and Automation Name are required.' };
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: 'Access denied' };
+    const { flowId, name, nodes, edges } = data;
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
+    
+    if (!name) return { error: 'Automation Name is required.' };
     
     const isNew = !flowId;
     
     const automationData: Omit<CrmAutomation, '_id' | 'createdAt'> = {
         name,
-        projectId: new ObjectId(projectId),
+        userId: new ObjectId(session.user._id),
         nodes,
         edges,
         updatedAt: new Date(),
@@ -67,7 +70,7 @@ export async function saveCrmAutomation(data: {
             return { message: 'Automation created successfully.', flowId: result.insertedId.toString() };
         } else {
             await db.collection('crm_automations').updateOne(
-                { _id: new ObjectId(flowId) },
+                { _id: new ObjectId(flowId), userId: new ObjectId(session.user._id) },
                 { $set: automationData }
             );
             revalidatePath('/dashboard/crm/automations');
@@ -80,13 +83,13 @@ export async function saveCrmAutomation(data: {
 
 export async function deleteCrmAutomation(automationId: string): Promise<{ message?: string; error?: string }> {
     if (!ObjectId.isValid(automationId)) return { error: 'Invalid Automation ID.' };
+    
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied' };
 
     const { db } = await connectToDatabase();
-    const automation = await db.collection('crm_automations').findOne({ _id: new ObjectId(automationId) });
-    if (!automation) return { error: 'Automation not found.' };
-
-    const hasAccess = await getProjectById(automation.projectId.toString());
-    if (!hasAccess) return { error: 'Access denied' };
+    const automation = await db.collection('crm_automations').findOne({ _id: new ObjectId(automationId), userId: new ObjectId(session.user._id) });
+    if (!automation) return { error: 'Automation not found or you do not have access.' };
 
     try {
         await db.collection('crm_automations').deleteOne({ _id: new ObjectId(automationId) });

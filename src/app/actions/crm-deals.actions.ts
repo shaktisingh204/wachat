@@ -1,21 +1,22 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getSession } from '@/app/actions';
 import type { CrmDeal } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
-export async function getCrmDeals(projectId: string): Promise<WithId<CrmDeal>[]> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
+export async function getCrmDeals(): Promise<WithId<CrmDeal>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
         const deals = await db.collection<CrmDeal>('crm_deals')
-            .find({ projectId: new ObjectId(projectId) })
+            .find({ userId: new ObjectId(session.user._id) })
             .sort({ createdAt: -1 })
             .toArray();
         return JSON.parse(JSON.stringify(deals));
@@ -28,15 +29,17 @@ export async function getCrmDeals(projectId: string): Promise<WithId<CrmDeal>[]>
 export async function getCrmDealById(dealId: string): Promise<WithId<CrmDeal> | null> {
     if (!ObjectId.isValid(dealId)) return null;
 
+    const session = await getSession();
+    if (!session?.user) return null;
+
     try {
         const { db } = await connectToDatabase();
-        const deal = await db.collection<CrmDeal>('crm_deals').findOne({ _id: new ObjectId(dealId) });
-        if (!deal) return null;
+        const deal = await db.collection<CrmDeal>('crm_deals').findOne({ 
+            _id: new ObjectId(dealId),
+            userId: new ObjectId(session.user._id)
+        });
         
-        const hasAccess = await getProjectById(deal.projectId.toString());
-        if (!hasAccess) return null;
-
-        return JSON.parse(JSON.stringify(deal));
+        return deal ? JSON.parse(JSON.stringify(deal)) : null;
     } catch(e) {
         return null;
     }
@@ -44,13 +47,12 @@ export async function getCrmDealById(dealId: string): Promise<WithId<CrmDeal> | 
 
 
 export async function createCrmDeal(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const project = await getProjectById(projectId);
-    if (!project) return { error: "Access denied" };
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
 
     try {
         const newDeal: Omit<CrmDeal, '_id'> = {
-            projectId: new ObjectId(projectId),
+            userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             value: parseFloat(formData.get('value') as string),
             currency: formData.get('currency') as string,
@@ -76,18 +78,20 @@ export async function updateCrmDealStage(dealId: string, newStage: CrmDeal['stag
         return { success: false, error: 'Invalid Deal ID.' };
     }
 
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
     const { db } = await connectToDatabase();
-    const deal = await db.collection('crm_deals').findOne({ _id: new ObjectId(dealId) });
-    if (!deal) return { success: false, error: 'Deal not found.' };
-
-    const hasAccess = await getProjectById(deal.projectId.toString());
-    if (!hasAccess) return { success: false, error: 'Access denied.' };
-
+    
     try {
-        await db.collection('crm_deals').updateOne(
-            { _id: new ObjectId(dealId) },
+        const result = await db.collection('crm_deals').updateOne(
+            { _id: new ObjectId(dealId), userId: new ObjectId(session.user._id) },
             { $set: { stage: newStage, updatedAt: new Date() } }
         );
+
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'Deal not found or you do not have access.' };
+        }
         
         revalidatePath('/dashboard/crm/deals');
         return { success: true };

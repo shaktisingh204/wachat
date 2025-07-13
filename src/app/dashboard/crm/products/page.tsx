@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -7,10 +8,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, PlusCircle, ShoppingBag } from 'lucide-react';
 import { getCrmProducts } from '@/app/actions/crm-products.actions';
-import type { WithId, EcommProduct } from '@/lib/definitions';
+import type { WithId, EcommProduct, User, Plan } from '@/lib/definitions';
 import { CrmProductDialog } from '@/components/wabasimplify/crm-product-dialog';
 import { CrmProductCard } from '@/components/wabasimplify/crm-product-card';
-import { getProjectById } from '@/app/actions';
+import { getSession } from '@/app/actions';
 
 function PageSkeleton() {
     return (
@@ -25,26 +26,21 @@ function PageSkeleton() {
 }
 
 export default function CrmProductsPage() {
-    const [projectId, setProjectId] = useState<string | null>(null);
-    const [projectCurrency, setProjectCurrency] = useState<string>('USD');
+    const [user, setUser] = useState<(Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null>(null);
     const [products, setProducts] = useState<WithId<EcommProduct>[]>([]);
     const [isLoading, startLoading] = useTransition();
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editingProduct, setEditingProduct] = useState<WithId<EcommProduct> | null>(null);
 
     const fetchData = () => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (storedProjectId) {
-            setProjectId(storedProjectId);
-            startLoading(async () => {
-                const [projectData, productsData] = await Promise.all([
-                    getProjectById(storedProjectId),
-                    getCrmProducts(storedProjectId)
-                ]);
-                setProjectCurrency(projectData?.plan?.currency || 'USD');
-                setProducts(productsData);
-            });
-        }
+        startLoading(async () => {
+            const [sessionData, productsData] = await Promise.all([
+                getSession(),
+                getCrmProducts()
+            ]);
+            setUser(sessionData?.user as any);
+            setProducts(productsData);
+        });
     };
 
     useEffect(() => {
@@ -60,12 +56,12 @@ export default function CrmProductsPage() {
         return <PageSkeleton />;
     }
     
-    if (!projectId) {
+    if (!user) {
         return (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Project Not Found</AlertTitle>
-                <AlertDescription>Please select a project to manage its products.</AlertDescription>
+                <AlertTitle>Not Logged In</AlertTitle>
+                <AlertDescription>Please log in to manage your CRM products.</AlertDescription>
             </Alert>
         );
     }
@@ -75,8 +71,7 @@ export default function CrmProductsPage() {
             <CrmProductDialog
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
-                projectId={projectId}
-                currency={projectCurrency}
+                currency={user.plan?.currency || 'USD'}
                 product={editingProduct}
                 onSuccess={fetchData}
             />
@@ -100,7 +95,7 @@ export default function CrmProductsPage() {
                             <CrmProductCard 
                                 key={product._id.toString()} 
                                 product={product}
-                                currency={projectCurrency}
+                                currency={user.plan?.currency || 'USD'}
                                 onEdit={() => handleOpenDialog(product)}
                                 onDelete={fetchData}
                             />

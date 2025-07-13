@@ -1,10 +1,11 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById, getSession } from '@/app/actions';
+import { getSession } from '@/app/actions';
 import type { CrmContact, CrmPermissions } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';
@@ -12,20 +13,19 @@ import * as XLSX from 'xlsx';
 import { Readable } from 'stream';
 
 export async function getCrmContacts(
-    projectId: string,
     page: number = 1,
     limit: number = 20,
     query?: string,
     accountId?: string,
 ): Promise<{ contacts: WithId<CrmContact>[], total: number }> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { contacts: [], total: 0 };
+    const session = await getSession();
+    if (!session?.user) return { contacts: [], total: 0 };
 
     try {
         const { db } = await connectToDatabase();
-        const projectObjectId = new ObjectId(projectId);
+        const userObjectId = new ObjectId(session.user._id);
         
-        const filter: Filter<CrmContact> = { projectId: projectObjectId };
+        const filter: Filter<CrmContact> = { userId: userObjectId };
         if (query) {
             const queryRegex = { $regex: query, $options: 'i' };
             filter.$or = [
@@ -57,28 +57,30 @@ export async function getCrmContacts(
 export async function getCrmContactById(contactId: string): Promise<WithId<CrmContact> | null> {
     if (!ObjectId.isValid(contactId)) return null;
 
+    const session = await getSession();
+    if (!session?.user) return null;
+
     try {
         const { db } = await connectToDatabase();
-        const contact = await db.collection<CrmContact>('crm_contacts').findOne({ _id: new ObjectId(contactId) });
-        if (!contact) return null;
+        const contact = await db.collection<CrmContact>('crm_contacts').findOne({ 
+            _id: new ObjectId(contactId),
+            userId: new ObjectId(session.user._id)
+        });
         
-        const hasAccess = await getProjectById(contact.projectId.toString());
-        if (!hasAccess) return null;
+        return contact ? JSON.parse(JSON.stringify(contact)) : null;
 
-        return JSON.parse(JSON.stringify(contact));
     } catch(e) {
         return null;
     }
 }
 
 export async function addCrmContact(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const project = await getProjectById(projectId);
-    if (!project) return { error: "Access denied" };
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
 
     try {
         const newContact: Omit<CrmContact, '_id'> = {
-            projectId: new ObjectId(projectId),
+            userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             email: formData.get('email') as string,
             phone: formData.get('phone') as string,
@@ -101,15 +103,13 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
 }
 
 export async function importCrmContacts(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied.' };
+
     const contactFile = formData.get('contactFile') as File;
-
-    if (!projectId || !contactFile || contactFile.size === 0) {
-        return { error: 'Project and a file are required.' };
+    if (!contactFile || contactFile.size === 0) {
+        return { error: 'A file is required.' };
     }
-
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: 'Access denied.' };
     
     const { db } = await connectToDatabase();
 
@@ -123,7 +123,7 @@ export async function importCrmContacts(prevState: any, formData: FormData): Pro
 
                 return {
                     updateOne: {
-                        filter: { email, projectId: new ObjectId(projectId) },
+                        filter: { email, userId: new ObjectId(session.user._id) },
                         update: {
                             $set: {
                                 name: row.name || email,
@@ -133,7 +133,7 @@ export async function importCrmContacts(prevState: any, formData: FormData): Pro
                                 status: row.status || 'imported',
                                 leadScore: Number(row.leadScore) || 0,
                             },
-                            $setOnInsert: { email, projectId: new ObjectId(projectId), createdAt: new Date() }
+                            $setOnInsert: { email, userId: new ObjectId(session.user._id), createdAt: new Date() }
                         },
                         upsert: true
                     }
@@ -208,7 +208,7 @@ export async function addCrmNote(prevState: any, formData: FormData): Promise<{ 
         else return { error: 'Invalid record type' };
         
         await db.collection(collectionName).updateOne(
-            { _id: new ObjectId(recordId) },
+            { _id: new ObjectId(recordId), userId: new ObjectId(session.user._id) },
             { $push: { notes: { $each: [note], $position: 0 } } }
         );
 
@@ -220,11 +220,10 @@ export async function addCrmNote(prevState: any, formData: FormData): Promise<{ 
 }
 
 export async function saveCrmProviders(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const whatsappProjectId = formData.get('whatsappProjectId') as string;
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
 
-    const project = await getProjectById(projectId);
-    if (!project) return { error: "Access denied" };
+    const whatsappProjectId = formData.get('whatsappProjectId') as string;
 
     try {
         const { db } = await connectToDatabase();
@@ -234,8 +233,8 @@ export async function saveCrmProviders(prevState: any, formData: FormData): Prom
             updateData['crm.whatsappProjectId'] = new ObjectId(whatsappProjectId);
         }
 
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
             { $set: updateData }
         );
         
@@ -247,9 +246,8 @@ export async function saveCrmProviders(prevState: any, formData: FormData): Prom
 }
 
 export async function saveCrmPermissions(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const project = await getProjectById(projectId);
-    if (!project) return { error: "Access denied" };
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
     
     const modules = ['contacts', 'accounts', 'deals', 'tasks'];
     const permissions = ['view', 'create', 'edit', 'delete'];
@@ -267,8 +265,8 @@ export async function saveCrmPermissions(prevState: any, formData: FormData): Pr
 
     try {
         const { db } = await connectToDatabase();
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
             { $set: { 'crm.permissions': newPermissions } }
         );
 

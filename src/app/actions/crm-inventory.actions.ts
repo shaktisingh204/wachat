@@ -1,22 +1,23 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getSession } from '@/app/actions';
 import type { CrmStockAdjustment } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 
-export async function getCrmStockAdjustments(projectId: string): Promise<WithId<CrmStockAdjustment>[]> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
+export async function getCrmStockAdjustments(): Promise<WithId<CrmStockAdjustment>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
         const adjustments = await db.collection('crm_stock_adjustments')
             .aggregate([
-                { $match: { projectId: new ObjectId(projectId) } },
+                { $match: { userId: new ObjectId(session.user._id) } },
                 { $sort: { date: -1 } },
                 { $lookup: { from: 'crm_products', localField: 'productId', foreignField: '_id', as: 'productInfo' } },
                 { $lookup: { from: 'crm_warehouses', localField: 'warehouseId', foreignField: '_id', as: 'warehouseInfo' } },
@@ -33,14 +34,12 @@ export async function getCrmStockAdjustments(projectId: string): Promise<WithId<
 }
 
 export async function saveCrmStockAdjustment(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    if (!projectId) return { error: 'Project ID is missing.' };
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Access denied or project not found.' };
+    const session = await getSession();
+    if (!session?.user) return { error: 'Access denied or project not found.' };
 
     try {
         const adjustmentData = {
-            projectId: new ObjectId(projectId),
+            userId: new ObjectId(session.user._id),
             productId: new ObjectId(formData.get('productId') as string),
             warehouseId: new ObjectId(formData.get('warehouseId') as string),
             date: new Date(),
@@ -56,32 +55,32 @@ export async function saveCrmStockAdjustment(prevState: any, formData: FormData)
         const { db } = await connectToDatabase();
 
         // Use a transaction to ensure atomicity
-        const session = db.client.startSession();
+        const dbSession = db.client.startSession();
         let adjustmentResult;
 
         try {
-            await session.withTransaction(async () => {
+            await dbSession.withTransaction(async () => {
                 // 1. Log the adjustment
-                adjustmentResult = await db.collection('crm_stock_adjustments').insertOne(adjustmentData as CrmStockAdjustment, { session });
+                adjustmentResult = await db.collection('crm_stock_adjustments').insertOne(adjustmentData as CrmStockAdjustment, { session: dbSession });
 
                 // 2. Update the product's inventory for the specific warehouse
                 const updateResult = await db.collection('crm_products').updateOne(
-                    { _id: adjustmentData.productId, 'inventory.warehouseId': adjustmentData.warehouseId },
+                    { _id: adjustmentData.productId, userId: adjustmentData.userId, 'inventory.warehouseId': adjustmentData.warehouseId },
                     { $inc: { 'inventory.$.stock': adjustmentData.quantity } },
-                    { session }
+                    { session: dbSession }
                 );
 
                 // If the warehouse inventory doesn't exist yet, create it
                 if (updateResult.matchedCount === 0) {
                      await db.collection('crm_products').updateOne(
-                        { _id: adjustmentData.productId },
+                        { _id: adjustmentData.productId, userId: adjustmentData.userId },
                         { $push: { inventory: { warehouseId: adjustmentData.warehouseId, stock: adjustmentData.quantity } } },
-                        { session }
+                        { session: dbSession }
                     );
                 }
             });
         } finally {
-            await session.endSession();
+            await dbSession.endSession();
         }
 
         if (!adjustmentResult) {

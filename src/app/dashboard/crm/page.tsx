@@ -15,18 +15,15 @@ export const metadata: Metadata = {
 
 async function getCrmStats() {
     const session = await getSession();
-    if (!session?.user) return { contactCount: 0, dealCount: 0, dealsWon: 0, pipelineValue: 0 };
+    if (!session?.user) return { contactCount: 0, dealCount: 0, dealsWon: 0, pipelineValue: 0, currency: 'USD' };
     
-    const projectId = session.user.activeProjectId;
-    if (!projectId) return { contactCount: 0, dealCount: 0, dealsWon: 0, pipelineValue: 0 };
-
     try {
         const { db } = await connectToDatabase();
-        const projectObjectId = new ObjectId(projectId);
+        const userObjectId = new ObjectId(session.user._id);
 
         const [contactCount, deals] = await Promise.all([
-            db.collection('crm_contacts').countDocuments({ projectId: projectObjectId }),
-            db.collection('crm_deals').find({ projectId: projectObjectId }).project({ value: 1, stage: 1, currency: 1 }).toArray()
+            db.collection('crm_contacts').countDocuments({ userId: userObjectId }),
+            db.collection('crm_deals').find({ userId: userObjectId }).project({ value: 1, stage: 1, currency: 1 }).toArray()
         ]);
         
         const dealsWon = deals.filter(d => d.stage === 'Won').length;
@@ -40,7 +37,7 @@ async function getCrmStats() {
             currency: deals[0]?.currency || 'USD'
         }
     } catch(e) {
-        return { contactCount: 0, dealCount: 0, dealsWon: 0, pipelineValue: 0 };
+        return { contactCount: 0, dealCount: 0, dealsWon: 0, pipelineValue: 0, currency: 'USD' };
     }
 }
 
@@ -85,4 +82,5 @@ export default async function CrmDashboardPage() {
     </div>
   );
 }
+
 
