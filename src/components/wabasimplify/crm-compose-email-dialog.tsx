@@ -50,7 +50,7 @@ interface ComposeEmailDialogProps {
   initialSubject?: string;
 }
 
-export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo, initialSubject }: ComposeEmailDialogProps) {
+export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initialSubject = '' }: ComposeEmailDialogProps) {
   const [state, formAction] = useActionState(sendEmailAction, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
@@ -76,11 +76,11 @@ export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo, initialSub
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="to">To</Label>
-              <Input id="to" name="to" type="email" placeholder="recipient@example.com" defaultValue={initialTo} required />
+              <Input id="to" name="to" type="email" placeholder="recipient@example.com" defaultValue={initialTo} key={initialTo} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="subject">Subject</Label>
-              <Input id="subject" name="subject" placeholder="Your subject line" defaultValue={initialSubject} required />
+              <Input id="subject" name="subject" placeholder="Your subject line" defaultValue={initialSubject} key={initialSubject} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="body">Message</Label>
