@@ -1,11 +1,10 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions';
-import type { CrmContact } from '@/lib/definitions';
+import type { CrmContact, CrmPermissions } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -229,6 +228,39 @@ export async function saveCrmProviders(prevState: any, formData: FormData): Prom
         
         revalidatePath('/dashboard/crm/settings');
         return { message: 'Provider settings saved successfully.' };
+    } catch(e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function saveCrmPermissions(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const project = await getProjectById(projectId);
+    if (!project) return { error: "Access denied" };
+    
+    const modules = ['contacts', 'accounts', 'deals', 'tasks'];
+    const permissions = ['view', 'create', 'edit', 'delete'];
+
+    const newPermissions: CrmPermissions = { agent: {} };
+
+    for(const module of modules) {
+        newPermissions.agent[module] = {
+            view: formData.get(`${module}_view`) === 'on',
+            create: formData.get(`${module}_create`) === 'on',
+            edit: formData.get(`${module}_edit`) === 'on',
+            delete: formData.get(`${module}_delete`) === 'on',
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { 'crm.permissions': newPermissions } }
+        );
+
+        revalidatePath('/dashboard/crm/settings');
+        return { message: "CRM permissions saved successfully." };
     } catch(e: any) {
         return { error: getErrorMessage(e) };
     }

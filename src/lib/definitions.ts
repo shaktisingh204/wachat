@@ -2,6 +2,22 @@
 
 import type { ObjectId, WithId } from 'mongodb';
 
+export type CrmModulePermissions = {
+    view?: boolean;
+    create?: boolean;
+    edit?: boolean;
+    delete?: boolean;
+};
+
+export type CrmPermissions = {
+    agent: {
+        contacts?: CrmModulePermissions,
+        accounts?: CrmModulePermissions,
+        deals?: CrmModulePermissions,
+        tasks?: CrmModulePermissions,
+    }
+};
+
 export type CrmAutomationNode = {
     id: string;
     type: string;
@@ -386,6 +402,7 @@ export type Project = {
     },
     crm?: {
         whatsappProjectId?: ObjectId;
+        permissions?: CrmPermissions;
     }
 };
 
@@ -727,6 +744,7 @@ export type User = {
     tags?: Tag[];
     customDomains?: CustomDomain[];
     facebookUserAccessToken?: string;
+    activeProjectId?: string;
 };
 
 export type Invitation = {
