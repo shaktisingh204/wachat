@@ -35,8 +35,8 @@ import {
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
-import { getProjectCount, getSession, getProjects } from '@/app/actions';
-import { type Plan, type WithId, type Project } from '@/lib/definitions';
+import { getSession, getProjects } from '@/app/actions';
+import { type Plan, type WithId, type Project, type Agent } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
 
@@ -53,124 +53,124 @@ function FullPageSkeleton() {
 }
 
 const wachatMenuItems = [
-  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, featureKey: 'overview' },
-  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, featureKey: 'liveChat' },
-  { href: '/dashboard/contacts', label: 'Contacts', icon: Users, featureKey: 'contacts' },
-  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, featureKey: 'campaigns' },
-  { href: '/dashboard/templates', label: 'Templates', icon: FileText, featureKey: 'templates' },
-  { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, featureKey: 'catalog' },
-  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, featureKey: 'flowBuilder' },
-  { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, featureKey: 'metaFlows', beta: true },
-  { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, featureKey: 'numbers' },
-  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, featureKey: 'webhooks' },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings, featureKey: 'settings' },
-  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard, featureKey: 'billing' },
-  { href: '/dashboard/notifications', label: 'Notifications', icon: History, featureKey: 'notifications' },
+  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'] },
+  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'] },
+  { href: '/dashboard/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'] },
+  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'] },
+  { href: '/dashboard/templates', label: 'Templates', icon: FileText, roles: ['owner', 'admin'] },
+  { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, roles: ['owner', 'admin'] },
+  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'] },
+  { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, beta: true, roles: ['owner', 'admin'] },
+  { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'] },
+  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'] },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings, roles: ['owner', 'admin'] },
+  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard, roles: ['owner', 'admin'] },
+  { href: '/dashboard/notifications', label: 'Notifications', icon: History, roles: ['owner', 'admin'] },
 ];
 
 const facebookMenuGroups = [
   {
     title: 'General',
     items: [
-      { href: '/dashboard/facebook/all-projects', label: 'Project Connections', icon: Wrench, featureKey: 'whatsappAds' },
-      { href: '/dashboard/facebook', label: 'Dashboard', icon: LayoutDashboard, featureKey: 'whatsappAds' },
+      { href: '/dashboard/facebook/all-projects', label: 'Project Connections', icon: Wrench },
+      { href: '/dashboard/facebook', label: 'Dashboard', icon: LayoutDashboard },
     ],
   },
   {
     title: 'Content',
     items: [
-      { href: '/dashboard/facebook/posts', label: 'Posts', icon: Newspaper, featureKey: 'whatsappAds' },
-      { href: '/dashboard/facebook/scheduled', label: 'Scheduled', icon: Calendar, featureKey: 'whatsappAds' },
-      { href: '/dashboard/facebook/live-studio', label: 'Live Studio', icon: Video, featureKey: 'whatsappAds' },
-      { href: '/dashboard/facebook/post-randomizer', label: 'Post Randomizer', icon: Repeat, featureKey: 'whatsappAds' },
+      { href: '/dashboard/facebook/posts', label: 'Posts', icon: Newspaper },
+      { href: '/dashboard/facebook/scheduled', label: 'Scheduled', icon: Calendar },
+      { href: '/dashboard/facebook/live-studio', label: 'Live Studio', icon: Video },
+      { href: '/dashboard/facebook/post-randomizer', label: 'Post Randomizer', icon: Repeat },
     ],
   },
   {
     title: 'Engagement',
     items: [
-        { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare, featureKey: 'whatsappAds' },
-        { href: '/dashboard/facebook/kanban', label: 'Kanban Board', icon: LayoutGrid, featureKey: 'whatsappAds' },
-        { href: '/dashboard/facebook/auto-reply', label: 'Automation', icon: MessageSquareReply, featureKey: 'whatsappAds' },
+        { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare },
+        { href: '/dashboard/facebook/kanban', label: 'Kanban Board', icon: LayoutGrid },
+        { href: '/dashboard/facebook/auto-reply', label: 'Automation', icon: MessageSquareReply },
     ]
   },
   {
     title: 'AI & Automation',
     items: [
-        { href: '/dashboard/facebook/agents', label: 'AI Agents', icon: Bot, featureKey: 'chatbot' },
-        { href: '/dashboard/facebook/knowledge', label: 'Knowledge Base', icon: BookCopy, featureKey: 'chatbot' },
+        { href: '/dashboard/facebook/agents', label: 'AI Agents', icon: Bot },
+        { href: '/dashboard/facebook/knowledge', label: 'Knowledge Base', icon: BookCopy },
     ]
   },
   {
     title: 'Meta Commerce',
     items: [
-        { href: '/dashboard/facebook/commerce/products', label: 'Products & Collections', icon: ShoppingBag, featureKey: 'ecommerce' },
-        { href: '/dashboard/facebook/commerce/shop', label: 'Shop Setup', icon: LayoutGrid, featureKey: 'ecommerce' },
-        { href: '/dashboard/facebook/commerce/orders', label: 'Orders', icon: Package, featureKey: 'ecommerce' },
-        { href: '/dashboard/facebook/commerce/analytics', label: 'Analytics', icon: BarChart2, featureKey: 'ecommerce' },
-        { href: '/dashboard/facebook/commerce/api', label: 'APIs', icon: Server, featureKey: 'ecommerce' },
+        { href: '/dashboard/facebook/commerce/products', label: 'Products & Collections', icon: ShoppingBag },
+        { href: '/dashboard/facebook/commerce/shop', label: 'Shop Setup', icon: LayoutGrid },
+        { href: '/dashboard/facebook/commerce/orders', label: 'Orders', icon: Package },
+        { href: '/dashboard/facebook/commerce/analytics', label: 'Analytics', icon: BarChart2 },
+        { href: '/dashboard/facebook/commerce/api', label: 'APIs', icon: Server },
     ]
   },
   {
     title: 'Custom Ecommerce',
     items: [
-      { href: '/dashboard/facebook/custom-ecommerce', label: 'Website Builder', icon: Brush, featureKey: 'ecommerce', beta: true },
+      { href: '/dashboard/facebook/custom-ecommerce', label: 'Website Builder', icon: Brush, beta: true },
     ]
   },
    {
     title: 'Growth Tools',
     items: [
-        { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, featureKey: 'whatsappAds' },
-        { href: '/dashboard/facebook/broadcasts', label: 'Broadcasts', icon: Send, featureKey: 'whatsappAds' },
-        { href: '/dashboard/facebook/subscribers', label: 'Subscribers', icon: Users, featureKey: 'whatsappAds' },
-        { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, featureKey: 'whatsappAds' },
+        { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone },
+        { href: '/dashboard/facebook/broadcasts', label: 'Broadcasts', icon: Send },
+        { href: '/dashboard/facebook/subscribers', label: 'Subscribers', icon: Users },
+        { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users },
     ]
   },
   {
       title: 'Configuration',
       items: [
-        { href: '/dashboard/facebook/pages', label: 'All Pages', icon: Newspaper, featureKey: 'whatsappAds' },
-        { href: '/dashboard/facebook/webhooks', label: 'Webhooks', icon: Webhook, featureKey: 'whatsappAds' },
-        { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, featureKey: 'whatsappAds' },
+        { href: '/dashboard/facebook/pages', label: 'All Pages', icon: Newspaper },
+        { href: '/dashboard/facebook/webhooks', label: 'Webhooks', icon: Webhook },
+        { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings },
       ]
   }
 ];
 
 const crmMenuItems = [
-    { href: '/dashboard/crm', label: 'CRM Dashboard', icon: LayoutDashboard, featureKey: 'overview' },
+    { href: '/dashboard/crm', label: 'CRM Dashboard', icon: LayoutDashboard },
 ];
 
 const instagramMenuItems = [
-    { href: '/dashboard/instagram/feed', label: 'Feed', icon: LayoutDashboard, featureKey: 'instagramFeed' },
-    { href: '/dashboard/instagram/stories', label: 'Stories', icon: Clapperboard, featureKey: 'instagramStories' },
-    { href: '/dashboard/instagram/reels', label: 'Reels', icon: Heart, featureKey: 'instagramReels' },
-    { href: '/dashboard/instagram/messages', label: 'Messages', icon: MessageSquare, featureKey: 'instagramMessages' },
+    { href: '/dashboard/instagram/feed', label: 'Feed', icon: LayoutDashboard },
+    { href: '/dashboard/instagram/stories', label: 'Stories', icon: Clapperboard },
+    { href: '/dashboard/instagram/reels', label: 'Reels', icon: Heart },
+    { href: '/dashboard/instagram/messages', label: 'Messages', icon: MessageSquare },
 ];
 
 const urlShortenerMenuItems = [
-    { href: '/dashboard/url-shortener', label: 'Shortener', icon: LinkIcon, featureKey: 'urlShortener' },
-    { href: '/dashboard/url-shortener/settings', label: 'Settings', icon: Settings, featureKey: 'urlShortener' },
+    { href: '/dashboard/url-shortener', label: 'Shortener', icon: LinkIcon },
+    { href: '/dashboard/url-shortener/settings', label: 'Settings', icon: Settings },
 ];
 
 const qrCodeMakerMenuItems = [
-    { href: '/dashboard/qr-code-maker', label: 'QR Maker', icon: QrCode, featureKey: 'qrCodeMaker' },
-    { href: '/dashboard/qr-code-maker/settings', label: 'Settings', icon: Settings, featureKey: 'qrCodeMaker' },
+    { href: '/dashboard/qr-code-maker', label: 'QR Maker', icon: QrCode },
+    { href: '/dashboard/qr-code-maker/settings', label: 'Settings', icon: Settings },
 ];
 
 const seoMenuItems = [
-    { href: '/dashboard/seo', label: 'Dashboard', icon: TrendingUp, featureKey: 'overview' },
-    { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss, featureKey: 'overview' },
-    { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, featureKey: 'overview' },
+    { href: '/dashboard/seo', label: 'Dashboard', icon: TrendingUp },
+    { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss },
+    { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [sessionUser, setSessionUser] = React.useState<{ name: string; email: string, credits?: number, plan?: WithId<Plan> } | null>(null);
+  const [sessionUser, setSessionUser] = React.useState<{ _id: string, name: string; email: string, credits?: number, plan?: WithId<Plan> } | null>(null);
   const [projects, setProjects] = React.useState<WithId<Project>[]>([]);
+  const [activeProject, setActiveProject] = React.useState<WithId<Project> | null>(null);
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
   const [isClient, setIsClient] = React.useState(false);
   const [isVerifying, setIsVerifying] = React.useState(true);
-  const [projectCount, setProjectCount] = React.useState<number | null>(null);
   const [activeApp, setActiveApp] = React.useState('whatsapp');
 
   const isWebsiteBuilderPage = pathname.includes('/website-builder');
@@ -212,13 +212,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         getSession().then(session => {
             if(session?.user) {
                 setSessionUser(session.user as any);
-                getProjectCount().then(setProjectCount);
-                getProjects().then(setProjects);
+                getProjects().then(fetchedProjects => {
+                    setProjects(fetchedProjects);
+                    const currentActiveProject = fetchedProjects.find(p => p._id.toString() === activeProjectId);
+                    setActiveProject(currentActiveProject || null);
+                });
             }
             setIsVerifying(false);
         });
     }
-  }, [isClient]);
+  }, [isClient, activeProjectId]);
 
   React.useEffect(() => {
     if (isClient) {
@@ -233,26 +236,38 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       return <FullPageSkeleton />;
   }
   
-  // Render children directly for a fullscreen experience on the builder page
   if (isWebsiteBuilderPage) {
     return <>{children}</>;
   }
 
-  const hasNoProjects = projectCount === 0;
-  const planFeatures = sessionUser?.plan?.features;
-
   const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
-  const activeFacebookProject = facebookProjects.find(p => p._id.toString() === activeProjectId);
+  
+  const currentUserRole = React.useMemo(() => {
+    if (!sessionUser || !activeProject) return 'owner'; // Default to owner if no session or project
+    if (sessionUser._id === activeProject.userId.toString()) return 'owner';
+    const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id);
+    return agentInfo?.role || 'none'; // 'none' if they are not the owner or an agent
+  }, [sessionUser, activeProject]);
 
-  const menuGroups = 
-      activeApp === 'facebook' ? facebookMenuGroups 
-      : activeApp === 'crm' ? [{ title: 'CRM Tools', items: crmMenuItems }]
-      : [{ title: null, items: activeApp === 'instagram' ? instagramMenuItems 
-      : activeApp === 'url-shortener' ? urlShortenerMenuItems 
-      : activeApp === 'qr-code-maker' ? qrCodeMakerMenuItems 
-      : activeApp === 'seo-suite' ? seoMenuItems 
-      : wachatMenuItems }];
-      
+  const menuGroups = React.useMemo(() => {
+    let items;
+    switch (activeApp) {
+        case 'facebook': items = facebookMenuGroups.map(group => ({ ...group, items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent']}))})); break; // No specific roles for FB yet
+        case 'crm': items = [{ title: 'CRM Tools', items: crmMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break; // No specific roles for CRM yet
+        case 'instagram': items = [{ title: null, items: instagramMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        case 'url-shortener': items = [{ title: null, items: urlShortenerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        case 'qr-code-maker': items = [{ title: null, items: qrCodeMakerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        case 'seo-suite': items = [{ title: null, items: seoMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        default: items = [{ title: null, items: wachatMenuItems }]; break;
+    }
+    
+    // Filter items based on role
+    return items.map(group => ({
+        ...group,
+        items: group.items.filter(item => item.roles?.includes(currentUserRole))
+    }));
+  }, [activeApp, currentUserRole]);
+
   const hasActiveWhatsAppProject = activeProjectId && projects.some(p => p._id.toString() === activeProjectId && p.wabaId);
   const hasActiveFacebookProject = activeProjectId && facebookProjects.some(p => p._id.toString() === activeProjectId);
 
@@ -308,21 +323,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </SidebarGroupLabel>
                 )}
                 {group.items.map((item: any) => {
-                  const isAllowedByPlan = !planFeatures ? true : (planFeatures as any)[item.featureKey] ?? true;
                   const isConnectionLink = item.href.includes('all-projects');
                   const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp' || activeApp === 'crm';
                   
                   const hasActiveProjectForSuite = 
                       (activeApp === 'facebook' && hasActiveFacebookProject) ||
                       (activeApp === 'whatsapp' && hasActiveWhatsAppProject) ||
-                      (activeApp === 'crm'); // Add CRM project check here if needed
+                      (activeApp === 'crm' && activeProjectId);
 
-                  const isDisabled = !isConnectionLink && ((suiteRequiresProject && !hasActiveProjectForSuite) || !isAllowedByPlan);
+                  const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite;
                   
                   let tooltipText = item.label;
-                  if (!isAllowedByPlan) {
-                      tooltipText = `${item.label} (Upgrade plan)`;
-                  } else if (suiteRequiresProject && !hasActiveProjectForSuite && !isConnectionLink) {
+                  if (suiteRequiresProject && !hasActiveProjectForSuite && !isConnectionLink) {
                       tooltipText = `${item.label} (Select a project first)`;
                   }
                   
@@ -421,7 +433,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <div className="flex items-center gap-2">
             <SidebarTrigger />
              {activeApp === 'facebook' && isClient ? (
-                <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeFacebookProject} />
+                <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
               ) : (
                 <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
                     <Briefcase className="h-4 w-4" />
