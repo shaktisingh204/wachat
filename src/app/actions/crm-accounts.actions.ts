@@ -90,33 +90,3 @@ export async function addCrmAccount(prevState: any, formData: FormData): Promise
         return { error: getErrorMessage(e) };
     }
 }
-
-export async function addCrmAccountNote(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const accountId = formData.get('accountId') as string;
-    const content = formData.get('noteContent') as string;
-
-    if (!accountId || !content) {
-        return { error: 'Note content cannot be empty.' };
-    }
-    
-    const account = await getCrmAccountById(accountId);
-    if (!account) return { error: "Account not found" };
-
-    const note = {
-        content,
-        author: "Admin User", // Placeholder
-        createdAt: new Date(),
-    };
-
-    try {
-        const { db } = await connectToDatabase();
-        await db.collection('crm_accounts').updateOne(
-            { _id: new ObjectId(accountId) },
-            { $push: { notes: { $each: [note], $position: 0 } } }
-        );
-        revalidatePath(`/dashboard/crm/accounts/${accountId}`);
-        return { message: 'Note added successfully.' };
-    } catch(e: any) {
-        return { error: getErrorMessage(e) };
-    }
-}

@@ -95,33 +95,3 @@ export async function updateCrmDealStage(dealId: string, newStage: CrmDeal['stag
         return { success: false, error: getErrorMessage(e) };
     }
 }
-
-export async function addCrmDealNote(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const dealId = formData.get('dealId') as string;
-    const content = formData.get('noteContent') as string;
-
-    if (!dealId || !content) {
-        return { error: 'Note content cannot be empty.' };
-    }
-    
-    const deal = await getCrmDealById(dealId);
-    if (!deal) return { error: "Deal not found" };
-
-    const note = {
-        content,
-        author: "Admin User", // Placeholder
-        createdAt: new Date(),
-    };
-
-    try {
-        const { db } = await connectToDatabase();
-        await db.collection('crm_deals').updateOne(
-            { _id: new ObjectId(dealId) },
-            { $push: { notes: { $each: [note], $position: 0 } } }
-        );
-        revalidatePath(`/dashboard/crm/deals/${dealId}`);
-        return { message: 'Note added successfully.' };
-    } catch(e: any) {
-        return { error: getErrorMessage(e) };
-    }
-}

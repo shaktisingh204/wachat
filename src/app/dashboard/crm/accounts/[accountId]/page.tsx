@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Building, Link as LinkIcon, Mail, Phone, Users } from 'lucide-react';
-import { CrmAccountNotes } from '@/components/wabasimplify/crm-account-notes';
+import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -95,7 +95,7 @@ export default function CrmAccountDetailPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                        <CrmAccountNotes accountId={account._id.toString()} notes={account.notes || []} />
+                        <CrmNotes recordId={account._id.toString()} recordType="account" notes={account.notes || []} />
                     </div>
                     <div className="lg:col-span-2 space-y-6">
                         <Card>
