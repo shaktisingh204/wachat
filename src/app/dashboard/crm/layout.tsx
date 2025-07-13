@@ -22,7 +22,7 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
     return (
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-8 h-full">
             <div className="border-b">
                 <nav className="-mb-px flex space-x-6 overflow-x-auto">
                     {crmNavItems.map(item => (
@@ -42,7 +42,7 @@ export default function CrmLayout({ children }: { children: React.ReactNode }) {
                     ))}
                 </nav>
             </div>
-            <div>
+            <div className="flex-1 min-h-0">
                 {children}
             </div>
         </div>

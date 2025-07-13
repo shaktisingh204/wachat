@@ -2,6 +2,24 @@
 
 import type { ObjectId, WithId } from 'mongodb';
 
+export type CrmDeal = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    accountId?: ObjectId;
+    contactIds?: ObjectId[];
+    name: string;
+    value: number;
+    currency: string;
+    stage: 'New' | 'Qualified' | 'Proposal Sent' | 'Negotiation' | 'Won' | 'Lost';
+    closeDate?: Date;
+    probability?: number;
+    ownerId?: ObjectId; // User ID
+    createdAt: Date;
+    updatedAt?: Date;
+    notes?: any[];
+    products?: { name: string; quantity: number; price: number }[];
+};
+
 export type CrmAccount = {
     _id: ObjectId;
     projectId: ObjectId;
