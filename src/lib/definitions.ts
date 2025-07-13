@@ -2,6 +2,29 @@
 
 import type { ObjectId, WithId } from 'mongodb';
 
+export type CrmAutomationNode = {
+    id: string;
+    type: string;
+    data: any;
+    position: { x: number, y: number };
+};
+
+export type CrmAutomationEdge = {
+    id: string;
+    source: string;
+    target: string;
+    sourceHandle?: string;
+};
+
+export type CrmAutomation = {
+    name: string;
+    projectId: ObjectId;
+    nodes: CrmAutomationNode[];
+    edges: CrmAutomationEdge[];
+    createdAt: Date;
+    updatedAt: Date;
+};
+
 export type CrmEmailSettings = {
     _id: ObjectId;
     projectId: ObjectId;
@@ -254,7 +277,7 @@ export type FormField = {
 
 export type WebsiteBlock = {
     id: string;
-    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml' | 'heading' | 'image' | 'button' | 'video' | 'icon' | 'spacer' | 'imageCarousel' | 'tabs' | 'accordion' | 'form' | 'map' | 'countdown' | 'socialShare' | 'repeater' | 'section' | 'columns' | 'column' | 'productImage' | 'productTitle' | 'productPrice' | 'productDescription' | 'productAddToCart' | 'productBreadcrumbs' | 'cart' | 'accountDashboard' | 'accountOrders' | 'accountProfileForm' | 'accountAddressBook' | 'accountWishlist' | 'accountReturns' | 'accountDownloads' | 'accountCompare' | 'accountLoginForm' | 'accountRegisterForm';
+    type: 'hero' | 'featuredProducts' | 'richText' | 'testimonials' | 'faq' | 'customHtml' | 'heading' | 'image' | 'button' | 'video' | 'icon' | 'spacer' | 'imageCarousel' | 'tabs' | 'accordion' | 'form' | 'map' | 'countdown' | 'socialShare' | 'repeater' | 'section' | 'columns' | 'column' | 'productImage' | 'productTitle' | 'productPrice' | 'productDescription' | 'productAddToCart' | 'productBreadcrumbs' | 'cart' | 'accountDashboard' | 'accountOrders' | 'accountProfileForm' | 'accountAddressBook' | 'accountWishlist' | 'accountReturns' | 'accountDownloads' | 'accountCompare' | 'accountLoginForm' | 'accountRegisterForm' | 'crmAutomation';
     settings: any;
     children?: WebsiteBlock[];
 };
