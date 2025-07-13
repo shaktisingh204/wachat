@@ -1,7 +1,7 @@
 
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Users, UserPlus, Trophy, DollarSign } from 'lucide-react';
+import { Users, UserPlus, Trophy, DollarSign, Handshake } from 'lucide-react';
 import type { Metadata } from 'next';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
@@ -85,3 +85,4 @@ export default async function CrmDashboardPage() {
     </div>
   );
 }
+
