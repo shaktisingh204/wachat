@@ -14,7 +14,7 @@ export async function saveCrmEmailSettings(prevState: any, formData: FormData): 
     if (!project) return { error: "Access denied or project not found." };
     
     try {
-        const settings: Omit<CrmEmailSettings, '_id' | 'projectId'> = {
+        const settings: Partial<CrmEmailSettings> = {
             provider: 'smtp',
             smtp: {
                 host: formData.get('smtpHost') as string,
@@ -45,6 +45,44 @@ export async function saveCrmEmailSettings(prevState: any, formData: FormData): 
 
     } catch (e: any) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+export async function saveOAuthTokens({ projectId, provider, accessToken, refreshToken, expiryDate }: {
+    projectId: string;
+    provider: 'google' | 'outlook';
+    accessToken: string;
+    refreshToken: string;
+    expiryDate: number;
+}): Promise<{ success: boolean; error?: string }> {
+     if (!projectId || !ObjectId.isValid(projectId)) {
+        return { success: false, error: 'Invalid project ID.' };
+    }
+    
+    const project = await getProjectById(projectId);
+    if (!project) return { success: false, error: "Access denied or project not found." };
+    
+    try {
+        const { db } = await connectToDatabase();
+        
+        const updatePayload = {
+            provider,
+            [`${provider}OAuth`]: {
+                accessToken,
+                refreshToken,
+                expiryDate,
+            },
+        };
+
+        await db.collection('crm_email_settings').updateOne(
+            { projectId: new ObjectId(projectId) },
+            { $set: updatePayload, $setOnInsert: { projectId: new ObjectId(projectId) } },
+            { upsert: true }
+        );
+
+        return { success: true };
+    } catch(e) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
 
