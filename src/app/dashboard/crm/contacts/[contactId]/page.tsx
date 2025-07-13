@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, User, Briefcase, Mail, Phone, MessageSquare, Plus, FileText, Calendar } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-import { CrmContactNotes } from '@/components/wabasimplify/crm-contact-notes';
+import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
@@ -51,11 +51,9 @@ export default function CrmContactDetailPage() {
     }, [contactId]);
 
     const handleWhatsAppMessage = () => {
-        // This assumes the main app has a contact ID that corresponds to a WhatsApp contact.
-        // In a real app, you might need a more robust mapping.
-        const waContactId = contact?.phone; // Simplistic mapping
-        if (waContactId) {
-             router.push(`/dashboard/chat?contactId=${contact?._id.toString()}`);
+        const waId = contact?.phone?.replace(/\D/g, '');
+        if (waId) {
+             router.push(`/dashboard/chat?waId=${waId}`);
         }
     };
 
@@ -126,7 +124,7 @@ export default function CrmContactDetailPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                         <CrmContactNotes contactId={contact._id.toString()} notes={contact.notes || []} />
+                         <CrmNotes recordId={contact._id.toString()} recordType="contact" notes={contact.notes || []} />
                     </div>
                     <div className="lg:col-span-2">
                         <Card>

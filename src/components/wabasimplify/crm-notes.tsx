@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useState } from 'react';
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { LoaderCircle, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { addCrmAccountNote } from '@/app/actions/crm-accounts.actions';
+import { addCrmNote } from '@/app/actions/crm.actions';
 
 const initialState = { message: null, error: null };
 
@@ -23,11 +23,21 @@ function SubmitButton() {
   );
 }
 
-export function CrmAccountNotes({ accountId, notes: initialNotes }: { accountId: string, notes: { content: string, createdAt: Date, author: string }[] }) {
-    const [state, formAction] = useActionState(addCrmAccountNote, initialState);
+interface CrmNotesProps {
+    recordId: string;
+    recordType: 'contact' | 'account' | 'deal';
+    notes: { content: string; createdAt: Date; author: string }[];
+}
+
+export function CrmNotes({ recordId, recordType, notes: initialNotes }: CrmNotesProps) {
+    const [state, formAction] = useActionState(addCrmNote, initialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
     const [notes, setNotes] = useState(initialNotes);
+
+    useEffect(() => {
+        setNotes(initialNotes);
+    }, [initialNotes]);
 
     useEffect(() => {
         if (state.message) {
@@ -37,7 +47,7 @@ export function CrmAccountNotes({ accountId, notes: initialNotes }: { accountId:
                  const newNote = {
                     content: noteContentField.value,
                     createdAt: new Date(),
-                    author: "You" // Placeholder
+                    author: "You" // This is a simplification
                 };
                 setNotes(prev => [newNote, ...prev]);
             }
@@ -51,19 +61,20 @@ export function CrmAccountNotes({ accountId, notes: initialNotes }: { accountId:
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Notes</CardTitle>
+                <CardTitle>Notes &amp; Activity</CardTitle>
             </CardHeader>
             <CardContent>
                 <form action={formAction} ref={formRef}>
-                    <input type="hidden" name="accountId" value={accountId} />
+                    <input type="hidden" name="recordId" value={recordId} />
+                    <input type="hidden" name="recordType" value={recordType} />
                     <div className="space-y-2">
-                        <Textarea name="noteContent" placeholder="Add a note about this account..." required/>
+                        <Textarea name="noteContent" placeholder={`Add a note about this ${recordType}...`} required/>
                         <div className="flex justify-end">
                             <SubmitButton />
                         </div>
                     </div>
                 </form>
-                <div className="mt-4 space-y-4">
+                <div className="mt-4 space-y-4 max-h-[40vh] overflow-y-auto pr-2">
                     {notes.map((note, index) => (
                         <div key={index} className="flex items-start gap-3 w-full">
                             <Avatar className="h-8 w-8 mt-1"><AvatarFallback>{note.author.charAt(0)}</AvatarFallback></Avatar>
