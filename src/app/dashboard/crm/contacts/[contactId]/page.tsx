@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { getCrmContactById } from '@/app/actions/crm.actions';
 import type { CrmContact, WithId } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +35,7 @@ function ContactDetailPageSkeleton() {
 
 export default function CrmContactDetailPage() {
     const params = useParams();
+    const router = useRouter();
     const contactId = params.contactId as string;
     const [contact, setContact] = useState<WithId<CrmContact> | null>(null);
     const [isLoading, startTransition] = useTransition();
@@ -48,6 +49,15 @@ export default function CrmContactDetailPage() {
             });
         }
     }, [contactId]);
+
+    const handleWhatsAppMessage = () => {
+        // This assumes the main app has a contact ID that corresponds to a WhatsApp contact.
+        // In a real app, you might need a more robust mapping.
+        const waContactId = contact?.phone; // Simplistic mapping
+        if (waContactId) {
+             router.push(`/dashboard/chat?contactId=${contact?._id.toString()}`);
+        }
+    };
 
     if (isLoading || !contact) {
         return <ContactDetailPageSkeleton />;
@@ -89,8 +99,11 @@ export default function CrmContactDetailPage() {
                                     <Button variant="outline" size="sm" className="flex-1" onClick={() => setIsComposeOpen(true)}>
                                         <Mail className="h-4 w-4 mr-2"/> Email
                                     </Button>
-                                    <Button variant="outline" size="sm" className="flex-1">
+                                    <Button variant="outline" size="sm" className="flex-1" onClick={handleWhatsAppMessage} disabled={!contact.phone}>
                                          <MessageSquare className="h-4 w-4 mr-2"/> WhatsApp
+                                    </Button>
+                                     <Button asChild variant="outline" size="sm" className="flex-1" disabled={!contact.phone}>
+                                        <a href={`tel:${contact.phone}`}><Phone className="h-4 w-4 mr-2"/> Call</a>
                                     </Button>
                                 </div>
                                 <Separator />
