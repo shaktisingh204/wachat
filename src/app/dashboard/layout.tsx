@@ -31,7 +31,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -305,211 +305,210 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <div data-theme={activeApp}>
     <SidebarProvider>
-      <div className="fixed top-2 left-2 bottom-2 z-20 hidden md:flex">
-        <div className="flex h-full w-16 flex-col items-center gap-4 rounded-lg border bg-card py-4 shadow-md">
-            {appIcons.map(app => (
-                <Tooltip key={app.id}>
-                    <TooltipTrigger asChild>
-                        <Link
-                            href={app.href}
-                            className={cn(
-                                'p-3 mx-2 rounded-lg transition-colors',
-                                activeApp === app.id ? app.className : app.hoverClassName
-                            )}
-                        >
-                            <app.icon className="h-6 w-6" />
-                        </Link>
-                    </TooltipTrigger>
-                    <TooltipContent side="right">{app.label}</TooltipContent>
-                </Tooltip>
-            ))}
-        </div>
-      </div>
-      <Sidebar
-        variant="floating"
-        sideOffset="calc(4rem + 8px)"
-      >
-        <SidebarHeader className="p-4">
-           <div className="flex items-center gap-2">
-              <SabNodeBrandLogo className="size-8 shrink-0" />
-              <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">SabNode</span>
+      <div data-theme={activeApp}>
+        <div className="fixed top-2 left-2 bottom-2 z-20 hidden md:flex">
+          <div className="flex h-full w-16 flex-col items-center gap-4 rounded-lg border bg-card py-4 shadow-md">
+              {appIcons.map(app => (
+                  <Tooltip key={app.id}>
+                      <TooltipTrigger asChild>
+                          <Link
+                              href={app.href}
+                              className={cn(
+                                  'p-3 mx-2 rounded-lg transition-colors',
+                                  activeApp === app.id ? app.className : app.hoverClassName
+                              )}
+                          >
+                              <app.icon className="h-6 w-6" />
+                          </Link>
+                      </TooltipTrigger>
+                      <TooltipContent side="right">{app.label}</TooltipContent>
+                  </Tooltip>
+              ))}
           </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {menuGroups.map((group: any, groupIndex: number) => (
-              <React.Fragment key={group.title || groupIndex}>
-                {group.title && (
-                    <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-2 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
-                        <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
-                    </SidebarGroupLabel>
+        </div>
+        <Sidebar
+          sideOffset="calc(4rem + 8px)"
+        >
+          <SidebarHeader className="p-4">
+            <div className="flex items-center gap-2">
+                <SabNodeBrandLogo className="size-8 shrink-0" />
+                <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">SabNode</span>
+            </div>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarMenu>
+              {menuGroups.map((group: any, groupIndex: number) => (
+                <React.Fragment key={group.title || groupIndex}>
+                  {group.title && (
+                      <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-2 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
+                          <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
+                      </SidebarGroupLabel>
+                  )}
+                  {group.items.map((item: any) => {
+                    const isConnectionLink = item.href.includes('all-projects');
+                    const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp' || activeApp === 'custom-ecommerce';
+                    
+                    const hasActiveProjectForSuite = 
+                        (activeApp === 'facebook' && hasActiveFacebookProject) ||
+                        (activeApp === 'whatsapp' && hasActiveWhatsAppProject) ||
+                        (activeApp === 'custom-ecommerce' && hasActiveFacebookProject);
+
+                    const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard' && activeApp !== 'crm';
+
+                    let tooltipText = item.label;
+                    if (isDisabled) {
+                        tooltipText = `${item.label} (Select a project first)`;
+                    }
+                    
+                    const isBasePage = 
+                          item.href === '/dashboard' ||
+                          item.href === '/dashboard/overview' ||
+                          item.href === '/dashboard/facebook' ||
+                          item.href === '/dashboard/instagram/feed' ||
+                          item.href === '/dashboard/url-shortener' ||
+                          item.href === '/dashboard/qr-code-maker' ||
+                          item.href === '/dashboard/facebook/all-projects' ||
+                          item.href === '/dashboard/facebook/custom-ecommerce' ||
+                          item.href === '/dashboard/chatbot/agents' ||
+                          item.href === '/dashboard/seo' ||
+                          item.href === '/dashboard/crm';
+
+                    const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
+
+                    return (
+                      <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton
+                          asChild
+                          isActive={isActive}
+                          tooltip={tooltipText}
+                          disabled={isDisabled}
+                          aria-disabled={isDisabled}
+                        >
+                          <Link href={isDisabled ? '#' : item.href} className={cn(isDisabled && 'pointer-events-none')}>
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.label}</span>
+                            {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                  {group.title && groupIndex < menuGroups.length - 1 && <SidebarSeparator />}
+                </React.Fragment>
+              ))}
+            </SidebarMenu>
+          </SidebarContent>
+          <SidebarFooter>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <SidebarMenuButton asChild tooltip="My Account">
+                      <button>
+                        <Avatar className="size-7">
+                          <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
+                          <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                        </Avatar>
+                        <span className="sr-only">User Account</span>
+                      </button>
+                    </SidebarMenuButton>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="right" align="start">
+                    <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/profile">Profile</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/billing">Billing</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/billing/history">Billing History</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/dashboard/settings">Settings</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/api/auth/logout">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Logout</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarFooter>
+        </Sidebar>
+        <SidebarInset sideOffset="calc(4rem + 8px)" className="flex flex-col h-screen p-2 gap-2">
+          <header className="flex items-center justify-between p-3 border bg-card rounded-lg shrink-0">
+            <div className="flex items-center gap-2">
+              <SidebarTrigger />
+              {activeApp === 'facebook' && isClient ? (
+                  <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
+                ) : (
+                  <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
+                      <Briefcase className="h-4 w-4" />
+                      {!isClient ? (
+                          <Skeleton className="h-4 w-32" />
+                      ) : (
+                          <span>{activeProjectName}</span>
+                      )}
+                  </div>
                 )}
-                {group.items.map((item: any) => {
-                  const isConnectionLink = item.href.includes('all-projects');
-                  const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp' || activeApp === 'custom-ecommerce';
-                  
-                  const hasActiveProjectForSuite = 
-                      (activeApp === 'facebook' && hasActiveFacebookProject) ||
-                      (activeApp === 'whatsapp' && hasActiveWhatsAppProject) ||
-                      (activeApp === 'custom-ecommerce' && hasActiveFacebookProject);
-
-                  const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard' && activeApp !== 'crm';
-
-                  let tooltipText = item.label;
-                  if (isDisabled) {
-                      tooltipText = `${item.label} (Select a project first)`;
-                  }
-                  
-                  const isBasePage = 
-                        item.href === '/dashboard' ||
-                        item.href === '/dashboard/overview' ||
-                        item.href === '/dashboard/facebook' ||
-                        item.href === '/dashboard/instagram/feed' ||
-                        item.href === '/dashboard/url-shortener' ||
-                        item.href === '/dashboard/qr-code-maker' ||
-                        item.href === '/dashboard/facebook/all-projects' ||
-                        item.href === '/dashboard/facebook/custom-ecommerce' ||
-                        item.href === '/dashboard/chatbot/agents' ||
-                        item.href === '/dashboard/seo' ||
-                        item.href === '/dashboard/crm';
-
-                  const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
-
-                  return (
-                    <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton
-                        asChild
-                        isActive={isActive}
-                        tooltip={tooltipText}
-                        disabled={isDisabled}
-                        aria-disabled={isDisabled}
-                      >
-                        <Link href={isDisabled ? '#' : item.href} className={cn(isDisabled && 'pointer-events-none')}>
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.label}</span>
-                          {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-                {group.title && groupIndex < menuGroups.length - 1 && <SidebarSeparator />}
-              </React.Fragment>
-            ))}
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-          <SidebarMenu>
-             <SidebarMenuItem>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
+                  <CreditCard className="h-4 w-4" />
+                  <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
+                </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <SidebarMenuButton asChild tooltip="My Account">
-                    <button>
-                      <Avatar className="size-7">
-                        <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                        <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                      </Avatar>
-                      <span className="sr-only">User Account</span>
-                    </button>
-                  </SidebarMenuButton>
+                  <Button variant="ghost" className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
+                      <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                    </Avatar>
+                    <span className="hidden md:inline">{sessionUser?.name || 'User'}</span>
+                    <ChevronDown className="h-4 w-4" />
+                  </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent side="right" align="start">
+                <DropdownMenuContent align="end">
                   <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard/profile">Profile</Link>
+                      <Link href="/dashboard/profile">Profile</Link>
                   </DropdownMenuItem>
-                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard/billing">Billing</Link>
-                  </DropdownMenuItem>
-                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard/billing/history">Billing History</Link>
-                  </DropdownMenuItem>
-                   <DropdownMenuItem asChild>
-                    <Link href="/dashboard/settings">Settings</Link>
-                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                      <Link href="/dashboard/billing">Billing</Link>
+                    </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                      <Link href="/dashboard/billing/history">Billing History</Link>
+                    </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                      <Link href="/dashboard/settings">Settings</Link>
+                    </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/api/auth/logout">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Logout</span>
-                    </Link>
-                  </DropdownMenuItem>
+                      <Link href="/api/auth/logout">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Logout</span>
+                      </Link>
+                    </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <SidebarInset sideOffset="calc(4rem + 8px)" className="flex flex-col h-screen p-2 gap-2">
-        <header className="flex items-center justify-between p-3 border bg-card rounded-lg shrink-0">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger />
-             {activeApp === 'facebook' && isClient ? (
-                <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
-              ) : (
-                <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
-                    <Briefcase className="h-4 w-4" />
-                    {!isClient ? (
-                        <Skeleton className="h-4 w-32" />
-                    ) : (
-                        <span>{activeProjectName}</span>
-                    )}
-                </div>
-              )}
-          </div>
-          <div className="flex items-center gap-2">
-             <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
-                <CreditCard className="h-4 w-4" />
-                <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
-              </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                    <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                  </Avatar>
-                  <span className="hidden md:inline">{sessionUser?.name || 'User'}</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                    <Link href="/dashboard/profile">Profile</Link>
-                </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                    <Link href="/dashboard/billing">Billing</Link>
-                  </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                    <Link href="/dashboard/billing/history">Billing History</Link>
-                  </DropdownMenuItem>
-                 <DropdownMenuItem asChild>
-                    <Link href="/dashboard/settings">Settings</Link>
-                  </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem asChild>
-                    <Link href="/api/auth/logout">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Logout</span>
-                    </Link>
-                  </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
-        <main className={cn(
-            "flex-1 flex flex-col h-full rounded-lg border bg-card",
-            isChatPage ? "overflow-hidden" : "p-4 md:p-6 lg:p-8 overflow-y-auto"
-        )}>
-            {children}
-        </main>
-      </SidebarInset>
+            </div>
+          </header>
+          <main className={cn(
+              "flex-1 flex flex-col h-full rounded-lg border bg-card",
+              isChatPage ? "overflow-hidden" : "p-4 md:p-6 lg:p-8 overflow-y-auto"
+          )}>
+              {children}
+          </main>
+        </SidebarInset>
+      </div>
     </SidebarProvider>
-    </div>
   );
 }
