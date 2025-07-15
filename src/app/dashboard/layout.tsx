@@ -37,14 +37,15 @@ import {
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getSession, getProjects } from '@/app/actions';
-import { type Plan, type WithId, type Project, type Agent } from '@/lib/definitions';
+import type { Plan, WithId, Project, Agent } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
 
 function FullPageSkeleton() {
     return (
       <div className="flex h-screen w-screen">
-        <div className="hidden md:block w-72 border-r p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="hidden md:flex w-20 border-r p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="w-72 border-r p-2 hidden md:block"><Skeleton className="h-full w-full"/></div>
         <div className="flex-1 flex flex-col">
             <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
             <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
@@ -54,6 +55,7 @@ function FullPageSkeleton() {
 }
 
 const wachatMenuItems = [
+  { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
   { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'] },
   { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'] },
   { href: '/dashboard/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'] },
@@ -355,10 +357,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       (activeApp === 'custom-ecommerce' && hasActiveFacebookProject) ||
                       (activeApp === 'crm' && activeProjectId);
 
-                  const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite;
+                  const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard';
                   
                   let tooltipText = item.label;
-                  if (suiteRequiresProject && !hasActiveProjectForSuite && !isConnectionLink) {
+                  if (isDisabled) {
                       tooltipText = `${item.label} (Select a project first)`;
                   }
                   
@@ -402,16 +404,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
-            {activeApp !== 'whatsapp' && (
-                <SidebarMenuItem>
-                    <SidebarMenuButton asChild isActive={pathname === '/dashboard'} tooltip="All Projects">
-                        <Link href="/dashboard">
-                        <Briefcase />
-                        <span>All Projects</span>
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            )}
              <SidebarMenuItem>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
