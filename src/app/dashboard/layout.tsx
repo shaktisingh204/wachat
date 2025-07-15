@@ -32,7 +32,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -349,13 +349,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 )}
                 {group.items.map((item: any) => {
                   const isConnectionLink = item.href.includes('all-projects');
-                  const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp' || activeApp === 'crm' || activeApp === 'custom-ecommerce';
+                  const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp' || activeApp === 'custom-ecommerce';
                   
                   const hasActiveProjectForSuite = 
                       (activeApp === 'facebook' && hasActiveFacebookProject) ||
                       (activeApp === 'whatsapp' && hasActiveWhatsAppProject) ||
-                      (activeApp === 'custom-ecommerce' && hasActiveFacebookProject) ||
-                      (activeApp === 'crm' && activeProjectId);
+                      (activeApp === 'custom-ecommerce' && hasActiveFacebookProject);
 
                   const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard';
                   
@@ -389,7 +388,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         aria-disabled={isDisabled}
                       >
                         <Link href={isDisabled ? '#' : item.href} className={cn(isDisabled && 'pointer-events-none')}>
-                          <item.icon />
+                          <item.icon className="h-4 w-4" />
                           <span>{item.label}</span>
                           {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
                         </Link>
