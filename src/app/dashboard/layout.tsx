@@ -31,7 +31,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
