@@ -63,7 +63,7 @@ const wachatMenuItems = [
   { href: '/dashboard/templates', label: 'Templates', icon: FileText, roles: ['owner', 'admin'] },
   { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, roles: ['owner', 'admin'] },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'] },
-  { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, beta: true, roles: ['owner', 'admin'] },
+  { href: '/dashboard/flows', label: 'Meta Flows', beta: true, roles: ['owner', 'admin'] },
   { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: WaPayIcon, roles: ['owner', 'admin'] },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'] },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'] },
@@ -325,6 +325,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </div>
         </div>
         <Sidebar
+          variant="floating"
           sideOffset="calc(4rem + 8px)"
           className="peer"
         >
@@ -510,3 +511,4 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 }
+
