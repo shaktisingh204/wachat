@@ -1,7 +1,9 @@
 
 'use client';
+
 import * as React from 'react';
 import { Home, ShoppingBag } from 'lucide-react';
+import { SabNodeLogo } from '@/components/wabasimplify/logo';
 
 export const MetaIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 290 191" {...props}>
