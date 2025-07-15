@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -306,8 +305,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   return (
-    <SidebarProvider>
-      <div data-theme={activeApp}>
+    <div data-theme={activeApp}>
+      <SidebarProvider>
         <div className="fixed top-2 left-2 bottom-2 z-20 hidden md:flex">
           <div className="flex h-full w-16 flex-col items-center gap-4 rounded-lg border bg-card py-4 shadow-md">
             {appIcons.map(app => (
@@ -327,11 +326,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
         <Sidebar
           sideOffset="calc(4rem + 8px)"
+          className="peer"
         >
           <SidebarHeader className="p-4">
             <div className="flex items-center gap-2">
               <SabNodeBrandLogo className="size-8 shrink-0" />
-              <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden">SabNode</span>
+              <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden truncate">SabNode</span>
             </div>
           </SidebarHeader>
           <SidebarContent>
@@ -440,7 +440,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset sideOffset="calc(4rem + 8px)" className="flex flex-col h-screen p-2 gap-2">
+        <SidebarInset className="flex flex-col h-screen p-2 gap-2">
           <header className="flex items-center justify-between p-3 border bg-card rounded-lg shrink-0">
             <div className="flex items-center gap-2">
               <SidebarTrigger />
