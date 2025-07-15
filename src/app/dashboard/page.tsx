@@ -38,6 +38,12 @@ export default async function SelectProjectPage({
                 </div>
                  <div className="flex flex-wrap items-center gap-2">
                     <SyncProjectsDialog />
+                     <Button asChild>
+                      <Link href="/dashboard/setup">
+                          <PlusCircle className="mr-2 h-4 w-4" />
+                          Connect New Project
+                      </Link>
+                  </Button>
                 </div>
             </div>
 
@@ -45,16 +51,10 @@ export default async function SelectProjectPage({
               <div className="flex-grow md:max-w-sm">
                   <ProjectSearch placeholder="Search projects by name..." />
               </div>
-              <Button asChild>
-                  <Link href="/dashboard/setup">
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Connect New Project
-                  </Link>
-              </Button>
             </div>
 
             {projects.length > 0 ? (
-                 <div className="grid gap-6" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))' }}>
+                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {projects.map((project) => (
                         <ProjectCard key={project._id.toString()} project={project} />
                     ))}

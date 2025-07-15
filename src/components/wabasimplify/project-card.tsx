@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Phone, Calendar, BarChart2 } from 'lucide-react';
+import { Phone, Calendar, BarChart2, Briefcase } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WithId, Project } from '@/lib/definitions';
 import { DeleteProjectButton } from './delete-project-button';
@@ -22,7 +22,6 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
     const [createdDate, setCreatedDate] = useState<string | null>(null);
 
     useEffect(() => {
-        // This runs only on the client, after hydration, preventing a mismatch
         setCreatedDate(new Date(project.createdAt).toLocaleDateString());
     }, [project.createdAt]);
 
@@ -78,9 +77,9 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
 
     return (
         <Card className={cn("flex flex-col hover:shadow-lg hover:border-primary transition-all card-gradient", project.facebookPageId ? 'card-gradient-blue' : 'card-gradient-green')}>
-            <CardHeader className="pb-2">
+            <CardHeader className="pb-4">
                  <div className="flex justify-between items-start gap-2">
-                    <CardTitle className="text-lg leading-tight">{project.name}</CardTitle>
+                    <CardTitle className="text-base leading-tight font-semibold">{project.name}</CardTitle>
                     <div className="flex items-center gap-1">
                         {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
                             <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-xs flex-shrink-0">
