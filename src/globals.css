@@ -37,7 +37,7 @@ body {
     --instagram: 327 92% 55%;
     
     /* Neutral Sidebar as default */
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 10% 25%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 134 61% 41%;
@@ -85,7 +85,7 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 145 63% 95%;
     --sidebar-accent-foreground: 145 63% 15%;
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
   }
 
@@ -104,7 +104,7 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 91% 95%;
     --sidebar-accent-foreground: 217 91% 25%;
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
   }
 
@@ -123,7 +123,7 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 327 92% 95%;
     --sidebar-accent-foreground: 327 92% 25%;
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
   }
   .dark [data-theme="instagram"] {
@@ -141,7 +141,7 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 259 92% 95%;
     --sidebar-accent-foreground: 259 92% 25%;
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
   }
   .dark [data-theme="url-shortener"] {
@@ -159,7 +159,7 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 25 95% 95%;
     --sidebar-accent-foreground: 25 95% 25%;
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
   }
   .dark [data-theme="qr-code-maker"] {
@@ -177,7 +177,7 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 210 90% 95%;
     --sidebar-accent-foreground: 210 90% 25%;
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
   }
   .dark [data-theme="seo-suite"] {
@@ -241,6 +241,20 @@ body {
 }
 
 @layer utilities {
+    .bg-auth-texture {
+        background-color: #f0f2f5;
+    }
+
+    .dark .bg-auth-texture {
+        background-color: #111827;
+    }
+    
+    .bg-chat-texture {
+        background-color: #E5DDD5;
+    }
+    .dark .bg-chat-texture {
+        background-color: #0b141a;
+    }
     .bg-instagram {
         background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));
     }
