@@ -21,8 +21,8 @@ body {
     --secondary-foreground: 0 0% 100%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 134 52% 84%;
-    --accent-foreground: 134 61% 15%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 210 10% 23%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
     --border: 214.3 31.8% 91.4%;
@@ -37,7 +37,7 @@ body {
     --instagram: 327 92% 55%;
     
     /* Neutral Sidebar as default */
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 10% 25%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 134 61% 41%;
@@ -60,7 +60,7 @@ body {
     --secondary-foreground: 0 0% 100%;
     --muted: 210 10% 28%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 134 52% 20%;
+    --accent: 210 10% 28%;
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
@@ -85,7 +85,7 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 145 63% 95%;
     --sidebar-accent-foreground: 145 63% 15%;
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
   }
 
@@ -104,7 +104,7 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 91% 95%;
     --sidebar-accent-foreground: 217 91% 25%;
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
   }
 
@@ -123,7 +123,7 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 327 92% 95%;
     --sidebar-accent-foreground: 327 92% 25%;
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
   }
   .dark [data-theme="instagram"] {
@@ -141,7 +141,7 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 259 92% 95%;
     --sidebar-accent-foreground: 259 92% 25%;
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
   }
   .dark [data-theme="url-shortener"] {
@@ -159,7 +159,7 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 25 95% 95%;
     --sidebar-accent-foreground: 25 95% 25%;
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
   }
   .dark [data-theme="qr-code-maker"] {
@@ -177,7 +177,7 @@ body {
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 210 90% 95%;
     --sidebar-accent-foreground: 210 90% 25%;
-    --sidebar-background: 220 13% 98%;
+    --sidebar-background: 0 0% 100%;
     --sidebar-border: 220 13% 91%;
   }
   .dark [data-theme="seo-suite"] {
@@ -243,12 +243,10 @@ body {
 @layer utilities {
     .bg-auth-texture {
         background-color: #f0f2f5;
-        background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23d4d7db' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
     }
 
     .dark .bg-auth-texture {
         background-color: #111827;
-        background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23374151' fill-opacity='0.4' fill-rule='evenodd'%3E%3Cpath d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3C/g%3E%3C/svg%3E");
     }
     
     .bg-chat-texture {
@@ -289,6 +287,10 @@ body {
     .animate-kanban-drag {
         animation: kanban-drag 7s ease-in-out infinite;
         animation-delay: 2.5s;
+    }
+    .px-3 {
+        padding-left: 0.90rem;
+        padding-right: .75rem;
     }
     @keyframes fade-in {
         from { opacity: 0; }
