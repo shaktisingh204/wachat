@@ -315,7 +315,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 key={app.id}
                 tooltip={app.label}
                 className={cn(
-                  'p-3 mx-2 rounded-lg transition-colors',
+                  'h-12 w-12 rounded-lg transition-colors',
                   activeApp === app.id ? app.className : app.hoverClassName
                 )}
               >
