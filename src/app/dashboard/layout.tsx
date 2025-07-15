@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -33,7 +34,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, Calendar, TrendingUp, Globe, Rss, MessageSquareReply, Repeat, Video, Package, BarChart2, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck
 } from 'lucide-react';
-import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getSession, getProjects } from '@/app/actions';
 import { type Plan, type WithId, type Project, type Agent } from '@/lib/definitions';
@@ -61,6 +62,7 @@ const wachatMenuItems = [
   { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, roles: ['owner', 'admin'] },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'] },
   { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, beta: true, roles: ['owner', 'admin'] },
+  { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: WaPayIcon, roles: ['owner', 'admin'] },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'] },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'] },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings, roles: ['owner', 'admin'] },
@@ -111,12 +113,6 @@ const facebookMenuGroups = [
     ]
   },
   {
-    title: 'Custom Ecommerce',
-    items: [
-      { href: '/dashboard/facebook/custom-ecommerce', label: 'Website Builder', icon: Brush, beta: true },
-    ]
-  },
-   {
     title: 'Growth Tools',
     items: [
         { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone },
@@ -173,6 +169,16 @@ const seoMenuItems = [
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe },
 ];
 
+const customEcommerceMenuItems = [
+    { href: '/dashboard/facebook/custom-ecommerce', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/dashboard/facebook/custom-ecommerce/products', label: 'Products', icon: ShoppingBag },
+    { href: '/dashboard/facebook/custom-ecommerce/orders', label: 'Orders', icon: Package },
+    { href: '/dashboard/facebook/custom-ecommerce/appearance', label: 'Appearance', icon: Palette },
+    { href: '/dashboard/facebook/custom-ecommerce/flow-builder', label: 'Chat Bot', icon: Bot },
+    { href: '/dashboard/facebook/custom-ecommerce/settings', label: 'Settings', icon: Settings },
+];
+
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -201,20 +207,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [sessionUser, activeProject]);
 
   const menuGroups = React.useMemo(() => {
-    let items;
+    let items: any;
     switch (activeApp) {
         case 'facebook': items = facebookMenuGroups.map(group => ({ ...group, items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent']}))})); break;
         case 'crm': items = [{ title: 'CRM Tools', items: crmMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'instagram': items = [{ title: null, items: instagramMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        case 'custom-ecommerce': items = [{ title: null, items: customEcommerceMenuItems.map(item => ({ ...item, roles: ['owner', 'admin', 'agent'] })) }]; break;
         case 'url-shortener': items = [{ title: null, items: urlShortenerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'qr-code-maker': items = [{ title: null, items: qrCodeMakerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'seo-suite': items = [{ title: null, items: seoMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         default: items = [{ title: null, items: wachatMenuItems }]; break;
     }
     
-    return items.map(group => ({
+    return items.map((group: any) => ({
         ...group,
-        items: group.items.filter(item => item.roles?.includes(currentUserRole))
+        items: group.items.filter((item: any) => item.roles?.includes(currentUserRole))
     }));
   }, [activeApp, currentUserRole]);
 
@@ -227,7 +234,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const storedProjectId = localStorage.getItem('activeProjectId');
       setActiveProjectId(storedProjectId);
 
-      if (pathname.startsWith('/dashboard/facebook')) {
+      if (pathname.startsWith('/dashboard/facebook/custom-ecommerce')) {
+          setActiveApp('custom-ecommerce');
+      } else if (pathname.startsWith('/dashboard/facebook')) {
           setActiveApp('facebook');
       } else if (pathname.startsWith('/dashboard/instagram')) {
           setActiveApp('instagram');
@@ -277,8 +286,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [isClient, activeProjectId]);
 
   const appIcons = [
-    { id: 'whatsapp', href: '/dashboard/overview', icon: WhatsAppIcon, label: 'Wachat Suite', className: 'bg-[#25D366] text-white', hoverClassName: 'bg-card text-[#25D366] hover:bg-accent' },
+    { id: 'whatsapp', href: '/dashboard', icon: WhatsAppIcon, label: 'Wachat Suite', className: 'bg-[#25D366] text-white', hoverClassName: 'bg-card text-[#25D366] hover:bg-accent' },
     { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite', className: 'bg-blue-600 text-white', hoverClassName: 'bg-card text-blue-600 hover:bg-accent' },
+    { id: 'custom-ecommerce', href: '/dashboard/facebook/custom-ecommerce', icon: CustomEcommerceIcon, label: 'Custom Ecommerce', className: 'bg-sky-500 text-white', hoverClassName: 'bg-card text-sky-500 hover:bg-accent' },
     { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite', className: 'bg-rose-500 text-white', hoverClassName: 'bg-card text-rose-500 hover:bg-accent' },
     { id: 'seo-suite', href: '/dashboard/seo', icon: SeoIcon, label: 'SEO Suite', className: 'bg-indigo-500 text-white', hoverClassName: 'bg-card text-indigo-500 hover:bg-accent' },
     { id: 'url-shortener', href: '/dashboard/url-shortener', icon: LinkIcon, label: 'URL Shortener', className: 'bg-purple-600 text-white', hoverClassName: 'bg-card text-purple-600 hover:bg-accent' },
@@ -328,7 +338,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            {menuGroups.map((group, groupIndex) => (
+            {menuGroups.map((group: any, groupIndex: number) => (
               <React.Fragment key={group.title || groupIndex}>
                 {group.title && (
                     <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-2 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
@@ -337,11 +347,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 )}
                 {group.items.map((item: any) => {
                   const isConnectionLink = item.href.includes('all-projects');
-                  const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp' || activeApp === 'crm';
+                  const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp' || activeApp === 'crm' || activeApp === 'custom-ecommerce';
                   
                   const hasActiveProjectForSuite = 
                       (activeApp === 'facebook' && hasActiveFacebookProject) ||
                       (activeApp === 'whatsapp' && hasActiveWhatsAppProject) ||
+                      (activeApp === 'custom-ecommerce' && hasActiveFacebookProject) ||
                       (activeApp === 'crm' && activeProjectId);
 
                   const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite;
@@ -359,6 +370,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         item.href === '/dashboard/url-shortener' ||
                         item.href === '/dashboard/qr-code-maker' ||
                         item.href === '/dashboard/facebook/all-projects' ||
+                        item.href === '/dashboard/facebook/custom-ecommerce' ||
                         item.href === '/dashboard/chatbot/agents' ||
                         item.href === '/dashboard/seo' ||
                         item.href === '/dashboard/crm';
@@ -390,7 +402,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>
-            {activeApp !== 'facebook' && activeApp !== 'instagram' && (
+            {activeApp !== 'whatsapp' && (
                 <SidebarMenuItem>
                     <SidebarMenuButton asChild isActive={pathname === '/dashboard'} tooltip="All Projects">
                         <Link href="/dashboard">
@@ -482,7 +494,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 </DropdownMenuItem>
                  <DropdownMenuItem asChild>
                     <Link href="/dashboard/billing">Billing</Link>
-                </DropdownMenuItem>
+                  </DropdownMenuItem>
                  <DropdownMenuItem asChild>
                     <Link href="/dashboard/billing/history">Billing History</Link>
                   </DropdownMenuItem>
