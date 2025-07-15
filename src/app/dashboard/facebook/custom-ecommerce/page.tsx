@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { getProjectById } from '@/app/actions';
+import { getProjectById, getProjects } from '@/app/actions';
 import { getEcommShops } from '@/app/actions/custom-ecommerce.actions';
 import type { WithId, Project, EcommShop } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +13,7 @@ import { AlertCircle, ShoppingBag, Store, ArrowRight, Wrench } from 'lucide-reac
 import { CreateEcommShopDialog } from '@/components/wabasimplify/create-shop-dialog';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { FacebookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 function PageSkeleton() {
     return (
@@ -31,21 +32,27 @@ function PageSkeleton() {
     );
 }
 
-function ShopCard({ shop }: { shop: WithId<EcommShop> }) {
+function ShopCard({ project }: { project: WithId<Project> }) {
     const router = useRouter();
     
     const handleManageShop = () => {
-        router.push(`/dashboard/facebook/custom-ecommerce/manage/${shop._id.toString()}`);
+        localStorage.setItem('activeProjectId', project._id.toString());
+        router.push(`/dashboard/facebook/custom-ecommerce/manage/${project._id.toString()}`);
     }
 
     return (
         <Card className="flex flex-col">
-            <CardHeader>
-                <CardTitle>{shop.name}</CardTitle>
-                <CardDescription>Slug: /shop/{shop.slug}</CardDescription>
+            <CardHeader className="flex-row items-center gap-4">
+                 <div className="p-3 bg-muted rounded-full">
+                    <FacebookIcon className="h-6 w-6 text-primary"/>
+                 </div>
+                 <div>
+                    <CardTitle>{project.name}</CardTitle>
+                    <CardDescription>Page ID: {project.facebookPageId}</CardDescription>
+                 </div>
             </CardHeader>
             <CardContent className="flex-grow">
-                <p className="text-sm text-muted-foreground">Created on: {new Date(shop.createdAt).toLocaleDateString()}</p>
+                <p className="text-sm text-muted-foreground">Manage products, pages, and automation for this Facebook Page.</p>
             </CardContent>
             <CardFooter>
                  <Button onClick={handleManageShop} className="w-full">
@@ -57,57 +64,29 @@ function ShopCard({ shop }: { shop: WithId<EcommShop> }) {
 }
 
 export default function CustomEcommerceDashboard() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
-    const [shops, setShops] = useState<WithId<EcommShop>[]>([]);
+    const [projects, setProjects] = useState<WithId<Project>[]>([]);
     const [isLoading, startLoading] = useTransition();
-    const [projectId, setProjectId] = useState<string | null>(null);
-
-    const fetchData = useCallback(() => {
-        if (!projectId) return;
-        startLoading(async () => {
-            const projectData = await getProjectById(projectId);
-            if (projectData) {
-                const shopsData = await getEcommShops(projectData._id.toString());
-                setProject(projectData);
-                setShops(shopsData);
-            }
-        });
-    }, [projectId]);
+    const [isClient, setIsClient] = useState(false);
 
     useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
+      setIsClient(true);
+    }, []);
+
+    const fetchProjects = useCallback(() => {
+        startLoading(async () => {
+            const facebookProjects = await getProjects(undefined, 'facebook');
+            setProjects(facebookProjects);
+        });
     }, []);
 
     useEffect(() => {
-        if (projectId) {
-            fetchData();
+        if(isClient) {
+            fetchProjects();
         }
-    }, [projectId, fetchData]);
+    }, [isClient, fetchProjects]);
     
-    if (isLoading) {
+    if (!isClient || isLoading) {
         return <PageSkeleton />;
-    }
-    
-    if (!projectId) {
-        return (
-            <div className="flex flex-col items-center justify-center h-full text-center gap-4">
-                <ShoppingBag className="h-16 w-16 text-muted-foreground" />
-                <Alert>
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>
-                        Please select a project from the main dashboard to manage its shops, or go to the Project Connections page to connect a Facebook Page.
-                    </AlertDescription>
-                </Alert>
-                <Button asChild>
-                    <Link href="/dashboard/facebook/all-projects">
-                        <Wrench className="mr-2 h-4 w-4" />
-                        Go to Project Connections
-                    </Link>
-                </Button>
-            </div>
-        );
     }
     
     return (
@@ -119,25 +98,28 @@ export default function CustomEcommerceDashboard() {
                         Custom Shops
                     </h1>
                     <p className="text-muted-foreground mt-2">
-                        Build and manage your Messenger-based e-commerce storefronts for project "{project?.name}".
+                        Select a Facebook Page to manage its e-commerce storefront and automation.
                     </p>
                 </div>
-                <CreateEcommShopDialog projectId={projectId} onSuccess={fetchData} />
             </div>
 
-            {shops.length > 0 ? (
+            {projects.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {shops.map(shop => (
-                        <ShopCard key={shop._id.toString()} shop={shop} />
+                    {projects.map(project => (
+                        <ShopCard key={project._id.toString()} project={project} />
                     ))}
                 </div>
             ) : (
                 <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
                     <Store className="mx-auto h-12 w-12" />
-                    <h3 className="mt-4 text-lg font-semibold">No Shops Created Yet</h3>
-                    <p className="mt-1 text-sm">Click "Create New Shop" to get started.</p>
+                    <h3 className="mt-4 text-lg font-semibold">No Facebook Pages Connected</h3>
+                    <p className="mt-1 text-sm max-w-md mx-auto">
+                        Please go to the <Link href="/dashboard/facebook/all-projects" className="text-primary hover:underline">Meta Suite Connections</Link> page to connect your Facebook account and pages first.
+                    </p>
                 </div>
             )}
         </div>
     );
 }
+
+    
