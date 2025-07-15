@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -384,7 +385,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         >
                           <Link href={isDisabled ? '#' : item.href} className={cn(isDisabled && 'pointer-events-none')}>
                             <item.icon className="h-4 w-4" />
-                            <span>{item.label}</span>
+                            <span className="truncate">{item.label}</span>
                             {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
                           </Link>
                         </SidebarMenuButton>
@@ -451,7 +452,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       {!isClient ? (
                           <Skeleton className="h-4 w-32" />
                       ) : (
-                          <span>{activeProjectName}</span>
+                          <span className="truncate">{activeProjectName}</span>
                       )}
                   </div>
                 )}
