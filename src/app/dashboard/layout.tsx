@@ -440,7 +440,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </SidebarMenu>
           </SidebarFooter>
         </Sidebar>
-        <SidebarInset className="flex flex-col h-screen p-2 gap-2">
+        <SidebarInset sideOffset="calc(4rem + 8px)" className="flex flex-col h-screen p-2 gap-2">
           <header className="flex items-center justify-between p-3 border bg-card rounded-lg shrink-0">
             <div className="flex items-center gap-2">
               <SidebarTrigger />
@@ -506,7 +506,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {children}
           </main>
         </SidebarInset>
-      </div>
-    </SidebarProvider>
+      </SidebarProvider>
+    </div>
   );
 }
