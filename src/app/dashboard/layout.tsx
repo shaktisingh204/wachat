@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -32,7 +31,7 @@ import {
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, InstagramIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -94,7 +93,7 @@ const facebookMenuGroups = [
     items: [
         { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare },
         { href: '/dashboard/facebook/kanban', label: 'Kanban Board', icon: LayoutGrid },
-        { href: '/dashboard/facebook/auto-reply', label: 'Automation', icon: MessageSquareReply },
+        { href: '/dashboard/facebook/auto-reply', label: 'Automation', icon: MessageSquare },
     ]
   },
   {
@@ -110,7 +109,7 @@ const facebookMenuGroups = [
         { href: '/dashboard/facebook/commerce/products', label: 'Products & Collections', icon: ShoppingBag },
         { href: '/dashboard/facebook/commerce/shop', label: 'Shop Setup', icon: LayoutGrid },
         { href: '/dashboard/facebook/commerce/orders', label: 'Orders', icon: Package },
-        { href: '/dashboard/facebook/commerce/analytics', label: 'Analytics', icon: BarChart2 },
+        { href: '/dashboard/facebook/commerce/analytics', label: 'Analytics', icon: BarChart },
         { href: '/dashboard/facebook/commerce/api', label: 'APIs', icon: Server },
     ]
   },
@@ -143,7 +142,7 @@ const crmMenuItems = [
     { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKanban },
     { href: '/dashboard/crm/email', label: 'Email', icon: Mail },
     { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare },
-    { href: '/dashboard/crm/analytics', label: 'Analytics', icon: BarChart2 },
+    { href: '/dashboard/crm/analytics', label: 'Analytics', icon: BarChart },
     { href: '/dashboard/crm/automations', label: 'Automations', icon: Zap },
     { href: '/dashboard/crm/settings', label: 'Settings', icon: Settings },
 ];
@@ -356,8 +355,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       (activeApp === 'whatsapp' && hasActiveWhatsAppProject) ||
                       (activeApp === 'custom-ecommerce' && hasActiveFacebookProject);
 
-                  const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard';
-                  
+                  const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard' && activeApp !== 'crm';
+
                   let tooltipText = item.label;
                   if (isDisabled) {
                       tooltipText = `${item.label} (Select a project first)`;
