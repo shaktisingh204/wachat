@@ -1,10 +1,11 @@
 
+
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { savePhoneNumberCallingSettings, getPhoneNumberCallingSettings } from '@/app/actions/calling.actions';
+import { savePhoneNumberCallingSettings, getPhoneNumberCallingSettings } from '@/app/actions/whatsapp.actions';
 import type { CallingSettings, PhoneNumber } from '@/lib/definitions';
 import { LoaderCircle } from 'lucide-react';
 
@@ -20,12 +21,9 @@ export function CallingToggleSwitch({ projectId, phone, onUpdate }: CallingToggl
     const { toast } = useToast();
 
     useEffect(() => {
-        // Fetch initial settings to ensure we have the full object
         getPhoneNumberCallingSettings(projectId, phone.id).then(result => {
             if (result.settings) {
                 setSettings(result.settings);
-            } else {
-                 setSettings({ voice: { enabled: false }, video: { enabled: false } });
             }
         });
     }, [projectId, phone.id]);
@@ -36,7 +34,7 @@ export function CallingToggleSwitch({ projectId, phone, onUpdate }: CallingToggl
             formData.append('projectId', projectId);
             formData.append('phoneNumberId', phone.id);
             formData.append('voice_enabled', checked ? 'on' : 'off');
-            // Preserve other settings
+            // Preserve other settings from state
             formData.append('video_enabled', settings.video?.enabled ? 'on' : 'off');
             if (settings.sip?.enabled) {
                 formData.append('sip_enabled', 'on');
