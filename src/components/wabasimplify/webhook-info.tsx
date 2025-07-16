@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +14,7 @@ import { getWebhookSubscriptionStatus } from '@/app/actions/whatsapp.actions';
 import { getProjectById } from '@/app/actions';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
+import { SubscribeProjectButton } from './subscribe-project-button';
 
 
 interface WebhookInfoProps {
@@ -70,16 +72,18 @@ function InfoRow({ label, value, isSecret = false }: { label: string, value: str
 function WebhookStatus() {
     const [status, setStatus] = useState<{ isActive: boolean; error?: string } | null>(null);
     const [isLoading, startTransition] = useTransition();
+    const [projectId, setProjectId] = useState<string | null>(null);
 
     const checkStatus = async () => {
-        const projectId = localStorage.getItem('activeProjectId');
-        if (!projectId) {
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        if (!storedProjectId) {
             setStatus({ isActive: false, error: "No project selected."});
             return;
         }
+        setProjectId(storedProjectId);
         
         startTransition(async () => {
-            const project = await getProjectById(projectId);
+            const project = await getProjectById(storedProjectId);
             if(project?.wabaId && project.accessToken) {
                 const statusResult = await getWebhookSubscriptionStatus(project.wabaId, project.accessToken);
                 setStatus(statusResult);
@@ -123,6 +127,9 @@ function WebhookStatus() {
                                 {status.error && <span className="text-xs text-muted-foreground font-mono">{status.error}</span>}
                             </div>
                         </div>
+                         {!status.isActive && projectId && (
+                            <SubscribeProjectButton projectId={projectId} />
+                         )}
                     </div>
                 ) : (
                     <p className="text-muted-foreground text-sm">Could not determine status.</p>
