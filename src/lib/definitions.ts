@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type CrmModulePermissions = {
@@ -169,30 +168,13 @@ export type PhoneNumberProfile = {
     vertical: string;
 }
 
-export type WeeklyOperatingHours = {
-    day_of_week: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
-    open_time: string;
-    close_time: string;
-};
-
-export type HolidaySchedule = {
-    date: string; // YYYY-MM-DD
-    start_time: string; // HHMM
-    end_time: string; // HHMM
-};
-
-export type CallHours = {
-    status: "ENABLED" | "DISABLED";
-    timezone_id: string;
-    weekly_operating_hours: WeeklyOperatingHours[];
-    holiday_schedule: HolidaySchedule[];
-};
-
 export type CallingSettings = {
-    status: "ENABLED" | "DISABLED";
-    call_icon_visibility: "DEFAULT" | "DISABLE_ALL";
-    callback_permission_status: "ENABLED" | "DISABLED";
-    call_hours: CallHours;
+  voice: {
+    enabled: boolean;
+  };
+  video: {
+    enabled: boolean;
+  };
 };
 
 export type PhoneNumber = {
@@ -206,8 +188,7 @@ export type PhoneNumber = {
         level: string;
     };
     profile?: PhoneNumberProfile;
-    is_calling_enabled?: boolean; // Deprecated but might still be returned
-    inbound_call_control?: 'DISABLED' | 'CALLBACK_REQUEST'; // Deprecated but might still be returned
+    is_calling_enabled?: boolean;
 };
 
 export type GeneralReplyRule = {

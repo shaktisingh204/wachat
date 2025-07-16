@@ -66,7 +66,7 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
     }
     
     try {
-        const response = await axios.get(`https://graph.facebook.com/v23.0/${wabaId}/subscribed_apps`, {
+        const response = await axios.get(`https://graph.facebook.com/v19.0/${wabaId}/subscribed_apps`, {
             params: { access_token: accessToken }
         });
         
@@ -87,7 +87,7 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
 
 
 export async function handleSubscribeProjectWebhook(wabaId: string, appId: string, accessToken: string): Promise<{ success: boolean; error?: string }> {
-    const apiVersion = 'v23.0';
+    const apiVersion = 'v19.0';
 
     try {
         // Attempt to subscribe to the app first
@@ -125,8 +125,7 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
 export async function updatePhoneNumberCallingSettings(
     projectId: string,
     phoneNumberId: string,
-    isCallingEnabled: boolean,
-    inboundControl?: 'DISABLED' | 'CALLBACK_REQUEST'
+    isCallingEnabled: boolean
 ): Promise<{ success: boolean; error?: string }> {
     const project = await getProjectById(projectId);
     if (!project) {
@@ -136,7 +135,7 @@ export async function updatePhoneNumberCallingSettings(
     try {
         // Enable or disable the calling feature itself
         await axios.post(
-            `https://graph.facebook.com/v23.0/${phoneNumberId}`,
+            `https://graph.facebook.com/v19.0/${phoneNumberId}`,
             {
                 messaging_product: 'whatsapp',
                 is_calling_enabled: isCallingEnabled,
@@ -146,19 +145,6 @@ export async function updatePhoneNumberCallingSettings(
             }
         );
         
-        // If enabling, configure the inbound control setting
-        if (isCallingEnabled) {
-            const finalInboundControl = inboundControl || 'DISABLED';
-            await axios.post(
-                 `https://graph.facebook.com/v23.0/${phoneNumberId}`,
-                 {
-                    messaging_product: 'whatsapp',
-                    inbound_call_control: finalInboundControl
-                 },
-                 { headers: { Authorization: `Bearer ${project.accessToken}` } }
-            );
-        }
-
         // After successful API calls, sync the local DB
         revalidatePath('/dashboard/numbers');
 

@@ -7,7 +7,7 @@ import { getProjectById } from '@/app/actions';
 import type { Project, PhoneNumber } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Phone, Settings } from 'lucide-react';
+import { AlertCircle, Phone } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CallingSettingsForm } from '@/components/wabasimplify/calling-settings-form';
 
