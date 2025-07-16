@@ -81,11 +81,11 @@ function WebhookStatus() {
         
         startTransition(async () => {
             const project = await getProjectById(projectId);
-            if(project?.appId) {
-                const statusResult = await getWebhookSubscriptionStatus(project.appId);
+            if(project?.appId && project.accessToken) {
+                const statusResult = await getWebhookSubscriptionStatus(project.appId, project.accessToken);
                 setStatus(statusResult);
             } else {
-                setStatus({ isActive: false, error: "Project App ID not configured." });
+                setStatus({ isActive: false, error: "Project App ID or Access Token not configured." });
             }
         });
     }

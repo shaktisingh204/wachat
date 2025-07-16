@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -12,6 +11,8 @@ import { cn } from '@/lib/utils';
 import type { WithId, Project } from '@/lib/definitions';
 import { DeleteProjectButton } from './delete-project-button';
 import { getWebhookSubscriptionStatus } from '@/app/actions/whatsapp.actions';
+import { CheckCircle, AlertCircle } from 'lucide-react';
+
 
 interface ProjectCardProps {
     project: WithId<Project>;
@@ -24,10 +25,10 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
 
     useEffect(() => {
         setCreatedDate(new Date(project.createdAt).toLocaleDateString());
-        if (project.appId) {
-            getWebhookSubscriptionStatus(project.appId).then(setWebhookStatus);
+        if (project.appId && project.accessToken) {
+            getWebhookSubscriptionStatus(project.appId, project.accessToken).then(setWebhookStatus);
         }
-    }, [project.createdAt, project.appId]);
+    }, [project.createdAt, project.appId, project.accessToken]);
 
     const handleSelectProject = () => {
         if (typeof window !== 'undefined') {
