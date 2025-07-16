@@ -126,18 +126,19 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
                         <Switch id="call_hours_status" checked={settings.call_hours?.status === 'ENABLED'} onCheckedChange={(checked) => setSettings(s => ({...s, call_hours: {...s.call_hours, status: checked ? 'ENABLED' : 'DISABLED'} as any}))} />
                     </div>
 
-                    {settings.call_hours?.status === 'ENABLED' && (
-                        <>
-                            <div className="space-y-2">
-                                <Label htmlFor="timezone_id">Timezone</Label>
-                                <Select name="timezone_id" value={settings.call_hours?.timezone_id} onValueChange={(val) => setSettings(s => ({...s, call_hours: {...s.call_hours, timezone_id: val} as any}))}>
-                                    <SelectTrigger searchable><SelectValue placeholder="Select a timezone..."/></SelectTrigger>
-                                    <SelectContent>
-                                        {timezones.map(tz => <SelectItem key={tz} value={tz}>{tz}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                    
+                    <div className="space-y-2">
+                        <Label htmlFor="timezone_id">Timezone</Label>
+                        <Select name="timezone_id" value={settings.call_hours?.timezone_id} onValueChange={(val) => setSettings(s => ({...s, call_hours: {...s.call_hours, timezone_id: val} as any}))}>
+                            <SelectTrigger searchable><SelectValue placeholder="Select a timezone..."/></SelectTrigger>
+                            <SelectContent>
+                                {timezones.map(tz => <SelectItem key={tz} value={tz}>{tz}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                    </div>
 
+                     {settings.call_hours?.status === 'ENABLED' && (
+                        <>
                             <WeeklyHoursEditor
                                 hours={settings.call_hours?.weekly_operating_hours || []}
                                 onChange={(newHours) => setSettings(s => ({...s, call_hours: {...s.call_hours, weekly_operating_hours: newHours} as any}))}
