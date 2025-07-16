@@ -1,10 +1,9 @@
 
-
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Db, Filter, ObjectId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
-import { processSingleWebhook, processStatusUpdateBatch, processIncomingMessageBatch, processCommentWebhook, processMessengerWebhook, processOrderWebhook, processCatalogWebhook } from '@/lib/webhook-processor';
+import { processSingleWebhook, handleSingleMessageEvent, processStatusUpdateBatch, processIncomingMessageBatch, processCommentWebhook, processMessengerWebhook, processOrderWebhook, processCatalogWebhook } from '@/lib/webhook-processor';
 import { revalidatePath } from 'next/cache';
 
 const getSearchableText = (payload: any): string => {
@@ -123,116 +122,87 @@ export async function POST(request: NextRequest) {
 
     const payload = JSON.parse(payloadText);
     const { db } = await connectToDatabase();
-
-    // 1. Log the incoming event for audit and manual reprocessing
+    
+    // Log first, process second
     const projectId = await findProjectIdFromWebhook(db, payload);
     const searchableText = getSearchableText(payload);
     const logResult = await db.collection('webhook_logs').insertOne({
-        payload: payload,
-        searchableText,
-        projectId: projectId,
-        processed: false, // Initially unprocessed
-        createdAt: new Date(),
+        payload: payload, searchableText, projectId: projectId,
+        processed: false, createdAt: new Date(),
     });
     logId = logResult.insertedId;
+    
+    let processingError: Error | null = null;
 
-    // Handle Facebook Page (Messenger and Feed) webhooks
-    if (payload.object === 'page') {
+    try {
+        if (!projectId) {
+            throw new Error('Could not find a matching project for this webhook event.');
+        }
+        
+        const project = await db.collection<Project>('projects').findOne({ _id: projectId });
+        if (!project) {
+            throw new Error(`Project with ID ${projectId} not found.`);
+        }
+
+        // --- Start Processing Logic ---
         const entry = payload.entry?.[0];
-        if (projectId && entry) {
-            const project = await db.collection<Project>('projects').findOne({ _id: projectId });
-            if (project) {
-                if (entry.changes) {
-                    for (const change of entry.changes) {
-                        if (change.field === 'feed' && change.value?.item === 'comment' && change.value?.verb === 'add') {
-                            await processCommentWebhook(db, project, change.value);
-                        }
-                        if (change.field === 'commerce_orders') {
-                            await processOrderWebhook(db, project, change.value);
-                        }
-                        if (change.field === 'catalog_product_events') {
-                             await processCatalogWebhook(db, project, change.value);
+        if (!entry) {
+            throw new Error('Webhook payload missing "entry" object.');
+        }
+
+        for (const change of (entry.changes || [])) {
+            const field = change.field;
+            const value = change.value;
+
+            switch (field) {
+                case 'messages':
+                    if (value.statuses) {
+                        await processStatusUpdateBatch(db, value.statuses);
+                    }
+                    if (value.messages) {
+                        for (const message of value.messages) {
+                            const contactProfile = value.contacts?.find((c: any) => c.wa_id === message.from) || {};
+                            await handleSingleMessageEvent(db, project, message, contactProfile, value.metadata.phone_number_id);
                         }
                     }
-                }
-                if (entry.messaging) {
-                    for (const messagingEvent of entry.messaging) {
-                        await processMessengerWebhook(db, project, messagingEvent);
+                    break;
+                case 'feed':
+                    if (value.item === 'comment' && value.verb === 'add') {
+                        await processCommentWebhook(db, project, value);
                     }
-                }
+                    break;
+                case 'commerce_orders':
+                    await processOrderWebhook(db, project, value);
+                    break;
+                case 'catalog_product_events':
+                    await processCatalogWebhook(db, project, value);
+                    break;
+                default:
+                    // For other non-message events
+                    await processSingleWebhook(db, project, { object: payload.object, entry: [{...entry, changes: [change] }] }, logId);
+                    break;
             }
         }
-        await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: null } });
-        return NextResponse.json({ status: 'processed_page_event' }, { status: 200 });
+        
+        if (payload.object === 'page' && entry.messaging) {
+            for (const messagingEvent of entry.messaging) {
+                await processMessengerWebhook(db, project, messagingEvent);
+            }
+        }
+
+    } catch (e: any) {
+        processingError = e;
+        console.error(`Error processing webhook batch for project ${projectId}:`, e.message);
     }
 
-    // Handle WhatsApp Business Account webhooks
-    if (payload.object === 'whatsapp_business_account') {
-        const allStatuses: any[] = [];
-        const allMessageEvents: { projectId: ObjectId; message: any; contactProfile: any; phoneNumberId: string }[] = [];
-        const otherEvents: { projectId: ObjectId; payload: any }[] = [];
+    await db.collection('webhook_logs').updateOne({ _id: logId }, {
+      $set: {
+        processed: true,
+        error: processingError ? processingError.message : null,
+      },
+    });
 
-        if (payload.entry) {
-            for (const entry of payload.entry) {
-                const entryProjectId = await findProjectIdFromWebhook(db, { entry: [entry] });
-
-                for (const change of entry.changes) {
-                    const value = change.value;
-                    const field = change.field;
-                    const phoneNumberId = value.metadata?.phone_number_id;
-
-                    if (field === 'messages' && value) {
-                        if (value.statuses) {
-                            allStatuses.push(...value.statuses);
-                        }
-                        if (value.messages && entryProjectId && phoneNumberId) {
-                            for (const message of value.messages) {
-                                const contactProfile = value.contacts?.find((c: any) => c.wa_id === message.from) || {};
-                                allMessageEvents.push({ projectId: entryProjectId, message, contactProfile, phoneNumberId });
-                            }
-                        }
-                    } else if (field !== 'messages' && value && entryProjectId) {
-                        otherEvents.push({ projectId: entryProjectId, payload: { object: payload.object, entry: [{...entry, changes: [change] }] } });
-                    }
-                }
-            }
-        }
-        
-        let processingError: Error | null = null;
-        try {
-            const processingPromises: Promise<any>[] = [];
-            if (allStatuses.length > 0) {
-                processingPromises.push(processStatusUpdateBatch(db, allStatuses));
-            }
-            if (allMessageEvents.length > 0) {
-                processingPromises.push(processIncomingMessageBatch(db, allMessageEvents));
-            }
-
-            const projectsMap = new Map();
-            for (const event of otherEvents) {
-                let project = projectsMap.get(event.projectId.toString());
-                if (!project) {
-                    project = await db.collection<Project>('projects').findOne({_id: event.projectId});
-                    if (project) projectsMap.set(project._id.toString(), project);
-                }
-                if (project) {
-                    processingPromises.push(processSingleWebhook(db, project, event.payload, logId));
-                }
-            }
-            
-            await Promise.all(processingPromises);
-        } catch(e: any) {
-            processingError = e;
-            console.error(`Error processing webhook batch for project ${projectId}:`, e.message);
-        }
-        
-        await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: processingError ? processingError.message : null }});
-        
-        return NextResponse.json({ status: 'processed_whatsapp_event' }, { status: 200 });
-    }
-
-    // Acknowledge receipt of any other webhook type we don't handle
-    return NextResponse.json({ status: 'ignored_object_type' }, { status: 200 });
+    return NextResponse.json({ status: 'processed' }, { status: 200 });
 
   } catch (error: any) {
     if (error instanceof SyntaxError) {
@@ -251,5 +221,3 @@ export async function POST(request: NextRequest) {
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
-
-    
