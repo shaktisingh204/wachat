@@ -71,8 +71,11 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
         });
         
         const subscriptions = response.data.data;
-        if (subscriptions && subscriptions.length > 0 && subscriptions[0].subscribed === true) {
-            return { isActive: true };
+        if (subscriptions && subscriptions.length > 0) {
+            const wabaSubscription = subscriptions.find((sub: any) => sub.whatsapp_business_api_data);
+            if(wabaSubscription) {
+                return { isActive: true };
+            }
         }
         
         return { isActive: false, error: 'No active subscription found for this WABA.' };
@@ -83,4 +86,39 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
     }
 }
 
+
+export async function handleSubscribeProjectWebhook(wabaId: string, appId: string, accessToken: string): Promise<{ success: boolean; error?: string }> {
+    const apiVersion = 'v23.0';
+    const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
+    const verifyToken = process.env.META_VERIFY_TOKEN;
+
+    if (!appId) {
+        return { success: false, error: 'App ID is not configured for this project, and no fallback is set.' };
+    }
+    if (!verifyToken) {
+        return { success: false, error: 'META_VERIFY_TOKEN is not configured.' };
+    }
+    if (!accessToken) {
+        return { success: false, error: 'An access token is required to subscribe to webhooks.' };
+    }
+
+    try {
+        const fields = 'account_update,message_template_status_update,messages,phone_number_name_update,phone_number_quality_update,security,template_category_update';
+        
+        await axios.post(
+            `https://graph.facebook.com/${apiVersion}/${wabaId}/subscribed_apps`,
+            {
+                subscribed_fields: fields,
+                access_token: accessToken,
+            }
+        );
+        
+        return { success: true };
+
+    } catch (e: any) {
+        const errorMessage = getErrorMessage(e);
+        console.error(`Failed to subscribe project ${wabaId}:`, errorMessage);
+        return { success: false, error: errorMessage };
+    }
+}
 
