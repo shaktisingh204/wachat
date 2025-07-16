@@ -20,6 +20,7 @@ JWT_SECRET=a_long_random_secure_string_for_sessions
 # Get these from your Meta for Developers App Dashboard
 NEXT_PUBLIC_FACEBOOK_APP_ID=your_facebook_app_id
 FACEBOOK_APP_SECRET=your_facebook_app_secret
+NEXT_PUBLIC_META_CONFIG_ID=your_facebook_login_config_id
 
 # This must be your publicly accessible application URL
 NEXT_PUBLIC_APP_URL=https://your-app-domain.com
@@ -38,6 +39,19 @@ GOOGLE_API_KEY=your_google_ai_api_key
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=secure_admin_password
 ```
+
+### What is `NEXT_PUBLIC_META_CONFIG_ID`?
+
+The `NEXT_PUBLIC_META_CONFIG_ID` is a unique identifier for a **"Facebook Login for Business"** configuration within your Meta App. This configuration allows for the streamlined, one-click "guided setup" experience in SabNode, where users can connect their accounts through a secure Facebook pop-up.
+
+#### How to get it:
+
+1.  Go to the **[Meta for Developers](https://developers.facebook.com/)** dashboard.
+2.  Select your App.
+3.  From the sidebar, find the **"Facebook Login"** product. You may need to add it first if it's not already there.
+4.  Inside the Facebook Login settings, click on **"For Business"**.
+5.  Here, you can create a new configuration or edit an existing one. In this configuration, you will define the permissions SabNode will request, such as `whatsapp_business_management` and `catalog_management`.
+6.  Once you save your configuration, Meta will provide you with a **Configuration ID**. This is the value you need to put in your `.env.local` file for `NEXT_PUBLIC_META_CONFIG_ID`.
 
 ### 2. Run the Application
 
