@@ -1,7 +1,8 @@
 
+
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
   Dialog,
@@ -16,12 +17,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { LoaderCircle, Save } from 'lucide-react';
-import { handleUpdatePhoneNumberProfile } from '@/app/actions';
+import { LoaderCircle, Save, Phone } from 'lucide-react';
+import { handleUpdatePhoneNumberProfile, updatePhoneNumberCallingSettings } from '@/app/actions/whatsapp.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project, PhoneNumber } from '@/lib/definitions';
 import { ScrollArea } from '../ui/scroll-area';
+import { Switch } from '../ui/switch';
+import { Separator } from '../ui/separator';
 
 const initialState = {
   message: null,
@@ -65,25 +68,41 @@ interface EditPhoneNumberDialogProps {
 }
 
 export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, onUpdateSuccess }: EditPhoneNumberDialogProps) {
-  const [state, formAction] = useActionState(handleUpdatePhoneNumberProfile, initialState);
+  const [profileState, profileFormAction] = useActionState(handleUpdatePhoneNumberProfile, initialState);
+  const [isCallingEnabled, setIsCallingEnabled] = useState(phone.is_calling_enabled || false);
+  const [inboundControl, setInboundControl] = useState(phone.inbound_call_control || 'DISABLED');
+  const [isSavingCalling, startCallingSaveTransition] = useTransition();
+
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (state.message) {
-      toast({ title: 'Success!', description: state.message });
+    if (profileState.message) {
+      toast({ title: 'Success!', description: profileState.message });
       onUpdateSuccess();
       onOpenChange(false);
     }
-    if (state.error) {
-      toast({ title: 'Error Updating Profile', description: state.error, variant: 'destructive' });
+    if (profileState.error) {
+      toast({ title: 'Error Updating Profile', description: profileState.error, variant: 'destructive' });
     }
-  }, [state, toast, onOpenChange, onUpdateSuccess]);
+  }, [profileState, toast, onOpenChange, onUpdateSuccess]);
+  
+  const handleCallingSettingsSave = () => {
+    startCallingSaveTransition(async () => {
+        const result = await updatePhoneNumberCallingSettings(project._id.toString(), phone.id, isCallingEnabled, inboundControl as any);
+        if (result.success) {
+            toast({ title: 'Success!', description: 'Calling settings updated.' });
+            onUpdateSuccess();
+        } else {
+            toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        }
+    });
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
-        <form action={formAction} ref={formRef}>
+        <form action={profileFormAction} ref={formRef}>
           <input type="hidden" name="projectId" value={project._id.toString()} />
           <input type="hidden" name="phoneNumberId" value={phone.id} />
           <DialogHeader>
@@ -134,6 +153,37 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                         <Input name="websites" placeholder="https://www.example.com" defaultValue={phone.profile?.websites?.[0]} />
                         <Input name="websites" placeholder="https://shop.example.com" defaultValue={phone.profile?.websites?.[1]} />
                     </div>
+
+                    <Separator />
+                    
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-0.5">
+                                <Label htmlFor="isCallingEnabled" className="text-base font-semibold">Enable Calling</Label>
+                                <p className="text-sm text-muted-foreground">Allow users to call this number from its profile.</p>
+                            </div>
+                            <Switch id="isCallingEnabled" name="isCallingEnabled" checked={isCallingEnabled} onCheckedChange={setIsCallingEnabled} />
+                        </div>
+                        {isCallingEnabled && (
+                             <div className="space-y-2 pl-4 border-l-2 ml-2">
+                                <Label htmlFor="inboundCallControl">Inbound Call Handling</Label>
+                                <Select name="inboundCallControl" value={inboundControl} onValueChange={setInboundControl}>
+                                    <SelectTrigger id="inboundCallControl">
+                                        <SelectValue placeholder="Select handling method..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="DISABLED">Prevent incoming calls</SelectItem>
+                                        <SelectItem value="CALLBACK_REQUEST">Show "Request a callback" button</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )}
+                        <Button type="button" variant="secondary" onClick={handleCallingSettingsSave} disabled={isSavingCalling}>
+                            {isSavingCalling ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Phone className="mr-2 h-4 w-4"/>}
+                            Save Calling Settings
+                        </Button>
+                    </div>
+
                 </div>
             </ScrollArea>
           

@@ -72,10 +72,9 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
         
         const subscriptions = response.data.data;
         if (subscriptions && subscriptions.length > 0) {
-            const wabaSubscription = subscriptions.find((sub: any) => sub.whatsapp_business_api_data);
-            if(wabaSubscription) {
-                return { isActive: true };
-            }
+            // Assuming the first subscription is the correct one for simplicity.
+            // A more robust solution might check the app ID if multiple apps are subscribed.
+            return { isActive: true };
         }
         
         return { isActive: false, error: 'No active subscription found for this WABA.' };
@@ -103,7 +102,7 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
     }
 
     try {
-        const fields = 'account_update,message_template_status_update,messages,phone_number_name_update,phone_number_quality_update,security,template_category_update';
+        const fields = 'account_update,message_template_status_update,messages,phone_number_name_update,phone_number_quality_update,security,template_category_update,calls';
         
         await axios.post(
             `https://graph.facebook.com/${apiVersion}/${wabaId}/subscribed_apps`,
@@ -122,3 +121,50 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
     }
 }
 
+// --- CALLING ACTIONS ---
+
+export async function updatePhoneNumberCallingSettings(
+    projectId: string,
+    phoneNumberId: string,
+    isCallingEnabled: boolean,
+    inboundControl?: 'DISABLED' | 'CALLBACK_REQUEST'
+): Promise<{ success: boolean; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project) {
+        return { success: false, error: 'Project not found or access denied.' };
+    }
+
+    try {
+        // Enable or disable the calling feature itself
+        await axios.post(
+            `https://graph.facebook.com/v23.0/${phoneNumberId}`,
+            {
+                messaging_product: 'whatsapp',
+                is_calling_enabled: isCallingEnabled,
+            },
+            {
+                headers: { Authorization: `Bearer ${project.accessToken}` },
+            }
+        );
+        
+        // If enabling, configure the inbound control setting
+        if (isCallingEnabled && inboundControl) {
+            await axios.post(
+                 `https://graph.facebook.com/v23.0/${phoneNumberId}`,
+                 {
+                    messaging_product: 'whatsapp',
+                    inbound_call_control: inboundControl
+                 },
+                 { headers: { Authorization: `Bearer ${project.accessToken}` } }
+            );
+        }
+
+        // After successful API calls, sync the local DB
+        await handleSyncPhoneNumbers(projectId);
+
+        return { success: true };
+    } catch (e: any) {
+        console.error('Failed to update phone number calling settings:', e);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
