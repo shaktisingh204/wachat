@@ -1,10 +1,8 @@
 
-
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { updatePhoneNumberCallingSettings } from '@/app/actions/whatsapp.actions';
 import type { PhoneNumber } from '@/lib/definitions';
@@ -17,9 +15,13 @@ interface CallingToggleSwitchProps {
 }
 
 export function CallingToggleSwitch({ projectId, phone, onUpdate }: CallingToggleSwitchProps) {
-    const [isEnabled, setIsEnabled] = useState(phone.is_calling_enabled || false);
+    const [isEnabled, setIsEnabled] = useState(phone.is_calling_enabled ?? false);
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
+
+    useEffect(() => {
+        setIsEnabled(phone.is_calling_enabled ?? false);
+    }, [phone.is_calling_enabled]);
 
     const handleToggle = (checked: boolean) => {
         setIsEnabled(checked); // Optimistic update
