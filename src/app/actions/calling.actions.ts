@@ -6,9 +6,8 @@ import { getProjectById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
 import type { CallingSettings } from '@/lib/definitions';
 import { revalidatePath } from 'next/cache';
-import { timezones } from '@/lib/timezones';
 
-const API_VERSION = 'v23.0';
+const API_VERSION = 'v19.0';
 
 export async function getPhoneNumberCallingSettings(
   projectId: string,
@@ -21,10 +20,9 @@ export async function getPhoneNumberCallingSettings(
 
   try {
     const response = await axios.get(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/call_settings`,
       {
         params: {
-          fields: 'calling',
           access_token: project.accessToken,
         },
       }
@@ -38,20 +36,21 @@ export async function getPhoneNumberCallingSettings(
       throw new Error(getErrorMessage({ response }));
     }
     
-    // The API returns an empty object if 'calling' is not set up, so we handle that.
-    const settings = response.data.calling;
-    if (settings && Object.keys(settings).length > 0) {
+    // The API returns an object like { voice: {enabled: true}, video: {enabled: false} }
+    const settings = response.data;
+    if (settings && (settings.voice || settings.video)) {
       return { settings };
     }
+    // Return default/undefined if the object is empty or doesn't have the expected keys
     return { settings: undefined };
-
 
   } catch (e: any) {
     const errorMessage = getErrorMessage(e);
-     // It's not a real error if the field just doesn't exist yet.
+    // It's not a real error if the field just doesn't exist yet.
     if(errorMessage.includes('(#100)')) {
         return { settings: undefined };
     }
+    console.error("Failed to get call settings:", errorMessage);
     return { error: errorMessage };
   }
 }
@@ -72,39 +71,24 @@ export async function savePhoneNumberCallingSettings(
   }
   
   try {
-    const weeklyHoursRaw = formData.get('weeklyHours') as string;
-    const holidayScheduleRaw = formData.get('holidaySchedule') as string;
-    const callHoursStatus = formData.get('call_hours_status') as 'ENABLED' | 'DISABLED';
-
-    const settingsPayload: CallingSettings = {
-      status: formData.get('status') as 'ENABLED' | 'DISABLED',
-      call_icon_visibility: formData.get('call_icon_visibility') as 'DEFAULT' | 'DISABLE_ALL',
-      callback_permission_status: formData.get('callback_permission_status') as 'ENABLED' | 'DISABLED',
-      call_hours: {
-        status: callHoursStatus,
-        timezone_id: formData.get('timezone_id') as string,
-        weekly_operating_hours: callHoursStatus === 'ENABLED' ? JSON.parse(weeklyHoursRaw) : [],
-        holiday_schedule: callHoursStatus === 'ENABLED' ? JSON.parse(holidayScheduleRaw) : [],
+    const settingsPayload = {
+      voice: {
+        enabled: formData.get('voice_enabled') === 'on'
+      },
+      video: {
+        enabled: formData.get('video_enabled') === 'on'
       }
     };
-    
-    // API validation requires timezone_id even if call hours are disabled.
-    if (!settingsPayload.call_hours.timezone_id) {
-      return { success: false, error: 'Timezone ID is required for call hours configuration.' };
-    }
 
     const response = await axios.post(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
-      {
-        messaging_product: 'whatsapp',
-        calling: settingsPayload
-      },
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/call_settings`,
+      settingsPayload,
       { headers: { Authorization: `Bearer ${project.accessToken}` } }
     );
     
     if (response.data.error) throw new Error(getErrorMessage({ response }));
     
-    revalidatePath(`/dashboard/calls/settings/${phoneNumberId}`);
+    revalidatePath(`/dashboard/calls/settings`);
     return { success: true };
     
   } catch (e: any) {
