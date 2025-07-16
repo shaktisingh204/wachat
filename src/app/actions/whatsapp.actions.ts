@@ -119,38 +119,3 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
         return { success: false, error: errorMessage };
     }
 }
-
-// --- CALLING ACTIONS ---
-
-export async function updatePhoneNumberCallingSettings(
-    projectId: string,
-    phoneNumberId: string,
-    isCallingEnabled: boolean
-): Promise<{ success: boolean; error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project) {
-        return { success: false, error: 'Project not found or access denied.' };
-    }
-
-    try {
-        // Enable or disable the calling feature itself
-        await axios.post(
-            `https://graph.facebook.com/v19.0/${phoneNumberId}`,
-            {
-                messaging_product: 'whatsapp',
-                is_calling_enabled: isCallingEnabled,
-            },
-            {
-                headers: { Authorization: `Bearer ${project.accessToken}` },
-            }
-        );
-        
-        // After successful API calls, sync the local DB
-        revalidatePath('/dashboard/numbers');
-
-        return { success: true };
-    } catch (e: any) {
-        console.error('Failed to update phone number calling settings:', e);
-        return { success: false, error: getErrorMessage(e) };
-    }
-}
