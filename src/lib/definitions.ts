@@ -195,7 +195,6 @@ export type CallingSettings = {
     call_hours: CallHours;
 };
 
-
 export type PhoneNumber = {
     id: string;
     display_phone_number: string;
@@ -209,7 +208,6 @@ export type PhoneNumber = {
     profile?: PhoneNumberProfile;
     is_calling_enabled?: boolean; // Deprecated but might still be returned
     inbound_call_control?: 'DISABLED' | 'CALLBACK_REQUEST'; // Deprecated but might still be returned
-    callingSettings?: CallingSettings; // New comprehensive object
 };
 
 export type GeneralReplyRule = {

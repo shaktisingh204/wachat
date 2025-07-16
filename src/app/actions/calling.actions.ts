@@ -6,6 +6,7 @@ import { getProjectById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
 import type { CallingSettings } from '@/lib/definitions';
 import { revalidatePath } from 'next/cache';
+import { timezones } from '@/lib/timezones';
 
 const API_VERSION = 'v23.0';
 
@@ -33,7 +34,13 @@ export async function getPhoneNumberCallingSettings(
       throw new Error(getErrorMessage({ response }));
     }
     
-    return { settings: response.data.calling };
+    // The API returns an empty object if 'calling' is not set up, so we handle that.
+    const settings = response.data.calling;
+    if (settings && Object.keys(settings).length > 0) {
+      return { settings };
+    }
+    return { settings: undefined };
+
 
   } catch (e: any) {
     return { error: getErrorMessage(e) };
@@ -58,16 +65,17 @@ export async function savePhoneNumberCallingSettings(
   try {
     const weeklyHoursRaw = formData.get('weeklyHours') as string;
     const holidayScheduleRaw = formData.get('holidaySchedule') as string;
-    
+    const callHoursStatus = formData.get('call_hours_status') as 'ENABLED' | 'DISABLED';
+
     const settingsPayload: CallingSettings = {
       status: formData.get('status') as 'ENABLED' | 'DISABLED',
       call_icon_visibility: formData.get('call_icon_visibility') as 'DEFAULT' | 'DISABLE_ALL',
       callback_permission_status: formData.get('callback_permission_status') as 'ENABLED' | 'DISABLED',
       call_hours: {
-        status: formData.get('call_hours_status') as 'ENABLED' | 'DISABLED',
+        status: callHoursStatus,
         timezone_id: formData.get('timezone_id') as string,
-        weekly_operating_hours: weeklyHoursRaw ? JSON.parse(weeklyHoursRaw) : [],
-        holiday_schedule: holidayScheduleRaw ? JSON.parse(holidayScheduleRaw) : [],
+        weekly_operating_hours: callHoursStatus === 'ENABLED' ? JSON.parse(weeklyHoursRaw) : [],
+        holiday_schedule: callHoursStatus === 'ENABLED' ? JSON.parse(holidayScheduleRaw) : [],
       }
     };
     
@@ -87,9 +95,7 @@ export async function savePhoneNumberCallingSettings(
     
     if (response.data.error) throw new Error(getErrorMessage({ response }));
     
-    // Revalidate the numbers page to show updated settings.
-    revalidatePath('/dashboard/numbers');
-    revalidatePath('/dashboard/calls/settings');
+    revalidatePath(`/dashboard/calls/settings/${phoneNumberId}`);
     return { success: true };
     
   } catch (e: any) {
