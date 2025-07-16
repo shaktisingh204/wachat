@@ -1,8 +1,9 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
+import { type Db, ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions';
@@ -66,22 +67,21 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
     
     try {
         const response = await axios.get(`https://graph.facebook.com/v23.0/${wabaId}/subscribed_apps`, {
-            params: { 
-                access_token: accessToken,
-                fields: 'id,subscribed_fields' // Requesting fields to check which events are subscribed
-            }
+            params: { access_token: accessToken }
         });
         
         const subscriptions = response.data.data;
         if (subscriptions && subscriptions.length > 0) {
-            // Assuming the first subscription is the relevant one.
             // A more robust implementation might check against a known App ID.
+            // For now, if any subscription exists, we'll consider it active.
             return { isActive: true };
         }
         
         return { isActive: false, error: 'No active subscription found for this WABA.' };
     } catch (e: any) {
-        console.error("Webhook status check failed:", getErrorMessage(e));
-        return { isActive: false, error: getErrorMessage(e) };
+        const errorMessage = getErrorMessage(e);
+        console.error("Webhook status check failed:", errorMessage);
+        return { isActive: false, error: errorMessage };
     }
 }
+

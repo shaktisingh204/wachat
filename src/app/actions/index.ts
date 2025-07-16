@@ -1,3 +1,5 @@
+
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -70,11 +72,10 @@ import type {
     InitiatePaymentResult,
     AdminUserView,
     KanbanColumnData,
-    CrmPermissions,
 } from '@/lib/definitions';
 
 
-export async function getSession(): Promise<{ user: Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null, tags?: Tag[], activeProjectId?: string } } | null> {
+export async function getSession(): Promise<{ user: Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null, tags?: Tag[] } } | null> {
     const cookieStore = cookies();
     const sessionCookie = cookieStore.get('session');
     const sessionToken = sessionCookie?.value;
@@ -2596,7 +2597,7 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
     redirect('/login');
 }
 
-export async function handleForgotPassword(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function handleForgotPassword(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
     const email = formData.get('email') as string;
     if (!email) return { error: 'Email address is required.' };
     
@@ -2901,7 +2902,7 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
                 if (businesses && businesses.length > 0) {
                     businessId = businesses[0].id;
                 } else {
-                    console.warn("No Meta Business Account found for this token, cannot enable catalog management.");
+                    console.warn("No Meta Business account found for token, cannot enable catalog management.");
                 }
             } catch(e) {
                 console.warn("Failed to fetch business ID during guided setup:", getErrorMessage(e));
@@ -3486,10 +3487,7 @@ export async function handleUpdateContactStatus(contactId: string, status: strin
             update.assignedAgentId = null;
         }
         
-        await db.collection('contacts').updateOne(
-            { _id: new ObjectId(contactId) },
-            { $set: update }
-        );
+        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: update });
         
         revalidatePath('/dashboard/chat');
         revalidatePath('/dashboard/chat/kanban');
