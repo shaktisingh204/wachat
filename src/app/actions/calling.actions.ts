@@ -31,6 +31,10 @@ export async function getPhoneNumberCallingSettings(
     );
 
     if (response.data.error) {
+      // It's not a real error if the field just doesn't exist yet.
+      if (response.data.error.code === 100 && response.data.error.message.includes('nonexisting field')) {
+        return { settings: undefined };
+      }
       throw new Error(getErrorMessage({ response }));
     }
     
@@ -43,7 +47,12 @@ export async function getPhoneNumberCallingSettings(
 
 
   } catch (e: any) {
-    return { error: getErrorMessage(e) };
+    const errorMessage = getErrorMessage(e);
+     // It's not a real error if the field just doesn't exist yet.
+    if(errorMessage.includes('(#100)')) {
+        return { settings: undefined };
+    }
+    return { error: errorMessage };
   }
 }
 
