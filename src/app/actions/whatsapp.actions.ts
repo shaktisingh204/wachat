@@ -160,7 +160,7 @@ export async function updatePhoneNumberCallingSettings(
         }
 
         // After successful API calls, sync the local DB
-        await revalidatePath('/dashboard/numbers');
+        revalidatePath('/dashboard/numbers');
 
         return { success: true };
     } catch (e: any) {
