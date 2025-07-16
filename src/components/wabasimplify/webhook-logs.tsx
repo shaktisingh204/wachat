@@ -55,7 +55,7 @@ interface WebhookLogsProps {
 }
 
 
-export function WebhookLogs({ filterByProject = true }: WebhookLogsProps) {
+export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
     const [logs, setLogs] = useState<WebhookLogListItem[]>([]);
     const [isLoading, startLoadingTransition] = useTransition();
     const [isClearing, startClearingTransition] = useTransition();
@@ -72,12 +72,11 @@ export function WebhookLogs({ filterByProject = true }: WebhookLogsProps) {
 
     useEffect(() => {
         setIsClient(true);
-    }, []);
-
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, [isClient]);
+        if (filterByProject) {
+            const storedProjectId = localStorage.getItem('activeProjectId');
+            setProjectId(storedProjectId);
+        }
+    }, [filterByProject]);
 
     const fetchLogs = useCallback(async (page: number, query: string, showToast = false) => {
         const idToFetch = filterByProject ? projectId : null;
@@ -104,7 +103,7 @@ export function WebhookLogs({ filterByProject = true }: WebhookLogsProps) {
 
     useEffect(() => {
         if (isClient) {
-            if (filterByProject && !projectId) return;
+            if (filterByProject && !projectId) return; // Wait for project ID if filtering
             fetchLogs(currentPage, searchQuery);
         }
     }, [currentPage, searchQuery, fetchLogs, isClient, projectId, filterByProject]);

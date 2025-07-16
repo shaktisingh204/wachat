@@ -112,7 +112,7 @@ function WebhookStatus() {
             <CardContent>
                 {isLoading ? (
                     <Skeleton className="h-10 w-full" />
-                ) : status ? (
+                ) : status && projectId ? (
                     <div className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex items-center gap-3">
                             {status.isActive ? (
@@ -127,12 +127,10 @@ function WebhookStatus() {
                                 {status.error && <span className="text-xs text-muted-foreground font-mono">{status.error}</span>}
                             </div>
                         </div>
-                         {projectId && (
-                            <SubscribeProjectButton projectId={projectId} isActive={status.isActive} />
-                         )}
+                        <SubscribeProjectButton projectId={projectId} isActive={status.isActive} />
                     </div>
                 ) : (
-                    <p className="text-muted-foreground text-sm">Could not determine status.</p>
+                    <p className="text-muted-foreground text-sm">Could not determine status. Select a project.</p>
                 )}
             </CardContent>
         </Card>
@@ -197,3 +195,4 @@ export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
     </div>
   );
 }
+
