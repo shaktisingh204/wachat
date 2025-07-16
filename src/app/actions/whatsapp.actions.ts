@@ -72,8 +72,8 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
         
         const subscriptions = response.data.data;
         if (subscriptions && subscriptions.length > 0) {
-            // Assuming the first subscription is the correct one for simplicity.
             // A more robust solution might check the app ID if multiple apps are subscribed.
+            // For now, we assume if anything is subscribed, it's our app.
             return { isActive: true };
         }
         
@@ -88,26 +88,25 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
 
 export async function handleSubscribeProjectWebhook(wabaId: string, appId: string, accessToken: string): Promise<{ success: boolean; error?: string }> {
     const apiVersion = 'v23.0';
-    const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
-    const verifyToken = process.env.META_VERIFY_TOKEN;
-
-    if (!appId) {
-        return { success: false, error: 'App ID is not configured for this project, and no fallback is set.' };
-    }
-    if (!verifyToken) {
-        return { success: false, error: 'META_VERIFY_TOKEN is not configured.' };
-    }
-    if (!accessToken) {
-        return { success: false, error: 'An access token is required to subscribe to webhooks.' };
-    }
 
     try {
-        const fields = 'account_update,message_template_status_update,messages,phone_number_name_update,phone_number_quality_update,security,template_category_update,calls';
-        
-        await axios.post(
+        // Attempt to subscribe to the app first
+        const appSubscribeResponse = await axios.post(`https://graph.facebook.com/${apiVersion}/${appId}/subscriptions`, {
+            object: 'whatsapp_business_account',
+            callback_url: `${process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/meta`,
+            fields: 'account_update,message_template_status_update,messages,phone_number_name_update,phone_number_quality_update,security,template_category_update,calls',
+            verify_token: process.env.META_VERIFY_TOKEN,
+            access_token: accessToken,
+        });
+
+        if (!appSubscribeResponse.data.success) {
+            throw new Error("Failed to subscribe app to webhook object.");
+        }
+
+        // Then subscribe the WABA to the app's webhooks
+        const wabaSubscribeResponse = await axios.post(
             `https://graph.facebook.com/${apiVersion}/${wabaId}/subscribed_apps`,
             {
-                subscribed_fields: fields,
                 access_token: accessToken,
             }
         );
@@ -148,19 +147,20 @@ export async function updatePhoneNumberCallingSettings(
         );
         
         // If enabling, configure the inbound control setting
-        if (isCallingEnabled && inboundControl) {
+        if (isCallingEnabled) {
+            const finalInboundControl = inboundControl || 'DISABLED';
             await axios.post(
                  `https://graph.facebook.com/v23.0/${phoneNumberId}`,
                  {
                     messaging_product: 'whatsapp',
-                    inbound_call_control: inboundControl
+                    inbound_call_control: finalInboundControl
                  },
                  { headers: { Authorization: `Bearer ${project.accessToken}` } }
             );
         }
 
         // After successful API calls, sync the local DB
-        await handleSyncPhoneNumbers(projectId);
+        await revalidatePath('/dashboard/numbers');
 
         return { success: true };
     } catch (e: any) {

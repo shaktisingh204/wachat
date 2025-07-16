@@ -157,27 +157,19 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                     <Separator />
                     
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div className="space-y-0.5">
-                                <Label htmlFor="isCallingEnabled" className="text-base font-semibold">Enable Calling</Label>
-                                <p className="text-sm text-muted-foreground">Allow users to call this number from its profile.</p>
-                            </div>
-                            <Switch id="isCallingEnabled" name="isCallingEnabled" checked={isCallingEnabled} onCheckedChange={setIsCallingEnabled} />
+                         <div className="space-y-2 pl-4 border-l-2 ml-2">
+                            <Label htmlFor="inboundCallControl">Inbound Call Handling</Label>
+                             <p className="text-xs text-muted-foreground">This setting only applies if calling is enabled on the main Numbers page.</p>
+                            <Select name="inboundCallControl" value={inboundControl} onValueChange={setInboundControl}>
+                                <SelectTrigger id="inboundCallControl">
+                                    <SelectValue placeholder="Select handling method..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="DISABLED">Prevent incoming calls</SelectItem>
+                                    <SelectItem value="CALLBACK_REQUEST">Show "Request a callback" button</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
-                        {isCallingEnabled && (
-                             <div className="space-y-2 pl-4 border-l-2 ml-2">
-                                <Label htmlFor="inboundCallControl">Inbound Call Handling</Label>
-                                <Select name="inboundCallControl" value={inboundControl} onValueChange={setInboundControl}>
-                                    <SelectTrigger id="inboundCallControl">
-                                        <SelectValue placeholder="Select handling method..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="DISABLED">Prevent incoming calls</SelectItem>
-                                        <SelectItem value="CALLBACK_REQUEST">Show "Request a callback" button</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                        )}
                         <Button type="button" variant="secondary" onClick={handleCallingSettingsSave} disabled={isSavingCalling}>
                             {isSavingCalling ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Phone className="mr-2 h-4 w-4"/>}
                             Save Calling Settings
