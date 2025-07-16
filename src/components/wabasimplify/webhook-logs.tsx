@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
@@ -71,9 +72,12 @@ export function WebhookLogs({ filterByProject = true }: WebhookLogsProps) {
 
     useEffect(() => {
         setIsClient(true);
+    }, []);
+
+    useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         setProjectId(storedProjectId);
-    }, []);
+    }, [isClient]);
 
     const fetchLogs = useCallback(async (page: number, query: string, showToast = false) => {
         const idToFetch = filterByProject ? projectId : null;
@@ -100,9 +104,10 @@ export function WebhookLogs({ filterByProject = true }: WebhookLogsProps) {
 
     useEffect(() => {
         if (isClient) {
+            if (filterByProject && !projectId) return;
             fetchLogs(currentPage, searchQuery);
         }
-    }, [currentPage, searchQuery, fetchLogs, isClient, projectId]);
+    }, [currentPage, searchQuery, fetchLogs, isClient, projectId, filterByProject]);
 
 
     const handleSearch = useDebouncedCallback((term: string) => {

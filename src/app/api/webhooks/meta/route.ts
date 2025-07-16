@@ -61,10 +61,12 @@ async function findProjectIdFromWebhook(db: Db, payload: any): Promise<ObjectId 
         const entry = payload?.entry?.[0];
         if (!entry) return null;
 
+        let query: Filter<Project> = {};
+
         if (payload.object === 'whatsapp_business_account') {
             const wabaId = entry.id;
             const phoneId = entry.changes?.[0]?.value?.metadata?.phone_number_id;
-            const query: Filter<Project> = {};
+
             if (phoneId) {
                 query['phoneNumbers.id'] = phoneId;
             } else if (wabaId && wabaId !== '0') {
@@ -72,15 +74,17 @@ async function findProjectIdFromWebhook(db: Db, payload: any): Promise<ObjectId 
             } else {
                 return null;
             }
-            const project = await db.collection('projects').findOne(query, { projection: { _id: 1 } });
-            return project?._id || null;
         } else if (payload.object === 'page') {
             const pageId = entry.id;
             if (!pageId) return null;
-            const project = await db.collection('projects').findOne({ facebookPageId: pageId }, { projection: { _id: 1 } });
-            return project?._id || null;
+            query.facebookPageId = pageId;
+        } else {
+            return null;
         }
-        return null;
+
+        const project = await db.collection('projects').findOne(query, { projection: { _id: 1 } });
+        return project?._id || null;
+
     } catch (e) {
         console.error("Error finding project ID from webhook", e);
         return null;

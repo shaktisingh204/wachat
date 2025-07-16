@@ -57,7 +57,7 @@ export default function WebhooksPage() {
                 </CardContent>
             </Card>
 
-            <WebhookLogs filterByProject={false} />
+            <WebhookLogs filterByProject={true} />
         </div>
     )
 }
