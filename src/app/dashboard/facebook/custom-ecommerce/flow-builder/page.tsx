@@ -1,6 +1,8 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
+import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -46,7 +48,8 @@ import {
   saveEcommFlow,
   deleteEcommFlow,
 } from '@/app/actions/custom-ecommerce-flow.actions';
-import type { EcommFlow, EcommFlowNode, EcommFlowEdge } from '@/lib/definitions';
+import { getEcommShopById } from '@/app/actions/custom-ecommerce.actions';
+import type { EcommFlow, EcommFlowNode, EcommFlowEdge, EcommShop } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
@@ -750,7 +753,7 @@ const getNodeHandlePosition = (node: EcommFlowNode, handleId: string) => {
 export default function EcommFlowBuilderPage() {
     const { toast } = useToast();
     const [isClient, setIsClient] = useState(false);
-    const [projectId, setProjectId] = useState<string | null>(null);
+    const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
     const [flows, setFlows] = useState<WithId<EcommFlow>[]>([]);
     const [currentFlow, setCurrentFlow] = useState<WithId<EcommFlow> | null>(null);
     const [nodes, setNodes] = useState<EcommFlowNode[]>([]);
@@ -771,13 +774,14 @@ export default function EcommFlowBuilderPage() {
     const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
 
+    const params = useParams();
+    const shopId = params.shopId as string;
+
     useEffect(() => {
         setIsClient(true);
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
     }, []);
-
-    const fetchFlows = useCallback(() => {
+    
+    const fetchFlows = useCallback((projectId: string) => {
         if(projectId) {
             startLoadingTransition(async () => {
                 const flowsData = await getEcommFlows(projectId);
@@ -789,14 +793,19 @@ export default function EcommFlowBuilderPage() {
                 }
             });
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [projectId, currentFlow]);
+    }, [currentFlow]);
 
     useEffect(() => {
-        if(isClient && projectId) {
-            fetchFlows();
+        if(isClient && shopId) {
+            startLoadingTransition(async () => {
+                const shopData = await getEcommShopById(shopId);
+                setShop(shopData);
+                if (shopData) {
+                    fetchFlows(shopData.projectId.toString());
+                }
+            });
         }
-    }, [isClient, projectId, fetchFlows]);
+    }, [isClient, shopId, fetchFlows]);
     
     const handleSelectFlow = async (flowId: string) => {
         const flow = await getEcommFlowById(flowId);
@@ -846,8 +855,9 @@ export default function EcommFlowBuilderPage() {
     };
 
     const handleSaveFlow = async () => {
+        if (!shop) return;
         const flowName = (document.getElementById('flow-name-input') as HTMLInputElement)?.value;
-        if (!projectId || !flowName) return;
+        if (!flowName) return;
         const startNode = nodes.find(n => n.type === 'start');
         const triggerKeywords = startNode?.data.triggerKeywords?.split(',').map((k:string) => k.trim()).filter(Boolean) || [];
         const isWelcomeFlow = startNode?.data.isWelcomeFlow || false;
@@ -855,7 +865,7 @@ export default function EcommFlowBuilderPage() {
         startSaveTransition(async () => {
              const result = await saveEcommFlow({
                 flowId: currentFlow?._id.toString(),
-                projectId,
+                projectId: shop.projectId.toString(),
                 name: flowName,
                 nodes,
                 edges,
@@ -868,17 +878,18 @@ export default function EcommFlowBuilderPage() {
                 if(result.flowId) {
                     await handleSelectFlow(result.flowId);
                 }
-                fetchFlows();
+                fetchFlows(shop.projectId.toString());
             }
         });
     }
 
     const handleDeleteFlow = async (flowId: string) => {
+        if (!shop) return;
         const result = await deleteEcommFlow(flowId);
         if(result.error) toast({title: "Error", description: result.error, variant: 'destructive'});
         else {
             toast({title: "Success", description: result.message});
-            fetchFlows();
+            fetchFlows(shop.projectId.toString());
             if(currentFlow?._id.toString() === flowId) {
                 handleCreateNewFlow();
             }
@@ -1037,13 +1048,13 @@ export default function EcommFlowBuilderPage() {
         return <Skeleton className="h-full w-full"/>
     }
     
-    if (!projectId) {
+    if (!shopId || !shop) {
          return (
              <div className="flex flex-col gap-8">
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>Please select a project from the main dashboard to use the Flow Builder.</AlertDescription>
+                    <AlertTitle>No Shop Found</AlertTitle>
+                    <AlertDescription>Please select a valid shop to use the Chat Bot builder.</AlertDescription>
                 </Alert>
             </div>
         )
@@ -1068,7 +1079,7 @@ export default function EcommFlowBuilderPage() {
                         {selectedNode && <Button variant="outline" onClick={() => setIsPropsSheetOpen(true)} disabled={!selectedNode}><Settings2 className="mr-2 h-4 w-4"/>Properties</Button>}
                     </div>
                      <Button asChild variant="outline">
-                        <Link href="/dashboard/custom-ecommerce/flow-builder/docs">
+                        <Link href={`/dashboard/facebook/custom-ecommerce/manage/${shopId}/flow-builder/docs`}>
                             <BookOpen className="mr-2 h-4 w-4" />
                             <span className="hidden sm:inline">View Docs</span>
                         </Link>
@@ -1086,7 +1097,7 @@ export default function EcommFlowBuilderPage() {
                 <Sheet open={isBlocksSheetOpen} onOpenChange={setIsBlocksSheetOpen}>
                     <SheetContent side="left" className="p-2 flex flex-col gap-4 w-full max-w-xs">
                         <SheetTitle className="sr-only">Flows and Blocks</SheetTitle>
-                        <SheetDescription className="sr-only">A list of flows and draggable blocks.</SheetDescription>
+                        <SheetDescription className="sr-only">A list of flows and draggable blocks to build your automation.</SheetDescription>
                         <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
                     </SheetContent>
                 </Sheet>

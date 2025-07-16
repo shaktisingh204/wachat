@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
 import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
 import { CartView } from '@/components/wabasimplify/website-builder/cart-view';
+import { CartProvider } from '@/context/cart-context';
 
 
 export default async function CartPage({ params }: { params: { slug: string }}) {
@@ -30,8 +31,9 @@ export default async function CartPage({ params }: { params: { slug: string }}) 
     return (
         <div className="container mx-auto px-4 py-8">
             <h1 className="text-3xl font-bold mb-6">Your Shopping Cart</h1>
-            <CartView />
+            <CartProvider>
+                <CartView />
+            </CartProvider>
         </div>
     );
 }
-

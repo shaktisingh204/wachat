@@ -8,6 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { useParams } from 'next/navigation';
 
 const blockDocs = [
     {
@@ -91,11 +92,14 @@ const blockDocs = [
 ];
 
 export default function FlowBuilderDocsPage() {
+    const params = useParams();
+    const shopId = params.shopId as string;
+    
     return (
         <div className="flex flex-col gap-8">
             <div>
                 <Button variant="ghost" asChild className="mb-4 -ml-4">
-                    <Link href="/dashboard/custom-ecommerce/flow-builder">
+                    <Link href={`/dashboard/facebook/custom-ecommerce/manage/${shopId}/flow-builder`}>
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to Flow Builder
                     </Link>

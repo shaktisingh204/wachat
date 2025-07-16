@@ -3,13 +3,27 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
 import type { WithId, EcommProduct, EcommShop } from '@/lib/definitions';
+import { useCart } from '@/context/cart-context';
 
 export function ProductCard({ product, shopSettings, shopSlug }: { product: WithId<EcommProduct>, shopSettings: WithId<EcommShop> | null, shopSlug: string }) {
   const currency = shopSettings?.currency || 'USD';
+  const { addToCart } = useCart();
+  
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart({
+      productId: product._id.toString(),
+      name: product.name,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      quantity: 1
+    });
+  }
 
   return (
     <Link href={`/shop/${shopSlug}/product/${product._id.toString()}`} className="group block">
@@ -27,16 +41,16 @@ export function ProductCard({ product, shopSettings, shopSlug }: { product: With
         <CardContent className="p-4 flex-grow flex flex-col justify-between">
             <div>
                 <h3 className="font-semibold text-base line-clamp-2">{product.name}</h3>
-                <p className="text-sm text-muted-foreground">Category</p>
+                <p className="text-sm text-muted-foreground">{product.category || 'Uncategorized'}</p>
             </div>
             <div className="flex justify-between items-center mt-2">
                 <p className="text-lg font-bold text-primary">
-                {new Intl.NumberFormat('en-US', {
+                {new Intl.NumberFormat('en-IN', {
                     style: 'currency',
                     currency: currency,
                 }).format(product.price)}
                 </p>
-                 <Button size="sm" variant="outline">
+                 <Button size="sm" variant="outline" onClick={handleAddToCart}>
                     <ShoppingCart className="mr-2 h-4 w-4" />
                     Add
                 </Button>

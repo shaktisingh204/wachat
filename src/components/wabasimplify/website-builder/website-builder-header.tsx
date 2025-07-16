@@ -28,7 +28,7 @@ export function WebsiteBuilderHeader({
     <header className="flex-shrink-0 flex items-center justify-between gap-4 p-3 border-b bg-background">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" asChild>
-          <Link href={`/dashboard/facebook/custom-ecommerce/manage/${shop._id.toString()}`}>
+          <Link href={`/dashboard/facebook/custom-ecommerce`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>

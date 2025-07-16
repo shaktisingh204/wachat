@@ -85,6 +85,7 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
             setActivePageId(newPage._id.toString());
             setLayout(newHomePage);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); 
 
     const activePage = useMemo(() => pages.find(p => p._id.toString() === activePageId), [pages, activePageId]);
