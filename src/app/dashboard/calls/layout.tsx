@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from "next/link";
@@ -8,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Phone, Settings } from "lucide-react";
 
 const navItems = [
-    { href: "/dashboard/calls", label: "Call Logs", icon: Phone },
+    { href: "/dashboard/calls/logs", label: "Call Logs", icon: Phone },
     { href: "/dashboard/calls/settings", label: "Settings", icon: Settings },
 ];
 
