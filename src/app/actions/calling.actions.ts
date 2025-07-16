@@ -30,7 +30,9 @@ export async function getPhoneNumberCallingSettings(
 
     const data = response.data;
     if (data.error) {
-      if (data.error.code === 100 && data.error.message.includes('nonexisting field')) {
+       // This error code (100) indicates the field doesn't exist yet, which is normal for new numbers.
+       // We can treat it as a success case where there are no settings.
+      if (data.error.code === 100 && data.error.error_subcode === 33) {
         return { settings: undefined };
       }
       throw new Error(getErrorMessage({ response }));
