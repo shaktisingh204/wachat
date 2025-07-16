@@ -104,6 +104,17 @@ const facebookMenuGroups = [
         { href: '/dashboard/facebook/knowledge', label: 'Knowledge Base', icon: BookCopy },
     ]
   },
+   {
+    title: 'Custom Shops',
+    items: [
+      { href: '/dashboard/facebook/custom-ecommerce', label: 'Shops Dashboard', icon: LayoutDashboard },
+      { href: '/dashboard/facebook/custom-ecommerce/products', label: 'Products', icon: ShoppingBag },
+      { href: '/dashboard/facebook/custom-ecommerce/orders', label: 'Orders', icon: Package },
+      { href: '/dashboard/facebook/custom-ecommerce/appearance', label: 'Appearance', icon: Palette },
+      { href: '/dashboard/facebook/custom-ecommerce/flow-builder', label: 'Chat Bot', icon: Bot },
+      { href: '/dashboard/facebook/custom-ecommerce/settings', label: 'Settings', icon: Settings },
+    ],
+  },
   {
     title: 'Meta Commerce',
     items: [
@@ -171,16 +182,6 @@ const seoMenuItems = [
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe },
 ];
 
-const customEcommerceMenuItems = [
-    { href: '/dashboard/facebook/custom-ecommerce', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/facebook/custom-ecommerce/products', label: 'Products', icon: ShoppingBag },
-    { href: '/dashboard/facebook/custom-ecommerce/orders', label: 'Orders', icon: Package },
-    { href: '/dashboard/facebook/custom-ecommerce/appearance', label: 'Appearance', icon: Palette },
-    { href: '/dashboard/facebook/custom-ecommerce/flow-builder', label: 'Chat Bot', icon: Bot },
-    { href: '/dashboard/facebook/custom-ecommerce/settings', label: 'Settings', icon: Settings },
-];
-
-
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -213,7 +214,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         case 'facebook': items = facebookMenuGroups.map(group => ({ ...group, items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent']}))})); break;
         case 'crm': items = [{ title: 'CRM Tools', items: crmMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'instagram': items = [{ title: null, items: instagramMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        case 'custom-ecommerce': items = [{ title: null, items: customEcommerceMenuItems.map(item => ({ ...item, roles: ['owner', 'admin', 'agent'] })) }]; break;
         case 'url-shortener': items = [{ title: null, items: urlShortenerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'qr-code-maker': items = [{ title: null, items: qrCodeMakerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'seo-suite': items = [{ title: null, items: seoMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
@@ -235,9 +235,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       const storedProjectId = localStorage.getItem('activeProjectId');
       setActiveProjectId(storedProjectId);
 
-      if (pathname.startsWith('/dashboard/facebook/custom-ecommerce')) {
-          setActiveApp('custom-ecommerce');
-      } else if (pathname.startsWith('/dashboard/facebook')) {
+      if (pathname.startsWith('/dashboard/facebook')) {
           setActiveApp('facebook');
       } else if (pathname.startsWith('/dashboard/instagram')) {
           setActiveApp('instagram');
@@ -289,7 +287,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const appIcons = [
     { id: 'whatsapp', href: '/dashboard', icon: WhatsAppIcon, label: 'Wachat Suite', className: 'bg-[#25D366] text-white', hoverClassName: 'bg-card text-[#25D366] hover:bg-accent' },
     { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite', className: 'bg-blue-600 text-white', hoverClassName: 'bg-card text-blue-600 hover:bg-accent' },
-    { id: 'custom-ecommerce', href: '/dashboard/facebook/custom-ecommerce', icon: CustomEcommerceIcon, label: 'Custom Ecommerce', className: 'bg-sky-500 text-white', hoverClassName: 'bg-card text-sky-500 hover:bg-accent' },
     { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite', className: 'bg-rose-500 text-white', hoverClassName: 'bg-card text-rose-500 hover:bg-accent' },
     { id: 'seo-suite', href: '/dashboard/seo', icon: SeoIcon, label: 'SEO Suite', className: 'bg-indigo-500 text-white', hoverClassName: 'bg-card text-indigo-500 hover:bg-accent' },
     { id: 'url-shortener', href: '/dashboard/url-shortener', icon: LinkIcon, label: 'URL Shortener', className: 'bg-purple-600 text-white', hoverClassName: 'bg-card text-purple-600 hover:bg-accent' },
@@ -346,12 +343,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     )}
                     {group.items.map((item: any) => {
                       const isConnectionLink = item.href.includes('all-projects');
-                      const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp' || activeApp === 'custom-ecommerce';
+                      const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp';
                       
                       const hasActiveProjectForSuite =
                         (activeApp === 'facebook' && hasActiveFacebookProject) ||
-                        (activeApp === 'whatsapp' && hasActiveWhatsAppProject) ||
-                        (activeApp === 'custom-ecommerce' && hasActiveFacebookProject);
+                        (activeApp === 'whatsapp' && hasActiveWhatsAppProject);
 
                       const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard' && activeApp !== 'crm';
 
@@ -509,5 +505,5 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </SidebarInset>
         </SidebarProvider>
       </div>
-    );
+  );
 }

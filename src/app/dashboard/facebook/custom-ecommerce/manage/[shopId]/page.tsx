@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useRouter, useParams } from 'next/navigation';
@@ -13,6 +14,8 @@ export default function ShopManageIndexPage() {
     useEffect(() => {
         if (shopId) {
             router.replace(`/dashboard/facebook/custom-ecommerce/manage/${shopId}/settings`);
+        } else {
+             router.replace(`/dashboard/facebook/custom-ecommerce`);
         }
     }, [router, shopId]);
 

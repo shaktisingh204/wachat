@@ -36,6 +36,7 @@ function ShopCard({ project }: { project: WithId<Project> }) {
     const router = useRouter();
     
     const handleManageShop = () => {
+        // Since custom-ecommerce is part of the facebook suite, it uses the same project ID
         localStorage.setItem('activeProjectId', project._id.toString());
         router.push(`/dashboard/facebook/custom-ecommerce/manage/${project._id.toString()}`);
     }
@@ -121,5 +122,3 @@ export default function CustomEcommerceDashboard() {
         </div>
     );
 }
-
-    
