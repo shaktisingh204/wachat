@@ -9,7 +9,7 @@ import { getPhoneNumberCallingSettings, savePhoneNumberCallingSettings } from '@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LoaderCircle, Save, AlertCircle, PhoneCall, Phone, Video, Router, Key } from 'lucide-react';
+import { LoaderCircle, Save, AlertCircle, Phone, Video, Router, Key } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
