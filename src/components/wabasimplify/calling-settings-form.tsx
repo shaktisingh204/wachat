@@ -9,11 +9,12 @@ import { getPhoneNumberCallingSettings, savePhoneNumberCallingSettings } from '@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LoaderCircle, Save, AlertCircle } from 'lucide-react';
+import { LoaderCircle, Save, AlertCircle, PhoneCall } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { Input } from '../ui/input';
 
 const saveInitialState = { success: false, error: undefined };
 
@@ -35,7 +36,8 @@ interface CallingSettingsFormProps {
 export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps) {
     const [settings, setSettings] = useState<Partial<CallingSettings>>({
         voice: { enabled: false },
-        video: { enabled: false }
+        video: { enabled: false },
+        sip: { enabled: false }
     });
     const [isLoading, startLoading] = useTransition();
     const [saveState, formAction] = useActionState(savePhoneNumberCallingSettings, saveInitialState);
@@ -47,7 +49,7 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
             if (result.error) {
                 toast({ title: "Error", description: `Could not fetch settings: ${result.error}`, variant: 'destructive' });
             } else {
-                setSettings(result.settings || { voice: { enabled: false }, video: { enabled: false } });
+                setSettings(result.settings || { voice: { enabled: false }, video: { enabled: false }, sip: { enabled: false } });
             }
         });
     }, [project, phone, toast]);
@@ -81,16 +83,46 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
                             <Label htmlFor="voice_enabled" className="text-base font-semibold">Enable Voice Calls</Label>
                             <p className="text-sm text-muted-foreground">Allow users to place voice calls to this number.</p>
                         </div>
-                        <input type="hidden" name="voice_enabled" value={settings.voice?.enabled ? 'on' : 'off'} />
-                        <Switch id="voice_enabled" checked={settings.voice?.enabled || false} onCheckedChange={(checked) => setSettings(s => ({...s, voice: { ...s.voice, enabled: checked }}))} />
+                        <Switch id="voice_enabled" name="voice_enabled" defaultChecked={settings.voice?.enabled || false} />
                     </div>
                      <div className="flex items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
                             <Label htmlFor="video_enabled" className="text-base font-semibold">Enable Video Calls</Label>
                             <p className="text-sm text-muted-foreground">Allow users to place video calls to this number.</p>
                         </div>
-                        <input type="hidden" name="video_enabled" value={settings.video?.enabled ? 'on' : 'off'} />
-                        <Switch id="video_enabled" checked={settings.video?.enabled || false} onCheckedChange={(checked) => setSettings(s => ({...s, video: { ...s.video, enabled: checked }}))} />
+                        <Switch id="video_enabled" name="video_enabled" defaultChecked={settings.video?.enabled || false} />
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Separator className="my-6" />
+            
+            <Card>
+                 <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><PhoneCall className="h-5 w-5"/> SIP Integration (Optional)</CardTitle>
+                    <CardDescription>Route incoming WhatsApp calls to your external SIP infrastructure.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                            <Label htmlFor="sip_enabled" className="text-base font-semibold">Enable SIP Integration</Label>
+                        </div>
+                        <Switch id="sip_enabled" name="sip_enabled" defaultChecked={settings.sip?.enabled || false} />
+                    </div>
+                    
+                    <div className="space-y-2">
+                        <Label htmlFor="sip_uri">SIP URI</Label>
+                        <Input id="sip_uri" name="sip_uri" placeholder="sip.example.com" defaultValue={settings.sip?.uri} />
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="sip_username">SIP Username</Label>
+                            <Input id="sip_username" name="sip_username" defaultValue={settings.sip?.username} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="sip_password">SIP Password</Label>
+                            <Input id="sip_password" name="sip_password" type="password" defaultValue={settings.sip?.password} />
+                        </div>
                     </div>
                 </CardContent>
             </Card>

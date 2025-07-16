@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type CrmModulePermissions = {
@@ -175,6 +176,12 @@ export type CallingSettings = {
   video: {
     enabled: boolean;
   };
+  sip?: {
+    enabled: boolean;
+    uri?: string;
+    username?: string;
+    password?: string;
+  }
 };
 
 export type PhoneNumber = {
