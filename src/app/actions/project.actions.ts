@@ -27,16 +27,29 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
     }
 
     try {
+        // --- Step 1: Pre-flight check - Attempt to subscribe to webhooks to validate credentials ---
+        const webhookSubResult = await handleSubscribeProjectWebhook(wabaId, appId, accessToken);
+        if (!webhookSubResult.success) {
+            // If subscription fails, return the specific error from Meta and do not create the project.
+            return { error: `Webhook subscription failed. Please check your token and permissions. Meta API Error: ${webhookSubResult.error}` };
+        }
+        
+        // --- Step 2: If webhook check passes, proceed with project creation ---
         let businessId: string | undefined = undefined;
         if(includeCatalog) {
-            const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
-                params: { access_token: accessToken }
-            });
-            const businesses = businessesResponse.data.data;
-            if (businesses && businesses.length > 0) {
-                businessId = businesses[0].id;
-            } else {
-                console.warn("Could not find a Meta Business Account associated with this token to enable Catalog features.");
+            try {
+                const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
+                    params: { access_token: accessToken }
+                });
+                const businesses = businessesResponse.data.data;
+                if (businesses && businesses.length > 0) {
+                    businessId = businesses[0].id;
+                } else {
+                    console.warn("Could not find a Meta Business Account associated with this token to enable Catalog features.");
+                }
+            } catch(e) {
+                // Non-fatal, just means catalog features might not work
+                console.warn("Could not retrieve business ID for catalog features:", getErrorMessage(e));
             }
         }
         
@@ -75,7 +88,6 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
         
         if(result.insertedId) {
             await handleSyncPhoneNumbers(result.insertedId.toString());
-            await handleSubscribeProjectWebhook(result.insertedId.toString());
         }
 
         revalidatePath('/dashboard');
