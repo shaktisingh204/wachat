@@ -17,6 +17,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { EditPhoneNumberDialog } from '@/components/wabasimplify/edit-phone-number-dialog';
 import { cn } from '@/lib/utils';
+import { CallingToggleSwitch } from '@/components/wabasimplify/calling-toggle-switch';
 
 function NumbersPageSkeleton() {
     return (
@@ -189,11 +190,15 @@ export default function NumbersPage() {
                                   <span className="text-muted-foreground">About</span>
                                   <p className="truncate w-40 text-right">{phone.profile?.about || 'Not set'}</p>
                               </div>
+                              <div className="flex justify-between items-center">
+                                  <span className="text-muted-foreground">Calling</span>
+                                  <CallingToggleSwitch projectId={project._id.toString()} phone={phone} onUpdate={() => fetchProjectData(project._id.toString())}/>
+                              </div>
                           </CardContent>
                           <CardFooter className="mt-auto">
                               <Button variant="secondary" className="w-full" onClick={() => setEditingPhone(phone)}>
                                   <Edit className="mr-2 h-4 w-4"/>
-                                  Edit Profile
+                                  Edit Profile & Settings
                               </Button>
                           </CardFooter>
                       </Card>
