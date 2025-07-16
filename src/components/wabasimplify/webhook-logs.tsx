@@ -113,7 +113,7 @@ export function WebhookLogs({ filterByProject = true }: WebhookLogsProps) {
     const handleSearch = useDebouncedCallback((term: string) => {
         setSearchQuery(term);
         setCurrentPage(1); 
-    }, 500);
+    }, 300);
 
     const handleClearLogs = () => {
         startClearingTransition(async () => {
@@ -305,3 +305,5 @@ export function WebhookLogs({ filterByProject = true }: WebhookLogsProps) {
         </Card>
     );
 }
+
+    

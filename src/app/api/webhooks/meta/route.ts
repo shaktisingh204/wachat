@@ -61,29 +61,28 @@ async function findProjectIdFromWebhook(db: Db, payload: any): Promise<ObjectId 
         const entry = payload?.entry?.[0];
         if (!entry) return null;
 
-        let query: Filter<Project> = {};
-
         if (payload.object === 'whatsapp_business_account') {
-            const wabaId = entry.id;
             const phoneId = entry.changes?.[0]?.value?.metadata?.phone_number_id;
-
             if (phoneId) {
-                query['phoneNumbers.id'] = phoneId;
-            } else if (wabaId && wabaId !== '0') {
-                query.wabaId = wabaId;
-            } else {
-                return null;
+                const project = await db.collection<Project>('projects').findOne({ 'phoneNumbers.id': phoneId }, { projection: { _id: 1 } });
+                if (project) return project._id;
+            }
+            
+            // Fallback to WABA ID if phone number ID doesn't match (e.g., for non-message events or unsynced numbers)
+            const wabaId = entry.id;
+            if (wabaId && wabaId !== '0') {
+                const project = await db.collection<Project>('projects').findOne({ wabaId: wabaId }, { projection: { _id: 1 } });
+                if (project) return project._id;
             }
         } else if (payload.object === 'page') {
             const pageId = entry.id;
-            if (!pageId) return null;
-            query.facebookPageId = pageId;
-        } else {
-            return null;
+            if (pageId) {
+                const project = await db.collection<Project>('projects').findOne({ facebookPageId: pageId }, { projection: { _id: 1 } });
+                if (project) return project._id;
+            }
         }
 
-        const project = await db.collection('projects').findOne(query, { projection: { _id: 1 } });
-        return project?._id || null;
+        return null;
 
     } catch (e) {
         console.error("Error finding project ID from webhook", e);
@@ -252,3 +251,5 @@ export async function POST(request: NextRequest) {
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
+
+    

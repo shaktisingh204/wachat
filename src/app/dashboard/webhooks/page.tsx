@@ -1,5 +1,7 @@
 
 
+'use client';
+
 import { WebhookInfo } from "@/components/wabasimplify/webhook-info";
 import { WebhookLogs } from "@/components/wabasimplify/webhook-logs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,10 +9,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Lightbulb } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
-
-export const metadata = {
-  title: "Webhooks | SabNode",
-};
 
 export default function WebhooksPage() {
     const verifyToken = process.env.META_VERIFY_TOKEN;
@@ -61,3 +59,5 @@ export default function WebhooksPage() {
         </div>
     )
 }
+
+    
