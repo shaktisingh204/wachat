@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useToast } from '@/hooks/use-toast';
@@ -69,7 +68,7 @@ function InfoRow({ label, value, isSecret = false }: { label: string, value: str
 }
 
 function WebhookStatus() {
-    const [status, setStatus] = useState<{ isActive: boolean; callbackUrl?: string; error?: string } | null>(null);
+    const [status, setStatus] = useState<{ isActive: boolean; error?: string } | null>(null);
     const [isLoading, startTransition] = useTransition();
 
     const checkStatus = async () => {
@@ -81,11 +80,11 @@ function WebhookStatus() {
         
         startTransition(async () => {
             const project = await getProjectById(projectId);
-            if(project?.appId && project.accessToken) {
-                const statusResult = await getWebhookSubscriptionStatus(project.appId, project.accessToken);
+            if(project?.wabaId && project.accessToken) {
+                const statusResult = await getWebhookSubscriptionStatus(project.wabaId, project.accessToken);
                 setStatus(statusResult);
             } else {
-                setStatus({ isActive: false, error: "Project App ID or Access Token not configured." });
+                setStatus({ isActive: false, error: "Project WABA ID or Access Token not configured." });
             }
         });
     }
@@ -121,10 +120,9 @@ function WebhookStatus() {
                                 <span className={cn("font-semibold", status.isActive ? 'text-primary' : 'text-destructive')}>
                                     {status.isActive ? 'Active' : 'Inactive'}
                                 </span>
-                                <span className="text-xs text-muted-foreground font-mono">{status.callbackUrl || status.error || 'N/A'}</span>
+                                {status.error && <span className="text-xs text-muted-foreground font-mono">{status.error}</span>}
                             </div>
                         </div>
-                        {status.isActive && <Badge>Receiving Events</Badge>}
                     </div>
                 ) : (
                     <p className="text-muted-foreground text-sm">Could not determine status.</p>
@@ -140,12 +138,18 @@ export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
 
     useEffect(() => {
         setIsClient(true);
-        if (webhookPath.startsWith('/')) {
-            setFullUrl(`${window.location.origin}${webhookPath}`);
-        } else {
-            setFullUrl(webhookPath);
+    }, []);
+
+    useEffect(() => {
+        if (isClient) {
+            if (webhookPath.startsWith('/')) {
+                setFullUrl(`${window.location.origin}${webhookPath}`);
+            } else {
+                setFullUrl(webhookPath);
+            }
         }
-    }, [webhookPath]);
+    }, [isClient, webhookPath]);
+
 
     if (!isClient) {
         return (

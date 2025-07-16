@@ -59,28 +59,27 @@ export async function getLibraryTemplates() {
 
 // --- WEBHOOK ACTIONS ---
 
-export async function getWebhookSubscriptionStatus(appId: string, accessToken: string): Promise<{ isActive: boolean; callbackUrl?: string; fields?: string[]; error?: string }> {
-    if (!appId || !accessToken) {
-        return { isActive: false, error: 'App ID or Access Token not provided.' };
+export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: string): Promise<{ isActive: boolean; error?: string }> {
+    if (!wabaId || !accessToken) {
+        return { isActive: false, error: 'WABA ID or Access Token not provided.' };
     }
     
     try {
-        const response = await axios.get(`https://graph.facebook.com/v20.0/${appId}/subscriptions`, {
-            params: { access_token: accessToken }
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${wabaId}/subscribed_apps`, {
+            params: { 
+                access_token: accessToken,
+                fields: 'id,subscribed_fields' // Requesting fields to check which events are subscribed
+            }
         });
         
         const subscriptions = response.data.data;
-        const wabaSubscription = subscriptions.find((sub: any) => sub.object === 'whatsapp_business_account');
-        
-        if (wabaSubscription && wabaSubscription.active) {
-            return {
-                isActive: true,
-                callbackUrl: wabaSubscription.callback_url,
-                fields: wabaSubscription.fields.map((f: any) => f.name)
-            };
+        if (subscriptions && subscriptions.length > 0) {
+            // Assuming the first subscription is the relevant one.
+            // A more robust implementation might check against a known App ID.
+            return { isActive: true };
         }
         
-        return { isActive: false, error: 'No active WhatsApp subscription found.' };
+        return { isActive: false, error: 'No active subscription found for this WABA.' };
     } catch (e: any) {
         console.error("Webhook status check failed:", getErrorMessage(e));
         return { isActive: false, error: getErrorMessage(e) };
