@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
@@ -14,9 +15,9 @@ import { CallingSettingsForm } from '@/components/wabasimplify/calling-settings-
 function SettingsPageSkeleton() {
     return (
         <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-bold font-headline">Calling Settings</h1>
-                <p className="text-muted-foreground">Manage your WhatsApp Business Calling settings.</p>
+            <div className="space-y-2">
+                <Skeleton className="h-6 w-1/3" />
+                <Skeleton className="h-4 w-2/3" />
             </div>
             <Skeleton className="h-10 w-full md:w-1/2" />
             <Skeleton className="h-[400px] w-full" />

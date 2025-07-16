@@ -7,9 +7,11 @@ import { type Db, ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions';
-import type { Project, Template } from '@/lib/definitions';
+import type { Project, Template, CallingSettings } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
+
+const API_VERSION = 'v23.0';
 
 // --- TEMPLATE ACTIONS ---
 export async function getTemplates(projectId: string): Promise<WithId<Template>[]> {
@@ -66,14 +68,12 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
     }
     
     try {
-        const response = await axios.get(`https://graph.facebook.com/v19.0/${wabaId}/subscribed_apps`, {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${wabaId}/subscribed_apps`, {
             params: { access_token: accessToken }
         });
         
         const subscriptions = response.data.data;
         if (subscriptions && subscriptions.length > 0) {
-            // A more robust solution might check the app ID if multiple apps are subscribed.
-            // For now, we assume if anything is subscribed, it's our app.
             return { isActive: true };
         }
         
@@ -87,11 +87,9 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
 
 
 export async function handleSubscribeProjectWebhook(wabaId: string, appId: string, accessToken: string): Promise<{ success: boolean; error?: string }> {
-    const apiVersion = 'v19.0';
-
     try {
         // Attempt to subscribe to the app first
-        const appSubscribeResponse = await axios.post(`https://graph.facebook.com/${apiVersion}/${appId}/subscriptions`, {
+        const appSubscribeResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${appId}/subscriptions`, {
             object: 'whatsapp_business_account',
             callback_url: `${process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/meta`,
             fields: 'account_update,message_template_status_update,messages,phone_number_name_update,phone_number_quality_update,security,template_category_update,calls',
@@ -103,9 +101,8 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
             throw new Error("Failed to subscribe app to webhook object.");
         }
 
-        // Then subscribe the WABA to the app's webhooks
         const wabaSubscribeResponse = await axios.post(
-            `https://graph.facebook.com/${apiVersion}/${wabaId}/subscribed_apps`,
+            `https://graph.facebook.com/${API_VERSION}/${wabaId}/subscribed_apps`,
             {
                 access_token: accessToken,
             }
@@ -118,4 +115,102 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
         console.error(`Failed to subscribe project ${wabaId}:`, errorMessage);
         return { success: false, error: errorMessage };
     }
+}
+
+// --- CALLING ACTIONS ---
+
+export async function getPhoneNumberCallingSettings(
+  projectId: string,
+  phoneNumberId: string
+): Promise<{ settings?: CallingSettings; error?: string }> {
+  const project = await getProjectById(projectId);
+  if (!project || !project.accessToken) {
+    return { error: 'Project not found or access token missing.' };
+  }
+
+  try {
+    const response = await axios.get(
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/call_settings`,
+      {
+        params: {
+          fields: 'voice,video',
+          access_token: project.accessToken,
+        },
+      }
+    );
+
+    const data = response.data;
+    if (data.error) {
+      if (data.error.code === 100 && data.error.error_subcode === 33) {
+        return { settings: undefined };
+      }
+      throw new Error(getErrorMessage({ response }));
+    }
+    
+    return { settings: data };
+
+  } catch (e: any) {
+    const errorMessage = getErrorMessage(e);
+    if(errorMessage.includes('(#100)')) {
+        return { settings: undefined };
+    }
+    console.error("Failed to get call settings:", errorMessage);
+    return { error: errorMessage };
+  }
+}
+
+export async function savePhoneNumberCallingSettings(
+  prevState: any,
+  formData: FormData
+): Promise<{ success: boolean; error?: string }> {
+  const projectId = formData.get('projectId') as string;
+  const phoneNumberId = formData.get('phoneNumberId') as string;
+  const voiceEnabled = formData.get('voice_enabled') === 'on';
+  const videoEnabled = formData.get('video_enabled') === 'on';
+  const sipEnabled = formData.get('sip_enabled') === 'on';
+  
+  if (!projectId || !phoneNumberId) {
+    return { success: false, error: 'Project and Phone Number IDs are required.' };
+  }
+
+  const project = await getProjectById(projectId);
+  if (!project) {
+    return { success: false, error: 'Project not found or access denied.' };
+  }
+  
+  try {
+    const settingsPayload: any = {
+      voice: { enabled: voiceEnabled },
+      video: { enabled: videoEnabled },
+    };
+
+    if (sipEnabled) {
+        settingsPayload.sip = {
+            enabled: true,
+            uri: formData.get('sip_uri') as string,
+            username: formData.get('sip_username') as string,
+            password: formData.get('sip_password') as string,
+        };
+        if (!settingsPayload.sip.uri) return { success: false, error: 'SIP URI is required when SIP is enabled.' };
+    } else {
+        settingsPayload.sip = {
+            enabled: false
+        };
+    }
+
+    const response = await axios.post(
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/call_settings`,
+      settingsPayload,
+      { headers: { Authorization: `Bearer ${project.accessToken}` } }
+    );
+    
+    if (response.data.error) throw new Error(getErrorMessage({ response }));
+    
+    revalidatePath(`/dashboard/calls/settings`);
+    return { success: true };
+    
+  } catch (e: any) {
+    console.error('Failed to update calling settings:', e);
+    return { success: false, error: getErrorMessage(e) };
+  }
 }
