@@ -7,7 +7,7 @@ import { getErrorMessage } from '@/lib/utils';
 import type { CallingSettings } from '@/lib/definitions';
 import { revalidatePath } from 'next/cache';
 
-const API_VERSION = 'v19.0';
+const API_VERSION = 'v23.0';
 
 export async function getPhoneNumberCallingSettings(
   projectId: string,
@@ -57,11 +57,14 @@ export async function getPhoneNumberCallingSettings(
 }
 
 export async function savePhoneNumberCallingSettings(
-  projectId: string,
-  phoneNumberId: string,
-  isCallingEnabled: boolean,
-  inboundCallControl: 'DISABLED' | 'CALLBACK_REQUEST'
+  prevState: any,
+  formData: FormData
 ): Promise<{ success: boolean; error?: string }> {
+  const projectId = formData.get('projectId') as string;
+  const phoneNumberId = formData.get('phoneNumberId') as string;
+  const isCallingEnabled = formData.get('is_calling_enabled') === 'on';
+  const inboundCallControl = formData.get('inbound_call_control') as 'DISABLED' | 'CALLBACK_REQUEST';
+  
   if (!projectId || !phoneNumberId) {
     return { success: false, error: 'Project and Phone Number IDs are required.' };
   }
