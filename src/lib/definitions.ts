@@ -180,6 +180,8 @@ export type PhoneNumber = {
         level: string;
     };
     profile?: PhoneNumberProfile;
+    is_calling_enabled?: boolean;
+    inbound_call_control?: 'DISABLED' | 'CALLBACK_REQUEST';
 };
 
 export type GeneralReplyRule = {
