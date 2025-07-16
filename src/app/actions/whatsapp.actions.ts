@@ -59,29 +59,14 @@ export async function getLibraryTemplates() {
 
 // --- WEBHOOK ACTIONS ---
 
-export async function getWebhookSubscriptionStatus(appId: string): Promise<{ isActive: boolean; callbackUrl?: string; fields?: string[]; error?: string }> {
-    const appSecret = process.env.FACEBOOK_APP_SECRET;
-    if (!appId || !appSecret) {
-        return { isActive: false, error: 'App ID or Secret not configured on the server.' };
+export async function getWebhookSubscriptionStatus(appId: string, accessToken: string): Promise<{ isActive: boolean; callbackUrl?: string; fields?: string[]; error?: string }> {
+    if (!appId || !accessToken) {
+        return { isActive: false, error: 'App ID or Access Token not provided.' };
     }
     
     try {
-        // Step 1: Get a valid App Access Token
-        const tokenResponse = await axios.get('https://graph.facebook.com/oauth/access_token', {
-            params: {
-                client_id: appId,
-                client_secret: appSecret,
-                grant_type: 'client_credentials'
-            }
-        });
-        const appAccessToken = tokenResponse.data.access_token;
-        if (!appAccessToken) {
-            return { isActive: false, error: 'Could not retrieve App Access Token from Meta.' };
-        }
-
-        // Step 2: Use the token to check subscriptions
         const response = await axios.get(`https://graph.facebook.com/v20.0/${appId}/subscriptions`, {
-            params: { access_token: appAccessToken }
+            params: { access_token: accessToken }
         });
         
         const subscriptions = response.data.data;
@@ -101,4 +86,3 @@ export async function getWebhookSubscriptionStatus(appId: string): Promise<{ isA
         return { isActive: false, error: getErrorMessage(e) };
     }
 }
-
