@@ -28,20 +28,19 @@ export async function getPhoneNumberCallingSettings(
       }
     );
 
-    if (response.data.error) {
-      // It's not a real error if the field just doesn't exist yet.
-      if (response.data.error.code === 100 && response.data.error.message.includes('nonexisting field')) {
+    const data = response.data;
+    if (data.error) {
+      if (data.error.code === 100 && data.error.message.includes('nonexisting field')) {
         return { settings: undefined };
       }
       throw new Error(getErrorMessage({ response }));
     }
     
-    // The API returns an object like { voice: {enabled: true}, video: {enabled: false} }
-    const settings = response.data;
-    if (settings && (settings.voice || settings.video)) {
-      return { settings };
+    // The API might return an empty object if no settings are configured.
+    if (data && (data.voice || data.video || data.sip)) {
+      return { settings: data };
     }
-    // Return default/undefined if the object is empty or doesn't have the expected keys
+    
     return { settings: undefined };
 
   } catch (e: any) {
@@ -71,7 +70,7 @@ export async function savePhoneNumberCallingSettings(
   }
   
   try {
-    const settingsPayload = {
+    const settingsPayload: any = {
       voice: {
         enabled: formData.get('voice_enabled') === 'on'
       },
@@ -79,6 +78,23 @@ export async function savePhoneNumberCallingSettings(
         enabled: formData.get('video_enabled') === 'on'
       }
     };
+
+    const sipEnabled = formData.get('sip_enabled') === 'on';
+    if (sipEnabled) {
+        settingsPayload.sip = {
+            enabled: true,
+            uri: formData.get('sip_uri'),
+            username: formData.get('sip_username'),
+            password: formData.get('sip_password'),
+        };
+        if (!settingsPayload.sip.uri || !settingsPayload.sip.username || !settingsPayload.sip.password) {
+            return { success: false, error: 'SIP URI, Username, and Password are required when SIP is enabled.' };
+        }
+    } else {
+        // You may need to explicitly disable SIP if it was previously enabled.
+        // The API docs are unclear, but sending enabled:false is safest.
+        settingsPayload.sip = { enabled: false };
+    }
 
     const response = await axios.post(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/call_settings`,
