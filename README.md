@@ -68,3 +68,5 @@ You need to create a Meta App and add the Webhooks product.
 Configure a webhook URL in your Meta App's settings to receive notifications. The URL will be `[YOUR_APP_URL]/api/webhooks/meta`.
 Subscribe your app to your WhatsApp Business Account (WABA). 
 You'll receive webhook notifications for various events, including changes to your WABA, phone numbers, message templates, and messages sent to your phone numbers.
+
+```
