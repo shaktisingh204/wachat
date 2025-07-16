@@ -20,9 +20,10 @@ export async function getPhoneNumberCallingSettings(
 
   try {
     const response = await axios.get(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/call_settings`,
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
       {
         params: {
+          fields: 'is_calling_enabled,inbound_call_control',
           access_token: project.accessToken,
         },
       }
@@ -30,8 +31,7 @@ export async function getPhoneNumberCallingSettings(
 
     const data = response.data;
     if (data.error) {
-       // This error code (100) indicates the field doesn't exist yet, which is normal for new numbers.
-       // We can treat it as a success case where there are no settings.
+       // This error code (100) can indicate the field doesn't exist yet, which is normal for new numbers.
       if (data.error.code === 100 && data.error.error_subcode === 33) {
         return { settings: undefined };
       }
@@ -39,8 +39,8 @@ export async function getPhoneNumberCallingSettings(
     }
     
     // The API might return an empty object if no settings are configured.
-    if (data && (data.voice || data.video || data.sip)) {
-      return { settings: data };
+    if (data && (data.is_calling_enabled !== undefined || data.inbound_call_control)) {
+      return { settings: { is_calling_enabled: data.is_calling_enabled, inbound_call_control: data.inbound_call_control } };
     }
     
     return { settings: undefined };
@@ -57,11 +57,11 @@ export async function getPhoneNumberCallingSettings(
 }
 
 export async function savePhoneNumberCallingSettings(
-  prevState: any,
-  formData: FormData
+  projectId: string,
+  phoneNumberId: string,
+  isCallingEnabled: boolean,
+  inboundCallControl: 'DISABLED' | 'CALLBACK_REQUEST'
 ): Promise<{ success: boolean; error?: string }> {
-  const projectId = formData.get('projectId') as string;
-  const phoneNumberId = formData.get('phoneNumberId') as string;
   if (!projectId || !phoneNumberId) {
     return { success: false, error: 'Project and Phone Number IDs are required.' };
   }
@@ -72,41 +72,20 @@ export async function savePhoneNumberCallingSettings(
   }
   
   try {
-    const settingsPayload: any = {
-      voice: {
-        enabled: formData.get('voice_enabled') === 'on'
-      },
-      video: {
-        enabled: formData.get('video_enabled') === 'on'
-      }
+    const settingsPayload = {
+      is_calling_enabled: isCallingEnabled,
+      inbound_call_control: inboundCallControl,
     };
 
-    const sipEnabled = formData.get('sip_enabled') === 'on';
-    if (sipEnabled) {
-        settingsPayload.sip = {
-            enabled: true,
-            uri: formData.get('sip_uri'),
-            username: formData.get('sip_username'),
-            password: formData.get('sip_password'),
-        };
-        if (!settingsPayload.sip.uri || !settingsPayload.sip.username || !settingsPayload.sip.password) {
-            return { success: false, error: 'SIP URI, Username, and Password are required when SIP is enabled.' };
-        }
-    } else {
-        // You may need to explicitly disable SIP if it was previously enabled.
-        // The API docs are unclear, but sending enabled:false is safest.
-        settingsPayload.sip = { enabled: false };
-    }
-
     const response = await axios.post(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/call_settings`,
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/settings`,
       settingsPayload,
       { headers: { Authorization: `Bearer ${project.accessToken}` } }
     );
     
     if (response.data.error) throw new Error(getErrorMessage({ response }));
     
-    revalidatePath(`/dashboard/calls/settings`);
+    revalidatePath(`/dashboard/numbers`);
     return { success: true };
     
   } catch (e: any) {

@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle, Save, Phone } from 'lucide-react';
-import { handleUpdatePhoneNumberProfile, updatePhoneNumberCallingSettings } from '@/app/actions/whatsapp.actions';
+import { handleUpdatePhoneNumberProfile, savePhoneNumberCallingSettings } from '@/app/actions/whatsapp.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project, PhoneNumber } from '@/lib/definitions';
@@ -89,7 +89,7 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
   
   const handleCallingSettingsSave = () => {
     startCallingSaveTransition(async () => {
-        const result = await updatePhoneNumberCallingSettings(project._id.toString(), phone.id, isCallingEnabled, inboundControl as any);
+        const result = await savePhoneNumberCallingSettings(project._id.toString(), phone.id, isCallingEnabled, inboundControl as any);
         if (result.success) {
             toast({ title: 'Success!', description: 'Calling settings updated.' });
             onUpdateSuccess();
