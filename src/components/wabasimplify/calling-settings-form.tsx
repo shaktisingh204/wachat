@@ -9,12 +9,13 @@ import { getPhoneNumberCallingSettings, savePhoneNumberCallingSettings } from '@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LoaderCircle, Save, AlertCircle, PhoneCall } from 'lucide-react';
+import { LoaderCircle, Save, AlertCircle, PhoneCall, Phone, Video, Router, Key } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '../ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const saveInitialState = { success: false, error: undefined };
 
@@ -34,11 +35,7 @@ interface CallingSettingsFormProps {
 }
 
 export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps) {
-    const [settings, setSettings] = useState<Partial<CallingSettings>>({
-        voice: { enabled: false },
-        video: { enabled: false },
-        sip: { enabled: false }
-    });
+    const [settings, setSettings] = useState<Partial<CallingSettings>>({});
     const [isLoading, startLoading] = useTransition();
     const [saveState, formAction] = useActionState(savePhoneNumberCallingSettings, saveInitialState);
     const { toast } = useToast();
@@ -49,7 +46,7 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
             if (result.error) {
                 toast({ title: "Error", description: `Could not fetch settings: ${result.error}`, variant: 'destructive' });
             } else {
-                setSettings(result.settings || { voice: { enabled: false }, video: { enabled: false }, sip: { enabled: false } });
+                setSettings(result.settings || {});
             }
         });
     }, [project, phone, toast]);
@@ -74,59 +71,32 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
             
              <Card>
                 <CardHeader>
-                    <CardTitle>Call Types</CardTitle>
-                    <CardDescription>Enable or disable voice and video calling for this number.</CardDescription>
+                    <CardTitle>Call Types & Inbound Control</CardTitle>
+                    <CardDescription>Enable or disable voice/video calling and manage how incoming calls are handled.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="flex items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                            <Label htmlFor="voice_enabled" className="text-base font-semibold">Enable Voice Calls</Label>
-                            <p className="text-sm text-muted-foreground">Allow users to place voice calls to this number.</p>
+                            <Label htmlFor="is_calling_enabled" className="text-base font-semibold flex items-center gap-2"><Phone className="h-4 w-4"/>Enable Voice & Video Calls</Label>
+                            <p className="text-sm text-muted-foreground">Master switch to allow any calls to this number.</p>
                         </div>
-                        <Switch id="voice_enabled" name="voice_enabled" defaultChecked={settings.voice?.enabled || false} />
+                        <Switch id="is_calling_enabled" name="is_calling_enabled" defaultChecked={settings.is_calling_enabled || false} />
                     </div>
-                     <div className="flex items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                            <Label htmlFor="video_enabled" className="text-base font-semibold">Enable Video Calls</Label>
-                            <p className="text-sm text-muted-foreground">Allow users to place video calls to this number.</p>
-                        </div>
-                        <Switch id="video_enabled" name="video_enabled" defaultChecked={settings.video?.enabled || false} />
+                    <div className="space-y-2">
+                        <Label htmlFor="inbound_call_control">Inbound Call Handling</Label>
+                        <Select name="inbound_call_control" defaultValue={settings.inbound_call_control || 'DISABLED'}>
+                             <SelectTrigger id="inbound_call_control"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="DISABLED">Prevent incoming calls</SelectItem>
+                                <SelectItem value="CALLBACK_REQUEST">Show "Request a callback" button</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
                 </CardContent>
             </Card>
 
             <Separator className="my-6" />
             
-            <Card>
-                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><PhoneCall className="h-5 w-5"/> SIP Integration (Optional)</CardTitle>
-                    <CardDescription>Route incoming WhatsApp calls to your external SIP infrastructure.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="flex items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                            <Label htmlFor="sip_enabled" className="text-base font-semibold">Enable SIP Integration</Label>
-                        </div>
-                        <Switch id="sip_enabled" name="sip_enabled" defaultChecked={settings.sip?.enabled || false} />
-                    </div>
-                    
-                    <div className="space-y-2">
-                        <Label htmlFor="sip_uri">SIP URI</Label>
-                        <Input id="sip_uri" name="sip_uri" placeholder="sip.example.com" defaultValue={settings.sip?.uri} />
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="sip_username">SIP Username</Label>
-                            <Input id="sip_username" name="sip_username" defaultValue={settings.sip?.username} />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="sip_password">SIP Password</Label>
-                            <Input id="sip_password" name="sip_password" type="password" defaultValue={settings.sip?.password} />
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
             <div className="flex justify-end mt-8">
                 <SaveButton />
             </div>

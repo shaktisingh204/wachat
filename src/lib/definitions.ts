@@ -170,18 +170,8 @@ export type PhoneNumberProfile = {
 }
 
 export type CallingSettings = {
-  voice: {
-    enabled: boolean;
-  };
-  video: {
-    enabled: boolean;
-  };
-  sip?: {
-    enabled: boolean;
-    uri?: string;
-    username?: string;
-    password?: string;
-  }
+    is_calling_enabled?: boolean;
+    inbound_call_control?: 'DISABLED' | 'CALLBACK_REQUEST';
 };
 
 export type PhoneNumber = {
@@ -196,6 +186,7 @@ export type PhoneNumber = {
     };
     profile?: PhoneNumberProfile;
     is_calling_enabled?: boolean;
+    inbound_call_control?: 'DISABLED' | 'CALLBACK_REQUEST';
 };
 
 export type GeneralReplyRule = {

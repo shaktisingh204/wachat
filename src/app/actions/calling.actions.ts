@@ -23,7 +23,7 @@ export async function getPhoneNumberCallingSettings(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
       {
         params: {
-          fields: 'is_calling_enabled,inbound_call_control',
+          fields: 'calling',
           access_token: project.accessToken,
         },
       }
@@ -39,8 +39,8 @@ export async function getPhoneNumberCallingSettings(
     }
     
     // The API might return an empty object if no settings are configured.
-    if (data && (data.is_calling_enabled !== undefined || data.inbound_call_control)) {
-      return { settings: { is_calling_enabled: data.is_calling_enabled, inbound_call_control: data.inbound_call_control } };
+    if (data && data.calling) {
+      return { settings: data.calling };
     }
     
     return { settings: undefined };
@@ -76,8 +76,10 @@ export async function savePhoneNumberCallingSettings(
   
   try {
     const settingsPayload = {
-      is_calling_enabled: isCallingEnabled,
-      inbound_call_control: inboundCallControl,
+      calling: {
+        is_calling_enabled: isCallingEnabled,
+        inbound_call_control: inboundCallControl,
+      }
     };
 
     const response = await axios.post(
