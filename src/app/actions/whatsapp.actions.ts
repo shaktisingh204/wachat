@@ -71,9 +71,7 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
         });
         
         const subscriptions = response.data.data;
-        if (subscriptions && subscriptions.length > 0) {
-            // A more robust implementation might check against a known App ID.
-            // For now, if any subscription exists, we'll consider it active.
+        if (subscriptions && subscriptions.length > 0 && subscriptions[0].subscribed === true) {
             return { isActive: true };
         }
         
@@ -84,4 +82,5 @@ export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: 
         return { isActive: false, error: errorMessage };
     }
 }
+
 

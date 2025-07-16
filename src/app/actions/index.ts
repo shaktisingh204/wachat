@@ -1757,7 +1757,7 @@ export async function handleSubscribeProjectWebhook(projectId: string): Promise<
         return { error: 'Project not found or you do not have access.' };
     }
 
-    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN || hasAccess.accessToken;
+    const accessToken = hasAccess.accessToken || process.env.META_SYSTEM_USER_ACCESS_TOKEN;
     const appId = hasAccess.appId || process.env.NEXT_PUBLIC_META_APP_ID;
     const apiVersion = 'v23.0';
     const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
@@ -3900,7 +3900,7 @@ export async function saveTemplateCategory(prevState: any, formData: FormData): 
     if (!name) return { error: 'Category name is required.' };
 
     try {
-        const { db } await connectToDatabase();
+        const { db } = await connectToDatabase();
         const existing = await db.collection('template_categories').findOne({ name });
         if (existing) return { error: 'A category with this name already exists.' };
         await db.collection('template_categories').insertOne({ name, description, createdAt: new Date() });
