@@ -25,10 +25,10 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
 
     useEffect(() => {
         setCreatedDate(new Date(project.createdAt).toLocaleDateString());
-        if (project.appId && project.accessToken) {
-            getWebhookSubscriptionStatus(project.appId, project.accessToken).then(setWebhookStatus);
+        if (project.wabaId && project.accessToken) {
+            getWebhookSubscriptionStatus(project.wabaId, project.accessToken).then(setWebhookStatus);
         }
-    }, [project.createdAt, project.appId, project.accessToken]);
+    }, [project.createdAt, project.wabaId, project.accessToken]);
 
     const handleSelectProject = () => {
         if (typeof window !== 'undefined') {
