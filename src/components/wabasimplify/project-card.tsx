@@ -7,11 +7,11 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Phone, Calendar, BarChart2, Briefcase } from 'lucide-react';
+import { Phone, Calendar, BarChart2, Briefcase, Webhook } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WithId, Project } from '@/lib/definitions';
 import { DeleteProjectButton } from './delete-project-button';
-
+import { getWebhookSubscriptionStatus } from '@/app/actions/whatsapp.actions';
 
 interface ProjectCardProps {
     project: WithId<Project>;
@@ -20,10 +20,14 @@ interface ProjectCardProps {
 export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectCardProps) {
     const router = useRouter();
     const [createdDate, setCreatedDate] = useState<string | null>(null);
+    const [webhookStatus, setWebhookStatus] = useState<{ isActive: boolean; error?: string } | null>(null);
 
     useEffect(() => {
         setCreatedDate(new Date(project.createdAt).toLocaleDateString());
-    }, [project.createdAt]);
+        if (project.appId) {
+            getWebhookSubscriptionStatus(project.appId).then(setWebhookStatus);
+        }
+    }, [project.createdAt, project.appId]);
 
     const handleSelectProject = () => {
         if (typeof window !== 'undefined') {
@@ -114,6 +118,17 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                             {formatThroughput(throughputLevel)}
                         </Badge>
                     ): (<span>N/A</span>)}
+                </div>
+                <div className="flex items-center gap-2">
+                    <Webhook className="h-4 w-4" />
+                    <span>Webhook:</span>
+                    {webhookStatus ? (
+                        <Badge variant={webhookStatus.isActive ? 'default' : 'destructive'}>
+                            {webhookStatus.isActive ? 'Active' : 'Inactive'}
+                        </Badge>
+                    ) : (
+                        <Badge variant="secondary">Checking...</Badge>
+                    )}
                 </div>
             </CardContent>
             <CardFooter className="pt-4">

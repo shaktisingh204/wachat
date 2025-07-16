@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useToast } from '@/hooks/use-toast';
@@ -6,9 +7,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Copy } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Copy, CheckCircle, AlertTriangle, RefreshCw, LoaderCircle } from 'lucide-react';
+import { useEffect, useState, useTransition } from 'react';
 import { Skeleton } from '../ui/skeleton';
+import { getWebhookSubscriptionStatus } from '@/app/actions/whatsapp.actions';
+import { getProjectById } from '@/app/actions';
+import { Badge } from '../ui/badge';
+import { cn } from '@/lib/utils';
+
 
 interface WebhookInfoProps {
   webhookPath: string;
@@ -62,6 +68,72 @@ function InfoRow({ label, value, isSecret = false }: { label: string, value: str
     )
 }
 
+function WebhookStatus() {
+    const [status, setStatus] = useState<{ isActive: boolean; callbackUrl?: string; error?: string } | null>(null);
+    const [isLoading, startTransition] = useTransition();
+
+    const checkStatus = async () => {
+        const projectId = localStorage.getItem('activeProjectId');
+        if (!projectId) {
+            setStatus({ isActive: false, error: "No project selected."});
+            return;
+        }
+        
+        startTransition(async () => {
+            const project = await getProjectById(projectId);
+            if(project?.appId) {
+                const statusResult = await getWebhookSubscriptionStatus(project.appId);
+                setStatus(statusResult);
+            } else {
+                setStatus({ isActive: false, error: "Project App ID not configured." });
+            }
+        });
+    }
+
+    useEffect(() => {
+        checkStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    return (
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle>Live Status</CardTitle>
+                    <CardDescription>Real-time status of your webhook subscription from Meta.</CardDescription>
+                </div>
+                <Button variant="outline" size="icon" onClick={checkStatus} disabled={isLoading}>
+                   {isLoading ? <LoaderCircle className="h-4 w-4 animate-spin"/> : <RefreshCw className="h-4 w-4" />}
+                </Button>
+            </CardHeader>
+            <CardContent>
+                {isLoading ? (
+                    <Skeleton className="h-10 w-full" />
+                ) : status ? (
+                    <div className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                            {status.isActive ? (
+                                <CheckCircle className="h-5 w-5 text-primary" />
+                            ) : (
+                                <AlertTriangle className="h-5 w-5 text-destructive" />
+                            )}
+                            <div className="flex flex-col">
+                                <span className={cn("font-semibold", status.isActive ? 'text-primary' : 'text-destructive')}>
+                                    {status.isActive ? 'Active' : 'Inactive'}
+                                </span>
+                                <span className="text-xs text-muted-foreground font-mono">{status.callbackUrl || status.error || 'N/A'}</span>
+                            </div>
+                        </div>
+                        {status.isActive && <Badge>Receiving Events</Badge>}
+                    </div>
+                ) : (
+                    <p className="text-muted-foreground text-sm">Could not determine status.</p>
+                )}
+            </CardContent>
+        </Card>
+    );
+}
+
 export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
     const [fullUrl, setFullUrl] = useState('');
     const [isClient, setIsClient] = useState(false);
@@ -97,17 +169,20 @@ export function WebhookInfo({ webhookPath, verifyToken }: WebhookInfoProps) {
     }
 
   return (
-    <Card className="card-gradient card-gradient-green">
-        <CardHeader>
-            <CardTitle>Webhook Details</CardTitle>
-            <CardDescription>
-                Copy these values into your Meta App configuration.
-            </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-            <InfoRow label="Callback URL" value={fullUrl} />
-            <InfoRow label="Verify Token" value={verifyToken || "Token not set in .env"} isSecret />
-        </CardContent>
-    </Card>
+    <div className="grid lg:grid-cols-2 gap-8">
+        <Card className="card-gradient card-gradient-green">
+            <CardHeader>
+                <CardTitle>Webhook Configuration</CardTitle>
+                <CardDescription>
+                    Copy these values into your Meta App configuration.
+                </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <InfoRow label="Callback URL" value={fullUrl} />
+                <InfoRow label="Verify Token" value={verifyToken || "Token not set in .env"} isSecret />
+            </CardContent>
+        </Card>
+        <WebhookStatus />
+    </div>
   );
 }
