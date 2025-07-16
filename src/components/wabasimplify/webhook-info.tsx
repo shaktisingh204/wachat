@@ -127,8 +127,8 @@ function WebhookStatus() {
                                 {status.error && <span className="text-xs text-muted-foreground font-mono">{status.error}</span>}
                             </div>
                         </div>
-                         {!status.isActive && projectId && (
-                            <SubscribeProjectButton projectId={projectId} />
+                         {projectId && (
+                            <SubscribeProjectButton projectId={projectId} isActive={status.isActive} />
                          )}
                     </div>
                 ) : (

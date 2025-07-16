@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useTransition } from 'react';
@@ -6,14 +7,13 @@ import { handleSubscribeProjectWebhook } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Rss, LoaderCircle } from 'lucide-react';
-import type { WithId } from 'mongodb';
-import type { Project } from '@/app/actions';
 
 interface SubscribeProjectButtonProps {
   projectId: string;
+  isActive: boolean;
 }
 
-export function SubscribeProjectButton({ projectId }: SubscribeProjectButtonProps) {
+export function SubscribeProjectButton({ projectId, isActive }: SubscribeProjectButtonProps) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   
@@ -36,6 +36,8 @@ export function SubscribeProjectButton({ projectId }: SubscribeProjectButtonProp
     });
   };
 
+  const buttonText = isActive ? 'Resubscribe' : 'Subscribe';
+
   return (
     <Button onClick={onSubscribe} variant="outline" size="sm" disabled={isPending}>
       {isPending ? (
@@ -43,7 +45,7 @@ export function SubscribeProjectButton({ projectId }: SubscribeProjectButtonProp
       ) : (
         <Rss className="mr-2 h-4 w-4" />
       )}
-      Subscribe
+      {buttonText}
     </Button>
   );
 }
