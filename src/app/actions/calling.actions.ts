@@ -88,7 +88,7 @@ export async function savePhoneNumberCallingSettings(
              status: 'DISABLED',
              weekly_operating_hours: [], // Always include empty arrays
              holiday_schedule: [],
-             timezone_id: formData.get('timezone_id') as string || 'UTC',
+             timezone_id: formData.get('timezone_id') as string || 'UTC', // Ensure timezone is present
         };
     }
 
