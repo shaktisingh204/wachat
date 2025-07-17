@@ -54,7 +54,7 @@ export async function getPhoneNumberCallingSettings(
 export async function savePhoneNumberCallingSettings(
   prevState: any,
   formData: FormData
-): Promise<{ success: boolean; error?: string, payload?: string }> {
+): Promise<{ success: boolean; error?: string }> {
   const projectId = formData.get('projectId') as string;
   const phoneNumberId = formData.get('phoneNumberId') as string;
   
@@ -73,24 +73,20 @@ export async function savePhoneNumberCallingSettings(
     settingsPayload.calling.status = formData.get('status');
     settingsPayload.calling.call_icon_visibility = formData.get('call_icon_visibility');
     settingsPayload.calling.callback_permission_status = formData.get('callback_permission_status');
+    
+    // --- Corrected Call Hours Logic ---
+    const callHoursStatus = formData.get('call_hours_status') as 'ENABLED' | 'DISABLED';
+    const weeklyHours = JSON.parse(formData.get('weekly_operating_hours') as string || '[]');
+    const holidaySchedule = JSON.parse(formData.get('holiday_schedule') as string || '[]');
+    const timezoneId = formData.get('timezone_id') as string || 'UTC';
 
-    if (formData.get('call_hours_status') === 'ENABLED') {
-        const weeklyHours = JSON.parse(formData.get('weekly_operating_hours') as string || '[]');
-        const holidaySchedule = JSON.parse(formData.get('holiday_schedule') as string || '[]');
-        settingsPayload.calling.call_hours = {
-            status: 'ENABLED',
-            timezone_id: formData.get('timezone_id') as string,
-            weekly_operating_hours: weeklyHours,
-            holiday_schedule: holidaySchedule,
-        };
-    } else {
-        settingsPayload.calling.call_hours = {
-             status: 'DISABLED',
-             weekly_operating_hours: [], // Always include empty arrays
-             holiday_schedule: [],
-             timezone_id: formData.get('timezone_id') as string || 'UTC', // Ensure timezone is present
-        };
-    }
+    settingsPayload.calling.call_hours = {
+        status: callHoursStatus,
+        timezone_id: timezoneId,
+        weekly_operating_hours: callHoursStatus === 'ENABLED' ? weeklyHours : [],
+        holiday_schedule: callHoursStatus === 'ENABLED' ? holidaySchedule : [],
+    };
+    // --- End Corrected Logic ---
 
     if(formData.get('sip_status') === 'ENABLED' && formData.get('sip_hostname')) {
         const sipParamsString = formData.get('sip_params') as string;
@@ -123,7 +119,7 @@ export async function savePhoneNumberCallingSettings(
     if (response.data.error) throw new Error(getErrorMessage({ response }));
     
     revalidatePath(`/dashboard/calls/settings`);
-    return { success: true, payload: JSON.stringify(settingsPayload, null, 2) };
+    return { success: true };
     
   } catch (e: any) {
     const errorMessage = getErrorMessage(e);
