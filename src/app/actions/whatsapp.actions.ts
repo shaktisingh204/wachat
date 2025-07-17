@@ -1,6 +1,6 @@
 
 
-'use server';
+'use client';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
@@ -130,10 +130,10 @@ export async function getPhoneNumberCallingSettings(
 
   try {
     const response = await axios.get(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/call_settings`,
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/settings`,
       {
         params: {
-          fields: 'voice,video',
+          fields: 'calling',
           access_token: project.accessToken,
         },
       }
@@ -147,7 +147,7 @@ export async function getPhoneNumberCallingSettings(
       throw new Error(getErrorMessage({ response }));
     }
     
-    return { settings: data };
+    return { settings: data.calling };
 
   } catch (e: any) {
     const errorMessage = getErrorMessage(e);
@@ -180,26 +180,28 @@ export async function savePhoneNumberCallingSettings(
   
   try {
     const settingsPayload: any = {
-      voice: { enabled: voiceEnabled },
-      video: { enabled: videoEnabled },
+      calling: {
+        voice: { enabled: voiceEnabled },
+        video: { enabled: videoEnabled },
+      }
     };
 
     if (sipEnabled) {
-        settingsPayload.sip = {
+        settingsPayload.calling.sip = {
             enabled: true,
             uri: formData.get('sip_uri') as string,
             username: formData.get('sip_username') as string,
             password: formData.get('sip_password') as string,
         };
-        if (!settingsPayload.sip.uri) return { success: false, error: 'SIP URI is required when SIP is enabled.' };
+        if (!settingsPayload.calling.sip.uri) return { success: false, error: 'SIP URI is required when SIP is enabled.' };
     } else {
-        settingsPayload.sip = {
+        settingsPayload.calling.sip = {
             enabled: false
         };
     }
 
     const response = await axios.post(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/call_settings`,
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/settings`,
       settingsPayload,
       { headers: { Authorization: `Bearer ${project.accessToken}` } }
     );
