@@ -20,6 +20,7 @@ import { WeeklyHoursEditor } from './weekly-hours-editor';
 import { HolidayScheduleEditor } from './holiday-schedule-editor';
 import { timezones } from '@/lib/timezones';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Textarea } from '../ui/textarea';
 
 const saveInitialState = { success: false, error: undefined };
 
