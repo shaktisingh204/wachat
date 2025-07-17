@@ -68,7 +68,6 @@ export async function savePhoneNumberCallingSettings(
   }
   
   let settingsPayload: any = { calling: {} };
-  let payloadString: string | undefined;
 
   try {
     settingsPayload.calling.status = formData.get('status');
@@ -80,12 +79,17 @@ export async function savePhoneNumberCallingSettings(
         const holidaySchedule = JSON.parse(formData.get('holiday_schedule') as string || '[]');
         settingsPayload.calling.call_hours = {
             status: 'ENABLED',
-            timezone_id: formData.get('timezone_id'),
+            timezone_id: formData.get('timezone_id') as string,
             weekly_operating_hours: weeklyHours,
             holiday_schedule: holidaySchedule,
         };
     } else {
-        settingsPayload.calling.call_hours = { status: 'DISABLED', weekly_operating_hours: [], holiday_schedule: [] };
+        settingsPayload.calling.call_hours = {
+             status: 'DISABLED',
+             weekly_operating_hours: [], // Always include empty arrays
+             holiday_schedule: [],
+             timezone_id: formData.get('timezone_id') as string || 'UTC', // Provide a default or the current value
+        };
     }
 
     if(formData.get('sip_status') === 'ENABLED' && formData.get('sip_hostname')) {
@@ -109,7 +113,6 @@ export async function savePhoneNumberCallingSettings(
         settingsPayload.calling.sip = { status: 'DISABLED', servers: [] };
     }
 
-    payloadString = JSON.stringify(settingsPayload, null, 2);
 
     const response = await axios.post(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/settings`,
@@ -120,10 +123,11 @@ export async function savePhoneNumberCallingSettings(
     if (response.data.error) throw new Error(getErrorMessage({ response }));
     
     revalidatePath(`/dashboard/calls/settings`);
-    return { success: true, payload: payloadString };
+    return { success: true, payload: JSON.stringify(settingsPayload, null, 2) };
     
   } catch (e: any) {
-    console.error('Failed to update calling settings:', e);
+    console.error('Failed to update calling settings:', getErrorMessage(e));
     return { success: false, error: getErrorMessage(e) };
   }
 }
+
