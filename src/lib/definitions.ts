@@ -1275,19 +1275,17 @@ export type EcommProductVariant = {
 
 export type EcommProduct = {
   _id: ObjectId;
-  userId: ObjectId;
+  projectId: ObjectId;
+  shopId: ObjectId;
   name: string;
   description?: string;
   price: number;
+  stock?: number;
   imageUrl?: string;
   sku?: string;
   category?: string;
   subcategory?: string;
   variants?: EcommProductVariant[];
-  inventory?: {
-      warehouseId: ObjectId,
-      stock: number,
-  }[];
   createdAt: Date;
   updatedAt: Date;
 };
