@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getInitialChatData, getProjects, getConversation, markConversationAsRead, findOrCreateContact, getContactsForProject, getSession } from '@/app/actions';
+import { getInitialChatData, getProjects, getConversation, markConversationAsRead, findOrCreateContact, getContactsForProject, getSession } from '@/app/actions/index';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, AnyMessage, Template, User, Plan } from '@/lib/definitions';
 import { ChatContactList } from './chat-contact-list';
@@ -121,7 +121,7 @@ export function ChatClient() {
         setIsFetchingMore(true);
         try {
             const nextPage = contactPage + 1;
-            const { contacts: newContacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, nextPage, CONTACTS_PER_PAGE);
+            const { contacts: newContacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, nextPage, CONTACTS_PER_PAGE, undefined);
             
             if (newContacts.length > 0) {
                 setContacts(prev => [...prev, ...newContacts]);
@@ -171,7 +171,7 @@ export function ChatClient() {
         const interval = setInterval(() => {
             startPollingTransition(async () => {
                 if (project && selectedPhoneNumberId) {
-                     const { contacts: updatedContacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, 1, CONTACTS_PER_PAGE);
+                     const { contacts: updatedContacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, 1, CONTACTS_PER_PAGE, undefined);
                     setContacts(prev => {
                         const updatedMap = new Map(updatedContacts.map(c => [c._id.toString(), c]));
                         const mergedContacts = prev.map(old => updatedMap.get(old._id.toString()) || old);
@@ -201,7 +201,7 @@ export function ChatClient() {
             toast({ title: 'Error', description: result.error, variant: 'destructive'});
         }
         if (result.contact) {
-            const { contacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, 1, CONTACTS_PER_PAGE);
+            const { contacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, 1, CONTACTS_PER_PAGE, undefined);
             setContacts(contacts);
             setHasMoreContacts(contacts.length < total);
             setContactPage(1);
