@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -16,7 +17,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, RefreshCw } from 'lucide-react';
-import { handleSyncWabas } from '@/app/actions';
+import { handleSyncWabas } from '@/app/actions/index';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
