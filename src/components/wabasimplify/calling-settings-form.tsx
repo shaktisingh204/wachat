@@ -1,11 +1,11 @@
 
+
 'use client';
 
-import { useState, useEffect, useTransition, useActionState } from 'react';
+import { useState, useEffect, useTransition, useActionState, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
 import type { WithId, Project, PhoneNumber, CallingSettings, WeeklyOperatingHours, HolidaySchedule } from '@/lib/definitions';
-import { getPhoneNumberCallingSettings } from '@/app/actions/calling.actions';
-import { savePhoneNumberCallingSettings } from '@/app/actions/whatsapp.actions';
+import { getPhoneNumberCallingSettings, savePhoneNumberCallingSettings } from '@/app/actions/calling.actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -20,7 +20,7 @@ import { HolidayScheduleEditor } from './holiday-schedule-editor';
 import { timezones } from '@/lib/timezones';
 import { Textarea } from '../ui/textarea';
 
-const saveInitialState = { success: false, error: undefined, payload: undefined };
+const saveInitialState = { success: false, error: undefined };
 
 function SaveButton() {
   const { pending } = useFormStatus();
@@ -35,9 +35,10 @@ function SaveButton() {
 interface CallingSettingsFormProps {
     project: WithId<Project>;
     phone: PhoneNumber;
+    onSuccess: () => void;
 }
 
-export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps) {
+export function CallingSettingsForm({ project, phone, onSuccess }: CallingSettingsFormProps) {
     const [settings, setSettings] = useState<Partial<CallingSettings>>({});
     const [isLoading, startLoading] = useTransition();
     const [saveState, formAction] = useActionState(savePhoneNumberCallingSettings, saveInitialState);
@@ -46,7 +47,7 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
     const [weeklyHours, setWeeklyHours] = useState<WeeklyOperatingHours[]>([]);
     const [holidaySchedule, setHolidaySchedule] = useState<HolidaySchedule[]>([]);
     
-    useEffect(() => {
+    const fetchSettings = useCallback(() => {
         startLoading(async () => {
             const result = await getPhoneNumberCallingSettings(project._id.toString(), phone.id);
             if (result.error) {
@@ -60,24 +61,18 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
     }, [project, phone, toast]);
     
     useEffect(() => {
-        if (saveState.success && saveState.payload) {
-             toast({
-                title: 'Success! Payload Sent:',
-                description: (
-                    <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-                        <code className="text-white">{saveState.payload}</code>
-                    </pre>
-                ),
-            });
-             startLoading(async () => {
-                const result = await getPhoneNumberCallingSettings(project._id.toString(), phone.id);
-                setSettings(result.settings || {});
-            });
+        fetchSettings();
+    }, [fetchSettings]);
+    
+    useEffect(() => {
+        if (saveState.success) {
+            toast({ title: 'Success!', description: 'Calling settings saved successfully.' });
+            onSuccess();
         }
         if (saveState.error) {
-             toast({ title: 'Error Saving Settings', description: saveState.error, variant: 'destructive' });
+            toast({ title: 'Error Saving Settings', description: saveState.error, variant: 'destructive' });
         }
-    }, [saveState, toast, project, phone]);
+    }, [saveState, toast, onSuccess]);
 
 
     if (isLoading) {
@@ -91,7 +86,7 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
             <input type="hidden" name="weekly_operating_hours" value={JSON.stringify(weeklyHours)} />
             <input type="hidden" name="holiday_schedule" value={JSON.stringify(holidaySchedule)} />
             
-            <Accordion type="multiple" defaultValue={['general', 'hours', 'sip']} className="w-full space-y-4">
+            <Accordion type="multiple" defaultValue={['general']} className="w-full space-y-4">
                 <AccordionItem value="general">
                     <AccordionTrigger>General Settings</AccordionTrigger>
                     <AccordionContent className="pt-2">

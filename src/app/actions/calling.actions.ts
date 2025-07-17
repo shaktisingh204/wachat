@@ -2,13 +2,32 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import type { WithId } from 'mongodb';
+import type { WithId, ObjectId } from 'mongodb';
 import axios from 'axios';
 import { getProjectById } from '@/app/actions';
 import type { Project, PhoneNumber, CallingSettings } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
+import { connectToDatabase } from '@/lib/mongodb';
 
 const API_VERSION = 'v23.0';
+
+export async function getApiLogsForProject(projectId: string): Promise<any[]> {
+    if (!projectId) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const logs = await db.collection('api_logs')
+            .find({ projectId: new ObjectId(projectId), endpoint: { $regex: /settings/ } })
+            .sort({ createdAt: -1 })
+            .limit(10)
+            .toArray();
+        return JSON.parse(JSON.stringify(logs));
+    } catch (e) {
+        console.error("Failed to fetch API logs:", e);
+        return [];
+    }
+}
+
 
 export async function getPhoneNumberCallingSettings(
   projectId: string,
@@ -68,26 +87,25 @@ export async function savePhoneNumberCallingSettings(
   }
   
   let settingsPayload: any = { calling: {} };
+  let db;
 
   try {
+    const { db: connectedDb } = await connectToDatabase();
+    db = connectedDb;
+
     settingsPayload.calling.status = formData.get('status');
     settingsPayload.calling.call_icon_visibility = formData.get('call_icon_visibility');
     settingsPayload.calling.callback_permission_status = formData.get('callback_permission_status');
     
-    // --- Corrected Call Hours Logic ---
     const callHoursStatus = formData.get('call_hours_status') as 'ENABLED' | 'DISABLED';
-    const weeklyHours = JSON.parse(formData.get('weekly_operating_hours') as string || '[]');
-    const holidaySchedule = JSON.parse(formData.get('holiday_schedule') as string || '[]');
-    const timezoneId = formData.get('timezone_id') as string || 'UTC';
-
+    
     settingsPayload.calling.call_hours = {
         status: callHoursStatus,
-        timezone_id: timezoneId,
-        weekly_operating_hours: callHoursStatus === 'ENABLED' ? weeklyHours : [],
-        holiday_schedule: callHoursStatus === 'ENABLED' ? holidaySchedule : [],
+        timezone_id: formData.get('timezone_id') as string || 'UTC',
+        weekly_operating_hours: callHoursStatus === 'ENABLED' ? JSON.parse(formData.get('weekly_operating_hours') as string || '[]') : [],
+        holiday_schedule: callHoursStatus === 'ENABLED' ? JSON.parse(formData.get('holiday_schedule') as string || '[]') : [],
     };
-    // --- End Corrected Logic ---
-
+    
     if(formData.get('sip_status') === 'ENABLED' && formData.get('sip_hostname')) {
         const sipParamsString = formData.get('sip_params') as string;
         let sipParams = {};
@@ -118,12 +136,34 @@ export async function savePhoneNumberCallingSettings(
     
     if (response.data.error) throw new Error(getErrorMessage({ response }));
     
+    await db.collection('api_logs').insertOne({
+        projectId: new ObjectId(projectId),
+        endpoint: `/v23.0/${phoneNumberId}/settings`,
+        method: 'POST',
+        payload: settingsPayload,
+        response: response.data,
+        status: 'SUCCESS',
+        createdAt: new Date()
+    });
+    
     revalidatePath(`/dashboard/calls/settings`);
     return { success: true };
     
   } catch (e: any) {
     const errorMessage = getErrorMessage(e);
     console.error('Failed to update calling settings:', errorMessage);
+     if (db) {
+        await db.collection('api_logs').insertOne({
+            projectId: new ObjectId(projectId),
+            endpoint: `/v23.0/${phoneNumberId}/settings`,
+            method: 'POST',
+            payload: settingsPayload,
+            status: 'FAILURE',
+            errorMessage: errorMessage,
+            createdAt: new Date()
+        });
+    }
+    revalidatePath('/dashboard/calls/settings');
     return { success: false, error: errorMessage };
   }
 }
