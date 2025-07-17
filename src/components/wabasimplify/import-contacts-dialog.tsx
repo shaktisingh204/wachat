@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, FileUp } from 'lucide-react';
-import { handleImportContacts } from '@/app/actions';
+import { handleImportContacts } from '@/app/actions/index';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
