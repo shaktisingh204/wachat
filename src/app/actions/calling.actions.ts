@@ -55,7 +55,7 @@ export async function getPhoneNumberCallingSettings(
 export async function savePhoneNumberCallingSettings(
   prevState: any,
   formData: FormData
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string, payload?: string }> {
   const projectId = formData.get('projectId') as string;
   const phoneNumberId = formData.get('phoneNumberId') as string;
   
@@ -68,11 +68,14 @@ export async function savePhoneNumberCallingSettings(
     return { success: false, error: 'Project not found or access denied.' };
   }
   
+  let settingsPayload: any;
+  let payloadString: string | undefined;
+
   try {
     const weeklyHours = JSON.parse(formData.get('weekly_operating_hours') as string || '[]');
     const holidaySchedule = JSON.parse(formData.get('holiday_schedule') as string || '[]');
 
-    const settingsPayload = {
+    settingsPayload = {
       calling: {
         status: formData.get('status'),
         call_icon_visibility: formData.get('call_icon_visibility'),
@@ -94,6 +97,8 @@ export async function savePhoneNumberCallingSettings(
       }
     };
 
+    payloadString = JSON.stringify(settingsPayload, null, 2);
+
     const response = await axios.post(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/settings`,
       settingsPayload,
@@ -103,10 +108,10 @@ export async function savePhoneNumberCallingSettings(
     if (response.data.error) throw new Error(getErrorMessage({ response }));
     
     revalidatePath(`/dashboard/calls/settings`);
-    return { success: true };
+    return { success: true, payload: payloadString };
     
   } catch (e: any) {
     console.error('Failed to update calling settings:', e);
-    return { success: false, error: getErrorMessage(e) };
+    return { success: false, error: getErrorMessage(e), payload: payloadString };
   }
 }
