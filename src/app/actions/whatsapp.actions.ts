@@ -162,7 +162,7 @@ export async function getPhoneNumberCallingSettings(
 export async function savePhoneNumberCallingSettings(
   prevState: any,
   formData: FormData
-): Promise<{ success: boolean; error?: string, payload?: string }> {
+): Promise<{ success: boolean; error?: string; payload?: string }> {
   const projectId = formData.get('projectId') as string;
   const phoneNumberId = formData.get('phoneNumberId') as string;
   
@@ -176,8 +176,7 @@ export async function savePhoneNumberCallingSettings(
   }
   
   let settingsPayload: any = { calling: {} };
-  let payloadString: string | undefined;
-
+  
   try {
     settingsPayload.calling.status = formData.get('status');
     settingsPayload.calling.call_icon_visibility = formData.get('call_icon_visibility');
@@ -193,7 +192,11 @@ export async function savePhoneNumberCallingSettings(
             holiday_schedule: holidaySchedule,
         };
     } else {
-        settingsPayload.calling.call_hours = { status: 'DISABLED', weekly_operating_hours: [], holiday_schedule: [] };
+        settingsPayload.calling.call_hours = {
+            status: 'DISABLED',
+            weekly_operating_hours: [], // Always include empty arrays
+            holiday_schedule: [],
+        };
     }
 
     if(formData.get('sip_status') === 'ENABLED' && formData.get('sip_hostname')) {
@@ -216,9 +219,7 @@ export async function savePhoneNumberCallingSettings(
     } else {
         settingsPayload.calling.sip = { status: 'DISABLED', servers: [] };
     }
-
-    payloadString = JSON.stringify(settingsPayload, null, 2);
-
+    
     const response = await axios.post(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/settings`,
       settingsPayload,
@@ -228,7 +229,7 @@ export async function savePhoneNumberCallingSettings(
     if (response.data.error) throw new Error(getErrorMessage({ response }));
     
     revalidatePath(`/dashboard/calls/settings`);
-    return { success: true, payload: payloadString };
+    return { success: true, payload: JSON.stringify(settingsPayload, null, 2) };
     
   } catch (e: any) {
     console.error('Failed to update calling settings:', e);
