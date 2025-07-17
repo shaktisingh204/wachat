@@ -4,7 +4,7 @@
 import { useState, useEffect, useTransition, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import type { WithId, Project, PhoneNumber, CallingSettings, WeeklyOperatingHours, HolidaySchedule } from '@/lib/definitions';
-import { getPhoneNumberCallingSettings, savePhoneNumberCallingSettings } from '@/app/actions/whatsapp.actions';
+import { getPhoneNumberCallingSettings, savePhoneNumberCallingSettings } from '@/app/actions/calling.actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -22,7 +22,7 @@ import { timezones } from '@/lib/timezones';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Textarea } from '../ui/textarea';
 
-const saveInitialState = { success: false, error: undefined };
+const saveInitialState = { success: false, error: undefined, payload: undefined };
 
 function SaveButton() {
   const { pending } = useFormStatus();
@@ -63,17 +63,28 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
     }, [project, phone, toast]);
     
     useEffect(() => {
+        if (saveState.payload) {
+            toast({
+                title: saveState.success ? 'Success! Payload Sent:' : 'Error! Payload Sent:',
+                description: (
+                    <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+                        <code className="text-white">{saveState.payload}</code>
+                    </pre>
+                ),
+                variant: saveState.success ? 'default' : 'destructive',
+            });
+        }
         if (saveState.success) {
-            toast({ title: 'Success!', description: 'Calling settings have been updated.' });
             startLoading(async () => {
                 const result = await getPhoneNumberCallingSettings(project._id.toString(), phone.id);
                 setSettings(result.settings || {});
             });
         }
-        if (saveState.error) {
-            toast({ title: 'Error', description: saveState.error, variant: 'destructive' });
+        if (saveState.error && !saveState.payload) {
+             toast({ title: 'Error', description: saveState.error, variant: 'destructive' });
         }
     }, [saveState, toast, project, phone]);
+
 
     if (isLoading) {
         return <Skeleton className="h-96 w-full" />;
