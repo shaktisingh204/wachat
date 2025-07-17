@@ -88,7 +88,7 @@ export async function savePhoneNumberCallingSettings(
              status: 'DISABLED',
              weekly_operating_hours: [], // Always include empty arrays
              holiday_schedule: [],
-             timezone_id: formData.get('timezone_id') as string || 'UTC', // Provide a default or the current value
+             timezone_id: formData.get('timezone_id') as string || 'UTC',
         };
     }
 
@@ -126,8 +126,8 @@ export async function savePhoneNumberCallingSettings(
     return { success: true, payload: JSON.stringify(settingsPayload, null, 2) };
     
   } catch (e: any) {
-    console.error('Failed to update calling settings:', getErrorMessage(e));
-    return { success: false, error: getErrorMessage(e) };
+    const errorMessage = getErrorMessage(e);
+    console.error('Failed to update calling settings:', errorMessage);
+    return { success: false, error: errorMessage };
   }
 }
-
