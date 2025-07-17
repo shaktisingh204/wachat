@@ -68,34 +68,39 @@ export async function savePhoneNumberCallingSettings(
     return { success: false, error: 'Project not found or access denied.' };
   }
   
-  let settingsPayload: any;
+  let settingsPayload: any = { calling: {} };
   let payloadString: string | undefined;
 
   try {
-    const weeklyHours = JSON.parse(formData.get('weekly_operating_hours') as string || '[]');
-    const holidaySchedule = JSON.parse(formData.get('holiday_schedule') as string || '[]');
+    settingsPayload.calling.status = formData.get('status');
+    settingsPayload.calling.call_icon_visibility = formData.get('call_icon_visibility');
+    settingsPayload.calling.callback_permission_status = formData.get('callback_permission_status');
 
-    settingsPayload = {
-      calling: {
-        status: formData.get('status'),
-        call_icon_visibility: formData.get('call_icon_visibility'),
-        callback_permission_status: formData.get('callback_permission_status'),
-        call_hours: {
-            status: formData.get('call_hours_status'),
+    if (formData.get('call_hours_status') === 'ENABLED') {
+        const weeklyHours = JSON.parse(formData.get('weekly_operating_hours') as string || '[]');
+        const holidaySchedule = JSON.parse(formData.get('holiday_schedule') as string || '[]');
+        settingsPayload.calling.call_hours = {
+            status: 'ENABLED',
             timezone_id: formData.get('timezone_id'),
             weekly_operating_hours: weeklyHours,
             holiday_schedule: holidaySchedule,
-        },
-        sip: {
-            status: formData.get('sip_status'),
-            servers: formData.get('sip_hostname') ? [{
+        };
+    } else {
+        settingsPayload.calling.call_hours = { status: 'DISABLED', weekly_operating_hours: [], holiday_schedule: [] };
+    }
+
+    if(formData.get('sip_status') === 'ENABLED' && formData.get('sip_hostname')) {
+        settingsPayload.calling.sip = {
+            status: 'ENABLED',
+            servers: [{
                 hostname: formData.get('sip_hostname'),
                 port: Number(formData.get('sip_port')),
                 request_uri_user_params: formData.get('sip_params') ? JSON.parse(formData.get('sip_params') as string) : {}
-            }] : []
-        }
-      }
-    };
+            }]
+        };
+    } else {
+        settingsPayload.calling.sip = { status: 'DISABLED', servers: [] };
+    }
 
     payloadString = JSON.stringify(settingsPayload, null, 2);
 

@@ -191,7 +191,7 @@ export type CallHours = {
 export type SIPServer = {
     hostname: string;
     port: number;
-    request_uri_user_params: Record<string, string>;
+    request_uri_user_params?: Record<string, string>;
 };
 
 export type SIPSettings = {
