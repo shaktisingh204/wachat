@@ -1,6 +1,5 @@
 
-
-'use client';
+'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
@@ -130,10 +129,10 @@ export async function getPhoneNumberCallingSettings(
 
   try {
     const response = await axios.get(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/settings`,
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
       {
         params: {
-          fields: 'calling',
+          fields: 'calling_settings',
           access_token: project.accessToken,
         },
       }
@@ -141,13 +140,15 @@ export async function getPhoneNumberCallingSettings(
 
     const data = response.data;
     if (data.error) {
-      if (data.error.code === 100 && data.error.error_subcode === 33) {
+       if (data.error.code === 100 && data.error.error_subcode === 33) {
+        // Field doesn't exist, which is normal for a number not yet configured for calls.
         return { settings: undefined };
       }
       throw new Error(getErrorMessage({ response }));
     }
     
-    return { settings: data.calling };
+    // The settings are nested under a 'calling_settings' key
+    return { settings: data.calling_settings };
 
   } catch (e: any) {
     const errorMessage = getErrorMessage(e);
@@ -195,6 +196,7 @@ export async function savePhoneNumberCallingSettings(
         };
         if (!settingsPayload.calling.sip.uri) return { success: false, error: 'SIP URI is required when SIP is enabled.' };
     } else {
+        // Explicitly disable SIP if the switch is off but values might exist
         settingsPayload.calling.sip = {
             enabled: false
         };
