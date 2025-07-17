@@ -4,7 +4,7 @@
 
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getTemplateCategories, saveTemplateCategory, deleteTemplateCategory } from '@/app/actions';
+import { getTemplateCategories, saveTemplateCategory, deleteTemplateCategory } from '@/app/actions/index';
 import type { TemplateCategory } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { useToast } from '@/hooks/use-toast';

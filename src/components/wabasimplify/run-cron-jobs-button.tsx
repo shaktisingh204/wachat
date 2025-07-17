@@ -2,7 +2,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import { handleRunCron } from '@/app/actions';
+import { handleRunCron } from '@/app/actions/index';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Play, LoaderCircle } from 'lucide-react';
