@@ -59,25 +59,22 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
     }, [project, phone, toast]);
     
     useEffect(() => {
-        if (saveState.payload) {
-            toast({
-                title: saveState.success ? 'Success! Payload Sent:' : 'Error! Payload Sent:',
+        if (saveState.success && saveState.payload) {
+             toast({
+                title: 'Success! Payload Sent:',
                 description: (
                     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
                         <code className="text-white">{saveState.payload}</code>
                     </pre>
                 ),
-                variant: saveState.success ? 'default' : 'destructive',
             });
-        }
-        if (saveState.success) {
-            startLoading(async () => {
+             startLoading(async () => {
                 const result = await getPhoneNumberCallingSettings(project._id.toString(), phone.id);
                 setSettings(result.settings || {});
             });
         }
-        if (saveState.error && !saveState.payload) {
-             toast({ title: 'Error', description: saveState.error, variant: 'destructive' });
+        if (saveState.error) {
+             toast({ title: 'Error Saving Settings', description: saveState.error, variant: 'destructive' });
         }
     }, [saveState, toast, project, phone]);
 
