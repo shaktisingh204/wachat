@@ -4,7 +4,8 @@
 import { useState, useEffect, useTransition, useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import type { WithId, Project, PhoneNumber, CallingSettings, WeeklyOperatingHours, HolidaySchedule } from '@/lib/definitions';
-import { getPhoneNumberCallingSettings, savePhoneNumberCallingSettings } from '@/app/actions/calling.actions';
+import { getPhoneNumberCallingSettings } from '@/app/actions/calling.actions';
+import { savePhoneNumberCallingSettings } from '@/app/actions/whatsapp.actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -97,7 +98,16 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
                         <Card>
                             <CardContent className="pt-6 space-y-6">
                                 <div className="space-y-2"><Label>Calling Status</Label><Select name="status" defaultValue={settings.status || 'DISABLED'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="ENABLED">Enabled</SelectItem><SelectItem value="DISABLED">Disabled</SelectItem></SelectContent></Select></div>
-                                <div className="space-y-2"><Label>Call Icon Visibility</Label><Select name="call_icon_visibility" defaultValue={settings.call_icon_visibility || 'DEFAULT'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="DEFAULT">Default</SelectItem><SelectItem value="SHOW">Show</SelectItem><SelectItem value="HIDDEN">Hidden</SelectItem></SelectContent></Select></div>
+                                <div className="space-y-2">
+                                    <Label>Call Icon Visibility</Label>
+                                    <Select name="call_icon_visibility" defaultValue={settings.call_icon_visibility || 'DEFAULT'}>
+                                        <SelectTrigger><SelectValue/></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="DEFAULT">Default</SelectItem>
+                                            <SelectItem value="DISABLE_ALL">Disable All</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                                 <div className="space-y-2"><Label>Callback Permission</Label><Select name="callback_permission_status" defaultValue={settings.callback_permission_status || 'DISABLED'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="ENABLED">Enabled</SelectItem><SelectItem value="DISABLED">Disabled</SelectItem></SelectContent></Select></div>
                             </CardContent>
                         </Card>
