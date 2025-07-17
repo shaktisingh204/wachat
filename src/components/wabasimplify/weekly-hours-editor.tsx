@@ -45,7 +45,7 @@ export const WeeklyHoursEditor: React.FC<WeeklyHoursEditorProps> = ({ hours, onC
             <div className="space-y-3">
                 {hours.map((entry, index) => (
                     <div key={index} className="p-3 border rounded-lg space-y-3 relative bg-muted/50">
-                        <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemove(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
+                         <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemove(index)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                         <div className="grid md:grid-cols-3 gap-4 items-end">
                             <div className="space-y-2">
                                 <Label>Day of Week</Label>

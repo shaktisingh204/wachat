@@ -169,9 +169,42 @@ export type PhoneNumberProfile = {
     vertical: string;
 }
 
+export type WeeklyOperatingHours = {
+    day_of_week: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
+    open_time: string; // "HHMM"
+    close_time: string; // "HHMM"
+};
+
+export type HolidaySchedule = {
+    date: string; // "YYYY-MM-DD"
+    start_time: string; // "HHMM"
+    end_time: string; // "HHMM"
+};
+
+export type CallHours = {
+    status: 'ENABLED' | 'DISABLED';
+    timezone_id: string;
+    weekly_operating_hours: WeeklyOperatingHours[];
+    holiday_schedule: HolidaySchedule[];
+};
+
+export type SIPServer = {
+    hostname: string;
+    port: number;
+    request_uri_user_params: Record<string, string>;
+};
+
+export type SIPSettings = {
+    status: 'ENABLED' | 'DISABLED';
+    servers: SIPServer[];
+};
+
 export type CallingSettings = {
-    is_calling_enabled?: boolean;
-    inbound_call_control?: 'DISABLED' | 'CALLBACK_REQUEST';
+    status: 'ENABLED' | 'DISABLED';
+    call_icon_visibility: 'DEFAULT' | 'HIDDEN' | 'SHOW';
+    call_hours: CallHours;
+    callback_permission_status: 'ENABLED' | 'DISABLED';
+    sip: SIPSettings;
 };
 
 export type PhoneNumber = {
@@ -187,6 +220,7 @@ export type PhoneNumber = {
     profile?: PhoneNumberProfile;
     is_calling_enabled?: boolean;
     inbound_call_control?: 'DISABLED' | 'CALLBACK_REQUEST';
+    calling_settings?: CallingSettings;
 };
 
 export type GeneralReplyRule = {
