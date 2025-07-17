@@ -124,6 +124,6 @@ export async function savePhoneNumberCallingSettings(
     
   } catch (e: any) {
     console.error('Failed to update calling settings:', e);
-    return { success: false, error: getErrorMessage(e), payload: payloadString };
+    return { success: false, error: getErrorMessage(e) };
   }
 }
