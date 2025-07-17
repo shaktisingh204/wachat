@@ -1,11 +1,11 @@
 
-'use server';
+'use client';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/index';
 import type { Project, Template, CallingSettings } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
@@ -129,10 +129,9 @@ export async function getPhoneNumberCallingSettings(
 
   try {
     const response = await axios.get(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}?fields=calling_settings`,
       {
         params: {
-          fields: 'calling_settings',
           access_token: project.accessToken,
         },
       }
@@ -163,12 +162,9 @@ export async function getPhoneNumberCallingSettings(
 export async function savePhoneNumberCallingSettings(
   prevState: any,
   formData: FormData
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string, payload?: string }> {
   const projectId = formData.get('projectId') as string;
   const phoneNumberId = formData.get('phoneNumberId') as string;
-  const voiceEnabled = formData.get('voice_enabled') === 'on';
-  const videoEnabled = formData.get('video_enabled') === 'on';
-  const sipEnabled = formData.get('sip_enabled') === 'on';
   
   if (!projectId || !phoneNumberId) {
     return { success: false, error: 'Project and Phone Number IDs are required.' };
@@ -179,28 +175,49 @@ export async function savePhoneNumberCallingSettings(
     return { success: false, error: 'Project not found or access denied.' };
   }
   
-  try {
-    const settingsPayload: any = {
-      calling: {
-        voice: { enabled: voiceEnabled },
-        video: { enabled: videoEnabled },
-      }
-    };
+  let settingsPayload: any = { calling: {} };
+  let payloadString: string | undefined;
 
-    if (sipEnabled) {
-        settingsPayload.calling.sip = {
-            enabled: true,
-            uri: formData.get('sip_uri') as string,
-            username: formData.get('sip_username') as string,
-            password: formData.get('sip_password') as string,
+  try {
+    settingsPayload.calling.status = formData.get('status');
+    settingsPayload.calling.call_icon_visibility = formData.get('call_icon_visibility');
+    settingsPayload.calling.callback_permission_status = formData.get('callback_permission_status');
+
+    if (formData.get('call_hours_status') === 'ENABLED') {
+        const weeklyHours = JSON.parse(formData.get('weekly_operating_hours') as string || '[]');
+        const holidaySchedule = JSON.parse(formData.get('holiday_schedule') as string || '[]');
+        settingsPayload.calling.call_hours = {
+            status: 'ENABLED',
+            timezone_id: formData.get('timezone_id'),
+            weekly_operating_hours: weeklyHours,
+            holiday_schedule: holidaySchedule,
         };
-        if (!settingsPayload.calling.sip.uri) return { success: false, error: 'SIP URI is required when SIP is enabled.' };
     } else {
-        // Explicitly disable SIP if the switch is off but values might exist
-        settingsPayload.calling.sip = {
-            enabled: false
-        };
+        settingsPayload.calling.call_hours = { status: 'DISABLED', weekly_operating_hours: [], holiday_schedule: [] };
     }
+
+    if(formData.get('sip_status') === 'ENABLED' && formData.get('sip_hostname')) {
+        const sipParamsString = formData.get('sip_params') as string;
+        let sipParams = {};
+        try {
+            if(sipParamsString) sipParams = JSON.parse(sipParamsString);
+        } catch(e) {
+            return { success: false, error: 'SIP URI Params is not valid JSON.' };
+        }
+
+        settingsPayload.calling.sip = {
+            status: 'ENABLED',
+            servers: [{
+                hostname: formData.get('sip_hostname'),
+                port: Number(formData.get('sip_port')),
+                request_uri_user_params: sipParams
+            }]
+        };
+    } else {
+        settingsPayload.calling.sip = { status: 'DISABLED', servers: [] };
+    }
+
+    payloadString = JSON.stringify(settingsPayload, null, 2);
 
     const response = await axios.post(
       `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/settings`,
@@ -211,10 +228,11 @@ export async function savePhoneNumberCallingSettings(
     if (response.data.error) throw new Error(getErrorMessage({ response }));
     
     revalidatePath(`/dashboard/calls/settings`);
-    return { success: true };
+    return { success: true, payload: payloadString };
     
   } catch (e: any) {
     console.error('Failed to update calling settings:', e);
-    return { success: false, error: getErrorMessage(e) };
+    const errorMessage = getErrorMessage(e);
+    return { success: false, error: errorMessage };
   }
 }
