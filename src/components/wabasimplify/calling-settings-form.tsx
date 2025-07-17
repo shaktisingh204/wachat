@@ -8,18 +8,15 @@ import { getPhoneNumberCallingSettings, savePhoneNumberCallingSettings } from '@
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LoaderCircle, Save, Phone, Video, Key, Router, Calendar, Clock, AlertCircle } from 'lucide-react';
+import { LoaderCircle, Save } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
 import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '../ui/accordion';
 import { WeeklyHoursEditor } from './weekly-hours-editor';
 import { HolidayScheduleEditor } from './holiday-schedule-editor';
 import { timezones } from '@/lib/timezones';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import { Textarea } from '../ui/textarea';
 
 const saveInitialState = { success: false, error: undefined, payload: undefined };
@@ -45,7 +42,6 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
     const [saveState, formAction] = useActionState(savePhoneNumberCallingSettings, saveInitialState);
     const { toast } = useToast();
     
-    // Form state that isn't simple key-value
     const [weeklyHours, setWeeklyHours] = useState<WeeklyOperatingHours[]>([]);
     const [holidaySchedule, setHolidaySchedule] = useState<HolidaySchedule[]>([]);
     
@@ -118,9 +114,7 @@ export function CallingSettingsForm({ project, phone }: CallingSettingsFormProps
                              <CardContent className="pt-6 space-y-6">
                                 <div className="space-y-2"><Label>Business Hours Status</Label><Select name="call_hours_status" defaultValue={settings.call_hours?.status || 'DISABLED'}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="ENABLED">Enabled</SelectItem><SelectItem value="DISABLED">Disabled</SelectItem></SelectContent></Select></div>
                                 <div className="space-y-2"><Label>Timezone</Label><Select name="timezone_id" defaultValue={settings.call_hours?.timezone_id}><SelectTrigger><SelectValue placeholder="Select a timezone..."/></SelectTrigger><SelectContent>{timezones.map(tz => <SelectItem key={tz} value={tz}>{tz}</SelectItem>)}</SelectContent></Select></div>
-                                <Separator />
                                 <WeeklyHoursEditor hours={weeklyHours} onChange={setWeeklyHours} />
-                                <Separator />
                                 <HolidayScheduleEditor schedule={holidaySchedule} onChange={setHolidaySchedule} />
                              </CardContent>
                          </Card>

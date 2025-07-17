@@ -21,10 +21,9 @@ export async function getPhoneNumberCallingSettings(
 
   try {
     const response = await axios.get(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}?fields=calling_settings`,
       {
         params: {
-          fields: 'calling_settings',
           access_token: project.accessToken,
         },
       }
@@ -90,12 +89,20 @@ export async function savePhoneNumberCallingSettings(
     }
 
     if(formData.get('sip_status') === 'ENABLED' && formData.get('sip_hostname')) {
+        const sipParamsString = formData.get('sip_params') as string;
+        let sipParams = {};
+        try {
+            if(sipParamsString) sipParams = JSON.parse(sipParamsString);
+        } catch(e) {
+            return { success: false, error: 'SIP URI Params is not valid JSON.' };
+        }
+
         settingsPayload.calling.sip = {
             status: 'ENABLED',
             servers: [{
                 hostname: formData.get('sip_hostname'),
                 port: Number(formData.get('sip_port')),
-                request_uri_user_params: formData.get('sip_params') ? JSON.parse(formData.get('sip_params') as string) : {}
+                request_uri_user_params: sipParams
             }]
         };
     } else {
