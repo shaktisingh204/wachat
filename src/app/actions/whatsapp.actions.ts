@@ -1,4 +1,6 @@
 
+'use server';
+
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
