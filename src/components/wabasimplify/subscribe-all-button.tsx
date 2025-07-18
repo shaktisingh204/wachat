@@ -2,7 +2,7 @@
 'use client';
 
 import { useTransition } from 'react';
-import { handleSubscribeAllProjects } from '@/app/actions/index';
+import { handleSubscribeAllProjects } from '@/app/actions/webhook.actions';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Rss, LoaderCircle } from 'lucide-react';
