@@ -237,10 +237,280 @@ const NodeComponent = ({
                     return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition }} />;
                 })
             ) : (
-                node.type !== 'addToCart' && <Handle position="right" id={`${node.id}-output-main`} />
+                 node.type !== 'addToCart' && <Handle position="right" id={`${node.id}-output-main`} />
             )}
         </div>
     );
 };
+```
+- src/components/wabasimplify/website-builder/product-card.tsx:
+```tsx
+'use client';
 
-// Other components... (same as
+import Link from 'next/link';
+import Image from 'next/image';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ShoppingCart } from 'lucide-react';
+import type { WithId, EcommProduct, EcommShop } from '@/lib/definitions';
+import { useCart } from '@/context/cart-context';
+
+export function ProductCard({ product, shopSettings, shopSlug }: { product: WithId<EcommProduct>, shopSettings: WithId<EcommShop> | null, shopSlug: string }) {
+  const currency = shopSettings?.currency || 'USD';
+  const { addToCart } = useCart();
+  
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart({
+      productId: product._id.toString(),
+      name: product.name,
+      price: product.price,
+      imageUrl: product.imageUrl,
+      quantity: 1
+    });
+  }
+
+  return (
+     <Link href={`/shop/${shopSlug}/product/${product._id.toString()}`} className="group block">
+       <Card className="overflow-hidden h-full flex flex-col transition-all group-hover:shadow-lg">
+        <div className="relative aspect-[4/5] bg-muted">
+          <Image
+            src={product.imageUrl || 'https://placehold.co/400x500.png'}
+            alt={product.name}
+            layout="fill"
+            objectFit="cover"
+            className="transition-transform group-hover:scale-105"
+            data-ai-hint="product photo"
+          />
+        </div>
+        <CardContent className="p-4 flex-grow flex flex-col justify-between">
+            <div>
+                <h3 className="font-semibold text-base line-clamp-2">{product.name}</h3>
+                <p className="text-sm text-muted-foreground">{product.category || 'Uncategorized'}</p>
+            </div>
+            <div className="flex justify-between items-center mt-2">
+                <p className="text-lg font-bold text-primary">
+                {new Intl.NumberFormat('en-IN', {
+                    style: 'currency',
+                    currency: 'INR',
+                }).format(product.price)}
+                </p>
+                 <Button size="sm" variant="outline" onClick={handleAddToCart}>
+                    <ShoppingCart className="mr-2 h-4 w-4" />
+                    Add
+                </Button>
+            </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+```
+- src/app/shop/page.tsx:
+```tsx
+'use client';
+
+import { getEcommShopBySlug } from '@/app/actions/custom-ecommerce.actions';
+import { notFound } from 'next/navigation';
+import { ProductCard } from '@/components/wabasimplify/website-builder/product-card';
+import type { EcommProduct, EcommShop, WithId } from '@/lib/definitions';
+import { useEffect, useState } from 'react';
+
+export default function ShopIndexPage({ params }: { params: { slug: string } }) {
+    const [shop, setShop] = useState<WithId<EcommShop> | null>(null);
+    const [products, setProducts] = useState<WithId<EcommProduct>[]>([]);
+    
+    useEffect(() => {
+        async function fetchData() {
+            const shopData = await getEcommShopBySlug(params.slug);
+            if (!shopData) {
+                notFound();
+            }
+            setShop(shopData);
+        }
+        fetchData();
+    }, [params.slug]);
+
+    if (!shop) {
+        return <div>Loading...</div>
+    }
+
+    return (
+        <main className="container mx-auto px-4 py-8">
+            <h1 className="text-4xl font-bold mb-8">{shop.name}</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {products.map((product) => (
+                    <ProductCard key={product._id.toString()} product={product} shopSettings={shop} shopSlug={shop.slug} />
+                ))}
+            </div>
+        </main>
+    );
+}
+```
+- src/app/shop/[slug]/order-confirmation/[orderId]/page.tsx:
+```tsx
+'use client';
+
+import { getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import type { WithId, EcommOrder } from '@/lib/definitions';
+import { CheckCircle } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+export default function OrderConfirmationPage() {
+    const params = useParams();
+    const [order, setOrder] = useState<WithId<EcommOrder> | null>(null);
+
+    useEffect(() => {
+        if(params.orderId) {
+            getEcommOrderById(params.orderId as string).then(setOrder);
+        }
+    }, [params.orderId]);
+
+
+    if (!order) {
+        return <div className="flex items-center justify-center min-h-[50vh]">Loading...</div>; // Add skeleton loader here
+    }
+    
+
+    return (
+         <div className="container mx-auto px-4 py-12 flex justify-center">
+             <Card className="w-full max-w-2xl text-center">
+                <CardHeader>
+                    <div className="mx-auto bg-green-100 text-green-700 rounded-full h-16 w-16 flex items-center justify-center mb-4">
+                        <CheckCircle className="h-10 w-10" />
+                    </div>
+                    <CardTitle className="text-3xl">Thank you for your order!</CardTitle>
+                    <CardDescription>
+                        Your order has been placed successfully. A confirmation has been sent to your email.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 text-left">
+                    <p className="font-semibold">Order ID: <span className="font-mono text-muted-foreground">{order._id.toString()}</span></p>
+                    <Separator />
+                    <h3 className="font-semibold text-lg">Order Summary</h3>
+                    <ul className="space-y-2">
+                        {order.items.map(item => (
+                             <li key={item.productId} className="flex justify-between items-center text-sm">
+                                <span>{item.productName} x {item.quantity}</span>
+                                <span className="font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price * item.quantity)}</span>
+                             </li>
+                        ))}
+                    </ul>
+                    <Separator />
+                     <div className="space-y-2">
+                        <div className="flex justify-between"><span>Subtotal</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.subtotal)}</span></div>
+                        <div className="flex justify-between"><span>Shipping</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.shipping)}</span></div>
+                        <div className="flex justify-between font-bold text-lg"><span className="text-foreground">Total</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.total)}</span></div>
+                    </div>
+                    <Separator />
+                    <div>
+                        <h3 className="font-semibold text-lg">Shipping to</h3>
+                        <div className="text-muted-foreground">
+                            <p>{order.shippingAddress.street}</p>
+                            <p>{order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}</p>
+                            <p>{order.shippingAddress.country}</p>
+                        </div>
+                    </div>
+                    <div className="pt-4 flex justify-center">
+                         <Button asChild>
+                            <Link href={`/shop/${params.slug}`}>Continue Shopping</Link>
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+```
+- src/app/shop/[slug]/account/orders/[orderId]/page.tsx:
+```tsx
+'use client';
+
+import { getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import type { WithId, EcommOrder } from '@/lib/definitions';
+import { CheckCircle, Package } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+export default function OrderDetailsPage() {
+    const params = useParams();
+    const [order, setOrder] = useState<WithId<EcommOrder> | null>(null);
+
+    useEffect(() => {
+        if(params.orderId) {
+            getEcommOrderById(params.orderId as string).then(setOrder);
+        }
+    }, [params.orderId]);
+
+    if (!order) {
+        return <div>Loading...</div>; // Add skeleton loader here
+    }
+
+    return (
+        <div className="space-y-4">
+             <Button asChild variant="ghost" className="-ml-4">
+                 <Link href={`/shop/${params.slug}/account/orders`}>
+                    &larr; Back to Order History
+                </Link>
+            </Button>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-2xl">Order Details</CardTitle>
+                    <CardDescription>
+                        Order #{order._id.toString()} - Placed on {new Date(order.createdAt).toLocaleDateString()}
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                             <h3 className="font-semibold">Shipping Address</h3>
+                             <address className="not-italic text-muted-foreground">
+                                {order.customerInfo.name}<br />
+                                {order.shippingAddress.street}<br />
+                                {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}<br />
+                                {order.shippingAddress.country}
+                             </address>
+                        </div>
+                         <div className="space-y-2">
+                             <h3 className="font-semibold">Customer Information</h3>
+                             <p className="text-muted-foreground">
+                                {order.customerInfo.name}<br/>
+                                {order.customerInfo.email}<br/>
+                                {order.customerInfo.phone}
+                            </p>
+                        </div>
+                    </div>
+                     <Separator />
+                    <div>
+                        <h3 className="font-semibold text-lg mb-2">Order Items</h3>
+                        <ul className="space-y-3">
+                            {order.items.map(item => (
+                                 <li key={item.productId} className="flex justify-between items-center text-sm">
+                                    <span>{item.productName} &times; {item.quantity}</span>
+                                    <span className="font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price * item.quantity)}</span>
+                                 </li>
+                            ))}
+                        </ul>
+                    </div>
+                     <Separator />
+                     <div className="space-y-2">
+                        <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.subtotal)}</span></div>
+                        <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.shipping)}</span></div>
+                        <div className="flex justify-between font-bold text-lg"><span className="text-foreground">Total</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.total)}</span></div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+```

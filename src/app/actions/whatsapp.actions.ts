@@ -551,3 +551,4 @@ export async function getContactsPageData(
         project: JSON.parse(JSON.stringify(projectData)),
         contacts: JSON.parse(JSON.stringify(contacts)),
         total,
+        
