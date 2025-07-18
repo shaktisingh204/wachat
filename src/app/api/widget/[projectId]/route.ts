@@ -1,6 +1,8 @@
 
+
 import { NextRequest, NextResponse } from 'next/server';
 import { getProjectById } from '@/app/actions';
+import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
 export async function GET(
@@ -13,6 +15,18 @@ export async function GET(
         return new NextResponse('Invalid Project ID', { status: 400 });
     }
     
+    // Increment load count
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $inc: { 'widgetSettings.stats.loads': 1 } },
+            { upsert: true }
+        );
+    } catch (e) {
+        console.error("Failed to update widget load stats:", e);
+    }
+
     const project = await getProjectById(projectId);
 
     if (!project) {
@@ -23,12 +37,23 @@ export async function GET(
     const waId = settings?.phoneNumber?.replace(/\D/g, '') || '';
     const prefilledMessage = encodeURIComponent(settings?.prefilledMessage || '');
     const waLink = `https://wa.me/${waId}?text=${prefilledMessage}`;
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3001';
     
     // This JS code will be injected into the user's website
     const script = `
         (function() {
             const config = ${JSON.stringify(settings || {})};
+            const projectId = "${projectId}";
             
+            const trackEvent = (eventType) => {
+                fetch('${appUrl}/api/widget/track', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ projectId, eventType }),
+                    keepalive: true,
+                }).catch(console.error);
+            };
+
             // Create and inject CSS
             const style = document.createElement('style');
             style.innerHTML = \`
@@ -101,7 +126,7 @@ export async function GET(
                         <div class="sabnode-welcome-msg">\${config.welcomeMessage || 'Hello! How can we assist you?'}</div>
                     </div>
                     <div class="sabnode-chat-footer">
-                        <a href="${waLink}" target="_blank" class="sabnode-cta-button">
+                        <a href="${waLink}" target="_blank" class="sabnode-cta-button" id="sabnode-cta-link">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326z"/></svg>
                             \${config.ctaText || 'Start Chat'}
                         </a>
@@ -116,7 +141,19 @@ export async function GET(
             // Add Event Listeners
             const widgetButton = document.getElementById('sabnode-widget-button');
             const chatbox = document.getElementById('sabnode-widget-chatbox');
-            widgetButton.addEventListener('click', () => chatbox.classList.toggle('sabnode-show'));
+            const ctaLink = document.getElementById('sabnode-cta-link');
+
+            widgetButton.addEventListener('click', () => {
+                const isOpening = !chatbox.classList.contains('sabnode-show');
+                if (isOpening) {
+                    trackEvent('open');
+                }
+                chatbox.classList.toggle('sabnode-show');
+            });
+            
+            ctaLink.addEventListener('click', () => {
+                trackEvent('click');
+            });
         })();
     `;
 
