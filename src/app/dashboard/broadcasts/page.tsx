@@ -222,13 +222,13 @@ function BroadcastPageSkeleton() {
 }
 
 function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
-  const [apiResponseSpeed, setApiResponseSpeed] = useState(0);
-  const [deliverySpeed, setDeliverySpeed] = useState(0);
+  const [sendingSpeed, setSendingSpeed] = useState(0);
+  const [acceptingSpeed, setAcceptingSpeed] = useState(0);
 
   useEffect(() => {
     if (!item.startedAt) {
-      setApiResponseSpeed(0);
-      setDeliverySpeed(0);
+      setSendingSpeed(0);
+      setAcceptingSpeed(0);
       return;
     }
 
@@ -239,16 +239,16 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
       const durationSeconds = (endTime.getTime() - new Date(item.startedAt!).getTime()) / 1000;
       
       if (durationSeconds > 0) {
-        // API Response Rate: Rate of success/fail responses from Meta API
+        // App's total processing speed (successful API calls + failed API calls)
         const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
-        setApiResponseSpeed(Math.round(totalProcessed / durationSeconds));
+        setSendingSpeed(Math.round(totalProcessed / durationSeconds));
         
-        // Final Delivery Rate: Rate of actual delivery/read confirmations via webhook
-        const totalDeliveredOrRead = (item.deliveredCount || 0) + (item.readCount || 0);
-        setDeliverySpeed(Math.round(totalDeliveredOrRead / durationSeconds));
+        // Meta's acceptance rate (only successful API calls)
+        const totalAccepted = (item.successCount || 0);
+        setAcceptingSpeed(Math.round(totalAccepted / durationSeconds));
       } else {
-        setApiResponseSpeed(0);
-        setDeliverySpeed(0);
+        setSendingSpeed(0);
+        setAcceptingSpeed(0);
       }
     };
 
@@ -268,8 +268,8 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
 
   return (
     <div className="font-mono text-xs text-muted-foreground space-y-1" title="My App Sending Speed / Meta Accepting Speed / Limit">
-      <div>My App Sending Speed: {apiResponseSpeed} msg/s</div>
-      <div>Meta Accepting Speed: {deliverySpeed} msg/s</div>
+      <div>My App Sending Speed: {sendingSpeed} msg/s</div>
+      <div>Meta Accepting Speed: {acceptingSpeed} msg/s</div>
       <div>Limit: {item.messagesPerSecond ?? 'N/A'} msg/s</div>
     </div>
   );
