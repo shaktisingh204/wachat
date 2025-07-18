@@ -1,11 +1,12 @@
 
+
 'use server';
 
 import { getSession } from '@/app/actions';
-import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
+import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers, handleSendMessage } from '@/app/actions/whatsapp.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
-import type { Project, Plan, OptInOutSettings, UserAttribute, CannedMessage, Agent, Invitation } from '@/lib/definitions';
+import type { Project, Plan, OptInOutSettings, UserAttribute, CannedMessage, Agent, Invitation, Contact } from '@/lib/definitions';
 import { ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
 import { revalidatePath } from 'next/cache';
@@ -495,5 +496,28 @@ export async function handleUpdateContactStatus(contactId: string, status: strin
 
     } catch (e: any) {
         return { success: false, error: 'Failed to update contact status.' };
+    }
+}
+
+export async function handleUpdateContactDetails(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const contactId = formData.get('contactId') as string;
+    const variablesJSON = formData.get('variables') as string;
+
+    if (!ObjectId.isValid(contactId)) {
+        return { success: false, error: 'Invalid Contact ID' };
+    }
+    
+    try {
+        const variables = JSON.parse(variablesJSON);
+        const { db } = await connectToDatabase();
+        
+        await db.collection('contacts').updateOne(
+            { _id: new ObjectId(contactId) },
+            { $set: { variables } }
+        );
+        revalidatePath('/dashboard/chat');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to update contact.' };
     }
 }
