@@ -3,8 +3,8 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getCrmTasks, createCrmTask, getSession } from '@/app/actions/crm-tasks.actions';
-import type { WithId, CrmTask } from '@/lib/definitions';
+import { getCrmTasks } from '@/app/actions/crm-tasks.actions';
+import type { WithId, CrmTask, User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,7 @@ import { AlertCircle, FolderKanban, Plus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CrmTaskList } from '@/components/wabasimplify/crm-task-list';
 import { CreateTaskDialog } from '@/components/wabasimplify/crm-create-task-dialog';
+import { getSession } from '@/app/actions';
 
 function TasksPageSkeleton() {
     return (
@@ -24,19 +25,19 @@ function TasksPageSkeleton() {
 }
 
 export default function TasksPage() {
+    const [user, setUser] = useState<User | null>(null);
     const [tasks, setTasks] = useState<WithId<CrmTask>[]>([]);
     const [isLoading, startLoading] = useTransition();
-    const [isClient, setIsClient] = useState(false);
 
     const fetchData = () => {
         startLoading(async () => {
-            const tasksData = await getCrmTasks();
+            const [sessionData, tasksData] = await Promise.all([getSession(), getCrmTasks()]);
+            setUser(sessionData?.user || null);
             setTasks(tasksData);
         });
     };
 
     useEffect(() => {
-        setIsClient(true);
         fetchData();
     }, []);
 
@@ -44,7 +45,7 @@ export default function TasksPage() {
         return <TasksPageSkeleton />;
     }
     
-    if (!isClient) {
+    if (!user) {
         return <TasksPageSkeleton />;
     }
     

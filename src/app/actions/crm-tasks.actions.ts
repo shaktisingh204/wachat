@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -61,6 +62,7 @@ export async function createCrmTask(prevState: any, formData: FormData): Promise
         await db.collection('crm_tasks').insertOne(newTaskData as any);
         
         revalidatePath('/dashboard/crm/tasks');
+        revalidatePath(`/dashboard/crm/deals/${dealId}`);
         return { message: 'Task created successfully.' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };

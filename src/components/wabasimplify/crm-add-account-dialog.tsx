@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -32,11 +33,10 @@ function SubmitButton() {
 }
 
 interface CrmAddAccountDialogProps {
-    projectId: string;
     onAdded: () => void;
 }
 
-export function CrmAddAccountDialog({ projectId, onAdded }: CrmAddAccountDialogProps) {
+export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(addCrmAccount, initialState);
   const { toast } = useToast();
@@ -64,7 +64,6 @@ export function CrmAddAccountDialog({ projectId, onAdded }: CrmAddAccountDialogP
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
-            <input type="hidden" name="projectId" value={projectId} />
             <DialogHeader>
                 <DialogTitle>Add New Account</DialogTitle>
                 <DialogDescription>Create a new company record in your CRM.</DialogDescription>

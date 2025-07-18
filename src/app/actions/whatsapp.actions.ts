@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -118,122 +119,37 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
 
 // --- CALLING ACTIONS ---
 
-export async function getPhoneNumberCallingSettings(
-  projectId: string,
-  phoneNumberId: string
-): Promise<{ settings?: CallingSettings; error?: string }> {
-  const project = await getProjectById(projectId);
-  if (!project || !project.accessToken) {
-    return { error: 'Project not found or access token missing.' };
-  }
-
-  try {
-    const response = await axios.get(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}?fields=calling_settings`,
-      {
-        params: {
-          access_token: project.accessToken,
-        },
-      }
-    );
-
-    const data = response.data;
-    if (data.error) {
-       if (data.error.code === 100 && data.error.error_subcode === 33) {
-        // Field doesn't exist, which is normal for a number not yet configured for calls.
-        return { settings: undefined };
-      }
-      throw new Error(getErrorMessage({ response }));
-    }
-    
-    // The settings are nested under a 'calling_settings' key
-    return { settings: data.calling_settings };
-
-  } catch (e: any) {
-    const errorMessage = getErrorMessage(e);
-    if(errorMessage.includes('(#100)')) {
-        return { settings: undefined };
-    }
-    console.error("Failed to get call settings:", errorMessage);
-    return { error: errorMessage };
-  }
-}
-
 export async function savePhoneNumberCallingSettings(
-  prevState: any,
-  formData: FormData
-): Promise<{ success: boolean; error?: string; payload?: string }> {
-  const projectId = formData.get('projectId') as string;
-  const phoneNumberId = formData.get('phoneNumberId') as string;
-  
-  if (!projectId || !phoneNumberId) {
-    return { success: false, error: 'Project and Phone Number IDs are required.' };
-  }
-
+  projectId: string,
+  phoneNumberId: string,
+  voiceEnabled: boolean,
+  inboundCallControl: 'DISABLED' | 'CALLBACK_REQUEST'
+): Promise<{ success: boolean; error?: string }> {
   const project = await getProjectById(projectId);
   if (!project) {
     return { success: false, error: 'Project not found or access denied.' };
   }
-  
-  let settingsPayload: any = { calling: {} };
-  
+
+  const payload = {
+    messaging_product: 'whatsapp',
+    voice_enabled: voiceEnabled,
+    inbound_call_control: inboundCallControl,
+  };
+
   try {
-    settingsPayload.calling.status = formData.get('status');
-    settingsPayload.calling.call_icon_visibility = formData.get('call_icon_visibility');
-    settingsPayload.calling.callback_permission_status = formData.get('callback_permission_status');
-
-    if (formData.get('call_hours_status') === 'ENABLED') {
-        const weeklyHours = JSON.parse(formData.get('weekly_operating_hours') as string || '[]');
-        const holidaySchedule = JSON.parse(formData.get('holiday_schedule') as string || '[]');
-        settingsPayload.calling.call_hours = {
-            status: 'ENABLED',
-            timezone_id: formData.get('timezone_id'),
-            weekly_operating_hours: weeklyHours,
-            holiday_schedule: holidaySchedule,
-        };
-    } else {
-        settingsPayload.calling.call_hours = {
-            status: 'DISABLED',
-            weekly_operating_hours: [], // Always include empty arrays
-            holiday_schedule: [],
-        };
-    }
-
-    if(formData.get('sip_status') === 'ENABLED' && formData.get('sip_hostname')) {
-        const sipParamsString = formData.get('sip_params') as string;
-        let sipParams = {};
-        try {
-            if(sipParamsString) sipParams = JSON.parse(sipParamsString);
-        } catch(e) {
-            return { success: false, error: 'SIP URI Params is not valid JSON.' };
-        }
-
-        settingsPayload.calling.sip = {
-            status: 'ENABLED',
-            servers: [{
-                hostname: formData.get('sip_hostname'),
-                port: Number(formData.get('sip_port')),
-                request_uri_user_params: sipParams
-            }]
-        };
-    } else {
-        settingsPayload.calling.sip = { status: 'DISABLED', servers: [] };
-    }
-    
     const response = await axios.post(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/settings`,
-      settingsPayload,
+      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
+      payload,
       { headers: { Authorization: `Bearer ${project.accessToken}` } }
     );
-    
+
     if (response.data.error) throw new Error(getErrorMessage({ response }));
-    
-    revalidatePath(`/dashboard/calls/settings`);
-    return { success: true, payload: JSON.stringify(settingsPayload, null, 2) };
-    
+
+    revalidatePath(`/dashboard/numbers`);
+    return { success: true };
   } catch (e: any) {
-    console.error('Failed to update calling settings:', e);
     const errorMessage = getErrorMessage(e);
+    console.error('Failed to update basic calling settings:', errorMessage);
     return { success: false, error: errorMessage };
   }
 }

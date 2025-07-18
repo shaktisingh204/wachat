@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -33,11 +34,10 @@ function SubmitButton() {
 }
 
 interface CrmAddContactDialogProps {
-    projectId: string;
     onAdded: () => void;
 }
 
-export function CrmAddContactDialog({ projectId, onAdded }: CrmAddContactDialogProps) {
+export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(addCrmContact, initialState);
   const { toast } = useToast();
@@ -65,7 +65,6 @@ export function CrmAddContactDialog({ projectId, onAdded }: CrmAddContactDialogP
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
-            <input type="hidden" name="projectId" value={projectId} />
             <DialogHeader>
                 <DialogTitle>Add New Contact</DialogTitle>
                 <DialogDescription>Manually add a new contact or lead to your CRM.</DialogDescription>

@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, getProjectById, getBroadcasts, handleStopBroadcast, handleSyncTemplates, handleRunCron, getProjects } from '@/app/actions';
+import { getTemplates, getProjectById, getBroadcasts, handleStopBroadcast, handleSyncTemplates } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
@@ -371,19 +372,10 @@ export default function BroadcastPage() {
   }, [toast, activeProjectId]);
 
   const onRunCron = useCallback(async () => {
-    startCronRunTransition(async () => {
-      toast({ title: 'Starting Cron Manually', description: 'The scheduler is now processing queued jobs.' });
-      const result = await handleRunCron();
-      if (result.error) {
-        toast({ title: "Cron Run Failed", description: result.error, variant: "destructive" });
-      } else {
-        toast({ title: "Cron Run Complete", description: result.message });
-      }
-      if (activeProjectId) {
-        fetchData(activeProjectId, currentPage, false);
-      }
-    });
-  }, [toast, activeProjectId, currentPage, fetchData]);
+    // This function is now mostly for demonstration as cron jobs run automatically.
+    // In a real scenario, this button might be removed or used for force-triggering.
+    toast({ title: 'System Info', description: 'The broadcast scheduler runs automatically in the background. This button is for manual triggering if needed.' });
+  }, [toast]);
 
   const getStatusVariant = (item: WithId<Broadcast>) => {
     const status = item.status;
@@ -416,7 +408,7 @@ export default function BroadcastPage() {
             <BroadcastForm templates={templates} project={project} metaFlows={metaFlows} />
         )}
 
-        <Card>
+        <Card className="card-gradient card-gradient-blue">
           <CardHeader>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -425,14 +417,6 @@ export default function BroadcastPage() {
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <ISTClock />
-                 <Button onClick={onRunCron} disabled={isRunningCron || isRefreshing} variant="outline" size="sm">
-                  {isRunningCron ? (
-                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <Play className="mr-2 h-4 w-4" />
-                  )}
-                  <span>Run Cron</span>
-                </Button>
                 <Button onClick={onSyncTemplates} disabled={isSyncingTemplates || isRefreshing} variant="outline" size="sm">
                   <RefreshCw className={`mr-2 h-4 w-4 ${isSyncingTemplates ? 'animate-spin' : ''}`} />
                   Sync Templates
@@ -538,7 +522,7 @@ export default function BroadcastPage() {
                 {/* Mobile Card View */}
                 <div className="md:hidden space-y-4">
                   {history.map((item) => (
-                      <Card key={item._id.toString()} className="border">
+                      <Card key={item._id.toString()} className="border card-gradient card-gradient-blue">
                         <CardHeader>
                           <div className="flex justify-between items-start">
                               <CardTitle className="text-base leading-snug">{item.templateName}</CardTitle>
