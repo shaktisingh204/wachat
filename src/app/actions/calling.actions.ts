@@ -2,7 +2,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import type { WithId, ObjectId } from 'mongodb';
+import { type WithId, ObjectId } from 'mongodb';
 import axios from 'axios';
 import { getProjectById } from '@/app/actions';
 import type { Project, PhoneNumber, CallingSettings } from '@/lib/definitions';
