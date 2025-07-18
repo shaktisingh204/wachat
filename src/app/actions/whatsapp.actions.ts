@@ -72,52 +72,6 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
     }
 }
 
-export async function getContactsForProject(
-    projectId: string,
-    phoneNumberId: string,
-    page: number,
-    limit: number,
-    query?: string,
-): Promise<{
-    contacts: WithId<Contact>[],
-    total: number,
-}> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess || !phoneNumberId) {
-        return { contacts: [], total: 0 };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        const filter: Filter<Contact> = { projectId: new ObjectId(projectId), phoneNumberId };
-        
-        if (query && query.trim() !== '') {
-            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const queryRegex = { $regex: escapedQuery, $options: 'i' };
-            filter.$or = [
-                { name: queryRegex },
-                { waId: queryRegex }
-            ];
-        }
-        
-        const skip = (page - 1) * limit;
-
-        const [contacts, total] = await Promise.all([
-            db.collection<Contact>('contacts').find(filter).sort({ lastMessageTimestamp: -1 }).skip(skip).limit(limit).toArray(),
-            db.collection<Contact>('contacts').countDocuments(filter)
-        ]);
-        
-        return {
-            contacts: JSON.parse(JSON.stringify(contacts)),
-            total
-        };
-    } catch (e) {
-        console.error("Failed to get contacts for project:", e);
-        return { contacts: [], total: 0 };
-    }
-}
-
-
 export async function handleSyncPhoneNumbers(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
     const project = await getProjectById(projectId);
     if (!project) return { error: 'Project not found or you do not have access.' };
@@ -180,5 +134,286 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
     } catch (e: any) {
         console.error('Phone number sync failed:', e);
         return { error: e.message || 'An unexpected error occurred during phone number sync.' };
+    }
+}
+
+export async function handleUpdatePhoneNumberProfile(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    
+    if (!projectId || !phoneNumberId) {
+        return { error: 'Project and Phone Number IDs are required.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project) return { error: "Access denied." };
+
+    const { accessToken, appId } = project;
+    if (!appId) {
+        return { error: 'App ID is not configured for this project.' };
+    }
+    
+    try {
+        const profilePictureFile = formData.get('profilePicture') as File;
+        if (profilePictureFile && profilePictureFile.size > 0) {
+            const sessionFormData = new FormData();
+            sessionFormData.append('file_length', profilePictureFile.size.toString());
+            sessionFormData.append('file_type', profilePictureFile.type);
+            sessionFormData.append('access_token', accessToken);
+
+            const sessionResponse = await axios.post(`https://graph.facebook.com/v23.0/${appId}/uploads`, sessionFormData);
+            const uploadSessionId = sessionResponse.data.id;
+            
+            const fileData = await profilePictureFile.arrayBuffer();
+            const uploadResponse = await axios.post(`https://graph.facebook.com/v23.0/${uploadSessionId}`, Buffer.from(fileData), {
+                headers: { 'Authorization': `OAuth ${accessToken}`, 'Content-Type': profilePictureFile.type },
+                maxContentLength: Infinity, maxBodyLength: Infinity,
+            });
+            const handle = uploadResponse.data.h;
+
+            await axios.post(
+                `https://graph.facebook.com/v23.0/${phoneNumberId}/whatsapp_business_profile`,
+                { messaging_product: "whatsapp", profile_picture_handle: handle },
+                { headers: { 'Authorization': `Bearer ${accessToken}` } }
+            );
+        }
+
+        const profilePayload: any = { messaging_product: 'whatsapp' };
+        const fields: (keyof NonNullable<PhoneNumber['profile']>)[] = ['about', 'address', 'description', 'email', 'vertical'];
+        let hasTextFields = false;
+
+        fields.forEach(field => {
+            const value = formData.get(field) as string | null;
+            if (value && value.trim() !== '') {
+                profilePayload[field] = value.trim();
+                hasTextFields = true;
+            }
+        });
+        
+        const websites = (formData.getAll('websites') as string[]).map(w => w.trim()).filter(Boolean);
+        if (websites.length > 0) {
+            profilePayload.websites = websites;
+            hasTextFields = true;
+        }
+
+        if (hasTextFields) {
+            await axios.post(
+                `https://graph.facebook.com/v23.0/${phoneNumberId}/whatsapp_business_profile`,
+                profilePayload,
+                { headers: { 'Authorization': `Bearer ${accessToken}` } }
+            );
+        }
+        
+        await handleSyncPhoneNumbers(projectId); 
+        revalidatePath('/dashboard/numbers');
+        return { message: 'Phone number profile updated successfully!' };
+
+    } catch (e: any) {
+        console.error("Failed to update phone number profile:", e);
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+    }
+}
+export async function handleSendMessage(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const contactId = formData.get('contactId') as string;
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    const waId = formData.get('waId') as string;
+    const messageText = formData.get('messageText') as string;
+    const mediaFile = formData.get('mediaFile') as File;
+
+    if (!contactId || !projectId || !waId || !phoneNumberId || (!messageText && (!mediaFile || mediaFile.size === 0))) {
+        return { error: 'Required fields are missing to send message.' };
+    }
+    
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or you do not have access.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        let messagePayload: any = {
+            messaging_product: 'whatsapp',
+            recipient_type: 'individual',
+            to: waId,
+        };
+        let messageType: OutgoingMessage['type'] = 'text';
+
+        if (mediaFile && mediaFile.size > 0) {
+            const form = new FormData();
+            form.append('file', Buffer.from(await mediaFile.arrayBuffer()), {
+                filename: mediaFile.name,
+                contentType: mediaFile.type,
+            });
+            form.append('messaging_product', 'whatsapp');
+
+            const uploadResponse = await axios.post(
+                `https://graph.facebook.com/v23.0/${phoneNumberId}/media`,
+                form,
+                { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${project.accessToken}` } }
+            );
+            
+            const mediaId = uploadResponse.data.id;
+            if (!mediaId) {
+                return { error: 'Failed to upload media to Meta. No ID returned.' };
+            }
+
+            const detectedMediaType = mediaFile.type.split('/')[0];
+
+            if (detectedMediaType === 'image') {
+                messageType = 'image';
+                messagePayload.type = 'image';
+                messagePayload.image = { id: mediaId };
+                if (messageText) messagePayload.image.caption = messageText;
+            } else if (detectedMediaType === 'video') {
+                messageType = 'video';
+                messagePayload.type = 'video';
+                messagePayload.video = { id: mediaId };
+                if (messageText) messagePayload.video.caption = messageText;
+            } else {
+                messageType = 'document';
+                messagePayload.type = 'document';
+                messagePayload.document = { id: mediaId, filename: mediaFile.name };
+                 if (messageText) messagePayload.document.caption = messageText;
+            }
+        } else {
+            messageType = 'text';
+            messagePayload.type = 'text';
+            messagePayload.text = { body: messageText, preview_url: true };
+        }
+        
+        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
+        
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: new ObjectId(contactId), projectId: new ObjectId(projectId), wamid, messageTimestamp: now, type: messageType,
+            content: messagePayload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+
+        const lastMessage = messageType === 'text' ? messageText : `[${messageType}]`;
+        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now, status: 'open' } });
+        
+        revalidatePath('/dashboard/chat');
+
+        return { message: 'Message sent successfully.' };
+
+    } catch (e: any) {
+        console.error('Failed to send message:', getErrorMessage(e));
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+    }
+}
+export async function handleSendTemplateMessage(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const contactId = formData.get('contactId') as string;
+    const templateId = formData.get('templateId') as string;
+    const mediaSource = formData.get('mediaSource') as 'url' | 'file';
+    const headerMediaUrl = formData.get('headerMediaUrl') as string | null;
+    const headerMediaFile = formData.get('headerMediaFile') as File;
+
+    if (!ObjectId.isValid(contactId) || !ObjectId.isValid(templateId)) {
+        return { error: 'Invalid ID provided.' };
+    }
+
+    const { db } = await connectToDatabase();
+    
+    const [contact, template] = await Promise.all([
+        db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) }),
+        db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId) }),
+    ]);
+    
+    if (!contact) return { error: 'Contact not found.' };
+    const hasAccess = await getProjectById(contact.projectId.toString());
+    if (!hasAccess) return { error: 'Access Denied.' };
+    if (!template) return { error: 'Template not found.' };
+    if (template.status !== 'APPROVED') return { error: 'Cannot send a template that is not approved.' };
+    
+    const phoneNumberId = contact.phoneNumberId;
+    const waId = contact.waId;
+    const { accessToken, appId } = hasAccess;
+    if (!appId) return { error: 'Project App ID is not configured.' };
+
+    try {
+        const getVars = (text: string): number[] => {
+            if (!text) return [];
+            const variableMatches = text.match(/{{\s*(\d+)\s*}}/g);
+            return variableMatches 
+                ? [...new Set(variableMatches.map(v => parseInt(v.replace(/{{\s*|\s*}}/g, ''))))] 
+                : [];
+        };
+
+        const payloadComponents: any[] = [];
+        
+        const headerComponent = template.components?.find(c => c.type === 'HEADER');
+        if (headerComponent) {
+            let mediaId: string | null = null;
+
+            if (mediaSource === 'file' && headerMediaFile && headerMediaFile.size > 0) {
+                 const form = new FormData();
+                form.append('file', Buffer.from(await headerMediaFile.arrayBuffer()), { filename: headerMediaFile.name, contentType: headerMediaFile.type });
+                form.append('messaging_product', 'whatsapp');
+                const uploadResponse = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
+                mediaId = uploadResponse.data.id;
+            }
+
+            const format = headerComponent.format?.toUpperCase();
+            let parameter;
+            if (mediaId) {
+                if (format === 'IMAGE') parameter = { type: 'image', image: { id: mediaId } };
+                else if (format === 'VIDEO') parameter = { type: 'video', video: { id: mediaId } };
+                else if (format === 'DOCUMENT') parameter = { type: 'document', document: { id: mediaId } };
+            } else if (headerMediaUrl) {
+                if (format === 'IMAGE') parameter = { type: 'image', image: { link: headerMediaUrl } };
+                else if (format === 'VIDEO') parameter = { type: 'video', video: { link: headerMediaUrl } };
+                else if (format === 'DOCUMENT') parameter = { type: 'document', document: { link: headerMediaUrl } };
+            }
+            
+            if (parameter) {
+                payloadComponents.push({ type: 'header', parameters: [parameter] });
+            }
+        }
+        
+        const bodyComponent = template.components?.find(c => c.type === 'BODY');
+        const bodyText = bodyComponent?.text || template.body;
+        if (bodyText) {
+            const bodyVars = getVars(bodyText);
+            if (bodyVars.length > 0) {
+                const parameters = bodyVars.sort((a,b) => a-b).map(varNum => {
+                    const varValue = formData.get(`variable_${varNum}`) as string || '';
+                    return { type: 'text', text: varValue };
+                });
+                payloadComponents.push({ type: 'body', parameters });
+            }
+        }
+
+        const payload: any = {
+            messaging_product: "whatsapp",
+            to: waId,
+            type: "template",
+            template: {
+                name: template.name,
+                language: { code: template.language }
+            }
+        };
+
+        if(payloadComponents.length > 0) {
+            payload.template.components = payloadComponents;
+        }
+
+        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, payload, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        const wamid = response.data?.messages?.[0]?.id;
+        if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
+
+        const now = new Date();
+        await db.collection('outgoing_messages').insertOne({
+            direction: 'out', contactId: contact._id, projectId: hasAccess._id, wamid, messageTimestamp: now, type: 'template',
+            content: payload, status: 'sent', statusTimestamps: { sent: now }, createdAt: now,
+        });
+        
+        const lastMessage = `[Template]: ${template.name}`;
+        await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { lastMessage: lastMessage.substring(0, 50), lastMessageTimestamp: now, status: 'open' } });
+
+        revalidatePath('/dashboard/chat');
+        return { message: `Template "${template.name}" sent successfully.` };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) || 'An unexpected error occurred while sending the template.' };
     }
 }
