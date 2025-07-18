@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PlusCircle, BookCopy, Check, X } from 'lucide-react';
-import { getLibraryTemplates } from '@/app/actions/whatsapp.actions';
+import { getLibraryTemplates } from '@/app/actions/template.actions';
 import type { LibraryTemplate } from '@/lib/definitions';
 import { AdminDeleteLibraryTemplateButton } from '@/components/wabasimplify/admin-delete-library-template-button';
 import { Separator } from '@/components/ui/separator';
