@@ -445,6 +445,10 @@ export type Project = {
     ecommSettings?: {
         abandonedCart: AbandonedCartSettings;
     },
+    razorpaySettings?: {
+        keyId?: string;
+        keySecret?: string;
+    };
 };
 
 export type Template = {

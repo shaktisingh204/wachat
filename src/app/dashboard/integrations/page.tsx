@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -12,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { WhatsAppWidgetGenerator } from '@/components/wabasimplify/whatsapp-widget-generator';
+import { RazorpaySettingsForm } from '@/components/wabasimplify/razorpay-settings-form';
 
 
 function IntegrationsPageSkeleton() {
@@ -38,6 +40,8 @@ export default function IntegrationsPage() {
                 const projectData = await getProjectById(storedProjectId);
                 setProject(projectData);
             });
+        } else {
+            startLoadingTransition(async () => {}); // To ensure loading state is handled
         }
     }, []);
 
@@ -62,6 +66,8 @@ export default function IntegrationsPage() {
                     <WhatsappLinkGenerator project={project} />
                     <Separator />
                     <WhatsAppWidgetGenerator project={project} />
+                    <Separator />
+                    <RazorpaySettingsForm project={project} />
                 </>
             ) : (
                  <Alert variant="destructive">
