@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
@@ -10,7 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getProjectById } from '@/app/actions';
-import { getTemplateCategories } from '@/app/actions/plan.actions';
 import type { WithId } from 'mongodb';
 import type { Project, Template } from '@/lib/definitions';
 
@@ -98,25 +96,25 @@ function CreateTemplatePageContent() {
       </div>
       
       {!loading && !project && (
-         <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>No Project Selected</AlertTitle>
-            <AlertDescription>
+         Alert variant="destructive"
+            AlertCircle className="h-4 w-4" /
+            AlertTitleNo Project SelectedAlertTitle
+            AlertDescription
                 Please select a project from the main dashboard before creating a template.
-            </AlertDescription>
-        </Alert>
+            AlertDescription
+        Alert
       )}
 
-      {!loading && project && <CreateTemplateForm project={project} initialTemplate={initialTemplate} isCloning={action === 'clone'} />}
+      {!loading && project &&  CreateTemplateForm project={project} initialTemplate={initialTemplate} isCloning={action === 'clone'} /}
 
-    </div>
+    div
   );
 }
 
 export default function CreateTemplatePage() {
     return (
-        <Suspense fallback={<LoadingSkeleton />}>
-            <CreateTemplatePageContent />
-        </Suspense>
+        Suspense fallback={<LoadingSkeleton />}
+            CreateTemplatePageContent /
+        Suspense
     )
 }

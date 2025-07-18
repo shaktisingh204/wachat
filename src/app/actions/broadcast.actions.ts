@@ -9,7 +9,7 @@ import FormData from 'form-data';
 import axios from 'axios';
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getProjectById, getBroadcastById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
 import type { Project, BroadcastJob, BroadcastState, Template, MetaFlow, Contact, BroadcastAttempt } from '@/lib/definitions';
 
@@ -270,6 +270,74 @@ export async function handleStartBroadcast(
     }
     return { error: getErrorMessage(e) || 'An unexpected error occurred while processing the broadcast.' };
   }
+}
+
+export async function getBroadcasts(
+    projectId: string,
+    page: number = 1,
+    limit: number = 10
+): Promise<{ broadcasts: WithId<any>[], total: number }> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { broadcasts: [], total: 0 };
+
+    if (!ObjectId.isValid(projectId)) {
+        return { broadcasts: [], total: 0 };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const projectObjectId = new ObjectId(projectId);
+
+        const matchCriteria = {
+            projectId: projectObjectId
+        };
+
+        const skip = (page - 1) * limit;
+
+        const pipeline = [
+            { $match: matchCriteria },
+            {
+                $facet: {
+                    paginatedResults: [
+                        { $sort: { createdAt: -1 } },
+                        { $skip: skip },
+                        { $limit: limit },
+                        {
+                            $project: {
+                                templateId: 1,
+                                templateName: 1,
+                                fileName: 1,
+                                contactCount: 1,
+                                successCount: 1,
+                                errorCount: 1,
+                                deliveredCount: 1,
+                                readCount: 1,
+                                status: 1,
+                                createdAt: 1,
+                                startedAt: 1,
+                                completedAt: 1,
+                                messagesPerSecond: 1,
+                                projectMessagesPerSecond: 1,
+                            }
+                        }
+                    ],
+                    totalCount: [
+                        { $count: 'count' }
+                    ]
+                }
+            }
+        ];
+
+        const results = await db.collection('broadcasts').aggregate(pipeline).toArray();
+
+        const broadcasts = results[0].paginatedResults || [];
+        const total = results[0].totalCount[0]?.count || 0;
+
+        return { broadcasts: JSON.parse(JSON.stringify(broadcasts)), total };
+    } catch (error) {
+        console.error('Failed to fetch broadcast history:', error);
+        return { broadcasts: [], total: 0 };
+    }
 }
 
 export async function getBroadcastAttempts(

@@ -183,36 +183,36 @@ export default function NumbersPage() {
                                   <span className="text-muted-foreground">Quality</span>
                                   <Badge variant={getQualityVariant(phone.quality_rating)} className="capitalize">
                                       {phone.quality_rating || 'N/A'}
-                                  </Badge>
+                                  Badge>
                               </div>
                                <div className="flex justify-between items-center">
-                                  <span className="text-muted-foreground">About</span>
-                                  <p className="truncate w-40 text-right">{phone.profile?.about || 'Not set'}</p>
-                              </div>
-                              <div className="flex justify-between items-center">
-                                  <span className="text-muted-foreground">Calling</span>
-                                  <CallingToggleSwitch projectId={project._id.toString()} phone={phone} onUpdate={() => fetchProjectData(project._id.toString())}/>
-                              </div>
-                          </CardContent>
-                          <CardFooter className="mt-auto">
-                              <Button variant="secondary" className="w-full" onClick={() => setEditingPhone(phone)}>
-                                  <Edit className="mr-2 h-4 w-4"/>
+                                  span className="text-muted-foreground"About</span
+                                  <p className="truncate w-40 text-right">{phone.profile?.about || 'Not set'}p
+                              div
+                              div className="flex justify-between items-center"
+                                  span className="text-muted-foreground"Calling</span
+                                  CallingToggleSwitch projectId={project._id.toString()} phone={phone} onUpdate={() => fetchProjectData(project._id.toString())}/
+                              div
+                          CardContent
+                          CardFooter className="mt-auto"
+                              Button variant="secondary" className="w-full" onClick={() => setEditingPhone(phone)}
+                                  Edit className="mr-2 h-4 w-4"/
                                   Edit Profile & Settings
-                              </Button>
-                          </CardFooter>
-                      </Card>
+                              Button
+                          CardFooter
+                      Card
                   ))
               ) : (
-                   <Card className="md:col-span-2 lg:col-span-3">
-                       <CardContent className="h-48 flex flex-col items-center justify-center text-center">
-                           <p className="text-lg font-semibold">No Phone Numbers Found</p>
-                           <p className="text-muted-foreground">Click "Sync Phone Numbers" to fetch them from your Meta Business Account.</p>
-                       </CardContent>
-                   </Card>
+                   Card className="md:col-span-2 lg:col-span-3"
+                       CardContent className="h-48 flex flex-col items-center justify-center text-center"
+                           p className="text-lg font-semibold"No Phone Numbers Foundp
+                           p className="text-muted-foreground"Click "Sync Phone Numbers" to fetch them from your Meta Business Account.p
+                       CardContent
+                   Card
               )}
-          </div>
+          div
         )}
-      </div>
-    </>
+      div
+    >
   );
 }

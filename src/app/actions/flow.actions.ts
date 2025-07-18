@@ -1,4 +1,3 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -97,4 +96,13 @@ export async function deleteFlow(flowId: string, projectId: string): Promise<{ m
     } catch (e) {
         return { error: 'Failed to delete flow.' };
     }
+}
+
+export async function getFlowBuilderPageData(projectId: string): Promise<{
+    flows: WithId<Flow>[];
+    initialFlow: WithId<Flow> | null;
+}> {
+    const flows = await getFlowsForProject(projectId);
+    const initialFlow = flows.length > 0 ? await getFlowById(flows[0]._id.toString()) : null;
+    return { flows, initialFlow };
 }
