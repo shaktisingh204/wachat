@@ -1,3 +1,4 @@
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -12,7 +13,7 @@ import { redirect } from 'next/navigation';
 import { hashPassword, comparePassword, createSessionToken, verifySessionToken, createAdminSessionToken, verifyAdminSessionToken, type SessionPayload, type AdminSessionPayload } from '@/lib/auth';
 import { createHash } from 'crypto';
 import { premadeTemplates } from '@/lib/premade-templates';
-import { getMetaFlows } from './actions/meta-flow.actions';
+import { getMetaFlows } from './meta-flow.actions';
 import { getErrorMessage } from '@/lib/utils';
 // Re-exports for server actions are handled by direct imports in components now.
 import { headers } from 'next/headers';
@@ -1512,7 +1513,7 @@ export async function saveCannedMessageAction(prevState: any, formData: FormData
 export async function deleteCannedMessage(id: string): Promise<{ success: boolean; error?: string }> {
     if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid ID.' };
     try {
-        const { db } await connectToDatabase();
+        const { db } = await connectToDatabase();
         await db.collection('canned_messages').deleteOne({ _id: new ObjectId(id) });
         revalidatePath('/dashboard/settings');
         return { success: true };
@@ -1588,155 +1589,6 @@ export async function handleUpdateContactStatus(contactId: string, status: strin
 }
 
 
-export async function getContactsForProject(
-    projectId: string,
-    phoneNumberId: string,
-    page: number,
-    limit: number,
-    query?: string,
-): Promise<{
-    contacts: WithId<Contact>[],
-    total: number,
-}> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess || !phoneNumberId) {
-        return { contacts: [], total: 0 };
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        const filter: Filter<Contact> = { projectId: new ObjectId(projectId), phoneNumberId };
-        
-        if (query && query.trim() !== '') {
-            const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-            const queryRegex = { $regex: escapedQuery, $options: 'i' };
-            filter.$or = [
-                { name: queryRegex },
-                { waId: queryRegex }
-            ];
-        }
-        
-        const skip = (page - 1) * limit;
-
-        const [contacts, total] = await Promise.all([
-            db.collection<Contact>('contacts').find(filter).sort({ lastMessageTimestamp: -1 }).skip(skip).limit(limit).toArray(),
-            db.collection<Contact>('contacts').countDocuments(filter)
-        ]);
-        
-        return {
-            contacts: JSON.parse(JSON.stringify(contacts)),
-            total
-        };
-    } catch (e) {
-        console.error("Failed to get contacts for project:", e);
-        return { contacts: [], total: 0 };
-    }
-}
-
-export async function getKanbanData(projectId: string): Promise<{ project: WithId<Project> | null, columns: KanbanColumnData[] }> {
-    const defaultData = { project: null, columns: [] };
-    const project = await getProjectById(projectId);
-    if (!project) return defaultData;
-    
-    try {
-        const { db } = await connectToDatabase();
-        const contacts = await db.collection<Contact>('contacts')
-            .find({ projectId: new ObjectId(projectId) })
-            .sort({ lastMessageTimestamp: -1 })
-            .toArray();
-
-        const defaultStatuses = ['new', 'open', 'resolved'];
-        const customStatuses = project.kanbanStatuses || [];
-        const allStatuses = [...new Set([...defaultStatuses, ...customStatuses])];
-
-        const columns = allStatuses.map(status => ({
-            name: status,
-            contacts: contacts.filter(c => (c.status || 'new') === status),
-        }));
-
-        return {
-            project: JSON.parse(JSON.stringify(project)),
-            columns: JSON.parse(JSON.stringify(columns))
-        };
-    } catch (e) {
-        console.error("Failed to get Kanban data:", e);
-        return defaultData;
-    }
-}
-
-export async function saveKanbanStatuses(projectId: string, statuses: string[]): Promise<{ success: boolean; error?: string }> {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { success: false, error: 'Access denied.' };
-
-    try {
-        const { db } = await connectToDatabase();
-        const defaultStatuses = ['new', 'open', 'resolved'];
-        const customStatuses = statuses.filter(s => !defaultStatuses.includes(s));
-        
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
-            { $set: { kanbanStatuses: customStatuses } }
-        );
-        revalidatePath('/dashboard/chat/kanban');
-        return { success: true };
-    } catch (e: any) {
-        return { success: false, error: 'Failed to save Kanban lists.' };
-    }
-}
-
-export async function getContactsPageData(
-    projectId: string, 
-    phoneNumberId: string, 
-    page: number, 
-    query: string,
-    tags?: string[],
-): Promise<{
-    project: WithId<Project> | null,
-    contacts: WithId<Contact>[],
-    total: number,
-    selectedPhoneNumberId: string
-}> {
-    const projectData = await getProjectById(projectId);
-    if (!projectData) return { project: null, contacts: [], total: 0, selectedPhoneNumberId: '' };
-
-    let selectedPhoneId = phoneNumberId;
-    if (!selectedPhoneId && projectData.phoneNumbers?.length > 0) {
-        selectedPhoneId = projectData.phoneNumbers[0].id;
-    }
-    
-    if (!selectedPhoneId) return { project: projectData, contacts: [], total: 0, selectedPhoneNumberId: '' };
-
-    const { db } = await connectToDatabase();
-    const filter: Filter<Contact> = { projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId };
-    
-    if (query) {
-        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const queryRegex = { $regex: escapedQuery, $options: 'i' };
-        filter.$or = [
-            { name: queryRegex },
-            { waId: queryRegex },
-        ];
-    }
-
-    if (tags && tags.length > 0) {
-        filter.tagIds = { $in: tags };
-    }
-    
-    const skip = (page - 1) * 20;
-
-    const [contacts, total] = await Promise.all([
-        db.collection('contacts').find(filter).sort({ lastMessageTimestamp: -1 }).skip(skip).limit(20).toArray(),
-        db.collection('contacts').countDocuments(filter)
-    ]);
-    
-    return {
-        project: JSON.parse(JSON.stringify(projectData)),
-        contacts: JSON.parse(JSON.stringify(contacts)),
-        total,
-        selectedPhoneNumberId: selectedPhoneId
-    };
-}
-
 export async function getConversation(contactId: string): Promise<AnyMessage[]> {
     if (!ObjectId.isValid(contactId)) return [];
     try {
@@ -1755,211 +1607,18 @@ export async function getConversation(contactId: string): Promise<AnyMessage[]> 
     }
 }
 
-export async function getInitialChatData(projectId: string, phoneId: string | null, contactId: string | null): Promise<{
-    project: WithId<Project> | null;
-    contacts: WithId<Contact>[];
-    totalContacts: number;
-    selectedContact: WithId<Contact> | null;
-    conversation: AnyMessage[];
-    templates: WithId<Template>[];
-    selectedPhoneNumberId: string;
-}> {
-    const defaultResponse = { project: null, contacts: [], totalContacts: 0, selectedContact: null, conversation: [], templates: [], selectedPhoneNumberId: '' };
-    const projectData = await getProjectById(projectId);
-    if (!projectData) return defaultResponse;
-
-    let selectedPhoneId = phoneId || projectData.phoneNumbers?.[0]?.id || '';
-    if (!selectedPhoneId) return { ...defaultResponse, project: projectData };
-
-    const { db } = await connectToDatabase();
-    
-    const [allContacts, total, templatesData] = await Promise.all([
-        db.collection<Contact>('contacts').find({ projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId }).sort({ lastMessageTimestamp: -1 }).limit(30).toArray(),
-        db.collection('contacts').countDocuments({ projectId: new ObjectId(projectId), phoneNumberId: selectedPhoneId }),
-        getTemplates(projectId),
-    ]);
-
-    let selectedContactData: WithId<Contact> | null = null;
-    let conversationData: AnyMessage[] = [];
-
-    if (contactId && ObjectId.isValid(contactId)) {
-        selectedContactData = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
-        if (selectedContactData) {
-            conversationData = await getConversation(contactId);
-        }
-    }
-
-    return {
-        project: JSON.parse(JSON.stringify(projectData)),
-        contacts: JSON.parse(JSON.stringify(allContacts)),
-        totalContacts: total,
-        selectedContact: selectedContactData ? JSON.parse(JSON.stringify(selectedContactData)) : null,
-        conversation: conversationData,
-        templates: JSON.parse(JSON.stringify(templatesData.filter(t => t.status === 'APPROVED'))),
-        selectedPhoneNumberId: selectedPhoneId,
-    };
-}
-
-
-export async function saveLibraryTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function getFlowLogById(logId: string): Promise<WithId<FlowLog> | null> {
     const { isAdmin } = await getAdminSession();
-    if (!isAdmin) return { error: 'Permission denied.' };
-    
-    const name = (formData.get('name') as string || '').trim();
-    const nameRegex = /^[a-z0-9_]+$/;
+    if (!isAdmin) return null;
 
-    if (!name) {
-        return { error: 'Template name is required.' };
-    }
-    if (name.length > 512) {
-        return { error: 'Template name cannot exceed 512 characters.' };
-    }
-    if (!nameRegex.test(name)) {
-        return { error: 'Template name can only contain lowercase letters, numbers, and underscores (_).' };
-    }
-
-    try {
-        const templateData: LibraryTemplate = {
-            name: name,
-            category: formData.get('category') as Template['category'],
-            language: formData.get('language') as string,
-            body: formData.get('body') as string,
-            components: JSON.parse(formData.get('components') as string),
-            isCustom: true,
-            createdAt: new Date(),
-        };
-
-        if (!templateData.category || !templateData.language || !templateData.body) {
-            return { error: 'Category, language, and body are required.' };
-        }
-
-        const { db } = await connectToDatabase();
-        await db.collection('library_templates').insertOne(templateData as any);
-
-        revalidatePath('/admin/dashboard/template-library');
-        revalidatePath('/dashboard/templates/library');
-        return { message: `Template "${templateData.name}" added to the library.` };
-
-    } catch (e: any) {
-        console.error("Failed to save library template:", e);
-        return { error: e.message || 'An unexpected error occurred.' };
-    }
-}
-
-export async function deleteLibraryTemplate(id: string): Promise<{ message?: string; error?: string }> {
-    const { isAdmin } = await getAdminSession();
-    if (!isAdmin) return { error: 'Permission denied.' };
-
-    if (!ObjectId.isValid(id)) return { error: 'Invalid template ID.' };
-
+    if (!ObjectId.isValid(logId)) return null;
     try {
         const { db } = await connectToDatabase();
-        const result = await db.collection('library_templates').deleteOne({ _id: new ObjectId(id) });
-        if (result.deletedCount === 0) {
-            return { error: 'Could not find the custom library template to delete.' };
-        }
-        revalidatePath('/admin/dashboard/template-library');
-        revalidatePath('/dashboard/templates/library');
-        return { message: 'Custom template removed from the library.' };
-    } catch (e: any) {
-        return { error: e.message || 'An unexpected error occurred.' };
-    }
-}
-
-export async function getTemplateCategories(): Promise<WithId<TemplateCategory>[]> {
-    const { isAdmin } = await getAdminSession();
-    if (!isAdmin) return [];
-    try {
-        const { db } = await connectToDatabase();
-        return JSON.parse(JSON.stringify(await db.collection('template_categories').find({}).sort({ name: 1 }).toArray()));
-    } catch (e) {
-        console.error("Failed to fetch template categories:", e);
-        return [];
-    }
-}
-
-export async function saveTemplateCategory(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const { isAdmin } = await getAdminSession();
-    if (!isAdmin) return { error: 'Permission denied.' };
-
-    const name = formData.get('name') as string;
-    const description = formData.get('description') as string;
-    if (!name) return { error: 'Category name is required.' };
-
-    try {
-        const { db } = await connectToDatabase();
-        const existing = await db.collection('template_categories').findOne({ name });
-        if (existing) return { error: 'A category with this name already exists.' };
-        await db.collection('template_categories').insertOne({ name, description, createdAt: new Date() });
-        revalidatePath('/admin/dashboard/template-library');
-        return { message: 'Category created successfully.' };
-    } catch (e: any) {
-        console.error('Failed to create category:', e);
-        return { error: 'Failed to create category.' };
-    }
-}
-
-export async function deleteTemplateCategory(id: string): Promise<{ message?: string; error?: string }> {
-    const { isAdmin } = await getAdminSession();
-    if (!isAdmin) return { error: 'Permission denied.' };
-    
-    if (!ObjectId.isValid(id)) return { error: 'Invalid category ID.' };
-    try {
-        const { db } = await connectToDatabase();
-        const result = await db.collection('template_categories').deleteOne({ _id: new ObjectId(id) });
-        if (result.deletedCount === 0) {
-            return { error: 'Could not find the category to delete.' };
-        }
-        revalidatePath('/admin/dashboard/template-library');
-        return { message: 'Category deleted successfully.' };
-    } catch (e: any) {
-        console.error('Failed to delete category:', e);
-        return { error: 'Failed to delete category.' };
-    }
-}
-
-export async function getUsersForAdmin(
-    page: number = 1,
-    limit: number = 10,
-    query?: string
-): Promise<{ users: AdminUserView[], total: number }> {
-    const { isAdmin } = await getAdminSession();
-    if (!isAdmin) return { users: [], total: 0 };
-
-    try {
-        const { db } = await connectToDatabase();
-        const filter: Filter<User> = {};
-        if (query) {
-            filter.$or = [
-                { name: { $regex: query, $options: 'i' } },
-                { email: { $regex: query, $options: 'i' } }
-            ];
-        }
-
-        const skip = (page - 1) * limit;
-
-        const usersPipeline = [
-            { $match: filter },
-            { $sort: { createdAt: -1 } },
-            { $skip: skip },
-            { $limit: limit },
-            {
-                $project: {
-                    password: 0,
-                }
-            }
-        ];
-
-        const [users, total] = await Promise.all([
-            db.collection<User>('users').aggregate(usersPipeline).toArray(),
-            db.collection('users').countDocuments(filter)
-        ]);
-        
-        return { users: JSON.parse(JSON.stringify(users)), total };
-
+        const log = await db.collection<FlowLog>('flow_logs').findOne({ _id: new ObjectId(logId) });
+        return log ? JSON.parse(JSON.stringify(log)) : null;
     } catch (error) {
-        console.error("Failed to fetch users for admin:", error);
-        return { users: [], total: 0 };
+        console.error('Failed to fetch flow log by ID:', error);
+        return null;
     }
 }
 
