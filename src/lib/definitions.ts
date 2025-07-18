@@ -331,6 +331,11 @@ export type WhatsAppWidgetSettings = {
     padding: number;
     textColor: string;
     buttonTextColor: string;
+    stats?: {
+        loads: number;
+        opens: number;
+        clicks: number;
+    }
 };
 
 export type FormField = {
@@ -1307,6 +1312,7 @@ export type EcommProduct = {
   category?: string;
   subcategory?: string;
   variants?: EcommProductVariant[];
+  inventory?: { warehouseId: ObjectId, stock: number }[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -1389,4 +1395,5 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; expires: number; };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; expires: number; };
+
 
