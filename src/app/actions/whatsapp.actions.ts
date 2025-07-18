@@ -14,6 +14,39 @@ import FormData from 'form-data';
 
 const API_VERSION = 'v23.0';
 
+export async function getTemplates(projectId: string): Promise<WithId<Template>[]> {
+    if (!ObjectId.isValid(projectId)) {
+        return [];
+    }
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const projection = {
+            name: 1,
+            category: 1,
+            components: 1,
+            metaId: 1,
+            language: 1,
+            body: 1,
+            status: 1,
+            headerSampleUrl: 1,
+            qualityScore: 1,
+            type: 1,
+        };
+        const templates = await db.collection('templates')
+            .find({ projectId: new ObjectId(projectId) })
+            .project(projection)
+            .sort({ name: 1 })
+            .toArray();
+        return JSON.parse(JSON.stringify(templates));
+    } catch (error) {
+        console.error('Failed to fetch templates:', error);
+        return [];
+    }
+}
+
 
 // --- WEBHOOK ACTIONS ---
 
