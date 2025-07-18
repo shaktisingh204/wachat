@@ -1,11 +1,9 @@
-
-
 'use client';
 
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { getLibraryTemplates } from '@/app/actions';
+import { getLibraryTemplates } from '@/app/actions/whatsapp.actions';
 import { type LibraryTemplate } from '@/lib/definitions';
 import { BookCopy, ChevronLeft, ImageIcon, Phone, Link as LinkIcon, Star } from 'lucide-react';
 import Link from 'next/link';

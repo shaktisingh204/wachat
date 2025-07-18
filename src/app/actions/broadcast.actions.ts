@@ -1,4 +1,3 @@
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -12,7 +11,7 @@ import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
-import type { Project, BroadcastJob, BroadcastState, Template, MetaFlow, Contact } from '@/lib/definitions';
+import type { Project, BroadcastJob, BroadcastState, Template, MetaFlow, Contact, BroadcastAttempt } from '@/lib/definitions';
 
 const BATCH_SIZE = 1000;
 
@@ -271,4 +270,57 @@ export async function handleStartBroadcast(
     }
     return { error: getErrorMessage(e) || 'An unexpected error occurred while processing the broadcast.' };
   }
+}
+
+export async function getBroadcastAttempts(
+    broadcastId: string, 
+    page: number = 1, 
+    limit: number = 50, 
+    filter: 'ALL' | 'SENT' | 'FAILED' | 'PENDING' | 'DELIVERED' | 'READ' = 'ALL'
+): Promise<{ attempts: BroadcastAttempt[], total: number }> {
+    const broadcast = await getBroadcastById(broadcastId);
+    if (!broadcast) return { attempts: [], total: 0 };
+
+    try {
+        const { db } = await connectToDatabase();
+        const query: any = { broadcastId: new ObjectId(broadcastId) };
+        if (filter !== 'ALL') {
+            query.status = filter;
+        }
+
+        const skip = (page - 1) * limit;
+
+        const [attempts, total] = await Promise.all([
+            db.collection('broadcast_contacts').find(query).sort({createdAt: -1}).skip(skip).limit(limit).toArray(),
+            db.collection('broadcast_contacts').countDocuments(query)
+        ]);
+        
+        return { attempts: JSON.parse(JSON.stringify(attempts)), total };
+    } catch (error) {
+        console.error('Failed to fetch broadcast attempts:', error);
+        return { attempts: [], total: 0 };
+    }
+}
+
+export async function getBroadcastAttemptsForExport(
+    broadcastId: string,
+    filter: 'ALL' | 'SENT' | 'FAILED' | 'PENDING' | 'DELIVERED' | 'READ' = 'ALL'
+): Promise<BroadcastAttempt[]> {
+    const broadcast = await getBroadcastById(broadcastId);
+    if (!broadcast) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        const query: any = { broadcastId: new ObjectId(broadcastId) };
+        if (filter !== 'ALL') {
+            query.status = filter;
+        }
+
+        const attempts = await db.collection('broadcast_contacts').find(query).sort({createdAt: -1}).toArray();
+        
+        return JSON.parse(JSON.stringify(attempts));
+    } catch (error) {
+        console.error('Failed to fetch broadcast attempts for export:', error);
+        return [];
+    }
 }

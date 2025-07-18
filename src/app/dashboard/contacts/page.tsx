@@ -1,10 +1,10 @@
-
 'use client';
 
 import { useEffect, useState, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { getContactsPageData, getProjects } from '@/app/actions';
+import { getProjects } from '@/app/actions';
+import { getContactsPageData } from '@/app/actions/whatsapp.actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, Tag } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useActionState, useEffect, useState, useRef } from 'react';
@@ -18,7 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { RotateCw, LoaderCircle } from 'lucide-react';
-import { handleRequeueBroadcast } from '@/app/actions';
+import { handleRequeueBroadcast } from '@/app/actions/whatsapp.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project, Template } from '@/lib/definitions';

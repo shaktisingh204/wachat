@@ -1,10 +1,11 @@
-
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, getProjectById, getBroadcasts, handleStopBroadcast, handleSyncTemplates } from '@/app/actions';
+import { getProjects } from '@/app/actions';
+import { handleStopBroadcast, getBroadcasts } from '@/app/actions/broadcast.actions';
+import { getTemplates, handleSyncTemplates } from '@/app/actions/whatsapp.actions';
+import { handleRunCron } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
@@ -417,6 +418,14 @@ export default function BroadcastPage() {
               </div>
               <div className="flex flex-wrap items-center gap-2">
                 <ISTClock />
+                 <Button onClick={onRunCron} disabled={isRunningCron || isRefreshing} variant="outline" size="sm">
+                  {isRunningCron ? (
+                    <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Play className="mr-2 h-4 w-4" />
+                  )}
+                  <span>Run Cron</span>
+                </Button>
                 <Button onClick={onSyncTemplates} disabled={isSyncingTemplates || isRefreshing} variant="outline" size="sm">
                   <RefreshCw className={`mr-2 h-4 w-4 ${isSyncingTemplates ? 'animate-spin' : ''}`} />
                   Sync Templates

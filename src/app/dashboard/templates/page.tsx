@@ -1,12 +1,11 @@
-
-
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { TemplateCard } from '@/components/wabasimplify/template-card';
 import { PlusCircle, RefreshCw, Search, FileText, BookCopy } from 'lucide-react';
 import Link from 'next/link';
-import { getTemplates, handleSyncTemplates, getProjects } from '@/app/actions';
+import { getProjects } from '@/app/actions';
+import { getTemplates, handleSyncTemplates } from '@/app/actions/whatsapp.actions';
 import { WithId } from 'mongodb';
 import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -46,7 +45,7 @@ function TemplatesPageSkeleton() {
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [isLoading, startLoadingTransition] = useTransition();
-  const [isSyncing, startSyncTransition] = useTransition();
+  const [isSyncing, startTemplatesSyncTransition] = useTransition();
   const { toast } = useToast();
   const [isClient, setIsClient] = useState(false);
   const [activeProjectId, setActiveProjectId] = useState<string|null>(null);
@@ -95,7 +94,7 @@ export default function TemplatesPage() {
         toast({ title: "Error", description: "No active project selected. Please go to the main dashboard and select a project.", variant: "destructive" });
         return;
     }
-    startSyncTransition(async () => {
+    startTemplatesSyncTransition(async () => {
       const result = await handleSyncTemplates(activeProjectId);
       if (result.error) {
         toast({ title: "Sync Failed", description: result.error, variant: "destructive" });
@@ -104,7 +103,7 @@ export default function TemplatesPage() {
         await fetchTemplates(activeProjectId, true);
       }
     });
-  }, [toast, activeProjectId, fetchTemplates, startSyncTransition]);
+  }, [toast, activeProjectId, fetchTemplates, startTemplatesSyncTransition]);
 
   const filteredTemplates = useMemo(() => templates.filter(template => {
     const nameMatch = template.name.toLowerCase().includes(searchQuery.toLowerCase());
