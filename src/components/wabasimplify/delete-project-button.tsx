@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle, Trash2 } from 'lucide-react';
-import { handleDeleteUserProject } from '@/app/actions/project.actions';
+import { handleDeleteUserProject } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
 const initialState = {
