@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
@@ -12,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle, FileUp, Plus, Trash2, Copy } from 'lucide-react';
 import { handleCreateTemplate } from '@/app/actions/template.actions';
-import { saveLibraryTemplate } from '@/app/actions/plan.actions';
+import { saveLibraryTemplate } from '@/app/actions/template.actions';
 import { getTemplateCategories } from '@/app/actions/plan.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
@@ -675,7 +676,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdmi
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="section1ProductIDs">Item/Product IDs</Label>
-                                <Textarea name="section1ProductIDs" placeholder="item_id_1&#x0a;item_id_2&#x0a;item_id_3" className="font-mono text-xs" required />
+                                <Textarea name="section1ProductIDs" placeholder="item_id_1\nitem_id_2\nitem_id_3" className="font-mono text-xs" required />
                                 <p className="text-xs text-muted-foreground">Enter one Item/Product ID from your catalog per line.</p>
                             </div>
                         </div>
@@ -687,7 +688,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdmi
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="section2ProductIDs">Item/Product IDs</Label>
-                                <Textarea name="section2ProductIDs" placeholder="item_id_4&#x0a;item_id_5&#x0a;item_id_6" className="font-mono text-xs" required />
+                                <Textarea name="section2ProductIDs" placeholder="item_id_4\nitem_id_5\nitem_id_6" className="font-mono text-xs" required />
                                 <p className="text-xs text-muted-foreground">Enter one Item/Product ID from your catalog per line.</p>
                             </div>
                         </div>
