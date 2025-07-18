@@ -5,7 +5,7 @@ import { useState, useTransition, useEffect, useCallback } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { getPhoneNumberCallingSettings } from '@/app/actions/calling.actions';
-import { savePhoneNumberCallingSettings } from '@/app/actions/whatsapp.actions';
+import { savePhoneNumberCallingSettings } from '@/app/actions/calling.actions';
 import type { CallingSettings, PhoneNumber, WithId, Project } from '@/lib/definitions';
 import { LoaderCircle } from 'lucide-react';
 
@@ -34,7 +34,13 @@ export function CallingToggleSwitch({ projectId, phone, onUpdate }: CallingToggl
 
     const handleToggle = (checked: boolean) => {
         startTransition(async () => {
-            const result = await savePhoneNumberCallingSettings(projectId, phone.id, checked, 'DISABLED');
+            const formData = new FormData();
+            formData.append('projectId', projectId);
+            formData.append('phoneNumberId', phone.id);
+            formData.append('status', checked ? 'ENABLED' : 'DISABLED');
+            
+            const result = await savePhoneNumberCallingSettings(null, formData);
+
             if (result.success) {
                 toast({ title: 'Success', description: `Calling has been ${checked ? 'enabled' : 'disabled'}.` });
                 onUpdate();
@@ -45,7 +51,7 @@ export function CallingToggleSwitch({ projectId, phone, onUpdate }: CallingToggl
         });
     };
     
-    const isChecked = phone.is_calling_enabled || false;
+    const isChecked = settings.status === 'ENABLED';
 
     return (
         <div className="flex items-center gap-2">
