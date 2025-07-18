@@ -2,7 +2,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { getAllNotifications, markAllNotificationsAsRead, markNotificationAsRead } from '@/app/actions/index';
+import { getAllNotifications, markAllNotificationsAsRead, markNotificationAsRead } from '@/app/actions/notification.actions';
 import type { NotificationWithProject } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { useRouter } from 'next/navigation';
