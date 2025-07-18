@@ -1,10 +1,9 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getTemplateCategories, saveTemplateCategory, deleteTemplateCategory } from '@/app/actions/index';
+import { getTemplateCategories, saveTemplateCategory, deleteTemplateCategory } from '@/app/actions/plan.actions';
 import type { TemplateCategory } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { useToast } from '@/hooks/use-toast';
@@ -15,7 +14,6 @@ import { Table, TableBody, TableCell, TableRow } from '@/components/ui/table';
 import { LoaderCircle, Plus, Trash2 } from 'lucide-react';
 
 const saveInitialState = { message: null, error: null };
-const deleteInitialState = { message: null, error: null };
 
 function SaveButton() {
     const { pending } = useFormStatus();
@@ -27,22 +25,27 @@ function SaveButton() {
     )
 }
 
-function DeleteButton({ categoryId }: { categoryId: string }) {
-    const [state, formAction] = useActionState(() => deleteTemplateCategory(categoryId), deleteInitialState);
+function DeleteButton({ categoryId, onDeleted }: { categoryId: string, onDeleted: () => void }) {
+    const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
-    const { pending } = useFormStatus();
 
-    useEffect(() => {
-        if (state?.message) toast({ title: "Success!", description: state.message });
-        if (state?.error) toast({ title: "Error", description: state.error, variant: 'destructive' });
-    }, [state, toast]);
+    const handleDelete = () => {
+        startTransition(async () => {
+            const result = await deleteTemplateCategory(categoryId);
+            if (result.message) {
+                 toast({ title: "Success!", description: result.message });
+                 onDeleted();
+            }
+            if(result.error) {
+                toast({ title: "Error", description: result.error, variant: 'destructive' });
+            }
+        });
+    }
 
     return (
-        <form action={formAction}>
-            <Button type="submit" variant="ghost" size="icon" disabled={pending}>
-                {pending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 text-destructive" />}
-            </Button>
-        </form>
+        <Button type="button" variant="ghost" size="icon" onClick={handleDelete} disabled={isPending}>
+            {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4 text-destructive" />}
+        </Button>
     );
 }
 
@@ -96,7 +99,7 @@ export function AdminTemplateCategoryManager() {
                                     <TableCell className="font-medium">{cat.name}</TableCell>
                                     <TableCell className="text-muted-foreground">{cat.description}</TableCell>
                                     <TableCell className="text-right w-16">
-                                        <DeleteButton categoryId={cat._id.toString()} />
+                                        <DeleteButton categoryId={cat._id.toString()} onDeleted={fetchCategories} />
                                     </TableCell>
                                 </TableRow>
                             ))

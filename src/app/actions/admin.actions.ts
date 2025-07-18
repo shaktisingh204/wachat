@@ -55,3 +55,48 @@ export async function updateProjectPlanByAdmin(projectId: string, planId: string
         return { success: false, error: 'An unexpected database error occurred.' };
     }
 }
+
+export async function handleDeleteProjectByAdmin(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+    
+    const projectId = formData.get('projectId') as string;
+    
+    if (!projectId || !ObjectId.isValid(projectId)) {
+        return { error: 'Invalid Project ID provided.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const projectObjectId = new ObjectId(projectId);
+        
+        const broadcastIds = await db.collection('broadcasts').find({ projectId: projectObjectId }).map(b => b._id).toArray();
+        
+        const deletePromises = [
+            db.collection('projects').deleteOne({ _id: projectObjectId }),
+            db.collection('templates').deleteMany({ projectId: projectObjectId }),
+            db.collection('broadcasts').deleteMany({ projectId: projectObjectId }),
+            db.collection('broadcast_contacts').deleteMany({ broadcastId: { $in: broadcastIds } }),
+            db.collection('notifications').deleteMany({ projectId: projectObjectId }),
+            db.collection('contacts').deleteMany({ projectId: projectObjectId }),
+            db.collection('incoming_messages').deleteMany({ projectId: projectObjectId }),
+            db.collection('outgoing_messages').deleteMany({ projectId: projectObjectId }),
+            db.collection('flows').deleteMany({ projectId: projectObjectId }),
+            db.collection('canned_messages').deleteMany({ projectId: projectObjectId }),
+            db.collection('flow_logs').deleteMany({ projectId: projectObjectId }),
+            db.collection('meta_flows').deleteMany({ projectId: projectObjectId }),
+            db.collection('ad_campaigns').deleteMany({ projectId: projectObjectId }),
+            db.collection('ecomm_flows').deleteMany({ projectId: projectObjectId }),
+        ];
+
+        await Promise.all(deletePromises);
+        
+        revalidatePath('/admin/dashboard');
+
+        return { message: 'Project and all associated data have been permanently deleted.' };
+
+    } catch (e: any) {
+        console.error('Failed to delete project:', e);
+        return { error: e.message || 'An unexpected error occurred while deleting the project.' };
+    }
+}
