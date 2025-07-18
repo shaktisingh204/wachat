@@ -1757,7 +1757,7 @@ export async function handleSubscribeProjectWebhook(projectId: string): Promise<
         return { error: 'Project not found or you do not have access.' };
     }
 
-    const accessToken = hasAccess.accessToken || process.env.META_SYSTEM_USER_ACCESS_TOKEN;
+    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN || hasAccess.accessToken;
     const appId = hasAccess.appId || process.env.NEXT_PUBLIC_META_APP_ID;
     const apiVersion = 'v23.0';
     const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
@@ -3778,18 +3778,6 @@ export async function saveFlow(data: {
         }
     } catch (e: any) {
         return { error: 'Failed to save flow.' };
-    }
-}
-
-export async function deleteFlow(flowId: string): Promise<{ message?: string; error?: string }> {
-    if (!ObjectId.isValid(flowId)) return { error: 'Invalid Flow ID.' };
-    try {
-        const { db } = await connectToDatabase();
-        await db.collection('flows').deleteOne({ _id: new ObjectId(flowId) });
-        revalidatePath('/dashboard/flow-builder');
-        return { message: 'Flow deleted.' };
-    } catch (e) {
-        return { error: 'Failed to delete flow.' };
     }
 }
 
