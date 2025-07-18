@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle, Send } from 'lucide-react';
-import { handleCreateFlowTemplate } from '@/app/actions/whatsapp.actions';
+import { handleCreateFlowTemplate } from '@/app/actions/template.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { MetaFlow } from '@/lib/definitions';

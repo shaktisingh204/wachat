@@ -33,7 +33,7 @@ export function ProductCard({ product, shopSettings, shopSlug }: { product: With
                 <Image
                     src={product.imageUrl || 'https://placehold.co/400x500.png'}
                     alt={product.name}
-                    layout="fill"
+                    fill
                     objectFit="cover"
                     className="transition-transform group-hover:scale-105"
                     data-ai-hint="product photo"
