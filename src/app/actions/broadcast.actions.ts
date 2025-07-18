@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -9,11 +10,32 @@ import FormData from 'form-data';
 import axios from 'axios';
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById, getBroadcastById } from '@/app/actions';
+import { getProjectById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
 import type { Project, BroadcastJob, BroadcastState, Template, MetaFlow, Contact, BroadcastAttempt } from '@/lib/definitions';
 
 const BATCH_SIZE = 1000;
+
+export async function getBroadcastById(broadcastId: string) {
+    if (!ObjectId.isValid(broadcastId)) {
+        console.error("Invalid Broadcast ID in getBroadcastById:", broadcastId);
+        return null;
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const broadcast = await db.collection('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
+        if (!broadcast) return null;
+        
+        const hasAccess = await getProjectById(broadcast.projectId.toString());
+        if (!hasAccess) return null;
+
+        return JSON.parse(JSON.stringify(broadcast));
+    } catch (error) {
+        console.error('Failed to fetch broadcast by ID:', error);
+        return null;
+    }
+}
 
 const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial<Contact>[], variablesFromColumn: boolean = true) => {
     if (batch.length === 0) return 0;

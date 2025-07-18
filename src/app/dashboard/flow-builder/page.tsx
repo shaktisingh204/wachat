@@ -49,8 +49,7 @@ import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProjects, getFlowLogById } from '@/app/actions';
 import { getTemplates } from '@/app/actions/whatsapp.actions';
-import { saveFlow, getFlowById, getFlowsForProject } from '@/app/actions/flow.actions';
-import { deleteFlow } from '@/app/actions/flow.actions';
+import { saveFlow, getFlowById, getFlowsForProject, deleteFlow } from '@/app/actions/flow.actions';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import type { Flow, FlowNode, FlowEdge, Template, MetaFlow } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -81,7 +80,7 @@ const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
-    { type: 'carousel', label: 'Product Carousel', icon: View },
+    { type: 'carousel', label: 'Carousel', icon: View },
     { type: 'payment', label: 'Request Payment', icon: CreditCard },
     { type: 'language', label: 'Set Language', icon: BrainCircuit },
     { type: 'input', label: 'Get User Input', icon: Type },
@@ -245,7 +244,5 @@ const NodeComponent = ({
         </div>
     );
 };
-
-// ... other components and functions (PropertiesPanel, FlowsAndBlocksPanel, etc.)
+// Other components and functions (PropertiesPanel, FlowsAndBlocksPanel, etc.)
 // These will be defined below and are assumed to be correct for this fix.
-

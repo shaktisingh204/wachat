@@ -80,15 +80,16 @@ export async function saveFlow(data: {
     }
 }
 
-export async function deleteFlow(flowId: string, projectId: string): Promise<{ message?: string; error?: string }> {
+export async function deleteFlow(flowId: string): Promise<{ message?: string; error?: string }> {
     if (!ObjectId.isValid(flowId)) return { error: 'Invalid Flow ID.' };
 
-    const hasAccess = await getProjectById(projectId);
+    const { db } = await connectToDatabase();
+    const flow = await db.collection('flows').findOne({ _id: new ObjectId(flowId) });
+    if (!flow) return { error: 'Flow not found.' };
+
+    const hasAccess = await getProjectById(flow.projectId.toString());
     if (!hasAccess) return { error: 'Access denied' };
 
-    const { db } = await connectToDatabase();
-    const flow = await db.collection('flows').findOne({ _id: new ObjectId(flowId), projectId: new ObjectId(projectId) });
-    if (!flow) return { error: 'Flow not found or you do not have permission to delete it.' };
 
     try {
         await db.collection('flows').deleteOne({ _id: new ObjectId(flowId) });

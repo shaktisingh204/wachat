@@ -3,12 +3,12 @@
 
 import { getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import type { WithId, EcommOrder } from '@/lib/definitions';
 import { CheckCircle, Package } from 'lucide-react';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export default function OrderConfirmationPage({ params }: { params: { orderId: string, slug: string } }) {
