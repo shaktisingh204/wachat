@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
@@ -6,7 +7,7 @@ import Link from 'next/link';
 import { ChevronLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { CreateTemplateForm } from '@/components/wabasimplify/create-template-form';
+import { getProjectById } from '@/app/actions';
 
 const LoadingSkeleton = () => (
     <div className="flex flex-col gap-8">
@@ -21,6 +22,12 @@ const LoadingSkeleton = () => (
       </div>
     </div>
 );
+
+const CreateTemplateForm = dynamic(
+  () => import('@/components/wabasimplify/create-template-form').then(mod => mod.CreateTemplateForm),
+  { loading: () => <LoadingSkeleton /> }
+);
+
 
 // We can reuse the existing form component but pass a different action to it.
 // This page is a wrapper to provide the correct server action and context.

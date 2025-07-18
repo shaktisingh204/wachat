@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { TemplateCard } from '@/components/wabasimplify/template-card';
 import { PlusCircle, RefreshCw, Search, FileText, BookCopy } from 'lucide-react';
 import Link from 'next/link';
-import { getTemplates, handleSyncTemplates } from '@/app/actions/whatsapp.actions';
+import { getTemplates, handleSyncTemplates } from '@/app/actions/template.actions';
 import { WithId } from 'mongodb';
 import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
