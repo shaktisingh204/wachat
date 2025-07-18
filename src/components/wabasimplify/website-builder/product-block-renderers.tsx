@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -30,7 +31,7 @@ export const ProductImageRenderer: React.FC<ProductBlockProps> = ({ product, set
             <Image 
                 src={product.imageUrl || 'https://placehold.co/600x600.png'} 
                 alt={product.name}
-                layout="fill"
+                fill
                 style={style}
                 data-ai-hint="product image"
             />

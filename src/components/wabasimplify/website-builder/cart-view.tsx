@@ -79,3 +79,7 @@ export function CartView() {
                         </Button>
                     </CardFooter>
                 </Card>
+            </div>
+        </div>
+    );
+}
