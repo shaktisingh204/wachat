@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Key, LoaderCircle, Trash2, CheckCircle, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { addCustomDomain, getCustomDomains, verifyCustomDomain, deleteCustomDomain } from '@/app/actions/url-shortener.actions';
 import type { WithId, CustomDomain } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -75,7 +76,7 @@ export function EcommCustomDomainForm() {
     const [addState, addAction] = useActionState(addCustomDomain, addDomainInitialState);
     const { copy } = useCopyToClipboard();
 
-    const fetchData = () => {
+     const fetchData = () => {
         startLoadingTransition(async () => {
             const data = await getCustomDomains();
             setDomains(data);

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { 
     MessageSquare, 
     ToggleRight, 
@@ -1097,7 +1097,7 @@ export default function EcommFlowBuilderPage() {
                 <Sheet open={isBlocksSheetOpen} onOpenChange={setIsBlocksSheetOpen}>
                     <SheetContent side="left" className="p-2 flex flex-col gap-4 w-full max-w-xs">
                         <SheetTitle className="sr-only">Flows and Blocks</SheetTitle>
-                        <SheetDescription className="sr-only">A list of flows and draggable blocks to build your automation.</SheetDescription>
+                        <SheetDescription className="sr-only">A list of flows and draggable blocks.</SheetDescription>
                         <FlowsAndBlocksPanel {...{ isLoading, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
                     </SheetContent>
                 </Sheet>

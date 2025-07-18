@@ -1,3 +1,4 @@
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -411,27 +412,6 @@ export async function getDashboardStats(projectId: string): Promise<{
     } catch (error) {
         console.error("Failed to fetch dashboard stats:", error);
         return defaultStats;
-    }
-}
-
-export async function getBroadcastById(broadcastId: string) {
-    if (!ObjectId.isValid(broadcastId)) {
-        console.error("Invalid Broadcast ID in getBroadcastById:", broadcastId);
-        return null;
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        const broadcast = await db.collection('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
-        if (!broadcast) return null;
-        
-        const hasAccess = await getProjectById(broadcast.projectId.toString());
-        if (!hasAccess) return null;
-
-        return JSON.parse(JSON.stringify(broadcast));
-    } catch (error) {
-        console.error('Failed to fetch broadcast by ID:', error);
-        return null;
     }
 }
 
@@ -1112,554 +1092,162 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
     }
 }
 
-export async function handleInviteAgent(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const email = formData.get('email') as string;
-    const role = formData.get('role') as string;
-
-    const session = await getSession();
-    if (!session?.user) return { error: 'Authentication required.' };
-
-    if (!projectId || !email || !role) return { error: 'Missing required fields.' };
-    if (!ObjectId.isValid(projectId)) return { error: 'Invalid project ID.' };
-
-    try {
-        const { db } = await connectToDatabase();
-        const project = await getProjectById(projectId);
-
-        if (!project || project.userId.toString() !== session.user._id.toString()) {
-            return { error: 'Project not found or you are not the owner.' };
-        }
-        
-        if (!project.plan) return { error: 'Could not determine your plan limits.' };
-        const plan = project.plan;
-
-        const currentAgentCount = project.agents?.length || 0;
-        if (currentAgentCount >= (plan.agentLimit || 0)) {
-            return { error: `You have reached your agent limit of ${plan.agentLimit}. Please upgrade your plan.` };
-        }
-
-        const invitee = await db.collection('users').findOne({ email });
-        if (!invitee) {
-            return { error: `No user found with the email "${email}". Please ask them to sign up first.` };
-        }
-
-        if (invitee._id.toString() === session.user._id.toString()) {
-            return { error: "You cannot invite yourself." };
-        }
-
-        if (project.agents?.some(agent => agent.userId.toString() === invitee._id.toString())) {
-            return { error: "This user is already an agent on this project." };
-        }
-
-        const newInvitation: Omit<Invitation, '_id'> = {
-            projectId: project._id,
-            projectName: project.name,
-            inviterId: new ObjectId(session.user._id),
-            inviterName: session.user.name,
-            inviteeEmail: email,
-            role,
-            status: 'pending',
-            createdAt: new Date(),
-        };
-
-        await db.collection('invitations').insertOne(newInvitation as any);
-        
-        revalidatePath('/dashboard/settings');
-        return { message: `Invitation sent to ${email}.` };
-
-    } catch (e: any) {
-        console.error("Agent invitation failed:", e);
-        return { error: 'An unexpected error occurred.' };
-    }
-}
-
-export async function handleRemoveAgent(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const projectId = formData.get('projectId') as string;
-    const agentUserId = formData.get('agentUserId') as string;
-
-    const session = await getSession();
-    if (!session?.user) return { error: 'Authentication required.' };
-
-    if (!projectId || !agentUserId) return { error: 'Missing required fields.' };
-    if (!ObjectId.isValid(projectId) || !ObjectId.isValid(agentUserId)) return { error: 'Invalid ID.' };
-
-    try {
-        const { db } = await connectToDatabase();
-        const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId) });
-        if (!project || project.userId.toString() !== session.user._id.toString()) {
-            return { error: 'Project not found or you are not the owner.' };
-        }
-
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
-            { $pull: { agents: { userId: new ObjectId(agentUserId) } } }
-        );
-        
-        revalidatePath('/dashboard/settings');
-        return { message: 'Agent removed successfully.' };
-
-    } catch (e: any) {
-        console.error("Agent removal failed:", e);
-        return { error: 'An unexpected error occurred.' };
-    }
-}
-
-export async function getInvitationsForUser(): Promise<WithId<Invitation>[]> {
-    const session = await getSession();
-    if (!session?.user) return [];
-
-    try {
-        const { db } = await connectToDatabase();
-        const invitations = await db.collection('invitations').find({
-            inviteeEmail: session.user.email,
-            status: 'pending'
-        }).sort({ createdAt: -1 }).toArray();
-
-        return JSON.parse(JSON.stringify(invitations));
-    } catch (e) {
-        return [];
-    }
-}
-
-export async function handleRespondToInvite(invitationId: string, accepted: boolean): Promise<{ success: boolean, error?: string }> {
-    const session = await getSession();
-    if (!session?.user) return { success: false, error: 'Authentication required.' };
-
-    if (!ObjectId.isValid(invitationId)) return { success: false, error: 'Invalid invitation ID.' };
-
-    try {
-        const { db } = await connectToDatabase();
-        const invite = await db.collection<Invitation>('invitations').findOne({ _id: new ObjectId(invitationId) });
-
-        if (!invite || invite.inviteeEmail !== session.user.email) {
-            return { success: false, error: 'Invitation not found or not intended for you.' };
-        }
-
-        if (accepted) {
-            const agent: Agent = {
-                userId: new ObjectId(session.user._id),
-                email: session.user.email,
-                name: session.user.name,
-                role: invite.role,
-            };
-            await db.collection('projects').updateOne(
-                { _id: invite.projectId },
-                { $addToSet: { agents: agent } }
-            );
-        }
-
-        await db.collection('invitations').deleteOne({ _id: new ObjectId(invitationId) });
-        
-        revalidatePath('/dashboard/settings');
-        revalidatePath('/dashboard', 'layout');
-        return { success: true };
-    } catch (e: any) {
-        return { success: false, error: 'An unexpected error occurred.' };
-    }
-}
-
-
-export async function getAllNotifications(
-    page: number = 1,
-    limit: number = 20,
-    eventTypeFilter?: string,
-    projectId?: string | null,
-): Promise<{ notifications: WithId<NotificationWithProject>[], total: number }> {
-    const session = await getSession();
-    if (!session?.user) return { notifications: [], total: 0 };
-    
-    try {
-        const { db } = await connectToDatabase();
-        
-        const filter: Filter<Notification> = {};
-
-        if (projectId && ObjectId.isValid(projectId)) {
-            // Ensure the user has access to this specific project
-            const hasAccess = await db.collection('projects').findOne({
-                _id: new ObjectId(projectId),
-                $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
-            });
-            if (!hasAccess) return { notifications: [], total: 0 };
-            filter.projectId = new ObjectId(projectId);
-        } else {
-             // If no specific project, get notifications for all accessible projects
-            const projectFilter: Filter<Project> = {
-                $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
-            };
-            const accessibleProjects = await db.collection('projects').find(projectFilter).project({_id: 1}).toArray();
-            const accessibleProjectIds = accessibleProjects.map(p => p._id);
-            filter.projectId = { $in: accessibleProjectIds };
-        }
-        
-        if (eventTypeFilter) {
-            filter.eventType = eventTypeFilter;
-        }
-
-        const skip = (page - 1) * limit;
-
-        const [notifications, total] = await Promise.all([
-            db.collection('notifications').aggregate<WithId<NotificationWithProject>>([
-                { $match: filter },
-                { $sort: { createdAt: -1 } },
-                { $skip: skip },
-                { $limit: limit },
-                {
-                    $lookup: {
-                        from: 'projects',
-                        localField: 'projectId',
-                        foreignField: '_id',
-                        as: 'projectInfo'
-                    }
-                },
-                {
-                    $unwind: { path: '$projectInfo', preserveNullAndEmptyArrays: true }
-                },
-                {
-                    $addFields: {
-                        projectName: '$projectInfo.name'
-                    }
-                },
-                {
-                    $project: { projectInfo: 0 }
-                }
-            ]).toArray(),
-            db.collection('notifications').countDocuments(filter)
-        ]);
-        
-        return { notifications: JSON.parse(JSON.stringify(notifications)), total };
-    } catch (e: any) {
-        return { notifications: [], total: 0 };
-    }
-}
-
-export async function getNotifications(projectId?: string | null): Promise<WithId<NotificationWithProject>[]> {
-    const session = await getSession();
-    if (!session?.user) return [];
-
-    try {
-        const { db } = await connectToDatabase();
-        
-        const projectFilter: Filter<Project> = {
-            $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
-        };
-        const accessibleProjects = await db.collection('projects').find(projectFilter).project({_id: 1}).toArray();
-        const accessibleProjectIds = accessibleProjects.map(p => p._id);
-
-        const filter: Filter<Notification> = { projectId: { $in: accessibleProjectIds } };
-
-        const notifications = await db.collection('notifications').aggregate<WithId<NotificationWithProject>>([
-            { $match: filter },
-            { $sort: { createdAt: -1 } },
-            { $limit: 20 },
-            { $lookup: { from: 'projects', localField: 'projectId', foreignField: '_id', as: 'projectInfo' } },
-            { $unwind: { path: '$projectInfo', preserveNullAndEmptyArrays: true } },
-            { $addFields: { projectName: '$projectInfo.name' } },
-            { $project: { projectInfo: 0 } }
-        ]).toArray();
-        return JSON.parse(JSON.stringify(notifications));
-    } catch (e) {
-        return [];
-    }
-}
-
-export async function markNotificationAsRead(notificationId: string): Promise<{ success: boolean }> {
-  try {
-    const { db } = await connectToDatabase();
-    await db.collection('notifications').updateOne({ _id: new ObjectId(notificationId) }, { $set: { isRead: true } });
-    revalidatePath('/dashboard/notifications');
-    revalidatePath('/dashboard', 'layout');
-    return { success: true };
-  } catch (e) {
-    return { success: false };
-  }
-}
-
-export async function markAllNotificationsAsRead(): Promise<{ success: boolean, updatedCount?: number }> {
-    const session = await getSession();
-    if (!session?.user) return { success: false };
-
-    try {
-        const { db } = await connectToDatabase();
-        const projectFilter: Filter<Project> = {
-            $or: [{ userId: new ObjectId(session.user._id) }, { 'agents.userId': new ObjectId(session.user._id) }]
-        };
-        const accessibleProjects = await db.collection('projects').find(projectFilter).project({_id: 1}).toArray();
-        const accessibleProjectIds = accessibleProjects.map(p => p._id);
-        
-        const result = await db.collection('notifications').updateMany(
-            { projectId: { $in: accessibleProjectIds }, isRead: false },
-            { $set: { isRead: true } }
-        );
-        revalidatePath('/dashboard/notifications');
-        revalidatePath('/dashboard', 'layout');
-        return { success: true, updatedCount: result.modifiedCount };
-    } catch (e) {
-        return { success: false };
-    }
-}
-
-export async function handleUpdateMasterSwitch(projectId: string, isEnabled: boolean) {
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: "Access denied." };
-    try {
-        const { db } = await connectToDatabase();
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
-            { $set: { "autoReplySettings.masterEnabled": isEnabled } }
-        );
-        revalidatePath('/dashboard/settings');
-        return { message: `All auto-replies have been ${isEnabled ? 'enabled' : 'disabled'}.` };
-    } catch (e: any) {
-        return { error: e.message || 'Failed to update master switch.' };
-    }
-}
-
-export async function handleUpdateOptInOutSettings(prevState: any, formData: FormData) {
-    const projectId = formData.get('projectId') as string;
-    if (!projectId) return { error: 'Missing project ID.' };
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: "Access denied." };
-
-    const settings: OptInOutSettings = {
-        enabled: formData.get('enabled') === 'on',
-        optInKeywords: (formData.get('optInKeywords') as string || '').split(',').map(k => k.trim()).filter(Boolean),
-        optOutKeywords: (formData.get('optOutKeywords') as string || '').split(',').map(k => k.trim()).filter(Boolean),
-        optInResponse: formData.get('optInResponse') as string,
-        optOutResponse: formData.get('optOutResponse') as string,
-    };
-
-    try {
-        const { db } = await connectToDatabase();
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
-            { $set: { optInOutSettings: settings } }
-        );
-        revalidatePath('/dashboard/settings');
-        return { message: 'Opt-in/out settings saved successfully.' };
-    } catch (e: any) {
-        return { error: 'Failed to save settings.' };
-    }
-}
-
-export async function handleSaveUserAttributes(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
-    const session = await getSession();
-    if (!session?.user) return { error: 'Authentication required.' };
-
-    const projectId = formData.get('projectId') as string;
-    const attributesJSON = formData.get('attributes') as string;
-    
-    if (!projectId) return { error: 'Project ID is missing.' };
-    
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return { error: "Access denied." };
-    
-    try {
-        const attributes = JSON.parse(attributesJSON);
-        
-        const { db } = await connectToDatabase();
-        await db.collection('projects').updateOne(
-            { _id: new ObjectId(projectId) },
-            { $set: { userAttributes: attributes } }
-        );
-        revalidatePath('/dashboard/settings');
-        return { message: 'User attributes saved successfully.' };
-    } catch (e: any) {
-        console.error("Failed to save user attributes:", e);
-        return { error: 'An error occurred while saving.' };
-    }
-}
-
-export async function saveCannedMessageAction(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
-    const session = await getSession();
-    if (!session?.user) return { error: 'Authentication required.' };
-    
-    const messageId = formData.get('_id') as string | null;
-    const projectId = formData.get('projectId') as string;
-    
-    if (!projectId) return { error: 'Project ID is missing.' };
-
-    const cannedMessageData = {
-        projectId: new ObjectId(projectId),
-        name: formData.get('name') as string,
-        type: formData.get('type') as CannedMessage['type'],
-        content: {
-            text: formData.get('text') as string,
-            mediaUrl: formData.get('mediaUrl') as string,
-            caption: formData.get('caption') as string,
-            fileName: formData.get('fileName') as string,
-        },
-        isFavourite: formData.get('isFavourite') === 'on',
-        createdBy: session.user.name,
-        createdAt: new Date(),
-    };
-
-    try {
-        const { db } = await connectToDatabase();
-        if (messageId) {
-            await db.collection('canned_messages').updateOne({ _id: new ObjectId(messageId) }, { $set: { ...cannedMessageData, createdAt: undefined } as any});
-        } else {
-            await db.collection('canned_messages').insertOne(cannedMessageData as any);
-        }
-        revalidatePath('/dashboard/settings');
-        return { message: 'Canned message saved successfully.' };
-    } catch (e: any) {
-        return { error: 'Failed to save canned message.' };
-    }
-}
-
-export async function deleteCannedMessage(id: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(id)) return { success: false, error: 'Invalid ID.' };
-    try {
-        const { db } = await connectToDatabase();
-        await db.collection('canned_messages').deleteOne({ _id: new ObjectId(id) });
-        revalidatePath('/dashboard/settings');
-        return { success: true };
-    } catch (e: any) {
-        return { success: false, error: 'Failed to delete message.' };
-    }
-}
-
-export async function getCannedMessages(projectId: string): Promise<WithId<CannedMessage>[]> {
-    if (!ObjectId.isValid(projectId)) return [];
-    try {
-        const { db } = await connectToDatabase();
-        return JSON.parse(JSON.stringify(await db.collection('canned_messages').find({ projectId: new ObjectId(projectId) }).sort({ isFavourite: -1, name: 1 }).toArray()));
-    } catch (e) {
-        return [];
-    }
-}
-
-export async function handleUpdateContactDetails(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
-    const contactId = formData.get('contactId') as string;
-    const variablesJSON = formData.get('variables') as string;
-
-    if (!ObjectId.isValid(contactId)) {
-        return { success: false, error: 'Invalid Contact ID' };
-    }
-    
-    try {
-        const variables = JSON.parse(variablesJSON);
-        const { db } = await connectToDatabase();
-        
-        await db.collection('contacts').updateOne(
-            { _id: new ObjectId(contactId) },
-            { $set: { variables } }
-        );
-        revalidatePath('/dashboard/chat');
-        return { success: true };
-    } catch (e: any) {
-        return { success: false, error: 'Failed to update contact.' };
-    }
-}
-
-
-export async function handleUpdateContactStatus(contactId: string, status: string, assignedAgentId: string): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(contactId)) return { success: false, error: 'Invalid Contact ID' };
-
-    const session = await getSession();
-    if (!session) return { success: false, error: 'Authentication required' };
-
-    try {
-        const { db } = await connectToDatabase();
-        const contact = await db.collection('contacts').findOne({ _id: new ObjectId(contactId) });
-        if (!contact) return { success: false, error: 'Contact not found' };
-
-        const project = await getProjectById(contact.projectId.toString());
-        if (!project) return { success: false, error: 'Access denied' };
-        
-        const update: any = { status };
-        if (assignedAgentId) {
-            update.assignedAgentId = assignedAgentId;
-        } else {
-            update.assignedAgentId = null;
-        }
-        
-        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: update });
-        
-        revalidatePath('/dashboard/chat');
-        revalidatePath('/dashboard/chat/kanban');
-        return { success: true };
-
-    } catch (e: any) {
-        return { success: false, error: 'Failed to update contact status.' };
-    }
-}
-
-
-export async function getConversation(contactId: string): Promise<AnyMessage[]> {
-    if (!ObjectId.isValid(contactId)) return [];
-    try {
-        const { db } = await connectToDatabase();
-        const contactObjectId = new ObjectId(contactId);
-
-        const incoming = await db.collection('incoming_messages').find({ contactId: contactObjectId }).toArray();
-        const outgoing = await db.collection('outgoing_messages').find({ contactId: contactObjectId }).toArray();
-        
-        const allMessages = [...incoming, ...outgoing];
-        allMessages.sort((a, b) => new Date(a.messageTimestamp).getTime() - new Date(b.messageTimestamp).getTime());
-
-        return JSON.parse(JSON.stringify(allMessages));
-    } catch (e) {
-        return [];
-    }
-}
-
-export async function getFlowLogById(logId: string): Promise<WithId<FlowLog> | null> {
+export async function handleSubscribeAllProjects(): Promise<{ message?: string; error?: string }> {
     const { isAdmin } = await getAdminSession();
-    if (!isAdmin) return null;
+    if (!isAdmin) return { error: 'Permission denied.' };
+    
+    const accessToken = process.env.META_SYSTEM_USER_ACCESS_TOKEN;
+    const apiVersion = 'v23.0';
+    const callbackBaseUrl = process.env.WEBHOOK_CALLBACK_URL || process.env.NEXT_PUBLIC_APP_URL;
 
-    if (!ObjectId.isValid(logId)) return null;
+    if (!accessToken) {
+        return { error: 'System User Access Token must be configured in environment variables.' };
+    }
+    
     try {
         const { db } = await connectToDatabase();
-        const log = await db.collection<FlowLog>('flow_logs').findOne({ _id: new ObjectId(logId) });
-        return log ? JSON.parse(JSON.stringify(log)) : null;
-    } catch (error) {
-        console.error('Failed to fetch flow log by ID:', error);
-        return null;
+        const projects = await db.collection('projects').find({}, { projection: { wabaId: 1, appId: 1 } }).toArray();
+
+        if (projects.length === 0) {
+            return { message: 'No projects found in the database to subscribe.' };
+        }
+        
+        let successCount = 0;
+        let errorCount = 0;
+        let lastError = '';
+
+        for (const project of projects) {
+            const appId = project.appId || process.env.NEXT_PUBLIC_META_APP_ID;
+            if (!appId) {
+                errorCount++;
+                lastError = `App ID not found for project with WABA ID ${project.wabaId}`;
+                continue;
+            }
+
+            try {
+                 const fields = 'account_update,message_template_status_update,messages,phone_number_name_update,phone_number_quality_update,security,template_category_update';
+                 await axios.post(
+                    `https://graph.facebook.com/${apiVersion}/${appId}/subscriptions`,
+                    {
+                        object: 'whatsapp_business_account',
+                        callback_url: `${callbackBaseUrl}/api/webhooks/meta`,
+                        fields: fields,
+                        verify_token: process.env.META_VERIFY_TOKEN,
+                        access_token: accessToken,
+                    }
+                );
+                successCount++;
+            } catch (e: any) {
+                errorCount++;
+                lastError = getErrorMessage(e);
+                console.error(`Failed to subscribe project with WABA ID ${project.wabaId}:`, lastError);
+            }
+        }
+        
+        if (errorCount > 0) {
+            return { message: `Subscription complete. ${successCount} successful, ${errorCount} failed. Last error: ${lastError}` };
+        }
+        
+        return { message: `Successfully subscribed ${successCount} project(s) to webhook events.` };
+
+    } catch (e: any) {
+        console.error('Failed to subscribe projects:', e);
+        return { error: e.message || 'An unexpected error occurred during subscription.' };
     }
 }
 
-export async function saveUserTags(tags: Tag[]): Promise<{ success: boolean; error?: string }> {
+export async function handleFacebookSetup(accessToken: string, wabaIds: string[], includeCatalog: boolean): Promise<{ success: boolean, count: number, error?: string }> {
     const session = await getSession();
-    if (!session?.user) return { success: false, error: 'Access denied.' };
+    if (!session?.user) {
+        return { success: false, count: 0, error: 'You must be logged in.' };
+    }
+
+    const appId = process.env.NEXT_PUBLIC_META_APP_ID;
+    if (!appId) {
+        return { success: false, count: 0, error: 'Platform App ID is not configured.' };
+    }
 
     try {
         const { db } = await connectToDatabase();
-        await db.collection('users').updateOne(
-            { _id: new ObjectId(session.user._id) },
-            { $set: { tags: tags } }
-        );
-        revalidatePath('/dashboard/settings');
-        revalidatePath('/dashboard/url-shortener');
-        return { success: true };
-    } catch (e: any) {
-        return { success: false, error: 'Failed to save tags.' };
-    }
-}
+        const bulkOps: any[] = [];
+        const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
 
-export async function updateContactTags(contactId: string, tagIds: string[]): Promise<{ success: boolean; error?: string }> {
-    if (!ObjectId.isValid(contactId)) {
-        return { success: false, error: 'Invalid contact ID.' };
-    }
-    
-    const { db } = await connectToDatabase();
-    const contact = await db.collection('contacts').findOne({ _id: new ObjectId(contactId) });
-    if (!contact) {
-        return { success: false, error: 'Contact not found.' };
-    }
-    const hasAccess = await getProjectById(contact.projectId.toString());
-    if (!hasAccess) return { success: false, error: 'Access denied.' };
-    
-    try {
-        await db.collection('contacts').updateOne(
-            { _id: new ObjectId(contactId) },
-            { $set: { tagIds } }
-        );
-        revalidatePath('/dashboard/chat');
-        revalidatePath('/dashboard/contacts');
-        return { success: true };
+        let businessId: string | undefined = undefined;
+        if (includeCatalog) {
+            try {
+                const businessesResponse = await axios.get(`https://graph.facebook.com/v23.0/me/businesses`, {
+                    params: { access_token: accessToken }
+                });
+                const businesses = businessesResponse.data?.data;
+                if (businesses && businesses.length > 0) {
+                    businessId = businesses[0].id;
+                } else {
+                    console.warn("No Meta Business account found for token, cannot enable catalog management.");
+                }
+            } catch(e) {
+                console.warn("Failed to fetch business ID during guided setup:", getErrorMessage(e));
+            }
+        }
+
+        for (const wabaId of wabaIds) {
+            const wabaDetailsResponse = await fetch(`https://graph.facebook.com/v23.0/${wabaId}?fields=name,id&access_token=${accessToken}`);
+            const wabaData = await wabaDetailsResponse.json();
+
+            if (wabaData.error) {
+                console.error(`Failed to fetch details for WABA ${wabaId}:`, wabaData.error);
+                continue;
+            }
+
+            const projectDoc = {
+                userId: new ObjectId(session.user._id),
+                name: wabaData.name,
+                wabaId: wabaData.id,
+                accessToken: accessToken,
+                appId: appId,
+                createdAt: new Date(),
+                messagesPerSecond: 10000,
+                planId: defaultPlan?._id,
+                credits: defaultPlan?.signupCredits || 0,
+                businessId: businessId,
+                hasCatalogManagement: includeCatalog,
+            };
+
+            bulkOps.push({
+                updateOne: {
+                    filter: { wabaId: wabaData.id },
+                    update: { 
+                        $set: { 
+                            name: projectDoc.name, 
+                            accessToken: projectDoc.accessToken, 
+                            userId: projectDoc.userId,
+                            appId: projectDoc.appId,
+                            businessId: projectDoc.businessId,
+                            hasCatalogManagement: projectDoc.hasCatalogManagement,
+                        },
+                        $setOnInsert: { ...projectDoc, phoneNumbers: [] }
+                    },
+                    upsert: true,
+                }
+            });
+        }
+        
+        if (bulkOps.length > 0) {
+            const result = await db.collection('projects').bulkWrite(bulkOps);
+            const syncedCount = result.upsertedCount + result.modifiedCount;
+
+            const syncedProjects = await db.collection<WithId<Project>>('projects').find({ wabaId: { $in: wabaIds }, userId: new ObjectId(session.user._id) }).project({ _id: 1 }).toArray();
+            for (const project of syncedProjects) {
+                 await handleSubscribeProjectWebhook(project.wabaId!, project.appId!, accessToken);
+            }
+
+            revalidatePath('/dashboard');
+            return { success: true, count: syncedCount };
+        } else {
+            return { success: false, count: 0, error: "No valid WABAs could be processed." };
+        }
+
     } catch (e: any) {
-        return { success: false, error: 'Failed to update tags.' };
+        console.error("Facebook setup failed:", e);
+        return { success: false, count: 0, error: e.message || 'An unexpected error occurred during setup.' };
     }
 }

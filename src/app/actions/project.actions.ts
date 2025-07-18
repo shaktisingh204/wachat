@@ -2,7 +2,7 @@
 'use server';
 
 import { getSession } from '@/app/actions';
-import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers, handleCreateTemplate } from '@/app/actions/whatsapp.actions';
+import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
 import type { Project, Plan, OptInOutSettings, UserAttribute, CannedMessage, Agent, Invitation } from '@/lib/definitions';
@@ -103,23 +103,21 @@ export async function handleUpdateProjectSettings(
   prevState: any,
   formData: FormData
 ): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const messagesPerSecond = formData.get('messagesPerSecond') as string;
+
+    if (!projectId) {
+        return { error: 'Missing project ID.' };
+    }
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: 'Project not found or you do not have access.' };
+
+    const mps = parseInt(messagesPerSecond, 10);
+    if (isNaN(mps) || mps < 1) {
+        return { error: 'Messages per second must be a number and at least 1.' };
+    }
+
     try {
-        const projectId = formData.get('projectId') as string;
-        const messagesPerSecond = formData.get('messagesPerSecond') as string;
-
-        if (!projectId || !messagesPerSecond) {
-            return { error: 'Missing required fields.' };
-        }
-        
-        // Note: In a real app, you'd re-verify access here.
-        // const hasAccess = await getProjectById(projectId);
-        // if (!hasAccess) return { error: 'Project not found or you do not have access.' };
-
-        const mps = parseInt(messagesPerSecond, 10);
-        if (isNaN(mps) || mps < 1) {
-            return { error: 'Messages per second must be a number and at least 1.' };
-        }
-
         const { db } = await connectToDatabase();
         const result = await db.collection('projects').updateOne(
             { _id: new ObjectId(projectId) },
@@ -136,14 +134,14 @@ export async function handleUpdateProjectSettings(
 
     } catch (e: any) {
         console.error('Project settings update failed:', e);
-        return { error: e.message || 'An unexpected error occurred while saving the settings.' };
+        return { error: getErrorMessage(e) || 'An unexpected error occurred while saving the settings.' };
     }
 }
 
 
 export async function handleUpdateMasterSwitch(projectId: string, isEnabled: boolean) {
-    // const hasAccess = await getProjectById(projectId);
-    // if (!hasAccess) return { error: "Access denied." };
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
     try {
         const { db } = await connectToDatabase();
         await db.collection('projects').updateOne(
@@ -160,8 +158,8 @@ export async function handleUpdateMasterSwitch(projectId: string, isEnabled: boo
 export async function handleUpdateOptInOutSettings(prevState: any, formData: FormData) {
     const projectId = formData.get('projectId') as string;
     if (!projectId) return { error: 'Missing project ID.' };
-    // const hasAccess = await getProjectById(projectId);
-    // if (!hasAccess) return { error: "Access denied." };
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
 
     const settings: OptInOutSettings = {
         enabled: formData.get('enabled') === 'on',
@@ -193,8 +191,8 @@ export async function handleSaveUserAttributes(prevState: any, formData: FormDat
     
     if (!projectId) return { error: 'Project ID is missing.' };
     
-    // const hasAccess = await getProjectById(projectId);
-    // if (!hasAccess) return { error: "Access denied." };
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
     
     try {
         const attributes = JSON.parse(attributesJSON);
@@ -371,8 +369,8 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
     const replyType = formData.get('replyType') as keyof Project['autoReplySettings'];
     if (!projectId || !replyType) return { error: 'Missing required data.' };
 
-    // const hasAccess = await getProjectById(projectId);
-    // if (!hasAccess) return { error: "Access denied." };
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
 
     let updatePayload: any = { enabled: formData.get('enabled') === 'on' };
 
@@ -414,5 +412,88 @@ export async function handleUpdateAutoReplySettings(prevState: any, formData: Fo
         return { message: 'Auto-reply settings updated successfully!' };
     } catch (e: any) {
         return { error: e.message || 'Failed to save settings.' };
+    }
+}
+
+export async function getKanbanData(projectId: string): Promise<{ project: WithId<Project> | null, columns: KanbanColumnData[] }> {
+    const defaultData = { project: null, columns: [] };
+    const project = await getProjectById(projectId);
+    if (!project) return defaultData;
+    
+    try {
+        const { db } = await connectToDatabase();
+        const contacts = await db.collection<Contact>('contacts')
+            .find({ projectId: new ObjectId(projectId) })
+            .sort({ lastMessageTimestamp: -1 })
+            .toArray();
+
+        const defaultStatuses = ['new', 'open', 'resolved'];
+        const customStatuses = project.kanbanStatuses || [];
+        const allStatuses = [...new Set([...defaultStatuses, ...customStatuses])];
+
+        const columns = allStatuses.map(status => ({
+            name: status,
+            contacts: contacts.filter(c => (c.status || 'new') === status),
+        }));
+
+        return {
+            project: JSON.parse(JSON.stringify(project)),
+            columns: JSON.parse(JSON.stringify(columns))
+        };
+    } catch (e) {
+        console.error("Failed to get Kanban data:", e);
+        return defaultData;
+    }
+}
+
+export async function saveKanbanStatuses(projectId: string, statuses: string[]): Promise<{ success: boolean; error?: string }> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { success: false, error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const defaultStatuses = ['new', 'open', 'resolved'];
+        const customStatuses = statuses.filter(s => !defaultStatuses.includes(s));
+        
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { kanbanStatuses: customStatuses } }
+        );
+        revalidatePath('/dashboard/chat/kanban');
+        return { success: true };
+    } catch (e: any) {
+        return { success: false, error: 'Failed to save Kanban lists.' };
+    }
+}
+
+export async function handleUpdateContactStatus(contactId: string, status: string, assignedAgentId: string): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(contactId)) return { success: false, error: 'Invalid Contact ID' };
+
+    const session = await getSession();
+    if (!session) return { success: false, error: 'Authentication required' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const contact = await db.collection('contacts').findOne({ _id: new ObjectId(contactId) });
+        if (!contact) return { success: false, error: 'Contact not found' };
+
+        const project = await getProjectById(contact.projectId.toString());
+        if (!project) return { success: false, error: 'Access denied' };
+        
+        const update: any = { status };
+        if (assignedAgentId) {
+            update.assignedAgentId = assignedAgentId;
+        } else {
+            update.assignedAgentId = null;
+        }
+        
+        await db.collection('contacts').updateOne({ _id: new ObjectId(contactId) }, { $set: update });
+        
+        revalidatePath('/dashboard/chat');
+        revalidatePath('/dashboard/chat/kanban');
+        return { success: true };
+
+    } catch (e: any) {
+        return { success: false, error: 'Failed to update contact status.' };
     }
 }

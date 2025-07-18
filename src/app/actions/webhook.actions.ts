@@ -196,8 +196,6 @@ export async function handleClearProcessedLogs(): Promise<{ message?: string; er
     }
 }
 
-// Re-export getAdminSession if it's used here, or keep it in actions/index.ts
-// For now, assuming it stays in index.ts and this file is self-contained.
 import { verifyAdminJwt } from '@/lib/jwt';
 import { cookies } from 'next/headers';
 async function getAdminSession(): Promise<{ isAdmin: boolean }> {
