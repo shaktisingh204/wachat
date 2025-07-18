@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -22,25 +23,18 @@ export default function CrmAccountsPage() {
     const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const router = useRouter();
-    const [projectId, setProjectId] = useState<string | null>(null);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [totalPages, setTotalPages] = useState(0);
 
     const fetchData = useCallback(() => {
-        if (!projectId) return;
         startTransition(async () => {
-            const { accounts: data, total } = await getCrmAccounts(projectId, currentPage, ACCOUNTS_PER_PAGE, searchQuery);
+            const { accounts: data, total } = await getCrmAccounts(currentPage, ACCOUNTS_PER_PAGE, searchQuery);
             setAccounts(data);
             setTotalPages(Math.ceil(total / ACCOUNTS_PER_PAGE));
         });
-    }, [projectId, currentPage, searchQuery]);
-
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
+    }, [currentPage, searchQuery]);
 
     useEffect(() => {
         fetchData();
@@ -59,7 +53,7 @@ export default function CrmAccountsPage() {
                     <p className="text-muted-foreground">Manage your company-level records.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <CrmAddAccountDialog projectId={projectId || ''} onAdded={fetchData} />
+                    <CrmAddAccountDialog onAdded={fetchData} />
                 </div>
             </div>
             

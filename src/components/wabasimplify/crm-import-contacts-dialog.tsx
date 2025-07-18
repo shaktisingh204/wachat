@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -33,11 +34,10 @@ function SubmitButton() {
 }
 
 interface CrmImportContactsDialogProps {
-    projectId: string;
     onImported: () => void;
 }
 
-export function CrmImportContactsDialog({ projectId, onImported }: CrmImportContactsDialogProps) {
+export function CrmImportContactsDialog({ onImported }: CrmImportContactsDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(importCrmContacts, initialState);
   const { toast } = useToast();
@@ -65,7 +65,6 @@ export function CrmImportContactsDialog({ projectId, onImported }: CrmImportCont
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
-            <input type="hidden" name="projectId" value={projectId} />
             <DialogHeader>
                 <DialogTitle>Import Contacts</DialogTitle>
                 <DialogDescription>

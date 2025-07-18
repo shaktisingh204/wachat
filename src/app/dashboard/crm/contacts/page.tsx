@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
@@ -42,25 +43,18 @@ export default function CrmContactsPage() {
     const [contacts, setContacts] = useState<WithId<CrmContact>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const router = useRouter();
-    const [projectId, setProjectId] = useState<string | null>(null);
 
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [totalPages, setTotalPages] = useState(0);
 
     const fetchData = useCallback(() => {
-        if (!projectId) return;
         startTransition(async () => {
-            const { contacts: data, total } = await getCrmContacts(projectId, currentPage, CONTACTS_PER_PAGE, searchQuery);
+            const { contacts: data, total } = await getCrmContacts(currentPage, CONTACTS_PER_PAGE, searchQuery);
             setContacts(data);
             setTotalPages(Math.ceil(total / CONTACTS_PER_PAGE));
         });
-    }, [projectId, currentPage, searchQuery]);
-
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
+    }, [currentPage, searchQuery]);
 
     useEffect(() => {
         fetchData();
@@ -85,8 +79,8 @@ export default function CrmContactsPage() {
                     <p className="text-muted-foreground">Manage your customer pipeline from prospect to deal.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <CrmImportContactsDialog projectId={projectId || ''} onImported={fetchData} />
-                    <CrmAddContactDialog projectId={projectId || ''} onAdded={fetchData} />
+                    <CrmImportContactsDialog onImported={fetchData} />
+                    <CrmAddContactDialog onAdded={fetchData} />
                 </div>
             </div>
             
