@@ -317,6 +317,22 @@ export type AbandonedCartSettings = {
     flowId: string;
 };
 
+export type WhatsAppWidgetSettings = {
+    phoneNumber: string;
+    prefilledMessage: string;
+    position: 'bottom-right' | 'bottom-left';
+    buttonColor: string;
+    headerTitle: string;
+    headerSubtitle: string;
+    headerAvatarUrl: string;
+    welcomeMessage: string;
+    ctaText: string;
+    borderRadius: number;
+    padding: number;
+    textColor: string;
+    buttonTextColor: string;
+};
+
 export type FormField = {
   id: string;
   type: 'text' | 'email' | 'textarea' | 'url' | 'tel' | 'radio' | 'checkbox' | 'select' | 'number' | 'date' | 'time' | 'file' | 'password' | 'hidden' | 'html' | 'acceptance';
@@ -434,6 +450,7 @@ export type Project = {
     facebookCommentAutoReply?: FacebookCommentAutoReplySettings;
     facebookWelcomeMessage?: FacebookWelcomeMessageSettings;
     postRandomizer?: PostRandomizerSettings;
+    widgetSettings?: WhatsAppWidgetSettings;
     tags?: Tag[];
     planId?: ObjectId;
     credits?: number;
