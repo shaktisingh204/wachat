@@ -3,7 +3,8 @@
 
 import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getInitialChatData, getProjects, getConversation, markConversationAsRead, findOrCreateContact, getContactsForProject, getSession } from '@/app/actions/index';
+import { getInitialChatData, getConversation, markConversationAsRead, findOrCreateContact, getProjects } from '@/app/actions';
+import { getContactsForProject } from '@/app/actions/whatsapp.actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, AnyMessage, Template, User, Plan } from '@/lib/definitions';
 import { ChatContactList } from './chat-contact-list';
@@ -234,6 +235,7 @@ export function ChatClient() {
                     <div className={cn("w-full flex-col border-r bg-background md:w-[320px] flex-shrink-0", selectedContact ? "hidden md:flex" : "flex")}>
                         <ChatContactList
                             sessionUser={sessionUser}
+                            project={project}
                             contacts={contacts}
                             selectedContactId={selectedContact?._id.toString()}
                             onSelectContact={handleSelectContact}
@@ -243,7 +245,6 @@ export function ChatClient() {
                             loadMoreRef={loadMoreContactsRef}
                             selectedPhoneNumberId={selectedPhoneNumberId}
                             onPhoneNumberChange={handlePhoneNumberChange}
-                            project={project}
                         />
                     </div>
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
@@ -9,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getProjectById } from '@/app/actions';
+import { getTemplateCategories } from '@/app/actions/plan.actions';
 import type { WithId } from 'mongodb';
 import type { Project, Template } from '@/lib/definitions';
 
