@@ -16,6 +16,7 @@ import { WhatsAppIcon } from './custom-sidebar-components';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
 import { cn } from '@/lib/utils';
 import { CodeBlock } from './code-block';
+import { Separator } from '../ui/separator';
 
 interface WhatsAppWidgetGeneratorProps {
   project: WithId<Project>;
