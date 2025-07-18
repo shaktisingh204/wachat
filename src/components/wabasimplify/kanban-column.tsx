@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { KanbanCard } from './kanban-card';
 import type { WithId, Contact } from '@/lib/definitions';
@@ -26,6 +26,7 @@ export function KanbanColumn({ title, contacts }: KanbanColumnProps) {
                 {(provided, snapshot) => (
                      <ScrollArea 
                         className={cn("flex-1 p-2 rounded-b-lg", snapshot.isDraggingOver && 'bg-primary/10')}
+                        // @ts-ignore
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                     >

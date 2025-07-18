@@ -1,7 +1,8 @@
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getKanbanData, saveKanbanStatuses, handleUpdateContactStatus } from '@/app/actions/whatsapp.actions';
+import { getKanbanData, saveKanbanStatuses, handleUpdateContactStatus } from '@/app/actions/project.actions';
 import type { WithId, Contact, Project, KanbanColumnData } from '@/lib/definitions';
 import { KanbanColumn } from '@/components/wabasimplify/kanban-column';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -106,7 +107,7 @@ export function KanbanBoard() {
 
     const handleOnDragEnd = (result: any) => {
         if (!result.destination) return;
-
+        
         const { source, destination, draggableId } = result;
         
         if (source.droppableId === destination.droppableId) return;
