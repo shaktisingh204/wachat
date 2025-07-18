@@ -10,6 +10,8 @@ import { Zap, AlertCircle } from 'lucide-react';
 import { WhatsappLinkGenerator } from '@/components/wabasimplify/whatsapp-link-generator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { WhatsAppWidgetGenerator } from '@/components/wabasimplify/whatsapp-widget-generator';
 
 
 function IntegrationsPageSkeleton() {
@@ -20,6 +22,7 @@ function IntegrationsPageSkeleton() {
                 <Skeleton className="h-4 w-96 mt-2" />
             </div>
             <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-80 w-full" />
         </div>
     )
 }
@@ -55,7 +58,11 @@ export default function IntegrationsPage() {
             </div>
             
             {project ? (
-                <WhatsappLinkGenerator project={project} />
+                <>
+                    <WhatsappLinkGenerator project={project} />
+                    <Separator />
+                    <WhatsAppWidgetGenerator project={project} />
+                </>
             ) : (
                  <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
