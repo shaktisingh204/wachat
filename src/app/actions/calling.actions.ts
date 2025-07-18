@@ -101,7 +101,7 @@ export async function savePhoneNumberCallingSettings(
     
     settingsPayload.calling.call_hours = {
         status: callHoursStatus,
-        timezone_id: formData.get('timezone_id') as string || 'UTC',
+        timezone_id: formData.get('timezone_id') as string || 'UTC', // Ensure timezone is always present
         weekly_operating_hours: callHoursStatus === 'ENABLED' ? JSON.parse(formData.get('weekly_operating_hours') as string || '[]') : [],
         holiday_schedule: callHoursStatus === 'ENABLED' ? JSON.parse(formData.get('holiday_schedule') as string || '[]') : [],
     };

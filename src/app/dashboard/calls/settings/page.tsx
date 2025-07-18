@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
@@ -16,6 +15,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { formatDistanceToNow } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { RefreshCw } from 'lucide-react';
 
 function SettingsPageSkeleton() {
     return (
@@ -55,6 +56,14 @@ const ApiLogRow = ({ log }: { log: any }) => {
                              <h4 className="font-semibold text-xs uppercase text-muted-foreground">Error Response</h4>
                              <pre className="p-2 bg-destructive/10 text-destructive rounded-md text-xs font-mono whitespace-pre-wrap max-h-48 overflow-auto">
                                 {log.errorMessage}
+                            </pre>
+                        </>
+                    )}
+                     {log.response && (
+                        <>
+                             <h4 className="font-semibold text-xs uppercase text-muted-foreground">Success Response</h4>
+                             <pre className="p-2 bg-green-500/10 text-green-700 rounded-md text-xs font-mono whitespace-pre-wrap max-h-48 overflow-auto">
+                                {JSON.stringify(log.response, null, 2)}
                             </pre>
                         </>
                     )}
@@ -154,8 +163,13 @@ export default function CallingSettingsPage() {
             <div className="lg:col-span-1">
                 <Card>
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5"/> API Call Log</CardTitle>
-                        <CardDescription>A log of recent API calls made from this page.</CardDescription>
+                        <div className="flex justify-between items-center">
+                            <div className="space-y-1.5">
+                                <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5"/> API Call Log</CardTitle>
+                                <CardDescription>A log of recent API calls made from this page.</CardDescription>
+                            </div>
+                            <Button variant="ghost" size="icon" onClick={() => fetchData(projectId!)} disabled={isLoading}><RefreshCw className="h-4 w-4"/></Button>
+                        </div>
                     </CardHeader>
                     <CardContent className="p-0">
                          <ScrollArea className="h-96">
