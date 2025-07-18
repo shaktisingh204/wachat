@@ -1,21 +1,51 @@
 
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { TemplateCard } from '@/components/wabasimplify/template-card';
-import { PlusCircle, RefreshCw, Search, FileText, BookCopy } from 'lucide-react';
-import Link from 'next/link';
-import { getTemplates, handleSyncTemplates } from '@/app/actions/template.actions';
-import { WithId } from 'mongodb';
-import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { useState, useEffect, useCallback, useTransition } from 'react';
+import type { WithId } from 'mongodb';
+import { getProjectById } from '@/app/actions';
+import { handleSyncTemplates } from '@/app/actions/template.actions';
+import { getTemplates } from '@/app/actions/whatsapp.actions';
+import { useRouter } from 'next/navigation';
+import type { Project, Template, MetaFlow } from '@/lib/definitions';
+import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { Template } from '@/lib/definitions';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock, Play, AlertCircle, PlusCircle, BookCopy } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
+import { RequeueBroadcastDialog } from '@/components/wabasimplify/requeue-broadcast-dialog';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
+import { getMetaFlows } from '@/app/actions/meta-flow.actions';
+import { TemplateCard } from '@/components/wabasimplify/template-card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Search } from 'lucide-react';
+import { useMemo } from 'react';
+
 
 function TemplatesPageSkeleton() {
     return (
