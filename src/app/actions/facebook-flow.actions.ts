@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -79,7 +80,7 @@ export async function saveFacebookFlow(data: {
     }
 }
 
-export async function deleteFacebookFlow(flowId: string): Promise<{ message?: string; error?: string }> {
+export async function deleteFlow(flowId: string): Promise<{ message?: string; error?: string }> {
     if (!ObjectId.isValid(flowId)) return { error: 'Invalid Flow ID.' };
 
     const { db } = await connectToDatabase();

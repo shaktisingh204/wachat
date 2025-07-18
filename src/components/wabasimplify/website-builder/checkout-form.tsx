@@ -43,6 +43,8 @@ export function CheckoutForm() {
         }
     });
 
+    const { control, handleSubmit, formState: { errors } } = form;
+
     async function onSubmit(values: z.infer<typeof checkoutSchema>) {
         if (cart.length === 0) {
             toast({ title: 'Error', description: 'Your cart is empty.', variant: 'destructive' });
@@ -177,4 +179,8 @@ export function CheckoutForm() {
                             <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cartTotal)}</span>
                         </div>
                     </CardContent>
-                </Card
+                </Card>
+            </div>
+        </div>
+    );
+}
