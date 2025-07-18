@@ -38,7 +38,7 @@ export default function NotificationsPage() {
     const [projectId, setProjectId] = useState<string | null>(null);
 
     useEffect(() => {
-        document.title = 'All Notifications | Wachat';
+        document.title = 'All Notifications | SabNode';
         const storedProjectId = localStorage.getItem('activeProjectId');
         setProjectId(storedProjectId);
     }, []);

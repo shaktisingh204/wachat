@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -85,7 +83,7 @@ export async function deleteFacebookFlow(flowId: string): Promise<{ message?: st
     if (!ObjectId.isValid(flowId)) return { error: 'Invalid Flow ID.' };
 
     const { db } = await connectToDatabase();
-    const flow = await db.collection('facebook_flows').findOne({ _id: new ObjectId(flowId) });
+    const flow = await db.collection<FacebookFlow>('facebook_flows').findOne({ _id: new ObjectId(flowId) });
     if (!flow) return { error: 'Flow not found.' };
 
     const hasAccess = await getProjectById(flow.projectId.toString());

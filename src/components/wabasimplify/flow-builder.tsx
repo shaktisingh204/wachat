@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -47,7 +46,9 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getFlowsForProject, saveFlow, deleteFlow, getFlowById, getFlowBuilderPageData, getTemplates } from '@/app/actions';
+import { getProjects, getFlowLogById } from '@/app/actions';
+import { getTemplates } from '@/app/actions/whatsapp.actions';
+import { saveFlow, deleteFlow, getFlowById, getFlowsForProject } from '@/app/actions/flow.actions';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import type { Flow, FlowNode, FlowEdge, Template, MetaFlow } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -94,9 +95,9 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
         const parts = text.split(/({{\s*[\w\d._]+\s*}})/g);
         return parts.map((part, i) =>
             part.match(/^{{.*}}$/) ? (
-                <span key={i} className="font-semibold text-primary/90 bg-primary/10 rounded-sm px-1">
+                span key={i} className="font-semibold text-primary/90 bg-primary/10 rounded-sm px-1"
                     {part}
-                </span>
+                /span
             ) : (
                 part
             )
@@ -106,37 +107,37 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
     const previewContent = () => {
         switch (node.type) {
             case 'text':
-                return <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text) || <span className="italic opacity-50">Enter message...</span>}</p>;
+                return  p className="whitespace-pre-wrap"{renderTextWithVariables(node.data.text) ||  span className="italic opacity-50"Enter message.../span}/p;
             case 'image':
                 return (
-                    <div className="space-y-1">
-                        <div className="aspect-video bg-background/50 rounded-md flex items-center justify-center">
-                            <ImageIcon className="h-8 w-8 text-foreground/20" />
-                        </div>
-                        {node.data.caption && <p className="whitespace-pre-wrap text-xs">{renderTextWithVariables(node.data.caption)}</p>}
-                    </div>
+                    div className="space-y-1"
+                        div className="aspect-video bg-background/50 rounded-md flex items-center justify-center"
+                            ImageIcon className="h-8 w-8 text-foreground/20" /
+                        div
+                        {node.data.caption &&  p className="whitespace-pre-wrap text-xs"{renderTextWithVariables(node.data.caption)}/p}
+                    div
                 );
             case 'buttons':
                 return (
-                    <div className="space-y-2">
-                        <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text) || <span className="italic opacity-50">Enter message...</span>}</p>
-                        <div className="space-y-1 mt-2 border-t border-muted-foreground/20 pt-2">
+                    div className="space-y-2"
+                        p className="whitespace-pre-wrap"{renderTextWithVariables(node.data.text) ||  span className="italic opacity-50"Enter message.../span}/p
+                        div className="space-y-1 mt-2 border-t border-muted-foreground/20 pt-2"
                             {(node.data.buttons || []).map((btn: any, index: number) => (
-                                <div key={btn.id || index} className="text-center text-primary font-medium bg-background/50 py-1.5 rounded-md text-xs">
+                                div key={btn.id || index} className="text-center text-primary font-medium bg-background/50 py-1.5 rounded-md text-xs"
                                     {btn.text || `Button ${index + 1}`}
-                                </div>
+                                div
                             ))}
-                        </div>
-                    </div>
+                        div
+                    div
                 );
             case 'sendTemplate':
-                 return <p className="text-xs text-muted-foreground italic">Sends template: {node.data.templateName || 'None selected'}</p>;
+                 return  p className="text-xs text-muted-foreground italic"Sends template: {node.data.templateName || 'None selected'}/p;
             case 'triggerMetaFlow':
-                 return <p className="text-xs text-muted-foreground italic">Triggers flow: {node.data.metaFlowName || 'None selected'}</p>;
+                 return  p className="text-xs text-muted-foreground italic"Triggers flow: {node.data.metaFlowName || 'None selected'}/p;
             case 'triggerFlow':
-                 return <p className="text-xs text-muted-foreground italic">Triggers flow: {node.data.flowName || 'None selected'}</p>;
+                 return  p className="text-xs text-muted-foreground italic"Triggers flow: {node.data.flowName || 'None selected'}/p;
             case 'payment':
-                 return <p className="text-xs text-muted-foreground italic">Request payment of {node.data.paymentAmount || '0'} INR</p>;
+                 return  p className="text-xs text-muted-foreground italic"Request payment of {node.data.paymentAmount || '0'} INR/p;
             default:
                 return null;
         }
@@ -146,11 +147,11 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
     if (!content) return null;
 
     return (
-        <CardContent className="p-2 pt-0">
-            <div className="bg-muted p-2 rounded-lg text-sm text-card-foreground/80">
+        CardContent className="p-2 pt-0"
+            div className="bg-muted p-2 rounded-lg text-sm text-card-foreground/80"
                 {content}
-            </div>
-        </CardContent>
+            div
+        CardContent
     );
 };
 
@@ -171,7 +172,7 @@ const NodeComponent = ({
     const BlockIcon = [...blockTypes, {type: 'start', label: 'Start', icon: Play}].find(b => b.type === node.type)?.icon || MessageSquare;
 
     const Handle = ({ position, id, style, children }: { position: 'left' | 'right' | 'top' | 'bottom', id: string, style?: React.CSSProperties, children?: React.ReactNode }) => (
-        <div 
+         div 
             id={id}
             style={style}
             data-handle-pos={position}
@@ -184,62 +185,61 @@ const NodeComponent = ({
             onClick={(e) => { e.stopPropagation(); onHandleClick(e, node.id, id); }}
         >
             {children}
-        </div>
+        div
     );
 
     return (
-        <div 
+         div 
             className="absolute cursor-grab active:cursor-grabbing transition-all"
             style={{ top: node.position.y, left: node.position.x }}
             onMouseDown={(e) => onNodeMouseDown(e, node.id)}
             onClick={(e) => {e.stopPropagation(); onSelectNode(node.id)}}
         >
-            <Card className={cn(
+            Card className={cn(
                 "w-64 hover:shadow-xl hover:-translate-y-1 bg-card",
                 isSelected && "ring-2 ring-primary shadow-2xl"
-            )}>
-                <CardHeader className="flex flex-row items-center gap-3 p-3">
-                    <BlockIcon className="h-5 w-5 text-muted-foreground" />
-                    <CardTitle className="text-sm font-medium">{node.data.label}</CardTitle>
-                </CardHeader>
+            )}
+                CardHeader className="flex flex-row items-center gap-3 p-3"
+                    BlockIcon className="h-5 w-5 text-muted-foreground" /
+                    CardTitle className="text-sm font-medium"{node.data.label}/CardTitle
+                CardHeader
                  
-                <NodePreview node={node} />
+                NodePreview node={node} /
 
                  {node.type === 'condition' && (
-                    <CardContent className="p-3 pt-0 text-xs text-muted-foreground">
-                        <div className="flex justify-between items-center"><span>Yes</span></div>
-                        <Separator className="my-1"/>
-                        <div className="flex justify-between items-center"><span>No</span></div>
-                    </CardContent>
+                     CardContent className="p-3 pt-0 text-xs text-muted-foreground"
+                        div className="flex justify-between items-center"spanYes/span/div
+                        Separator className="my-1"/
+                        div className="flex justify-between items-center"spanNo/span/div
+                    CardContent
                 )}
                  {node.type === 'payment' && (
-                    <CardContent className="p-3 pt-0 text-xs text-muted-foreground">
-                        <div className="flex justify-between items-center"><span>Success</span></div>
-                        <Separator className="my-1"/>
-                        <div className="flex justify-between items-center"><span>Failure</span></div>
-                    </CardContent>
+                     CardContent className="p-3 pt-0 text-xs text-muted-foreground"
+                        div className="flex justify-between items-center"spanSuccess/span/div
+                        Separator className="my-1"/
+                        div className="flex justify-between items-center"spanFailure/span/div
+                    CardContent
                 )}
-            </Card>
+            Card
 
-            {node.type !== 'start' && <Handle position="left" id={`${node.id}-input`} />}
+            {node.type !== 'start' &&  Handle position="left" id={`${node.id}-input`} /}
             
             {node.type === 'condition' || node.type === 'payment' ? (
-                <>
-                    <Handle position="right" id={`${node.id}-output-yes`} style={{ top: '33.33%' }} />
-                    <Handle position="right" id={`${node.id}-output-no`} style={{ top: '66.67%' }} />
-                </>
+                
+                     Handle position="right" id={`${node.id}-output-yes`} style={{ top: '33.33%' }} /
+                     Handle position="right" id={`${node.id}-output-no`} style={{ top: '66.67%' }} /
+                
             ) : node.type === 'buttons' ? (
                 (node.data.buttons || []).map((btn: ButtonConfig, index: number) => {
                     const totalButtons = node.data.buttons.length;
                     const topPosition = totalButtons > 1 ? `${(100 / (totalButtons + 1)) * (index + 1)}%` : '50%';
-                    return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition }} />;
+                    return  Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition }} //;
                 })
             ) : (
-                node.type !== 'addToCart' && <Handle position="right" id={`${node.id}-output-main`} />
+                 node.type !== 'addToCart' &&  Handle position="right" id={`${node.id}-output-main`} /
             )}
-        </div>
+        div
     );
 };
 
 // Other components... (same as before)
-

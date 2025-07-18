@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, useState, useCallback, useTransition } from 'react';
@@ -119,7 +118,7 @@ export default function ContactsPage() {
     
     const fetchData = useCallback((projectId: string, phoneId: string, page: number, query: string, tags: string[]) => {
         startTransition(async () => {
-            const data = await getContactsPageData(projectId, phoneId, page, query, tags);
+            const data = await getContactsPageData(projectId, phoneId, page, 20, query, tags);
             
             setProject(data.project);
             setContacts(data.contacts);
@@ -294,9 +293,7 @@ export default function ContactsPage() {
                                         ))
                                     ) : (
                                         <TableRow>
-                                            <TableCell colSpan={5} className="h-24 text-center">
-                                                No contacts found.
-                                            </TableCell>
+                                            <TableCell colSpan={5} className="h-24 text-center">No contacts found.</TableCell>
                                         </TableRow>
                                     )}
                                 </TableBody>
