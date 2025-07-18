@@ -41,13 +41,15 @@ import {
     Frame,
     Maximize,
     Minimize,
+    CreditCard
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getFlowsForProject, saveFlow, deleteFlow, getFlowById, getFlowBuilderPageData, getTemplates } from '@/app/actions';
+import { getFlowsForProject, saveFlow, getFlowById, getFlowBuilderPageData, getTemplates } from '@/app/actions';
+import { deleteFlow } from '@/app/actions/flow.actions';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import type { Flow, FlowNode, FlowEdge, Template, MetaFlow } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -59,7 +61,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
-type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language' | 'sendTemplate' | 'triggerMetaFlow' | 'triggerFlow';
+type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language' | 'sendTemplate' | 'triggerMetaFlow' | 'triggerFlow' | 'payment';
 
 type ButtonConfig = {
     id: string;
@@ -77,6 +79,7 @@ const blockTypes = [
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
     { type: 'carousel', label: 'Carousel', icon: View },
+    { type: 'payment', label: 'Request Payment', icon: CreditCard },
     { type: 'language', label: 'Set Language', icon: BrainCircuit },
     { type: 'input', label: 'Get User Input', icon: Type },
     { type: 'condition', label: 'Add Condition', icon: GitFork },
@@ -85,7 +88,6 @@ const blockTypes = [
     { type: 'sendTemplate', label: 'Send Template', icon: FileTextIcon },
     { type: 'triggerMetaFlow', label: 'Trigger Meta Flow', icon: ServerCog },
     { type: 'triggerFlow', label: 'Trigger Flow', icon: GitFork },
-    { type: 'addToCart', label: 'Add to Cart', icon: ShoppingCart },
 ];
 
 const NodePreview = ({ node }: { node: FlowNode }) => {
@@ -135,6 +137,8 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
                  return <p className="text-xs text-muted-foreground italic">Triggers flow: {node.data.metaFlowName || 'None selected'}</p>;
             case 'triggerFlow':
                  return <p className="text-xs text-muted-foreground italic">Triggers flow: {node.data.flowName || 'None selected'}</p>;
+            case 'payment':
+                 return <p className="text-xs text-muted-foreground italic">Request payment of {node.data.paymentAmount || '0'} INR</p>;
             default:
                 return null;
         }
@@ -210,11 +214,18 @@ const NodeComponent = ({
                         <div className="flex justify-between items-center"><span>No</span></div>
                     </CardContent>
                 )}
+                 {node.type === 'payment' && (
+                    <CardContent className="p-3 pt-0 text-xs text-muted-foreground">
+                        <div className="flex justify-between items-center"><span>Success</span></div>
+                        <Separator className="my-1"/>
+                        <div className="flex justify-between items-center"><span>Failure</span></div>
+                    </CardContent>
+                )}
             </Card>
 
             {node.type !== 'start' && <Handle position="left" id={`${node.id}-input`} />}
             
-            {node.type === 'condition' ? (
+            {node.type === 'condition' || node.type === 'payment' ? (
                 <>
                     <Handle position="right" id={`${node.id}-output-yes`} style={{ top: '33.33%' }} />
                     <Handle position="right" id={`${node.id}-output-no`} style={{ top: '66.67%' }} />
@@ -771,7 +782,7 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
 
 const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
     if (!sourcePos || !targetPos) return '';
-    const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
+    const dx = Math.abs(from.x - to.x) * 0.5;
     const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
     return path;
 };
@@ -838,520 +849,3 @@ const FlowsAndBlocksPanel = ({
         </Card>
     </>
 );
-
-export default function FlowBuilderPage() {
-    const { toast } = useToast();
-    const [isClient, setIsClient] = useState(false);
-    const [projectId, setProjectId] = useState<string | null>(null);
-    const [flows, setFlows] = useState<WithId<Flow>[]>([]);
-    const [templates, setTemplates] = useState<WithId<Template>[]>([]);
-    const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
-    const [currentFlow, setCurrentFlow] = useState<WithId<Flow> | null>(null);
-    const [nodes, setNodes] = useState<FlowNode[]>([]);
-    const [edges, setEdges] = useState<FlowEdge[]>([]);
-    const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
-    const [isSaving, startSaveTransition] = useTransition();
-    const [isLoading, startLoadingTransition] = useTransition();
-    const [isDeleting, startDeleteTransition] = useTransition();
-    const [isTestFlowOpen, setIsTestFlowOpen] = useState(false);
-    
-    const [pan, setPan] = useState({ x: 0, y: 0 });
-    const [zoom, setZoom] = useState(1);
-    const [isPanning, setIsPanning] = useState(false);
-    const viewportRef = useRef<HTMLDivElement>(null);
-    const [draggingNode, setDraggingNode] = useState<string | null>(null);
-    const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
-    const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-
-    const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
-    const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
-    
-    const [isFullScreen, setIsFullScreen] = useState(false);
-
-    useEffect(() => {
-        setIsClient(true);
-        document.title = 'Flow Builder | Wachat';
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setProjectId(storedProjectId);
-    }, []);
-
-    const handleCreateNewFlow = () => {
-        const startNode = { id: 'node-start', type: 'start' as NodeType, data: { label: 'Start Flow' }, position: { x: 50, y: 150 } };
-        setCurrentFlow(null);
-        setNodes([startNode]);
-        setEdges([]);
-        setSelectedNodeId(startNode.id);
-        setPan({x: 0, y: 0});
-        setZoom(1);
-    };
-
-    const loadInitialData = useCallback(async () => {
-        if (projectId) {
-            startLoadingTransition(async () => {
-                const [flowsData, templateData, metaFlowsData] = await Promise.all([
-                    getFlowBuilderPageData(projectId),
-                    getTemplates(projectId),
-                    getMetaFlows(projectId),
-                ]);
-                setFlows(flowsData.flows);
-                setTemplates(templateData);
-                setMetaFlows(metaFlowsData);
-                if (flowsData.initialFlow) {
-                    setCurrentFlow(flowsData.initialFlow);
-                    setNodes(flowsData.initialFlow.nodes || []);
-                    setEdges(flowsData.initialFlow.edges || []);
-                    setSelectedNodeId(null);
-                } else {
-                    handleCreateNewFlow();
-                }
-            });
-        }
-    }, [projectId]);
-
-    useEffect(() => {
-        if (isClient && projectId) {
-            loadInitialData();
-        }
-    }, [isClient, projectId, loadInitialData]);
-
-    const loadFlowsList = useCallback(async () => {
-        if (projectId) {
-           const fetchedFlows = await getFlowsForProject(projectId);
-           setFlows(fetchedFlows);
-        }
-   }, [projectId]);
-
-    const handleSelectFlow = useCallback(async (flowId: string) => {
-        startLoadingTransition(async () => {
-            const fullFlow = await getFlowById(flowId);
-            if (fullFlow) {
-                setCurrentFlow(fullFlow);
-                setNodes(fullFlow.nodes || []);
-                setEdges(fullFlow.edges || []);
-                setSelectedNodeId(null);
-                setIsBlocksSheetOpen(false);
-            }
-        });
-    }, []);
-    
-    const handleDeleteFlow = (flowId: string) => {
-        startDeleteTransition(async () => {
-            const result = await deleteFlow(flowId);
-            if (result.error) {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            } else {
-                toast({ title: 'Success', description: result.message });
-                loadInitialData();
-            }
-        });
-    };
-
-    const addNode = (type: NodeType) => {
-        const centerOfViewX = viewportRef.current ? (viewportRef.current.clientWidth / 2 - pan.x) / zoom : 300;
-        const centerOfViewY = viewportRef.current ? (viewportRef.current.clientHeight / 2 - pan.y) / zoom : 150;
-    
-        const newNode: FlowNode = {
-            id: `node-${type}-${Date.now()}`,
-            type,
-            data: { 
-                label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
-                apiRequest: { method: 'GET', url: '', headers: '', body: '', responseMappings: [] },
-                mode: 'automatic',
-            },
-            position: { x: centerOfViewX, y: centerOfViewY },
-        };
-        setNodes(prev => [...prev, newNode]);
-        setSelectedNodeId(newNode.id);
-        setIsBlocksSheetOpen(false);
-    };
-    
-    const updateNodeData = (id: string, data: Partial<any>) => {
-        setNodes(prev => prev.map(node => 
-            node.id === id ? { ...node, data: { ...node.data, ...data } } : node
-        ));
-    };
-    
-    const deleteNode = (id: string) => {
-        setNodes(prev => prev.filter(node => node.id !== id));
-        setEdges(prev => prev.filter(edge => edge.source !== id && edge.target !== id));
-        setSelectedNodeId(null);
-        setIsPropsSheetOpen(false);
-    };
-
-    const handleSaveFlow = () => {
-        const flowName = (document.getElementById('flow-name-input') as HTMLInputElement)?.value;
-        if (!projectId || !flowName) {
-            toast({ title: "Cannot Save", description: "Flow name and project are required.", variant: 'destructive' });
-            return;
-        }
-
-        const startNode = nodes.find(n => n.type === 'start');
-        const triggerKeywords = startNode?.data.triggerKeywords?.split(',').map((k: string) => k.trim()).filter(Boolean) || [];
-        
-        startSaveTransition(async () => {
-            const result = await saveFlow({
-                flowId: currentFlow?._id.toString(),
-                projectId,
-                name: flowName,
-                nodes,
-                edges,
-                triggerKeywords
-            });
-            if (result.error) {
-                toast({ title: "Error Saving Flow", description: result.error, variant: 'destructive' });
-            } else {
-                toast({ title: "Flow Saved!", description: result.message });
-                if (result.flowId && !currentFlow?._id) {
-                    await handleSelectFlow(result.flowId);
-                }
-                loadFlowsList();
-            }
-        });
-    };
-
-    const handleCopyJson = () => {
-        const flowName = (document.getElementById('flow-name-input') as HTMLInputElement)?.value;
-        const flowStructure = {
-            name: flowName,
-            nodes,
-            edges,
-        };
-        const jsonString = JSON.stringify(flowStructure, null, 2);
-        navigator.clipboard.writeText(jsonString).then(() => {
-            toast({ title: 'Success', description: 'Flow JSON copied to clipboard.' });
-        }).catch(err => {
-            console.error("Failed to copy JSON:", err);
-            toast({ title: 'Error', description: 'Failed to copy JSON to clipboard.', variant: 'destructive' });
-        });
-    };
-
-    const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
-        e.preventDefault();
-        e.stopPropagation();
-        setDraggingNode(nodeId);
-    };
-    
-    const handleCanvasMouseDown = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget) {
-            e.preventDefault();
-            setIsPanning(true);
-        }
-    };
-
-    const handleCanvasMouseMove = (e: React.MouseEvent) => {
-        if (isPanning) {
-            setPan(prev => ({ x: prev.x + e.movementX, y: prev.y + e.movementY }));
-        } else if (draggingNode) {
-            setNodes(prev => prev.map(n => 
-                n.id === draggingNode
-                    ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } 
-                    : n
-            ));
-        }
-        
-        if (connecting && viewportRef.current) {
-            const rect = viewportRef.current.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            setMousePosition({ x: (mouseX - pan.x) / zoom, y: (mouseY - pan.y) / zoom });
-        }
-    };
-
-    const handleCanvasMouseUp = () => {
-        setIsPanning(false);
-        setDraggingNode(null);
-    };
-
-    const handleCanvasClick = (e: React.MouseEvent) => {
-        if (e.target === e.currentTarget) {
-            if (connecting) {
-                setConnecting(null);
-            } else {
-                setSelectedNodeId(null);
-            }
-        }
-    }
-
-    const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string) => {
-        e.preventDefault();
-        e.stopPropagation();
-
-        if (!viewportRef.current) return;
-        
-        const isOutputHandle = handleId.includes('output') || handleId.includes('-btn-');
-
-        if (isOutputHandle) {
-            const sourceNode = nodes.find(n => n.id === nodeId);
-            if(sourceNode){
-                const handlePos = getNodeHandlePosition(sourceNode, handleId);
-                if (handlePos) {
-                    setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });
-                }
-            }
-        } else if (connecting && !isOutputHandle) {
-            if (connecting.sourceNodeId === nodeId) {
-                setConnecting(null);
-                return;
-            }
-
-            const edgesWithoutExistingTarget = edges.filter(edge => edge.targetHandle !== handleId);
-
-            const newEdge: FlowEdge = {
-                id: `edge-${connecting.sourceNodeId}-${nodeId}-${connecting.sourceHandleId}-${handleId}`,
-                source: connecting.sourceNodeId,
-                target: nodeId,
-                sourceHandle: connecting.sourceHandleId,
-                targetHandle: handleId
-            };
-            
-            setEdges([...edgesWithoutExistingTarget, newEdge]);
-            setConnecting(null);
-        }
-    };
-
-    const handleWheel = (e: React.WheelEvent) => {
-        e.preventDefault();
-        if (!viewportRef.current) return;
-    
-        const rect = viewportRef.current.getBoundingClientRect();
-        const mouseX = e.clientX - rect.left;
-        const mouseY = e.clientY - rect.top;
-    
-        const zoomFactor = -0.001;
-        const newZoom = Math.max(0.2, Math.min(2, zoom + e.deltaY * zoomFactor));
-        
-        const worldX = (mouseX - pan.x) / zoom;
-        const worldY = (mouseY - pan.y) / zoom;
-        
-        const newPanX = mouseX - worldX * newZoom;
-        const newPanY = mouseY - worldY * newZoom;
-    
-        setZoom(newZoom);
-        setPan({ x: newPanX, y: newPanY });
-    };
-
-    useEffect(() => {
-        if (selectedNodeId) {
-            setIsPropsSheetOpen(true);
-        }
-    }, [selectedNodeId]);
-    
-    const handleZoom = (direction: 'in' | 'out') => {
-        setZoom(prevZoom => {
-            const newZoom = direction === 'in' ? prevZoom * 1.2 : prevZoom / 1.2;
-            return Math.max(0.2, Math.min(2, newZoom));
-        });
-    };
-
-    const handleResetView = () => {
-        setZoom(1);
-        setPan({ x: 0, y: 0 });
-    };
-
-    const handleToggleFullScreen = () => {
-        if (!viewportRef.current) return;
-
-        if (!document.fullscreenElement) {
-            viewportRef.current.requestFullscreen().catch(err => {
-                alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
-            });
-        } else {
-            if (document.exitFullscreen) {
-                document.exitFullscreen();
-            }
-        }
-    };
-
-    useEffect(() => {
-        const handleFullScreenChange = () => {
-            setIsFullScreen(!!document.fullscreenElement);
-        };
-        document.addEventListener('fullscreenchange', handleFullScreenChange);
-        return () => document.removeEventListener('fullscreenchange', handleFullScreenChange);
-    }, []);
-
-
-    const selectedNode = nodes.find(node => node.id === selectedNodeId) || null;
-
-    if (!isClient) return <div className="h-full w-full"><Skeleton className="h-full w-full"/></div>
-    if (!projectId) {
-        return <Alert variant="destructive"><AlertCircle className="h-4 w-4" /><AlertTitle>No Project Selected</AlertTitle><AlertDescription>Please select a project from the main dashboard before using the Flow Builder.</AlertDescription></Alert>
-    }
-
-    return (
-        <>
-            <TestFlowDialog
-                open={isTestFlowOpen}
-                onOpenChange={setIsTestFlowOpen}
-                nodes={nodes}
-                edges={edges}
-            />
-            <div className="flex flex-col h-full gap-4">
-                <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                         <Input 
-                            id="flow-name-input"
-                            key={currentFlow?._id.toString() || 'new-flow'}
-                            defaultValue={currentFlow?.name || 'New Flow'} 
-                            className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto text-3xl font-bold font-headline"
-                            disabled={!isClient}
-                            onMouseDown={(e) => e.stopPropagation()}
-                            onClick={(e) => e.stopPropagation()}
-                        />
-                    </div>
-                    <div className="flex items-center gap-2">
-                        <div className="flex md:hidden items-center gap-2">
-                            <Button variant="outline" onClick={() => setIsBlocksSheetOpen(true)}>
-                                <PanelLeft className="mr-2 h-4 w-4"/>
-                                Flows & Blocks
-                            </Button>
-                            {selectedNode && (
-                                <Button variant="outline" onClick={() => setIsPropsSheetOpen(true)} disabled={!selectedNode}>
-                                    <Settings2 className="mr-2 h-4 w-4"/>
-                                    Properties
-                                </Button>
-                            )}
-                        </div>
-                        <Button asChild variant="outline">
-                            <Link href="/dashboard/flow-builder/docs">
-                                <BookOpen className="mr-2 h-4 w-4" />
-                                <span className="hidden sm:inline">View Docs</span>
-                            </Link>
-                        </Button>
-                        <Button variant="outline" onClick={() => setIsTestFlowOpen(true)}>
-                            <Play className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">Test Flow</span>
-                        </Button>
-                        <Button variant="outline" onClick={handleCopyJson}>
-                            <Copy className="mr-2 h-4 w-4" />
-                            <span className="hidden sm:inline">Copy JSON</span>
-                        </Button>
-                        <Button onClick={handleSaveFlow} disabled={isSaving}>
-                            {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4" />}
-                            <span className="hidden sm:inline">Save & Publish</span>
-                        </Button>
-                    </div>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-12 gap-4 flex-1 min-h-0">
-                    {/* DESKTOP Left Panel */}
-                    <div className="hidden md:flex md:col-span-3 lg:col-span-2 flex-col gap-4">
-                        <FlowsAndBlocksPanel {...{ isLoading, isDeleting, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
-                    </div>
-
-                    {/* MOBILE Left Panel Sheet */}
-                    <Sheet open={isBlocksSheetOpen} onOpenChange={setIsBlocksSheetOpen}>
-                        <SheetContent side="left" className="p-2 flex flex-col gap-4 w-full max-w-xs">
-                            <SheetTitle className="sr-only">Flows and Blocks</SheetTitle>
-                            <SheetDescription className="sr-only">A list of flows and draggable blocks to build your automation.</SheetDescription>
-                             <FlowsAndBlocksPanel {...{ isLoading, isDeleting, flows, currentFlow, handleSelectFlow, handleDeleteFlow, handleCreateNewFlow, addNode }} />
-                        </SheetContent>
-                    </Sheet>
-
-                    <div className="md:col-span-6 lg:col-span-7">
-                        <Card
-                            ref={viewportRef}
-                            className="h-full w-full overflow-hidden relative cursor-grab active:cursor-grabbing"
-                            onMouseDown={handleCanvasMouseDown}
-                            onMouseMove={handleCanvasMouseMove}
-                            onMouseUp={handleCanvasMouseUp}
-                            onMouseLeave={handleCanvasMouseUp}
-                            onWheel={handleWheel}
-                            onClick={handleCanvasClick}
-                        >
-                            <div
-                                className="absolute inset-0"
-                                style={{
-                                    backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)',
-                                    backgroundSize: '20px 20px',
-                                    backgroundPosition: `${pan.x}px ${pan.y}px`,
-                                }}
-                            />
-                            <div 
-                                className="relative w-full h-full"
-                                style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}
-                            >
-                                {isLoading ? (
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                        <LoaderCircle className="h-8 w-8 animate-spin text-primary" />
-                                    </div>
-                                ) : (
-                                    <>
-                                        {nodes.map(node => (
-                                            <NodeComponent 
-                                                key={node.id} 
-                                                node={node}
-                                                onSelectNode={setSelectedNodeId}
-                                                isSelected={selectedNodeId === node.id}
-                                                onNodeMouseDown={handleNodeMouseDown}
-                                                onHandleClick={handleHandleClick}
-                                            />
-                                        ))}
-                                        <svg 
-                                            className="absolute top-0 left-0 pointer-events-none"
-                                            style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}
-                                        >
-                                            {edges.map(edge => {
-                                                const sourceNode = nodes.find(n => n.id === edge.source);
-                                                const targetNode = nodes.find(n => n.id === edge.target);
-                                                if(!sourceNode || !targetNode) return null;
-                                                
-                                                const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle);
-                                                const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle);
-                                                if (!sourcePos || !targetPos) return null;
-
-                                                const path = getEdgePath(sourcePos, targetPos)
-                                                return <path key={edge.id} d={path} stroke="hsl(var(--border))" strokeWidth="2" fill="none" />
-                                            })}
-                                            {connecting && (
-                                                <ConnectionLine from={connecting.startPos} to={mousePosition} />
-                                            )}
-                                        </svg>
-                                    </>
-                                )}
-                            </div>
-                            <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
-                                <Button variant="outline" size="icon" onClick={() => handleZoom('out')}><ZoomOut className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={() => handleZoom('in')}><ZoomIn className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={handleResetView}><Frame className="h-4 w-4" /></Button>
-                                <Button variant="outline" size="icon" onClick={handleToggleFullScreen}>
-                                    {isFullScreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
-                                </Button>
-                            </div>
-                        </Card>
-                    </div>
-
-                    {/* Right Panel */}
-                    <div className="hidden md:block md:col-span-3">
-                        {selectedNode && (
-                            <PropertiesPanel 
-                                selectedNode={selectedNode}
-                                updateNodeData={updateNodeData}
-                                deleteNode={deleteNode}
-                                flows={flows}
-                                templates={templates}
-                                metaFlows={metaFlows}
-                            />
-                        )}
-                    </div>
-                    {/* Right Panel Sheet for Mobile */}
-                    <Sheet open={isPropsSheetOpen} onOpenChange={setIsPropsSheetOpen}>
-                        <SheetContent side="right" className="p-0 flex flex-col w-full max-w-md">
-                            <SheetTitle className="sr-only">Block Properties</SheetTitle>
-                            <SheetDescription className="sr-only">Configure the selected block's properties.</SheetDescription>
-                             {selectedNode && (
-                                <PropertiesPanel 
-                                    selectedNode={selectedNode}
-                                    updateNodeData={updateNodeData}
-                                    deleteNode={deleteNode}
-                                    flows={flows}
-                                    templates={templates}
-                                    metaFlows={metaFlows}
-                                />
-                             )}
-                        </SheetContent>
-                    </Sheet>
-                </div>
-            </div>
-        </>
-    );
-}
