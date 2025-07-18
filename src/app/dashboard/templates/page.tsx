@@ -4,8 +4,7 @@
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getProjectById } from '@/app/actions';
-import { handleSyncTemplates } from '@/app/actions/template.actions';
-import { getTemplates } from '@/app/actions/whatsapp.actions';
+import { handleSyncTemplates, getTemplates } from '@/app/actions/template.actions';
 import { useRouter } from 'next/navigation';
 import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
