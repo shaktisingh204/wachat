@@ -1,241 +1,181 @@
 
+
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useActionState, useEffect } from 'react';
 import type { WithId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Copy, Check, MessageSquare, Code } from 'lucide-react';
-import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
+import { Code, Save, LoaderCircle, Palette, Text, MessageSquare, Code2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { WhatsAppIcon } from './custom-sidebar-components';
 import { Avatar, AvatarImage, AvatarFallback } from '../ui/avatar';
-import { cn } from '@/lib/utils';
 import { CodeBlock } from './code-block';
 import { Separator } from '../ui/separator';
+import { Slider } from '../ui/slider';
+import { saveWidgetSettings } from '@/app/actions/integrations.actions';
+import { useFormStatus } from 'react-dom';
 
 interface WhatsAppWidgetGeneratorProps {
   project: WithId<Project>;
 }
 
+const initialState = { message: null, error: undefined };
+
+function SubmitButton() {
+    const { pending } = useFormStatus();
+    return (
+        <Button type="submit" disabled={pending}>
+            {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+            Save Widget Settings
+        </Button>
+    )
+}
+
 export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProps) {
-    const [selectedPhone, setSelectedPhone] = useState<string>(project.phoneNumbers?.[0]?.display_phone_number || '');
-    const [prefilledMessage, setPrefilledMessage] = useState('Hello, I have a question.');
+    const [state, formAction] = useActionState(saveWidgetSettings, initialState);
+    const { toast } = useToast();
+    const [showWidget, setShowWidget] = useState(false);
     
-    // Widget Customization State
-    const [widgetPosition, setWidgetPosition] = useState<'bottom-right' | 'bottom-left'>('bottom-right');
-    const [widgetColor, setWidgetColor] = useState('#25D366');
-    const [headerTitle, setHeaderTitle] = useState(project.name);
-    const [headerSubtitle, setHeaderSubtitle] = useState('Typically replies within a few minutes');
-    const [headerAvatarUrl, setHeaderAvatarUrl] = useState(project.phoneNumbers?.[0]?.profile?.profile_picture_url || '');
-    const [welcomeMessage, setWelcomeMessage] = useState('Welcome! How can we help you today?');
-    const [ctaText, setCtaText] = useState('Start Chat');
-    const [showWidget, setShowWidget] = useState(false); // To toggle preview
-
-    const { copy } = useCopyToClipboard();
-
-    const generateHtmlCode = () => {
-        const waId = selectedPhone.replace(/\D/g, '');
-        const encodedMessage = encodeURIComponent(prefilledMessage);
-        
-        return `
-<!-- SabNode WhatsApp Widget Start -->
-<style>
-  #sabnode-widget-container {
-    position: fixed;
-    ${widgetPosition.includes('bottom') ? 'bottom: 20px;' : ''}
-    ${widgetPosition === 'bottom-right' ? 'right: 20px;' : ''}
-    ${widgetPosition === 'bottom-left' ? 'left: 20px;' : ''}
-    z-index: 9999;
-  }
-  #sabnode-widget-button {
-    background-color: ${widgetColor};
-    color: white;
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transition: transform 0.2s;
-  }
-  #sabnode-widget-button:hover {
-    transform: scale(1.1);
-  }
-  #sabnode-widget-chatbox {
-    position: absolute;
-    bottom: 80px;
-    ${widgetPosition === 'bottom-right' ? 'right: 0;' : 'left: 0;'}
-    width: 350px;
-    max-width: calc(100vw - 40px);
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-    display: none;
-    flex-direction: column;
-    overflow: hidden;
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.3s, transform 0.3s;
-  }
-  #sabnode-widget-chatbox.sabnode-show {
-    display: flex;
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .sabnode-chat-header {
-    background: ${widgetColor};
-    color: white;
-    padding: 1rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  .sabnode-chat-header img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-  }
-  .sabnode-chat-header-text .title {
-    font-weight: bold;
-    font-size: 1rem;
-  }
-  .sabnode-chat-header-text .subtitle {
-    font-size: 0.8rem;
-    opacity: 0.9;
-  }
-  .sabnode-chat-body {
-    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAARMAAAEBDAYAAACsL2sOAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAABMSURBVHja7cExAQAAAMKg9U9tB2+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8gZEIAAEu8axTAAAAAElFTkSuQmCC');
-    background-color: #E5DDD5;
-    padding: 1rem;
-    flex-grow: 1;
-    min-height: 250px;
-  }
-  .sabnode-welcome-msg {
-    background: white;
-    padding: 0.75rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-  }
-  .sabnode-chat-footer {
-    padding: 1rem;
-    background: #f0f0f0;
-  }
-  .sabnode-cta-button {
-    background-color: ${widgetColor};
-    color: white;
-    border: none;
-    width: 100%;
-    padding: 0.75rem;
-    border-radius: 25px;
-    font-size: 1rem;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-</style>
-<div id="sabnode-widget-container">
-  <div id="sabnode-widget-chatbox">
-    <div class="sabnode-chat-header">
-      <img src="${headerAvatarUrl || 'https://placehold.co/100x100.png'}" alt="Avatar">
-      <div class="sabnode-chat-header-text">
-        <div class="title">${headerTitle}</div>
-        <div class="subtitle">${headerSubtitle}</div>
-      </div>
-    </div>
-    <div class="sabnode-chat-body">
-      <div class="sabnode-welcome-msg">${welcomeMessage}</div>
-    </div>
-    <div class="sabnode-chat-footer">
-      <a href="https://wa.me/${waId}?text=${encodedMessage}" target="_blank" class="sabnode-cta-button">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>
-        ${ctaText}
-      </a>
-    </div>
-  </div>
-  <button id="sabnode-widget-button">
-    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" viewBox="0 0 16 16"><path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/></svg>
-  </button>
-</div>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const widgetButton = document.getElementById('sabnode-widget-button');
-    const chatbox = document.getElementById('sabnode-widget-chatbox');
+    // --- Form State ---
+    const [settings, setSettings] = useState(() => ({
+        phoneNumber: project.widgetSettings?.phoneNumber || project.phoneNumbers?.[0]?.display_phone_number || '',
+        prefilledMessage: project.widgetSettings?.prefilledMessage || 'Hello, I have a question.',
+        position: project.widgetSettings?.position || 'bottom-right',
+        buttonColor: project.widgetSettings?.buttonColor || '#25D366',
+        headerTitle: project.widgetSettings?.headerTitle || project.name,
+        headerSubtitle: project.widgetSettings?.headerSubtitle || 'Typically replies within minutes',
+        headerAvatarUrl: project.widgetSettings?.headerAvatarUrl || project.phoneNumbers?.[0]?.profile?.profile_picture_url || '',
+        welcomeMessage: project.widgetSettings?.welcomeMessage || 'Welcome! How can we help you?',
+        ctaText: project.widgetSettings?.ctaText || 'Start Chat',
+        borderRadius: project.widgetSettings?.borderRadius ?? 10,
+        padding: project.widgetSettings?.padding ?? 16,
+        textColor: project.widgetSettings?.textColor || '#111827',
+        buttonTextColor: project.widgetSettings?.buttonTextColor || '#FFFFFF',
+    }));
     
-    widgetButton.addEventListener('click', function() {
-      chatbox.classList.toggle('sabnode-show');
-    });
-  });
-</script>
-<!-- SabNode WhatsApp Widget End -->
-`;
-    };
+    useEffect(() => {
+        if (state.message) {
+            toast({ title: 'Success!', description: state.message });
+        }
+        if (state.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast]);
 
+    const handleSettingChange = (field: keyof typeof settings, value: string | number | boolean) => {
+        setSettings(prev => ({...prev, [field]: value}));
+    }
+
+    const embedCode = useMemo(() => {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
+        return `<script src="${appUrl}/api/widget/${project._id.toString()}" async defer></script>`;
+    }, [project._id]);
+    
     return (
         <Card className="card-gradient card-gradient-blue">
-            <CardHeader>
-                <CardTitle>WhatsApp Widget Generator</CardTitle>
-                <CardDescription>Create a customizable chat widget to embed on your website.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="grid lg:grid-cols-2 gap-8 items-start">
-                    {/* Customization Panel */}
-                    <div className="space-y-4">
-                        <div className="grid sm:grid-cols-2 gap-4">
-                            <div className="space-y-2"><Label>Widget Position</Label><Select value={widgetPosition} onValueChange={(v) => setWidgetPosition(v as any)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="bottom-right">Bottom Right</SelectItem><SelectItem value="bottom-left">Bottom Left</SelectItem></SelectContent></Select></div>
-                            <div className="space-y-2"><Label>Widget Color</Label><Input type="color" value={widgetColor} onChange={e => setWidgetColor(e.target.value)} /></div>
+            <form action={formAction}>
+                <input type="hidden" name="projectId" value={project._id.toString()} />
+                <input type="hidden" name="phoneNumber" value={settings.phoneNumber} />
+                <input type="hidden" name="prefilledMessage" value={settings.prefilledMessage} />
+                <input type="hidden" name="position" value={settings.position} />
+                <input type="hidden" name="buttonColor" value={settings.buttonColor} />
+                <input type="hidden" name="headerTitle" value={settings.headerTitle} />
+                <input type="hidden" name="headerSubtitle" value={settings.headerSubtitle} />
+                <input type="hidden" name="headerAvatarUrl" value={settings.headerAvatarUrl} />
+                <input type="hidden" name="welcomeMessage" value={settings.welcomeMessage} />
+                <input type="hidden" name="ctaText" value={settings.ctaText} />
+                <input type="hidden" name="borderRadius" value={settings.borderRadius} />
+                <input type="hidden" name="padding" value={settings.padding} />
+                <input type="hidden" name="textColor" value={settings.textColor} />
+                <input type="hidden" name="buttonTextColor" value={settings.buttonTextColor} />
+
+                <CardHeader>
+                    <div className="flex items-center gap-3">
+                        <Code className="h-8 w-8" />
+                        <div>
+                            <CardTitle>WhatsApp Widget Generator</CardTitle>
+                            <CardDescription>Create a customizable chat widget to embed on your website.</CardDescription>
                         </div>
-                        <Separator />
-                        <h3 className="font-semibold text-base">Header</h3>
-                        <div className="space-y-2"><Label>Avatar URL</Label><Input placeholder="https://..." value={headerAvatarUrl} onChange={e => setHeaderAvatarUrl(e.target.value)} /></div>
-                        <div className="space-y-2"><Label>Title</Label><Input value={headerTitle} onChange={e => setHeaderTitle(e.target.value)} /></div>
-                        <div className="space-y-2"><Label>Subtitle</Label><Input value={headerSubtitle} onChange={e => setHeaderSubtitle(e.target.value)} /></div>
-                        <Separator />
-                        <h3 className="font-semibold text-base">Content</h3>
-                         <div className="space-y-2"><Label>Phone Number</Label><Select value={selectedPhone} onValueChange={setSelectedPhone}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{project.phoneNumbers.map(phone => (<SelectItem key={phone.id} value={phone.display_phone_number}>{phone.display_phone_number}</SelectItem>))}</SelectContent></Select></div>
-                        <div className="space-y-2"><Label>Welcome Message</Label><Textarea value={welcomeMessage} onChange={e => setWelcomeMessage(e.target.value)} /></div>
-                        <div className="space-y-2"><Label>Pre-filled User Message</Label><Textarea value={prefilledMessage} onChange={e => setPrefilledMessage(e.target.value)} /></div>
-                        <div className="space-y-2"><Label>Call to Action Text</Label><Input value={ctaText} onChange={e => setCtaText(e.target.value)} /></div>
                     </div>
-                    {/* Preview and Code Panel */}
-                    <div className="space-y-4">
-                        <Label>Live Preview</Label>
-                        <div className="relative h-[400px] bg-muted rounded-lg overflow-hidden flex items-center justify-center">
-                            <div id="sabnode-widget-container" className="static" style={{ [widgetPosition.includes('right') ? 'right' : 'left']: 'auto', bottom: 'auto' }}>
-                                <Button id="sabnode-widget-button" style={{ backgroundColor: widgetColor }} onClick={() => setShowWidget(!showWidget)} className="relative">
-                                    <WhatsAppIcon className="h-8 w-8 text-white"/>
-                                </Button>
-                                {showWidget && (
-                                     <div id="sabnode-widget-chatbox" className="sabnode-show absolute" style={{ bottom: '80px', [widgetPosition.includes('right') ? 'right' : 'left']: '0px' }}>
-                                        <div className="sabnode-chat-header" style={{backgroundColor: widgetColor}}>
-                                            <Avatar className="w-10 h-10"><AvatarImage src={headerAvatarUrl} /><AvatarFallback>{headerTitle.charAt(0)}</AvatarFallback></Avatar>
-                                            <div className="sabnode-chat-header-text"><div className="title">{headerTitle}</div><div className="subtitle">{headerSubtitle}</div></div>
-                                        </div>
-                                        <div className="sabnode-chat-body"><div className="sabnode-welcome-msg">{welcomeMessage}</div></div>
-                                        <div className="sabnode-chat-footer"><Button className="sabnode-cta-button" style={{backgroundColor: widgetColor}}><WhatsAppIcon className="h-4 w-4 mr-2"/>{ctaText}</Button></div>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid lg:grid-cols-2 gap-8 items-start">
+                        {/* Customization Panel */}
+                        <div className="space-y-4">
+                            <Card>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5"/>Content</CardTitle></CardHeader>
+                                <CardContent className="space-y-4">
+                                     <div className="space-y-2"><Label>Phone Number</Label><Select value={settings.phoneNumber} onValueChange={(v) => handleSettingChange('phoneNumber', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent>{project.phoneNumbers.map(phone => (<SelectItem key={phone.id} value={phone.display_phone_number}>{phone.display_phone_number}</SelectItem>))}</SelectContent></Select></div>
+                                     <div className="space-y-2"><Label>Welcome Message</Label><Textarea value={settings.welcomeMessage} onChange={e => handleSettingChange('welcomeMessage', e.target.value)} /></div>
+                                     <div className="space-y-2"><Label>Pre-filled User Message</Label><Textarea value={settings.prefilledMessage} onChange={e => handleSettingChange('prefilledMessage', e.target.value)} /></div>
+                                </CardContent>
+                            </Card>
+                             <Card>
+                                <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5"/>Appearance</CardTitle></CardHeader>
+                                <CardContent className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2"><Label>Position</Label><Select value={settings.position} onValueChange={(v) => handleSettingChange('position', v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="bottom-right">Bottom Right</SelectItem><SelectItem value="bottom-left">Bottom Left</SelectItem></SelectContent></Select></div>
+                                        <div className="space-y-2"><Label>Widget Color</Label><Input type="color" value={settings.buttonColor} onChange={e => handleSettingChange('buttonColor', e.target.value)} /></div>
                                     </div>
-                                )}
+                                    <div className="space-y-2"><Label>Header Title</Label><Input value={settings.headerTitle} onChange={e => handleSettingChange('headerTitle', e.target.value)} /></div>
+                                    <div className="space-y-2"><Label>Header Subtitle</Label><Input value={settings.headerSubtitle} onChange={e => handleSettingChange('headerSubtitle', e.target.value)} /></div>
+                                    <div className="space-y-2"><Label>Avatar URL</Label><Input placeholder="https://..." value={settings.headerAvatarUrl} onChange={e => handleSettingChange('headerAvatarUrl', e.target.value)} /></div>
+                                    <div className="space-y-2"><Label>CTA Text</Label><Input value={settings.ctaText} onChange={e => handleSettingChange('ctaText', e.target.value)} /></div>
+                                     <Separator />
+                                    <div className="space-y-2"><Label>Border Radius ({settings.borderRadius}px)</Label><Slider value={[settings.borderRadius]} onValueChange={v => handleSettingChange('borderRadius', v[0])} min={0} max={50}/></div>
+                                    <div className="space-y-2"><Label>Padding ({settings.padding}px)</Label><Slider value={[settings.padding]} onValueChange={v => handleSettingChange('padding', v[0])} min={8} max={32}/></div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-2"><Label>Text Color</Label><Input type="color" value={settings.textColor} onChange={e => handleSettingChange('textColor', e.target.value)} /></div>
+                                        <div className="space-y-2"><Label>Button Text Color</Label><Input type="color" value={settings.buttonTextColor} onChange={e => handleSettingChange('buttonTextColor', e.target.value)} /></div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                        {/* Preview and Code Panel */}
+                        <div className="space-y-4">
+                            <Label>Live Preview</Label>
+                            <div className="relative h-[500px] bg-muted rounded-lg overflow-hidden flex items-end" style={{ [settings.position.includes('right') ? 'justifyContent' : '']: settings.position.includes('right') ? 'flex-end' : 'flex-start', padding: '20px' }}>
+                                <div id="sabnode-widget-container-preview" className="static">
+                                    <Button id="sabnode-widget-button-preview" style={{ backgroundColor: settings.buttonColor }} onClick={() => setShowWidget(!showWidget)} className="relative h-16 w-16">
+                                        <WhatsAppIcon className="h-8 w-8" style={{color: settings.buttonTextColor}} />
+                                    </Button>
+                                    {showWidget && (
+                                         <div id="sabnode-widget-chatbox-preview" className="absolute" style={{ bottom: '96px', right: '0', width: '350px', backgroundColor: 'white', borderRadius: `${settings.borderRadius}px`, overflow: 'hidden', boxShadow: '0 5px 20px rgba(0,0,0,0.2)'}}>
+                                            <div className="sabnode-chat-header" style={{backgroundColor: settings.buttonColor, color: settings.buttonTextColor, padding: `${settings.padding}px`, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <Avatar className="w-10 h-10"><AvatarImage src={settings.headerAvatarUrl} /><AvatarFallback>{settings.headerTitle.charAt(0)}</AvatarFallback></Avatar>
+                                                <div><div className="title font-bold">{settings.headerTitle}</div><div className="subtitle text-xs opacity-90">{settings.headerSubtitle}</div></div>
+                                            </div>
+                                            <div className="sabnode-chat-body" style={{ padding: `${settings.padding}px`, backgroundColor: '#E5DDD5' }}>
+                                                <div className="sabnode-welcome-msg" style={{ background: 'white', color: settings.textColor, padding: '12px', borderRadius: '8px', boxShadow: '0 1px 2px rgba(0,0,0,0.1)'}}>{settings.welcomeMessage}</div>
+                                            </div>
+                                            <div className="sabnode-chat-footer" style={{ padding: `${settings.padding}px`, background: '#f9f9f9', borderTop: '1px solid #eee'}}>
+                                                <Button className="sabnode-cta-button w-full h-12 rounded-full" style={{backgroundColor: settings.buttonColor, color: settings.buttonTextColor}}>
+                                                    <WhatsAppIcon className="h-4 w-4 mr-2"/>
+                                                    {settings.ctaText}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                            <div className="space-y-2">
+                                 <Label>Embed Code</Label>
+                                 <p className="text-xs text-muted-foreground">Copy this single line of code and paste it before the closing `&lt;/body&gt;` tag on your website.</p>
+                                 <CodeBlock code={embedCode} />
                             </div>
                         </div>
-                        <div className="space-y-2">
-                             <Label>Embed Code</Label>
-                             <CodeBlock code={generateHtmlCode()} />
-                        </div>
                     </div>
-                </div>
-            </CardContent>
+                </CardContent>
+                 <CardFooter>
+                    <SubmitButton />
+                </CardFooter>
+            </form>
         </Card>
     );
 }
