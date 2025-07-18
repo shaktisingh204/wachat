@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense, useEffect, useState } from 'react';
@@ -96,25 +97,25 @@ function CreateTemplatePageContent() {
       </div>
       
       {!loading && !project && (
-         Alert variant="destructive"
-            AlertCircle className="h-4 w-4" /
-            AlertTitleNo Project SelectedAlertTitle
-            AlertDescription
+        <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>No Project Selected</AlertTitle>
+            <AlertDescription>
                 Please select a project from the main dashboard before creating a template.
-            AlertDescription
-        Alert
+            </AlertDescription>
+        </Alert>
       )}
 
-      {!loading && project &&  CreateTemplateForm project={project} initialTemplate={initialTemplate} isCloning={action === 'clone'} /}
+      {!loading && project && <CreateTemplateForm project={project} initialTemplate={initialTemplate} isCloning={action === 'clone'} />}
 
-    div
+    </div>
   );
 }
 
 export default function CreateTemplatePage() {
     return (
-        Suspense fallback={<LoadingSkeleton />}
-            CreateTemplatePageContent /
-        Suspense
+        <Suspense fallback={<LoadingSkeleton />}>
+            <CreateTemplatePageContent />
+        </Suspense>
     )
 }

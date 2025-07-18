@@ -1,8 +1,9 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getProjects, handleRunCron } from '@/app/actions';
+import { getProjectById, handleRunCron } from '@/app/actions';
 import { handleStopBroadcast, getBroadcasts } from '@/app/actions/broadcast.actions';
 import { getTemplates, handleSyncTemplates } from '@/app/actions/whatsapp.actions';
 import { useRouter } from 'next/navigation';

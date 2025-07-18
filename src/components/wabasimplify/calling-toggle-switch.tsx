@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
@@ -33,7 +34,7 @@ export function CallingToggleSwitch({ projectId, phone, onUpdate }: CallingToggl
 
     const handleToggle = (checked: boolean) => {
         startTransition(async () => {
-            const result = await savePhoneNumberCallingSettings(projectId, phone.id, checked, phone.inbound_call_control || 'DISABLED');
+            const result = await savePhoneNumberCallingSettings(projectId, phone.id, checked, 'DISABLED');
             if (result.success) {
                 toast({ title: 'Success', description: `Calling has been ${checked ? 'enabled' : 'disabled'}.` });
                 onUpdate();
