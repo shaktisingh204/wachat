@@ -2,10 +2,9 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getProjects } from '@/app/actions';
+import { getProjects, handleRunCron } from '@/app/actions';
 import { handleStopBroadcast, getBroadcasts } from '@/app/actions/broadcast.actions';
 import { getTemplates, handleSyncTemplates } from '@/app/actions/whatsapp.actions';
-import { handleRunCron } from '@/app/actions';
 import { useRouter } from 'next/navigation';
 import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
@@ -373,10 +372,19 @@ export default function BroadcastPage() {
   }, [toast, activeProjectId]);
 
   const onRunCron = useCallback(async () => {
-    // This function is now mostly for demonstration as cron jobs run automatically.
-    // In a real scenario, this button might be removed or used for force-triggering.
-    toast({ title: 'System Info', description: 'The broadcast scheduler runs automatically in the background. This button is for manual triggering if needed.' });
-  }, [toast]);
+    startCronRunTransition(async () => {
+      toast({ title: 'Starting Cron Manually', description: 'The scheduler is now processing queued jobs.' });
+      const result = await handleRunCron();
+      if (result.error) {
+        toast({ title: "Cron Run Failed", description: result.error, variant: "destructive" });
+      } else {
+        toast({ title: "Cron Run Complete", description: result.message });
+      }
+      if (activeProjectId) {
+        fetchData(activeProjectId, currentPage, false);
+      }
+    });
+  }, [toast, activeProjectId, currentPage, fetchData]);
 
   const getStatusVariant = (item: WithId<Broadcast>) => {
     const status = item.status;

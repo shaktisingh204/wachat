@@ -324,3 +324,143 @@ export async function getBroadcastAttemptsForExport(
         return [];
     }
 }
+
+export async function handleStopBroadcast(broadcastId: string): Promise<{ message?: string; error?: string }> {
+    const broadcast = await getBroadcastById(broadcastId);
+    if (!broadcast) return { error: 'Broadcast not found or you do not have access.' };
+    
+    try {
+        const { db } = await connectToDatabase();
+        const broadcastObjectId = new ObjectId(broadcastId);
+
+        if (broadcast.status !== 'QUEUED' && broadcast.status !== 'PROCESSING') {
+            return { error: 'This broadcast cannot be stopped as it is not currently active.' };
+        }
+        
+        const updateResult = await db.collection('broadcasts').updateOne(
+            { _id: broadcastObjectId },
+            { $set: { status: 'Cancelled', completedAt: new Date() } }
+        );
+
+        if (updateResult.modifiedCount === 0) {
+            const currentBroadcast = await db.collection('broadcasts').findOne({ _id: broadcastObjectId });
+            if (currentBroadcast?.status !== 'QUEUED' && currentBroadcast?.status !== 'PROCESSING') {
+                 return { message: 'Broadcast already completed or stopped.' };
+            }
+            return { error: 'Failed to update broadcast status.' };
+        }
+        
+        const deleteResult = await db.collection('broadcast_contacts').deleteMany({
+            broadcastId: broadcastObjectId,
+            status: 'PENDING'
+        });
+
+        revalidatePath('/dashboard/broadcasts');
+
+        return { message: `Broadcast has been stopped. ${deleteResult.deletedCount} pending messages were cancelled.` };
+    } catch (e: any) {
+        console.error('Failed to stop broadcast:', e);
+        return { error: e.message || 'An unexpected error occurred while stopping the broadcast.' };
+    }
+}
+
+export async function handleRequeueBroadcast(
+    prevState: { message?: string | null; error?: string | null; },
+    formData: FormData
+): Promise<{ message?: string | null; error?: string | null; }> {
+    const broadcastId = formData.get('broadcastId') as string;
+    const newTemplateId = formData.get('templateId') as string;
+    const requeueScope = formData.get('requeueScope') as 'ALL' | 'FAILED' | null;
+    const newHeaderImageUrl = formData.get('headerImageUrl') as string | null;
+
+    const originalBroadcast = await getBroadcastById(broadcastId);
+    if (!originalBroadcast) {
+        return { error: 'Original broadcast not found or you do not have access.' };
+    }
+    
+    if (!newTemplateId || !ObjectId.isValid(newTemplateId)) {
+        return { error: 'A valid template must be selected.' };
+    }
+    if (!requeueScope) {
+        return { error: 'Please select which contacts to send to (All or Failed).' };
+    }
+
+    const { db } = await connectToDatabase();
+    const originalBroadcastId = new ObjectId(broadcastId);
+
+    try {
+        const newTemplate = await db.collection('templates').findOne({ _id: new ObjectId(newTemplateId), projectId: originalBroadcast.projectId });
+        
+        if (!newTemplate) {
+            return { error: 'Selected template not found.' };
+        }
+
+        const finalHeaderImageUrl = newHeaderImageUrl && newHeaderImageUrl.trim() !== '' ? newHeaderImageUrl.trim() : undefined;
+        
+        const newBroadcastData = {
+            projectId: originalBroadcast.projectId,
+            templateId: newTemplate._id,
+            templateName: newTemplate.name,
+            phoneNumberId: originalBroadcast.phoneNumberId,
+            accessToken: originalBroadcast.accessToken,
+            status: 'QUEUED' as const,
+            createdAt: new Date(),
+            contactCount: 0, 
+            fileName: `Requeue of ${originalBroadcast.fileName}`,
+            components: newTemplate.components,
+            language: newTemplate.language,
+            headerImageUrl: finalHeaderImageUrl,
+        };
+
+        const newBroadcastResult = await db.collection('broadcasts').insertOne(newBroadcastData);
+        const newBroadcastId = newBroadcastResult.insertedId;
+
+        const contactQuery: any = { broadcastId: originalBroadcastId };
+        if (requeueScope === 'FAILED') {
+            contactQuery.status = 'FAILED';
+        }
+
+        const originalContactsCursor = db.collection('broadcast_contacts').find(contactQuery);
+        
+        let newContactsCount = 0;
+        const contactBatchSize = 1000;
+        let contactBatch: any[] = [];
+
+        for await (const contact of originalContactsCursor) {
+            const newContact = {
+                broadcastId: newBroadcastId,
+                phone: contact.phone,
+                variables: contact.variables,
+                status: 'PENDING' as const,
+                createdAt: new Date(),
+            };
+            contactBatch.push(newContact);
+            newContactsCount++;
+
+            if (contactBatch.length >= contactBatchSize) {
+                await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
+                contactBatch = [];
+            }
+        }
+        
+        if (contactBatch.length > 0) {
+            await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
+        }
+        
+        await db.collection('broadcasts').updateOne({ _id: newBroadcastId }, { $set: { contactCount: newContactsCount } });
+
+        if (newContactsCount === 0) {
+            await db.collection('broadcasts').deleteOne({ _id: newBroadcastId });
+            const scopeText = requeueScope.toLowerCase();
+            return { error: `No ${scopeText} contacts found to requeue from the original broadcast.` };
+        }
+        
+        revalidatePath('/dashboard/broadcasts');
+
+        return { message: `Broadcast has been successfully requeued with ${newContactsCount} contacts.` };
+
+    } catch (e: any) {
+        console.error('Failed to requeue broadcast:', e);
+        return { error: e.message || 'An unexpected error occurred while requeuing the broadcast.' };
+    }
+}

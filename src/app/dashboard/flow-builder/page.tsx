@@ -180,6 +180,8 @@ const NodeComponent = ({
                 "absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 flex items-center justify-center",
                 position === 'left' && "-left-2 top-1/2 -translate-y-1/2",
                 position === 'right' && "-right-2 top-1/2 -translate-y-1/2",
+                position === 'top' && "-top-2 left-1/2 -translate-x-1/2",
+                position === 'bottom' && "-bottom-2 left-1/2 -translate-x-1/2"
             )} 
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); onHandleClick(e, node.id, id); }}
