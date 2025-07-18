@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -27,10 +28,10 @@ const initialState = { message: null, error: null, payload: null };
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    Button type="submit" disabled={pending}
-      {pending ?  LoaderCircle className="mr-2 h-4 w-4 animate-spin" / :  Send className="mr-2 h-4 w-4" /}
+    <Button type="submit" disabled={pending}>
+      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
       Create Template
-    Button
+    </Button>
   );
 }
 
@@ -83,63 +84,63 @@ export function MetaFlowToTemplateDialog({ flow }: MetaFlowToTemplateDialogProps
   }, [state, toast]);
 
   return (
-    Dialog open={open} onOpenChange={setOpen}
-      DialogTrigger asChild
-        Button variant="secondary" size="sm" Send className="mr-2 h-4 w-4"/Create Send TemplateButton
-      DialogTrigger
-      DialogContent className="sm:max-w-lg"
-        form action={formAction} ref={formRef}
-          input type="hidden" name="projectId" value={flow.projectId.toString()} /
-          input type="hidden" name="flowId" value={flow.metaId} /
-          DialogHeader
-            DialogTitleCreate Template for FlowDialogTitle
-            DialogDescription
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="secondary" size="sm"><Send className="mr-2 h-4 w-4"/>Create Send Template</Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <form action={formAction} ref={formRef}>
+          <input type="hidden" name="projectId" value={flow.projectId.toString()} />
+          <input type="hidden" name="flowId" value={flow.metaId} />
+          <DialogHeader>
+            <DialogTitle>Create Template for Flow</DialogTitle>
+            <DialogDescription>
               Create a message template with a button to trigger the "{flow.name}" flow.
-            DialogDescription
-          DialogHeader
+            </DialogDescription>
+          </DialogHeader>
 
-          div className="grid gap-4 py-4"
-            div className="space-y-2"
-              Label htmlFor="templateName"Template NameLabel
-              Input id="templateName" name="templateName" placeholder="e.g., start_support_flow" required /
-            div
-            div className="grid grid-cols-2 gap-4"
-                div className="space-y-2"
-                    Label htmlFor="language"LanguageLabel
-                    Select name="language" defaultValue="en_US" required
-                        SelectTrigger id="language"SelectValue /SelectTrigger
-                        SelectContent searchable
-                            {languages.map(lang =>  SelectItem key={lang.code} value={lang.code}{lang.name}/SelectItem)}
-                        SelectContent
-                    Select
-                div
-                div className="space-y-2"
-                    Label htmlFor="category"CategoryLabel
-                    Select name="category" required
-                        SelectTrigger id="category"SelectValue placeholder="Select..."//SelectTrigger
-                        SelectContent
-                            SelectItem value="MARKETING"Marketing/SelectItem
-                            SelectItem value="UTILITY"Utility/SelectItem
-                            SelectItem value="AUTHENTICATION"Authentication/SelectItem
-                        SelectContent
-                    Select
-                div
-            div
-            div className="space-y-2"
-              Label htmlFor="bodyText"Body TextLabel
-              Textarea id="bodyText" name="bodyText" placeholder="This message will appear above the button." required /
-            div
-             div className="space-y-2"
-              Label htmlFor="buttonText"Button TextLabel
-              Input id="buttonText" name="buttonText" placeholder="e.g., Start Support Chat" required /
-            div
-          div
-          DialogFooter
-            Button type="button" variant="ghost" onClick={() => setOpen(false)}>CancelButton
-            SubmitButton /
-          DialogFooter
-        form
-      DialogContent
-    Dialog
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="templateName">Template Name</Label>
+              <Input id="templateName" name="templateName" placeholder="e.g., start_support_flow" required />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="language">Language</Label>
+                    <Select name="language" defaultValue="en_US" required>
+                        <SelectTrigger id="language"><SelectValue /></SelectTrigger>
+                        <SelectContent searchable>
+                            {languages.map(lang => <SelectItem key={lang.code} value={lang.code}>{lang.name}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="category">Category</Label>
+                    <Select name="category" required>
+                        <SelectTrigger id="category"><SelectValue placeholder="Select..."/></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="MARKETING">Marketing</SelectItem>
+                            <SelectItem value="UTILITY">Utility</SelectItem>
+                            <SelectItem value="AUTHENTICATION">Authentication</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="bodyText">Body Text</Label>
+              <Textarea id="bodyText" name="bodyText" placeholder="This message will appear above the button." required />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="buttonText">Button Text</Label>
+              <Input id="buttonText" name="buttonText" placeholder="e.g., Start Support Chat" required />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
+            <SubmitButton />
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }

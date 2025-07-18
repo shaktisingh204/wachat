@@ -1,10 +1,10 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
 import { TemplateCard } from '@/components/wabasimplify/template-card';
 import { PlusCircle, RefreshCw, Search, FileText, BookCopy } from 'lucide-react';
 import Link from 'next/link';
-import { getProjects } from '@/app/actions';
 import { getTemplates, handleSyncTemplates } from '@/app/actions/whatsapp.actions';
 import { WithId } from 'mongodb';
 import { useEffect, useState, useTransition, useCallback, useMemo } from 'react';
@@ -19,26 +19,26 @@ import { useRouter } from 'next/navigation';
 
 function TemplatesPageSkeleton() {
     return (
-        div className="flex flex-col gap-8"
-            div className="flex flex-wrap items-center justify-between gap-4"
-                div
-                    Skeleton className="h-8 w-64" /
-                    Skeleton className="h-4 w-96 mt-2" /
-                div
-                div className="flex items-center gap-2"
-                    Skeleton className="h-10 w-36" /
-                    Skeleton className="h-10 w-48" /
-                div
-            div
-            div className="flex flex-wrap items-center gap-4"
-                Skeleton className="h-10 w-full md:max-w-sm" /
-                Skeleton className="h-10 w-full sm:w-[180px]" /
-                Skeleton className="h-10 w-full sm:w-[180px]" /
-            div
-            div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
-                {[...Array(3)].map((_, i) =>  Skeleton key={i} className="h-64 w-full" //
-            div
-        div
+        <div className="flex flex-col gap-8">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <Skeleton className="h-8 w-64" />
+                    <Skeleton className="h-4 w-96 mt-2" />
+                </div>
+                <div className="flex items-center gap-2">
+                    <Skeleton className="h-10 w-36" />
+                    <Skeleton className="h-10 w-48" />
+                </div>
+            </div>
+            <div className="flex flex-wrap items-center gap-4">
+                <Skeleton className="h-10 w-full md:max-w-sm" />
+                <Skeleton className="h-10 w-full sm:w-[180px]" />
+                <Skeleton className="h-10 w-full sm:w-[180px]" />
+            </div>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-64 w-full" />)}
+            </div>
+        </div>
     )
 }
 
@@ -118,109 +118,109 @@ export default function TemplatesPage() {
   const cardGradients = ['card-gradient-green', 'card-gradient-blue', 'card-gradient-purple', 'card-gradient-orange'];
 
   if (!isClient || (isLoading && templates.length === 0)) {
-    return  TemplatesPageSkeleton //;
+    return <TemplatesPageSkeleton />;
   }
 
   return (
-     div className="flex flex-col gap-8"
-          div className="flex flex-wrap items-center justify-between gap-4"
-              div
-                  h1 className="text-3xl font-bold font-headline"Message Templatesh1
-                  p className="text-muted-foreground"Manage and sync your WhatsApp message templates.p
-              div
-              div className="flex items-center gap-2"
-                  Button onClick={onSync} disabled={isSyncing || !activeProjectId} variant="outline"
-                    RefreshCw className={`h-4 w-4 sm:mr-2 ${isSyncing ? 'animate-spin' : ''}`} /
-                    span className="hidden sm:inline"Sync with Meta/span
-                  Button
-                  Button asChild variant="outline"
-                      Link href="/dashboard/templates/library"
-                          BookCopy className="h-4 w-4 sm:mr-2" /
-                          span className="hidden sm:inline"Templates Library/span
-                      Link
-                  Button
-                  Button asChild disabled={!activeProjectId}
-                      Link href="/dashboard/templates/create"
-                          PlusCircle className="h-4 w-4 sm:mr-2" /
-                          span className="hidden sm:inline"Create New Template/span
-                      Link
-                  Button
-              div
-          div
+    <div className="flex flex-col gap-8">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                  <h1 className="text-3xl font-bold font-headline">Message Templates</h1>
+                  <p className="text-muted-foreground">Manage and sync your WhatsApp message templates.</p>
+              </div>
+              <div className="flex items-center gap-2">
+                  <Button onClick={onSync} disabled={isSyncing || !activeProjectId} variant="outline">
+                    <RefreshCw className={`h-4 w-4 sm:mr-2 ${isSyncing ? 'animate-spin' : ''}`} />
+                    <span className="hidden sm:inline">Sync with Meta</span>
+                  </Button>
+                  <Button asChild variant="outline">
+                      <Link href="/dashboard/templates/library">
+                          <BookCopy className="h-4 w-4 sm:mr-2" />
+                          <span className="hidden sm:inline">Templates Library</span>
+                      </Link>
+                  </Button>
+                  <Button asChild disabled={!activeProjectId}>
+                      <Link href="/dashboard/templates/create">
+                          <PlusCircle className="h-4 w-4 sm:mr-2" />
+                          <span className="hidden sm:inline">Create New Template</span>
+                      </Link>
+                  </Button>
+              </div>
+          </div>
           
           {!activeProjectId && isClient ? (
-             Alert variant="destructive"
-                AlertCircle className="h-4 w-4" /
-                AlertTitleNo Project SelectedAlertTitle
-                AlertDescription
+             <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>No Project Selected</AlertTitle>
+                <AlertDescription>
                     Please select a project from the main dashboard to manage templates.
-                AlertDescription
-            Alert
+                </AlertDescription>
+            </Alert>
           ) : (
-            
-                div className="flex flex-wrap items-center gap-4"
-                    div className="relative flex-grow w-full md:flex-grow-0 md:max-w-sm"
-                        Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" /
-                        Input
+            <>
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="relative flex-grow w-full md:flex-grow-0 md:max-w-sm">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
                             placeholder="Search templates by name..."
                             className="pl-8"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                        /
-                    div
-                    div className="w-full sm:w-auto"
-                        Select value={categoryFilter} onValueChange={setCategoryFilter}
-                            SelectTrigger className="w-full sm:w-[180px]"
-                                SelectValue placeholder="Filter by category..." /
-                            SelectTrigger
-                            SelectContent
+                        />
+                    </div>
+                    <div className="w-full sm:w-auto">
+                        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                            <SelectTrigger className="w-full sm:w-[180px]">
+                                <SelectValue placeholder="Filter by category..." />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {categories.map(category => (
-                                     SelectItem key={category} value={category} className="capitalize"{category.replace(/_/g, ' ')}/SelectItem
+                                     <SelectItem key={category} value={category} className="capitalize">{category.replace(/_/g, ' ')}</SelectItem>
                                 ))}
-                            SelectContent
-                        Select
-                    div
-                    div className="w-full sm:w-auto"
-                        Select value={statusFilter} onValueChange={setStatusFilter}
-                            SelectTrigger className="w-full sm:w-[180px]"
-                                SelectValue placeholder="Filter by status..." /
-                            SelectTrigger
-                            SelectContent
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="w-full sm:w-auto">
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <SelectTrigger className="w-full sm:w-[180px]">
+                                <SelectValue placeholder="Filter by status..." />
+                            </SelectTrigger>
+                            <SelectContent>
                                 {statuses.map(status => (
-                                     SelectItem key={status} value={status} className="capitalize"{status.replace(/_/g, ' ')}/SelectItem
+                                     <SelectItem key={status} value={status} className="capitalize">{status.replace(/_/g, ' ')}</SelectItem>
                                 ))}
-                            SelectContent
-                        Select
-                    div
-                div
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
 
                 {filteredTemplates.length > 0 ? (
-                    div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                     {filteredTemplates.map((template, index) => (
-                        TemplateCard
+                        <TemplateCard
                         key={template._id.toString()}
                         template={template}
                         gradientClass={cardGradients[index % cardGradients.length]}
-                        /
+                        />
                     ))}
-                    div
+                    </div>
                 ) : (
-                    div className="col-span-full"
-                        div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 py-20 text-center"
-                            FileText className="h-12 w-12 text-muted-foreground" /
-                            h3 className="text-xl font-semibold mt-4"
+                    <div className="col-span-full">
+                        <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/30 bg-muted/20 py-20 text-center">
+                            <FileText className="h-12 w-12 text-muted-foreground" />
+                            <h3 className="text-xl font-semibold mt-4">
                                 {templates.length > 0 ? 'No Matching Templates' : 'No Templates Found'}
-                            h3
-                            p className="text-muted-foreground mt-2"
+                            </h3>
+                            <p className="text-muted-foreground mt-2">
                             {templates.length > 0
                                 ? "Your filters did not match any templates. Try adjusting your search."
                                 : 'Click "Sync with Meta" to fetch your templates, or create a new one.'}
-                            p
-                        div
-                    div
+                            </p>
+                        </div>
+                    </div>
                 )}
-            
+            </>
       )}
-    >
+    </div>
   );
 }

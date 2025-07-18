@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -95,4 +94,3 @@ export default function WhatsappWidgetGeneratorPage() {
         </div>
     )
 }
-
