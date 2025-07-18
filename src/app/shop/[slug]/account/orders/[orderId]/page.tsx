@@ -1,3 +1,4 @@
+
 'use client';
 
 import { getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
@@ -25,59 +26,59 @@ export default function OrderDetailsPage() {
     }
 
     return (
-        div className="space-y-4"
-             Button asChild variant="ghost" className="-ml-4"
-                 Link href={`/shop/${params.slug}/account/orders`}
+        <div className="space-y-4">
+             <Button asChild variant="ghost" className="-ml-4">
+                 <Link href={`/shop/${params.slug}/account/orders`}>
                     &larr; Back to Order History
-                Link
-            Button
-            Card
-                CardHeader
-                    CardTitle className="text-2xl"Order DetailsCardTitle
-                    CardDescription
+                </Link>
+            </Button>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-2xl">Order Details</CardTitle>
+                    <CardDescription>
                         Order #{order._id.toString()} - Placed on {new Date(order.createdAt).toLocaleDateString()}
-                    CardDescription
-                CardHeader
-                CardContent className="space-y-6"
-                    div className="grid md:grid-cols-2 gap-6"
-                        div className="space-y-2"
-                             h3 className="font-semibold"Shipping Address/h3
-                             address className="not-italic text-muted-foreground"
-                                {order.customerInfo.name}br /
-                                {order.shippingAddress.street}br /
-                                {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}br /
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="grid md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                             <h3 className="font-semibold">Shipping Address</h3>
+                             <address className="not-italic text-muted-foreground">
+                                {order.customerInfo.name}<br />
+                                {order.shippingAddress.street}<br />
+                                {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}<br />
                                 {order.shippingAddress.country}
-                             address
-                        div
-                         div className="space-y-2"
-                             h3 className="font-semibold"Customer Information/h3
-                             p className="text-muted-foreground"
-                                {order.customerInfo.name}br/
-                                {order.customerInfo.email}br/
+                             </address>
+                        </div>
+                         <div className="space-y-2">
+                             <h3 className="font-semibold">Customer Information</h3>
+                             <p className="text-muted-foreground">
+                                {order.customerInfo.name}<br/>
+                                {order.customerInfo.email}<br/>
                                 {order.customerInfo.phone}
-                            p
-                        div
-                    div
-                     Separator /
-                    div
-                        h3 className="font-semibold text-lg mb-2"Order Items/h3
-                        ul className="space-y-3"
+                            </p>
+                        </div>
+                    </div>
+                     <Separator />
+                    <div>
+                        <h3 className="font-semibold text-lg mb-2">Order Items</h3>
+                        <ul className="space-y-3">
                             {order.items.map(item => (
-                                 li key={item.productId} className="flex justify-between items-center text-sm"
-                                    span{item.productName}  times; {item.quantity}/span
-                                    span className="font-medium"{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price * item.quantity)}/span
-                                 li
+                                 <li key={item.productId} className="flex justify-between items-center text-sm">
+                                    <span>{item.productName} &times; {item.quantity}</span>
+                                    <span className="font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price * item.quantity)}</span>
+                                 </li>
                             ))}
-                        ul
-                    div
-                     Separator /
-                     div className="space-y-2"
-                        div className="flex justify-between"span className="text-muted-foreground"Subtotal/spanspan{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.subtotal)}/span/div
-                        div className="flex justify-between"span className="text-muted-foreground"Shipping/spanspan{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.shipping)}/span/div
-                        div className="flex justify-between font-bold text-lg"span className="text-foreground"Total/spanspan{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.total)}/span/div
-                    div
-                CardContent
-            Card
-        div
+                        </ul>
+                    </div>
+                     <Separator />
+                     <div className="space-y-2">
+                        <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.subtotal)}</span></div>
+                        <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.shipping)}</span></div>
+                        <div className="flex justify-between font-bold text-lg"><span className="text-foreground">Total</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.total)}</span></div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
     );
 }
