@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useActionState, useEffect, useState } from 'react';
@@ -16,7 +14,7 @@ import { LoaderCircle, FileUp, Plus, Trash2, Copy } from 'lucide-react';
 import { handleCreateTemplate, saveLibraryTemplate, getTemplateCategories } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
-import type { Project, Template } from '@/app/dashboard/page';
+import type { Project, Template } from '@/lib/definitions';
 import { Separator } from '../ui/separator';
 import { AiSuggestions } from './ai-suggestions';
 
@@ -271,7 +269,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdmi
     if (state?.debugInfo) {
         setLastDebugInfo(state.debugInfo);
     }
-  }, [state, toast, router, isAdminForm]);
+  }, [state, router, toast, isAdminForm]);
 
   const handleAddButton = (type: ButtonType['type']) => {
     const hasQuickReply = buttons.some(b => b.type === 'QUICK_REPLY');
@@ -603,8 +601,16 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdmi
                                 {card.buttons.map((btn, btnIndex) => (
                                     <div key={btnIndex} className="p-2 border rounded-lg space-y-2 relative">
                                         <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => handleRemoveCarouselCardButton(cardIndex, btnIndex)}><Trash2 className="h-3 w-3"/></Button>
+                                        <RadioGroup value={btn.type} onValueChange={(val) => handleCarouselCardButtonChange(cardIndex, btnIndex, 'type', val)} className="flex gap-4">
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="URL" id={`btn-type-url-${cardIndex}-${btnIndex}`} /><Label htmlFor={`btn-type-url-${cardIndex}-${btnIndex}`} className="font-normal">URL</Label></div>
+                                            <div className="flex items-center space-x-2"><RadioGroupItem value="QUICK_REPLY" id={`btn-type-postback-${cardIndex}-${btnIndex}`} /><Label htmlFor={`btn-type-postback-${cardIndex}-${btnIndex}`} className="font-normal">Quick Reply</Label></div>
+                                        </RadioGroup>
                                         <Input placeholder="Button Text" value={btn.text} onChange={e => handleCarouselCardButtonChange(cardIndex, btnIndex, 'text', e.target.value)} required/>
-                                        {btn.type === 'URL' && <Input placeholder="https://example.com" value={btn.url || ''} onChange={e => handleCarouselCardButtonChange(cardIndex, btnIndex, 'url', e.target.value)} required/>}
+                                        {btn.type === 'URL' ? (
+                                             <Input placeholder="https://example.com" value={btn.url || ''} onChange={e => handleCarouselCardButtonChange(cardIndex, btnIndex, 'url', e.target.value)} required/>
+                                        ) : (
+                                             <Input placeholder="Payload_for_webhook" value={btn.payload || ''} onChange={e => handleCarouselCardButtonChange(cardIndex, btnIndex, 'payload', e.target.value)} required/>
+                                        )}
                                     </div>
                                 ))}
                                 {card.buttons.length < 2 && (

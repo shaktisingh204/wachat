@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -18,7 +17,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle, Send } from 'lucide-react';
-import { handleCreateFlowTemplate } from '@/app/actions';
+import { handleCreateFlowTemplate } from '@/app/actions/whatsapp.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { MetaFlow } from '@/lib/definitions';
@@ -136,7 +135,7 @@ export function MetaFlowToTemplateDialog({ flow }: MetaFlowToTemplateDialogProps
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>
         </form>

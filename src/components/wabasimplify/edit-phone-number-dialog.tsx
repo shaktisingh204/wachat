@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
@@ -153,29 +152,6 @@ export function EditPhoneNumberDialog({ isOpen, onOpenChange, project, phone, on
                         <Input name="websites" placeholder="https://www.example.com" defaultValue={phone.profile?.websites?.[0]} />
                         <Input name="websites" placeholder="https://shop.example.com" defaultValue={phone.profile?.websites?.[1]} />
                     </div>
-
-                    <Separator />
-                    
-                    <div className="space-y-4">
-                         <div className="space-y-2 pl-4 border-l-2 ml-2">
-                            <Label htmlFor="inboundCallControl">Inbound Call Handling</Label>
-                             <p className="text-xs text-muted-foreground">This setting only applies if calling is enabled on the main Numbers page.</p>
-                            <Select name="inboundCallControl" value={inboundControl} onValueChange={setInboundControl}>
-                                <SelectTrigger id="inboundCallControl">
-                                    <SelectValue placeholder="Select handling method..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="DISABLED">Prevent incoming calls</SelectItem>
-                                    <SelectItem value="CALLBACK_REQUEST">Show "Request a callback" button</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <Button type="button" variant="secondary" onClick={handleCallingSettingsSave} disabled={isSavingCalling}>
-                            {isSavingCalling ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Phone className="mr-2 h-4 w-4"/>}
-                            Save Calling Settings
-                        </Button>
-                    </div>
-
                 </div>
             </ScrollArea>
           

@@ -1,8 +1,7 @@
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getKanbanData, handleUpdateContactStatus, saveKanbanStatuses } from '@/app/actions';
+import { getKanbanData, saveKanbanStatuses, handleUpdateContactStatus } from '@/app/actions/whatsapp.actions';
 import type { WithId, Contact, Project, KanbanColumnData } from '@/lib/definitions';
 import { KanbanColumn } from '@/components/wabasimplify/kanban-column';
 import { Skeleton } from '@/components/ui/skeleton';

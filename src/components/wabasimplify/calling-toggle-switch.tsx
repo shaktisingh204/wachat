@@ -1,11 +1,10 @@
-
-
 'use client';
 
 import { useState, useTransition, useEffect, useCallback } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { getPhoneNumberCallingSettings, savePhoneNumberCallingSettings } from '@/app/actions/calling.actions';
+import { getPhoneNumberCallingSettings } from '@/app/actions/calling.actions';
+import { savePhoneNumberCallingSettings } from '@/app/actions/whatsapp.actions';
 import type { CallingSettings, PhoneNumber, WithId, Project } from '@/lib/definitions';
 import { LoaderCircle } from 'lucide-react';
 
@@ -34,27 +33,7 @@ export function CallingToggleSwitch({ projectId, phone, onUpdate }: CallingToggl
 
     const handleToggle = (checked: boolean) => {
         startTransition(async () => {
-            const formData = new FormData();
-            formData.append('projectId', projectId);
-            formData.append('phoneNumberId', phone.id);
-            formData.append('status', checked ? 'ENABLED' : 'DISABLED');
-            
-            // Preserve other settings to avoid them being wiped out
-            formData.append('call_icon_visibility', settings.call_icon_visibility || 'DEFAULT');
-            formData.append('callback_permission_status', settings.callback_permission_status || 'DISABLED');
-            formData.append('call_hours_status', settings.call_hours?.status || 'DISABLED');
-            formData.append('timezone_id', settings.call_hours?.timezone_id || 'UTC');
-            formData.append('weekly_operating_hours', JSON.stringify(settings.call_hours?.weekly_operating_hours || []));
-            formData.append('holiday_schedule', JSON.stringify(settings.call_hours?.holiday_schedule || []));
-
-            formData.append('sip_status', settings.sip?.status || 'DISABLED');
-            if (settings.sip?.status === 'ENABLED' && settings.sip.servers?.[0]) {
-                formData.append('sip_hostname', settings.sip.servers[0].hostname);
-                formData.append('sip_port', String(settings.sip.servers[0].port));
-                formData.append('sip_params', JSON.stringify(settings.sip.servers[0].request_uri_user_params || {}));
-            }
-
-            const result = await savePhoneNumberCallingSettings(null, formData);
+            const result = await savePhoneNumberCallingSettings(projectId, phone.id, checked, phone.inbound_call_control || 'DISABLED');
             if (result.success) {
                 toast({ title: 'Success', description: `Calling has been ${checked ? 'enabled' : 'disabled'}.` });
                 onUpdate();
@@ -65,7 +44,7 @@ export function CallingToggleSwitch({ projectId, phone, onUpdate }: CallingToggl
         });
     };
     
-    const isChecked = settings.status === 'ENABLED';
+    const isChecked = phone.is_calling_enabled || false;
 
     return (
         <div className="flex items-center gap-2">
