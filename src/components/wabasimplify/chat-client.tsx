@@ -122,7 +122,7 @@ export function ChatClient() {
         setIsFetchingMore(true);
         try {
             const nextPage = contactPage + 1;
-            const { contacts: newContacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, nextPage, CONTACTS_PER_PAGE, undefined);
+            const { contacts: newContacts, total } = await getContactsPageData(project._id.toString(), selectedPhoneNumberId, nextPage, '', undefined);
             
             if (newContacts.length > 0) {
                 setContacts(prev => [...prev, ...newContacts]);
@@ -172,7 +172,7 @@ export function ChatClient() {
         const interval = setInterval(() => {
             startPollingTransition(async () => {
                 if (project && selectedPhoneNumberId) {
-                     const { contacts: updatedContacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, 1, CONTACTS_PER_PAGE, undefined);
+                     const { contacts: updatedContacts, total } = await getContactsPageData(project._id.toString(), selectedPhoneNumberId, 1, '', undefined);
                     setContacts(prev => {
                         const updatedMap = new Map(updatedContacts.map(c => [c._id.toString(), c]));
                         const mergedContacts = prev.map(old => updatedMap.get(old._id.toString()) || old);
@@ -202,7 +202,7 @@ export function ChatClient() {
             toast({ title: 'Error', description: result.error, variant: 'destructive'});
         }
         if (result.contact) {
-            const { contacts, total } = await getContactsForProject(project._id.toString(), selectedPhoneNumberId, 1, CONTACTS_PER_PAGE, undefined);
+            const { contacts, total } = await getContactsPageData(project._id.toString(), selectedPhoneNumberId, 1, '', undefined);
             setContacts(contacts);
             setHasMoreContacts(contacts.length < total);
             setContactPage(1);
