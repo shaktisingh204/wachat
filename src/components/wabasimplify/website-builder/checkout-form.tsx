@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -34,7 +35,7 @@ export function CheckoutForm() {
     const params = useParams();
     const router = useRouter();
 
-    const form = useForm<z.infer typeof checkoutSchema>>({
+    const form = useForm<z.infer<typeof checkoutSchema>>({
         resolver: zodResolver(checkoutSchema),
         defaultValues: {
             name: '', email: '', phone: '',
@@ -42,7 +43,7 @@ export function CheckoutForm() {
         }
     });
 
-    async function onSubmit(values: z.infer typeof checkoutSchema) {
+    async function onSubmit(values: z.infer<typeof checkoutSchema>) {
         if (cart.length === 0) {
             toast({ title: 'Error', description: 'Your cart is empty.', variant: 'destructive' });
             return;
@@ -72,117 +73,108 @@ export function CheckoutForm() {
     }
 
     return (
-         div className="grid md:grid-cols-2 gap-8"
-            div
-                h2 className="text-2xl font-bold mb-4"Shipping Information/h2
-                Form {...form}
-                    form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4"
-                         FormField control={form.control} name="name" render={({ field }) => (
-                            FormItem
-                                FormLabelFull Name/FormLabel
-                                FormControl
-                                    Input {...field} /
-                                FormControl
-                                FormMessage /
-                            FormItem
-                        )} /
-                         FormField control={form.control} name="email" render={({ field }) => (
-                            FormItem
-                                FormLabelEmail/FormLabel
-                                FormControl
-                                    Input {...field} /
-                                FormControl
-                                FormMessage /
-                            FormItem
-                        )} /
-                         FormField control={form.control} name="phone" render={({ field }) => (
-                            FormItem
-                                FormLabelPhone (Optional)/FormLabel
-                                FormControl
-                                    Input {...field} /
-                                FormControl
-                                FormMessage /
-                            FormItem
-                        )} /
-                         FormField control={form.control} name="street" render={({ field }) => (
-                             FormItem
-                                FormLabelStreet Address/FormLabel
-                                FormControl
-                                    Input {...field} /
-                                FormControl
-                                FormMessage /
-                            FormItem
-                        )} /
-                        div className="grid grid-cols-2 gap-4"
-                             FormField control={form.control} name="city" render={({ field }) => (
-                                FormItem
-                                    FormLabelCity/FormLabel
-                                    FormControl
-                                        Input {...field} /
-                                    FormControl
-                                    FormMessage /
-                                FormItem
-                            )} /
-                             FormField control={form.control} name="state" render={({ field }) => (
-                                FormItem
-                                    FormLabelState/FormLabel
-                                    FormControl
-                                        Input {...field} /
-                                    FormControl
-                                    FormMessage /
-                                FormItem
-                            )} /
-                        div
-                        div className="grid grid-cols-2 gap-4"
-                             FormField control={form.control} name="zip" render={({ field }) => (
-                                FormItem
-                                    FormLabelZIP Code/FormLabel
-                                    FormControl
-                                        Input {...field} /
-                                    FormControl
-                                    FormMessage /
-                                FormItem
-                            )} /
-                             FormField control={form.control} name="country" render={({ field }) => (
-                                FormItem
-                                    FormLabelCountry/FormLabel
-                                    FormControl
-                                        Input {...field} /
-                                    FormControl
-                                    FormMessage /
-                                FormItem
-                            )} /
-                        div
-                        Button type="submit" size="lg" className="w-full mt-6" disabled={isPending}
-                            {isPending &&  LoaderCircle className="mr-2 h-4 w-4 animate-spin"/}
+         <div className="grid md:grid-cols-2 gap-8">
+            <div>
+                <h2 className="text-2xl font-bold mb-4">Shipping Information</h2>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                         <FormField control={form.control} name="name" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Full Name</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                         <FormField control={form.control} name="email" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Email</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                         <FormField control={form.control} name="phone" render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Phone (Optional)</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                         <FormField control={form.control} name="street" render={({ field }) => (
+                             <FormItem>
+                                <FormLabel>Street Address</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )} />
+                        <div className="grid grid-cols-2 gap-4">
+                             <FormField control={form.control} name="city" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>City</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                             <FormField control={form.control} name="state" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>State</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                        </div>
+                        <div className="grid grid-cols-2 gap-4">
+                             <FormField control={form.control} name="zip" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>ZIP Code</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                             <FormField control={form.control} name="country" render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Country</FormLabel>
+                                    <FormControl>
+                                        <Input {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )} />
+                        </div>
+                        <Button type="submit" size="lg" className="w-full mt-6" disabled={isPending}>
+                            {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
                             Place Order & Proceed to Payment
-                        Button
-                    form
-                Form
-            div
-            div
-                Card
-                    CardHeaderCardTitleYour OrderCardTitle/CardHeader
-                    CardContent className="space-y-4"
+                        </Button>
+                    </form>
+                </Form>
+            </div>
+            <div>
+                <Card>
+                    <CardHeader><CardTitle>Your Order</CardTitle></CardHeader>
+                    <CardContent className="space-y-4">
                         {cart.map(item => (
-                             div key={item.productId} className="flex justify-between items-center text-sm"
-                                span{item.name} x {item.quantity}span
-                                span className="font-medium"{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price * item.quantity)}/span
-                             div
+                             <div key={item.productId} className="flex justify-between items-center text-sm">
+                                <span>{item.name} x {item.quantity}</span>
+                                <span className="font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price * item.quantity)}</span>
+                             </div>
                         ))}
-                        Separator /
-                        div className="flex justify-between font-bold text-lg"
-                            spanTotal/span
-                            span{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cartTotal)}/span
-                        div
-                    CardContent
-                    CardFooter
-                        Button asChild size="lg" className="w-full"
-                             Link href={`/shop/${params.slug}/checkout`}Proceed to Checkout/Link
-                        Button
-                    CardFooter
-                Card
-            div
-        div
-    );
-}
+                        <Separator />
+                        <div className="flex justify-between font-bold text-lg">
+                            <span>Total</span>
+                            <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cartTotal)}</span>
+                        </div>
+                    </CardContent>
+                </Card
