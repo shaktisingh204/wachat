@@ -466,7 +466,7 @@ export type Template = {
 
 export type FlowNode = {
     id: string;
-    type: string;
+    type: 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language' | 'sendTemplate' | 'triggerMetaFlow' | 'triggerFlow' | 'payment';
     data: any;
     position: { x: number; y: number };
 };
@@ -1372,3 +1372,4 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; expires: number; };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; expires: number; };
+
