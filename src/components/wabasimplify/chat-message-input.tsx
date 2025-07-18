@@ -3,7 +3,8 @@
 
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
 import { useFormStatus } from 'react-dom';
-import { getCannedMessages, handleSendMessage } from '@/app/actions/project.actions';
+import { getCannedMessages } from '@/app/actions/project.actions';
+import { handleSendMessage } from '@/app/actions/whatsapp.actions';
 import type { CannedMessage, Template, Contact } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Input } from '@/components/ui/input';
