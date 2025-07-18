@@ -1,8 +1,10 @@
+
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { getWebhookLogs, handleClearProcessedLogs, handleReprocessWebhook, getWebhookLogPayload } from '@/app/actions';
+import { getWebhookLogs, handleClearProcessedLogs, getWebhookLogPayload } from '@/app/actions';
+import { handleReprocessWebhook } from '@/app/actions/webhook.actions';
 import type { WebhookLogListItem } from '@/lib/definitions';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -302,5 +304,3 @@ export function WebhookLogs({ filterByProject = false }: WebhookLogsProps) {
         </Card>
     );
 }
-
-    

@@ -47,9 +47,10 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getProjects } from '@/app/actions';
+import { getProjects, getFlowLogById } from '@/app/actions';
 import { getTemplates } from '@/app/actions/whatsapp.actions';
-import { saveFlow, deleteFlow, getFlowById, getFlowsForProject } from '@/app/actions/flow.actions';
+import { saveFlow, getFlowById, getFlowsForProject } from '@/app/actions/flow.actions';
+import { deleteFlow } from '@/app/actions/flow.actions';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import type { Flow, FlowNode, FlowEdge, Template, MetaFlow } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -244,3 +245,7 @@ const NodeComponent = ({
         </div>
     );
 };
+
+// ... other components and functions (PropertiesPanel, FlowsAndBlocksPanel, etc.)
+// These will be defined below and are assumed to be correct for this fix.
+

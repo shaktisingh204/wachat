@@ -1,12 +1,29 @@
+
 'use client';
 
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
-import { getProjectById, handleUpdateProjectSettings, handleUpdateAutoReplySettings, handleUpdateMasterSwitch, handleUpdateOptInOutSettings, handleSaveUserAttributes, getSession, User, Plan, getProjects, handleUpdateUserProfile, deleteCannedMessage, getCannedMessages, handleInviteAgent, handleRemoveAgent, saveCannedMessageAction } from '@/app/actions';
-import { getPlans } from '@/app/actions/plan.actions';
-import type { WithId } from 'mongodb';
-import type { Project, UserAttribute } from '@/lib/definitions';
+import { 
+    getProjectById, 
+    getSession, 
+    handleUpdateUserProfile, 
+    getProjects 
+} from '@/app/actions';
+import { 
+    handleUpdateProjectSettings, 
+    handleUpdateAutoReplySettings, 
+    handleUpdateMasterSwitch, 
+    handleUpdateOptInOutSettings, 
+    handleSaveUserAttributes, 
+    saveCannedMessageAction, 
+    deleteCannedMessage, 
+    getCannedMessages, 
+    handleInviteAgent, 
+    handleRemoveAgent 
+} from '@/app/actions/project.actions';
+
+import type { User, Plan, WithId, Project, UserAttribute } from '@/lib/definitions';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -21,7 +38,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
 import { CannedMessagesSettingsTab } from '@/components/wabasimplify/canned-messages-settings-tab';
 import { AgentsRolesSettingsTab } from '@/components/wabasimplify/agents-roles-settings-tab';
 import { useRouter } from 'next/navigation';
@@ -33,6 +49,13 @@ const updateSettingsInitialState = { message: null, error: null };
 const updateAutoReplyInitialState = { message: null, error: null };
 const updateOptInOutInitialState = { message: null, error: null };
 const saveUserAttributesInitialState = { message: null, error: null };
+
+interface GeneralReplyRule {
+    id: string;
+    keywords: string;
+    reply: string;
+    matchType: 'contains' | 'exact';
+}
 
 
 function SaveButton({ children }: { children: React.ReactNode }) {
