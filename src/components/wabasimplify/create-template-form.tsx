@@ -11,7 +11,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle, FileUp, Plus, Trash2, Copy } from 'lucide-react';
-import { handleCreateTemplate, saveLibraryTemplate, getTemplateCategories } from '@/app/actions';
+import { handleCreateTemplate } from '@/app/actions/template.actions';
+import { saveLibraryTemplate } from '@/app/actions/plan.actions';
+import { getTemplateCategories } from '@/app/actions/plan.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
 import type { Project, Template } from '@/lib/definitions';
