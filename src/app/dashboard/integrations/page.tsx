@@ -1,92 +1,59 @@
 
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { ArrowRight, Link as LinkIcon, Code, Key } from 'lucide-react';
+import { WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
-'use client';
-
-import { useEffect, useState, useTransition } from 'react';
-import { getProjectById } from '@/app/actions';
-import type { WithId } from 'mongodb';
-import type { Project } from '@/lib/definitions';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Zap, AlertCircle } from 'lucide-react';
-import { WhatsappLinkGenerator } from '@/components/wabasimplify/whatsapp-link-generator';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
-import { WhatsAppWidgetGenerator } from '@/components/wabasimplify/whatsapp-widget-generator';
-import { RazorpaySettingsForm } from '@/components/wabasimplify/razorpay-settings-form';
-
-
-function IntegrationsPageSkeleton() {
-    return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <Skeleton className="h-8 w-64" />
-                <Skeleton className="h-4 w-96 mt-2" />
-            </div>
-            <Skeleton className="h-64 w-full" />
-            <Skeleton className="h-80 w-full" />
-        </div>
-    )
-}
+const integrations = [
+    {
+        title: 'WhatsApp Link Generator',
+        description: 'Create wa.me links with pre-filled messages.',
+        icon: LinkIcon,
+        href: '/dashboard/integrations/whatsapp-link-generator',
+        gradient: 'card-gradient-green',
+    },
+    {
+        title: 'Website Widget Generator',
+        description: 'Embed a floating WhatsApp chat widget on your website.',
+        icon: Code,
+        href: '/dashboard/integrations/whatsapp-widget-generator',
+        gradient: 'card-gradient-blue',
+    },
+    {
+        title: 'Razorpay Integration',
+        description: 'Connect your Razorpay account to accept payments.',
+        icon: Key,
+        href: '/dashboard/integrations/razorpay',
+        gradient: 'card-gradient-purple',
+    }
+];
 
 export default function IntegrationsPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
-    const [isLoading, startLoadingTransition] = useTransition();
-
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        if (storedProjectId) {
-            startLoadingTransition(async () => {
-                const projectData = await getProjectById(storedProjectId);
-                setProject(projectData);
-            });
-        } else {
-            startLoadingTransition(async () => {}); // To ensure loading state is handled
-        }
-    }, []);
-
-    if (isLoading) {
-        return <IntegrationsPageSkeleton />;
-    }
-
     return (
-        <div className="flex flex-col gap-8">
-            <div>
-                <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <Zap className="h-8 w-8" />
-                    Integrations
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                    Connect SabNode with your favorite tools and services.
-                </p>
-            </div>
-            
-            {project ? (
-                <>
-                    <WhatsappLinkGenerator project={project} />
-                    <Separator />
-                    <WhatsAppWidgetGenerator project={project} />
-                    <Separator />
-                    <RazorpaySettingsForm project={project} />
-                </>
-            ) : (
-                 <Alert variant="destructive">
-                    <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>No Project Selected</AlertTitle>
-                    <AlertDescription>
-                        Please select a project from the main dashboard to use integrations.
-                    </AlertDescription>
-                </Alert>
-            )}
-
-             <Card className="text-center py-20">
-                <CardHeader>
-                    <CardTitle>More Integrations Coming Soon!</CardTitle>
-                </CardHeader>
-                 <CardContent>
-                    <p className="text-muted-foreground">Integrations with platforms like Shopify, Zapier, and more are on the way.</p>
-                </CardContent>
-            </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {integrations.map(integration => (
+                <Card key={integration.href} className={`flex flex-col ${integration.gradient}`}>
+                    <CardHeader>
+                        <div className="flex items-center gap-4">
+                            <div className="bg-primary/10 p-3 rounded-lg">
+                                <integration.icon className="h-6 w-6 text-primary" />
+                            </div>
+                            <CardTitle>{integration.title}</CardTitle>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="flex-grow">
+                        <p className="text-muted-foreground">{integration.description}</p>
+                    </CardContent>
+                    <CardFooter>
+                        <Button asChild className="w-full">
+                            <Link href={integration.href}>
+                                Configure <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                        </Button>
+                    </CardFooter>
+                </Card>
+            ))}
         </div>
     );
 }
