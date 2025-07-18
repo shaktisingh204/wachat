@@ -19,26 +19,26 @@ import { useRouter } from 'next/navigation';
 
 function TemplatesPageSkeleton() {
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <Skeleton className="h-8 w-64" />
-                    <Skeleton className="h-4 w-96 mt-2" />
-                </div>
-                <div className="flex items-center gap-2">
-                    <Skeleton className="h-10 w-36" />
-                    <Skeleton className="h-10 w-48" />
-                </div>
+      <div className="flex flex-col gap-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+                <Skeleton className="h-8 w-64" />
+                <Skeleton className="h-4 w-96 mt-2" />
             </div>
-            <div className="flex flex-wrap items-center gap-4">
-                <Skeleton className="h-10 w-full md:max-w-sm" />
-                <Skeleton className="h-10 w-full sm:w-[180px]" />
-                <Skeleton className="h-10 w-full sm:w-[180px]" />
-            </div>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-64 w-full" />)}
+            <div className="flex items-center gap-2">
+                <Skeleton className="h-10 w-36" />
+                <Skeleton className="h-10 w-48" />
             </div>
         </div>
+        <div className="flex flex-wrap items-center gap-4">
+            <Skeleton className="h-10 w-full md:max-w-sm" />
+            <Skeleton className="h-10 w-full sm:w-[180px]" />
+            <Skeleton className="h-10 w-full sm:w-[180px]" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-64 w-full" />)}
+        </div>
+      </div>
     )
 }
 
