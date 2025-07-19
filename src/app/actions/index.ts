@@ -760,9 +760,9 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
             const result = await db.collection('projects').bulkWrite(bulkOps);
             const syncedCount = result.upsertedCount + result.modifiedCount;
 
-            const syncedProjects = await db.collection<WithId<Project>>('projects').find({ wabaId: { $in: wabaIds }, userId: new ObjectId(session.user._id) }).project({ _id: 1 }).toArray();
+            const syncedProjects = await db.collection<WithId<Project>>('projects').find({ wabaId: { $in: wabaIds }, userId: new ObjectId(session.user._id) }).project({ _id: 1, wabaId: 1, appId: 1, accessToken: 1 }).toArray();
             for (const project of syncedProjects) {
-                 await handleSubscribeProjectWebhook(project.wabaId!, project.appId!, accessToken);
+                 await handleSubscribeProjectWebhook(project.wabaId!, project.appId!, project.accessToken);
             }
 
             revalidatePath('/dashboard');
