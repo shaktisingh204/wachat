@@ -1,7 +1,7 @@
 
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getProjectById } from '@/app/actions';
+import { getPublicProjectById } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
@@ -27,7 +27,7 @@ export async function GET(
         console.error("Failed to update widget load stats:", e);
     }
 
-    const project = await getProjectById(projectId);
+    const project = await getPublicProjectById(projectId);
 
     if (!project) {
         return new NextResponse('Project not found', { status: 404 });
