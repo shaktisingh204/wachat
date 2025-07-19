@@ -2,8 +2,19 @@
 'use client';
 
 import * as React from 'react';
-import { Home, ShoppingBag } from 'lucide-react';
+import { Home, ShoppingBag, IndianRupee } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
+
+export const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg role="img" viewBox="0 0 24 24" {...props}><path fill="currentColor" d="M12.48 10.92v3.28h7.84c-.24 1.84-.85 3.18-1.73 4.1-1.02 1.08-2.58 1.98-4.48 1.98-3.79 0-7.17-3.22-7.17-7.22s3.38-7.22 7.17-7.22c2.23 0 3.63.92 4.48 1.75l2.72-2.72C19.62 3.39 16.67 2 12.48 2 7.01 2 2.56 6.18 2.56 12s4.45 10 9.92 10c2.79 0 5.1-1 6.88-2.84 1.92-1.92 2.58-4.75 2.58-7.17 0-.66-.07-1.32-.19-1.98z"/></svg>
+);
+
+export const OutlookIcon = (props: React.SVGProps<SVGSVGElement>) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" {...props}>
+        <path fill="currentColor" d="M228 64a12 12 0 0 0-12 12v56a12 12 0 0 1-12 12H76a12 12 0 0 1-12-12V88h60.46a12 12 0 0 0 10.7-5.83l24-40A12 12 0 0 0 148.46 28H104a12 12 0 0 0-10.7 5.83l-32 53.33A12 12 0 0 0 64 96H28a12 12 0 0 0-12 12v68a12 12 0 0 0 12 12h188a12 12 0 0 0 12-12v-56a12 12 0 0 1 12-12h12a12 12 0 0 0 0-24zm-12 92H28v-68h36v20a12 12 0 0 0 12 12h140z"/>
+    </svg>
+);
+
 
 export const MetaIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg viewBox="0 0 290 191" {...props}>
@@ -41,11 +52,7 @@ export const SeoIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export const WaPayIcon = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-        <circle cx="12" cy="12" r="10" />
-        <path d="M15 8.5a2.5 2.5 0 0 0-5 0V9h5v0a2.5 2.5 0 0 1-5 0V14" />
-        <path d="M8 12h8" />
-    </svg>
+    <IndianRupee {...props} />
 );
 
 export const SabNodeBrandLogo = (props: React.SVGProps<SVGSVGElement>) => (
