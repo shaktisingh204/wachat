@@ -1,7 +1,7 @@
 
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getPublicProjectById } from '@/app/actions/custom-ecommerce.actions';
+import { getPublicProjectById } from '@/app/actions/whatsapp.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 

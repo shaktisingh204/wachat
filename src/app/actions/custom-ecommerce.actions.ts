@@ -43,19 +43,6 @@ export async function getEcommShopById(shopId: string): Promise<WithId<EcommShop
     return JSON.parse(JSON.stringify(shop));
 }
 
-export async function getPublicEcommShopById(shopId: string): Promise<WithId<EcommShop> | null> {
-    if (!ObjectId.isValid(shopId)) return null;
-    try {
-        const { db } = await connectToDatabase();
-        const shop = await db.collection<EcommShop>('ecomm_shops').findOne({ _id: new ObjectId(shopId) });
-        return shop ? JSON.parse(JSON.stringify(shop)) : null;
-    } catch (e) {
-        console.error("Failed to get public e-commerce shop by ID:", e);
-        return null;
-    }
-}
-
-
 export async function getEcommShopBySlug(slug: string): Promise<WithId<EcommShop> | null> {
     if (!slug) return null;
 

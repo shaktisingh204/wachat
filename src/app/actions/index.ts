@@ -1,5 +1,6 @@
 
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -349,20 +350,6 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
         return null;
     }
 }
-
-export async function getPublicProjectById(projectId: string): Promise<WithId<Project> | null> {
-    try {
-        if (!ObjectId.isValid(projectId)) {
-            return null;
-        }
-        const { db } = await connectToDatabase();
-        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
-        return project ? JSON.parse(JSON.stringify(project)) : null;
-    } catch (error: any) {
-        return null;
-    }
-}
-
 
 export async function getAllBroadcasts(
     page: number = 1,
