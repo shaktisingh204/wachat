@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -12,6 +13,19 @@ import { premadeTemplates } from '@/lib/premade-templates';
 import FormData from 'form-data';
 
 const API_VERSION = 'v23.0';
+
+export async function getPublicProjectById(projectId: string): Promise<WithId<Project> | null> {
+    try {
+        if (!ObjectId.isValid(projectId)) {
+            return null;
+        }
+        const { db } = await connectToDatabase();
+        const project = await db.collection<Project>('projects').findOne({ _id: new ObjectId(projectId) });
+        return project ? JSON.parse(JSON.stringify(project)) : null;
+    } catch (error: any) {
+        return null;
+    }
+}
 
 export async function getTemplates(projectId: string): Promise<WithId<Template>[]> {
     if (!ObjectId.isValid(projectId)) {
