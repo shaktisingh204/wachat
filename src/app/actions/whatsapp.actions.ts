@@ -7,7 +7,7 @@ import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions/index';
-import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse } from '@/lib/definitions';
+import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
 import FormData from 'form-data';
@@ -44,6 +44,84 @@ export async function getTemplates(projectId: string): Promise<WithId<Template>[
     } catch (error) {
         console.error('Failed to fetch templates:', error);
         return [];
+    }
+}
+
+export async function handleSyncTemplates(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or you do not have access.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        const { wabaId, accessToken } = project;
+
+        const allTemplates: MetaTemplate[] = [];
+        let nextUrl: string | undefined = `https://graph.facebook.com/v23.0/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id,quality_score&limit=100`;
+
+        while(nextUrl) {
+            const response = await fetch(nextUrl, { method: 'GET' });
+
+            if (!response.ok) {
+                let reason = 'Unknown API Error';
+                try {
+                    const errorData = await response.json();
+                    reason = errorData?.error?.message || reason;
+                } catch (e) {
+                    reason = `Could not parse error response from Meta. Status: ${response.status} ${response.statusText}`;
+                }
+                return { error: `Failed to fetch templates from Meta: ${reason}` };
+            }
+
+            const templatesResponse: MetaTemplatesResponse = await response.json();
+            
+            if (templatesResponse.data && templatesResponse.data.length > 0) {
+                allTemplates.push(...templatesResponse.data);
+            }
+
+            nextUrl = templatesResponse.paging?.next;
+        }
+        
+        if (allTemplates.length === 0) {
+            return { message: "No templates found in your WhatsApp Business Account to sync." }
+        }
+
+        const templatesToUpsert = allTemplates.map(t => {
+            const bodyComponent = t.components.find(c => c.type === 'BODY');
+            const headerComponent = t.components.find(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format || ''));
+            
+            return {
+                name: t.name,
+                category: t.category,
+                language: t.language,
+                status: t.status,
+                body: bodyComponent?.text || '',
+                projectId: new ObjectId(projectId),
+                metaId: t.id,
+                components: t.components,
+                qualityScore: t.quality_score?.score?.toUpperCase() || 'UNKNOWN',
+                headerSampleUrl: headerComponent?.example?.header_handle?.[0] ? `https://graph.facebook.com/${headerComponent.example.header_handle[0]}` : undefined
+            };
+        });
+
+        const bulkOps = templatesToUpsert.map(template => ({
+            updateOne: {
+                filter: { metaId: template.metaId, projectId: template.projectId },
+                update: { $set: template },
+                upsert: true,
+            }
+        }));
+
+        const result = await db.collection('templates').bulkWrite(bulkOps);
+        const syncedCount = result.upsertedCount + result.modifiedCount;
+        
+        revalidatePath('/dashboard/templates');
+        
+        return { message: `Successfully synced ${syncedCount} template(s).`, count: syncedCount };
+
+    } catch (e: any) {
+        console.error('Template sync failed:', e);
+        return { error: e.message || 'An unexpected error occurred during template sync.' };
     }
 }
 
@@ -207,7 +285,7 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
             await axios.post(
                 `https://graph.facebook.com/v23.0/${phoneNumberId}/whatsapp_business_profile`,
                 { messaging_product: "whatsapp", profile_picture_handle: handle },
-                { headers: { 'Authorization': `Bearer ${accessToken}` } }
+                { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
             );
         }
 
@@ -313,7 +391,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
             messagePayload.text = { body: messageText, preview_url: true };
         }
         
-        const response = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
+        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, messagePayload, { headers: { 'Authorization': `Bearer ${project.accessToken}` } });
         const wamid = response.data?.messages?.[0]?.id;
         if (!wamid) throw new Error('Message sent but no WAMID returned from Meta.');
         
