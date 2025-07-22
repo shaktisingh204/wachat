@@ -9,11 +9,12 @@ import type { CannedMessage, Template, Contact } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Paperclip, Send, LoaderCircle, Star, ClipboardList, File as FileIcon, Image as ImageIcon } from 'lucide-react';
+import { Paperclip, Send, LoaderCircle, Star, ClipboardList, File as FileIcon, Image as ImageIcon, IndianRupee } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverAnchor, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { SendTemplateDialog } from './send-template-dialog';
+import { RequestPaymentDialog } from './request-payment-dialog';
 
 interface ChatMessageInputProps {
     contact: WithId<Contact>;
@@ -48,6 +49,7 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
     const [attachmentPopoverOpen, setAttachmentPopoverOpen] = useState(false);
     
     const [templateToSend, setTemplateToSend] = useState<WithId<Template> | null>(null);
+    const [isPaymentRequestOpen, setIsPaymentRequestOpen] = useState(false);
 
     useEffect(() => {
         getCannedMessages(contact.projectId.toString()).then(setCannedMessages);
@@ -128,6 +130,11 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
                 template={templateToSend}
             />
         )}
+        <RequestPaymentDialog
+            isOpen={isPaymentRequestOpen}
+            onOpenChange={setIsPaymentRequestOpen}
+            contact={contact}
+        />
         <div className="flex w-full items-center gap-2">
             <Popover open={cannedPopoverOpen} onOpenChange={setCannedPopoverOpen}>
                 <form ref={formRef} action={sendFormAction} className="flex-1 relative">
@@ -190,6 +197,7 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
             <div className="hidden md:flex items-center gap-1">
                  <Button variant="ghost" size="icon" onClick={() => handleMediaClick('image/*,video/*')}><ImageIcon className="h-4 w-4" /><span className="sr-only">Send Image or Video</span></Button>
                  <Button variant="ghost" size="icon" onClick={() => handleMediaClick('application/pdf')}><FileIcon className="h-4 w-4" /><span className="sr-only">Send Document</span></Button>
+                 <Button variant="ghost" size="icon" onClick={() => setIsPaymentRequestOpen(true)}><IndianRupee className="h-4 w-4" /><span className="sr-only">Request Payment</span></Button>
                 <Popover><PopoverTrigger asChild><Button variant="ghost" size="icon"><ClipboardList className="h-4 w-4" /><span className="sr-only">Send Template</span></Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
             </div>
             
@@ -201,6 +209,7 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
                         <div className="grid gap-1">
                             <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('image/*,video/*'); setAttachmentPopoverOpen(false); }}><ImageIcon className="mr-2 h-4 w-4" /> Media (Image/Video)</Button>
                              <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('application/pdf'); setAttachmentPopoverOpen(false); }}><FileIcon className="mr-2 h-4 w-4" /> Document</Button>
+                             <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsPaymentRequestOpen(true); setAttachmentPopoverOpen(false); }}><IndianRupee className="mr-2 h-4 w-4" /> Request Payment</Button>
                              <Popover><PopoverTrigger asChild><Button variant="ghost" className="w-full justify-start"><ClipboardList className="mr-2 h-4 w-4" /> Template</Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
                         </div>
                     </PopoverContent>
@@ -211,4 +220,3 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
         </div>
         </>
     );
-}

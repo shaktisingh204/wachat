@@ -1,4 +1,3 @@
-
 'use client';
 
 import { getEcommOrderById } from '@/app/actions/custom-ecommerce.actions';
@@ -15,7 +14,9 @@ export default function OrderConfirmationPage({ params }: { params: { orderId: s
     const [order, setOrder] = useState<WithId<EcommOrder> | null>(null);
 
     useEffect(() => {
-        getEcommOrderById(params.orderId).then(setOrder);
+        if(params.orderId) {
+            getEcommOrderById(params.orderId as string).then(setOrder);
+        }
     }, [params.orderId]);
 
 
@@ -48,7 +49,7 @@ export default function OrderConfirmationPage({ params }: { params: { orderId: s
                              </li>
                         ))}
                     </ul>
-                    <Separator />
+                     <Separator />
                      <div className="space-y-2">
                         <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.subtotal)}</span></div>
                         <div className="flex justify-between"><span className="text-muted-foreground">Shipping</span><span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.shipping)}</span></div>

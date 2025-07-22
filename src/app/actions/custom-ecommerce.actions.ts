@@ -61,6 +61,19 @@ export async function getEcommShopBySlug(slug: string): Promise<WithId<EcommShop
     }
 }
 
+export async function getPublicEcommShopById(shopId: string): Promise<WithId<EcommShop> | null> {
+    if (!ObjectId.isValid(shopId)) return null;
+    
+    try {
+        const { db } = await connectToDatabase();
+        const shop = await db.collection<EcommShop>('ecomm_shops').findOne({ _id: new ObjectId(shopId) });
+        return shop ? JSON.parse(JSON.stringify(shop)) : null;
+    } catch (e) {
+        console.error("Failed to get public e-commerce shop by ID:", e);
+        return null;
+    }
+}
+
 
 export async function createEcommShop(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, shopId?: string }> {
     const projectId = formData.get('projectId') as string;
@@ -994,8 +1007,4 @@ export async function importEcommShopTheme(shopId: string, themeJson: string): P
     } catch(e: any) {
         console.error("Theme import error:", e);
         if(e instanceof SyntaxError) {
-            return { success: false, error: 'Invalid JSON file. Please check the file and try again.' };
-        }
-        return { success: false, error: 'An unexpected error occurred during import.' };
-    }
-}
+            return { success: false, error: 'Invalid JSON
