@@ -1,3 +1,4 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -6,7 +7,8 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
 import Razorpay from 'razorpay';
-import type { Project, WhatsAppWidgetSettings } from '@/lib/definitions';
+import type { Project, WhatsAppWidgetSettings, Contact } from '@/lib/definitions';
+import { handleSendMessage } from './whatsapp.actions';
 
 export async function saveRazorpaySettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
@@ -38,7 +40,7 @@ export async function saveRazorpaySettings(prevState: any, formData: FormData): 
     }
 }
 
-export async function createRazorpayPaymentLink(
+async function createRazorpayPaymentLink(
     project: WithId<Project>,
     amount: number,
     description: string,
@@ -84,6 +86,50 @@ export async function createRazorpayPaymentLink(
         return { error: getErrorMessage(e) };
     }
 }
+
+export async function handlePaymentRequest(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const contactId = formData.get('contactId') as string;
+    const amount = parseFloat(formData.get('amount') as string);
+    const description = formData.get('description') as string;
+    
+    if (!contactId || !amount || !description) {
+        return { error: 'Missing required fields.' };
+    }
+
+    const { db } = await connectToDatabase();
+    const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
+    if (!contact) {
+        return { error: 'Contact not found.' };
+    }
+
+    const project = await getProjectById(contact.projectId.toString());
+    if (!project) {
+        return { error: 'Project not found.' };
+    }
+
+    const linkResult = await createRazorpayPaymentLink(project, amount, description, contact);
+    if ('error' in linkResult) {
+        return { error: linkResult.error };
+    }
+
+    const message = `Please complete your payment of ₹${amount} for "${description}" by clicking this link: ${linkResult.short_url}`;
+
+    const messageFormData = new FormData();
+    messageFormData.append('contactId', contact._id.toString());
+    messageFormData.append('projectId', contact.projectId.toString());
+    messageFormData.append('phoneNumberId', contact.phoneNumberId);
+    messageFormData.append('waId', contact.waId);
+    messageFormData.append('messageText', message);
+
+    const sendResult = await handleSendMessage(null, messageFormData);
+
+    if (sendResult.error) {
+        return { error: `Payment link created, but message failed to send. Please send this link manually: ${linkResult.short_url}` };
+    }
+
+    return { message: 'Payment link sent successfully.' };
+}
+
 
 export async function saveWidgetSettings(
     prevState: any,

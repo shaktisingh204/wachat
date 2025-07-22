@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
+import { useActionState, useEffect, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
   Dialog,
@@ -16,11 +16,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { LoaderCircle, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import type { WithId, Project, Contact } from '@/lib/definitions';
+import type { WithId, Contact } from '@/lib/definitions';
 import { Textarea } from '../ui/textarea';
-import { getProjectById } from '@/app/actions';
-import { createRazorpayPaymentLink } from '@/app/actions/integrations.actions';
-import { handleSendMessage } from '@/app/actions/whatsapp.actions';
+import { handlePaymentRequest } from '@/app/actions/integrations.actions';
+
+const initialState = { message: null, error: undefined };
 
 interface RequestPaymentDialogProps {
     isOpen: boolean;
@@ -39,56 +39,26 @@ function SubmitButton() {
 }
 
 export function RequestPaymentDialog({ isOpen, onOpenChange, contact }: RequestPaymentDialogProps) {
-    const [isPending, startTransition] = useTransition();
+    const [state, formAction] = useActionState(handlePaymentRequest, initialState);
     const { toast } = useToast();
-    const [project, setProject] = useState<WithId<Project> | null>(null);
+    const formRef = useRef<HTMLFormElement>(null);
 
-    useEffect(() => {
-        getProjectById(contact.projectId.toString()).then(setProject);
-    }, [contact.projectId]);
-
-    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (!project) return;
-        
-        const formData = new FormData(event.currentTarget);
-        const amount = parseFloat(formData.get('amount') as string);
-        const description = formData.get('description') as string;
-
-        startTransition(async () => {
-            const linkResult = await createRazorpayPaymentLink(project, amount, description, contact);
-            
-            if ('error' in linkResult) {
-                toast({ title: 'Error', description: linkResult.error, variant: 'destructive' });
-                return;
-            }
-
-            const message = `Please complete your payment of ₹${amount} for "${description}" by clicking this link: ${linkResult.short_url}`;
-
-            const messageFormData = new FormData();
-            messageFormData.append('contactId', contact._id.toString());
-            messageFormData.append('projectId', contact.projectId.toString());
-            messageFormData.append('phoneNumberId', contact.phoneNumberId);
-            messageFormData.append('waId', contact.waId);
-            messageFormData.append('messageText', message);
-
-            const sendResult = await handleSendMessage(null, messageFormData);
-
-            if (sendResult.error) {
-                toast({ title: 'Payment Link Created, But Message Failed', description: `Please send this link manually: ${linkResult.short_url}`, variant: 'destructive', duration: 10000 });
-            } else {
-                toast({ title: 'Success', description: 'Payment link sent to contact.' });
-                onOpenChange(false);
-            }
-        });
-    }
-
-    if (!project) return null;
+     useEffect(() => {
+        if (state.message) {
+            toast({ title: 'Success!', description: state.message });
+            onOpenChange(false);
+            formRef.current?.reset();
+        }
+        if (state.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, onOpenChange]);
 
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-md">
-                <form onSubmit={handleSubmit}>
+                <form action={formAction} ref={formRef}>
+                    <input type="hidden" name="contactId" value={contact._id.toString()} />
                     <DialogHeader>
                         <DialogTitle>Request Payment</DialogTitle>
                         <DialogDescription>
@@ -106,7 +76,7 @@ export function RequestPaymentDialog({ isOpen, onOpenChange, contact }: RequestP
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={isPending}>Cancel</Button>
+                        <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
                         <SubmitButton />
                     </DialogFooter>
                 </form>
