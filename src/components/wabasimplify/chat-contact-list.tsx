@@ -56,6 +56,15 @@ export function ChatContactList({
             contact.waId.includes(searchQuery)
         );
     }, [contacts, searchQuery]);
+    
+    const getStatusVariant = (status?: string) => {
+        if (!status) return 'secondary';
+        const s = status.toLowerCase();
+        if (s === 'open') return 'destructive';
+        if (s === 'new') return 'default';
+        if (s === 'resolved') return 'outline';
+        return 'secondary';
+    }
 
 
     const ContactSkeleton = () => (
@@ -125,7 +134,7 @@ export function ChatContactList({
                                 key={contact._id.toString()}
                                 onClick={() => onSelectContact(contact)}
                                 className={cn(
-                                    "flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-accent",
+                                    "flex w-full items-start gap-3 p-3 text-left transition-colors hover:bg-accent",
                                     selectedContactId === contact._id.toString() && "bg-accent"
                                 )}
                             >
@@ -141,20 +150,25 @@ export function ChatContactList({
                                             </p>
                                         )}
                                     </div>
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex items-start justify-between">
                                         <p className="text-sm text-muted-foreground truncate">{contact.lastMessage || 'No messages yet.'}</p>
-                                        {contact.unreadCount && contact.unreadCount > 0 && (
-                                            <Badge className="h-5 w-5 flex items-center justify-center p-0 rounded-full bg-primary text-primary-foreground">{contact.unreadCount}</Badge>
-                                        )}
+                                        <div className="flex items-center gap-1 flex-shrink-0">
+                                            {contact.status && (
+                                                <Badge variant={getStatusVariant(contact.status)} className="capitalize h-4 px-1.5 text-[10px]">
+                                                    {contact.status}
+                                                </Badge>
+                                            )}
+                                            {contact.unreadCount && contact.unreadCount > 0 && (
+                                                <Badge className="h-5 w-5 flex items-center justify-center p-0 rounded-full bg-primary text-primary-foreground">{contact.unreadCount}</Badge>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
                             </button>
                         ))}
-                        {hasMoreContacts && (
-                            <div ref={loadMoreRef} className="flex justify-center items-center p-4">
-                                <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
-                            </div>
-                        )}
+                        <div ref={loadMoreRef} className="flex justify-center items-center p-4">
+                            {hasMoreContacts && <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />}
+                        </div>
                     </>
                 ) : (
                     <div className="p-8 text-center text-sm text-muted-foreground">
