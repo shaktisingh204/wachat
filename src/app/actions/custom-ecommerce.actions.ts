@@ -980,7 +980,7 @@ export async function importEcommShopTheme(shopId: string, themeJson: string): P
         const themeData = JSON.parse(themeJson);
 
         if (!themeData.name || !themeData.layouts) {
-            return { success: false, error: 'Invalid theme file. Missing name or layouts property.' };
+            return { success: false, error: "Invalid theme file. Missing name or layouts property." };
         }
         
         const newTheme: EcommTheme = {

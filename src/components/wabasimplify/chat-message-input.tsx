@@ -205,7 +205,7 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
             <div className="hidden md:flex items-center gap-1">
                  <Button variant="ghost" size="icon" onClick={() => handleMediaClick('image/*,video/*')}><ImageIcon className="h-4 w-4" /><span className="sr-only">Send Image or Video</span></Button>
                  <Button variant="ghost" size="icon" onClick={() => handleMediaClick('application/pdf')}><FileIcon className="h-4 w-4" /><span className="sr-only">Send Document</span></Button>
-                 <Button variant="ghost" size="icon" onClick={() => setIsRazorpayOpen(true)}><IndianRupee className="h-4 w-4" /><span className="sr-only">Request Razorpay Payment</span></Button>
+                 <Button variant="ghost" size="icon" onClick={() => setIsRazorpayOpen(true)}><IndianRupee className="h-4 w-4" /><span className="sr-only">Request Payment</span></Button>
                  <Button variant="ghost" size="icon" onClick={() => setIsWhatsAppPaymentOpen(true)}><WaPayIcon className="h-4 w-4" /><span className="sr-only">Request WhatsApp Payment</span></Button>
                 <Popover><PopoverTrigger asChild><Button variant="ghost" size="icon"><ClipboardList className="h-4 w-4" /><span className="sr-only">Send Template</span></Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
             </div>

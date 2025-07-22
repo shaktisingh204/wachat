@@ -20,7 +20,8 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -29,7 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogDescription
-} from '@/components/ui/dialog';
+} from '@/components/ui/alert-dialog';
 import { CreatePaymentConfigDialog } from '@/components/wabasimplify/create-payment-config-dialog';
 import { UpdateDataEndpointDialog } from '@/components/wabasimplify/update-data-endpoint-dialog';
 import { RegenerateOauthDialog } from '@/components/wabasimplify/regenerate-oauth-dialog';
