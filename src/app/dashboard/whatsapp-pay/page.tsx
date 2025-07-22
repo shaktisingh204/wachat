@@ -1,17 +1,21 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getTransactionsForProject, getProjectById } from '@/app/actions';
+import { getPaymentRequests } from '@/app/actions/whatsapp.actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, IndianRupee, CheckCircle, XCircle } from 'lucide-react';
-import type { Transaction, Project } from '@/lib/definitions';
+import { AlertCircle, IndianRupee, CheckCircle, XCircle, RefreshCw, LoaderCircle } from 'lucide-react';
+import type { Transaction, Project, FacebookPaymentRequest } from '@/lib/definitions';
 import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
 
 function PageSkeleton() {
     return (
@@ -43,20 +47,47 @@ const StatCard = ({ title, value, icon: Icon, description }: { title: string, va
     </Card>
 );
 
-const getStatusVariant = (status: Transaction['status']) => {
-    switch (status) {
-        case 'SUCCESS': return 'default';
-        case 'FAILED': return 'destructive';
-        case 'PENDING': return 'secondary';
-        default: return 'outline';
-    }
+const getStatusVariant = (status?: string) => {
+    if (!status) return 'outline';
+    const s = status.toLowerCase();
+    if (s === 'success' || s === 'completed') return 'default';
+    if (s === 'failed' || s === 'canceled') return 'destructive';
+    if (s === 'pending') return 'secondary';
+    return 'outline';
 };
 
 export default function WhatsAppPayPage() {
     const [project, setProject] = useState<WithId<Project> | null>(null);
     const [transactions, setTransactions] = useState<WithId<Transaction>[]>([]);
+    const [paymentRequests, setPaymentRequests] = useState<FacebookPaymentRequest[]>([]);
     const [isLoading, startLoading] = useTransition();
     const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
+    const { toast } = useToast();
+
+    const fetchData = async (showToast = false) => {
+        if (!activeProjectId) return;
+        
+        startLoading(async () => {
+            const [projectData, transactionsData] = await Promise.all([
+                getProjectById(activeProjectId),
+                getTransactionsForProject(activeProjectId)
+            ]);
+            setProject(projectData);
+            setTransactions(transactionsData);
+
+            if (projectData?.phoneNumbers?.[0]?.id) {
+                const requestsData = await getPaymentRequests(activeProjectId, projectData.phoneNumbers[0].id);
+                if (requestsData.error) {
+                    toast({ title: 'Could not fetch payment requests', description: requestsData.error, variant: 'destructive'});
+                } else {
+                    setPaymentRequests(requestsData.requests || []);
+                }
+            }
+             if (showToast) {
+                toast({ title: "Refreshed", description: "Payment data updated." });
+            }
+        });
+    }
 
     useEffect(() => {
         const storedId = localStorage.getItem('activeProjectId');
@@ -65,15 +96,9 @@ export default function WhatsAppPayPage() {
 
     useEffect(() => {
         if (activeProjectId) {
-            startLoading(async () => {
-                const [projectData, transactionsData] = await Promise.all([
-                    getProjectById(activeProjectId),
-                    getTransactionsForProject(activeProjectId)
-                ]);
-                setProject(projectData);
-                setTransactions(transactionsData);
-            });
+            fetchData();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeProjectId]);
     
     const stats = transactions.reduce((acc, t) => {
@@ -84,7 +109,7 @@ export default function WhatsAppPayPage() {
         return acc;
     }, { successfulTransactions: 0, totalRevenue: 0 });
 
-    if (isLoading) {
+    if (isLoading && !project) {
         return <PageSkeleton />;
     }
     
@@ -100,25 +125,70 @@ export default function WhatsAppPayPage() {
 
     return (
         <div className="flex flex-col gap-8">
-            <div>
+            <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
                     Payment Transactions
                 </h1>
-                <p className="text-muted-foreground mt-2">
-                    View payment history for project "{project?.name}".
-                </p>
+                <Button onClick={() => fetchData(true)} variant="outline" disabled={isLoading}>
+                    {isLoading ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <RefreshCw className="mr-2 h-4 w-4"/>}
+                    Refresh
+                </Button>
             </div>
+            <p className="text-muted-foreground -mt-6">
+                View payment history for project "{project?.name}".
+            </p>
             
              <div className="grid gap-4 md:grid-cols-3">
-                <StatCard title="Total Revenue (INR)" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={IndianRupee} />
+                <StatCard title="Total Revenue (Razorpay)" value={`₹${stats.totalRevenue.toLocaleString()}`} icon={IndianRupee} />
                 <StatCard title="Successful Transactions" value={stats.successfulTransactions} icon={CheckCircle} />
                 <StatCard title="Failed/Pending" value={transactions.length - stats.successfulTransactions} icon={XCircle} />
             </div>
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Transaction History</CardTitle>
-                    <CardDescription>A log of all payments initiated for this project.</CardDescription>
+                    <CardTitle>Recent Payment Requests (from Meta)</CardTitle>
+                    <CardDescription>A log of the latest payment requests sent via WhatsApp Pay.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="border rounded-md">
+                        <Table>
+                             <TableHeader>
+                                <TableRow>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Description</TableHead>
+                                    <TableHead>To</TableHead>
+                                    <TableHead>Amount</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead>Request ID</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {paymentRequests.length > 0 ? (
+                                    paymentRequests.map((req) => (
+                                        <TableRow key={req.id}>
+                                            <TableCell>{req.created_timestamp ? format(new Date(req.created_timestamp * 1000), 'PPp') : 'N/A'}</TableCell>
+                                            <TableCell className="font-medium">{req.description}</TableCell>
+                                            <TableCell>{req.receiver.wa_id}</TableCell>
+                                            <TableCell>₹{req.amount.value}</TableCell>
+                                            <TableCell><Badge variant={getStatusVariant(req.status)} className="capitalize">{req.status?.toLowerCase()}</Badge></TableCell>
+                                            <TableCell className="font-mono text-xs">{req.id}</TableCell>
+                                        </TableRow>
+                                    ))
+                                ) : (
+                                    <TableRow>
+                                        <TableCell colSpan={6} className="h-24 text-center">No recent payment requests found via API.</TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Local Transaction History (Razorpay)</CardTitle>
+                    <CardDescription>A log of all payments initiated from this platform.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="border rounded-md">

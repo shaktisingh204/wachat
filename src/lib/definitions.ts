@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type CrmModulePermissions = {
@@ -148,6 +149,22 @@ export type CrmContact = {
 export type BusinessCapabilities = {
     max_daily_conversation_per_phone: number;
     max_phone_numbers_per_business: number;
+};
+
+export type FacebookPaymentRequest = {
+  id: string;
+  status: 'PENDING' | 'COMPLETED' | 'FAILED' | 'CANCELED';
+  amount: {
+    currency: string;
+    value: string;
+  };
+  receiver: {
+    wa_id: string;
+  };
+  description: string;
+  external_reference?: string;
+  completed_timestamp?: number;
+  created_timestamp?: number;
 };
 
 export type PaymentConfiguration = {
@@ -907,7 +924,7 @@ export type OutgoingMessage = {
     projectId: ObjectId;
     wamid: string;
     messageTimestamp: Date;
-    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive' | 'template';
+    type: 'text' | 'image' | 'video' | 'document' | 'audio' | 'interactive' | 'template' | 'payment_request';
     content: any;
     status: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
     statusTimestamps: {
