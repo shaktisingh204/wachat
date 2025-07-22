@@ -75,7 +75,7 @@ export function CheckoutForm() {
     }
     
     return (
-        <div className="grid md:grid-cols-2 gap-8">
+         <div className="grid md:grid-cols-2 gap-8">
             <div>
                 <h2 className="text-2xl font-bold mb-4">Shipping Information</h2>
                 <Form {...form}>
