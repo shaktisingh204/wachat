@@ -68,51 +68,50 @@ const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial
             status: 'PENDING' as const,
             createdAt: new Date(),
         };
-    }).filter(Boolean);
+    }).filter(contact => contact && contact.phone);
 
     if (contactsToInsert.length === 0) {
         return { insertedIds: [], processedCount: 0 };
     }
 
-    let insertedIds: ObjectId[] = [];
     try {
         const result = await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false });
-        insertedIds = Object.values(result.insertedIds);
+        const insertedIds = Object.values(result.insertedIds);
+        return { insertedIds, processedCount: insertedIds.length };
     } catch(err: any) {
-        if (err.code !== 11000) { 
-            console.warn("Bulk insert for broadcast contacts failed.", err.code);
-        } else {
+        if (err.code === 11000) { 
             const successfulIds = err.result?.insertedIds?.map((doc: any) => doc._id) || [];
-            insertedIds = successfulIds;
+            return { insertedIds: successfulIds, processedCount: successfulIds.length };
         }
+        console.warn("Bulk insert for broadcast contacts failed with a non-duplicate error.", err.code);
+        return { insertedIds: [], processedCount: 0 };
     }
-    
-    return { insertedIds, processedCount: insertedIds.length };
 };
 
 
 const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId, redis: any): Promise<number> => {
-    return new Promise<number>((resolve, reject) => {
+     return new Promise<number>((resolve, reject) => {
         let contactBatch: any[] = [];
         let totalProcessedCount = 0;
+        const queueName = `broadcast:${broadcastId}:queue`;
         
-        Papa.parse(inputStream, {
+        const parser = Papa.parse(inputStream, {
             header: true,
             skipEmptyLines: true,
             dynamicTyping: false,
-            step: async (results, parser) => {
+            step: async (results) => {
                 contactBatch.push(results.data);
                 if (contactBatch.length >= BATCH_SIZE) {
                     parser.pause(); 
                     try {
                         const { insertedIds, processedCount } = await processContactBatch(db, broadcastId, contactBatch, true);
                         if (insertedIds.length > 0) {
-                            await redis.rPush(`broadcast:${broadcastId}:queue`, insertedIds.map(id => id.toString()));
+                            await redis.rPush(queueName, insertedIds.map(id => id.toString()));
                         }
                         totalProcessedCount += processedCount;
                         contactBatch = [];
                     } catch(err) {
-                        reject(err);
+                        return reject(err);
                     } finally {
                         parser.resume();
                     }
@@ -123,7 +122,7 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
                      if (contactBatch.length > 0) {
                         const { insertedIds, processedCount } = await processContactBatch(db, broadcastId, contactBatch, true);
                         if (insertedIds.length > 0) {
-                            await redis.rPush(`broadcast:${broadcastId}:queue`, insertedIds.map(id => id.toString()));
+                           await redis.rPush(queueName, insertedIds.map(id => id.toString()));
                         }
                         totalProcessedCount += processedCount;
                     }
