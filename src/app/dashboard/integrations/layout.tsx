@@ -23,7 +23,7 @@ export default function IntegrationsLayout({ children }: { children: React.React
                 )}
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
                     <Zap className="h-8 w-8" />
-                    Integrations
+                    Integrations &amp; Tools
                 </h1>
                 <p className="text-muted-foreground mt-2">
                     Connect SabNode with your favorite tools and services.

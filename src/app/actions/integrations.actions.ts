@@ -33,41 +33,32 @@ export async function saveRazorpaySettings(prevState: any, formData: FormData): 
             { $set: { razorpaySettings: settings } }
         );
 
-        revalidatePath('/dashboard/integrations');
+        revalidatePath('/dashboard/integrations/razorpay');
         return { message: 'Razorpay settings saved successfully!' };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
 
-async function createWhatsAppPaymentLink(
+async function createRazorpayPaymentLink(
     project: WithId<Project>,
     amount: number,
     description: string,
     contact: { waId: string, name: string, email?: string }
 ): Promise<{ short_url: string, id: string } | { error: string }> {
-    // This function is now a placeholder. In a real scenario, you might call a Meta API
-    // or your payment provider's API configured via Meta Commerce Manager.
-    // For now, we will simulate a success or failure based on config.
-    const paymentConfig = project.paymentConfiguration;
-    if (!paymentConfig || paymentConfig.status !== 'ENABLED') {
-         return { error: 'WhatsApp Pay is not configured or enabled for this project. Please set it up in Meta Commerce Manager.' };
+    const razorpayConfig = project.razorpaySettings;
+    if (!razorpayConfig?.keyId || !razorpayConfig.keySecret) {
+        return { error: 'Razorpay is not configured for this project. Please add your API keys in the integrations settings.' };
     }
     
-    // Simulate creating a link with a mock provider
-    const mockProvider = project.razorpaySettings;
-     if (!mockProvider?.keyId || !mockProvider?.keySecret) {
-        return { error: 'Payment provider (e.g., Razorpay) is not configured in the backend settings for this project.' };
-    }
-    
-    if(amount < 1) {
+    if (amount < 1) {
         return { error: 'Payment amount must be at least ₹1.' };
     }
 
     try {
         const instance = new Razorpay({
-            key_id: mockProvider.keyId,
-            key_secret: mockProvider.keySecret,
+            key_id: razorpayConfig.keyId,
+            key_secret: razorpayConfig.keySecret,
         });
 
         const options = {
@@ -77,7 +68,7 @@ async function createWhatsAppPaymentLink(
             description,
             customer: {
                 name: contact.name,
-                contact: contact.waId.substring(contact.waId.length - 10), // Assuming Indian numbers
+                contact: contact.waId.replace(/^\+?91/, ''), // Razorpay expects number without +91 for Indian numbers
                 ...(contact.email && { email: contact.email })
             },
             notify: {
@@ -116,7 +107,7 @@ export async function handlePaymentRequest(prevState: any, formData: FormData): 
         return { error: 'Project not found.' };
     }
 
-    const linkResult = await createWhatsAppPaymentLink(project, amount, description, contact);
+    const linkResult = await createRazorpayPaymentLink(project, amount, description, contact);
     if ('error' in linkResult) {
         return { error: linkResult.error };
     }
