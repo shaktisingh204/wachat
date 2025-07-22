@@ -6,8 +6,8 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions/index';
-import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest } from '@/lib/definitions';
+import { getProjectById, getSession } from '@/app/actions/index';
+import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest, Transaction } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
 import FormData from 'form-data';
@@ -1248,5 +1248,24 @@ export async function getPaymentConfigurationByName(projectId: string, configura
         return { configuration };
     } catch (e: any) {
         return { configuration: undefined, error: getErrorMessage(e) };
+    }
+}
+
+export async function getTransactionsForProject(projectId: string): Promise<WithId<Transaction>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return [];
+    
+    try {
+        const { db } = await connectToDatabase();
+        const transactions = await db.collection('transactions').find({
+            projectId: new ObjectId(projectId)
+        }).sort({ createdAt: -1 }).toArray();
+        return JSON.parse(JSON.stringify(transactions));
+    } catch (error) {
+        console.error("Failed to fetch transactions for project:", error);
+        return [];
     }
 }

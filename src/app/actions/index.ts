@@ -21,7 +21,7 @@ import { hashPassword, comparePassword, createSessionToken, verifySessionToken, 
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import { premadeTemplates } from '@/lib/premade-templates';
-import { getMetaFlows } from './meta-flow.actions';
+import { getMetaFlows } from './actions/meta-flow.actions';
 import { getErrorMessage } from '@/lib/utils';
 // Re-exports for server actions are handled by direct imports in components now.
 import { headers } from 'next/headers';
@@ -760,25 +760,6 @@ export async function handleFacebookSetup(accessToken: string, wabaIds: string[]
     } catch (e: any) {
         console.error("Facebook setup failed:", e);
         return { success: false, count: 0, error: e.message || 'An unexpected error occurred during setup.' };
-    }
-}
-
-export async function getTransactionsForProject(projectId: string): Promise<WithId<Transaction>[]> {
-    const session = await getSession();
-    if (!session?.user) return [];
-
-    const hasAccess = await getProjectById(projectId);
-    if (!hasAccess) return [];
-    
-    try {
-        const { db } = await connectToDatabase();
-        const transactions = await db.collection('transactions').find({
-            projectId: new ObjectId(projectId)
-        }).sort({ createdAt: -1 }).toArray();
-        return JSON.parse(JSON.stringify(transactions));
-    } catch (error) {
-        console.error("Failed to fetch transactions for project:", error);
-        return [];
     }
 }
     

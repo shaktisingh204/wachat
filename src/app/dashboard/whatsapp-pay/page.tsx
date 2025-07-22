@@ -4,8 +4,8 @@
 
 import { useEffect, useState, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTransactionsForProject, getProjectById } from '@/app/actions';
-import { getPaymentRequests } from '@/app/actions/whatsapp.actions';
+import { getProjectById } from '@/app/actions';
+import { getPaymentRequests, getTransactionsForProject } from '@/app/actions/whatsapp.actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
