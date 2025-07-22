@@ -2,32 +2,22 @@
 'use server';
 
 /**
- * @fileOverview High-Throughput Broadcast Scheduler
+ * @fileOverview High-Throughput Broadcast Scheduler using Redis
  *
  * This file contains the core logic for processing and sending broadcast campaigns.
- * It is designed for high performance and scalability using several key patterns:
+ * It is designed for high performance and scalability using Redis as a message queue.
  *
  * 1.  **Scheduler Lock:** A lock is acquired in the database to ensure that only one
- *     instance of the scheduler runs at a time, preventing race conditions and duplicate sends.
+ *     instance of the scheduler runs at a time.
  *
- * 2.  **Asynchronous Iterators (Generators):** Instead of loading all contacts for a large
- *     campaign into memory, an async generator (`contactGenerator`) yields contacts one by one
- *     from the database cursor. This is extremely memory-efficient for campaigns with
- *     millions of contacts.
+ * 2.  **Redis Queue:** On broadcast creation, contact IDs are pushed to a Redis List.
+ *     The scheduler pulls from this list, which is much faster than querying MongoDB.
  *
- * 3.  **Concurrency Pool:** The `promisePool` function manages a pool of concurrent API
- *     requests to Meta. This allows us to send multiple messages in parallel, dramatically
- *     increasing throughput. The concurrency level is configurable per project.
+ * 3.  **Concurrency Pool:** The `promisePool` function manages concurrent API
+ *     requests to Meta.
  *
- * 4.  **Optimized Batched Database Writes:** To minimize database load, status updates for each
- *     sent message are buffered. This buffer is flushed to the database both on a timer and
- *     when it reaches a specific size, ensuring a balance between real-time updates and performance.
- *
- * 5.  **Robust Error Handling & Cancellation:** The system includes detailed error logging
- *     and a mechanism to check if a job has been cancelled, allowing it to gracefully
- *     stop processing.
- *
- * This architecture maximizes throughput for a single-server environment.
+ * 4.  **Optimized Batched Database Writes:** Status updates for sent messages are
+ *     buffered and flushed to MongoDB in batches to reduce DB load.
  */
 
 
@@ -35,6 +25,7 @@ import { config } from 'dotenv';
 config();
 
 import { connectToDatabase } from '@/lib/mongodb';
+import { getRedisClient } from '@/lib/redis';
 import { Db, ObjectId } from 'mongodb';
 import axios from 'axios';
 import { type BroadcastJob as BroadcastJobType } from './definitions';
@@ -57,15 +48,14 @@ type Project = {
 };
 
 const WRITE_INTERVAL_MS = 5000;
-const BATCH_WRITE_SIZE = 500; // New constant for batch size
-
+const BATCH_WRITE_SIZE = 500;
 
 const getAxiosErrorMessage = (error: any): string => {
     if (axios.isAxiosError(error)) {
         if (error.response) {
             const apiError = error.response.data?.error;
             if (apiError) {
-                return `${apiError.message || 'API Error'} (Code: ${apiError.code}, Type: ${apiError.type})`;
+                return `${apiError.error_user_title ? `${apiError.error_user_title}: ${apiError.error_user_msg}` : apiError.message || 'API Error'} (Code: ${apiError.code}, Type: ${apiError.type})`;
             }
             return `Request failed with status code ${error.response.status}`;
         } else if (error.request) {
@@ -77,9 +67,7 @@ const getAxiosErrorMessage = (error: any): string => {
     return error.message || 'An unknown error occurred';
 };
 
-/**
- * Runs an async iterator function over an async generator of items with a specified concurrency limit.
- */
+
 async function promisePool<T>(
   poolLimit: number,
   iterable: AsyncGenerator<T>,
@@ -97,31 +85,30 @@ async function promisePool<T>(
 }
 
 /**
- * An async generator that yields contacts from the database for a given job.
+ * An async generator that yields contact IDs from the Redis queue.
  */
-async function* contactGenerator(
-    db: Db,
-    jobId: ObjectId,
-    checkCancelled: () => Promise<boolean>
+async function* contactIdGenerator(
+    redis: any,
+    queueName: string,
+    checkCancelled: () => Promise<boolean>,
+    chunkSize: number = 100
 ) {
-    const cursor = db.collection<BroadcastContact>('broadcast_contacts')
-        .find({ broadcastId: jobId, status: 'PENDING' })
-        .sort({ _id: 1 });
-
-    try {
-        for await (const contact of cursor) {
-            if (await checkCancelled()) {
-                break;
-            }
-            yield contact;
+    while (true) {
+        if (await checkCancelled()) {
+            break;
         }
-    } finally {
-        await cursor.close();
+        const items = await redis.lPopCount(queueName, chunkSize);
+        if (!items || items.length === 0) {
+            break;
+        }
+        for (const item of items) {
+            yield item;
+        }
     }
 }
 
 
-async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate: number): Promise<any> {
+async function executeSingleBroadcast(db: Db, redis: any, job: BroadcastJobType, perJobRate: number): Promise<any> {
     const jobId = job._id;
     const operationsBuffer: any[] = [];
     
@@ -129,7 +116,7 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
         if (operationsBuffer.length === 0) return;
         
         const bufferCopy = [...operationsBuffer];
-        operationsBuffer.length = 0; // Clear the buffer immediately
+        operationsBuffer.length = 0;
 
         await db.collection('broadcast_contacts').bulkWrite(bufferCopy, { ordered: false });
             
@@ -147,7 +134,6 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
         const contact = { phone: contactDoc.phone, ...contactDoc.variables };
         const phone = contact.phone;
 
-        // Check for opt-out status before sending (except for Authentication templates)
         if (job.category !== 'AUTHENTICATION') {
             const isOptedOut = await db.collection('contacts').findOne(
                 { projectId: job.projectId, waId: phone, isOptedOut: true },
@@ -273,8 +259,10 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
             return false;
         };
 
-        const generator = contactGenerator(db, jobId, checkCancelled);
-        await promisePool(perJobRate, generator, async (contact) => {
+        const generator = contactIdGenerator(redis, `broadcast:${jobId}:queue`, checkCancelled);
+        await promisePool(perJobRate, generator, async (contactId) => {
+            const contact = await db.collection('broadcast_contacts').findOne({ _id: new ObjectId(contactId) });
+            if (!contact) return;
             const operation = await sendSingleMessage(db, job, contact);
             if (operation) {
                 operationsBuffer.push(operation);
@@ -325,11 +313,13 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
 export async function processBroadcastJob() {
     const lockId = 'SCHEDULER_LOCK';
     let db: Db;
+    let redis: any;
     let lockAcquired = false;
 
     try {
         const conn = await connectToDatabase();
         db = conn.db;
+        redis = await getRedisClient();
 
         const now = new Date();
         const lockHeldUntil = new Date(now.getTime() + 5 * 60 * 1000); 
@@ -415,7 +405,7 @@ export async function processBroadcastJob() {
                     { $set: { messagesPerSecond: perJobRate, projectMessagesPerSecond: totalRateForProject }}
                 );
                 const updatedJob = { ...job, messagesPerSecond: perJobRate, projectMessagesPerSecond: totalRateForProject };
-                processingTasks.push(executeSingleBroadcast(db, updatedJob, perJobRate));
+                processingTasks.push(executeSingleBroadcast(db, redis, updatedJob, perJobRate));
             }
         }
         
@@ -441,11 +431,4 @@ export async function processBroadcastJob() {
                 db = conn.db;
                 await db.collection('locks').updateOne(
                     { _id: lockId },
-                    { $set: { lockHeldUntil: new Date(0) } }
-                );
-            } catch(e) {
-                console.error("Failed to release scheduler lock:", e);
-            }
-        }
-    }
-}
+                    { $set: { lockHeldUntil: new Date(0
