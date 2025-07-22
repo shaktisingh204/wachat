@@ -161,6 +161,10 @@ function formatDuration(start: string, end: string) {
     let difference = endDate - startDate;
     if (difference < 0) difference = 0;
     
+    if (difference < 1000) {
+        return '< 1s';
+    }
+
     const hours = Math.floor(difference / 3600000);
     const minutes = Math.floor((difference % 3600000) / 60000);
     const seconds = Math.floor(((difference % 3600000) % 60000) / 1000);
