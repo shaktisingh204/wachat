@@ -410,85 +410,6 @@ export async function handleCreateFlowTemplate(prevState: any, formData: FormDat
     }
 }
 
-export async function handleSyncTemplates(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
-    const project = await getProjectById(projectId);
-    if (!project) return { error: 'Project not found or you do not have access.' };
-
-    try {
-        const { db } = await connectToDatabase();
-        
-        const { wabaId, accessToken } = project;
-
-        const allTemplates: MetaTemplate[] = [];
-        let nextUrl: string | undefined = `https://graph.facebook.com/v23.0/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id,quality_score&limit=100`;
-
-        while(nextUrl) {
-            const response = await fetch(nextUrl, { method: 'GET' });
-
-            if (!response.ok) {
-                let reason = 'Unknown API Error';
-                try {
-                    const errorData = await response.json();
-                    reason = errorData?.error?.message || reason;
-                } catch (e) {
-                    reason = `Could not parse error response from Meta. Status: ${response.status} ${response.statusText}`;
-                }
-                return { error: `Failed to fetch templates from Meta: ${reason}` };
-            }
-
-            const templatesResponse: MetaTemplatesResponse = await response.json();
-            
-            if (templatesResponse.data && templatesResponse.data.length > 0) {
-                allTemplates.push(...templatesResponse.data);
-            }
-
-            nextUrl = templatesResponse.paging?.next;
-        }
-        
-        if (allTemplates.length === 0) {
-            return { message: "No templates found in your WhatsApp Business Account to sync." }
-        }
-
-        const templatesToUpsert = allTemplates.map(t => {
-            const bodyComponent = t.components.find(c => c.type === 'BODY');
-            const headerComponent = t.components.find(c => c.type === 'HEADER' && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(c.format || ''));
-            
-            return {
-                name: t.name,
-                category: t.category,
-                language: t.language,
-                status: t.status,
-                body: bodyComponent?.text || '',
-                projectId: new ObjectId(projectId),
-                metaId: t.id,
-                components: t.components,
-                qualityScore: t.quality_score?.score?.toUpperCase() || 'UNKNOWN',
-                headerSampleUrl: headerComponent?.example?.header_handle?.[0] ? `https://graph.facebook.com/${headerComponent.example.header_handle[0]}` : undefined
-            };
-        });
-
-        const bulkOps = templatesToUpsert.map(template => ({
-            updateOne: {
-                filter: { metaId: template.metaId, projectId: template.projectId },
-                update: { $set: template },
-                upsert: true,
-            }
-        }));
-
-        const result = await db.collection('templates').bulkWrite(bulkOps);
-        const syncedCount = result.upsertedCount + result.modifiedCount;
-        
-        revalidatePath('/dashboard/templates');
-        
-        return { message: `Successfully synced ${syncedCount} template(s).`, count: syncedCount };
-
-    } catch (e: any) {
-        console.error('Template sync failed:', e);
-        return { error: e.message || 'An unexpected error occurred during template sync.' };
-    }
-}
-
-
 // --- WEBHOOK ACTIONS ---
 
 export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: string): Promise<{ isActive: boolean; error?: string }> {
@@ -1082,5 +1003,147 @@ export async function getPaymentRequestStatus(
         return { status: response.data.status };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleSyncPhoneNumbers(projectId: string): Promise<{ message?: string, error?: string, count?: number }> {
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found or you do not have access.' };
+
+    try {
+        const { db } = await connectToDatabase();
+
+        const { wabaId, accessToken } = project;
+        const fields = 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput,whatsapp_business_profile{about,address,description,email,profile_picture_url,websites,vertical}';
+        
+        const allPhoneNumbers: MetaPhoneNumber[] = [];
+        let nextUrl: string | undefined = `https://graph.facebook.com/v23.0/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}&limit=100`;
+
+        while (nextUrl) {
+            const response = await fetch(nextUrl, { method: 'GET' });
+            
+            const responseText = await response.text();
+            const responseData: MetaPhoneNumbersResponse = responseText ? JSON.parse(responseText) : {};
+            
+            if (!response.ok) {
+                const errorMessage = (responseData as any)?.error?.message || 'Unknown error syncing phone numbers.';
+                return { error: `API Error: ${errorMessage}. Status: ${response.status} ${response.statusText}` };
+            }
+
+            if (responseData.data && responseData.data.length > 0) {
+                allPhoneNumbers.push(...responseData.data);
+            }
+            
+            nextUrl = responseData.paging?.next;
+        }
+
+        if (allPhoneNumbers.length === 0) {
+            await db.collection('projects').updateOne(
+                { _id: new ObjectId(projectId) },
+                { $set: { phoneNumbers: [] } }
+            );
+            return { message: "No phone numbers found in your WhatsApp Business Account to sync." };
+        }
+
+        const phoneNumbers: PhoneNumber[] = allPhoneNumbers.map((num: MetaPhoneNumber) => ({
+            id: num.id,
+            display_phone_number: num.display_phone_number,
+            verified_name: num.verified_name,
+            code_verification_status: num.code_verification_status,
+            quality_rating: num.quality_rating,
+            platform_type: num.platform_type,
+            throughput: num.throughput,
+            profile: num.whatsapp_business_profile,
+        }));
+        
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { phoneNumbers: phoneNumbers } }
+        );
+        
+        revalidatePath('/dashboard/numbers');
+
+        return { message: `Successfully synced ${phoneNumbers.length} phone number(s).`, count: phoneNumbers.length };
+
+    } catch (e: any) {
+        console.error('Phone number sync failed:', e);
+        return { error: e.message || 'An unexpected error occurred during phone number sync.' };
+    }
+}
+
+export async function handleUpdatePhoneNumberProfile(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const phoneNumberId = formData.get('phoneNumberId') as string;
+    
+    if (!projectId || !phoneNumberId) {
+        return { error: 'Project and Phone Number IDs are required.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project) return { error: "Access denied." };
+
+    const { accessToken, appId } = project;
+    if (!appId) {
+        return { error: 'App ID is not configured for this project.' };
+    }
+    
+    try {
+        const profilePictureFile = formData.get('profilePicture') as File;
+        if (profilePictureFile && profilePictureFile.size > 0) {
+            const sessionFormData = new FormData();
+            sessionFormData.append('file_length', profilePictureFile.size.toString());
+            sessionFormData.append('file_type', profilePictureFile.type);
+            sessionFormData.append('access_token', accessToken);
+
+            const sessionResponse = await axios.post(`https://graph.facebook.com/v23.0/${appId}/uploads`, sessionFormData);
+            const uploadSessionId = sessionResponse.data.id;
+            
+            const fileData = await profilePictureFile.arrayBuffer();
+            const uploadResponse = await axios.post(`https://graph.facebook.com/v23.0/${uploadSessionId}`, Buffer.from(fileData), {
+                headers: { 'Authorization': `OAuth ${accessToken}`, 'Content-Type': profilePictureFile.type },
+                maxContentLength: Infinity, maxBodyLength: Infinity,
+            });
+            const handle = uploadResponse.data.h;
+
+            await axios.post(
+                `https://graph.facebook.com/v23.0/${phoneNumberId}/whatsapp_business_profile`,
+                { messaging_product: "whatsapp", profile_picture_handle: handle },
+                { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+            );
+        }
+
+        const profilePayload: any = { messaging_product: 'whatsapp' };
+        const fields: (keyof NonNullable<PhoneNumber['profile']>)[] = ['about', 'address', 'description', 'email', 'vertical'];
+        let hasTextFields = false;
+
+        fields.forEach(field => {
+            const value = formData.get(field) as string | null;
+            if (value && value.trim() !== '') {
+                profilePayload[field] = value.trim();
+                hasTextFields = true;
+            }
+        });
+        
+        const websites = (formData.getAll('websites') as string[]).map(w => w.trim()).filter(Boolean);
+        if (websites.length > 0) {
+            profilePayload.websites = websites;
+            hasTextFields = true;
+        }
+
+        if (hasTextFields) {
+            await axios.post(
+                `https://graph.facebook.com/v23.0/${phoneNumberId}/whatsapp_business_profile`,
+                profilePayload,
+                { headers: { 'Authorization': `Bearer ${accessToken}` } }
+            );
+        }
+        
+        await handleSyncPhoneNumbers(projectId); 
+        revalidatePath('/dashboard/numbers');
+        return { message: 'Phone number profile updated successfully!' };
+
+    } catch (e: any) {
+        console.error("Failed to update phone number profile:", e);
+        return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
 }
