@@ -60,9 +60,9 @@ export function RequestPaymentDialog({ isOpen, onOpenChange, contact }: RequestP
                 <form action={formAction} ref={formRef}>
                     <input type="hidden" name="contactId" value={contact._id.toString()} />
                     <DialogHeader>
-                        <DialogTitle>Request WhatsApp Payment</DialogTitle>
+                        <DialogTitle>Request Razorpay Payment</DialogTitle>
                         <DialogDescription>
-                            Create a payment link and send it to {contact.name}. This will use the payment provider configured in your Meta Commerce account.
+                            Create a payment link and send it to {contact.name}. This will use the configured Razorpay account.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">

@@ -9,6 +9,7 @@ import { intelligentTranslate, detectLanguageFromWaId } from '@/ai/flows/intelli
 import type { Project, Contact, OutgoingMessage, AutoReplySettings, Flow, FlowNode, FlowEdge, FlowLog, MetaFlow, Template, EcommFlow, EcommFlowNode, FacebookSubscriber, EcommFlowEdge } from './definitions';
 import { getErrorMessage } from './utils';
 import { processFacebookComment } from '@/ai/flows/facebook-comment-flow';
+import { handlePaymentRequest } from '@/app/actions/integrations.actions';
 
 const BATCH_SIZE = 1000;
 const API_VERSION = 'v23.0';
@@ -514,6 +515,34 @@ async function sendMetaFlowTrigger(db: Db, project: WithId<Project>, contact: Wi
     }
 }
 
+async function requestPayment(db: Db, project: WithId<Project>, contact: WithId<Contact>, phoneNumberId: string, node: FlowNode, variables: Record<string, any>, logger: FlowLogger) {
+    const amount = parseFloat(interpolate(node.data.paymentAmount, variables));
+    const description = interpolate(node.data.paymentDescription, variables);
+
+    if (isNaN(amount) || !description) {
+        logger.log(`Error: Invalid amount or description for payment node ${node.id}.`);
+        return;
+    }
+
+    try {
+        const formData = new FormData();
+        formData.append('contactId', contact._id.toString());
+        formData.append('amount', String(amount));
+        formData.append('description', description);
+        
+        // This action uses Razorpay behind the scenes for now.
+        const result = await handlePaymentRequest(null, formData);
+
+        if (result.error) {
+            logger.log(`Payment request failed for node ${node.id}: ${result.error}`);
+        } else {
+            logger.log(`Payment link sent successfully for node ${node.id}.`);
+        }
+
+    } catch(e: any) {
+        logger.log(`Payment request failed due to an exception for node ${node.id}.`, { error: e.message });
+    }
+}
 
 // --- Main Flow Engine ---
 
@@ -723,6 +752,13 @@ async function executeNode(db: Db, project: WithId<Project>, contact: WithId<Con
             if (edge) nextNodeId = edge.target;
             break;
         
+        case 'payment':
+            await requestPayment(db, project, contact, contact.phoneNumberId, node, contact.activeFlow.variables, logger);
+            // This node waits for an external event (payment webhook) so for now we'll treat it as a waiting node.
+            // A more advanced implementation would handle the success/failure paths based on a webhook.
+            logger.log(`Sent payment request and waiting for completion...`);
+            return 'waiting'; // Or proceed immediately if no webhook confirmation is needed.
+
         case 'triggerFlow': {
             const flowToTriggerId = node.data.flowId;
             if (flowToTriggerId) {

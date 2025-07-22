@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, IndianRupee, CheckCircle, XCircle } from 'lucide-react';
-import { WaPayIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import type { Transaction, Project } from '@/lib/definitions';
 import { format } from 'date-fns';
 
@@ -103,11 +102,10 @@ export default function WhatsAppPayPage() {
         <div className="flex flex-col gap-8">
             <div>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <WaPayIcon className="h-8 w-8" />
-                    WhatsApp Payments
+                    Payment Transactions
                 </h1>
                 <p className="text-muted-foreground mt-2">
-                    Manage your payment configurations and view transaction history for project "{project?.name}".
+                    View payment history for project "{project?.name}".
                 </p>
             </div>
             
