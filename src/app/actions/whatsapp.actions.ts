@@ -664,7 +664,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
     if (!project) return { error: 'Project not found or you do not have access.' };
 
     try {
-        const { db } = await connectToDatabase();
+        const { db } } from await connectToDatabase();
         let messagePayload: any = {
             messaging_product: 'whatsapp',
             recipient_type: 'individual',
