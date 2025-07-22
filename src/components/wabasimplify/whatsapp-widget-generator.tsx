@@ -20,6 +20,7 @@ import { Separator } from '../ui/separator';
 import { Slider } from '../ui/slider';
 import { saveWidgetSettings } from '@/app/actions/integrations.actions';
 import { useFormStatus } from 'react-dom';
+import Image from 'next/image';
 
 interface WhatsAppWidgetGeneratorProps {
   project: WithId<Project>;
@@ -71,6 +72,16 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
     const handleSettingChange = (field: keyof typeof settings, value: string | number | boolean) => {
         setSettings(prev => ({...prev, [field]: value}));
     }
+
+    const handleFileChange = (file: File | null) => {
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            handleSettingChange('headerAvatarUrl', reader.result as string);
+        };
+        reader.readAsDataURL(file);
+    };
 
     const embedCode = useMemo(() => {
         const appUrl = process.env.NEXT_PUBLIC_APP_URL || window.location.origin;
@@ -125,7 +136,11 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                     </div>
                                     <div className="space-y-2"><Label>Header Title</Label><Input value={settings.headerTitle} onChange={e => handleSettingChange('headerTitle', e.target.value)} /></div>
                                     <div className="space-y-2"><Label>Header Subtitle</Label><Input value={settings.headerSubtitle} onChange={e => handleSettingChange('headerSubtitle', e.target.value)} /></div>
-                                    <div className="space-y-2"><Label>Avatar URL</Label><Input placeholder="https://..." value={settings.headerAvatarUrl} onChange={e => handleSettingChange('headerAvatarUrl', e.target.value)} /></div>
+                                    <div className="space-y-2">
+                                        <Label>Avatar URL or Upload</Label>
+                                        <Input placeholder="https://..." value={settings.headerAvatarUrl} onChange={e => handleSettingChange('headerAvatarUrl', e.target.value)} />
+                                        <Input type="file" accept="image/*" onChange={(e) => handleFileChange(e.target.files?.[0] || null)} className="text-xs" />
+                                    </div>
                                     <div className="space-y-2"><Label>CTA Text</Label><Input value={settings.ctaText} onChange={e => handleSettingChange('ctaText', e.target.value)} /></div>
                                      <Separator />
                                     <div className="space-y-2"><Label>Border Radius ({settings.borderRadius}px)</Label><Slider value={[settings.borderRadius]} onValueChange={v => handleSettingChange('borderRadius', v[0])} min={0} max={50}/></div>
@@ -148,7 +163,10 @@ export function WhatsAppWidgetGenerator({ project }: WhatsAppWidgetGeneratorProp
                                     {showWidget && (
                                          <div id="sabnode-widget-chatbox-preview" className="absolute" style={{ bottom: '96px', right: '0', width: '350px', backgroundColor: 'white', borderRadius: `${settings.borderRadius}px`, overflow: 'hidden', boxShadow: '0 5px 20px rgba(0,0,0,0.2)'}}>
                                             <div className="sabnode-chat-header" style={{backgroundColor: settings.buttonColor, color: settings.buttonTextColor, padding: `${settings.padding}px`, display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                <Avatar className="w-10 h-10"><AvatarImage src={settings.headerAvatarUrl} /><AvatarFallback>{settings.headerTitle.charAt(0)}</AvatarFallback></Avatar>
+                                                <Avatar className="w-10 h-10">
+                                                    {settings.headerAvatarUrl && <AvatarImage src={settings.headerAvatarUrl} />}
+                                                    <AvatarFallback>{settings.headerTitle.charAt(0)}</AvatarFallback>
+                                                </Avatar>
                                                 <div><div className="title font-bold">{settings.headerTitle}</div><div className="subtitle text-xs opacity-90">{settings.headerSubtitle}</div></div>
                                             </div>
                                             <div className="sabnode-chat-body" style={{ padding: `${settings.padding}px`, backgroundColor: '#E5DDD5' }}>
