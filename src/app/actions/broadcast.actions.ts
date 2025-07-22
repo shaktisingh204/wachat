@@ -598,4 +598,7 @@ export async function handleRequeueBroadcast(
         return { message: `Broadcast has been successfully requeued with ${newContactsCount} contacts.` };
 
     } catch (e: any) {
-        console.error('Failed to requeue broadcast:',
+        console.error('Failed to requeue broadcast:', e);
+        return { error: 'An unexpected error occurred while requeuing the broadcast.' };
+    }
+}

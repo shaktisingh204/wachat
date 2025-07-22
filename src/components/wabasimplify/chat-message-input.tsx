@@ -219,7 +219,7 @@ export function ChatMessageInput({ contact, templates }: ChatMessageInputProps) 
                             <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('image/*,video/*'); setAttachmentPopoverOpen(false); }}><ImageIcon className="mr-2 h-4 w-4" /> Media (Image/Video)</Button>
                              <Button variant="ghost" className="w-full justify-start" onClick={() => { handleMediaClick('application/pdf'); setAttachmentPopoverOpen(false); }}><FileIcon className="mr-2 h-4 w-4" /> Document</Button>
                              <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsRazorpayOpen(true); setAttachmentPopoverOpen(false); }}><IndianRupee className="mr-2 h-4 w-4" /> Razorpay Payment</Button>
-                             <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsWhatsAppPaymentOpen(true); setAttachmentPopoverOpen(false); }}><WaPayIcon className="mr-2 h-4 w-4" /> WhatsApp Pay</Button>
+                              <Button variant="ghost" className="w-full justify-start" onClick={() => { setIsWhatsAppPaymentOpen(true); setAttachmentPopoverOpen(false); }}><WaPayIcon className="mr-2 h-4 w-4" /> WhatsApp Pay</Button>
                              <Popover><PopoverTrigger asChild><Button variant="ghost" className="w-full justify-start"><ClipboardList className="mr-2 h-4 w-4" /> Template</Button></PopoverTrigger>{TemplatePopoverContent}</Popover>
                         </div>
                     </PopoverContent>

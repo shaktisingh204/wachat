@@ -12,7 +12,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getAdminSession } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
-import type { Project, Template, CreateTemplateState, MetaTemplate, MetaTemplatesResponse, LibraryTemplate } from '@/lib/definitions';
+import type { Project, Template, CreateTemplateState, MetaTemplate, MetaTemplatesResponse, LibraryTemplate, TemplateCategory } from '@/lib/definitions';
 
 async function getMediaHandleForTemplate(file: File | null, url: string | null, accessToken: string, appId: string): Promise<{ handle: string | null; error?: string; }> {
     if (!file && !url) return { handle: null, error: undefined };
@@ -438,5 +438,57 @@ export async function getLibraryTemplates(): Promise<LibraryTemplate[]> {
     } catch (e) {
         console.error("Failed to fetch library templates:", e);
         return premadeTemplates; 
+    }
+}
+
+export async function getTemplateCategories(): Promise<WithId<TemplateCategory>[]> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return [];
+    try {
+        const { db } = await connectToDatabase();
+        return JSON.parse(JSON.stringify(await db.collection('template_categories').find({}).sort({ name: 1 }).toArray()));
+    } catch (e) {
+        console.error("Failed to fetch template categories:", e);
+        return [];
+    }
+}
+
+export async function saveTemplateCategory(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+
+    const name = formData.get('name') as string;
+    const description = formData.get('description') as string;
+    if (!name) return { error: 'Category name is required.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const existing = await db.collection('template_categories').findOne({ name });
+        if (existing) return { error: 'A category with this name already exists.' };
+        await db.collection('template_categories').insertOne({ name, description, createdAt: new Date() });
+        revalidatePath('/admin/dashboard/template-library');
+        return { message: 'Category created successfully.' };
+    } catch (e: any) {
+        console.error('Failed to create category:', e);
+        return { error: 'Failed to create category.' };
+    }
+}
+
+export async function deleteTemplateCategory(id: string): Promise<{ message?: string; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { error: 'Permission denied.' };
+    
+    if (!ObjectId.isValid(id)) return { error: 'Invalid category ID.' };
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('template_categories').deleteOne({ _id: new ObjectId(id) });
+        if (result.deletedCount === 0) {
+            return { error: 'Could not find the category to delete.' };
+        }
+        revalidatePath('/admin/dashboard/template-library');
+        return { message: 'Category deleted successfully.' };
+    } catch (e: any) {
+        console.error('Failed to delete category:', e);
+        return { error: 'Failed to delete category.' };
     }
 }
