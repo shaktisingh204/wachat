@@ -27,14 +27,9 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
     }
 
     try {
-        // --- Step 1: Pre-flight check - Attempt to subscribe to webhooks to validate credentials ---
-        const webhookSubResult = await handleSubscribeProjectWebhook(wabaId, appId, accessToken);
-        if (!webhookSubResult.success) {
-            // If subscription fails, return the specific error from Meta and do not create the project.
-            return { error: `Webhook subscription failed. Please check your token and permissions. Meta API Error: ${webhookSubResult.error}` };
-        }
+        // We will now attempt to create the project first, and only then try to subscribe the webhook.
+        // This prevents setup failure if the token is valid but lacks webhook permissions.
         
-        // --- Step 2: If webhook check passes, proceed with project creation ---
         let businessId: string | undefined = undefined;
         if(includeCatalog) {
             try {
@@ -86,8 +81,10 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
 
         const result = await db.collection('projects').insertOne(newProject as any);
         
+        // Attempt to subscribe to webhooks after creation, but don't fail the entire process if it doesn't work.
         if(result.insertedId) {
             await handleSyncPhoneNumbers(result.insertedId.toString());
+            await handleSubscribeProjectWebhook(wabaId, appId, accessToken);
         }
 
         revalidatePath('/dashboard');
