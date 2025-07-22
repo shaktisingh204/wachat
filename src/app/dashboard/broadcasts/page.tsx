@@ -7,7 +7,7 @@ import type { WithId } from 'mongodb';
 import { getProjectById } from '@/app/actions';
 import { handleRunCron } from '@/app/actions/index';
 import { handleStopBroadcast, getBroadcasts } from '@/app/actions/broadcast.actions';
-import { handleSyncTemplates, getTemplates } from '@/app/actions/whatsapp.actions';
+import { getTemplates, handleSyncTemplates } from '@/app/actions/whatsapp.actions';
 import { useRouter } from 'next/navigation';
 import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
