@@ -75,3 +75,4 @@ export function RazorpaySettingsForm({ project }: RazorpaySettingsFormProps) {
             </Card>
         </form>
     );
+}
