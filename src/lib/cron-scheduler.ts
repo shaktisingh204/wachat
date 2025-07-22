@@ -431,4 +431,11 @@ export async function processBroadcastJob() {
                 db = conn.db;
                 await db.collection('locks').updateOne(
                     { _id: lockId },
-                    { $set: { lockHeldUntil: new Date(0
+                    { $set: { lockHeldUntil: new Date(0) } }
+                );
+            } catch (e) {
+                console.error(`Failed to release scheduler lock: ${e}`);
+            }
+        }
+    }
+}
