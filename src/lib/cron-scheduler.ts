@@ -1,4 +1,5 @@
 
+
 'use server';
 
 /**
@@ -97,12 +98,12 @@ async function* contactIdGenerator(
         if (await checkCancelled()) {
             break;
         }
-        const items = await redis.lPopCount(queueName, chunkSize);
+        const items = await redis.lPop(queueName, chunkSize);
         if (!items || items.length === 0) {
             break;
         }
         for (const item of items) {
-            yield item;
+            if (item) yield item;
         }
     }
 }
@@ -261,6 +262,7 @@ async function executeSingleBroadcast(db: Db, redis: any, job: BroadcastJobType,
 
         const generator = contactIdGenerator(redis, `broadcast:${jobId}:queue`, checkCancelled);
         await promisePool(perJobRate, generator, async (contactId) => {
+            if (!contactId) return;
             const contact = await db.collection('broadcast_contacts').findOne({ _id: new ObjectId(contactId) });
             if (!contact) return;
             const operation = await sendSingleMessage(db, job, contact);
@@ -349,15 +351,9 @@ export async function processBroadcastJob() {
              return { message: "Scheduler lock held by another process." };
         }
         lockAcquired = true;
-
-        const tenSecondsAgo = new Date(Date.now() - 10 * 1000);
-
+        
         const jobsForThisRun = await db.collection<BroadcastJobType>('broadcasts').find({
-            _id: { $ne: lockId as any },
-            $or: [
-                { status: 'QUEUED' },
-                { status: 'PROCESSING', startedAt: { $lt: tenSecondsAgo } }
-            ]
+            status: 'QUEUED'
         }).sort({ createdAt: 1 }).toArray();
 
 
