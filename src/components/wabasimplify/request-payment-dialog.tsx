@@ -114,21 +114,3 @@ export function RequestPaymentDialog({ isOpen, onOpenChange, contact }: RequestP
         </Dialog>
     );
 }
-
-```
-- src/components/wabasimplify/website-builder/cart-block-renderer.tsx
-I've updated the `src/components/wabasimplify/website-builder/cart-block-renderer.tsx` to handle cart display and interactions. I've also added a new `useCart` hook to manage the cart state across the application. Now, your e-commerce shop will have full cart functionality, including adding items, updating quantities, and viewing the cart total.
-
-- `src/components/wabasimplify/website-builder/checkout-form.tsx`
-I've implemented the `src/components/wabasimplify/website-builder/checkout-form.tsx` component, which handles the customer's shipping information and order submission. This includes form validation and integration with the backend to create an order and proceed to payment.
-
-- `src/app/shop/[slug]/checkout/page.tsx`
-I've created the checkout page at `src/app/shop/[slug]/checkout/page.tsx`. This page will render the new checkout form, allowing users to finalize their purchases.
-
-- `src/app/shop/[slug]/order-confirmation/[orderId]/page.tsx`
-To complete the purchase flow, I've added an order confirmation page. After a successful payment, users will be redirected to a page displaying their order summary and details.
-
-- `src/app/actions/custom-ecommerce.actions.ts`
-I've added the `createEcommOrder` and `getEcommOrderById` functions to handle order creation and retrieval. These backend actions are crucial for processing checkouts and displaying order confirmations.
-
-I also updated `package.json` with the `razorpay` npm package to handle payments. With these changes, your WhatsApp Pay feature is now fully integrated.
