@@ -1,19 +1,18 @@
 
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
 import { getPaymentConfigurations, getPaymentConfigurationByName } from '@/app/actions/whatsapp.actions';
+import { getProjectById } from '@/app/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, Eye, PlusCircle } from 'lucide-react';
+import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, Eye, PlusCircle, Settings } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { WaPayIcon } from "@/components/wabasimplify/custom-sidebar-components";
 import { useToast } from '@/hooks/use-toast';
-import type { PaymentConfiguration } from '@/lib/definitions';
+import type { PaymentConfiguration, Project } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +21,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { CreatePaymentConfigDialog } from '@/components/wabasimplify/create-payment-config-dialog';
+import { UpdateDataEndpointDialog } from '@/components/wabasimplify/update-data-endpoint-dialog';
 
 function PageSkeleton() {
     return (
@@ -43,6 +43,7 @@ function InfoRow({ label, value }: { label: string, value: React.ReactNode }) {
 
 
 export default function WhatsAppPaySetupPage() {
+    const [project, setProject] = useState<Project | null>(null);
     const [configs, setConfigs] = useState<PaymentConfiguration[]>([]);
     const [error, setError] = useState<string | null>(null);
     const [isLoading, startLoading] = useTransition();
@@ -55,9 +56,13 @@ export default function WhatsAppPaySetupPage() {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (storedProjectId) {
             startLoading(async () => {
-                const { configurations, error: fetchError } = await getPaymentConfigurations(storedProjectId);
-                if (fetchError) setError(fetchError);
-                else setConfigs(configurations);
+                const projectData = await getProjectById(storedProjectId);
+                setProject(projectData);
+                if (projectData) {
+                    const { configurations, error: fetchError } = await getPaymentConfigurations(projectData._id.toString());
+                    if (fetchError) setError(fetchError);
+                    else setConfigs(configurations);
+                }
             });
         } else {
             setError("No active project selected.");
@@ -91,7 +96,7 @@ export default function WhatsAppPaySetupPage() {
 
     return (
         <>
-        <CreatePaymentConfigDialog isOpen={isCreateOpen} onOpenChange={setIsCreateOpen} onSuccess={fetchData}/>
+        {project && <CreatePaymentConfigDialog isOpen={isCreateOpen} onOpenChange={setIsCreateOpen} onSuccess={fetchData}/>}
         <div className="space-y-6">
             <Card>
                 <CardHeader>
@@ -155,7 +160,8 @@ export default function WhatsAppPaySetupPage() {
                                         <InfoRow label="Status" value={<Badge variant={config.status === 'Active' ? 'default' : 'secondary'}>{config.status}</Badge>} />
                                         <InfoRow label="Provider MID" value={<span className="font-mono text-xs">{config.provider_mid}</span>} />
                                     </CardContent>
-                                    <CardFooter>
+                                    <CardFooter className="flex justify-end gap-2">
+                                        {project && <UpdateDataEndpointDialog project={project} config={config} onSuccess={fetchData} />}
                                         <Button variant="outline" size="sm" onClick={() => viewDetails(config)}>
                                             <Eye className="mr-2 h-4 w-4"/>
                                             View Details
@@ -193,3 +199,5 @@ export default function WhatsAppPaySetupPage() {
         </>
     );
 }
+
+    
