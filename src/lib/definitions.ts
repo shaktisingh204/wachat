@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type CrmModulePermissions = {
@@ -157,6 +156,7 @@ export type PaymentConfiguration = {
     status: string;
     created_timestamp: number;
     updated_timestamp: number;
+    provider_mid: string;
 };
 
 export type PhoneNumberProfile = {
@@ -1393,4 +1393,5 @@ export type Backlink = {
 };
 
 // --- Security Types ---
-export type SessionPayload = { userId: string; email: string
+export type SessionPayload = { userId: string; email: string; jti: string; expires: number };
+export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; expires: number };
