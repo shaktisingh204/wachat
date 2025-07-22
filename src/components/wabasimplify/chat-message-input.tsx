@@ -1,8 +1,7 @@
 
-
 'use client';
 
-import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { getCannedMessages } from '@/app/actions/project.actions';
 import { handleSendMessage } from '@/app/actions/whatsapp.actions';

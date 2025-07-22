@@ -35,7 +35,7 @@ export function CartView() {
                 {cart.map(item => (
                      <Card key={item.productId} className="flex items-center p-4 gap-4">
                          <div className="relative h-24 w-24 bg-muted rounded-md overflow-hidden">
-                            <Image src={item.imageUrl || 'https://placehold.co/100x100.png'} alt={item.name} layout="fill" objectFit="cover" data-ai-hint="product image" />
+                            <Image src={item.imageUrl || 'https://placehold.co/100x100.png'} alt={item.name} fill objectFit="cover" data-ai-hint="product image" />
                          </div>
                          <div className="flex-1">
                             <h3 className="font-semibold">{item.name}</h3>
