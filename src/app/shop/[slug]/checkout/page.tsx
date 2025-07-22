@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { CheckoutForm } from '@/components/wabasimplify/website-builder/checkout-form';

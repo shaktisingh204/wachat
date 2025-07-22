@@ -176,11 +176,4 @@ export function CheckoutForm() {
                         <Separator />
                         <div className="flex justify-between font-bold text-lg">
                             <span>Total</span>
-                            <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cartTotal)}</span>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-        </div>
-    );
-}
+                            <span>{new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(cart

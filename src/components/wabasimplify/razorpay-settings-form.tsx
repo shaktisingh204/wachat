@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useActionState, useEffect, useRef } from 'react';
@@ -76,4 +75,3 @@ export function RazorpaySettingsForm({ project }: RazorpaySettingsFormProps) {
             </Card>
         </form>
     );
-}
