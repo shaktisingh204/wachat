@@ -1,20 +1,22 @@
+
 'use server';
 
 /**
- * @fileOverview High-Throughput Broadcast Scheduler using Redis
+ * @fileOverview High-Throughput Broadcast Scheduler
  *
  * This file contains the core logic for processing and sending broadcast campaigns.
- * It is designed for high performance and scalability using Redis as a message queue.
+ * It is designed for high performance and scalability by fetching contacts directly
+ * from the database and using a highly concurrent promise pool.
  *
  * 1.  **Project-Based Locking:** A lock is acquired in the database for each project
  *     to ensure that only one scheduler process handles a specific project's
  *     broadcasts at a time, allowing for concurrent processing across different projects.
  *
- * 2.  **Redis Queue:** On broadcast creation, contact IDs are pushed to a Redis List.
- *     The scheduler pulls from this list, which is much faster than querying MongoDB.
+ * 2.  **Database as a Queue:** Instead of Redis, contacts are fetched directly from
+ *     the `broadcast_contacts` collection in batches.
  *
  * 3.  **Concurrency Pool:** The `promisePool` function manages concurrent API
- *     requests to Meta.
+ *     requests to Meta, respecting the configured messages-per-second limit.
  *
  * 4.  **Optimized Batched Database Writes:** Status updates for sent messages are
  *     buffered and flushed to MongoDB in batches to reduce DB load.
@@ -25,7 +27,6 @@ import { config } from 'dotenv';
 config();
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { getRedisClient } from '@/lib/redis';
 import { Db, ObjectId } from 'mongodb';
 import axios from 'axios';
 import { type BroadcastJob as BroadcastJobType } from './definitions';
@@ -85,31 +86,46 @@ async function promisePool<T>(
 }
 
 /**
- * An async generator that yields contact IDs from the Redis queue.
+ * An async generator that yields contacts directly from the database.
  */
-async function* contactIdGenerator(
-    redis: any,
-    queueName: string,
+async function* contactGenerator(
+    db: Db,
+    broadcastId: ObjectId,
     checkCancelled: () => Promise<boolean>,
     chunkSize: number = 100
 ) {
+    let lastId: ObjectId | undefined = undefined;
     while (true) {
         if (await checkCancelled()) {
-            console.log(`Cancellation detected for queue ${queueName}. Stopping generator.`);
+            console.log(`Cancellation detected for broadcast ${broadcastId}. Stopping generator.`);
             break;
         }
-        const items = await redis.lPop(queueName, chunkSize);
-        if (!items || items.length === 0) {
+
+        const query: any = { broadcastId, status: 'PENDING' };
+        if (lastId) {
+            query._id = { $gt: lastId };
+        }
+
+        const contacts = await db.collection('broadcast_contacts')
+            .find(query)
+            .sort({ _id: 1 })
+            .limit(chunkSize)
+            .toArray();
+
+        if (contacts.length === 0) {
             break;
         }
-        for (const item of items) {
-            if (item) yield item;
+
+        for (const contact of contacts) {
+            yield contact;
         }
+        
+        lastId = contacts[contacts.length - 1]._id;
     }
 }
 
 
-async function executeSingleBroadcast(db: Db, redis: any, job: BroadcastJobType, perJobRate: number): Promise<any> {
+async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate: number): Promise<any> {
     const jobId = job._id;
     const operationsBuffer: any[] = [];
     
@@ -260,10 +276,8 @@ async function executeSingleBroadcast(db: Db, redis: any, job: BroadcastJobType,
             return false;
         };
 
-        const generator = contactIdGenerator(redis, `broadcast:${jobId}:queue`, checkCancelled);
-        await promisePool(perJobRate, generator, async (contactId) => {
-            if (!contactId) return;
-            const contact = await db.collection('broadcast_contacts').findOne({ _id: new ObjectId(contactId) });
+        const generator = contactGenerator(db, jobId, checkCancelled, perJobRate);
+        await promisePool(perJobRate, generator, async (contact) => {
             if (!contact) return;
             const operation = await sendSingleMessage(db, job, contact);
             if (operation) {
@@ -314,12 +328,10 @@ async function executeSingleBroadcast(db: Db, redis: any, job: BroadcastJobType,
 
 export async function processBroadcastJob() {
     let db: Db;
-    let redis: any;
     
     try {
         const conn = await connectToDatabase();
         db = conn.db;
-        redis = await getRedisClient();
 
         // 1. Find all distinct projects with queued broadcasts.
         const projectIdsWithQueuedJobs = await db.collection('broadcasts').distinct('projectId', { status: 'QUEUED' });
@@ -381,7 +393,7 @@ export async function processBroadcastJob() {
                         { $set: { messagesPerSecond: perJobRate, projectMessagesPerSecond: totalRateForProject }}
                     );
                     const updatedJob = { ...job, messagesPerSecond: perJobRate, projectMessagesPerSecond: totalRateForProject };
-                    allProcessingTasks.push(executeSingleBroadcast(db, redis, updatedJob, perJobRate));
+                    allProcessingTasks.push(executeSingleBroadcast(db, updatedJob, perJobRate));
                 }
 
             } finally {
