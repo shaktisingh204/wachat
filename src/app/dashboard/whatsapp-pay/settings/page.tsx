@@ -1,11 +1,12 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getPaymentConfigurations } from '@/app/actions/whatsapp.actions';
+import { getPaymentConfigurations, getPaymentConfigurationByName } from '@/app/actions/whatsapp.actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle } from 'lucide-react';
+import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, Eye } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { WaPayIcon } from "@/components/wabasimplify/custom-sidebar-components";
@@ -13,6 +14,13 @@ import { useToast } from '@/hooks/use-toast';
 import type { PaymentConfiguration } from '@/lib/definitions';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 function PageSkeleton() {
     return (
@@ -27,7 +35,7 @@ function InfoRow({ label, value }: { label: string, value: React.ReactNode }) {
     return (
         <div className="flex justify-between items-start text-sm py-2 border-b">
             <span className="text-muted-foreground">{label}</span>
-            <span className="font-medium text-right">{value}</span>
+            <span className="font-semibold text-right">{value}</span>
         </div>
     );
 }
@@ -36,13 +44,15 @@ function InfoRow({ label, value }: { label: string, value: React.ReactNode }) {
 export default function WhatsAppPaySetupPage() {
     const [configs, setConfigs] = useState<PaymentConfiguration[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const [isLoading, startTransition] = useTransition();
+    const [isLoading, startLoading] = useTransition();
     const { toast } = useToast();
+    const [selectedConfig, setSelectedConfig] = useState<PaymentConfiguration | null>(null);
+    const [isDetailsLoading, startDetailsLoading] = useTransition();
 
     const fetchData = () => {
         const storedProjectId = localStorage.getItem('activeProjectId');
         if (storedProjectId) {
-            startTransition(async () => {
+            startLoading(async () => {
                 const { configurations, error: fetchError } = await getPaymentConfigurations(storedProjectId);
                 if (fetchError) setError(fetchError);
                 else setConfigs(configurations);
@@ -57,6 +67,20 @@ export default function WhatsAppPaySetupPage() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
+    const viewDetails = (config: PaymentConfiguration) => {
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        if (!storedProjectId) return;
+        
+        startDetailsLoading(async () => {
+            const result = await getPaymentConfigurationByName(storedProjectId, config.configuration_name);
+            if(result.error) {
+                 toast({ title: 'Error', description: `Could not fetch details: ${result.error}`, variant: 'destructive' });
+            } else {
+                setSelectedConfig(result.configuration || null);
+            }
+        });
+    }
+
     const commerceManagerUrl = `https://business.facebook.com/commerce/`;
 
     if (isLoading) {
@@ -64,6 +88,7 @@ export default function WhatsAppPaySetupPage() {
     }
 
     return (
+        <>
         <div className="space-y-6">
             <Card>
                 <CardHeader>
@@ -121,6 +146,12 @@ export default function WhatsAppPaySetupPage() {
                                         <InfoRow label="Status" value={<Badge variant={config.status === 'Active' ? 'default' : 'secondary'}>{config.status}</Badge>} />
                                         <InfoRow label="Provider MID" value={<span className="font-mono text-xs">{config.provider_mid}</span>} />
                                     </CardContent>
+                                    <CardFooter>
+                                        <Button variant="outline" size="sm" onClick={() => viewDetails(config)}>
+                                            <Eye className="mr-2 h-4 w-4"/>
+                                            View Details
+                                        </Button>
+                                    </CardFooter>
                                 </Card>
                             ))}
                         </div>
@@ -130,5 +161,26 @@ export default function WhatsAppPaySetupPage() {
                 </CardContent>
             </Card>
         </div>
+        
+        <Dialog open={!!selectedConfig} onOpenChange={(open) => !open && setSelectedConfig(null)}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>{selectedConfig?.configuration_name}</DialogTitle>
+                    <DialogDescription>Full details for this payment configuration.</DialogDescription>
+                </DialogHeader>
+                {isDetailsLoading ? <LoaderCircle className="mx-auto h-8 w-8 animate-spin my-8"/> : selectedConfig ? (
+                    <div className="space-y-2 text-sm">
+                        <InfoRow label="Provider" value={selectedConfig.provider_name} />
+                        <InfoRow label="Status" value={<Badge variant={selectedConfig.status === 'Active' ? 'default' : 'secondary'}>{selectedConfig.status}</Badge>} />
+                        <InfoRow label="Provider MID" value={selectedConfig.provider_mid} />
+                        <InfoRow label="MCC Code" value={`${selectedConfig.merchant_category_code?.code} (${selectedConfig.merchant_category_code?.description})`} />
+                        <InfoRow label="Purpose Code" value={`${selectedConfig.purpose_code?.code} (${selectedConfig.purpose_code?.description})`} />
+                        <InfoRow label="Created" value={new Date(selectedConfig.created_timestamp * 1000).toLocaleString()} />
+                        <InfoRow label="Last Updated" value={new Date(selectedConfig.updated_timestamp * 1000).toLocaleString()} />
+                    </div>
+                ) : null}
+            </DialogContent>
+        </Dialog>
+        </>
     );
 }
