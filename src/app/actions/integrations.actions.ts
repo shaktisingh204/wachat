@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -41,15 +40,24 @@ export async function saveRazorpaySettings(prevState: any, formData: FormData): 
     }
 }
 
-async function createRazorpayPaymentLink(
+async function createWhatsAppPaymentLink(
     project: WithId<Project>,
     amount: number,
     description: string,
     contact: { waId: string, name: string, email?: string }
 ): Promise<{ short_url: string, id: string } | { error: string }> {
-    const settings = project.razorpaySettings;
-    if (!settings?.keyId || !settings?.keySecret) {
-        return { error: 'Razorpay is not configured for this project.' };
+    // This function is now a placeholder. In a real scenario, you might call a Meta API
+    // or your payment provider's API configured via Meta Commerce Manager.
+    // For now, we will simulate a success or failure based on config.
+    const paymentConfig = project.paymentConfiguration;
+    if (!paymentConfig || paymentConfig.status !== 'ENABLED') {
+         return { error: 'WhatsApp Pay is not configured or enabled for this project. Please set it up in Meta Commerce Manager.' };
+    }
+    
+    // Simulate creating a link with a mock provider
+    const mockProvider = project.razorpaySettings;
+     if (!mockProvider?.keyId || !mockProvider?.keySecret) {
+        return { error: 'Payment provider (e.g., Razorpay) is not configured in the backend settings for this project.' };
     }
     
     if(amount < 1) {
@@ -58,8 +66,8 @@ async function createRazorpayPaymentLink(
 
     try {
         const instance = new Razorpay({
-            key_id: settings.keyId,
-            key_secret: settings.keySecret,
+            key_id: mockProvider.keyId,
+            key_secret: mockProvider.keySecret,
         });
 
         const options = {
@@ -77,7 +85,7 @@ async function createRazorpayPaymentLink(
                 email: !!contact.email
             },
             reminder_enable: true,
-            callback_url: "https://sabnode.com/payment-success",
+            callback_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard`,
             callback_method: "get" as "get"
         };
 
@@ -108,7 +116,7 @@ export async function handlePaymentRequest(prevState: any, formData: FormData): 
         return { error: 'Project not found.' };
     }
 
-    const linkResult = await createRazorpayPaymentLink(project, amount, description, contact);
+    const linkResult = await createWhatsAppPaymentLink(project, amount, description, contact);
     if ('error' in linkResult) {
         return { error: linkResult.error };
     }
