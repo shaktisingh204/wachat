@@ -17,12 +17,14 @@ export default async function CartPage({ params }: { params: { slug: string }}) 
     if (shop.cartPageLayout && shop.cartPageLayout.length > 0) {
         return (
             <main>
-                <Canvas
-                    layout={shop.cartPageLayout}
-                    products={[]}
-                    shopSlug={shop.slug}
-                    isEditable={false}
-                />
+                <CartProvider>
+                    <Canvas
+                        layout={shop.cartPageLayout}
+                        products={[]}
+                        shopSlug={shop.slug}
+                        isEditable={false}
+                    />
+                </CartProvider>
             </main>
         );
     }
