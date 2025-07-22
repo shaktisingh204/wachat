@@ -7,7 +7,7 @@ import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById } from '@/app/actions/index';
-import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities } from '@/lib/definitions';
+import type { Project, Template, CallingSettings, CreateTemplateState, OutgoingMessage, Contact, Agent, PhoneNumber, MetaPhoneNumbersResponse, MetaTemplatesResponse, MetaTemplate, PaymentConfiguration, BusinessCapabilities, FacebookPaymentRequest } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
 import FormData from 'form-data';
@@ -1145,5 +1145,30 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
     } catch (e: any) {
         console.error("Failed to update phone number profile:", e);
         return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
+    }
+}
+
+export async function getPaymentRequests(
+    projectId: string,
+    phoneNumberId: string
+): Promise<{ requests?: FacebookPaymentRequest[]; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or access token missing.' };
+    }
+
+    try {
+        const response = await axios.get(
+            `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/payment_requests`,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        return { requests: response.data.data || [] };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
     }
 }
