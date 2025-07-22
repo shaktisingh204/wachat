@@ -1,5 +1,3 @@
-
-
 'use server';
 
 /**
@@ -8,8 +6,9 @@
  * This file contains the core logic for processing and sending broadcast campaigns.
  * It is designed for high performance and scalability using Redis as a message queue.
  *
- * 1.  **Scheduler Lock:** A lock is acquired in the database to ensure that only one
- *     instance of the scheduler runs at a time.
+ * 1.  **Project-Based Locking:** A lock is acquired in the database for each project
+ *     to ensure that only one scheduler process handles a specific project's
+ *     broadcasts at a time, allowing for concurrent processing across different projects.
  *
  * 2.  **Redis Queue:** On broadcast creation, contact IDs are pushed to a Redis List.
  *     The scheduler pulls from this list, which is much faster than querying MongoDB.
@@ -96,6 +95,7 @@ async function* contactIdGenerator(
 ) {
     while (true) {
         if (await checkCancelled()) {
+            console.log(`Cancellation detected for queue ${queueName}. Stopping generator.`);
             break;
         }
         const items = await redis.lPop(queueName, chunkSize);
@@ -313,105 +313,94 @@ async function executeSingleBroadcast(db: Db, redis: any, job: BroadcastJobType,
 
 
 export async function processBroadcastJob() {
-    const lockId = 'SCHEDULER_LOCK';
     let db: Db;
     let redis: any;
-    let lockAcquired = false;
-
+    
     try {
         const conn = await connectToDatabase();
         db = conn.db;
         redis = await getRedisClient();
 
-        const now = new Date();
-        const lockHeldUntil = new Date(now.getTime() + 5 * 60 * 1000); 
-
-        let lockResult;
-        try {
-            lockResult = await db.collection('locks').findOneAndUpdate(
-                { 
-                    _id: lockId,
-                    $or: [
-                        { lockHeldUntil: { $exists: false } },
-                        { lockHeldUntil: { $lt: now } }
-                    ]
-                },
-                { $set: { lockHeldUntil } },
-                { upsert: true, returnDocument: 'after' }
-            );
-        } catch (e: any) {
-            if (e.code === 11000) { 
-                lockResult = null;
-            } else {
-                throw e;
-            }
-        }
+        // 1. Find all distinct projects with queued broadcasts.
+        const projectIdsWithQueuedJobs = await db.collection('broadcasts').distinct('projectId', { status: 'QUEUED' });
         
-        if (!lockResult) {
-             return { message: "Scheduler lock held by another process." };
-        }
-        lockAcquired = true;
-        
-        const jobsForThisRun = await db.collection<BroadcastJobType>('broadcasts').find({
-            status: 'QUEUED'
-        }).sort({ createdAt: 1 }).toArray();
-
-
-        if (jobsForThisRun.length === 0) {
+        if (projectIdsWithQueuedJobs.length === 0) {
             return { message: 'No active broadcasts to process.' };
         }
         
-        const jobIdsToUpdate = jobsForThisRun.map(j => j._id);
-        await db.collection('broadcasts').updateMany(
-            { _id: { $in: jobIdsToUpdate } },
-            {
-                $set: {
-                    status: 'PROCESSING',
-                    startedAt: new Date(),
-                    successCount: 0,
-                    errorCount: 0,
-                }
-            }
-        );
+        const allProcessingTasks: Promise<any>[] = [];
 
-        const jobsByProject = jobsForThisRun.reduce((acc, job) => {
-            const projectId = job.projectId.toString();
-            if (!acc[projectId]) {
-                acc[projectId] = [];
-            }
-            acc[projectId].push(job);
-            return acc;
-        }, {} as Record<string, BroadcastJobType[]>);
+        // 2. Iterate through each project and attempt to process its jobs.
+        for (const projectId of projectIdsWithQueuedJobs) {
+            const lockId = `SCHEDULER_LOCK_${projectId.toString()}`;
+            let lockAcquired = false;
 
-        const processingTasks: Promise<any>[] = [];
-
-        for (const projectIdStr in jobsByProject) {
-            const jobsInProject = jobsByProject[projectIdStr];
-            const project = await db.collection<Project>('projects').findOne(
-                { _id: new ObjectId(projectIdStr) },
-                { projection: { messagesPerSecond: 1 } }
-            );
-
-            const totalRateForProject = project?.messagesPerSecond || 1000;
-            const perJobRate = Math.max(1, Math.floor(totalRateForProject / jobsInProject.length));
-
-            for (const job of jobsInProject) {
-                await db.collection('broadcasts').updateOne(
-                    { _id: job._id }, 
-                    { $set: { messagesPerSecond: perJobRate, projectMessagesPerSecond: totalRateForProject }}
+            try {
+                const now = new Date();
+                const lockHeldUntil = new Date(now.getTime() + 5 * 60 * 1000); // 5 minute lock
+                
+                const lockResult = await db.collection('locks').findOneAndUpdate(
+                    { _id: lockId, $or: [{ lockHeldUntil: { $lt: now } }, { lockHeldUntil: { $exists: false } }] },
+                    { $set: { lockHeldUntil: lockHeldUntil } },
+                    { upsert: true, returnDocument: 'after' }
                 );
-                const updatedJob = { ...job, messagesPerSecond: perJobRate, projectMessagesPerSecond: totalRateForProject };
-                processingTasks.push(executeSingleBroadcast(db, redis, updatedJob, perJobRate));
+
+                if (!lockResult) {
+                    console.log(`Skipping project ${projectId}: lock held by another process.`);
+                    continue; // Lock is held, move to the next project
+                }
+                lockAcquired = true;
+                
+                // 3. If lock is acquired, fetch and process jobs for THIS project.
+                const jobsForThisProject = await db.collection<BroadcastJobType>('broadcasts').find({
+                    projectId: projectId,
+                    status: 'QUEUED'
+                }).sort({ createdAt: 1 }).toArray();
+
+                if (jobsForThisProject.length === 0) {
+                    continue; // No jobs for this project, move to next.
+                }
+
+                const jobIdsToUpdate = jobsForThisProject.map(j => j._id);
+                await db.collection('broadcasts').updateMany(
+                    { _id: { $in: jobIdsToUpdate } },
+                    { $set: { status: 'PROCESSING', startedAt: new Date(), successCount: 0, errorCount: 0 } }
+                );
+
+                const project = await db.collection<Project>('projects').findOne(
+                    { _id: projectId },
+                    { projection: { messagesPerSecond: 1 } }
+                );
+
+                const totalRateForProject = project?.messagesPerSecond || 1000;
+                const perJobRate = Math.max(1, Math.floor(totalRateForProject / jobsForThisProject.length));
+
+                for (const job of jobsForThisProject) {
+                    await db.collection('broadcasts').updateOne(
+                        { _id: job._id }, 
+                        { $set: { messagesPerSecond: perJobRate, projectMessagesPerSecond: totalRateForProject }}
+                    );
+                    const updatedJob = { ...job, messagesPerSecond: perJobRate, projectMessagesPerSecond: totalRateForProject };
+                    allProcessingTasks.push(executeSingleBroadcast(db, redis, updatedJob, perJobRate));
+                }
+
+            } finally {
+                if (lockAcquired) {
+                    await db.collection('locks').updateOne(
+                        { _id: lockId },
+                        { $set: { lockHeldUntil: new Date(0) } }
+                    );
+                }
             }
         }
         
-        const results = await Promise.all(processingTasks);
+        const results = await Promise.all(allProcessingTasks);
         
         const totalSuccessCount = results.reduce((sum, r) => sum + (r.success || 0), 0);
         const totalFailedCount = results.reduce((sum, r) => sum + (r.failed || 0), 0);
         
         return {
-            message: `Processed ${results.length} broadcast job(s).`,
+            message: `Processed ${results.length} broadcast job(s) across ${projectIdsWithQueuedJobs.length} project(s).`,
             totalSuccess: totalSuccessCount,
             totalFailed: totalFailedCount,
             jobs: results,
@@ -420,18 +409,5 @@ export async function processBroadcastJob() {
     } catch (error: any) {
         console.error("Cron scheduler failed:", getAxiosErrorMessage(error));
         throw new Error(`Cron scheduler failed: ${getAxiosErrorMessage(error)}`);
-    } finally {
-        if (lockAcquired) {
-            try {
-                const conn = await connectToDatabase();
-                db = conn.db;
-                await db.collection('locks').updateOne(
-                    { _id: lockId },
-                    { $set: { lockHeldUntil: new Date(0) } }
-                );
-            } catch (e) {
-                console.error(`Failed to release scheduler lock: ${e}`);
-            }
-        }
     }
 }
