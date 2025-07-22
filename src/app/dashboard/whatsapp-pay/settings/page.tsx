@@ -3,11 +3,11 @@
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
-import { getPaymentConfigurations, getPaymentConfigurationByName } from '@/app/actions/whatsapp.actions';
+import { getPaymentConfigurations, getPaymentConfigurationByName, handleDeletePaymentConfiguration } from '@/app/actions/whatsapp.actions';
 import { getProjectById } from '@/app/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, Eye, PlusCircle, Settings, Link as LinkIcon } from 'lucide-react';
+import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, Eye, PlusCircle, Settings, Link as LinkIcon, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { WaPayIcon } from "@/components/wabasimplify/custom-sidebar-components";
@@ -20,6 +20,15 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription
 } from '@/components/ui/dialog';
 import { CreatePaymentConfigDialog } from '@/components/wabasimplify/create-payment-config-dialog';
 import { UpdateDataEndpointDialog } from '@/components/wabasimplify/update-data-endpoint-dialog';
@@ -90,6 +99,20 @@ export default function WhatsAppPaySetupPage() {
         });
     }
 
+    const handleDelete = async (configName: string) => {
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        if (!storedProjectId) return;
+        
+        const result = await handleDeletePaymentConfiguration(storedProjectId, configName);
+        if (result.success) {
+            toast({ title: "Success", description: "Payment configuration deleted." });
+            fetchData();
+        } else {
+            toast({ title: "Error", description: result.error, variant: 'destructive' });
+        }
+    };
+
+
     const commerceManagerUrl = `https://business.facebook.com/commerce/`;
 
     if (isLoading) {
@@ -152,9 +175,24 @@ export default function WhatsAppPaySetupPage() {
                             {configs.map(config => (
                                 <Card key={config.configuration_name}>
                                     <CardHeader>
-                                        <CardTitle className="flex items-center gap-2 text-base">
-                                            <WaPayIcon className="h-5 w-5"/>
-                                            {config.configuration_name}
+                                        <CardTitle className="flex items-center justify-between text-base">
+                                            <div className="flex items-center gap-2">
+                                                <WaPayIcon className="h-5 w-5"/>
+                                                {config.configuration_name}
+                                            </div>
+                                             <AlertDialog>
+                                                <AlertDialogTrigger asChild><Button variant="ghost" size="icon" className="h-7 w-7"><Trash2 className="h-4 w-4 text-destructive"/></Button></AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Delete Configuration?</AlertDialogTitle>
+                                                        <AlertDialogDescription>Are you sure you want to delete the "{config.configuration_name}" configuration?</AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                        <AlertDialogAction onClick={() => handleDelete(config.configuration_name)}>Delete</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
                                         </CardTitle>
                                     </CardHeader>
                                     <CardContent>
