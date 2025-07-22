@@ -56,9 +56,12 @@ const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial
         
         if (!phone) return null;
         
+        const phoneStr = String(phone).trim();
+        const cleanedPhone = phoneStr.startsWith('+') ? `+${phoneStr.replace(/\D/g, '')}` : phoneStr.replace(/\D/g, '');
+
         return {
             broadcastId,
-            phone: String(phone).trim().replace(/\D/g, ''),
+            phone: cleanedPhone,
             variables,
             status: 'PENDING' as const,
             createdAt: new Date(),
@@ -554,3 +557,5 @@ export async function handleRequeueBroadcast(
         return { error: e.message || 'An unexpected error occurred while requeuing the broadcast.' };
     }
 }
+
+    
