@@ -99,10 +99,10 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
             header: true,
             skipEmptyLines: true,
             dynamicTyping: false,
-            step: async (results) => {
+            step: async (results, stepParser) => {
                 contactBatch.push(results.data);
                 if (contactBatch.length >= BATCH_SIZE) {
-                    parser.pause(); 
+                    stepParser.pause(); 
                     try {
                         const { insertedIds, processedCount } = await processContactBatch(db, broadcastId, contactBatch, true);
                         if (insertedIds.length > 0) {
@@ -113,7 +113,7 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
                     } catch(err) {
                         return reject(err);
                     } finally {
-                        parser.resume();
+                        stepParser.resume();
                     }
                 }
             },
