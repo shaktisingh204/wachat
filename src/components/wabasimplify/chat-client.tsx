@@ -3,8 +3,9 @@
 
 import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getInitialChatData, getConversation, markConversationAsRead, findOrCreateContact, getProjects } from '@/app/actions';
+import { getInitialChatData, getConversation, findOrCreateContact, getProjects, getSession } from '@/app/actions';
 import { getContactsPageData } from '@/app/actions/contact.actions';
+import { markConversationAsRead } from '@/app/actions/project.actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, AnyMessage, Template, User, Plan } from '@/lib/definitions';
 import { ChatContactList } from './chat-contact-list';
