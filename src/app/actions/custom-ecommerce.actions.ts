@@ -1007,7 +1007,7 @@ export async function importEcommShopTheme(shopId: string, themeJson: string): P
     } catch(e: any) {
         console.error("Theme import error:", e);
         if(e instanceof SyntaxError) {
-            return { success: false, error: 'Invalid JSON format in theme file.' };
+            return { success: false, error: "Invalid JSON format in theme file." };
         }
         return { success: false, error: 'Failed to import theme.' };
     }

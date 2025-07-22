@@ -1,6 +1,6 @@
 
 
-'use client';
+'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
@@ -1119,5 +1119,57 @@ export async function getPaymentRequests(
         return { requests: response.data.data || [] };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getPaymentConfigurations(projectId: string): Promise<{ configurations: PaymentConfiguration[], error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { configurations: [], error: 'Project not found or is missing WABA ID or Access Token.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.wabaId}/payment_configurations`, {
+            params: {
+                access_token: project.accessToken,
+            }
+        });
+        
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        return { configurations: response.data.data || [] };
+    } catch (e: any) {
+        return { configurations: [], error: getErrorMessage(e) };
+    }
+}
+
+export async function getPaymentConfigurationByName(projectId: string, configurationName: string): Promise<{ configuration?: PaymentConfiguration, error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { configuration: undefined, error: 'Project not found or is missing WABA ID or Access Token.' };
+    }
+
+    if (!configurationName) {
+        return { configuration: undefined, error: 'Configuration name is required.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.wabaId}/payment_configurations/${configurationName}`, {
+            params: {
+                access_token: project.accessToken,
+            }
+        });
+        
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        const configuration = response.data.data?.[0];
+
+        return { configuration };
+    } catch (e: any) {
+        return { configuration: undefined, error: getErrorMessage(e) };
     }
 }
