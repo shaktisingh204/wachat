@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { revalidatePath } from 'next/cache';
@@ -1062,5 +1063,44 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
         console.error("Failed to update phone number profile:", e);
         return { error: getErrorMessage(e) || 'An unexpected error occurred.' };
     }
+}
 
-    
+export async function handleRegenerateOauthLink(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; oauth_url?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const configurationName = formData.get('configuration_name') as string;
+    const redirectUrl = formData.get('redirect_url') as string;
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.wabaId || !project.accessToken) {
+        return { error: 'Project not found or is missing WABA ID or Access Token.' };
+    }
+
+    if (!configurationName || !redirectUrl) {
+        return { error: 'Configuration name and redirect URL are required.' };
+    }
+
+    try {
+        const payload = {
+            configuration_name: configurationName,
+            redirect_url: redirectUrl,
+        };
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/generate_payment_configuration_oauth_link`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
+        );
+
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response }));
+        }
+
+        if (response.data.oauth_url) {
+            return { message: "New link generated! Complete the process by visiting the OAuth URL.", oauth_url: response.data.oauth_url };
+        }
+
+        return { error: "Failed to generate OAuth link. No URL was returned." };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}

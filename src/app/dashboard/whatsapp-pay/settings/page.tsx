@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
@@ -6,7 +7,7 @@ import { getPaymentConfigurations, getPaymentConfigurationByName } from '@/app/a
 import { getProjectById } from '@/app/actions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, Eye, PlusCircle, Settings } from 'lucide-react';
+import { AlertCircle, ExternalLink, RefreshCw, LoaderCircle, CheckCircle, Eye, PlusCircle, Settings, Link as LinkIcon } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { WaPayIcon } from "@/components/wabasimplify/custom-sidebar-components";
@@ -22,6 +23,7 @@ import {
 } from '@/components/ui/dialog';
 import { CreatePaymentConfigDialog } from '@/components/wabasimplify/create-payment-config-dialog';
 import { UpdateDataEndpointDialog } from '@/components/wabasimplify/update-data-endpoint-dialog';
+import { RegenerateOauthDialog } from '@/components/wabasimplify/regenerate-oauth-dialog';
 
 function PageSkeleton() {
     return (
@@ -161,6 +163,7 @@ export default function WhatsAppPaySetupPage() {
                                         <InfoRow label="Provider MID" value={<span className="font-mono text-xs">{config.provider_mid}</span>} />
                                     </CardContent>
                                     <CardFooter className="flex justify-end gap-2">
+                                        {project && config.provider_name !== 'upi_vpa' && <RegenerateOauthDialog project={project} config={config} />}
                                         {project && <UpdateDataEndpointDialog project={project} config={config} onSuccess={fetchData} />}
                                         <Button variant="outline" size="sm" onClick={() => viewDetails(config)}>
                                             <Eye className="mr-2 h-4 w-4"/>
