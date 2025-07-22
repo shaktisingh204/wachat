@@ -10,6 +10,7 @@ import FormData from 'form-data';
 import axios from 'axios';
 
 import { connectToDatabase } from '@/lib/mongodb';
+import { getRedisClient } from '@/lib/redis';
 import { getProjectById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
 import type { Project, BroadcastJob, BroadcastState, Template, MetaFlow, Contact, BroadcastAttempt } from '@/lib/definitions';
@@ -38,7 +39,7 @@ export async function getBroadcastById(broadcastId: string) {
 }
 
 const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial<Contact>[], variablesFromColumn: boolean = true) => {
-    if (batch.length === 0) return 0;
+    if (batch.length === 0) return { insertedIds: [], processedCount: 0 };
     
     const contactsToInsert = batch.map(row => {
         let phone;
@@ -68,24 +69,28 @@ const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial
         };
     }).filter(Boolean);
 
-    // OPT-OUT CHECK REMOVED: This is now handled by the cron sender for better performance.
+    if (contactsToInsert.length === 0) {
+        return { insertedIds: [], processedCount: 0 };
+    }
 
-    if (contactsToInsert.length > 0) {
-        try {
-            await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false });
-        } catch(err: any) {
-            // Non-fatal error for duplicate keys, which we can ignore.
-            if (err.code !== 11000) { 
-                console.warn("Bulk insert for broadcast contacts failed.", err.code);
-            }
+    let insertedIds: ObjectId[] = [];
+    try {
+        const result = await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false });
+        insertedIds = Object.values(result.insertedIds);
+    } catch(err: any) {
+        if (err.code !== 11000) { 
+            console.warn("Bulk insert for broadcast contacts failed.", err.code);
+        } else {
+            const successfulIds = err.result?.insertedIds?.map((doc: any) => doc._id) || [];
+            insertedIds = successfulIds;
         }
     }
     
-    return contactsToInsert.length;
+    return { insertedIds, processedCount: insertedIds.length };
 };
 
 
-const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId): Promise<number> => {
+const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId, redis: any): Promise<number> => {
     return new Promise<number>((resolve, reject) => {
         let contactBatch: any[] = [];
         let totalProcessedCount = 0;
@@ -94,24 +99,32 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
             header: true,
             skipEmptyLines: true,
             dynamicTyping: false,
-            step: (results, parser) => {
+            step: async (results, parser) => {
                 contactBatch.push(results.data);
                 if (contactBatch.length >= BATCH_SIZE) {
                     parser.pause(); 
-                    processContactBatch(db, broadcastId, contactBatch, true)
-                        .then(processedInBatch => {
-                            totalProcessedCount += processedInBatch;
-                            contactBatch = [];
-                            parser.resume();
-                        })
-                        .catch(err => reject(err));
+                    try {
+                        const { insertedIds, processedCount } = await processContactBatch(db, broadcastId, contactBatch, true);
+                        if (insertedIds.length > 0) {
+                            await redis.rPush(`broadcast:${broadcastId}:queue`, insertedIds.map(id => id.toString()));
+                        }
+                        totalProcessedCount += processedCount;
+                        contactBatch = [];
+                    } catch(err) {
+                        reject(err);
+                    } finally {
+                        parser.resume();
+                    }
                 }
             },
             complete: async () => {
                 try {
                      if (contactBatch.length > 0) {
-                        const processedInBatch = await processContactBatch(db, broadcastId, contactBatch, true);
-                        totalProcessedCount += processedInBatch;
+                        const { insertedIds, processedCount } = await processContactBatch(db, broadcastId, contactBatch, true);
+                        if (insertedIds.length > 0) {
+                            await redis.rPush(`broadcast:${broadcastId}:queue`, insertedIds.map(id => id.toString()));
+                        }
+                        totalProcessedCount += processedCount;
                     }
                     resolve(totalProcessedCount);
                 } catch(e) {
@@ -130,6 +143,7 @@ export async function handleStartBroadcast(
 ): Promise<BroadcastState> {
   let broadcastId: ObjectId | null = null;
   const { db } = await connectToDatabase();
+  const redis = await getRedisClient();
 
   try {
     const projectId = formData.get('projectId') as string;
@@ -240,14 +254,20 @@ export async function handleStartBroadcast(
         for await (const contact of contactsCursor) {
             contactBatch.push(contact);
             if (contactBatch.length >= BATCH_SIZE) {
-                const processedInBatch = await processContactBatch(db, broadcastId, contactBatch, false);
-                contactCount += processedInBatch;
+                const { insertedIds, processedCount } = await processContactBatch(db, broadcastId, contactBatch, false);
+                if (insertedIds.length > 0) {
+                    await redis.rPush(`broadcast:${broadcastId}:queue`, insertedIds.map(id => id.toString()));
+                }
+                contactCount += processedCount;
                 contactBatch = [];
             }
         }
         if (contactBatch.length > 0) {
-            const processedInBatch = await processContactBatch(db, broadcastId, contactBatch, false);
-            contactCount += processedInBatch;
+            const { insertedIds, processedCount } = await processContactBatch(db, broadcastId, contactBatch, false);
+            if (insertedIds.length > 0) {
+                await redis.rPush(`broadcast:${broadcastId}:queue`, insertedIds.map(id => id.toString()));
+            }
+            contactCount += processedCount;
         }
 
     } else { // audienceType is 'file'
@@ -259,7 +279,7 @@ export async function handleStartBroadcast(
 
         if (contactFile.name.endsWith('.csv')) {
             const nodeStream = Readable.fromWeb(contactFile.stream() as any);
-            contactCount = await processStreamedContacts(nodeStream, db, broadcastId);
+            contactCount = await processStreamedContacts(nodeStream, db, broadcastId, redis);
         } else if (contactFile.name.endsWith('.xlsx')) {
             const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
             const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
@@ -268,9 +288,8 @@ export async function handleStartBroadcast(
                 throw new Error('The XLSX file contains no sheets.');
             }
             const worksheet = workbook.Sheets[sheetName];
-            // Use `raw: false` to get formatted text for all cells, preventing scientific notation.
             const csvData = XLSX.utils.sheet_to_csv(worksheet, { raw: false });
-            contactCount = await processStreamedContacts(csvData, db, broadcastId);
+            contactCount = await processStreamedContacts(csvData, db, broadcastId, redis);
         } else {
             await db.collection('broadcasts').deleteOne({ _id: broadcastId });
             return { error: 'Unsupported file type. Please upload a .csv or .xlsx file.' };
@@ -293,6 +312,12 @@ export async function handleStartBroadcast(
     if (broadcastId) {
         await db.collection('broadcasts').deleteOne({ _id: broadcastId });
         await db.collection('broadcast_contacts').deleteMany({ broadcastId: broadcastId });
+        try {
+            const redis = await getRedisClient();
+            await redis.del(`broadcast:${broadcastId}:queue`);
+        } catch (redisError) {
+            console.error(`Failed to clean up Redis queue for cancelled broadcast ${broadcastId}:`, redisError);
+        }
     }
     return { error: getErrorMessage(e) || 'An unexpected error occurred while processing the broadcast.' };
   }
@@ -449,6 +474,14 @@ export async function handleStopBroadcast(broadcastId: string): Promise<{ messag
             status: 'PENDING'
         });
 
+        // Clear Redis queue as well
+        try {
+            const redis = await getRedisClient();
+            await redis.del(`broadcast:${broadcastId}:queue`);
+        } catch (redisError) {
+            console.error(`Could not clear Redis queue for stopped broadcast ${broadcastId}:`, redisError);
+        }
+
         revalidatePath('/dashboard/broadcasts');
 
         return { message: `Broadcast has been stopped. ${deleteResult.deletedCount} pending messages were cancelled.` };
@@ -480,6 +513,7 @@ export async function handleRequeueBroadcast(
     }
 
     const { db } = await connectToDatabase();
+    const redis = await getRedisClient();
     const originalBroadcastId = new ObjectId(broadcastId);
 
     try {
@@ -519,6 +553,7 @@ export async function handleRequeueBroadcast(
         let newContactsCount = 0;
         const contactBatchSize = 1000;
         let contactBatch: any[] = [];
+        let contactIdsToQueueInRedis: string[] = [];
 
         for await (const contact of originalContactsCursor) {
             const newContact = {
@@ -529,16 +564,25 @@ export async function handleRequeueBroadcast(
                 createdAt: new Date(),
             };
             contactBatch.push(newContact);
-            newContactsCount++;
 
             if (contactBatch.length >= contactBatchSize) {
-                await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
+                const result = await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
+                const insertedIds = Object.values(result.insertedIds).map(id => id.toString());
+                contactIdsToQueueInRedis.push(...insertedIds);
+                newContactsCount += insertedIds.length;
                 contactBatch = [];
             }
         }
         
         if (contactBatch.length > 0) {
-            await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
+            const result = await db.collection('broadcast_contacts').insertMany(contactBatch, { ordered: false });
+            const insertedIds = Object.values(result.insertedIds).map(id => id.toString());
+            contactIdsToQueueInRedis.push(...insertedIds);
+            newContactsCount += insertedIds.length;
+        }
+
+        if (contactIdsToQueueInRedis.length > 0) {
+            await redis.rPush(`broadcast:${newBroadcastId}:queue`, contactIdsToQueueInRedis);
         }
         
         await db.collection('broadcasts').updateOne({ _id: newBroadcastId }, { $set: { contactCount: newContactsCount } });
@@ -554,9 +598,4 @@ export async function handleRequeueBroadcast(
         return { message: `Broadcast has been successfully requeued with ${newContactsCount} contacts.` };
 
     } catch (e: any) {
-        console.error('Failed to requeue broadcast:', e);
-        return { error: e.message || 'An unexpected error occurred while requeuing the broadcast.' };
-    }
-}
-
-    
+        console.error('Failed to requeue broadcast:',
