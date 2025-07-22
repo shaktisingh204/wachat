@@ -1,5 +1,4 @@
 
-
 import { NextRequest, NextResponse } from 'next/server';
 import { getPublicProjectById } from '@/app/actions/whatsapp.actions';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -56,58 +55,57 @@ export async function GET(
 
             // Create and inject CSS
             const style = document.createElement('style');
-            style.innerHTML = \`
-                #sabnode-widget-container {
-                    position: fixed;
-                    \${config.position === 'bottom-left' ? 'left: 20px;' : 'right: 20px;'}
-                    bottom: 20px;
-                    z-index: 9999;
-                }
-                #sabnode-widget-button {
-                    background-color: \${config.buttonColor || '#25D366'};
-                    color: \${config.buttonTextColor || 'white'};
-                    width: 60px; height: 60px;
-                    border-radius: 50%;
-                    border: none;
-                    display: flex; align-items: center; justify-content: center;
-                    cursor: pointer;
-                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                    transition: transform 0.2s;
-                }
-                #sabnode-widget-button:hover { transform: scale(1.1); }
-                #sabnode-widget-chatbox {
-                    position: absolute;
-                    bottom: 80px;
-                    \${config.position === 'bottom-left' ? 'left: 0;' : 'right: 0;'}
-                    width: 350px;
-                    max-width: calc(100vw - 40px);
-                    background: white;
-                    border-radius: \${config.borderRadius || 10}px;
-                    box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-                    display: none; flex-direction: column; overflow: hidden;
-                    opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.3s;
-                }
-                #sabnode-widget-chatbox.sabnode-show { display: flex; opacity: 1; transform: translateY(0); }
-                .sabnode-chat-header {
-                    background: \${config.buttonColor || '#25D366'};
-                    color: \${config.buttonTextColor || 'white'};
-                    padding: \${config.padding || 16}px;
-                    display: flex; align-items: center; gap: 12px;
-                }
-                .sabnode-chat-header img { width: 40px; height: 40px; border-radius: 50%; }
-                .sabnode-chat-header .title { font-weight: bold; font-size: 1rem; }
-                .sabnode-chat-header .subtitle { font-size: 0.8rem; opacity: 0.9; }
-                .sabnode-chat-body { padding: \${config.padding || 16}px; }
-                .sabnode-welcome-msg { background: #f0f0f0; color: \${config.textColor || '#111827'}; padding: 12px; border-radius: 8px; font-size: 0.9rem; }
-                .sabnode-chat-footer { padding: \${config.padding || 16}px; background: #f9f9f9; border-top: 1px solid #eee; }
-                .sabnode-cta-button { 
-                    background-color: \${config.buttonColor || '#25D366'};
-                    color: \${config.buttonTextColor || 'white'};
-                    border: none; width: 100%; padding: 12px; border-radius: 25px;
-                    font-size: 1rem; cursor: pointer; text-align: center; text-decoration: none;
-                    display: flex; align-items: center; justify-content: center; gap: 8px;
-                }
-            \`;
+            style.innerHTML = 
+                '#sabnode-widget-container {' +
+                    'position: fixed;' +
+                    (config.position === 'bottom-left' ? 'left: 20px;' : 'right: 20px;') +
+                    'bottom: 20px;' +
+                    'z-index: 9999;' +
+                '}' +
+                '#sabnode-widget-button {' +
+                    'background-color: ' + (config.buttonColor || '#25D366') + ';' +
+                    'color: ' + (config.buttonTextColor || 'white') + ';' +
+                    'width: 60px; height: 60px;' +
+                    'border-radius: 50%;' +
+                    'border: none;' +
+                    'display: flex; align-items: center; justify-content: center;' +
+                    'cursor: pointer;' +
+                    'box-shadow: 0 4px 12px rgba(0,0,0,0.15);' +
+                    'transition: transform 0.2s;' +
+                '}' +
+                '#sabnode-widget-button:hover { transform: scale(1.1); }' +
+                '#sabnode-widget-chatbox {' +
+                    'position: absolute;' +
+                    'bottom: 80px;' +
+                     (config.position === 'bottom-left' ? 'left: 0;' : 'right: 0;') +
+                    'width: 350px;' +
+                    'max-width: calc(100vw - 40px);' +
+                    'background: white;' +
+                    'border-radius: ' + (config.borderRadius || 10) + 'px;' +
+                    'box-shadow: 0 5px 20px rgba(0,0,0,0.2);' +
+                    'display: none; flex-direction: column; overflow: hidden;' +
+                    'opacity: 0; transform: translateY(20px); transition: opacity 0.3s, transform 0.3s;' +
+                '}' +
+                '#sabnode-widget-chatbox.sabnode-show { display: flex; opacity: 1; transform: translateY(0); }' +
+                '.sabnode-chat-header {' +
+                    'background: ' + (config.buttonColor || '#25D366') + ';' +
+                    'color: ' + (config.buttonTextColor || 'white') + ';' +
+                    'padding: ' + (config.padding || 16) + 'px;' +
+                    'display: flex; align-items: center; gap: 12px;' +
+                '}' +
+                '.sabnode-chat-header img { width: 40px; height: 40px; border-radius: 50%; }' +
+                '.sabnode-chat-header .title { font-weight: bold; font-size: 1rem; }' +
+                '.sabnode-chat-header .subtitle { font-size: 0.8rem; opacity: 0.9; }' +
+                '.sabnode-chat-body { padding: ' + (config.padding || 16) + 'px; }' +
+                '.sabnode-welcome-msg { background: #f0f0f0; color: ' + (config.textColor || '#111827') + '; padding: 12px; border-radius: 8px; font-size: 0.9rem; }' +
+                '.sabnode-chat-footer { padding: ' + (config.padding || 16) + 'px; background: #f9f9f9; border-top: 1px solid #eee; }' +
+                '.sabnode-cta-button {' + 
+                    'background-color: ' + (config.buttonColor || '#25D366') + ';' +
+                    'color: ' + (config.buttonTextColor || 'white') + ';' +
+                    'border: none; width: 100%; padding: 12px; border-radius: 25px;' +
+                    'font-size: 1rem; cursor: pointer; text-align: center; text-decoration: none;' +
+                    'display: flex; align-items: center; justify-content: center; gap: 8px;' +
+                '}';
             document.head.appendChild(style);
 
             // Create HTML
@@ -119,7 +117,7 @@ export async function GET(
                         <img src="\${config.headerAvatarUrl || 'https://placehold.co/100x100.png'}" alt="Avatar">
                         <div>
                             <div class="title">\${config.headerTitle || 'Chat with us'}</div>
-                            <div class="subtitle">\${config.headerSubtitle || 'We're here to help'}</div>
+                            <div class="subtitle">\${config.headerSubtitle || 'We\\'re here to help'}</div>
                         </div>
                     </div>
                     <div class="sabnode-chat-body">
