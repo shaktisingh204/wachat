@@ -155,3 +155,6 @@ export default function WhatsAppPayPage() {
                     </div>
                 </CardContent>
             </Card>
+        </div>
+    );
+}

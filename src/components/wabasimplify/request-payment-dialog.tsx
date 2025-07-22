@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import {
   Dialog,
@@ -60,9 +60,9 @@ export function RequestPaymentDialog({ isOpen, onOpenChange, contact }: RequestP
                 <form action={formAction} ref={formRef}>
                     <input type="hidden" name="contactId" value={contact._id.toString()} />
                     <DialogHeader>
-                        <DialogTitle>Request Payment</DialogTitle>
+                        <DialogTitle>Request WhatsApp Payment</DialogTitle>
                         <DialogDescription>
-                            Create a Razorpay payment link and send it to {contact.name}.
+                            Create a payment link and send it to {contact.name}. This will use the payment provider configured in your Meta Commerce account.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
