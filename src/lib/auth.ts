@@ -51,4 +51,9 @@ export async function verifyAdminSessionToken(token: string): Promise<AdminSessi
     
     // Then, check revocation
     if (await isTokenRevoked(payload.jti)) {
-        console.warn(`Attempted to use a revoked admin token: ${payload.j
+        console.warn(`Attempted to use a revoked admin token: ${payload.jti}`);
+        return null;
+    }
+    
+    return payload;
+}
