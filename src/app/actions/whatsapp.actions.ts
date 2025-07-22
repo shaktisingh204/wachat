@@ -37,7 +37,7 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
         const { wabaId, accessToken } = project;
         const fields = 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput,whatsapp_business_profile{about,address,description,email,profile_picture_url,websites,vertical}';
         
-        const allPhoneNumbers: MetaPhoneNumber[] = [];
+        const allPhoneNumbers: MetaPhoneNumbersResponse['data'] = [];
         let nextUrl: string | undefined = `https://graph.facebook.com/v23.0/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}&limit=100`;
 
         while (nextUrl) {
@@ -66,7 +66,7 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
             return { message: "No phone numbers found in your WhatsApp Business Account to sync." };
         }
 
-        const phoneNumbers: PhoneNumber[] = allPhoneNumbers.map((num: MetaPhoneNumber) => ({
+        const phoneNumbers: PhoneNumber[] = allPhoneNumbers.map((num) => ({
             id: num.id,
             display_phone_number: num.display_phone_number,
             verified_name: num.verified_name,
@@ -664,7 +664,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
     if (!project) return { error: 'Project not found or you do not have access.' };
 
     try {
-        const { db } } from await connectToDatabase();
+        const { db } = await connectToDatabase();
         let messagePayload: any = {
             messaging_product: 'whatsapp',
             recipient_type: 'individual',
@@ -856,58 +856,6 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
 
 
 // --- PAYMENT ACTIONS ---
-
-export async function getPaymentConfigurations(projectId: string): Promise<{ configurations: PaymentConfiguration[], error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.wabaId || !project.accessToken) {
-        return { configurations: [], error: 'Project not found or is missing WABA ID or Access Token.' };
-    }
-
-    try {
-        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.wabaId}/payment_configurations`, {
-            params: {
-                access_token: project.accessToken,
-            }
-        });
-        
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
-        }
-
-        return { configurations: response.data.data || [] };
-    } catch (e: any) {
-        return { configurations: [], error: getErrorMessage(e) };
-    }
-}
-
-export async function getPaymentConfigurationByName(projectId: string, configurationName: string): Promise<{ configuration?: PaymentConfiguration, error?: string }> {
-    const project = await getProjectById(projectId);
-    if (!project || !project.wabaId || !project.accessToken) {
-        return { configuration: undefined, error: 'Project not found or is missing WABA ID or Access Token.' };
-    }
-
-    if (!configurationName) {
-        return { configuration: undefined, error: 'Configuration name is required.' };
-    }
-
-    try {
-        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.wabaId}/payment_configurations/${configurationName}`, {
-            params: {
-                access_token: project.accessToken,
-            }
-        });
-        
-        if (response.data.error) {
-            throw new Error(getErrorMessage({ response }));
-        }
-
-        const configuration = response.data.data?.[0];
-
-        return { configuration };
-    } catch (e: any) {
-        return { configuration: undefined, error: getErrorMessage(e) };
-    }
-}
 
 export async function handleCreatePaymentConfiguration(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; oauth_url?: string }> {
     const projectId = formData.get('projectId') as string;

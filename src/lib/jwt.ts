@@ -71,4 +71,5 @@ export async function createAdminSessionToken(): Promise<string> {
         .setJti(jti)
         .setIssuedAt()
         .setExpirationTime('1d')
-        
+        .sign(getJwtSecretKey());
+}
