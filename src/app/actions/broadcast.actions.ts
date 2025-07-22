@@ -268,7 +268,8 @@ export async function handleStartBroadcast(
                 throw new Error('The XLSX file contains no sheets.');
             }
             const worksheet = workbook.Sheets[sheetName];
-            const csvData = XLSX.utils.sheet_to_csv(worksheet);
+            // Use `raw: false` to get formatted text for all cells, preventing scientific notation.
+            const csvData = XLSX.utils.sheet_to_csv(worksheet, { raw: false });
             contactCount = await processStreamedContacts(csvData, db, broadcastId);
         } else {
             await db.collection('broadcasts').deleteOne({ _id: broadcastId });
