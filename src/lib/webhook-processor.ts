@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -1166,6 +1167,17 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
                 message = `Template '${value.message_template_name}' quality updated to ${value.new_quality_score}.`;
                 link = '/dashboard/templates';
                 await db.collection('templates').updateOne({ name: value.message_template_name, projectId: project._id }, { $set: { qualityScore: value.new_quality_score } });
+                break;
+            case 'payment_configuration_update':
+                message = `Payment configuration '${value.configuration_name}' was updated. Status: ${value.status}.`;
+                link = '/dashboard/whatsapp-pay/settings';
+                await db.collection('projects').updateOne({ _id: project._id }, { $set: { paymentConfiguration: value }});
+                break;
+            case 'payment_completed':
+            case 'payment_failed':
+            case 'payment_request_status_updated':
+                message = `Payment request ${value.payment_request_id} for order ${value.order_id} is now ${value.status}.`;
+                link = '/dashboard/whatsapp-pay';
                 break;
         }
 
