@@ -2,7 +2,7 @@
 
 'use server';
 
-import { getSession } from '@/app/actions';
+import { getProjectById, getSession } from '@/app/actions';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers, handleSendMessage } from '@/app/actions/whatsapp.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
