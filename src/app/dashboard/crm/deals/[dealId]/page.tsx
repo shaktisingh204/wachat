@@ -56,7 +56,7 @@ export default function CrmDealDetailPage() {
                     const [fetchedAccount, fetchedContacts, fetchedTasks] = await Promise.all([
                         fetchedDeal.accountId ? getCrmAccountById(fetchedDeal.accountId.toString()) : Promise.resolve(null),
                         Promise.all((fetchedDeal.contactIds || []).map(id => getCrmContactById(id.toString()))),
-                        getCrmTasks(fetchedDeal.projectId.toString())
+                        getCrmTasks()
                     ]);
                     setAccount(fetchedAccount);
                     setContacts(fetchedContacts.filter(Boolean) as WithId<CrmContact>[]);
@@ -111,7 +111,7 @@ export default function CrmDealDetailPage() {
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle className="flex items-center gap-2"><Handshake className="h-5 w-5"/>Related Tasks</CardTitle>
-                            <CreateTaskDialog projectId={deal.projectId.toString()} onTaskCreated={fetchData} dealId={deal._id.toString()} />
+                            <CreateTaskDialog onTaskCreated={fetchData} dealId={deal._id.toString()} />
                         </CardHeader>
                         <CardContent>
                             <CrmTaskList tasks={tasks} onTaskUpdated={fetchData} />
