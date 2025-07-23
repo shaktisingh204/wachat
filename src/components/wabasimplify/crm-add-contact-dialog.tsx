@@ -19,6 +19,8 @@ import { Label } from '@/components/ui/label';
 import { LoaderCircle, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmContact } from '@/app/actions/crm.actions';
+import type { CrmAccount, WithId } from '@/lib/definitions';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const initialState = { message: null, error: null };
 
@@ -35,9 +37,10 @@ function SubmitButton() {
 
 interface CrmAddContactDialogProps {
     onAdded: () => void;
+    accounts: WithId<CrmAccount>[];
 }
 
-export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
+export function CrmAddContactDialog({ onAdded, accounts }: CrmAddContactDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(addCrmContact, initialState);
   const { toast } = useToast();
@@ -63,7 +66,7 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
             Add Contact
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-lg">
         <form action={formAction} ref={formRef}>
             <DialogHeader>
                 <DialogTitle>Add New Contact</DialogTitle>
@@ -78,7 +81,45 @@ export function CrmAddContactDialog({ onAdded }: CrmAddContactDialogProps) {
                     <div className="space-y-2"><Label htmlFor="phone">Phone</Label><Input id="phone" name="phone" /></div>
                     <div className="space-y-2"><Label htmlFor="company">Company</Label><Input id="company" name="company" /></div>
                 </div>
-                 <div className="space-y-2"><Label htmlFor="jobTitle">Job Title</Label><Input id="jobTitle" name="jobTitle" /></div>
+                <div className="space-y-2"><Label htmlFor="jobTitle">Job Title</Label><Input id="jobTitle" name="jobTitle" /></div>
+                <Separator />
+                <div className="grid grid-cols-2 gap-4">
+                     <div className="space-y-2">
+                        <Label htmlFor="accountId">Account (Company)</Label>
+                        <Select name="accountId">
+                            <SelectTrigger id="accountId">
+                                <SelectValue placeholder="Select an account..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {accounts.map(account => (
+                                    <SelectItem key={account._id.toString()} value={account._id.toString()}>
+                                        {account.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                     <div className="space-y-2">
+                        <Label htmlFor="status">Status</Label>
+                        <Select name="status" defaultValue="new_lead">
+                             <SelectTrigger id="status">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="new_lead">New Lead</SelectItem>
+                                <SelectItem value="contacted">Contacted</SelectItem>
+                                <SelectItem value="qualified">Qualified</SelectItem>
+                                <SelectItem value="unqualified">Unqualified</SelectItem>
+                                <SelectItem value="customer">Customer</SelectItem>
+                                <SelectItem value="imported">Imported</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="leadScore">Lead Score</Label>
+                    <Input id="leadScore" name="leadScore" type="number" placeholder="e.g. 75" />
+                </div>
             </div>
             <DialogFooter>
                 <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>

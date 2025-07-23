@@ -5,8 +5,9 @@
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import { getCrmContacts } from '@/app/actions/crm.actions';
+import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { useRouter } from 'next/navigation';
-import type { CrmContact } from '@/lib/definitions';
+import type { CrmContact, CrmAccount } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -41,6 +42,7 @@ function ContactsPageSkeleton() {
 
 export default function CrmContactsPage() {
     const [contacts, setContacts] = useState<WithId<CrmContact>[]>([]);
+    const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const router = useRouter();
 
@@ -50,9 +52,13 @@ export default function CrmContactsPage() {
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const { contacts: data, total } = await getCrmContacts(currentPage, CONTACTS_PER_PAGE, searchQuery);
+            const [{ contacts: data, total }, accountsData] = await Promise.all([
+                getCrmContacts(currentPage, CONTACTS_PER_PAGE, searchQuery),
+                getCrmAccounts()
+            ]);
             setContacts(data);
             setTotalPages(Math.ceil(total / CONTACTS_PER_PAGE));
+            setAccounts(accountsData.accounts);
         });
     }, [currentPage, searchQuery]);
 
@@ -80,7 +86,7 @@ export default function CrmContactsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                     <CrmImportContactsDialog onImported={fetchData} />
-                    <CrmAddContactDialog onAdded={fetchData} />
+                    <CrmAddContactDialog onAdded={fetchData} accounts={accounts} />
                 </div>
             </div>
             
