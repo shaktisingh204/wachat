@@ -72,18 +72,22 @@ export async function addCrmAccount(prevState: any, formData: FormData): Promise
     if (!session?.user) return { error: "Access denied" };
 
     try {
-        const newAccount: Omit<CrmAccount, '_id'> = {
+        const newAccount: Partial<CrmAccount> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
-            industry: formData.get('industry') as string,
-            website: formData.get('website') as string,
-            phone: formData.get('phone') as string,
+            industry: formData.get('industry') as string | undefined,
+            website: formData.get('website') as string | undefined,
+            phone: formData.get('phone') as string | undefined,
             notes: [],
             createdAt: new Date(),
         };
 
+        if (!newAccount.name) {
+            return { error: 'Company Name is required.' };
+        }
+
         const { db } = await connectToDatabase();
-        await db.collection('crm_accounts').insertOne(newAccount as any);
+        await db.collection('crm_accounts').insertOne(newAccount as CrmAccount);
         
         revalidatePath('/dashboard/crm/accounts');
         return { message: 'Account added successfully.' };
