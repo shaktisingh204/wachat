@@ -14,12 +14,13 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
 import { CreateDealDialog } from '@/components/wabasimplify/crm-create-deal-dialog';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
 import { CrmDealCard } from '@/components/wabasimplify/crm-deal-card';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { getCrmTasks } from '@/app/actions/crm-tasks.actions';
 import { getDealStagesForIndustry } from '@/lib/crm-industry-stages';
+import { KanbanColumn } from '@/components/wabasimplify/kanban-column';
 
 function DealsPageSkeleton() {
     return (
@@ -118,37 +119,24 @@ export default function DealsPage() {
                         {dealStages.map(stage => (
                             <Droppable key={stage} droppableId={stage}>
                                 {(provided, snapshot) => (
-                                    <div
-                                        ref={provided.innerRef}
-                                        {...provided.droppableProps}
-                                        className={`w-80 flex-shrink-0 flex flex-col rounded-lg p-2 ${snapshot.isDraggingOver ? 'bg-primary/10' : 'bg-muted/50'}`}
+                                     <KanbanColumn
+                                        title={stage}
+                                        innerRef={provided.innerRef}
+                                        droppableProps={provided.droppableProps}
+                                        isDraggingOver={snapshot.isDraggingOver}
                                     >
-                                        <h3 className="font-semibold px-2 py-1">{stage}</h3>
-                                        <ScrollArea className="flex-1">
-                                            <div className="space-y-3 p-1">
-                                                {deals.filter(d => d.stage === stage).map((deal, index) => (
-                                                     <Draggable key={deal._id.toString()} draggableId={deal._id.toString()} index={index}>
-                                                        {(provided) => (
-                                                            <div
-                                                                ref={provided.innerRef}
-                                                                {...provided.draggableProps}
-                                                                {...provided.dragHandleProps}
-                                                                onClick={() => router.push(`/dashboard/crm/deals/${deal._id.toString()}`)}
-                                                            >
-                                                                <CrmDealCard 
-                                                                    deal={deal} 
-                                                                    contact={contacts.find(c => deal.contactIds?.map(id => id.toString()).includes(c._id.toString()))} 
-                                                                    account={accounts.find(a => a._id.toString() === deal.accountId?.toString())} 
-                                                                    taskCount={tasks.filter(t => t.dealId?.toString() === deal._id.toString()).length}
-                                                                />
-                                                            </div>
-                                                        )}
-                                                     </Draggable>
-                                                ))}
-                                                {provided.placeholder}
-                                            </div>
-                                        </ScrollArea>
-                                    </div>
+                                        {deals.filter(d => d.stage === stage).map((deal, index) => (
+                                             <CrmDealCard 
+                                                key={deal._id.toString()}
+                                                deal={deal}
+                                                index={index}
+                                                contact={contacts.find(c => deal.contactIds?.map(id => id.toString()).includes(c._id.toString()))} 
+                                                account={accounts.find(a => a._id.toString() === deal.accountId?.toString())} 
+                                                taskCount={tasks.filter(t => t.dealId?.toString() === deal._id.toString()).length}
+                                            />
+                                        ))}
+                                        {provided.placeholder}
+                                    </KanbanColumn>
                                 )}
                             </Droppable>
                         ))}
