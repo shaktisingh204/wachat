@@ -74,16 +74,16 @@ export function CrmAddAccountDialog({ onAdded }: CrmAddAccountDialogProps) {
                     <Input id="name" name="name" required />
                 </div>
                  <div className="space-y-2">
-                    <Label htmlFor="industry">Industry</Label>
+                    <Label htmlFor="industry">Industry (Optional)</Label>
                     <Input id="industry" name="industry" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="website">Website</Label>
+                        <Label htmlFor="website">Website (Optional)</Label>
                         <Input id="website" name="website" type="url" placeholder="https://example.com" />
                     </div>
                      <div className="space-y-2">
-                        <Label htmlFor="phone">Phone</Label>
+                        <Label htmlFor="phone">Phone (Optional)</Label>
                         <Input id="phone" name="phone" />
                     </div>
                 </div>
