@@ -79,23 +79,34 @@ export async function addCrmContact(prevState: any, formData: FormData): Promise
     if (!session?.user) return { error: "Access denied" };
 
     try {
-        const newContact: Omit<CrmContact, '_id'> = {
+        const accountId = formData.get('accountId') as string;
+        const leadScore = formData.get('leadScore') as string;
+
+        const newContact: Partial<CrmContact> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             email: formData.get('email') as string,
             phone: formData.get('phone') as string,
             company: formData.get('company') as string,
             jobTitle: formData.get('jobTitle') as string,
-            status: 'new_lead',
-            leadScore: 0,
+            status: (formData.get('status') as CrmContact['status']) || 'new_lead',
             notes: [],
             createdAt: new Date(),
         };
+        
+        if (accountId && ObjectId.isValid(accountId)) {
+            newContact.accountId = new ObjectId(accountId);
+        }
+        if (leadScore) {
+            newContact.leadScore = parseInt(leadScore, 10);
+        }
+
 
         const { db } = await connectToDatabase();
-        await db.collection('crm_contacts').insertOne(newContact as any);
+        await db.collection('crm_contacts').insertOne(newContact as CrmContact);
         
         revalidatePath('/dashboard/crm/contacts');
+        revalidatePath('/dashboard/crm/accounts');
         return { message: 'Contact added successfully.' };
     } catch(e: any) {
         return { error: getErrorMessage(e) };
