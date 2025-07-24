@@ -1,8 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
-import { useFormStatus } from 'react-dom';
+import React, { useState, useEffect, useCallback, useTransition, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -58,15 +57,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
 
 
 type NodeType = 'triggerTagAdded' | 'actionSendEmail' | 'actionCreateTask' | 'actionAddTag' | 'delay' | 'condition';
@@ -126,43 +116,6 @@ function AddActionPopover({ onAddNode, sourceNodeId, sourceHandle }: { onAddNode
     )
 }
 
-function GenerateFlowDialog({ onFlowGenerated }: { onFlowGenerated: (nodes: CrmAutomationNode[], edges: CrmAutomationEdge[]) => void }) {
-    const [prompt, setPrompt] = useState('');
-    const [isOpen, setIsOpen] = useState(false);
-    const [isGenerating, startGeneration] = useTransition();
-
-    const handleGenerate = () => {
-        if (!prompt.trim()) return;
-        startGeneration(async () => {
-            const result = await generateCrmAutomation({ prompt });
-            onFlowGenerated(result.nodes, result.edges);
-            setIsOpen(false);
-        });
-    };
-
-    return (
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-            <DialogTrigger asChild><Button variant="outline"><Wand2 className="mr-2 h-4 w-4" />Generate with AI</Button></DialogTrigger>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Generate Automation with AI</DialogTitle>
-                    <DialogDescription>Describe the workflow you want to create, and the AI will build it for you.</DialogDescription>
-                </DialogHeader>
-                <div className="py-4">
-                    <Textarea placeholder="e.g. When a contact is tagged 'new_lead', wait 1 day, then send the 'Welcome Email'..." value={prompt} onChange={e => setPrompt(e.target.value)} className="min-h-32"/>
-                </div>
-                <DialogFooter>
-                    <Button variant="ghost" onClick={() => setIsOpen(false)}>Cancel</Button>
-                    <Button onClick={handleGenerate} disabled={isGenerating || !prompt.trim()}>
-                        {isGenerating && <LoaderCircle className="mr-2 h-4 w-4 animate-spin/>} Generate
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    );
-}
-
-
 export default function CrmAutomationsPage() {
     const { toast } = useToast();
     const [flows, setFlows] = useState<WithId<CrmAutomation>[]>([]);
@@ -172,6 +125,11 @@ export default function CrmAutomationsPage() {
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [isSaving, startSaveTransition] = useTransition();
     const [isLoading, startLoadingTransition] = useTransition();
+
+    // AI Generation State
+    const [prompt, setPrompt] = useState('');
+    const [isGenerating, startGeneration] = useTransition();
+
 
     const fetchFlows = useCallback(() => {
         startLoadingTransition(async () => {
@@ -267,6 +225,15 @@ export default function CrmAutomationsPage() {
         setSelectedNodeId(null);
         toast({title: "Flow Generated!", description: "Your new workflow is ready to be configured."});
     };
+
+    const handleGenerateClick = () => {
+        if (!prompt.trim()) return;
+        startGeneration(async () => {
+            const result = await generateCrmAutomation({ prompt });
+            handleFlowGenerated(result.nodes, result.edges);
+            setPrompt('');
+        });
+    };
     
     const selectedNode = nodes.find(n => n.id === selectedNodeId);
 
@@ -301,7 +268,6 @@ export default function CrmAutomationsPage() {
                 <h2 className="text-xl font-bold">Automations</h2>
                 <div className="flex gap-2">
                     <Button size="sm" className="flex-1" onClick={handleCreateNewFlow}><Plus className="mr-2 h-4 w-4"/>New</Button>
-                    <GenerateFlowDialog onFlowGenerated={handleFlowGenerated} />
                 </div>
                 <ScrollArea className="flex-1 -mx-4">
                     <div className="px-4">
@@ -318,7 +284,7 @@ export default function CrmAutomationsPage() {
                     </Button>
                 </div>
             </aside>
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col relative">
                  <header className="flex-shrink-0 flex items-center justify-between p-3 bg-card border-b">
                      <div className="flex items-center gap-2">
                         <Input id="automation-name-input" key={currentFlow?._id.toString()} defaultValue={currentFlow?.name || 'New Automation'} className="text-lg font-semibold border-0 shadow-none focus-visible:ring-0 p-0 h-auto" />
@@ -361,8 +327,24 @@ export default function CrmAutomationsPage() {
                         )}
                     </aside>
                  </main>
+                  <Card className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-lg shadow-2xl">
+                    <CardContent className="p-2">
+                        <div className="flex items-center gap-2">
+                            <Wand2 className="h-5 w-5 text-muted-foreground shrink-0" />
+                            <Input 
+                                placeholder="Describe your workflow and let AI build it..." 
+                                className="border-none shadow-none focus-visible:ring-0" 
+                                value={prompt}
+                                onChange={e => setPrompt(e.target.value)}
+                            />
+                            <Button onClick={handleGenerateClick} disabled={isGenerating || !prompt.trim()}>
+                                {isGenerating && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                                Generate
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );
 }
-
