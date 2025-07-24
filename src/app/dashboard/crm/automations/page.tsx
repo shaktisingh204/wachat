@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -33,7 +32,8 @@ import {
     ArrowRightLeft,
     Tag,
     FolderKanban,
-    Wand2
+    Wand2,
+    Webhook
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -121,6 +121,65 @@ const NodeComponent = ({
     );
 };
 
+function WebhookTriggerDialog({ flow, triggerUrl }: { flow: WithId<CrmAutomation>, triggerUrl: string }) {
+  const { copy } = useToast();
+  const curlSnippet = `curl -X POST ${triggerUrl} \\
+-H "Content-Type: application/json" \\
+-d '{
+  "email": "lead@example.com",
+  "name": "New Lead",
+  "phone": "1234567890",
+  "company": "Acme Inc."
+}'`;
+
+  const jsSnippet = `fetch('${triggerUrl}', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    email: 'lead@example.com',
+    name: 'New Lead'
+  })
+})
+.then(res => res.json())
+.then(console.log)
+.catch(console.error);`;
+
+  return (
+    <DialogContent className="max-w-2xl">
+      <DialogHeader>
+        <DialogTitle>Webhook Trigger for "{flow.name}"</DialogTitle>
+        <DialogDescription>
+          Use this URL to start this automation from an external service, like a website form.
+        </DialogDescription>
+      </DialogHeader>
+      <div className="space-y-4">
+        <div>
+          <Label>Webhook URL</Label>
+          <div className="flex items-center gap-2">
+            <Input readOnly value={triggerUrl} className="font-mono text-xs" />
+            <Button variant="outline" size="icon" onClick={() => copy({ title: "URL Copied!", description: "Webhook URL copied to clipboard." })}><Copy className="h-4 w-4" /></Button>
+          </div>
+        </div>
+        <div>
+          <Label>cURL Example</Label>
+           <div className="relative p-4 bg-muted rounded-md font-mono text-xs">
+              <Button variant="outline" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => copy({ title: "cURL Copied!", description: "cURL snippet copied to clipboard." })}><Copy className="h-4 w-4" /></Button>
+              <pre><code>{curlSnippet}</code></pre>
+          </div>
+        </div>
+        <div>
+          <Label>JavaScript (Fetch) Example</Label>
+           <div className="relative p-4 bg-muted rounded-md font-mono text-xs">
+              <Button variant="outline" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => copy({ title: "JS Snippet Copied!", description: "JavaScript snippet copied to clipboard." })}><Copy className="h-4 w-4" /></Button>
+              <pre><code>{jsSnippet}</code></pre>
+          </div>
+        </div>
+      </div>
+    </DialogContent>
+  );
+}
+
+
 export default function CrmAutomationsPage() {
     const { toast } = useToast();
     const [flows, setFlows] = useState<WithId<CrmAutomation>[]>([]);
@@ -137,6 +196,7 @@ export default function CrmAutomationsPage() {
     const [isPropsPanelOpen, setIsPropsPanelOpen] = useState(false);
     const [isAiDialogOpen, setIsAiDialogOpen] = useState(false);
     const [aiPrompt, setAiPrompt] = useState('');
+    const [webhookFlow, setWebhookFlow] = useState<WithId<CrmAutomation> | null>(null);
 
     const handleCreateNewFlow = () => {
         const startNode = { id: 'start', type: 'triggerTagAdded' as NodeType, data: { label: 'When Tag is Added' }, position: { x: 50, y: 150 } };
@@ -197,6 +257,8 @@ export default function CrmAutomationsPage() {
         });
     };
     
+    const webhookTriggerUrl = webhookFlow ? `${window.location.origin}/api/crm/automations/trigger/${webhookFlow._id.toString()}` : '';
+    
     // ... rest of the component logic for drag/drop, etc. ...
     return (
         <div className="flex flex-col h-full gap-4">
@@ -227,6 +289,12 @@ export default function CrmAutomationsPage() {
                                             >
                                                 {flow.name}
                                             </Button>
+                                             <Dialog onOpenChange={(open) => !open && setWebhookFlow(null)}>
+                                                <DialogTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="h-7 w-7 opacity-0 group-hover:opacity-100" onClick={() => setWebhookFlow(flow)}><Webhook className="h-4 w-4"/></Button>
+                                                </DialogTrigger>
+                                                {webhookFlow && <WebhookTriggerDialog flow={webhookFlow} triggerUrl={webhookTriggerUrl} />}
+                                            </Dialog>
                                         </div>
                                     ))
                                 }
@@ -284,4 +352,3 @@ export default function CrmAutomationsPage() {
         </div>
     );
 }
-
