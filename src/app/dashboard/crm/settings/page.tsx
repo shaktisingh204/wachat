@@ -1,8 +1,9 @@
 
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCircle, Users, KeyRound, Shield } from 'lucide-react';
+import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCircle, Users, KeyRound, Shield, FileText } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
@@ -26,6 +27,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { CrmEmailTemplatesManager } from "@/components/wabasimplify/crm-email-templates-manager";
 
 
 function PageSkeleton() {
@@ -80,8 +82,9 @@ function CrmSettingsPageContent() {
             </div>
             
             <Tabs defaultValue={initialTab}>
-                <TabsList className="grid w-full grid-cols-2">
+                <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="email">Email Setup</TabsTrigger>
+                    <TabsTrigger value="templates">Templates</TabsTrigger>
                     <TabsTrigger value="permissions" disabled>Permissions (Coming Soon)</TabsTrigger>
                 </TabsList>
                 <TabsContent value="email" className="mt-6 space-y-6">
@@ -108,6 +111,9 @@ function CrmSettingsPageContent() {
                     </Card>
                     <Separator />
                     <CrmSmtpForm settings={settings} />
+                </TabsContent>
+                <TabsContent value="templates" className="mt-6">
+                    <CrmEmailTemplatesManager />
                 </TabsContent>
                  <TabsContent value="permissions" className="mt-6">
                     {/* Permissions form will go here */}
