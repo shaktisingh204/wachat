@@ -17,6 +17,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { getCrmEmailTemplates } from '@/app/actions/crm-email-templates.actions';
+import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+
 
 // Mock server action
 async function sendEmailAction(prevState: any, formData: FormData) {
@@ -25,7 +29,8 @@ async function sendEmailAction(prevState: any, formData: FormData) {
         subject: formData.get('subject'),
         body: formData.get('body'),
     });
-    // Simulate network delay
+    // In a real app, you would perform variable replacement here before sending.
+    // e.g., body.replace('{{contact.name}}', contact.name)
     await new Promise(res => setTimeout(res, 1000));
     return { success: true, message: 'Email sent successfully!' };
 }
@@ -54,6 +59,18 @@ export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initi
   const [state, formAction] = useActionState(sendEmailAction, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const [templates, setTemplates] = useState<WithId<CrmEmailTemplate>[]>([]);
+  const [subject, setSubject] = useState(initialSubject);
+  const [body, setBody] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+        getCrmEmailTemplates().then(setTemplates);
+        setSubject(initialSubject);
+        setBody(''); // Reset body when opening
+    }
+  }, [isOpen, initialSubject]);
+
 
   useEffect(() => {
     if (state.success) {
@@ -65,6 +82,14 @@ export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initi
       toast({ title: 'Error', description: state.error, variant: 'destructive' });
     }
   }, [state, toast, onOpenChange]);
+  
+  const handleTemplateSelect = (templateId: string) => {
+    const selectedTemplate = templates.find(t => t._id.toString() === templateId);
+    if (selectedTemplate) {
+        setSubject(selectedTemplate.subject);
+        setBody(selectedTemplate.body);
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -75,16 +100,32 @@ export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initi
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
+                <Label htmlFor="template">Use Template (Optional)</Label>
+                <Select onValueChange={handleTemplateSelect}>
+                    <SelectTrigger id="template">
+                        <SelectValue placeholder="Select a template..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {templates.map(template => (
+                            <SelectItem key={template._id.toString()} value={template._id.toString()}>
+                                {template.name}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="to">To</Label>
               <Input id="to" name="to" type="email" placeholder="recipient@example.com" defaultValue={initialTo} key={initialTo} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="subject">Subject</Label>
-              <Input id="subject" name="subject" placeholder="Your subject line" defaultValue={initialSubject} key={initialSubject} required />
+              <Input id="subject" name="subject" placeholder="Your subject line" value={subject} onChange={(e) => setSubject(e.target.value)} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="body">Message</Label>
-              <Textarea id="body" name="body" className="min-h-[250px]" placeholder="Write your email here..." />
+              <Textarea id="body" name="body" className="min-h-[250px]" placeholder="Write your email here..." value={body} onChange={(e) => setBody(e.target.value)} />
+              <p className="text-xs text-muted-foreground">You can use variables like {'{{contact.name}}'} or {'{{account.name}}'}.</p>
             </div>
           </div>
           <DialogFooter>
