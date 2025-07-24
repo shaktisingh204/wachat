@@ -45,7 +45,7 @@ export default function CrmAccountDetailPage() {
             startTransition(async () => {
                 const [fetchedAccount, fetchedContacts] = await Promise.all([
                     getCrmAccountById(accountId),
-                    getCrmContacts(localStorage.getItem('activeProjectId') || '', 1, 100, undefined, accountId)
+                    getCrmContacts(1, 100, undefined, accountId)
                 ]);
                 setAccount(fetchedAccount);
                 setContacts(fetchedContacts.contacts);
@@ -111,7 +111,7 @@ export default function CrmAccountDetailPage() {
                                 </TableHeader>
                                 <TableBody>
                                     {contacts.length > 0 ? contacts.map(contact => (
-                                        <TableRow key={contact._id.toString()} className="cursor-pointer" onClick={() => window.location.href=`/dashboard/crm/contacts/${contact._id.toString()}`}>
+                                        <TableRow key={contact._id.toString()} onClick={() => window.location.href=`/dashboard/crm/contacts/${contact._id.toString()}`} className="cursor-pointer">
                                             <TableCell className="font-medium">{contact.name}</TableCell>
                                             <TableCell>{contact.email}</TableCell>
                                             <TableCell>{contact.jobTitle || 'N/A'}</TableCell>
