@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Label } from '@/components/ui/label';
@@ -53,7 +54,7 @@ const DelayEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) => v
 );
 
 const SendEmailEditor = ({ data, onUpdate }: { data: any, onUpdate: (data: any) => void }) => {
-    const [templates, setTemplates = useState<WithId<CrmEmailTemplate>[]>([]);
+    const [templates, setTemplates] = useState<WithId<CrmEmailTemplate>[]>([]);
 
     useEffect(() => {
         getCrmEmailTemplates().then(setTemplates);
