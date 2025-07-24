@@ -1,18 +1,17 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { 
     MessageSquare, 
-    ToggleRight, 
     GitFork, 
     Play,
     Trash2,
     Save,
     Plus,
-    Type,
     LoaderCircle,
     BookOpen,
     PanelLeft,
@@ -24,12 +23,7 @@ import {
     Frame,
     Maximize,
     Minimize,
-    ImageIcon,
     Clock,
-    ShoppingCart,
-    View,
-    PackageCheck,
-    ArrowRightLeft,
     Tag,
     FolderKanban,
     Wand2,
@@ -79,18 +73,20 @@ const NodeComponent = ({
 }) => {
     const BlockIcon = blockTypes.find(b => b.type === node.type)?.icon || Play;
 
-    const Handle = ({ position, id, style }: { position: 'left' | 'right', id: string, style?: React.CSSProperties }) => (
+    const Handle = ({ position, id, style, children }: { position: 'left' | 'right', id: string, style?: React.CSSProperties, children?: React.ReactNode }) => (
         <div 
             id={id}
             data-handle-pos={position}
             style={style}
             className={cn(
-                "absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10",
+                "absolute w-4 h-4 rounded-full bg-background border-2 border-primary hover:bg-primary transition-colors z-10 flex items-center justify-center",
                 position === 'left' ? "-left-2 top-1/2 -translate-y-1/2" : "-right-2",
             )} 
             onMouseDown={(e) => e.stopPropagation()}
             onClick={(e) => { e.stopPropagation(); onHandleClick(e, node.id, id, position === 'right'); }}
-        />
+        >
+          {children}
+        </div>
     );
 
     return (
@@ -111,8 +107,8 @@ const NodeComponent = ({
             
             {node.type === 'condition' ? (
                 <>
-                    <Handle position="right" id={`${node.id}-output-yes`} style={{ top: '33.33%', transform: 'translateY(-50%)' }} />
-                    <Handle position="right" id={`${node.id}-output-no`} style={{ top: '66.67%', transform: 'translateY(-50%)' }} />
+                    <Handle position="right" id={`${node.id}-output-yes`} style={{ top: '33.33%', transform: 'translateY(-50%)' }} ><p className="text-xs absolute -right-6">Yes</p></Handle>
+                    <Handle position="right" id={`${node.id}-output-no`} style={{ top: '66.67%', transform: 'translateY(-50%)' }} ><p className="text-xs absolute -right-5">No</p></Handle>
                 </>
             ) : (
                 <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />
@@ -122,7 +118,7 @@ const NodeComponent = ({
 };
 
 function WebhookTriggerDialog({ flow, triggerUrl }: { flow: WithId<CrmAutomation>, triggerUrl: string }) {
-  const { copy } = useToast();
+  const { toast } = useToast();
   const curlSnippet = `curl -X POST ${triggerUrl} \\
 -H "Content-Type: application/json" \\
 -d '{
@@ -149,7 +145,7 @@ function WebhookTriggerDialog({ flow, triggerUrl }: { flow: WithId<CrmAutomation
       <DialogHeader>
         <DialogTitle>Webhook Trigger for "{flow.name}"</DialogTitle>
         <DialogDescription>
-          Use this URL to start this automation from an external service, like a website form.
+          Use this URL to start this automation from an external service, like a website form. The `email` field is required.
         </DialogDescription>
       </DialogHeader>
       <div className="space-y-4">
@@ -157,20 +153,20 @@ function WebhookTriggerDialog({ flow, triggerUrl }: { flow: WithId<CrmAutomation
           <Label>Webhook URL</Label>
           <div className="flex items-center gap-2">
             <Input readOnly value={triggerUrl} className="font-mono text-xs" />
-            <Button variant="outline" size="icon" onClick={() => copy({ title: "URL Copied!", description: "Webhook URL copied to clipboard." })}><Copy className="h-4 w-4" /></Button>
+            <Button variant="outline" size="icon" onClick={() => { navigator.clipboard.writeText(triggerUrl); toast({title: "Copied!"})}}><Copy className="h-4 w-4" /></Button>
           </div>
         </div>
         <div>
           <Label>cURL Example</Label>
            <div className="relative p-4 bg-muted rounded-md font-mono text-xs">
-              <Button variant="outline" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => copy({ title: "cURL Copied!", description: "cURL snippet copied to clipboard." })}><Copy className="h-4 w-4" /></Button>
+              <Button variant="outline" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => { navigator.clipboard.writeText(curlSnippet); toast({title: "Copied!"})}}><Copy className="h-4 w-4" /></Button>
               <pre><code>{curlSnippet}</code></pre>
           </div>
         </div>
         <div>
           <Label>JavaScript (Fetch) Example</Label>
            <div className="relative p-4 bg-muted rounded-md font-mono text-xs">
-              <Button variant="outline" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => copy({ title: "JS Snippet Copied!", description: "JavaScript snippet copied to clipboard." })}><Copy className="h-4 w-4" /></Button>
+              <Button variant="outline" size="icon" className="absolute top-2 right-2 h-7 w-7" onClick={() => { navigator.clipboard.writeText(jsSnippet); toast({title: "Copied!"})}}><Copy className="h-4 w-4" /></Button>
               <pre><code>{jsSnippet}</code></pre>
           </div>
         </div>
@@ -179,6 +175,27 @@ function WebhookTriggerDialog({ flow, triggerUrl }: { flow: WithId<CrmAutomation
   );
 }
 
+const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
+    if (!sourcePos || !targetPos) return '';
+    const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
+    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    return path;
+};
+
+const getNodeHandlePosition = (node: CrmAutomationNode, handleId: string) => {
+    if (!node || !handleId) return null;
+    const NODE_WIDTH = 256;
+    const NODE_HEIGHT = 56;
+    const x = node.position.x;
+    const y = node.position.y;
+    
+    if (handleId.endsWith('-input')) return { x: x, y: y + NODE_HEIGHT / 2 };
+    if (handleId.endsWith('-output-main')) return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT / 2 };
+    if (handleId.endsWith('-output-yes')) return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT * (1/3) };
+    if (handleId.endsWith('-output-no')) return { x: x + NODE_WIDTH, y: y + NODE_HEIGHT * (2/3) };
+    
+    return null;
+}
 
 export default function CrmAutomationsPage() {
     const { toast } = useToast();
@@ -192,11 +209,19 @@ export default function CrmAutomationsPage() {
     const [isGenerating, startGenerateTransition] = useTransition();
     const viewportRef = useRef<HTMLDivElement>(null);
     
-    // UI State
     const [isPropsPanelOpen, setIsPropsPanelOpen] = useState(false);
     const [isAiDialogOpen, setIsAiDialogOpen] = useState(false);
     const [aiPrompt, setAiPrompt] = useState('');
     const [webhookFlow, setWebhookFlow] = useState<WithId<CrmAutomation> | null>(null);
+    
+    const [pan, setPan] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [isPanning, setIsPanning] = useState(false);
+    const [draggingNode, setDraggingNode] = useState<string | null>(null);
+    const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
+    const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    const [isFullScreen, setIsFullScreen] = useState(false);
+    
 
     const handleCreateNewFlow = () => {
         const startNode = { id: 'start', type: 'triggerTagAdded' as NodeType, data: { label: 'When Tag is Added' }, position: { x: 50, y: 150 } };
@@ -240,17 +265,94 @@ export default function CrmAutomationsPage() {
             }
         });
     };
+    
+    const addNode = (type: NodeType) => {
+        const centerOfViewX = viewportRef.current ? (viewportRef.current.clientWidth / 2 - pan.x) / zoom : 300;
+        const centerOfViewY = viewportRef.current ? (viewportRef.current.clientHeight / 2 - pan.y) / zoom : 150;
+
+        const newNode: CrmAutomationNode = {
+            id: `${type}-${Date.now()}`, type, data: { label: `New ${type}` }, position: { x: centerOfViewX, y: centerOfViewY },
+        };
+        setNodes(prev => [...prev, newNode]);
+        setSelectedNodeId(newNode.id);
+    };
+    
+    const updateNodeData = (id: string, data: Partial<any>) => {
+        setNodes(prev => prev.map(node => node.id === id ? { ...node, data: { ...node.data, ...data } } : node));
+    };
+
+    const deleteNode = (id: string) => {
+        setNodes(prev => prev.filter(node => node.id !== id));
+        setEdges(prev => prev.filter(edge => edge.source !== id && edge.target !== id));
+        if (selectedNodeId === id) setSelectedNodeId(null);
+        setIsPropsPanelOpen(false);
+    };
+    
+    const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => { e.preventDefault(); e.stopPropagation(); setDraggingNode(nodeId); };
+    const handleCanvasMouseDown = (e: React.MouseEvent) => { if (e.target === e.currentTarget) { e.preventDefault(); setIsPanning(true); } };
+    const handleCanvasMouseUp = () => { setIsPanning(false); setDraggingNode(null); };
+    
+     const handleCanvasMouseMove = (e: React.MouseEvent) => {
+        if (isPanning) {
+            setPan(prev => ({ x: prev.x + e.movementX, y: prev.y + e.movementY }));
+        } else if (draggingNode) {
+            setNodes(prev => prev.map(n => 
+                n.id === draggingNode
+                    ? { ...n, position: { x: n.position.x + e.movementX / zoom, y: n.position.y + e.movementY / zoom } } 
+                    : n
+            ));
+        }
+        
+        if (connecting && viewportRef.current) {
+            const rect = viewportRef.current.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            setMousePosition({ x: (mouseX - pan.x) / zoom, y: (mouseY - pan.y) / zoom });
+        }
+    };
+
+    const handleCanvasClick = (e: React.MouseEvent) => {
+        if (e.target === e.currentTarget) {
+            if (connecting) setConnecting(null);
+            else setSelectedNodeId(null);
+        }
+    }
+
+     const handleHandleClick = (e: React.MouseEvent, nodeId: string, handleId: string, isOutput: boolean) => {
+        e.preventDefault(); e.stopPropagation();
+        if (!viewportRef.current) return;
+
+        if (isOutput) {
+            const sourceNode = nodes.find(n => n.id === nodeId);
+            if(sourceNode){
+                const handlePos = getNodeHandlePosition(sourceNode, handleId);
+                if (handlePos) setConnecting({ sourceNodeId: nodeId, sourceHandleId: handleId, startPos: handlePos });
+            }
+        } else if (connecting && !isOutput) {
+            if (connecting.sourceNodeId === nodeId) { setConnecting(null); return; }
+
+            const newEdge: CrmAutomationEdge = { id: `edge-${connecting.sourceNodeId}-${nodeId}`, source: connecting.sourceNodeId, target: nodeId, sourceHandle: connecting.sourceHandleId, };
+            setEdges(prev => [...prev.filter(edge => !(edge.source === nodeId && edge.sourceHandle === connecting.sourceHandleId)), newEdge]);
+            setConnecting(null);
+        }
+    };
+    
+    const handleZoomControls = (direction: 'in' | 'out' | 'reset') => {
+        if(direction === 'reset') { setZoom(1); setPan({ x: 0, y: 0 }); return; }
+        setZoom(prevZoom => Math.max(0.2, Math.min(2, direction === 'in' ? prevZoom * 1.2 : prevZoom / 1.2)));
+    };
+    
+    useEffect(() => {
+        if (selectedNodeId) setIsPropsPanelOpen(true);
+    }, [selectedNodeId]);
 
     const handleGenerateFlow = async () => {
         startGenerateTransition(async () => {
             const result = await generateCrmAutomation({ prompt: aiPrompt });
             if(result.nodes && result.edges) {
-                setCurrentFlow(null);
-                setNodes(result.nodes);
-                setEdges(result.edges);
+                setCurrentFlow(null); setNodes(result.nodes); setEdges(result.edges);
                 toast({title: 'Flow Generated!', description: 'Review the generated flow and save it.'});
-                setIsAiDialogOpen(false);
-                setAiPrompt('');
+                setIsAiDialogOpen(false); setAiPrompt('');
             } else {
                 toast({title: 'Error', description: 'Failed to generate flow from prompt.', variant: 'destructive'});
             }
@@ -258,20 +360,19 @@ export default function CrmAutomationsPage() {
     };
     
     const webhookTriggerUrl = webhookFlow ? `${window.location.origin}/api/crm/automations/trigger/${webhookFlow._id.toString()}` : '';
-    
-    // ... rest of the component logic for drag/drop, etc. ...
+
     return (
-        <div className="flex flex-col h-full gap-4">
-             <div className="flex-shrink-0 flex items-center justify-between">
+        <div className="flex flex-col h-[calc(100vh-theme(space.4))] gap-4">
+            <header className="flex-shrink-0 flex items-center justify-between">
                 <Input id="flow-name-input" defaultValue={currentFlow?.name || 'New Automation'} className="text-3xl font-bold font-headline h-auto p-0 border-0 shadow-none focus-visible:ring-0" />
                 <div className="flex items-center gap-2">
                      <Button variant="outline" onClick={() => setIsAiDialogOpen(true)}><Wand2 className="mr-2 h-4 w-4" /> Generate with AI</Button>
                      <Button asChild variant="outline"><Link href="/dashboard/crm/automations/docs"><BookOpen className="mr-2 h-4 w-4"/>Docs</Link></Button>
                     <Button onClick={handleSaveFlow} disabled={isSaving}>{isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/> : <Save className="mr-2 h-4 w-4" />} Save</Button>
                 </div>
-            </div>
+            </header>
             <div className="grid grid-cols-12 gap-4 flex-1 min-h-0">
-                <div className="col-span-2 flex flex-col gap-4">
+                <aside className="col-span-2 flex flex-col gap-4">
                      <Card>
                         <CardHeader className="flex-row items-center justify-between p-3">
                             <CardTitle className="text-base">Flows</CardTitle>
@@ -304,31 +405,47 @@ export default function CrmAutomationsPage() {
                     <Card className="flex-1 flex flex-col">
                         <CardHeader className="p-3"><CardTitle className="text-base">Blocks</CardTitle></CardHeader>
                         <CardContent className="space-y-2 p-2 pt-0 flex-1 min-h-0">
-                            <ScrollArea className="h-full">
+                            <ScrollArea className="h-full pr-2">
                                 {blockTypes.map(({ type, label, icon: Icon }) => (
-                                    <Button key={type} variant="outline" className="w-full justify-start mb-2" onClick={() => {}}><Icon className="mr-2 h-4 w-4" />{label}</Button>
+                                    <Button key={type} variant="outline" className="w-full justify-start mb-2" onClick={() => addNode(type as NodeType)}><Icon className="mr-2 h-4 w-4" />{label}</Button>
                                 ))}
                             </ScrollArea>
                         </CardContent>
                     </Card>
-                </div>
-                <div className="col-span-7">
-                    <Card ref={viewportRef} className="h-full w-full overflow-hidden relative">
-                        <div className="relative w-full h-full">
-                            {nodes.map(node => (<NodeComponent key={node.id} node={node} onSelectNode={() => {}} isSelected={false} onNodeMouseDown={() => {}} onHandleClick={() => {}} />))}
+                </aside>
+                <main className="col-span-7">
+                    <Card ref={viewportRef} className="h-full w-full overflow-hidden relative" onMouseDown={handleCanvasMouseDown} onMouseMove={handleCanvasMouseMove} onMouseUp={handleCanvasMouseUp} onMouseLeave={handleCanvasMouseUp} onClick={handleCanvasClick}>
+                        <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.4) 1px, transparent 0)', backgroundSize: '20px 20px', backgroundPosition: `${pan.x}px ${pan.y}px`, }} />
+                        <div className="relative w-full h-full" style={{ transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`, transformOrigin: 'top left' }}>
+                             {nodes.map(node => (<NodeComponent key={node.id} node={node} onSelectNode={setSelectedNodeId} isSelected={selectedNodeId === node.id} onNodeMouseDown={handleNodeMouseDown} onHandleClick={handleHandleClick} />))}
+                             <svg className="absolute top-0 left-0 pointer-events-none" style={{ width: '5000px', height: '5000px', transformOrigin: 'top left' }}>
+                                 {edges.map(edge => {
+                                    const sourceNode = nodes.find(n => n.id === edge.source); const targetNode = nodes.find(n => n.id === edge.target); if(!sourceNode || !targetNode) return null;
+                                    const sourcePos = getNodeHandlePosition(sourceNode, edge.sourceHandle || `${edge.source}-output-main`); const targetPos = getNodeHandlePosition(targetNode, edge.targetHandle || `${edge.target}-input`); if (!sourcePos || !targetPos) return null;
+                                    return <path key={edge.id} d={getEdgePath(sourcePos, targetPos)} stroke="hsl(var(--border))" strokeWidth="2" fill="none" markerEnd="url(#arrow)" />
+                                })}
+                                {connecting && <path d={getEdgePath(connecting.startPos, mousePosition)} stroke="hsl(var(--primary))" strokeWidth="2" fill="none" strokeDasharray="5,5" />}
+                                <defs><marker id="arrow" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="hsl(var(--border))" /></marker></defs>
+                             </svg>
+                        </div>
+                        <div className="absolute bottom-4 right-4 z-10 flex items-center gap-2">
+                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('out')}><ZoomOut className="h-4 w-4" /></Button>
+                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('in')}><ZoomIn className="h-4 w-4" /></Button>
+                             <Button variant="outline" size="icon" onClick={() => handleZoomControls('reset')}><Frame className="h-4 w-4" /></Button>
+                             <Button variant="outline" size="icon" onClick={() => {}}><Maximize className="h-4 w-4" /></Button>
                         </div>
                     </Card>
-                </div>
-                <div className="col-span-3">
+                </main>
+                <aside className="col-span-3">
                     {selectedNodeId && nodes.find(n => n.id === selectedNodeId) && (
                         <CrmAutomationBlockEditor 
                             node={nodes.find(n => n.id === selectedNodeId)} 
-                            onUpdate={() => {}} 
+                            onUpdate={(newData) => updateNodeData(selectedNodeId, newData)} 
                         />
                     )}
-                </div>
+                </aside>
             </div>
-            <Dialog open={isAiDialogOpen} onOpenChange={setIsAiDialogOpen}>
+             <Dialog open={isAiDialogOpen} onOpenChange={setIsAiDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle>Generate Automation with AI</DialogTitle>
@@ -352,3 +469,5 @@ export default function CrmAutomationsPage() {
         </div>
     );
 }
+
+    
