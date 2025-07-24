@@ -1,8 +1,9 @@
+
 'use client';
 
 import React, { useState, useEffect, useCallback, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { 
     GitFork, 
@@ -56,6 +57,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { Dialog } from '@/components/ui/dialog';
 
 type NodeType = 'triggerTagAdded' | 'actionSendEmail' | 'actionCreateTask' | 'actionAddTag' | 'delay' | 'condition';
 
@@ -115,9 +117,9 @@ function AddActionPopover({ onAddNode }: { onAddNode: (type: NodeType) => void }
 }
 
 function GenerateFlowDialog({ onFlowGenerated }: { onFlowGenerated: (nodes: CrmAutomationNode[], edges: CrmAutomationEdge[]) => void }) {
-    const [prompt, setPrompt = useState('');
-    const [isOpen, setIsOpen = useState(false);
-    const [isGenerating, startGeneration = useTransition();
+    const [prompt, setPrompt] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+    const [isGenerating, startGeneration] = useTransition();
 
     const handleGenerate = () => {
         startGeneration(async () => {
@@ -152,13 +154,13 @@ function GenerateFlowDialog({ onFlowGenerated }: { onFlowGenerated: (nodes: CrmA
 
 export default function CrmAutomationsPage() {
     const { toast } = useToast();
-    const [flows, setFlows = useState<WithId<CrmAutomation>[]>([]);
-    const [currentFlow, setCurrentFlow = useState<WithId<CrmAutomation> | null>(null);
-    const [nodes, setNodes = useState<CrmAutomationNode[]>([]);
-    const [edges, setEdges = useState<CrmAutomationEdge[]>([]);
-    const [selectedNodeId, setSelectedNodeId = useState<string | null>(null);
-    const [isSaving, startSaveTransition = useTransition();
-    const [isLoading, startLoadingTransition = useTransition();
+    const [flows, setFlows] = useState<WithId<CrmAutomation>[]>([]);
+    const [currentFlow, setCurrentFlow] = useState<WithId<CrmAutomation> | null>(null);
+    const [nodes, setNodes] = useState<CrmAutomationNode[]>([]);
+    const [edges, setEdges] = useState<CrmAutomationEdge[]>([]);
+    const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+    const [isSaving, startSaveTransition] = useTransition();
+    const [isLoading, startLoadingTransition] = useTransition();
 
     const fetchFlows = useCallback(() => {
         startLoadingTransition(async () => {
@@ -327,7 +329,7 @@ export default function CrmAutomationsPage() {
                             </AlertDialogContent>
                         </AlertDialog>
                         <Button onClick={handleSaveFlow} disabled={isSaving}>
-                            {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin/> : <Save className="mr-2 h-4 w-4/>}
+                            {isSaving ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4"/>}
                             Save
                         </Button>
                     </div>
@@ -352,3 +354,5 @@ export default function CrmAutomationsPage() {
         </div>
     );
 }
+
+```
