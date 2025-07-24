@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -7,6 +6,8 @@ import { type Db, ObjectId, type WithId } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
 import type { CrmAutomation, CrmAutomationNode, CrmAutomationEdge } from '@/lib/definitions';
+import { generateCrmAutomation as generateFlow } from '@/ai/flows/generate-crm-automation-flow';
+import { z } from 'zod';
 
 export async function getCrmAutomations(): Promise<WithId<CrmAutomation>[]> {
     const session = await getSession();
@@ -98,4 +99,12 @@ export async function deleteCrmAutomation(automationId: string): Promise<{ messa
     } catch (e) {
         return { error: 'Failed to delete automation.' };
     }
+}
+
+const GenerateCrmAutomationInputSchema = z.object({
+  prompt: z.string().describe("The user's description of the automation they want to create."),
+});
+
+export async function generateCrmAutomation(input: z.infer<typeof GenerateCrmAutomationInputSchema>) {
+    return await generateFlow(input);
 }
