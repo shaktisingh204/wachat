@@ -75,6 +75,11 @@ export type CrmEmailSettings = {
         refreshToken: string;
         expiryDate: number;
     };
+    outlookOAuth?: {
+        accessToken: string;
+        refreshToken: string;
+        expiryDate: number;
+    };
 }
 
 export type CrmTask = {
@@ -824,7 +829,7 @@ export type Plan = {
     flowLimit: number;
     metaFlowLimit: number;
     cannedMessageLimit: number;
-    signupCredits?: number;
+    signupCredits?: signupCredits;
     messageCosts: PlanMessageCosts;
     features: PlanFeaturePermissions;
     createdAt: Date;
@@ -841,6 +846,10 @@ export type User = {
     facebookUserAccessToken?: string;
     activeProjectId?: string;
     crmIndustry?: string;
+    crm?: {
+      whatsappProjectId?: ObjectId;
+      permissions?: CrmPermissions;
+    };
 };
 
 export type Invitation = {
