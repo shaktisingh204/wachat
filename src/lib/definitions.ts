@@ -41,6 +41,16 @@ export type CrmAutomation = {
     updatedAt: Date;
 };
 
+export type CrmEmailTemplate = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    subject: string;
+    body: string; // HTML content
+    createdAt: Date;
+    updatedAt?: Date;
+}
+
 export type CrmEmailSettings = {
     _id: ObjectId;
     userId: ObjectId;
