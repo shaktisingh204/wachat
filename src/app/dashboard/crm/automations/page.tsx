@@ -15,7 +15,7 @@ import {
     BookOpen,
     Settings2,
     Copy,
-    File,
+    File as FileIcon,
     Wand2,
     Webhook,
     ArrowLeft,
@@ -66,7 +66,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
-
 
 type NodeType = 'triggerTagAdded' | 'actionSendEmail' | 'actionCreateTask' | 'actionAddTag' | 'delay' | 'condition';
 
@@ -131,6 +130,7 @@ function GenerateFlowDialog({ onFlowGenerated }: { onFlowGenerated: (nodes: CrmA
     const [isGenerating, startGeneration] = useTransition();
 
     const handleGenerate = () => {
+        if (!prompt.trim()) return;
         startGeneration(async () => {
             const result = await generateCrmAutomation({ prompt });
             onFlowGenerated(result.nodes, result.edges);
