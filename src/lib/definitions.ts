@@ -33,6 +33,7 @@ export type CrmAutomationEdge = {
 };
 
 export type CrmAutomation = {
+    _id: ObjectId;
     name: string;
     userId: ObjectId;
     nodes: CrmAutomationNode[];
