@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -18,28 +19,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { LoaderCircle, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { getCrmEmailTemplates } from '@/app/actions/crm-email-templates.actions';
+import { sendCrmEmail } from '@/app/actions/crm-email.actions';
 import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-
-
-// Mock server action
-async function sendEmailAction(prevState: any, formData: FormData) {
-    console.log("Sending email:", {
-        to: formData.get('to'),
-        subject: formData.get('subject'),
-        body: formData.get('body'),
-    });
-    // In a real app, you would perform variable replacement here before sending.
-    // e.g., body.replace('{{contact.name}}', contact.name)
-    await new Promise(res => setTimeout(res, 1000));
-    return { success: true, message: 'Email sent successfully!' };
-}
 
 const initialState = { success: false, message: null, error: null };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
-
   return (
     <Button type="submit" disabled={pending}>
       {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
@@ -56,7 +43,7 @@ interface ComposeEmailDialogProps {
 }
 
 export function ComposeEmailDialog({ isOpen, onOpenChange, initialTo = '', initialSubject = '' }: ComposeEmailDialogProps) {
-  const [state, formAction] = useActionState(sendEmailAction, initialState);
+  const [state, formAction] = useActionState(sendCrmEmail, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [templates, setTemplates] = useState<WithId<CrmEmailTemplate>[]>([]);
