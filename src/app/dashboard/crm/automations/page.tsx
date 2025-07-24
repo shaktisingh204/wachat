@@ -68,6 +68,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
+
 type NodeType = 'triggerTagAdded' | 'actionSendEmail' | 'actionCreateTask' | 'actionAddTag' | 'delay' | 'condition';
 
 const blockTypes = [
@@ -103,7 +104,8 @@ function NodeComponent({ node, onSelect, isSelected }: { node: CrmAutomationNode
     );
 }
 
-function AddActionPopover({ onAddNode }: { onAddNode: (type: NodeType) => void }) {
+function AddActionPopover({ onAddNode }: { onAddNode: (type: NodeType, sourceNodeId: string, sourceHandle?: string) => void; sourceNodeId: string; sourceHandle?: string; }) {
+    const {sourceNodeId, sourceHandle} = {sourceNodeId: '', sourceHandle: ''}
     return (
         <Popover>
             <PopoverTrigger asChild>
@@ -114,7 +116,7 @@ function AddActionPopover({ onAddNode }: { onAddNode: (type: NodeType) => void }
             <PopoverContent className="w-64 p-2">
                 <div className="space-y-1">
                     {blockTypes.map(block => (
-                         <Button key={block.type} variant="ghost" className="w-full justify-start" onClick={() => onAddNode(block.type as NodeType)}>
+                         <Button key={block.type} variant="ghost" className="w-full justify-start" onClick={() => onAddNode(block.type as NodeType, sourceNodeId, sourceHandle)}>
                             <block.icon className="mr-2 h-4 w-4"/>
                             {block.label}
                         </Button>
@@ -286,7 +288,7 @@ export default function CrmAutomationsPage() {
             ...childrenEdges.map(edge => (
                 <div key={edge.id} className="flex flex-col items-center">
                     <div className="h-8 w-px bg-border my-2" />
-                    <AddActionPopover onAddNode={(type) => handleAddNode(type, nodeId, edge.sourceHandle)} />
+                    <AddActionPopover onAddNode={(type) => handleAddNode(type, nodeId, edge.sourceHandle)} sourceNodeId={nodeId} sourceHandle={edge.sourceHandle} />
                     <div className="h-8 w-px bg-border my-2" />
                     {renderNodeAndChildren(edge.target)}
                 </div>
