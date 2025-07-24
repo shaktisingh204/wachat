@@ -104,8 +104,7 @@ function NodeComponent({ node, onSelect, isSelected }: { node: CrmAutomationNode
     );
 }
 
-function AddActionPopover({ onAddNode }: { onAddNode: (type: NodeType, sourceNodeId: string, sourceHandle?: string) => void; sourceNodeId: string; sourceHandle?: string; }) {
-    const {sourceNodeId, sourceHandle} = {sourceNodeId: '', sourceHandle: ''}
+function AddActionPopover({ onAddNode, sourceNodeId, sourceHandle }: { onAddNode: (type: NodeType, sourceNodeId: string, sourceHandle?: string) => void; sourceNodeId: string; sourceHandle?: string; }) {
     return (
         <Popover>
             <PopoverTrigger asChild>
