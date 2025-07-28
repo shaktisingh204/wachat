@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
@@ -75,7 +76,7 @@ export default function InstagramConnectionsPage() {
 
     const handleSelectProject = (project: WithId<Project>) => {
         localStorage.setItem('activeProjectId', project._id.toString());
-        localStorage.setItem('activeProjectName', project.name);
+        localStorage.setItem('activeProjectName', project.instagramProfile?.username || project.name);
         router.push('/dashboard/instagram');
     }
 

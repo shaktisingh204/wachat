@@ -16,7 +16,7 @@ export async function getInstagramAccountForPage(projectId: string): Promise<{ i
     try {
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${project.facebookPageId}`, {
             params: {
-                fields: 'instagram_business_account{id,username,profile_picture_url,followers_count,media_count}',
+                fields: 'instagram_business_account{id,username,profile_picture_url,followers_count,media_count,account_type}',
                 access_token: project.accessToken,
             }
         });
