@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { getProjectById } from '@/app/actions';
@@ -167,6 +166,54 @@ export async function createInstagramImagePost(prevState: any, formData: FormDat
             throw new Error("Publishing failed after container creation.");
         }
     } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function searchHashtagId(hashtag: string, projectId: string): Promise<{ hashtagId?: string; error?: string }> {
+    const { instagramAccount, error: accountError } = await getInstagramAccountForPage(projectId);
+    if (accountError || !instagramAccount?.id) {
+        return { error: accountError || 'Could not find your own Instagram account to perform the search.' };
+    }
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found' };
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/ig_hashtag_search`, {
+            params: {
+                user_id: instagramAccount.id,
+                q: hashtag,
+                access_token: project.accessToken
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        
+        const hashtagId = response.data.data?.[0]?.id;
+        return { hashtagId };
+    } catch(e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getHashtagRecentMedia(hashtagId: string, projectId: string): Promise<{ media?: any[]; error?: string }> {
+    const { instagramAccount, error: accountError } = await getInstagramAccountForPage(projectId);
+    if (accountError || !instagramAccount?.id) {
+        return { error: accountError || 'Could not find your own Instagram account.' };
+    }
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found' };
+    
+    try {
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${hashtagId}/recent_media`, {
+            params: {
+                user_id: instagramAccount.id,
+                fields: 'id,caption,media_type,media_url,permalink,timestamp',
+                access_token: project.accessToken,
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { media: response.data.data || [] };
+    } catch (e) {
         return { error: getErrorMessage(e) };
     }
 }
