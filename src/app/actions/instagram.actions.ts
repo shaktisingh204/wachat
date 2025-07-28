@@ -55,6 +55,26 @@ export async function getInstagramMedia(projectId: string): Promise<{ media?: an
     }
 }
 
+export async function getInstagramMediaDetails(projectId: string, mediaId: string): Promise<{ media?: any; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project not found or is missing access token.' };
+    }
+
+    try {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${mediaId}`, {
+            params: {
+                fields: 'id,caption,media_type,media_url,permalink,timestamp,like_count,comments_count',
+                access_token: project.accessToken
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+        return { media: response.data };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
 export async function getInstagramStories(projectId: string): Promise<{ stories?: any[]; error?: string }> {
     const { instagramAccount, error: accountError } = await getInstagramAccountForPage(projectId);
     if (accountError || !instagramAccount?.id) {

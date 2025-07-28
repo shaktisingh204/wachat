@@ -5,9 +5,8 @@ import { useEffect, useState, useTransition } from 'react';
 import { getInstagramMedia } from '@/app/actions/instagram.actions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, ThumbsUp, MessageSquare, ExternalLink, Video } from 'lucide-react';
+import { AlertCircle, ThumbsUp, MessageSquare, ExternalLink, Video, Eye } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { WithId } from 'mongodb';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -94,8 +93,8 @@ export default function InstagramFeedPage() {
                             <span className="flex items-center gap-1"><MessageSquare className="h-4 w-4"/> {item.comments_count}</span>
                         </div>
                          <Button variant="ghost" size="icon" asChild>
-                            <Link href={item.permalink} target="_blank" rel="noopener noreferrer">
-                                <ExternalLink className="h-4 w-4"/>
+                            <Link href={`/dashboard/instagram/media/${item.id}`}>
+                                <Eye className="h-4 w-4"/>
                             </Link>
                         </Button>
                     </CardFooter>
@@ -104,4 +103,3 @@ export default function InstagramFeedPage() {
         </div>
     );
 }
-
