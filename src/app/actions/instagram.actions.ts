@@ -65,13 +65,32 @@ export async function getInstagramMediaDetails(projectId: string, mediaId: strin
     try {
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${mediaId}`, {
             params: {
-                fields: 'id,caption,media_type,media_url,permalink,timestamp,like_count,comments_count',
+                fields: 'id,caption,media_type,media_url,permalink,timestamp,like_count,comments_count,comments{id,text,timestamp,username,from,replies}',
                 access_token: project.accessToken
             }
         });
         if (response.data.error) throw new Error(getErrorMessage({ response }));
         return { media: response.data };
     } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function getInstagramComments(mediaId: string, projectId: string): Promise<{ comments?: any[]; error?: string }> {
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project access denied or misconfigured.' };
+    }
+    try {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${mediaId}/comments`, {
+            params: {
+                fields: 'id,username,text,timestamp,from',
+                access_token: project.accessToken
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({response}));
+        return { comments: response.data.data || [] };
+    } catch(e) {
         return { error: getErrorMessage(e) };
     }
 }
