@@ -95,3 +95,27 @@ export async function getInstagramStories(projectId: string): Promise<{ stories?
         return { error: getErrorMessage(e) };
     }
 }
+
+export async function discoverInstagramAccount(username: string, projectId: string): Promise<{ account?: any; error?: string }> {
+    const { instagramAccount, error: accountError } = await getInstagramAccountForPage(projectId);
+    if (accountError || !instagramAccount?.id) {
+        return { error: accountError || 'Could not find your own Instagram account to perform the discovery.' };
+    }
+    const project = await getProjectById(projectId);
+    if (!project) return { error: 'Project not found' };
+
+    try {
+        const fields = `business_discovery.username(${username}){followers_count,media_count,name,profile_picture_url,media{id,caption,media_type,media_url,permalink}}`;
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${instagramAccount.id}`, {
+            params: {
+                fields: fields,
+                access_token: project.accessToken
+            }
+        });
+        if (response.data.error) throw new Error(getErrorMessage({ response }));
+
+        return { account: response.data.business_discovery };
+    } catch(e) {
+        return { error: getErrorMessage(e) };
+    }
+}
