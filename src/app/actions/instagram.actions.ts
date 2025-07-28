@@ -1,10 +1,8 @@
 
-'use client';
 
 import { getProjectById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
 import axios from 'axios';
-import { revalidatePath } from 'next/cache';
 
 const API_VERSION = 'v23.0';
 
@@ -179,7 +177,6 @@ export async function createInstagramImagePost(prevState: any, formData: FormDat
         });
         
         if (publishResponse.data.id) {
-            revalidatePath('/dashboard/instagram/feed');
             return { message: "Instagram post published successfully!" };
         } else {
             throw new Error("Publishing failed after container creation.");
