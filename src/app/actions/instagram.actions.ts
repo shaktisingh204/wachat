@@ -1,5 +1,5 @@
 
-'use server';
+'use client';
 
 import { getProjectById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
