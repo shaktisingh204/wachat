@@ -1,9 +1,11 @@
 
+
 'use client';
 
 import { getProjectById } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
 import axios from 'axios';
+import { revalidatePath } from 'next/cache';
 
 const API_VERSION = 'v23.0';
 
@@ -105,7 +107,7 @@ export async function discoverInstagramAccount(username: string, projectId: stri
     if (!project) return { error: 'Project not found' };
 
     try {
-        const fields = `business_discovery.username(${username}){followers_count,media_count,name,profile_picture_url,media{id,caption,media_type,media_url,permalink}}`;
+        const fields = `business_discovery.username(${username}){followers_count,media_count,name,profile_picture_url,media{caption,media_url}}`;
         const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${instagramAccount.id}`, {
             params: {
                 fields: fields,
@@ -116,6 +118,55 @@ export async function discoverInstagramAccount(username: string, projectId: stri
 
         return { account: response.data.business_discovery };
     } catch(e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function createInstagramImagePost(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    const imageUrl = formData.get('imageUrl') as string;
+    const caption = formData.get('caption') as string;
+
+    if (!projectId || !imageUrl) {
+        return { error: "Project ID and Image URL are required." };
+    }
+
+    const { instagramAccount, error: accountError } = await getInstagramAccountForPage(projectId);
+    if (accountError || !instagramAccount?.id) {
+        return { error: accountError || 'Could not find your Instagram account.' };
+    }
+
+    const project = await getProjectById(projectId);
+    if (!project || !project.accessToken) {
+        return { error: 'Project access token is missing.' };
+    }
+    
+    try {
+        // Step 1: Create media container
+        const containerResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${instagramAccount.id}/media`, {
+            image_url: imageUrl,
+            caption: caption,
+            access_token: project.accessToken,
+        });
+
+        const creationId = containerResponse.data?.id;
+        if (!creationId) {
+            throw new Error("Failed to create media container.");
+        }
+
+        // Step 2: Publish the container
+        const publishResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${instagramAccount.id}/media_publish`, {
+            creation_id: creationId,
+            access_token: project.accessToken,
+        });
+        
+        if (publishResponse.data.id) {
+            revalidatePath('/dashboard/instagram/feed');
+            return { message: "Instagram post published successfully!" };
+        } else {
+            throw new Error("Publishing failed after container creation.");
+        }
+    } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
 }
