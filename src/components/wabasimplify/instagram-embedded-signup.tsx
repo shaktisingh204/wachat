@@ -1,0 +1,43 @@
+
+'use client';
+
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { InstagramIcon } from './custom-sidebar-components';
+import Link from 'next/link';
+import { LoaderCircle } from 'lucide-react';
+
+interface InstagramEmbeddedSignupProps {
+  appId: string;
+}
+
+export function InstagramEmbeddedSignup({ appId }: InstagramEmbeddedSignupProps) {
+    const [isClient, setIsClient] = useState(false);
+
+    useEffect(() => {
+        setIsClient(true);
+    }, []);
+
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+
+    if (!appUrl) {
+        return <Button disabled size="lg">App URL not configured</Button>;
+    }
+    
+    if (!isClient) {
+        return <Button disabled size="lg"><LoaderCircle className="mr-2 h-5 w-5 animate-spin"/>Loading...</Button>;
+    }
+
+    const redirectUri = new URL('/auth/facebook/callback', appUrl).toString();
+    const scopes = 'pages_show_list,instagram_basic,instagram_content_publish,business_management,pages_manage_posts,read_insights,pages_manage_engagement';
+    const facebookLoginUrl = `https://www.facebook.com/v23.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scopes)}&response_type=code`;
+
+    return (
+        <Button asChild size="lg" className="bg-instagram hover:bg-instagram/90">
+            <Link href={facebookLoginUrl}>
+                <InstagramIcon className="mr-2 h-5 w-5" />
+                Connect with Instagram
+            </Link>
+        </Button>
+    );
+}
