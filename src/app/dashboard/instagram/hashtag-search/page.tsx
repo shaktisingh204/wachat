@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Search, NotebookPen as Hash, Image as ImageIcon } from 'lucide-react';
+import { AlertCircle, Search, NotebookPen, Image as ImageIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -64,7 +64,7 @@ export default function HashtagSearchPage() {
         <div className="flex flex-col gap-8">
              <div>
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                    <Hash className="h-8 w-8"/>
+                    <NotebookPen className="h-8 w-8"/>
                     Hashtag Search
                 </h1>
                 <p className="text-muted-foreground mt-2">

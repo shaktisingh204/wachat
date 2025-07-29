@@ -5,7 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, BarChart2, Calendar, Link as LinkIcon, Hash } from 'lucide-react';
+import { ArrowLeft, BarChart2, Calendar, Link as LinkIcon, NotebookPen } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import type { ShortUrl } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -53,7 +53,7 @@ export default async function ShortUrlAnalyticsPage({ params }: { params: { id: 
                     <CardContent><p className="text-lg font-semibold truncate">{url.originalUrl}</p></CardContent>
                 </Card>
                  <Card>
-                    <CardHeader><CardTitle className="text-sm font-medium flex items-center justify-between">Total Clicks <Hash className="h-4 w-4 text-muted-foreground"/></CardTitle></CardHeader>
+                    <CardHeader><CardTitle className="text-sm font-medium flex items-center justify-between">Total Clicks <NotebookPen className="h-4 w-4 text-muted-foreground"/></CardTitle></CardHeader>
                     <CardContent><p className="text-3xl font-bold">{url.clickCount.toLocaleString()}</p></CardContent>
                 </Card>
                  <Card>
