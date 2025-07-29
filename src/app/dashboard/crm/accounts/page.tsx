@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -11,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, Building } from 'lucide-react';
+import { Search, Plus, Building, NotebookPen } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import { CrmAddAccountDialog } from '@/components/wabasimplify/crm-add-account-dialog';
@@ -49,7 +48,10 @@ export default function CrmAccountsPage() {
         <div className="flex flex-col gap-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">Accounts (Companies)</h1>
+                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
+                        <NotebookPen className="h-8 w-8" />
+                        Accounts (Companies)
+                    </h1>
                     <p className="text-muted-foreground">Manage your company-level records.</p>
                 </div>
                 <div className="flex items-center gap-2">
