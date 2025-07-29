@@ -1,21 +1,20 @@
 
-
 import { notFound } from 'next/navigation';
 import { Canvas } from '@/components/wabasimplify/website-builder/canvas';
 import { connectToDatabase } from '@/lib/mongodb';
-import { PortfolioPage } from '@/lib/definitions';
+import { WebsitePage } from '@/lib/definitions';
 import { ObjectId } from 'mongodb';
 
-async function getPageBySlug(portfolioSlug: string, pageSlug: string) {
+async function getPageBySlug(siteSlug: string, pageSlug: string) {
     const { db } = await connectToDatabase();
-    const portfolio = await db.collection('portfolios').findOne({ slug: portfolioSlug });
-    if (!portfolio) return null;
+    const site = await db.collection('sites').findOne({ slug: siteSlug });
+    if (!site) return null;
 
-    const page = await db.collection<PortfolioPage>('portfolio_pages').findOne({ portfolioId: portfolio._id, slug: pageSlug });
+    const page = await db.collection<WebsitePage>('website_pages').findOne({ siteId: site._id, slug: pageSlug });
     return page;
 }
 
-export default async function PortfolioSubPage({ params }: { params: { slug: string, pageSlug: string } }) {
+export default async function WebsiteSubPage({ params }: { params: { slug: string, pageSlug: string } }) {
     if (!params.slug || !params.pageSlug) {
         notFound();
     }
@@ -37,20 +36,20 @@ export default async function PortfolioSubPage({ params }: { params: { slug: str
     );
 }
 
-// Optional: Improve SEO by generating static paths
+// Optional: Improve SEO by generating static params
 export async function generateStaticParams() {
     try {
         const { db } = await connectToDatabase();
-        const pages = await db.collection('portfolio_pages').find({ isHomepage: { $ne: true } }).toArray();
-        const portfolios = await db.collection('portfolios').find({ _id: { $in: pages.map(p => p.portfolioId) } }).toArray();
-        const portfolioMap = new Map(portfolios.map(p => [p._id.toString(), p.slug]));
+        const pages = await db.collection('website_pages').find({ isHomepage: { $ne: true } }).toArray();
+        const sites = await db.collection('sites').find({ _id: { $in: pages.map(p => p.siteId) } }).toArray();
+        const siteMap = new Map(sites.map(p => [p._id.toString(), p.slug]));
 
         return pages.map(page => ({
-            slug: portfolioMap.get(page.portfolioId.toString()),
+            slug: siteMap.get(page.siteId.toString()),
             pageSlug: page.slug,
         }));
     } catch (e) {
-        console.error("Failed to generate static params for portfolio pages:", e);
+        console.error("Failed to generate static params for site pages:", e);
         return [];
     }
 }

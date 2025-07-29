@@ -2,12 +2,12 @@
 'use client';
 
 import { useEffect, useState, useTransition, useCallback } from 'react';
-import { getPortfolios } from '@/app/actions/portfolio.actions';
-import type { WithId, Portfolio } from '@/lib/definitions';
+import { getSites } from '@/app/actions/portfolio.actions';
+import type { WithId, Website } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { ArrowRight, BookUser } from 'lucide-react';
+import { ArrowRight, Globe } from 'lucide-react';
 import { CreatePortfolioDialog } from '@/components/wabasimplify/create-portfolio-dialog';
 import { useRouter } from 'next/navigation';
 
@@ -28,21 +28,21 @@ function PageSkeleton() {
     );
 }
 
-function PortfolioCard({ portfolio }: { portfolio: WithId<Portfolio> }) {
+function SiteCard({ site }: { site: WithId<Website> }) {
     const router = useRouter();
     
     const handleManage = () => {
-        router.push(`/dashboard/portfolio/manage/${portfolio._id.toString()}/builder`);
+        router.push(`/dashboard/website-builder/manage/${site._id.toString()}/builder`);
     }
 
     return (
         <Card className="flex flex-col">
             <CardHeader>
-                <CardTitle>{portfolio.name}</CardTitle>
-                <CardDescription>Slug: {portfolio.slug}</CardDescription>
+                <CardTitle>{site.name}</CardTitle>
+                <CardDescription>Slug: {site.slug}</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow">
-                <p className="text-sm text-muted-foreground">Created: {new Date(portfolio.createdAt).toLocaleDateString()}</p>
+                <p className="text-sm text-muted-foreground">Created: {new Date(site.createdAt).toLocaleDateString()}</p>
             </CardContent>
             <CardFooter>
                  <Button onClick={handleManage} className="w-full">
@@ -53,14 +53,14 @@ function PortfolioCard({ portfolio }: { portfolio: WithId<Portfolio> }) {
     );
 }
 
-export default function PortfolioDashboard() {
-    const [portfolios, setPortfolios] = useState<WithId<Portfolio>[]>([]);
+export default function WebsiteBuilderDashboard() {
+    const [sites, setSites] = useState<WithId<Website>[]>([]);
     const [isLoading, startLoading] = useTransition();
 
     const fetchData = useCallback(() => {
         startLoading(async () => {
-            const data = await getPortfolios();
-            setPortfolios(data);
+            const data = await getSites();
+            setSites(data);
         });
     }, []);
 
@@ -77,8 +77,8 @@ export default function PortfolioDashboard() {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <BookUser className="h-8 w-8" />
-                        Landing Pages & Portfolios
+                        <Globe className="h-8 w-8" />
+                        Website Builder
                     </h1>
                     <p className="text-muted-foreground mt-2">
                         Create and manage your public-facing websites.
@@ -87,17 +87,17 @@ export default function PortfolioDashboard() {
                 <CreatePortfolioDialog onSuccess={fetchData}/>
             </div>
 
-            {portfolios.length > 0 ? (
+            {sites.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {portfolios.map(p => (
-                        <PortfolioCard key={p._id.toString()} portfolio={p} />
+                    {sites.map(p => (
+                        <SiteCard key={p._id.toString()} site={p} />
                     ))}
                 </div>
             ) : (
                 <div className="text-center py-16 text-muted-foreground border-2 border-dashed rounded-lg">
-                    <BookUser className="mx-auto h-12 w-12" />
-                    <h3 className="mt-4 text-lg font-semibold">No Portfolios Created</h3>
-                    <p className="mt-1 text-sm">Click "Create New Portfolio" to get started.</p>
+                    <Globe className="mx-auto h-12 w-12" />
+                    <h3 className="mt-4 text-lg font-semibold">No Websites Created</h3>
+                    <p className="mt-1 text-sm">Click "Create New Site" to get started.</p>
                 </div>
             )}
         </div>

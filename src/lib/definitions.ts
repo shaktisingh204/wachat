@@ -2,7 +2,7 @@
 
 import type { ObjectId, WithId } from 'mongodb';
 
-export type Portfolio = {
+export type Website = {
     _id: ObjectId;
     userId: ObjectId;
     name: string;
@@ -18,9 +18,9 @@ export type Portfolio = {
     };
 };
 
-export type PortfolioPage = {
+export type WebsitePage = {
     _id: ObjectId;
-    portfolioId: ObjectId;
+    siteId: ObjectId;
     userId: ObjectId;
     name: string;
     slug: string;
@@ -858,7 +858,7 @@ export type Plan = {
     flowLimit: number;
     metaFlowLimit: number;
     cannedMessageLimit: number;
-    signupCredits?: signupCredits;
+    signupCredits?: number;
     messageCosts: PlanMessageCosts;
     features: PlanFeaturePermissions;
     createdAt: Date;

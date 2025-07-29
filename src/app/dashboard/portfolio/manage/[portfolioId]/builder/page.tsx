@@ -1,25 +1,24 @@
 
-
 import { WebsiteBuilder } from '@/components/wabasimplify/website-builder/website-builder';
-import { getPortfolioById, getPortfolioPages } from '@/app/actions/portfolio.actions';
+import { getSiteById, getWebsitePages } from '@/app/actions/portfolio.actions';
 import { notFound } from 'next/navigation';
 import { CartProvider } from '@/context/cart-context';
 
 export const dynamic = 'force-dynamic';
 
-export default async function PortfolioBuilderPage({ params }: { params: { portfolioId: string } }) {
-    const [portfolio, pages] = await Promise.all([
-        getPortfolioById(params.portfolioId),
-        getPortfolioPages(params.portfolioId),
+export default async function WebsiteBuilderPage({ params }: { params: { portfolioId: string } }) {
+    const [site, pages] = await Promise.all([
+        getSiteById(params.portfolioId),
+        getWebsitePages(params.portfolioId),
     ]);
 
-    if (!portfolio) {
+    if (!site) {
         notFound();
     }
 
     return (
         <CartProvider>
-            <WebsiteBuilder shop={portfolio as any} initialPages={pages} availableProducts={[]} />
+            <WebsiteBuilder shop={site as any} initialPages={pages} availableProducts={[]} />
         </CartProvider>
     );
 }

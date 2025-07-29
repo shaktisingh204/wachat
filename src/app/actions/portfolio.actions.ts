@@ -3,82 +3,80 @@
 
 import { getSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
-import type { Portfolio, PortfolioPage, WebsiteBlock } from '@/lib/definitions';
+import type { Website, WebsitePage, WebsiteBlock } from '@/lib/definitions';
 import { ObjectId, WithId } from 'mongodb';
 import { revalidatePath } from 'next/cache';
 import { getErrorMessage } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
 
-// --- Portfolio Actions ---
+// --- Site Actions ---
 
-export async function getPortfolios(): Promise<WithId<Portfolio>[]> {
+export async function getSites(): Promise<WithId<Website>[]> {
     const session = await getSession();
     if (!session?.user) return [];
 
     try {
         const { db } = await connectToDatabase();
-        const portfolios = await db.collection<Portfolio>('portfolios')
+        const sites = await db.collection<Website>('sites')
             .find({ userId: new ObjectId(session.user._id) })
             .sort({ createdAt: -1 })
             .toArray();
-        return JSON.parse(JSON.stringify(portfolios));
+        return JSON.parse(JSON.stringify(sites));
     } catch (e) {
-        console.error("Failed to get portfolios:", e);
+        console.error("Failed to get sites:", e);
         return [];
     }
 }
 
-export async function getPortfolioById(portfolioId: string): Promise<WithId<Portfolio> | null> {
-    if (!ObjectId.isValid(portfolioId)) return null;
+export async function getSiteById(siteId: string): Promise<WithId<Website> | null> {
+    if (!ObjectId.isValid(siteId)) return null;
 
     const { db } = await connectToDatabase();
-    const portfolio = await db.collection<Portfolio>('portfolios').findOne({ _id: new ObjectId(portfolioId) });
+    const site = await db.collection<Website>('sites').findOne({ _id: new ObjectId(siteId) });
 
-    if (!portfolio) return null;
+    if (!site) return null;
     
-    // For public-facing pages, we don't check session
     const session = await getSession();
-    if (session?.user._id.toString() !== portfolio.userId.toString()) {
+    if (session?.user._id.toString() !== site.userId.toString()) {
         // This is a check for management, not public viewing
-        // In a real app you might separate public/private fetches
     }
 
-    return JSON.parse(JSON.stringify(portfolio));
+    return JSON.parse(JSON.stringify(site));
 }
 
-export async function getPortfolioBySlug(slug: string): Promise<WithId<Portfolio> | null> {
+export async function getSiteBySlug(slug: string): Promise<WithId<Website> | null> {
     if (!slug) return null;
 
     try {
         const { db } = await connectToDatabase();
-        const portfolio = await db.collection<Portfolio>('portfolios').findOne({ slug });
-        if (!portfolio) return null;
-        return JSON.parse(JSON.stringify(portfolio));
+        const site = await db.collection<Website>('sites').findOne({ slug });
+        if (!site) return null;
+        return JSON.parse(JSON.stringify(site));
     } catch(e) {
-        console.error("Failed to get portfolio by slug:", e);
+        console.error("Failed to get site by slug:", e);
         return null;
     }
 }
 
 
-export async function createPortfolio(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, portfolioId?: string }> {
+export async function createSite(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, siteId?: string }> {
     const session = await getSession();
     if (!session?.user) return { error: 'Access denied' };
     
     const name = formData.get('name') as string;
-    if (!name) return { error: 'Portfolio Name is required.' };
+    if (!name) return { error: 'Site Name is required.' };
 
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
     try {
         const { db } = await connectToDatabase();
         
-        const existingSlug = await db.collection('portfolios').findOne({ slug });
+        const existingSlug = await db.collection('sites').findOne({ slug });
         if (existingSlug) {
-            return { error: 'A portfolio with this name already exists, resulting in a duplicate URL slug. Please choose a different name.' };
+            return { error: 'A site with this name already exists, resulting in a duplicate URL slug. Please choose a different name.' };
         }
 
-        const newPortfolio: Omit<Portfolio, '_id'> = {
+        const newSite: Omit<Website, '_id'> = {
             userId: new ObjectId(session.user._id),
             name,
             slug,
@@ -86,12 +84,11 @@ export async function createPortfolio(prevState: any, formData: FormData): Promi
             updatedAt: new Date(),
         };
 
-        const result = await db.collection('portfolios').insertOne(newPortfolio as any);
-        const portfolioId = result.insertedId;
+        const result = await db.collection('sites').insertOne(newSite as any);
+        const siteId = result.insertedId;
         
-        // Automatically create a default homepage for the new portfolio
-        const homepage: Omit<PortfolioPage, '_id'> = {
-            portfolioId,
+        const homepage: Omit<WebsitePage, '_id'> = {
+            siteId,
             userId: new ObjectId(session.user._id),
             name: 'Home',
             slug: 'home',
@@ -100,10 +97,10 @@ export async function createPortfolio(prevState: any, formData: FormData): Promi
             createdAt: new Date(),
             updatedAt: new Date(),
         };
-        await db.collection('portfolio_pages').insertOne(homepage as any);
+        await db.collection('website_pages').insertOne(homepage as any);
         
-        revalidatePath('/dashboard/portfolio');
-        return { message: `Portfolio "${name}" created successfully.`, portfolioId: portfolioId.toString() };
+        revalidatePath('/dashboard/website-builder');
+        return { message: `Site "${name}" created successfully.`, siteId: siteId.toString() };
 
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -112,12 +109,12 @@ export async function createPortfolio(prevState: any, formData: FormData): Promi
 
 // --- Page Actions ---
 
-export async function getPortfolioPages(portfolioId: string): Promise<WithId<PortfolioPage>[]> {
-    if (!ObjectId.isValid(portfolioId)) return [];
+export async function getWebsitePages(siteId: string): Promise<WithId<WebsitePage>[]> {
+    if (!ObjectId.isValid(siteId)) return [];
     try {
         const { db } = await connectToDatabase();
-        const pages = await db.collection<PortfolioPage>('portfolio_pages')
-            .find({ portfolioId: new ObjectId(portfolioId) })
+        const pages = await db.collection<WebsitePage>('website_pages')
+            .find({ siteId: new ObjectId(siteId) })
             .sort({ isHomepage: -1, name: 1 })
             .toArray();
         return JSON.parse(JSON.stringify(pages));
@@ -126,31 +123,31 @@ export async function getPortfolioPages(portfolioId: string): Promise<WithId<Por
     }
 }
 
-export async function savePortfolioPage(data: {
+export async function saveWebsitePage(data: {
     pageId?: string;
-    portfolioId: string;
+    siteId: string;
     name: string;
     slug: string;
     layout: WebsiteBlock[];
 }): Promise<{ message?: string, error?: string, pageId?: string }> {
-    const { pageId, portfolioId, name, slug, layout } = data;
-    if (!portfolioId || !name || !slug) return { error: 'Portfolio ID, Page Name, and Slug are required.' };
+    const { pageId, siteId, name, slug, layout } = data;
+    if (!siteId || !name || !slug) return { error: 'Site ID, Page Name, and Slug are required.' };
     
-    const portfolio = await getPortfolioById(portfolioId);
-    if (!portfolio) return { error: 'Access denied' };
+    const site = await getSiteById(siteId);
+    if (!site) return { error: 'Access denied' };
     
     const session = await getSession();
-    if (session?.user._id.toString() !== portfolio.userId.toString()) {
+    if (session?.user._id.toString() !== site.userId.toString()) {
         return { error: 'Access denied' };
     }
     
     const isNew = !pageId || pageId.startsWith('temp_');
     
-    const pageData: Omit<PortfolioPage, '_id' | 'createdAt' | 'isHomepage'> = {
+    const pageData: Omit<WebsitePage, '_id' | 'createdAt' | 'isHomepage'> = {
         name,
         slug,
-        portfolioId: new ObjectId(portfolioId),
-        userId: portfolio.userId,
+        siteId: new ObjectId(siteId),
+        userId: site.userId,
         layout,
         updatedAt: new Date(),
     };
@@ -159,16 +156,16 @@ export async function savePortfolioPage(data: {
         const { db } = await connectToDatabase();
         
         if (isNew) {
-            const result = await db.collection('portfolio_pages').insertOne({ ...pageData, createdAt: new Date() } as any);
-            revalidatePath(`/dashboard/portfolio/manage/${portfolioId}/builder`);
+            const result = await db.collection('website_pages').insertOne({ ...pageData, createdAt: new Date() } as any);
+            revalidatePath(`/dashboard/website-builder/manage/${siteId}/builder`);
             return { message: 'Page created successfully.', pageId: result.insertedId.toString() };
         } else {
-            await db.collection('portfolio_pages').updateOne(
+            await db.collection('website_pages').updateOne(
                 { _id: new ObjectId(pageId) },
                 { $set: pageData }
             );
-            revalidatePath(`/dashboard/portfolio/manage/${portfolioId}/builder`);
-            revalidatePath(`/portfolio/${portfolio.slug}/${slug}`);
+            revalidatePath(`/dashboard/website-builder/manage/${siteId}/builder`);
+            revalidatePath(`/web/${site.slug}/${slug}`);
             return { message: 'Page updated successfully.', pageId };
         }
     } catch (e: any) {
@@ -176,49 +173,47 @@ export async function savePortfolioPage(data: {
     }
 }
 
-export async function deletePortfolioPage(pageId: string): Promise<{ message?: string; error?: string }> {
+export async function deleteWebsitePage(pageId: string): Promise<{ message?: string; error?: string }> {
     if (!ObjectId.isValid(pageId)) return { error: 'Invalid Page ID.' };
 
     const { db } = await connectToDatabase();
-    const page = await db.collection<PortfolioPage>('portfolio_pages').findOne({ _id: new ObjectId(pageId) });
+    const page = await db.collection<WebsitePage>('website_pages').findOne({ _id: new ObjectId(pageId) });
     if (!page) return { error: 'Page not found.' };
 
-    const portfolio = await getPortfolioById(page.portfolioId.toString());
-    if (!portfolio) return { error: 'Access denied' };
+    const site = await getSiteById(page.siteId.toString());
+    if (!site) return { error: 'Access denied' };
     
     if (page.isHomepage) return { error: 'Cannot delete the homepage. Please set another page as the homepage first.' };
 
     try {
-        await db.collection('portfolio_pages').deleteOne({ _id: new ObjectId(pageId) });
-        revalidatePath(`/dashboard/portfolio/manage/${page.portfolioId}/builder`);
+        await db.collection('website_pages').deleteOne({ _id: new ObjectId(pageId) });
+        revalidatePath(`/dashboard/website-builder/manage/${page.siteId}/builder`);
         return { message: 'Page deleted.' };
     } catch (e) {
         return { error: 'Failed to delete page.' };
     }
 }
 
-export async function setPortfolioAsHomepage(pageId: string, portfolioId: string): Promise<{ message?: string; error?: string }> {
-     if (!ObjectId.isValid(pageId) || !ObjectId.isValid(portfolioId)) return { error: 'Invalid IDs.' };
-     const portfolio = await getPortfolioById(portfolioId);
-     if (!portfolio) return { error: 'Access denied' };
+export async function setAsHomepage(pageId: string, siteId: string): Promise<{ message?: string; error?: string }> {
+     if (!ObjectId.isValid(pageId) || !ObjectId.isValid(siteId)) return { error: 'Invalid IDs.' };
+     const site = await getSiteById(siteId);
+     if (!site) return { error: 'Access denied' };
 
      try {
         const { db } = await connectToDatabase();
         
-        // Unset any existing homepage for this portfolio
-        await db.collection('portfolio_pages').updateMany(
-            { portfolioId: new ObjectId(portfolioId), isHomepage: true },
+        await db.collection('website_pages').updateMany(
+            { siteId: new ObjectId(siteId), isHomepage: true },
             { $set: { isHomepage: false } }
         );
         
-        // Set the new homepage
-        await db.collection('portfolio_pages').updateOne(
-            { _id: new ObjectId(pageId), portfolioId: new ObjectId(portfolioId) },
+        await db.collection('website_pages').updateOne(
+            { _id: new ObjectId(pageId), siteId: new ObjectId(siteId) },
             { $set: { isHomepage: true } }
         );
 
-        revalidatePath(`/dashboard/portfolio/manage/${portfolioId}/builder`);
-        revalidatePath(`/portfolio/${portfolio.slug}`);
+        revalidatePath(`/dashboard/website-builder/manage/${siteId}/builder`);
+        revalidatePath(`/web/${site.slug}`);
         return { message: 'Homepage updated.' };
      } catch(e) {
         return { error: 'Failed to set homepage.' };
