@@ -199,6 +199,7 @@ const emailMenuItems = [
     { href: '/dashboard/email/campaigns', label: 'Campaigns', icon: Send },
     { href: '/dashboard/email/contacts', label: 'Contacts', icon: Contact },
     { href: '/dashboard/email/templates', label: 'Templates', icon: FileText },
+    { href: '/dashboard/email/analytics', label: 'Analytics', icon: BarChart },
     { href: '/dashboard/email/settings', label: 'Settings', icon: Settings },
 ];
 
