@@ -8,9 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
 import { getProjects, getSession } from '@/app/actions';
-import { getEmailSettings } from '@/app/actions/email.actions';
+import { getEmailSettings, saveEmailPermissions, saveEmailComplianceSettings } from '@/app/actions/email.actions';
 import { saveCrmProviders } from '@/app/actions/crm.actions';
-import { saveCrmPermissions } from '@/app/actions/crm.actions';
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
 import type { EmailSettings, Project, WithId, User, EmailComplianceSettings } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -243,8 +242,8 @@ function EmailSettingsPageContent() {
             const session = await getSession();
             if (session?.user) {
                 setUser(session.user as any);
-                const fetchedSettings = await getSingleEmailSettings(session.user._id.toString());
-                setSettings(fetchedSettings);
+                const fetchedSettings = await getEmailSettings();
+                setSettings(fetchedSettings[0] || null);
             }
         });
     }, []);

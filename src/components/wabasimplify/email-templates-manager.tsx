@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { EmailTemplateDialog } from './email-template-dialog';
 
-export function CrmEmailTemplatesManager() {
+export function EmailTemplatesManager() {
     const [templates, setTemplates] = useState<WithId<CrmEmailTemplate>[]>([]);
     const [isLoading, startLoading] = useTransition();
     const { toast } = useToast();
@@ -125,5 +125,3 @@ export function CrmEmailTemplatesManager() {
         </>
     );
 }
-
-export { EmailTemplatesManager };
