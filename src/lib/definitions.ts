@@ -200,6 +200,20 @@ export type EmailContact = {
     createdAt: Date;
 };
 
+export type EmailCampaign = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    subject: string;
+    fromName: string;
+    fromEmail: string;
+    body: string; // HTML
+    status: 'draft' | 'scheduled' | 'sending' | 'sent';
+    createdAt: Date;
+    scheduledAt?: Date;
+    sentAt?: Date;
+};
+
 export type BusinessCapabilities = {
     max_daily_conversation_per_phone: number;
     max_phone_numbers_per_business: number;
