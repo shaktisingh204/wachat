@@ -1,9 +1,8 @@
 
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCircle, Users, KeyRound, Shield, FileText } from 'lucide-react';
+import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCircle, Users, KeyRound, Shield, FileText, Zap } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
@@ -26,7 +25,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { CrmEmailTemplatesManager } from "@/components/wabasimplify/crm-email-templates-manager';
+import { EmailTemplatesManager } from '@/components/wabasimplify/email-templates-manager';
 import { CodeBlock } from "@/components/wabasimplify/code-block";
 
 
@@ -104,7 +103,6 @@ function PermissionsForm({ user }: { user: WithId<User> }) {
 }
 
 function DeliverabilityTab() {
-    const { copy } = useCopyToClipboard();
     const domain = "yourdomain.com"; // Placeholder
 
     const dkimRecord = {
@@ -150,6 +148,41 @@ function DeliverabilityTab() {
     );
 }
 
+function IntegrationsTab({ userId }: { userId: string }) {
+    const apiKey = `sk_live_${userId.substring(0, 16)}...`;
+    const webhookUrl = `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/email/${userId}`;
+
+    return (
+        <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><Zap className="h-5 w-5"/>API & Webhooks</CardTitle>
+                    <CardDescription>Programmatically interact with your email data.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <div className="space-y-2">
+                        <Label>API Key</Label>
+                        <CodeBlock code={apiKey} />
+                     </div>
+                      <div className="space-y-2">
+                        <Label>Webhook URL for Incoming Events</Label>
+                        <CodeBlock code={webhookUrl} />
+                     </div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <CardTitle>CRM Sync</CardTitle>
+                    <CardDescription>Sync contacts and activities with your favorite CRM.</CardDescription>
+                </CardHeader>
+                <CardContent className="text-center text-muted-foreground p-8">
+                    <p>CRM Sync is coming soon.</p>
+                </CardContent>
+            </Card>
+        </div>
+    )
+}
+
 function CrmSettingsPageContent() {
     const searchParams = useSearchParams();
     const initialTab = searchParams.get('tab') || 'email';
@@ -189,11 +222,12 @@ function CrmSettingsPageContent() {
                 <p className="text-muted-foreground">Configure your email accounts for sending.</p>
             </div>
             <Tabs defaultValue={initialTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-5">
                     <TabsTrigger value="email">Email Setup</TabsTrigger>
                     <TabsTrigger value="templates">Templates</TabsTrigger>
                     <TabsTrigger value="permissions">Permissions</TabsTrigger>
                     <TabsTrigger value="deliverability">Deliverability</TabsTrigger>
+                    <TabsTrigger value="integrations">Integrations</TabsTrigger>
                 </TabsList>
                 <TabsContent value="email" className="mt-6 space-y-6">
                     <Card>
@@ -221,13 +255,16 @@ function CrmSettingsPageContent() {
                     <CrmSmtpForm settings={settings} />
                 </TabsContent>
                 <TabsContent value="templates" className="mt-6">
-                    <CrmEmailTemplatesManager />
+                    <EmailTemplatesManager />
                 </TabsContent>
                  <TabsContent value="permissions" className="mt-6">
                     <PermissionsForm user={user} />
                 </TabsContent>
                 <TabsContent value="deliverability" className="mt-6">
                     <DeliverabilityTab />
+                </TabsContent>
+                 <TabsContent value="integrations" className="mt-6">
+                    <IntegrationsTab userId={user._id.toString()} />
                 </TabsContent>
             </Tabs>
         </div>
@@ -241,5 +278,3 @@ export default function CrmSettingsPage() {
         </Suspense>
     )
 }
-
-```
