@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Search, Hash, Image as ImageIcon } from 'lucide-react';
+import { AlertCircle, Search, NotebookPen as Hash, Image as ImageIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -56,10 +56,9 @@ export default function HashtagSearchPage() {
     };
     
     // Initial search on load
-    useEffect(() => {
+    useState(() => {
         handleSearch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    });
 
     return (
         <div className="flex flex-col gap-8">
