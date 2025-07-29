@@ -1,7 +1,7 @@
 
 'use client';
 
-import { CrmEmailTemplatesManager } from '@/components/wabasimplify/email-templates-manager';
+import { EmailTemplatesManager } from '@/components/wabasimplify/email-templates-manager';
 import { FileText } from 'lucide-react';
 
 export default function EmailTemplatesPage() {
@@ -11,7 +11,7 @@ export default function EmailTemplatesPage() {
                 <h1 className="text-3xl font-bold font-headline flex items-center gap-3"><FileText /> Email Templates</h1>
                 <p className="text-muted-foreground">Create and manage reusable email templates for your campaigns.</p>
             </div>
-            <CrmEmailTemplatesManager />
+            <EmailTemplatesManager />
         </div>
     )
 }
