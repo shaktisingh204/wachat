@@ -188,6 +188,24 @@ body {
     --sidebar-background: 220 10% 12%;
     --sidebar-border: 220 10% 20%;
   }
+
+  /* Email Suite Theme */
+  [data-theme="email"] {
+    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 199 89% 95%;
+    --sidebar-accent-foreground: 199 89% 20%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-border: 220 13% 91%;
+  }
+  .dark [data-theme="email"] {
+    --sidebar-primary: 199 89% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 199 50% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-background: 220 10% 12%;
+    --sidebar-border: 220 10% 20%;
+  }
 }
 
 @layer base {
@@ -287,6 +305,10 @@ body {
     .animate-kanban-drag {
         animation: kanban-drag 7s ease-in-out infinite;
         animation-delay: 2.5s;
+    }
+    .px-3 {
+        padding-left: 0.90rem;
+        padding-right: .75rem;
     }
     @keyframes fade-in {
         from { opacity: 0; }

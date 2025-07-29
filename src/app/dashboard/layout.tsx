@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, Hash, BookUser
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -177,7 +177,6 @@ const instagramMenuGroups = [
   }
 ];
 
-
 const crmMenuItems = [
     { href: '/dashboard/crm', label: 'CRM Dashboard', icon: LayoutDashboard },
     { href: '/dashboard/crm/contacts', label: 'Leads & Contacts', icon: Users },
@@ -193,6 +192,12 @@ const crmMenuItems = [
     { href: '/dashboard/crm/settings', label: 'Settings', icon: Settings },
 ];
 
+const emailMenuItems = [
+    { href: '/dashboard/email', label: 'Inbox', icon: Mail },
+    { href: '/dashboard/email/sent', label: 'Sent', icon: Send },
+    { href: '/dashboard/email/settings', label: 'Settings', icon: Settings },
+];
+
 const urlShortenerMenuItems = [
     { href: '/dashboard/url-shortener', label: 'Shortener', icon: LinkIcon },
     { href: '/dashboard/url-shortener/settings', label: 'Settings', icon: Settings },
@@ -204,7 +209,7 @@ const qrCodeMakerMenuItems = [
 ];
 
 const portfolioMenuItems = [
-    { href: '/dashboard/portfolio', label: 'Portfolios', icon: BookUser },
+    { href: '/dashboard/website-builder', label: 'Websites', icon: LayoutGrid },
 ];
 
 const seoMenuItems = [
@@ -245,10 +250,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         case 'facebook': items = facebookMenuGroups.map(group => ({ ...group, items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent']}))})); break;
         case 'instagram': items = instagramMenuGroups.map(group => ({ ...group, items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent']}))})); break;
         case 'crm': items = [{ title: 'CRM Tools', items: crmMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        case 'email': items = [{ title: 'Email Suite', items: emailMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'url-shortener': items = [{ title: null, items: urlShortenerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'qr-code-maker': items = [{ title: null, items: qrCodeMakerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'seo-suite': items = [{ title: null, items: seoMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        case 'portfolio': items = [{ title: null, items: portfolioMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        case 'website-builder': items = [{ title: null, items: portfolioMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         default: items = [{ title: null, items: wachatMenuItems }]; break;
     }
     
@@ -273,14 +279,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           setActiveApp('instagram');
       } else if (pathname.startsWith('/dashboard/crm')) {
           setActiveApp('crm');
+      } else if (pathname.startsWith('/dashboard/email')) {
+          setActiveApp('email');
       } else if (pathname.startsWith('/dashboard/url-shortener')) {
           setActiveApp('url-shortener');
       } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
           setActiveApp('qr-code-maker');
       } else if (pathname.startsWith('/dashboard/seo')) {
           setActiveApp('seo-suite');
-      } else if (pathname.startsWith('/dashboard/portfolio')) {
-          setActiveApp('portfolio');
+      } else if (pathname.startsWith('/dashboard/website-builder')) {
+          setActiveApp('website-builder');
       } else {
           setActiveApp('whatsapp');
       }
@@ -323,7 +331,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite', className: 'bg-blue-600 text-white', hoverClassName: 'bg-card text-blue-600 hover:bg-accent' },
     { id: 'instagram', href: '/dashboard/instagram', icon: InstagramIcon, label: 'Instagram Suite', className: 'bg-instagram text-white', hoverClassName: 'bg-card text-instagram hover:bg-accent' },
     { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite', className: 'bg-rose-500 text-white', hoverClassName: 'bg-card text-rose-500 hover:bg-accent' },
-    { id: 'portfolio', href: '/dashboard/portfolio', icon: BookUser, label: 'Portfolio Builder', className: 'bg-teal-500 text-white', hoverClassName: 'bg-card text-teal-500 hover:bg-accent' },
+    { id: 'email', href: '/dashboard/email', icon: Mail, label: 'Email Suite', className: 'bg-cyan-500 text-white', hoverClassName: 'bg-card text-cyan-500 hover:bg-accent' },
+    { id: 'website-builder', href: '/dashboard/website-builder', icon: Brush, label: 'Website Builder', className: 'bg-teal-500 text-white', hoverClassName: 'bg-card text-teal-500 hover:bg-accent' },
     { id: 'seo-suite', href: '/dashboard/seo', icon: SeoIcon, label: 'SEO Suite', className: 'bg-indigo-500 text-white', hoverClassName: 'bg-card text-indigo-500 hover:bg-accent' },
     { id: 'url-shortener', href: '/dashboard/url-shortener', icon: LinkIcon, label: 'URL Shortener', className: 'bg-purple-600 text-white', hoverClassName: 'bg-card text-purple-600 hover:bg-accent' },
     { id: 'qr-code-maker', href: '/dashboard/qr-code-maker', icon: QrCode, label: 'QR Code Maker', className: 'bg-orange-500 text-white', hoverClassName: 'bg-card text-orange-500 hover:bg-accent' },
@@ -386,7 +395,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         (activeApp === 'whatsapp' && hasActiveWhatsAppProject) ||
                         (activeApp === 'instagram' && hasActiveFacebookProject); // Instagram uses facebook project with IG linked
 
-                      const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard' && activeApp !== 'crm' && activeApp !== 'portfolio';
+                      const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard' && activeApp !== 'crm' && activeApp !== 'website-builder';
 
                       let tooltipText = item.label;
                       if (isDisabled) {
@@ -405,7 +414,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         item.href === '/dashboard/chatbot/agents' ||
                         item.href === '/dashboard/seo' ||
                         item.href === '/dashboard/crm' ||
-                        item.href === '/dashboard/portfolio';
+                        item.href === '/dashboard/email' ||
+                        item.href === '/dashboard/website-builder';
 
                       const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
 
