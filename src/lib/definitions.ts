@@ -204,6 +204,7 @@ export type EmailCampaign = {
     fromEmail: string;
     body: string; // HTML
     status: 'draft' | 'scheduled' | 'sending' | 'sent';
+    contacts: any[];
     createdAt: Date;
     scheduledAt?: Date;
     sentAt?: Date;

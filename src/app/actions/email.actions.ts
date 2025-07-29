@@ -262,6 +262,25 @@ export async function handleSendBulkEmail(prevState: any, formData: FormData): P
 
     try {
         const { db } = await connectToDatabase();
+        
+        const contacts: any[] = [];
+        const csvText = await contactFile.text();
+        await new Promise((resolve, reject) => {
+             Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: (results) => {
+                    contacts.push(...results.data);
+                    resolve(true);
+                },
+                error: (error) => reject(error)
+            });
+        });
+
+        if(contacts.length === 0) {
+            return { error: 'No contacts found in the uploaded file.'};
+        }
+
         const campaignName = `Campaign - ${new Date().toLocaleString()}`;
 
         const newCampaign: Omit<EmailCampaign, '_id'> = {
@@ -269,43 +288,37 @@ export async function handleSendBulkEmail(prevState: any, formData: FormData): P
             name: campaignName,
             subject, body, fromName, fromEmail,
             status: scheduledAt ? 'scheduled' : 'sending',
+            contacts: contacts,
             createdAt: new Date(),
             ...(scheduledAt && { scheduledAt: new Date(scheduledAt) })
         };
+        
         const campaignResult = await db.collection('email_campaigns').insertOne(newCampaign as any);
-        const campaignId = campaignResult.insertedId;
-
-        // In a real app, this would be a background job. For now, we process it directly.
+        
         if (!scheduledAt) {
+            const campaignId = campaignResult.insertedId;
             const transporter = await getTransporter();
-            const contacts: any[] = [];
-            const csvText = await contactFile.text();
-            Papa.parse(csvText, {
-              header: true,
-              skipEmptyLines: true,
-              complete: async (results) => {
-                for (const contact of results.data) {
-                  const contactEmail = (contact as any).email;
-                  if (!contactEmail) continue;
 
-                  const interpolatedSubject = subject.replace(/{{\s*(\w+)\s*}}/g, (match, key) => (contact as any)[key] || match);
-                  const interpolatedBody = body.replace(/{{\s*(\w+)\s*}}/g, (match, key) => (contact as any)[key] || match);
+            for (const contact of contacts) {
+              const contactEmail = (contact as any).email;
+              if (!contactEmail) continue;
 
-                  try {
-                    await transporter.sendMail({
-                        from: `"${fromName}" <${fromEmail}>`,
-                        to: contactEmail,
-                        subject: interpolatedSubject,
-                        html: interpolatedBody,
-                    });
-                  } catch (e) {
-                      console.error(`Failed to send email to ${contactEmail}:`, getErrorMessage(e));
-                  }
-                }
-                 await db.collection('email_campaigns').updateOne({ _id: campaignId }, { $set: { status: 'sent', sentAt: new Date() } });
-                 revalidatePath('/dashboard/email/campaigns');
-              },
-            });
+              const interpolatedSubject = subject.replace(/{{\s*(\w+)\s*}}/g, (match, key) => (contact as any)[key] || match);
+              const interpolatedBody = body.replace(/{{\s*(\w+)\s*}}/g, (match, key) => (contact as any)[key] || match);
+
+              try {
+                await transporter.sendMail({
+                    from: `"${fromName}" <${fromEmail}>`,
+                    to: contactEmail,
+                    subject: interpolatedSubject,
+                    html: interpolatedBody,
+                });
+              } catch (e) {
+                  console.error(`Failed to send email to ${contactEmail}:`, getErrorMessage(e));
+              }
+            }
+            await db.collection('email_campaigns').updateOne({ _id: campaignId }, { $set: { status: 'sent', sentAt: new Date() } });
+            revalidatePath('/dashboard/email/campaigns');
         }
 
         revalidatePath('/dashboard/email/campaigns');
@@ -373,4 +386,5 @@ export async function updateEmailConversationStatus(conversationId: string, stat
     await new Promise(res => setTimeout(res, 500));
     return { success: true };
 }
+
 
