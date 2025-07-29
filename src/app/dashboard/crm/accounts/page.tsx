@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -49,7 +50,7 @@ export default function CrmAccountsPage() {
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <NotebookPen className="h-8 w-8" />
+                        <Building className="h-8 w-8" />
                         Accounts (Companies)
                     </h1>
                     <p className="text-muted-foreground">Manage your company-level records.</p>
