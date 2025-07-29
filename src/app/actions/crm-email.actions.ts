@@ -10,6 +10,47 @@ import type { EmailSettings, CrmContact } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { getTransporter } from '@/lib/email-service';
 
+export async function saveCrmEmailSettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+
+    const smtpSettings = {
+        host: formData.get('smtpHost') as string,
+        port: Number(formData.get('smtpPort')),
+        secure: formData.get('smtpSecure') === 'on',
+        user: formData.get('smtpUser') as string,
+        pass: formData.get('smtpPass') as string,
+    };
+
+    if (!smtpSettings.host || !smtpSettings.port || !smtpSettings.user || !smtpSettings.pass) {
+        return { error: 'All SMTP fields are required.' };
+    }
+    
+    try {
+        const { db } = await connectToDatabase();
+
+        const updateData: Partial<EmailSettings> = {
+            userId: new ObjectId(session.user._id),
+            provider: 'smtp',
+            fromName: formData.get('fromName') as string,
+            fromEmail: formData.get('fromEmail') as string,
+            smtp: smtpSettings,
+        };
+        
+        await db.collection('email_settings').updateOne(
+            { userId: new ObjectId(session.user._id) },
+            { $set: updateData },
+            { upsert: true }
+        );
+
+        revalidatePath('/dashboard/crm/settings');
+        return { message: 'SMTP settings saved successfully.' };
+    } catch(e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
 export async function sendCrmEmail(prevState: any, formData: FormData): Promise<{ success: boolean; message?: string, error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: "Access denied." };

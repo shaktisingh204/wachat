@@ -3,12 +3,12 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCircle, Users, KeyRound, Shield, FileText } from 'lucide-react';
+import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCircle, Users, KeyRound, Shield, FileText, Zap, ShieldCheck } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
 import { getProjects, getSession } from '@/app/actions';
-import { getCrmEmailSettings } from '@/app/actions/crm-email.actions';
+import { getEmailSettings } from '@/app/actions/email.actions';
 import { saveCrmProviders } from '@/app/actions/crm.actions';
 import { saveCrmPermissions } from '@/app/actions/crm.actions';
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
@@ -16,7 +16,7 @@ import type { CrmEmailSettings, Project, WithId, User } from '@/lib/definitions'
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from 'lucide-react';
-import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-icons';
+import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import Link from "next/link";
 import { useToast } from "@/hooks/use-toast";
 import { useFormStatus } from "react-dom";
@@ -54,7 +54,7 @@ function CrmSettingsPageContent() {
             const session = await getSession();
             if (session?.user) {
                 setUser(session.user as any);
-                const fetchedSettings = await getCrmEmailSettings(session.user._id.toString());
+                const fetchedSettings = await getEmailSettings(session.user._id.toString());
                 setSettings(fetchedSettings);
             }
         });

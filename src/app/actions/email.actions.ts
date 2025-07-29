@@ -1,10 +1,11 @@
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
-import type { EmailContact, EmailCampaign, CrmEmailTemplate, EmailConversation, EmailPermissions, EmailComplianceSettings } from '@/lib/definitions';
+import type { EmailContact, EmailCampaign, CrmEmailTemplate, EmailConversation, EmailPermissions, EmailComplianceSettings, EmailSettings } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -440,4 +441,69 @@ export async function saveEmailComplianceSettings(prevState: any, formData: Form
     } catch(e: any) {
         return { error: getErrorMessage(e) };
     }
+}
+
+export async function saveOAuthTokens(data: {
+    userId: string;
+    provider: 'google' | 'outlook';
+    accessToken: string;
+    refreshToken: string;
+    expiryDate: number;
+    fromEmail: string;
+    fromName: string;
+}): Promise<void> {
+    const { userId, provider, ...tokens } = data;
+    const { db } = await connectToDatabase();
+    
+    const updateData: Partial<EmailSettings> = {
+        userId: new ObjectId(userId),
+        provider,
+        fromEmail: data.fromEmail,
+        fromName: data.fromName,
+    };
+
+    if (provider === 'google') {
+        updateData.googleOAuth = {
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken,
+            expiryDate: tokens.expiryDate,
+        };
+    } else if (provider === 'outlook') {
+        updateData.outlookOAuth = {
+            accessToken: tokens.accessToken,
+            refreshToken: tokens.refreshToken,
+            expiryDate: tokens.expiryDate,
+        };
+    }
+
+    await db.collection('email_settings').updateOne(
+        { userId: new ObjectId(userId) },
+        { $set: updateData },
+        { upsert: true }
+    );
+}
+
+export async function getEmailSettings(): Promise<WithId<EmailSettings>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        // In the future, this could support multiple accounts per user.
+        // For now, it fetches all settings documents linked to the user.
+        const settings = await db.collection<EmailSettings>('email_settings')
+            .find({ userId: new ObjectId(session.user._id) })
+            .toArray();
+        return JSON.parse(JSON.stringify(settings));
+    } catch(e) {
+        return [];
+    }
+}
+
+export async function getSingleEmailSettings(userId: string): Promise<WithId<EmailSettings> | null> {
+    const { db } = await connectToDatabase();
+    // Fetches the first available setting for a user.
+    const setting = await db.collection<EmailSettings>('email_settings')
+        .findOne({ userId: new ObjectId(userId) });
+    return setting ? JSON.parse(JSON.stringify(setting)) : null;
 }
