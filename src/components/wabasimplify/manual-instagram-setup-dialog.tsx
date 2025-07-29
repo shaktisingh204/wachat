@@ -20,7 +20,7 @@ import { handleManualFacebookPageSetup } from '@/app/actions/facebook.actions';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent } from '../ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/card';
 
 const initialState = { success: false, error: undefined };
 
