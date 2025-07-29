@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
@@ -13,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { GoogleIcon, OutlookIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { useRouter } from 'next/navigation';
+import { Separator } from '@/components/ui/separator';
 
 function PageSkeleton() {
     return (
