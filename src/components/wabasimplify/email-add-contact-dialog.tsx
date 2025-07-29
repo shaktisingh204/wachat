@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -19,6 +18,8 @@ import { Label } from '@/components/ui/label';
 import { LoaderCircle, UserPlus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addEmailContact } from '@/app/actions/email.actions';
+import type { WithId, Tag } from '@/lib/definitions';
+import { MultiSelectCombobox } from './multi-select-combobox';
 
 const initialState = { message: null, error: null };
 
@@ -34,18 +35,21 @@ function SubmitButton() {
 
 interface EmailAddContactDialogProps {
     onAdded: () => void;
+    availableTags: WithId<Tag>[];
 }
 
-export function EmailAddContactDialog({ onAdded }: EmailAddContactDialogProps) {
+export function EmailAddContactDialog({ onAdded, availableTags }: EmailAddContactDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(addEmailContact, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
+  const [selectedTagIds, setSelectedTagIds] = useState<string[]>([]);
 
   useEffect(() => {
     if (state.message) {
       toast({ title: 'Success!', description: state.message });
       formRef.current?.reset();
+      setSelectedTagIds([]);
       setOpen(false);
       onAdded();
     }
@@ -64,6 +68,7 @@ export function EmailAddContactDialog({ onAdded }: EmailAddContactDialogProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
+             <input type="hidden" name="tagIds" value={selectedTagIds.join(',')} />
             <DialogHeader>
                 <DialogTitle>Add New Email Contact</DialogTitle>
                 <DialogDescription>Manually add a contact to your email list.</DialogDescription>
@@ -76,6 +81,15 @@ export function EmailAddContactDialog({ onAdded }: EmailAddContactDialogProps) {
                  <div className="space-y-2">
                     <Label htmlFor="name">Name (Optional)</Label>
                     <Input id="name" name="name" />
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="tags">Tags (Optional)</Label>
+                    <MultiSelectCombobox
+                        options={availableTags.map(t => ({ value: t._id.toString(), label: t.name, color: t.color }))}
+                        selected={selectedTagIds}
+                        onSelectionChange={setSelectedTagIds}
+                        placeholder="Select tags..."
+                    />
                 </div>
             </div>
             <DialogFooter>
