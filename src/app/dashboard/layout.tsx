@@ -64,7 +64,7 @@ const wachatMenuItems = [
   { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, roles: ['owner', 'admin'] },
   { href: '/dashboard/calls', label: 'Calls', icon: PhoneCall, roles: ['owner', 'admin'] },
   { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'] },
-  { href: '/dashboard/flows', label: 'Meta Flows', icon: ServerCog, beta: true, roles: ['owner', 'admin'] },
+  { href: '/dashboard/flows', label: 'Meta Flows', beta: true, roles: ['owner', 'admin'] },
   { href: '/dashboard/integrations', label: 'Integrations', icon: Zap, roles: ['owner', 'admin'] },
   { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: WaPayIcon, roles: ['owner', 'admin'] },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'] },
@@ -150,7 +150,8 @@ const instagramMenuGroups = [
   {
     title: 'General',
     items: [
-      { href: '/dashboard/instagram/connections', label: 'Account Connections', icon: Wrench },
+      { href: '/dashboard/instagram/connections', label: 'Connections', icon: Wrench },
+      { href: '/dashboard/instagram/setup', label: 'Setup', icon: Plus },
       { href: '/dashboard/instagram', label: 'Dashboard', icon: LayoutDashboard },
       { href: '/dashboard/instagram/create-post', label: 'Create Post', icon: Pencil },
     ],
@@ -346,7 +347,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const appIcons = [
     { id: 'whatsapp', href: '/dashboard', icon: WhatsAppIcon, label: 'Wachat Suite', className: 'bg-[#25D366] text-white', hoverClassName: 'bg-card text-[#25D366] hover:bg-accent' },
     { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite', className: 'bg-blue-600 text-white', hoverClassName: 'bg-card text-blue-600 hover:bg-accent' },
-    { id: 'instagram', href: '/dashboard/instagram', icon: InstagramIcon, label: 'Instagram Suite', className: 'bg-instagram text-white', hoverClassName: 'bg-card text-instagram hover:bg-accent' },
+    { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram Suite', className: 'bg-instagram text-white', hoverClassName: 'bg-card text-instagram hover:bg-accent' },
     { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite', className: 'bg-rose-500 text-white', hoverClassName: 'bg-card text-rose-500 hover:bg-accent' },
     { id: 'email', href: '/dashboard/email', icon: Mail, label: 'Email Suite', className: 'bg-cyan-500 text-white', hoverClassName: 'bg-card text-cyan-500 hover:bg-accent' },
     { id: 'sms', href: '/dashboard/sms', icon: MessageSquare, label: 'SMS Suite', className: 'bg-violet-500 text-white', hoverClassName: 'bg-card text-violet-500 hover:bg-accent' },
@@ -405,7 +406,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       </SidebarGroupLabel>
                     )}
                     {group.items.map((item: any) => {
-                      const isConnectionLink = item.href.includes('all-projects') || item.href.includes('connections');
+                      const isConnectionLink = item.href.includes('all-projects') || item.href.includes('connections') || item.href.includes('setup');
                       const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp' || activeApp === 'instagram';
                       
                       const hasActiveProjectForSuite =
