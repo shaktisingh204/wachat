@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
-import type { EmailContact, EmailCampaign, CrmEmailTemplate, EmailConversation } from '@/lib/definitions';
+import type { EmailContact, EmailCampaign, CrmEmailTemplate, EmailConversation, EmailPermissions } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -387,4 +387,33 @@ export async function updateEmailConversationStatus(conversationId: string, stat
     return { success: true };
 }
 
+export async function saveEmailPermissions(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+    
+    const modules = ['contacts', 'campaigns', 'templates'];
+    const newPermissions: Partial<EmailPermissions> = { agent: {} };
+
+    for(const module of modules) {
+        newPermissions.agent![module as keyof EmailPermissions['agent']] = {
+            view: formData.get(`${module}_view`) === 'on',
+            create: formData.get(`${module}_create`) === 'on',
+            edit: formData.get(`${module}_edit`) === 'on',
+            delete: formData.get(`${module}_delete`) === 'on',
+        }
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $set: { 'email.permissions': newPermissions } }
+        );
+
+        revalidatePath('/dashboard/email/settings');
+        return { message: "Email permissions saved successfully." };
+    } catch(e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
 
