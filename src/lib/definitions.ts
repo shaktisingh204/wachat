@@ -47,6 +47,21 @@ export type CrmPermissions = {
     }
 };
 
+export type EmailModulePermissions = {
+    view?: boolean;
+    create?: boolean;
+    edit?: boolean;
+    delete?: boolean;
+};
+
+export type EmailPermissions = {
+    agent: {
+        contacts?: EmailModulePermissions,
+        campaigns?: EmailModulePermissions,
+        templates?: EmailModulePermissions,
+    }
+};
+
 export type CrmAutomationNode = {
     id: string;
     type: string;
@@ -918,6 +933,9 @@ export type User = {
     crm?: {
       whatsappProjectId?: ObjectId;
       permissions?: CrmPermissions;
+    };
+    email?: {
+      permissions?: EmailPermissions;
     };
 };
 
