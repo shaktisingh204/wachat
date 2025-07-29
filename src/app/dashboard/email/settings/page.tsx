@@ -2,15 +2,15 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCircle, Users, KeyRound, Shield, FileText, Zap } from 'lucide-react';
+import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCircle, Users, KeyRound, Shield, FileText, Zap, ShieldCheck } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
 import { getSession } from '@/app/actions';
-import { getCrmEmailSettings, saveEmailPermissions } from '@/app/actions/email.actions';
+import { getCrmEmailSettings, saveEmailPermissions, saveEmailComplianceSettings } from '@/app/actions/email.actions';
 import { saveCrmProviders } from '@/app/actions/crm.actions';
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
-import type { CrmEmailSettings, Project, WithId, User } from '@/lib/definitions';
+import type { CrmEmailSettings, Project, WithId, User, EmailComplianceSettings } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from 'lucide-react';
@@ -25,9 +25,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { EmailTemplatesManager } from '@/components/wabasimplify/email-templates-manager';
+import { EmailTemplatesManager } from "@/components/wabasimplify/email-templates-manager";
 import { CodeBlock } from "@/components/wabasimplify/code-block";
-
+import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
 
 function PageSkeleton() {
     return (
@@ -40,9 +41,53 @@ function PageSkeleton() {
     );
 }
 
+const complianceInitialState = { message: null, error: undefined };
+
+function ComplianceForm({ user }: { user: WithId<User> }) {
+    const { toast } = useToast();
+    const [state, formAction] = useActionState(saveEmailComplianceSettings, complianceInitialState);
+    const { pending } = useFormStatus();
+
+    useEffect(() => {
+        if (state.message) toast({ title: 'Success', description: state.message });
+        if (state.error) toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    }, [state, toast]);
+
+    const compliance = user.email?.compliance || { unsubscribeLink: true, physicalAddress: '' };
+    
+    return (
+        <form action={formAction}>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5"/>Compliance & Unsubscribe</CardTitle>
+                    <CardDescription>Configure settings to comply with anti-spam laws like CAN-SPAM and GDPR.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                     <div className="flex items-center space-x-2 rounded-lg border p-4">
+                        <Switch id="unsubscribeLink" name="unsubscribeLink" defaultChecked={compliance.unsubscribeLink} />
+                        <Label htmlFor="unsubscribeLink" className="font-normal">Automatically include an unsubscribe link in email footers.</Label>
+                    </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="physicalAddress">Physical Mailing Address</Label>
+                        <Textarea id="physicalAddress" name="physicalAddress" placeholder="e.g., 123 Main St, Anytown, USA 12345" defaultValue={compliance.physicalAddress}/>
+                        <p className="text-xs text-muted-foreground">Required by CAN-SPAM for all commercial emails.</p>
+                    </div>
+                </CardContent>
+                 <CardFooter>
+                     <Button type="submit" disabled={pending}>
+                        {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                        Save Compliance Settings
+                    </Button>
+                </CardFooter>
+            </Card>
+        </form>
+    );
+}
+
 function PermissionsForm({ user }: { user: WithId<User> }) {
     const { toast } = useToast();
     const [state, formAction] = useActionState(saveEmailPermissions, { message: null, error: undefined });
+    const { pending } = useFormStatus();
 
     useEffect(() => {
         if (state.message) toast({ title: 'Success', description: state.message });
@@ -95,7 +140,7 @@ function PermissionsForm({ user }: { user: WithId<User> }) {
                     </div>
                 </CardContent>
                 <CardFooter>
-                     <Button type="submit"><Save className="mr-2 h-4 w-4"/>Save Permissions</Button>
+                     <Button type="submit" disabled={pending}><Save className="mr-2 h-4 w-4"/>Save Permissions</Button>
                 </CardFooter>
             </Card>
         </form>
@@ -222,10 +267,11 @@ function CrmSettingsPageContent() {
                 <p className="text-muted-foreground">Configure your email accounts for sending.</p>
             </div>
             <Tabs defaultValue={initialTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-5">
+                <TabsList className="grid w-full grid-cols-6">
                     <TabsTrigger value="email">Email Setup</TabsTrigger>
                     <TabsTrigger value="templates">Templates</TabsTrigger>
                     <TabsTrigger value="permissions">Permissions</TabsTrigger>
+                    <TabsTrigger value="compliance">Compliance</TabsTrigger>
                     <TabsTrigger value="deliverability">Deliverability</TabsTrigger>
                     <TabsTrigger value="integrations">Integrations</TabsTrigger>
                 </TabsList>
@@ -259,6 +305,9 @@ function CrmSettingsPageContent() {
                 </TabsContent>
                  <TabsContent value="permissions" className="mt-6">
                     <PermissionsForm user={user} />
+                </TabsContent>
+                <TabsContent value="compliance" className="mt-6">
+                    <ComplianceForm user={user} />
                 </TabsContent>
                 <TabsContent value="deliverability" className="mt-6">
                     <DeliverabilityTab />

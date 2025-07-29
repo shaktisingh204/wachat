@@ -1,12 +1,10 @@
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
-import type { EmailContact, EmailCampaign, CrmEmailTemplate, EmailConversation, EmailPermissions } from '@/lib/definitions';
+import type { EmailContact, EmailCampaign, CrmEmailTemplate, EmailConversation, EmailPermissions, EmailComplianceSettings } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -417,3 +415,29 @@ export async function saveEmailPermissions(prevState: any, formData: FormData): 
     }
 }
 
+export async function saveEmailComplianceSettings(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+
+    const settings: EmailComplianceSettings = {
+        unsubscribeLink: formData.get('unsubscribeLink') === 'on',
+        physicalAddress: formData.get('physicalAddress') as string,
+    };
+    
+    if (settings.unsubscribeLink && !settings.physicalAddress) {
+        return { error: 'A physical address is required for CAN-SPAM compliance when sending commercial email.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $set: { 'email.compliance': settings } }
+        );
+
+        revalidatePath('/dashboard/email/settings');
+        return { message: "Compliance settings saved successfully." };
+    } catch(e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}

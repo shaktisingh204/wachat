@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type Website = {
@@ -52,6 +51,11 @@ export type EmailModulePermissions = {
     create?: boolean;
     edit?: boolean;
     delete?: boolean;
+};
+
+export type EmailComplianceSettings = {
+    unsubscribeLink: boolean;
+    physicalAddress: string;
 };
 
 export type EmailPermissions = {
@@ -936,6 +940,7 @@ export type User = {
     };
     email?: {
       permissions?: EmailPermissions;
+      compliance?: EmailComplianceSettings;
     };
 };
 
