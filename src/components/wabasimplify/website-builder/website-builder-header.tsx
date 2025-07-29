@@ -1,15 +1,16 @@
 
+
 'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { SurfaceSwitcher } from './surface-switcher';
 import { Eye, Save, ArrowLeft, LoaderCircle } from 'lucide-react';
-import type { WithId, EcommShop, EcommPage } from '@/lib/definitions';
+import type { WithId, Website, WebsitePage } from '@/lib/definitions';
 
 interface WebsiteBuilderHeaderProps {
-  shop: WithId<EcommShop>;
-  pages: WithId<EcommPage>[];
+  site: WithId<Website>;
+  pages: WithId<WebsitePage>[];
   activeSurface: string;
   isSaving: boolean;
   onSwitchSurface: (surface: string) => void;
@@ -17,7 +18,7 @@ interface WebsiteBuilderHeaderProps {
 }
 
 export function WebsiteBuilderHeader({
-  shop,
+  site,
   pages,
   activeSurface,
   isSaving,
@@ -28,12 +29,12 @@ export function WebsiteBuilderHeader({
     <header className="flex-shrink-0 flex items-center justify-between gap-4 p-3 border-b bg-background">
       <div className="flex items-center gap-2">
         <Button variant="ghost" size="icon" asChild>
-          <Link href={`/dashboard/facebook/custom-ecommerce`}>
+          <Link href={`/dashboard/website-builder`}>
             <ArrowLeft className="h-4 w-4" />
           </Link>
         </Button>
         <SurfaceSwitcher
-          shop={shop}
+          site={site}
           pages={pages}
           activeSurface={activeSurface}
           onSwitch={onSwitchSurface}
@@ -41,7 +42,7 @@ export function WebsiteBuilderHeader({
       </div>
       <div className="flex items-center gap-2">
         <Button variant="outline" asChild>
-          <Link href={`/shop/${shop.slug}`} target="_blank">
+          <Link href={`/web/${site.slug}`} target="_blank">
             <Eye className="mr-2 h-4 w-4" />
             View Site
           </Link>
