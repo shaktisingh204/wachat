@@ -204,6 +204,14 @@ const emailMenuItems = [
     { href: '/dashboard/email/settings', label: 'Settings', icon: Settings },
 ];
 
+const smsMenuItems = [
+    { href: '/dashboard/sms', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/dashboard/sms/campaigns', label: 'Campaigns', icon: Send },
+    { href: '/dashboard/sms/contacts', label: 'Contacts', icon: Users },
+    { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart },
+    { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
+];
+
 const urlShortenerMenuItems = [
     { href: '/dashboard/url-shortener', label: 'Shortener', icon: LinkIcon },
     { href: '/dashboard/url-shortener/settings', label: 'Settings', icon: Settings },
@@ -257,6 +265,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         case 'instagram': items = instagramMenuGroups.map(group => ({ ...group, items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent']}))})); break;
         case 'crm': items = [{ title: 'CRM Tools', items: crmMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'email': items = [{ title: 'Email Suite', items: emailMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        case 'sms': items = [{ title: 'SMS Suite', items: smsMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'url-shortener': items = [{ title: null, items: urlShortenerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'qr-code-maker': items = [{ title: null, items: qrCodeMakerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'seo-suite': items = [{ title: null, items: seoMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
@@ -287,6 +296,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           setActiveApp('crm');
       } else if (pathname.startsWith('/dashboard/email')) {
           setActiveApp('email');
+      } else if (pathname.startsWith('/dashboard/sms')) {
+          setActiveApp('sms');
       } else if (pathname.startsWith('/dashboard/url-shortener')) {
           setActiveApp('url-shortener');
       } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
@@ -338,6 +349,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { id: 'instagram', href: '/dashboard/instagram', icon: InstagramIcon, label: 'Instagram Suite', className: 'bg-instagram text-white', hoverClassName: 'bg-card text-instagram hover:bg-accent' },
     { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite', className: 'bg-rose-500 text-white', hoverClassName: 'bg-card text-rose-500 hover:bg-accent' },
     { id: 'email', href: '/dashboard/email', icon: Mail, label: 'Email Suite', className: 'bg-cyan-500 text-white', hoverClassName: 'bg-card text-cyan-500 hover:bg-accent' },
+    { id: 'sms', href: '/dashboard/sms', icon: MessageSquare, label: 'SMS Suite', className: 'bg-violet-500 text-white', hoverClassName: 'bg-card text-violet-500 hover:bg-accent' },
     { id: 'website-builder', href: '/dashboard/website-builder', icon: Brush, label: 'Website Builder', className: 'bg-teal-500 text-white', hoverClassName: 'bg-card text-teal-500 hover:bg-accent' },
     { id: 'seo-suite', href: '/dashboard/seo', icon: SeoIcon, label: 'SEO Suite', className: 'bg-indigo-500 text-white', hoverClassName: 'bg-card text-indigo-500 hover:bg-accent' },
     { id: 'url-shortener', href: '/dashboard/url-shortener', icon: LinkIcon, label: 'URL Shortener', className: 'bg-purple-600 text-white', hoverClassName: 'bg-card text-purple-600 hover:bg-accent' },
@@ -421,6 +433,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         item.href === '/dashboard/seo' ||
                         item.href === '/dashboard/crm' ||
                         item.href === '/dashboard/email' ||
+                        item.href === '/dashboard/sms' ||
                         item.href === '/dashboard/website-builder';
 
                       const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
