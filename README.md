@@ -1,6 +1,6 @@
 # SabNode
 
-This is SabNode, a platform to streamline your business communications. This module focuses on the WhatsApp Business API.
+This is SabNode, a platform to streamline your business communications and build your online presence. This platform includes modules for the WhatsApp Business API, Facebook Pages, and a Landing Page & Portfolio Builder.
 
 ## 🚀 Getting Started
 
@@ -68,5 +68,3 @@ You need to create a Meta App and add the Webhooks product.
 Configure a webhook URL in your Meta App's settings to receive notifications. The URL will be `[YOUR_APP_URL]/api/webhooks/meta`.
 Subscribe your app to your WhatsApp Business Account (WABA). 
 You'll receive webhook notifications for various events, including changes to your WABA, phone numbers, message templates, and messages sent to your phone numbers.
-
-```
