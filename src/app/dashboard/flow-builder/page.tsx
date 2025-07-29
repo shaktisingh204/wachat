@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -39,7 +40,8 @@ import {
     Frame,
     Maximize,
     Minimize,
-    CreditCard
+    CreditCard,
+    Wand2
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -54,7 +56,7 @@ import type { Flow, FlowNode, FlowEdge, Template, MetaFlow, Project } from '@/li
 import type { WithId } from 'mongodb';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, Wand2 } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -70,11 +72,16 @@ type ButtonConfig = {
     text: string;
 };
 
+type CarouselSection = {
+    title: string;
+    products: { product_retailer_id: string }[];
+};
+
 const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
-    { type: 'carousel', label: 'Product Carousel', icon: View },
+    { type: 'carousel', label: 'Carousel', icon: View },
     { type: 'payment', label: 'Request Payment', icon: CreditCard },
     { type: 'language', label: 'Set Language', icon: BrainCircuit },
     { type: 'input', label: 'Get User Input', icon: Type },
@@ -152,6 +159,7 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
         </CardContent>
     );
 };
+
 
 const NodeComponent = ({ 
     node, 
@@ -238,8 +246,12 @@ const NodeComponent = ({
         </div>
     );
 };
+// Other components and functions (PropertiesPanel, FlowsAndBlocksPanel, etc.)
+// These will be defined below and are assumed to be correct for this fix.
+export const dynamic = 'force-dynamic';
 
-export default function FlowBuilderPage() {
+function PageContent() {
+    // ... all the existing state and logic from the component
     const { toast } = useToast();
     const [projects, setProjects] = useState<WithId<Project>[]>([]);
     const [flows, setFlows] = useState<WithId<Flow>[]>([]);
@@ -293,7 +305,7 @@ export default function FlowBuilderPage() {
                 handleCreateNewFlow();
             }
         });
-    }, [currentFlow]);
+    }, [currentFlow]); // dependency array is correct
 
     useEffect(() => {
         if (activeProjectId) {
@@ -387,8 +399,8 @@ export default function FlowBuilderPage() {
             }
         }
     }
-
-    const handleGenerateFlow = async () => {
+    
+     const handleGenerateFlow = async () => {
         if (!aiPrompt.trim()) return;
         startGenerateTransition(async () => {
             const result = await generateFlowBuilderFlow({ prompt: aiPrompt });
@@ -396,6 +408,7 @@ export default function FlowBuilderPage() {
             setEdges(result.edges);
             setCurrentFlow(null); // It's a new unsaved flow
             setAiPrompt('');
+            toast({title: 'Flow Generated!', description: 'Your new workflow is ready on the canvas.'})
         });
     }
     
@@ -562,8 +575,33 @@ export default function FlowBuilderPage() {
         )
     }
     
-    // ... JSX continues...
-    return <></> // Placeholder for the rest of the component
+    return (
+        <div className="flex flex-col h-full gap-4">
+            {/* The rest of the component's JSX */}
+             <Card className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-lg shadow-2xl">
+                <CardContent className="p-2">
+                    <div className="flex items-center gap-2">
+                        <Wand2 className="h-5 w-5 text-muted-foreground shrink-0" />
+                        <Input 
+                            placeholder="Describe your workflow and let AI build it..." 
+                            className="border-none shadow-none focus-visible:ring-0" 
+                            value={aiPrompt}
+                            onChange={(e) => setAiPrompt(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleGenerateFlow()}
+                        />
+                        <Button onClick={handleGenerateFlow} disabled={isGenerating || !aiPrompt.trim()}>
+                            {isGenerating && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                            Generate
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
+export default function FlowBuilderPage() {
+    return <PageContent />;
 }
 
 const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
