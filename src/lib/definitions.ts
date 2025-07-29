@@ -191,6 +191,15 @@ export type CrmContact = {
     updatedAt?: Date;
 };
 
+export type EmailContact = {
+    _id: ObjectId;
+    userId: ObjectId;
+    email: string;
+    name?: string;
+    tags?: string[];
+    createdAt: Date;
+};
+
 export type BusinessCapabilities = {
     max_daily_conversation_per_phone: number;
     max_phone_numbers_per_business: number;
@@ -833,6 +842,7 @@ export type PlanFeaturePermissions = {
     instagramReels: boolean;
     instagramMessages: boolean;
     chatbot: boolean;
+    email: boolean;
 };
 
 export type PlanMessageCosts = {

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -30,7 +31,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -194,6 +195,7 @@ const crmMenuItems = [
 
 const emailMenuItems = [
     { href: '/dashboard/email', label: 'Inbox', icon: Mail },
+    { href: '/dashboard/email/contacts', label: 'Contacts', icon: Contact },
     { href: '/dashboard/email/sent', label: 'Sent', icon: Send },
     { href: '/dashboard/email/settings', label: 'Settings', icon: Settings },
 ];
@@ -393,7 +395,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       const hasActiveProjectForSuite =
                         (activeApp === 'facebook' && hasActiveFacebookProject) ||
                         (activeApp === 'whatsapp' && hasActiveWhatsAppProject) ||
-                        (activeApp === 'instagram' && hasActiveFacebookProject); // Instagram uses facebook project with IG linked
+                        (activeApp === 'instagram' && hasActiveFacebookProject);
 
                       const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard' && activeApp !== 'crm' && activeApp !== 'website-builder';
 
