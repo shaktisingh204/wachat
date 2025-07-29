@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -6,11 +7,12 @@ import { Settings, Mail, Bot, Handshake, Link as LinkIcon, Rss, Save, LoaderCirc
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CrmSmtpForm } from '@/components/wabasimplify/crm-smtp-form';
-import { getSession } from '@/app/actions';
-import { getCrmEmailSettings, saveEmailPermissions, saveEmailComplianceSettings } from '@/app/actions/email.actions';
+import { getProjects, getSession } from '@/app/actions';
+import { getEmailSettings } from '@/app/actions/email.actions';
 import { saveCrmProviders } from '@/app/actions/crm.actions';
+import { saveCrmPermissions } from '@/app/actions/crm.actions';
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
-import type { CrmEmailSettings, Project, WithId, User, EmailComplianceSettings } from '@/lib/definitions';
+import type { EmailSettings, Project, WithId, User, EmailComplianceSettings } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from 'lucide-react';
@@ -29,6 +31,7 @@ import { EmailTemplatesManager } from "@/components/wabasimplify/email-templates
 import { CodeBlock } from "@/components/wabasimplify/code-block";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+
 
 function PageSkeleton() {
     return (
@@ -228,11 +231,11 @@ function IntegrationsTab({ userId }: { userId: string }) {
     )
 }
 
-function CrmSettingsPageContent() {
+function EmailSettingsPageContent() {
     const searchParams = useSearchParams();
     const initialTab = searchParams.get('tab') || 'email';
     const [user, setUser] = useState<WithId<User> | null>(null);
-    const [settings, setSettings] = useState<CrmEmailSettings | null>(null);
+    const [settings, setSettings] = useState<WithId<EmailSettings> | null>(null);
     const [isLoading, startLoading] = useTransition();
 
     useEffect(() => {
@@ -240,7 +243,7 @@ function CrmSettingsPageContent() {
             const session = await getSession();
             if (session?.user) {
                 setUser(session.user as any);
-                const fetchedSettings = await getCrmEmailSettings(session.user._id.toString());
+                const fetchedSettings = await getSingleEmailSettings(session.user._id.toString());
                 setSettings(fetchedSettings);
             }
         });
@@ -320,10 +323,10 @@ function CrmSettingsPageContent() {
     );
 }
 
-export default function CrmSettingsPage() {
+export default function EmailSettingsPage() {
     return (
         <Suspense fallback={<PageSkeleton/>}>
-            <CrmSettingsPageContent/>
+            <EmailSettingsPageContent/>
         </Suspense>
     )
 }

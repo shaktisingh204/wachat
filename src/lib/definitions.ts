@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type Website = {
@@ -100,7 +101,7 @@ export type CrmEmailTemplate = {
     updatedAt?: Date;
 }
 
-export type CrmEmailSettings = {
+export type EmailSettings = {
     _id: ObjectId;
     userId: ObjectId;
     provider: 'smtp' | 'google' | 'outlook';

@@ -3,13 +3,13 @@
 
 import nodemailer from 'nodemailer';
 import { googleAuthClient, outlookAuthClient } from './crm-auth';
-import type { CrmEmailSettings, WithId } from './definitions';
+import type { EmailSettings, WithId } from './definitions';
 import { getSession } from '@/app/actions';
 import { connectToDatabase } from './mongodb';
-import { saveOAuthTokens } from '@/app/actions/crm-email.actions';
+import { saveOAuthTokens } from '@/app/actions/email.actions';
 import { ConfidentialClientApplication } from '@azure/msal-node';
 
-async function createSmtpTransporter(settings: CrmEmailSettings) {
+async function createSmtpTransporter(settings: EmailSettings) {
     if (!settings.smtp) throw new Error('SMTP settings are not configured.');
     return nodemailer.createTransport({
         host: settings.smtp.host,
@@ -22,7 +22,7 @@ async function createSmtpTransporter(settings: CrmEmailSettings) {
     });
 }
 
-async function createGoogleTransporter(settings: CrmEmailSettings, userId: string) {
+async function createGoogleTransporter(settings: EmailSettings, userId: string) {
     if (!settings.googleOAuth) throw new Error('Google account is not connected.');
     
     let { accessToken, refreshToken, expiryDate } = settings.googleOAuth;
@@ -36,7 +36,7 @@ async function createGoogleTransporter(settings: CrmEmailSettings, userId: strin
         expiryDate = credentials.expiry_date!;
         
         await saveOAuthTokens({
-            userId, provider: 'google', accessToken, refreshToken, expiryDate
+            userId, provider: 'google', accessToken, refreshToken, expiryDate, fromEmail: settings.fromEmail!, fromName: settings.fromName!
         });
     }
 
@@ -53,7 +53,7 @@ async function createGoogleTransporter(settings: CrmEmailSettings, userId: strin
     });
 }
 
-async function createOutlookTransporter(settings: CrmEmailSettings, userId: string) {
+async function createOutlookTransporter(settings: EmailSettings, userId: string) {
     if (!settings.outlookOAuth) throw new Error('Outlook account is not connected.');
     
     let { accessToken, refreshToken, expiryDate } = settings.outlookOAuth;
@@ -70,7 +70,7 @@ async function createOutlookTransporter(settings: CrmEmailSettings, userId: stri
         expiryDate = response.expiresOn!.getTime();
         
         await saveOAuthTokens({
-            userId, provider: 'outlook', accessToken, refreshToken, expiryDate
+            userId, provider: 'outlook', accessToken, refreshToken, expiryDate, fromEmail: settings.fromEmail!, fromName: settings.fromName!
         });
      }
 
@@ -89,7 +89,9 @@ export async function getTransporter() {
     if (!session?.user) throw new Error("Authentication required.");
     
     const { db } = await connectToDatabase();
-    const settings = await db.collection<WithId<CrmEmailSettings>>('crm_email_settings').findOne({ userId: session.user._id });
+    // This assumes the user has one primary sending configuration.
+    // To support multiple senders, this would need to be adapted to accept an `accountId` or `fromEmail`.
+    const settings = await db.collection<WithId<EmailSettings>>('email_settings').findOne({ userId: new ObjectId(session.user._id) });
 
     if (!settings) throw new Error("Email settings not found for this user.");
     
