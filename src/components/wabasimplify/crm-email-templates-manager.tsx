@@ -125,3 +125,5 @@ export function CrmEmailTemplatesManager() {
         </>
     );
 }
+
+export { CrmEmailTemplatesManager as EmailTemplatesManager };
