@@ -208,6 +208,8 @@ export type EmailCampaign = {
     createdAt: Date;
     scheduledAt?: Date;
     sentAt?: Date;
+    openRate?: number;
+    clickRate?: number;
 };
 
 export type EmailMessage = {
