@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -7,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Home, Plus, Trash2, Check, Settings, MoreVertical } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { WithId, EcommPage } from '@/lib/definitions';
+import type { WithId, WebsitePage } from '@/lib/definitions';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,11 +27,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { deleteEcommPage, setAsHomepage, saveEcommPage } from '@/app/actions/custom-ecommerce.actions';
+import { deleteWebsitePage, setAsHomepage, saveWebsitePage } from '@/app/actions/portfolio.actions';
 import { useToast } from '@/hooks/use-toast';
 
 interface PageManagerPanelProps {
-  pages: WithId<EcommPage>[];
+  pages: WithId<WebsitePage>[];
   activePageId: string | null;
   shopId: string;
   onSelectPage: (pageId: string) => void;
@@ -47,8 +48,8 @@ export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, on
 
         const slug = newPageName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
         
-        const result = await saveEcommPage({
-            shopId: shopId,
+        const result = await saveWebsitePage({
+            siteId: shopId,
             name: newPageName,
             slug: slug,
             layout: [],
@@ -68,7 +69,7 @@ export function PageManagerPanel({ pages, activePageId, shopId, onSelectPage, on
     }
     
     const handleDeletePage = async (pageId: string) => {
-        const result = await deleteEcommPage(pageId);
+        const result = await deleteWebsitePage(pageId);
          if (result.error) {
             toast({ title: 'Error', description: result.error, variant: 'destructive' });
         } else {

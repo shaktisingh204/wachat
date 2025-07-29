@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Label } from '@/components/ui/label';
@@ -31,17 +32,17 @@ export function RichTextBlockEditor({ settings, onUpdate }: { settings: any, onU
 
     const handleAttributeChange = (index: number, field: 'key' | 'value', value: string) => {
         const newAttributes = [...(settings.customAttributes || [])];
-        newAttributes[index] = { ...newAttributes[index], [field]: value };
+        newAttributes[index] = {...newAttributes[index], [field]: value};
         handleUpdate('customAttributes', newAttributes);
     }
     
     const addAttribute = () => {
-        const newAttributes = [...(settings.customAttributes || []), { id: uuidv4(), key: '', value: '' }];
+        const newAttributes = [...(settings.customAttributes || []), {id: uuidv4(), key: '', value: ''}];
         handleUpdate('customAttributes', newAttributes);
     }
 
     const removeAttribute = (index: number) => {
-        const newAttributes = (settings.customAttributes || []).filter((_: any, i: number) => i !== index);
+        const newAttributes = (settings.customAttributes || []).filter((_: any, i:number) => i !== index);
         handleUpdate('customAttributes', newAttributes);
     }
 
