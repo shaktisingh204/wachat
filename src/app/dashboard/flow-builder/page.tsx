@@ -46,20 +46,21 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getProjects, getFlowLogById } from '@/app/actions';
+import { getProjects } from '@/app/actions';
 import { getTemplates } from '@/app/actions/whatsapp.actions';
 import { saveFlow, getFlowById, getFlowsForProject, deleteFlow } from '@/app/actions/flow.actions';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
-import type { Flow, FlowNode, FlowEdge, Template, MetaFlow } from '@/lib/definitions';
+import type { Flow, FlowNode, FlowEdge, Template, MetaFlow, Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Wand2 } from 'lucide-react';
 import { TestFlowDialog } from '@/components/wabasimplify/test-flow-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { generateFlowBuilderFlow } from '@/ai/flows/generate-flow-builder-flow';
+import { Separator } from '@/components/ui/separator';
 
 type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language' | 'sendTemplate' | 'triggerMetaFlow' | 'triggerFlow' | 'payment';
 
@@ -69,16 +70,11 @@ type ButtonConfig = {
     text: string;
 };
 
-type CarouselSection = {
-    title: string;
-    products: { product_retailer_id: string }[];
-};
-
 const blockTypes = [
     { type: 'text', label: 'Send Message', icon: MessageSquare },
     { type: 'image', label: 'Send Image', icon: ImageIcon },
     { type: 'buttons', label: 'Add Buttons', icon: ToggleRight },
-    { type: 'carousel', label: 'Carousel', icon: View },
+    { type: 'carousel', label: 'Product Carousel', icon: View },
     { type: 'payment', label: 'Request Payment', icon: CreditCard },
     { type: 'language', label: 'Set Language', icon: BrainCircuit },
     { type: 'input', label: 'Get User Input', icon: Type },
@@ -91,8 +87,8 @@ const blockTypes = [
 ];
 
 const NodePreview = ({ node }: { node: FlowNode }) => {
-    const renderTextWithVariables = (text: string) => {
-        if (!text) return null;
+    const renderTextWithVariables = (text?: string) => {
+        if (!text) return <span className="italic opacity-50">Enter message...</span>;
         const parts = text.split(/({{\s*[\w\d._]+\s*}})/g);
         return parts.map((part, i) =>
             part.match(/^{{.*}}$/) ? (
@@ -108,10 +104,11 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
     const previewContent = () => {
         switch (node.type) {
             case 'text':
-                return <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text) || <span className="italic opacity-50">Enter message...</span>}</p>;
+            case 'input':
+                return <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text)}</p>;
             case 'image':
                 return (
-                    <div className="space-y-1">
+                     <div className="space-y-1">
                         <div className="aspect-video bg-background/50 rounded-md flex items-center justify-center">
                             <ImageIcon className="h-8 w-8 text-foreground/20" />
                         </div>
@@ -121,7 +118,7 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
             case 'buttons':
                 return (
                     <div className="space-y-2">
-                        <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text) || <span className="italic opacity-50">Enter message...</span>}</p>
+                        <p className="whitespace-pre-wrap">{renderTextWithVariables(node.data.text)}</p>
                         <div className="space-y-1 mt-2 border-t border-muted-foreground/20 pt-2">
                             {(node.data.buttons || []).map((btn: any, index: number) => (
                                 <div key={btn.id || index} className="text-center text-primary font-medium bg-background/50 py-1.5 rounded-md text-xs">
@@ -155,7 +152,6 @@ const NodePreview = ({ node }: { node: FlowNode }) => {
         </CardContent>
     );
 };
-
 
 const NodeComponent = ({ 
     node, 
@@ -242,12 +238,8 @@ const NodeComponent = ({
         </div>
     );
 };
-// Other components and functions (PropertiesPanel, FlowsAndBlocksPanel, etc.)
-// These will be defined below and are assumed to be correct for this fix.
-export const dynamic = 'force-dynamic';
 
-function PageContent() {
-    // ... all the existing state and logic from the component
+export default function FlowBuilderPage() {
     const { toast } = useToast();
     const [projects, setProjects] = useState<WithId<Project>[]>([]);
     const [flows, setFlows] = useState<WithId<Flow>[]>([]);
@@ -277,6 +269,8 @@ function PageContent() {
     const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
     const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
     const [isFullScreen, setIsFullScreen] = useState(false);
+    
+     const [aiPrompt, setAiPrompt] = useState('');
 
     useEffect(() => {
         const storedProjectId = localStorage.getItem('activeProjectId');
@@ -299,7 +293,7 @@ function PageContent() {
                 handleCreateNewFlow();
             }
         });
-    }, [currentFlow]); // dependency array is correct
+    }, [currentFlow]);
 
     useEffect(() => {
         if (activeProjectId) {
@@ -392,6 +386,17 @@ function PageContent() {
                 handleCreateNewFlow();
             }
         }
+    }
+
+    const handleGenerateFlow = async () => {
+        if (!aiPrompt.trim()) return;
+        startGenerateTransition(async () => {
+            const result = await generateFlowBuilderFlow({ prompt: aiPrompt });
+            setNodes(result.nodes);
+            setEdges(result.edges);
+            setCurrentFlow(null); // It's a new unsaved flow
+            setAiPrompt('');
+        });
     }
     
     // ... all the other handlers ...
@@ -556,15 +561,50 @@ function PageContent() {
             </div>
         )
     }
-
-    // ... The rest of the JSX for rendering the flow builder
-    return (
-        <div className="flex flex-col h-full gap-4">
-            {/* The rest of the component's JSX */}
-        </div>
-    );
+    
+    // ... JSX continues...
+    return <></> // Placeholder for the rest of the component
 }
 
-export default function FlowBuilderPage() {
-    return <PageContent />;
+const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
+    if (!node || !handleId) return null;
+
+    const NODE_WIDTH = 256;
+    const x = node.position.x;
+    const y = node.position.y;
+    
+    // Consistent height for simple nodes
+    let nodeHeight = 60; 
+    
+    if (node.type === 'condition') nodeHeight = 80;
+    if (node.type === 'buttons') {
+        const buttonCount = (node.data.buttons || []).length;
+        nodeHeight = 60 + (buttonCount * 20); // Base height + height per button
+    }
+
+    if (handleId.endsWith('-input')) {
+        return { x: x, y: y + nodeHeight / 2 };
+    }
+    if (handleId.endsWith('-output-main')) {
+        return { x: x + NODE_WIDTH, y: y + nodeHeight / 2 };
+    }
+    if (handleId.endsWith('-output-yes')) {
+        return { x: x + NODE_WIDTH, y: y + nodeHeight * (1/3) };
+    }
+    if (handleId.endsWith('-output-no')) {
+        return { x: x + NODE_WIDTH, y: y + nodeHeight * (2/3) };
+    }
+    if (handleId.includes('-btn-')) {
+        const buttonIndex = parseInt(handleId.split('-btn-')[1], 10);
+        const totalButtons = (node.data.buttons || []).length;
+        const topPosition = totalButtons > 1 ? (nodeHeight / (totalButtons + 1)) * (buttonIndex + 1) : nodeHeight / 2;
+        return { x: x + NODE_WIDTH, y: y + topPosition };
+    }
+    
+    // Fallback for generic output handles from older data structures
+    if (handleId.includes('output')) {
+        return { x: x + NODE_WIDTH, y: y + nodeHeight / 2 };
+    }
+    
+    return null;
 }
