@@ -1012,7 +1012,7 @@ export type LibraryTemplate = Omit<Template, 'metaId' | 'status' | 'qualityScore
     _id?: ObjectId;
     isCustom?: boolean;
     createdAt?: Date;
-}
+};
 
 export type TemplateCategory = {
     _id: ObjectId;

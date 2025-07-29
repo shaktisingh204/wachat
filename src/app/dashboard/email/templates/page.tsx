@@ -1,7 +1,7 @@
 
 'use client';
 
-import { CrmEmailTemplatesManager } from '@/components/wabasimplify/crm-email-templates-manager';
+import { CrmEmailTemplatesManager } from '@/components/wabasimplify/email-templates-manager';
 import { FileText } from 'lucide-react';
 
 export default function EmailTemplatesPage() {
