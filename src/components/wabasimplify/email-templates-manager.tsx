@@ -1,9 +1,8 @@
 
-
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
-import { getEmailTemplates, deleteEmailTemplate } from '@/app/actions/email.actions';
+import { getCrmEmailTemplates, deleteCrmEmailTemplate } from '@/app/actions/crm-email-templates.actions';
 import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -21,9 +20,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { EmailTemplateDialog } from './email-template-dialog';
+import { CrmEmailTemplateDialog } from './crm-email-template-dialog';
 
-export function EmailTemplatesManager() {
+export function CrmEmailTemplatesManager() {
     const [templates, setTemplates] = useState<WithId<CrmEmailTemplate>[]>([]);
     const [isLoading, startLoading] = useTransition();
     const { toast } = useToast();
@@ -32,7 +31,7 @@ export function EmailTemplatesManager() {
 
     const fetchData = () => {
         startLoading(async () => {
-            const data = await getEmailTemplates();
+            const data = await getCrmEmailTemplates();
             setTemplates(data);
         });
     };
@@ -42,7 +41,7 @@ export function EmailTemplatesManager() {
     }, []);
 
     const handleDelete = async (templateId: string) => {
-        const result = await deleteEmailTemplate(templateId);
+        const result = await deleteCrmEmailTemplate(templateId);
         if (result.success) {
             toast({ title: 'Success', description: 'Template deleted.' });
             fetchData();
@@ -63,7 +62,7 @@ export function EmailTemplatesManager() {
 
     return (
         <>
-            <EmailTemplateDialog 
+            <CrmEmailTemplateDialog 
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 template={editingTemplate}
@@ -126,3 +125,6 @@ export function EmailTemplatesManager() {
         </>
     );
 }
+
+// Removing incorrect export statement
+// export { CrmEmailTemplatesManager as EmailTemplatesManager };
