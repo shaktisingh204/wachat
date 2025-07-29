@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -322,10 +323,10 @@ function EmailSettingsPageContent() {
     );
 }
 
-export default function CrmSettingsPage() {
+export default function EmailSettingsPage() {
     return (
         <Suspense fallback={<PageSkeleton/>}>
-            <CrmSettingsPageContent/>
+            <EmailSettingsPageContent/>
         </Suspense>
     )
 }
