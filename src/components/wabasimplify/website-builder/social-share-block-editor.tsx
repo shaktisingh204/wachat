@@ -157,7 +157,6 @@ export function SocialShareBlockEditor({ settings, onUpdate }: { settings: any, 
                     </AccordionItem>
                  </Accordion>
             </TabsContent>
-
             <TabsContent value="advanced" className="pt-4">
                  <Accordion type="multiple" className="w-full" defaultValue={['advanced_spacing']}>
                     <AccordionItem value="advanced_spacing">

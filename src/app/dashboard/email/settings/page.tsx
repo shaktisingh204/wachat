@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -11,7 +10,7 @@ import { getProjects, getSession } from '@/app/actions';
 import { getEmailSettings, saveEmailPermissions, saveEmailComplianceSettings } from '@/app/actions/email.actions';
 import { saveCrmProviders } from '@/app/actions/crm.actions';
 import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
-import type { EmailSettings, Project, WithId, User, EmailComplianceSettings } from '@/lib/definitions';
+import type { CrmEmailSettings, Project, WithId, User, EmailComplianceSettings } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from 'lucide-react';
@@ -239,6 +238,7 @@ function EmailSettingsPageContent() {
 
     useEffect(() => {
         startLoading(async () => {
+            // Since CRM is at the user level, we fetch settings based on the logged-in user.
             const session = await getSession();
             if (session?.user) {
                 setUser(session.user as any);
@@ -322,10 +322,10 @@ function EmailSettingsPageContent() {
     );
 }
 
-export default function EmailSettingsPage() {
+export default function CrmSettingsPage() {
     return (
         <Suspense fallback={<PageSkeleton/>}>
-            <EmailSettingsPageContent/>
+            <CrmSettingsPageContent/>
         </Suspense>
     )
 }
