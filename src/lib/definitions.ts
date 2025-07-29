@@ -126,6 +126,14 @@ export type EmailSettings = {
     };
 }
 
+export type SmsProviderSettings = {
+    twilio: {
+        accountSid: string;
+        authToken: string;
+        fromNumber: string;
+    }
+}
+
 export type CrmTask = {
     _id: ObjectId;
     userId: ObjectId;
@@ -592,6 +600,7 @@ export type Project = {
         keyId?: string;
         keySecret?: string;
     };
+    smsProviderSettings?: SmsProviderSettings;
 };
 
 export type Template = {
