@@ -2,6 +2,35 @@
 
 import type { ObjectId, WithId } from 'mongodb';
 
+export type Portfolio = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    slug: string;
+    customDomain?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    headerLayout?: WebsiteBlock[];
+    footerLayout?: WebsiteBlock[];
+    appearance?: {
+        primaryColor?: string;
+        fontFamily?: string;
+    };
+};
+
+export type PortfolioPage = {
+    _id: ObjectId;
+    portfolioId: ObjectId;
+    userId: ObjectId;
+    name: string;
+    slug: string;
+    layout: WebsiteBlock[];
+    isHomepage?: boolean;
+    isPublished?: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
 export type CrmModulePermissions = {
     view?: boolean;
     create?: boolean;
