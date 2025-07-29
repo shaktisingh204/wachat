@@ -16,12 +16,14 @@ export async function addEmailContact(prevState: any, formData: FormData): Promi
     const session = await getSession();
     if (!session?.user) return { error: "Access denied" };
 
+    const tagIds = (formData.get('tagIds') as string)?.split(',').filter(Boolean) || [];
+
     try {
         const newContact: Partial<EmailContact> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
             email: formData.get('email') as string,
-            tags: [],
+            tags: tagIds,
             createdAt: new Date(),
         };
 
