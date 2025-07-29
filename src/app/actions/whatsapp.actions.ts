@@ -38,7 +38,7 @@ export async function handleSyncPhoneNumbers(projectId: string): Promise<{ messa
         const fields = 'verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput,whatsapp_business_profile{about,address,description,email,profile_picture_url,websites,vertical}';
         
         const allPhoneNumbers: MetaPhoneNumbersResponse['data'] = [];
-        let nextUrl: string | undefined = `https://graph.facebook.com/v23.0/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}&limit=100`;
+        let nextUrl: string | undefined = `https://graph.facebook.com/${API_VERSION}/${wabaId}/phone_numbers?access_token=${accessToken}&fields=${fields}&limit=100`;
 
         while (nextUrl) {
             const response = await fetch(nextUrl, { method: 'GET' });
@@ -116,18 +116,18 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
             sessionFormData.append('file_type', profilePictureFile.type);
             sessionFormData.append('access_token', accessToken);
 
-            const sessionResponse = await axios.post(`https://graph.facebook.com/v23.0/${appId}/uploads`, sessionFormData);
+            const sessionResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${appId}/uploads`, sessionFormData);
             const uploadSessionId = sessionResponse.data.id;
             
             const fileData = await profilePictureFile.arrayBuffer();
-            const uploadResponse = await axios.post(`https://graph.facebook.com/v23.0/${uploadSessionId}`, Buffer.from(fileData), {
+            const uploadResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${uploadSessionId}`, Buffer.from(fileData), {
                 headers: { 'Authorization': `OAuth ${accessToken}`, 'Content-Type': profilePictureFile.type },
                 maxContentLength: Infinity, maxBodyLength: Infinity,
             });
             const handle = uploadResponse.data.h;
 
             await axios.post(
-                `https://graph.facebook.com/v23.0/${phoneNumberId}/whatsapp_business_profile`,
+                `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/whatsapp_business_profile`,
                 { messaging_product: "whatsapp", profile_picture_handle: handle },
                 { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
             );
@@ -153,7 +153,7 @@ export async function handleUpdatePhoneNumberProfile(prevState: any, formData: F
 
         if (hasTextFields) {
             await axios.post(
-                `https://graph.facebook.com/v23.0/${phoneNumberId}/whatsapp_business_profile`,
+                `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/whatsapp_business_profile`,
                 profilePayload,
                 { headers: { 'Authorization': `Bearer ${accessToken}` } }
             );
@@ -223,11 +223,11 @@ async function getMediaHandleForTemplate(file: File | null, url: string | null, 
             return { handle: null, error: undefined };
         }
 
-        const sessionUrl = `https://graph.facebook.com/v23.0/${appId}/uploads?file_length=${fileLength}&file_type=${fileType}&access_token=${accessToken}`;
+        const sessionUrl = `https://graph.facebook.com/${API_VERSION}/${appId}/uploads?file_length=${fileLength}&file_type=${fileType}&access_token=${accessToken}`;
         const sessionResponse = await axios.post(sessionUrl, {});
         const uploadSessionId = sessionResponse.data.id;
 
-        const uploadUrl = `https://graph.facebook.com/v23.0/${uploadSessionId}`;
+        const uploadUrl = `https://graph.facebook.com/${API_VERSION}/${uploadSessionId}`;
         const uploadResponse = await axios.post(uploadUrl, mediaData, { headers: { Authorization: `OAuth ${accessToken}` } });
         return { handle: uploadResponse.data.h, error: undefined };
     } catch (uploadError: any) {
@@ -425,7 +425,7 @@ export async function handleCreateTemplate(
         }
     
         const response = await fetch(
-            `https://graph.facebook.com/v23.0/${wabaId}/message_templates`,
+            `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates`,
             {
             method: 'POST',
             headers: {
@@ -514,7 +514,7 @@ export async function handleCreateFlowTemplate(prevState: any, formData: FormDat
     try {
         const { wabaId, accessToken } = project;
         const response = await axios.post(
-            `https://graph.facebook.com/v23.0/${wabaId}/message_templates`,
+            `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates`,
             payload,
             { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
         );
@@ -554,6 +554,29 @@ export async function handleCreateFlowTemplate(prevState: any, formData: FormDat
 
 // --- WEBHOOK ACTIONS ---
 
+export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: string): Promise<{ isActive: boolean; error?: string }> {
+    if (!wabaId || !accessToken) {
+        return { isActive: false, error: 'WABA ID or Access Token not provided.' };
+    }
+    
+    try {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${wabaId}/subscribed_apps`, {
+            params: { access_token: accessToken }
+        });
+        
+        const subscriptions = response.data.data;
+        if (subscriptions && subscriptions.length > 0) {
+            return { isActive: true };
+        }
+        
+        return { isActive: false, error: 'No active subscription found for this WABA.' };
+    } catch (e: any) {
+        const errorMessage = getErrorMessage(e);
+        console.error("Webhook status check failed:", errorMessage);
+        return { isActive: false, error: errorMessage };
+    }
+}
+
 export async function handleSubscribeProjectWebhook(wabaId: string, appId: string, accessToken: string): Promise<{ success: boolean; error?: string }> {
     try {
         // Attempt to subscribe to the app first
@@ -570,7 +593,7 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
         }
 
         const wabaSubscribeResponse = await axios.post(
-            `https://graph.facebook.com/v23.0/${wabaId}/subscribed_apps`,
+            `https://graph.facebook.com/${API_VERSION}/${wabaId}/subscribed_apps`,
             {
                 access_token: accessToken,
             }
@@ -620,7 +643,7 @@ export async function handleSendMessage(prevState: any, formData: FormData): Pro
             form.append('messaging_product', 'whatsapp');
 
             const uploadResponse = await axios.post(
-                `https://graph.facebook.com/v23.0/${phoneNumberId}/media`,
+                `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`,
                 form,
                 { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${project.accessToken}` } }
             );
@@ -725,7 +748,7 @@ export async function handleSendTemplateMessage(prevState: any, formData: FormDa
                  const form = new FormData();
                 form.append('file', Buffer.from(await headerMediaFile.arrayBuffer()), { filename: headerMediaFile.name, contentType: headerMediaFile.type });
                 form.append('messaging_product', 'whatsapp');
-                const uploadResponse = await axios.post(`https://graph.facebook.com/v23.0/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
+                const uploadResponse = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/media`, form, { headers: { ...form.getHeaders(), 'Authorization': `Bearer ${accessToken}` } });
                 mediaId = uploadResponse.data.id;
             }
 
@@ -803,7 +826,7 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
         const { wabaId, accessToken } = project;
 
         const allTemplates: MetaTemplate[] = [];
-        let nextUrl: string | undefined = `https://graph.facebook.com/v23.0/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id,quality_score&limit=100`;
+        let nextUrl: string | undefined = `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates?access_token=${accessToken}&fields=name,components,language,status,category,id,quality_score&limit=100`;
 
         while(nextUrl) {
             const response = await fetch(nextUrl, { method: 'GET' });
@@ -896,7 +919,7 @@ export async function handleCreatePaymentConfiguration(prevState: any, formData:
 
     try {
         const response = await axios.post(
-            `https://graph.facebook.com/v23.0/${project.wabaId}/payment_configurations`,
+            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configurations`,
             payload,
             { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
         );
@@ -934,7 +957,7 @@ export async function handleUpdateDataEndpoint(prevState: any, formData: FormDat
     try {
         const payload = { data_endpoint_url: dataEndpointUrl };
         const response = await axios.post(
-            `https://graph.facebook.com/v23.0/${project.wabaId}/payment_configuration/${configurationName}`,
+            `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configuration/${configurationName}`,
             payload,
             { headers: { 'Authorization': `Bearer ${project.accessToken}` } }
         );
@@ -1145,7 +1168,7 @@ export async function getPaymentConfigurations(projectId: string): Promise<{ con
     }
 
     try {
-        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.wabaId}/payment_configurations`, {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configurations`, {
             params: {
                 access_token: project.accessToken,
             }
@@ -1172,7 +1195,7 @@ export async function getPaymentConfigurationByName(projectId: string, configura
     }
 
     try {
-        const response = await axios.get(`https://graph.facebook.com/v23.0/${project.wabaId}/payment_configurations/${configurationName}`, {
+        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${project.wabaId}/payment_configurations/${configurationName}`, {
             params: {
                 access_token: project.accessToken,
             }

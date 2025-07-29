@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { EmailTemplateDialog } from './email-template-dialog';
 
-export function EmailTemplatesManager() {
+export function CrmEmailTemplatesManager() {
     const [templates, setTemplates] = useState<WithId<CrmEmailTemplate>[]>([]);
     const [isLoading, startLoading] = useTransition();
     const { toast } = useToast();
@@ -73,7 +73,7 @@ export function EmailTemplatesManager() {
                     <div className="flex justify-between items-center">
                         <div>
                             <CardTitle>Email Templates</CardTitle>
-                            <CardDescription>Create and manage reusable email templates for your campaigns.</CardDescription>
+                            <CardDescription>Create and manage reusable email templates for your CRM.</CardDescription>
                         </div>
                         <Button onClick={handleCreateNew}>
                             <Plus className="mr-2 h-4 w-4" /> New Template
@@ -125,3 +125,5 @@ export function EmailTemplatesManager() {
         </>
     );
 }
+
+export { EmailTemplatesManager };
