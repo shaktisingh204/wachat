@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
-import type { EmailContact, EmailCampaign, CrmEmailTemplate } from '@/lib/definitions';
+import type { EmailContact, EmailCampaign, CrmEmailTemplate, EmailConversation } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -315,3 +315,62 @@ export async function handleSendBulkEmail(prevState: any, formData: FormData): P
         return { error: getErrorMessage(e) };
     }
 }
+
+export async function getEmailConversations(): Promise<WithId<EmailConversation>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    try {
+        const { db } = await connectToDatabase();
+        // This is a placeholder. A real implementation would parse incoming emails
+        // from a service like Mailgun or listen to an IMAP inbox.
+        // For now, returning an empty array.
+        return [];
+    } catch (e) {
+        return [];
+    }
+}
+
+export async function sendReplyEmail(prevState: any, formData: FormData): Promise<{ success: boolean; message?: string, error?: string }> {
+     const session = await getSession();
+    if (!session?.user) return { success: false, error: "Access denied." };
+
+    const to = formData.get('to') as string;
+    const subject = formData.get('subject') as string;
+    const body = formData.get('body') as string;
+
+     if (!to || !subject || !body) {
+        return { success: false, error: "To, subject, and body are required." };
+    }
+
+    try {
+        const transporter = await getTransporter();
+        
+        // This is simplified. In a real app, you'd get the 'from' from settings.
+        const fromEmail = "user@example.com"; 
+        const fromName = session.user.name;
+
+        await transporter.sendMail({
+            from: `"${fromName}" <${fromEmail}>`,
+            to,
+            subject: subject,
+            html: body,
+        });
+
+        // Here you would log the reply to the conversation thread in the database.
+        
+        return { success: true, message: "Reply sent successfully!" };
+    } catch (e: any) {
+        console.error("Failed to send reply:", e);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function updateEmailConversationStatus(conversationId: string, status: 'unread' | 'read' | 'archived'): Promise<{ success: boolean; error?: string }> {
+    if (!ObjectId.isValid(conversationId)) return { success: false, error: 'Invalid ID.' };
+    // This is a placeholder. A real implementation would update the status in the database.
+    console.log(`Updating conversation ${conversationId} to ${status}`);
+    await new Promise(res => setTimeout(res, 500));
+    return { success: true };
+}
+

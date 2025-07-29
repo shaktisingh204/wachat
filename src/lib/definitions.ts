@@ -104,11 +104,6 @@ export type CrmEmailSettings = {
         refreshToken: string;
         expiryDate: number;
     };
-    outlookOAuth?: {
-        accessToken: string;
-        refreshToken: string;
-        expiryDate: number;
-    };
 }
 
 export type CrmTask = {
@@ -212,6 +207,27 @@ export type EmailCampaign = {
     createdAt: Date;
     scheduledAt?: Date;
     sentAt?: Date;
+};
+
+export type EmailMessage = {
+    from: string;
+    subject: string;
+    bodyText: string;
+    bodyHtml: string;
+    date: Date;
+};
+
+export type EmailConversation = {
+    _id: ObjectId;
+    userId: ObjectId;
+    fromEmail: string;
+    fromName: string;
+    subject: string;
+    snippet: string;
+    status: 'unread' | 'read' | 'archived' | 'follow_up';
+    assignedTo?: ObjectId;
+    lastMessageAt: Date;
+    messages: EmailMessage[];
 };
 
 export type BusinessCapabilities = {
