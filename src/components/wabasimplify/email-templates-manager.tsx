@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect, useTransition } from 'react';
-import { getCrmEmailTemplates, deleteCrmEmailTemplate } from '@/app/actions/crm-email-templates.actions';
+import { getEmailTemplates, deleteEmailTemplate } from '@/app/actions/email.actions';
 import type { WithId, CrmEmailTemplate } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,9 +20,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { CrmEmailTemplateDialog } from './crm-email-template-dialog';
+import { EmailTemplateDialog } from './email-template-dialog';
 
-export function CrmEmailTemplatesManager() {
+export function EmailTemplatesManager() {
     const [templates, setTemplates] = useState<WithId<CrmEmailTemplate>[]>([]);
     const [isLoading, startLoading] = useTransition();
     const { toast } = useToast();
@@ -31,7 +31,7 @@ export function CrmEmailTemplatesManager() {
 
     const fetchData = () => {
         startLoading(async () => {
-            const data = await getCrmEmailTemplates();
+            const data = await getEmailTemplates();
             setTemplates(data);
         });
     };
@@ -41,7 +41,7 @@ export function CrmEmailTemplatesManager() {
     }, []);
 
     const handleDelete = async (templateId: string) => {
-        const result = await deleteCrmEmailTemplate(templateId);
+        const result = await deleteEmailTemplate(templateId);
         if (result.success) {
             toast({ title: 'Success', description: 'Template deleted.' });
             fetchData();
@@ -62,7 +62,7 @@ export function CrmEmailTemplatesManager() {
 
     return (
         <>
-            <CrmEmailTemplateDialog 
+            <EmailTemplateDialog 
                 isOpen={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 template={editingTemplate}
