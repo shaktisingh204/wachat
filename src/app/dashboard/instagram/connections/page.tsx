@@ -110,9 +110,9 @@ export default function InstagramConnectionsPage() {
                             We couldn't find any Instagram Business Accounts linked to your connected Facebook Pages. Please ensure they are properly connected in your Meta Business Suite.
                         </p>
                         <Button asChild variant="outline">
-                            <Link href="/dashboard/facebook/all-projects">
+                            <Link href="/dashboard/instagram/setup">
                                 <Wrench className="mr-2 h-4 w-4"/>
-                                Manage Page Connections
+                                Go to Setup
                             </Link>
                         </Button>
                     </CardContent>
