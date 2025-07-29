@@ -280,9 +280,6 @@ export type PhoneNumber = {
         level: string;
     };
     profile?: PhoneNumberProfile;
-    is_calling_enabled?: boolean;
-    inbound_call_control?: 'DISABLED' | 'CALLBACK_REQUEST';
-    calling_settings?: CallingSettings;
 };
 
 export type GeneralReplyRule = {

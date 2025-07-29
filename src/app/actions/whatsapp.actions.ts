@@ -554,30 +554,6 @@ export async function handleCreateFlowTemplate(prevState: any, formData: FormDat
 
 // --- WEBHOOK ACTIONS ---
 
-export async function getWebhookSubscriptionStatus(wabaId: string, accessToken: string): Promise<{ isActive: boolean; error?: string }> {
-    if (!wabaId || !accessToken) {
-        return { isActive: false, error: 'WABA ID or Access Token not provided.' };
-    }
-    
-    try {
-        const response = await axios.get(`https://graph.facebook.com/${API_VERSION}/${wabaId}/subscribed_apps`, {
-            params: { access_token: accessToken }
-        });
-        
-        const subscriptions = response.data.data;
-        if (subscriptions && subscriptions.length > 0) {
-            return { isActive: true };
-        }
-        
-        return { isActive: false, error: 'No active subscription found for this WABA.' };
-    } catch (e: any) {
-        const errorMessage = getErrorMessage(e);
-        console.error("Webhook status check failed:", errorMessage);
-        return { isActive: false, error: errorMessage };
-    }
-}
-
-
 export async function handleSubscribeProjectWebhook(wabaId: string, appId: string, accessToken: string): Promise<{ success: boolean; error?: string }> {
     try {
         // Attempt to subscribe to the app first
@@ -607,43 +583,6 @@ export async function handleSubscribeProjectWebhook(wabaId: string, appId: strin
         console.error(`Failed to subscribe project ${wabaId}:`, errorMessage);
         return { success: false, error: errorMessage };
     }
-}
-
-// --- CALLING ACTIONS ---
-
-export async function savePhoneNumberCallingSettings(
-  projectId: string,
-  phoneNumberId: string,
-  voiceEnabled: boolean,
-  inboundCallControl: 'DISABLED' | 'CALLBACK_REQUEST'
-): Promise<{ success: boolean; error?: string }> {
-  const project = await getProjectById(projectId);
-  if (!project) {
-    return { success: false, error: 'Project not found or access denied.' };
-  }
-
-  const payload = {
-    messaging_product: 'whatsapp',
-    voice_enabled: voiceEnabled,
-    inbound_call_control: inboundCallControl,
-  };
-
-  try {
-    const response = await axios.post(
-      `https://graph.facebook.com/${API_VERSION}/${phoneNumberId}`,
-      payload,
-      { headers: { Authorization: `Bearer ${project.accessToken}` } }
-    );
-
-    if (response.data.error) throw new Error(getErrorMessage({ response }));
-
-    revalidatePath(`/dashboard/numbers`);
-    return { success: true };
-  } catch (e: any) {
-    const errorMessage = getErrorMessage(e);
-    console.error('Failed to update basic calling settings:', errorMessage);
-    return { success: false, error: errorMessage };
-  }
 }
 
 // --- MESSAGE ACTIONS ---
