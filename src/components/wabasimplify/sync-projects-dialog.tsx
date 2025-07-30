@@ -78,11 +78,20 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
           <DialogHeader>
             <DialogTitle>Sync Projects with Meta</DialogTitle>
             <DialogDescription>
-              Enter a permanent User Access Token and your App ID to sync your projects.
+              Enter a permanent User Access Token, your App ID, and the Business ID to sync your projects.
             </DialogDescription>
           </DialogHeader>
 
           <div className="grid gap-4 py-4">
+             <div className="space-y-2">
+                <Label htmlFor="businessId">Business ID</Label>
+                <Input
+                    id="businessId"
+                    name="businessId"
+                    placeholder="Your Meta Business Portfolio ID"
+                    required
+                />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="accessToken">Meta Access Token</Label>
               <Input

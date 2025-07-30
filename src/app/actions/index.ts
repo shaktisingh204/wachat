@@ -786,10 +786,11 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
 
     const accessToken = formData.get('accessToken') as string;
     const appId = formData.get('appId') as string;
+    const businessId = formData.get('businessId') as string;
     const groupName = formData.get('groupName') as string | undefined;
 
-    if (!accessToken || !appId) {
-        return { error: 'Access Token and App ID are required.' };
+    if (!accessToken || !appId || !businessId) {
+        return { error: 'Access Token, App ID, and Business ID are required.' };
     }
     
     const apiVersion = 'v23.0';
@@ -807,18 +808,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
             groupId = groupResult.insertedId;
         }
 
-        // 1. Get user's business ID
-        const businessesResponse = await axios.get(`https://graph.facebook.com/${apiVersion}/me/businesses`, {
-            params: { access_token: accessToken }
-        });
-        
-        const businesses = businessesResponse.data?.data;
-        if (!businesses || businesses.length === 0) {
-            return { error: "No Meta Business Accounts found for this token. Ensure the token has the 'business_management' permission." };
-        }
-        const businessId = businesses[0].id; // Use the first business account found
-
-        // 2. Get all WABAs for that business
+        // Get all WABAs for that business
         let allWabas: MetaWaba[] = [];
         let nextUrl: string | undefined = `https://graph.facebook.com/${apiVersion}/${businessId}/client_whatsapp_business_accounts?access_token=${accessToken}&limit=100`;
 
@@ -844,7 +834,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
         
         const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
 
-        // 3. Prepare bulk operations with ownership transfer
+        // Prepare bulk operations with ownership transfer
         const bulkOps = await Promise.all(allWabas.map(async (waba) => {
             const phoneNumbersResponse = await fetch(
                 `https://graph.facebook.com/${apiVersion}/${waba.id}/phone_numbers?access_token=${accessToken}&fields=verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput`
