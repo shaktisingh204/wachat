@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { LoaderCircle, FileUp, Plus, Trash2, Copy } from 'lucide-react';
-import { handleCreateTemplate, saveLibraryTemplate } from '@/app/actions/template.actions';
+import { handleCreateTemplate, saveLibraryTemplate, handleBulkCreateTemplate } from '@/app/actions/template.actions';
 import { getTemplateCategories } from '@/app/actions/plan.actions';
 import { useToast } from '@/hooks/use-toast';
 import type { WithId } from 'mongodb';
@@ -27,10 +27,11 @@ const createTemplateInitialState = {
   debugInfo: null,
 };
 
-function SubmitButton({ templateType, isAdminForm }: { templateType: 'STANDARD' | 'CATALOG_MESSAGE' | 'MARKETING_CAROUSEL', isAdminForm?: boolean }) {
+function SubmitButton({ templateType, isAdminForm, isBulkForm }: { templateType: 'STANDARD' | 'CATALOG_MESSAGE' | 'MARKETING_CAROUSEL', isAdminForm?: boolean, isBulkForm?: boolean }) {
     const { pending } = useFormStatus();
     let buttonText = 'Submit for Approval';
     if (isAdminForm) buttonText = 'Save to Library';
+    else if (isBulkForm) buttonText = 'Save to All Selected Projects';
     else if (templateType === 'CATALOG_MESSAGE') buttonText = 'Save Product Carousel';
     else if (templateType === 'MARKETING_CAROUSEL') buttonText = 'Submit Carousel for Approval';
 
@@ -143,16 +144,21 @@ const languages = [
 
 interface CreateTemplateFormProps {
     project?: WithId<Project>;
+    bulkProjectIds?: string[];
     initialTemplate?: WithId<Template> | null;
     isCloning?: boolean;
     isAdminForm?: boolean;
+    isBulkForm?: boolean;
 }
 
-export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdminForm = false }: CreateTemplateFormProps) {
+export function CreateTemplateForm({ project, bulkProjectIds = [], initialTemplate, isCloning, isAdminForm = false, isBulkForm = false }: CreateTemplateFormProps) {
   const router = useRouter();
   const { toast } = useToast();
   
-  const serverAction = isAdminForm ? saveLibraryTemplate : handleCreateTemplate;
+  let serverAction: any = handleCreateTemplate;
+  if(isAdminForm) serverAction = saveLibraryTemplate;
+  if(isBulkForm) serverAction = handleBulkCreateTemplate;
+
   const [state, formAction] = useActionState(serverAction, createTemplateInitialState);
   
   const [templateType, setTemplateType] = useState<'STANDARD' | 'CATALOG_MESSAGE' | 'MARKETING_CAROUSEL'>('STANDARD');
@@ -258,6 +264,8 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdmi
       toast({ title: 'Success!', description: state.message });
       if (isAdminForm) {
         router.push('/admin/dashboard/template-library');
+      } else if (isBulkForm) {
+          router.push('/dashboard');
       } else {
         router.push('/dashboard/templates');
       }
@@ -271,7 +279,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdmi
     if (state?.debugInfo) {
         setLastDebugInfo(state.debugInfo);
     }
-  }, [state, router, toast, isAdminForm]);
+  }, [state, router, toast, isAdminForm, isBulkForm]);
 
   const handleAddButton = (type: ButtonType['type']) => {
     const hasQuickReply = buttons.some(b => b.type === 'QUICK_REPLY');
@@ -370,6 +378,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdmi
   return (
     <form action={formAction}>
       {project && <input type="hidden" name="projectId" value={project._id.toString()} />}
+      {isBulkForm && <input type="hidden" name="projectIds" value={bulkProjectIds.join(',')} />}
       <input type="hidden" name="buttons" value={JSON.stringify(buttons)} />
       <input type="hidden" name="carouselCards" value={JSON.stringify(carouselCards)} />
       <input type="hidden" name="templateType" value={templateType} />
@@ -735,7 +744,7 @@ export function CreateTemplateForm({ project, initialTemplate, isCloning, isAdmi
       )}
 
       <div className="flex justify-end">
-        <SubmitButton templateType={templateType} isAdminForm={isAdminForm} />
+        <SubmitButton templateType={templateType} isAdminForm={isAdminForm} isBulkForm={isBulkForm}/>
       </div>
     </form>
   );

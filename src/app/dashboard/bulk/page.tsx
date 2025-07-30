@@ -3,11 +3,11 @@
 
 import { Suspense, useEffect, useState, useTransition, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { getProjectById, getTemplates } from '@/app/actions';
+import { getProjectById } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Database } from 'lucide-react';
+import { ArrowLeft, Database, FileText } from 'lucide-react';
 import Link from 'next/link';
 import type { WithId, Project, Template } from '@/lib/definitions';
 import { BulkTemplateForm } from '@/components/wabasimplify/bulk-template-form';
@@ -36,10 +36,6 @@ function BulkPageContent() {
                 projectIds.map(id => getProjectById(id))
             );
             setProjects(fetchedProjects.filter(Boolean) as WithId<Project>[]);
-
-            // Fetch templates from the first project to use as a source
-            const templatesData = await getTemplates(projectIds[0]);
-            setTemplates(templatesData);
         }
     }, [projectIds]);
 
@@ -89,13 +85,20 @@ function BulkPageContent() {
                 </CardContent>
             </Card>
 
-            {projects.length > 0 && templates.length > 0 && (
-                <BulkTemplateForm
-                    sourceProjectName={projects[0]?.name || ''}
-                    targetProjects={projects}
-                    templates={templates}
-                />
-            )}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Bulk Template Creation</CardTitle>
+                    <CardDescription>Create a new template from scratch and apply it to all selected projects.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button asChild>
+                        <Link href={`/dashboard/bulk/template?projectIds=${projectIds.join(',')}`}>
+                            <FileText className="mr-2 h-4 w-4" />
+                            Create Bulk Template
+                        </Link>
+                    </Button>
+                </CardContent>
+            </Card>
         </div>
     );
 }
