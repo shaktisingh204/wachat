@@ -788,7 +788,6 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     const appId = formData.get('appId') as string;
     const businessId = formData.get('businessId') as string;
     const groupName = formData.get('groupName') as string | undefined;
-    console.error('https://graph.facebook.com/${apiVersion}/${businessId}/client_whatsapp_business_accounts?access_token=${accessToken}&limit=100');
 
     if (!accessToken || !appId || !businessId) {
         return { error: 'Access Token, App ID, and Business ID are required.' };
@@ -812,14 +811,13 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
         // Get all WABAs for that business
         let allWabas: MetaWaba[] = [];
         let nextUrl: string | undefined = `https://graph.facebook.com/${apiVersion}/${businessId}/client_whatsapp_business_accounts?access_token=${accessToken}&limit=100`;
-        console.error(nextUrl);
+        
         while(nextUrl) {
-            const response = await fetch(nextUrl);
-            const responseData: MetaWabasResponse = await response.json();
+            const response = await axios.get(nextUrl);
+            const responseData: MetaWabasResponse = response.data;
 
-            if (!response.ok) {
+            if (responseData.error) {
                  const errorMessage = (responseData as any)?.error?.message || 'Unknown error syncing WABAs.';
-                 console.log(errorMessage);
                  return { error: `API Error: ${errorMessage}` };
             }
             
@@ -897,3 +895,4 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
         return { error: getErrorMessage(e) || 'An unexpected error occurred during project sync.' };
     }
 }
+```
