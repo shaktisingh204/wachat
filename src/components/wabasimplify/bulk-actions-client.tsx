@@ -31,7 +31,7 @@ export function BulkActionsClient({ sourceProjectName, allProjects, initialTempl
                 <div>
                     <h1 className="text-3xl font-bold font-headline">Bulk Actions</h1>
                     <p className="text-muted-foreground">
-                        Perform actions on {selectedProjects.length} selected project(s).
+                        Performing actions on {selectedProjects.length} selected project(s).
                     </p>
                 </div>
             </div>
@@ -51,10 +51,13 @@ export function BulkActionsClient({ sourceProjectName, allProjects, initialTempl
                     />
                 </div>
                  <div className="lg:col-span-1">
-                    <Button asChild className="w-full">
+                    <Button asChild className="w-full h-full min-h-48 text-lg">
                         <Link href={`/dashboard/bulk/template?projectIds=${projectIdsQuery}`}>
-                            <FileText className="mr-2 h-4 w-4" />
-                            Create & Apply New Template
+                            <FileText className="mr-4 h-8 w-8" />
+                            <div>
+                                <p className="font-semibold">Create & Apply New Template</p>
+                                <p className="text-sm font-normal text-primary-foreground/80">Build a template from scratch and apply to all.</p>
+                            </div>
                         </Link>
                     </Button>
                 </div>
