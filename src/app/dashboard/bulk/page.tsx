@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, useEffect, useState, useMemo, useCallback } from 'react';
+import { Suspense, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { getProjects, getTemplates } from '@/app/actions';
 import { ProjectCard } from '@/components/wabasimplify/project-card';
@@ -31,15 +31,12 @@ function BulkActionsSkeleton() {
 }
 
 
-function BulkActionsClient({ projects, templates }: { projects: WithId<Project>[], templates: WithId<Template>[] }) {
+function BulkActionsClient({ projects, templates, projectIds }: { projects: WithId<Project>[], templates: WithId<Template>[], projectIds: string[] }) {
     const router = useRouter();
-    const searchParams = useSearchParams();
-    const projectIdsParam = searchParams.get('projectIds');
-    const selectedProjectIds = useMemo(() => projectIdsParam?.split(',') || [], [projectIdsParam]);
 
     const selectedProjects = useMemo(() => 
-        projects.filter(p => selectedProjectIds.includes(p._id.toString())),
-        [projects, selectedProjectIds]
+        projects.filter(p => projectIds.includes(p._id.toString())),
+        [projects, projectIds]
     );
 
     if (projects.length === 0 || selectedProjects.length === 0) {
@@ -98,7 +95,7 @@ export default async function BulkPage({ searchParams }: { searchParams?: { [key
 
     return (
         <Suspense fallback={<BulkActionsSkeleton />}>
-            <BulkActionsClient projects={projects} templates={templates} />
+            <BulkActionsClient projects={projects} templates={templates} projectIds={projectIds} />
         </Suspense>
     );
 }
