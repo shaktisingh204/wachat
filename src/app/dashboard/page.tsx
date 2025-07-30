@@ -111,26 +111,28 @@ export default function SelectProjectPage() {
                     {Object.entries(groupedProjects.grouped).map(([groupName, groupProjects]) => (
                         <Accordion key={groupName} type="single" collapsible defaultValue="item-1">
                             <AccordionItem value="item-1">
-                                <AccordionTrigger className="text-xl font-semibold hover:no-underline">
-                                    <div className="flex items-center gap-2">
-                                        <Folder className="h-5 w-5 text-muted-foreground" />
-                                        {groupName} ({groupProjects.length})
-                                        {selectionMode && (
-                                            <Button 
-                                                variant="ghost" 
-                                                size="sm" 
-                                                className="ml-4 h-7"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleSelectGroup(groupProjects.map(p => p._id.toString()));
-                                                }}
-                                            >
-                                                <CheckSquare className="mr-2 h-4 w-4" />
-                                                Select All
-                                            </Button>
-                                        )}
-                                    </div>
-                                </AccordionTrigger>
+                                <div className="flex items-center">
+                                    <AccordionTrigger className="text-xl font-semibold hover:no-underline flex-1">
+                                        <div className="flex items-center gap-2">
+                                            <Folder className="h-5 w-5 text-muted-foreground" />
+                                            {groupName} ({groupProjects.length})
+                                        </div>
+                                    </AccordionTrigger>
+                                     {selectionMode && (
+                                        <Button 
+                                            variant="ghost" 
+                                            size="sm" 
+                                            className="ml-4 h-7"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleSelectGroup(groupProjects.map(p => p._id.toString()));
+                                            }}
+                                        >
+                                            <CheckSquare className="mr-2 h-4 w-4" />
+                                            Select All
+                                        </Button>
+                                    )}
+                                </div>
                                 <AccordionContent>
                                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-4">
                                         {groupProjects.map((project) => (
