@@ -492,3 +492,36 @@ export async function deleteTemplateCategory(id: string): Promise<{ message?: st
         return { error: 'Failed to delete category.' };
     }
 }
+
+export async function handleApplyTemplateToProjects(templateId: string, projectIds: string[]): Promise<{ success: boolean, error?: string }> {
+    if (!templateId || !projectIds || projectIds.length === 0) {
+        return { success: false, error: "Template and Project IDs are required." };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const sourceTemplate = await db.collection<WithId<Template>>('templates').findOne({ _id: new ObjectId(templateId) });
+
+        if (!sourceTemplate) {
+            return { success: false, error: "Source template not found." };
+        }
+        
+        const { _id, projectId, ...templateToCopy } = sourceTemplate;
+
+        const bulkOps = projectIds.map(pid => ({
+            updateOne: {
+                filter: { name: templateToCopy.name, language: templateToCopy.language, projectId: new ObjectId(pid) },
+                update: { $set: { ...templateToCopy, projectId: new ObjectId(pid) } },
+                upsert: true
+            }
+        }));
+
+        if (bulkOps.length > 0) {
+            await db.collection('templates').bulkWrite(bulkOps);
+        }
+
+        return { success: true };
+    } catch(e: any) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
