@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, useEffect, useState, useTransition, useCallback } from 'react';
+import { Suspense, useEffect, useState, useTransition } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { getProjectById } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,8 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Database, FileText } from 'lucide-react';
 import Link from 'next/link';
-import type { WithId, Project, Template } from '@/lib/definitions';
-import { BulkTemplateForm } from '@/components/wabasimplify/bulk-template-form';
+import type { WithId, Project } from '@/lib/definitions';
 
 function BulkPageSkeleton() {
     return (
@@ -25,30 +24,29 @@ function BulkPageSkeleton() {
 function BulkPageContent() {
     const searchParams = useSearchParams();
     const [projects, setProjects] = useState<WithId<Project>[]>([]);
-    const [templates, setTemplates] = useState<WithId<Template>[]>([]);
     const [isLoading, startTransition] = useTransition();
 
-    const projectIds = searchParams.get('projectIds')?.split(',') || [];
-
-    const fetchData = useCallback(async () => {
-        if (projectIds.length > 0) {
-            const fetchedProjects = await Promise.all(
-                projectIds.map(id => getProjectById(id))
-            );
-            setProjects(fetchedProjects.filter(Boolean) as WithId<Project>[]);
-        }
-    }, [projectIds]);
+    const projectIdsParam = searchParams.get('projectIds');
 
     useEffect(() => {
         startTransition(() => {
-            fetchData();
+            const projectIds = projectIdsParam?.split(',') || [];
+            if (projectIds.length > 0) {
+                Promise.all(
+                    projectIds.map(id => getProjectById(id))
+                ).then(fetchedProjects => {
+                    setProjects(fetchedProjects.filter(Boolean) as WithId<Project>[]);
+                });
+            }
         });
-    }, [fetchData]);
+    }, [projectIdsParam]);
 
 
     if (isLoading) {
         return <BulkPageSkeleton />;
     }
+
+    const projectIds = projectIdsParam?.split(',') || [];
 
     return (
         <div className="flex flex-col gap-8">
