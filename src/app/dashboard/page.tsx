@@ -1,31 +1,50 @@
 
+'use client';
 
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
 import { ProjectCard } from "@/components/wabasimplify/project-card";
-import { FileText, PlusCircle } from "lucide-react";
+import { FileText, PlusCircle, Rows, X } from "lucide-react";
 import type { WithId } from "mongodb";
 import { ProjectSearch } from "@/components/wabasimplify/project-search";
 import { Button } from "@/components/ui/button";
 import type { Project } from "@/lib/definitions";
 import { SyncProjectsDialog } from "@/components/wabasimplify/sync-projects-dialog";
+import { useRouter, useSearchParams } from 'next/navigation';
 
-export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: "Select Project | SabNode",
-};
+export default function SelectProjectPage() {
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const query = searchParams.get('query') || '';
+    const [projects, setProjects] = useState<WithId<Project>[]>([]);
+    const [selectionMode, setSelectionMode] = useState(false);
+    const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+    
+    const fetchProjects = useCallback(async () => {
+        const projectsData = await getProjects(query, 'whatsapp');
+        setProjects(projectsData);
+    }, [query]);
 
-export default async function SelectProjectPage({
-  searchParams,
-}: {
-  searchParams?: {
-    query?: string;
-  };
-}) {
-    const query = searchParams?.query || '';
-    const projects: WithId<Project>[] = await getProjects(query, 'whatsapp');
+    useEffect(() => {
+        fetchProjects();
+    }, [fetchProjects]);
+
+    const handleSelectProject = (projectId: string) => {
+        setSelectedProjects(prev => 
+            prev.includes(projectId) 
+            ? prev.filter(id => id !== projectId)
+            : [...prev, projectId]
+        );
+    };
+
+    const handleBulkAction = () => {
+        const params = new URLSearchParams();
+        params.set('projectIds', selectedProjects.join(','));
+        router.push(`/dashboard/bulk?${params.toString()}`);
+    }
 
     return (
         <div className="flex flex-col gap-8">
@@ -51,12 +70,21 @@ export default async function SelectProjectPage({
               <div className="flex-grow md:max-w-sm">
                   <ProjectSearch placeholder="Search projects by name..." />
               </div>
+               <Button variant="outline" onClick={() => setSelectionMode(!selectionMode)}>
+                    {selectionMode ? 'Cancel Selection' : 'Select Projects'}
+                </Button>
             </div>
 
             {projects.length > 0 ? (
                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {projects.map((project) => (
-                        <ProjectCard key={project._id.toString()} project={project} />
+                        <ProjectCard 
+                            key={project._id.toString()} 
+                            project={project} 
+                            selectionMode={selectionMode}
+                            isSelected={selectedProjects.includes(project._id.toString())}
+                            onSelect={handleSelectProject}
+                        />
                     ))}
                 </div>
             ) : (
@@ -73,7 +101,18 @@ export default async function SelectProjectPage({
                     </div>
                 </div>
             )}
+            
+            {selectionMode && selectedProjects.length > 0 && (
+                 <Card className="fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-md shadow-2xl z-50 animate-fade-in-up">
+                    <CardContent className="p-3 flex items-center justify-between">
+                        <p className="text-sm font-medium">{selectedProjects.length} project(s) selected</p>
+                        <Button onClick={handleBulkAction}>
+                            <Rows className="mr-2 h-4 w-4" />
+                            Bulk Actions
+                        </Button>
+                    </CardContent>
+                </Card>
+            )}
         </div>
     )
 }
-

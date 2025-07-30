@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -12,14 +11,18 @@ import { cn } from '@/lib/utils';
 import type { WithId, Project } from '@/lib/definitions';
 import { DeleteProjectButton } from './delete-project-button';
 import { getWebhookSubscriptionStatus } from '@/app/actions/whatsapp.actions';
+import { Checkbox } from '@/components/ui/checkbox';
 import { CheckCircle, AlertCircle } from 'lucide-react';
 
 
 interface ProjectCardProps {
     project: WithId<Project>;
+    selectionMode?: boolean;
+    isSelected?: boolean;
+    onSelect?: (projectId: string) => void;
 }
 
-export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectCardProps) {
+export const ProjectCard = React.memo(function ProjectCard({ project, selectionMode = false, isSelected, onSelect }: ProjectCardProps) {
     const router = useRouter();
     const [createdDate, setCreatedDate] = useState<string | null>(null);
     const [webhookStatus, setWebhookStatus] = useState<{ isActive: boolean; error?: string } | null>(null);
@@ -31,12 +34,16 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
         }
     }, [project.createdAt, project.wabaId, project.accessToken]);
 
-    const handleSelectProject = () => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('activeProjectId', project._id.toString());
-            localStorage.setItem('activeProjectName', project.name);
+    const handleCardClick = () => {
+        if (selectionMode && onSelect) {
+            onSelect(project._id.toString());
+        } else if (!selectionMode) {
+            if (typeof window !== 'undefined') {
+                localStorage.setItem('activeProjectId', project._id.toString());
+                localStorage.setItem('activeProjectName', project.name);
+            }
+            router.push('/dashboard/overview');
         }
-        router.push('/dashboard/overview');
     };
     
     const getReviewStatusVariant = (status?: string) => {
@@ -82,20 +89,37 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
     const throughputLevel = project.phoneNumbers?.[0]?.throughput?.level;
 
     return (
-        <Card className={cn("flex flex-col hover:shadow-lg hover:border-primary transition-all card-gradient", project.facebookPageId ? 'card-gradient-blue' : 'card-gradient-green')}>
+        <Card 
+            className={cn(
+                "flex flex-col hover:shadow-lg transition-all card-gradient relative",
+                project.facebookPageId ? 'card-gradient-blue' : 'card-gradient-green',
+                selectionMode && 'cursor-pointer',
+                isSelected && 'ring-2 ring-primary'
+            )}
+            onClick={handleCardClick}
+        >
+            {selectionMode && (
+                <div className="absolute top-3 left-3 z-10">
+                    <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={() => onSelect?.(project._id.toString())}
+                        className="h-5 w-5 bg-white"
+                    />
+                </div>
+            )}
             <CardHeader className="pb-4">
                  <div className="flex justify-between items-start gap-2">
-                    <CardTitle className="text-base leading-tight font-semibold">{project.name}</CardTitle>
+                    <CardTitle className={cn("text-base leading-tight font-semibold", selectionMode && 'pl-6')}>{project.name}</CardTitle>
                     <div className="flex items-center gap-1">
                         {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
                             <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-xs flex-shrink-0">
                                 {project.reviewStatus.replace(/_/g, ' ').toLowerCase()}
                             </Badge>
                         )}
-                        <DeleteProjectButton projectId={project._id.toString()} projectName={project.name} />
+                        {!selectionMode && <DeleteProjectButton projectId={project._id.toString()} projectName={project.name} />}
                     </div>
                 </div>
-                 <CardDescription className="font-mono text-xs pt-1 break-all">
+                 <CardDescription className={cn("font-mono text-xs pt-1 break-all", selectionMode && 'pl-6')}>
                    {project.wabaId ? `WABA ID: ${project.wabaId}` : `Page ID: ${project.facebookPageId}`}
                 </CardDescription>
             </CardHeader>
@@ -134,7 +158,7 @@ export const ProjectCard = React.memo(function ProjectCard({ project }: ProjectC
                 </div>
             </CardContent>
             <CardFooter className="pt-4">
-                <Button className="w-full flex-grow" size="sm" onClick={handleSelectProject}>
+                <Button className="w-full flex-grow" size="sm" disabled={selectionMode}>
                     Select Project
                 </Button>
             </CardFooter>
