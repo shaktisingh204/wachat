@@ -1,5 +1,4 @@
 
-
 import { Suspense } from 'react';
 import Link from 'next/link';
 import { CreateTemplateForm } from '@/components/wabasimplify/create-template-form';
@@ -42,7 +41,10 @@ async function BulkTemplatePageContent({ projectIds }: { projectIds: string[] })
         <div className="flex flex-col gap-8">
             <div>
                  <Button variant="ghost" asChild className="mb-2 -ml-4">
-                    <Link href={`/dashboard/bulk?projectIds=${projectIds.join(',')}`}><ChevronLeft className="mr-2 h-4 w-4" />Back to Bulk Actions</Link>
+                    <Link href={`/dashboard/bulk?projectIds=${projectIds.join(',')}`}>
+                        <ChevronLeft className="mr-2 h-4 w-4" />
+                        Back to Bulk Actions
+                    </Link>
                 </Button>
                 <h1 className="text-3xl font-bold font-headline">Create Bulk Template</h1>
                 <p className="text-muted-foreground">This template will be created for all {validProjects.length} selected projects.</p>
