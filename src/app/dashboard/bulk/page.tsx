@@ -1,7 +1,7 @@
 
 import { Suspense } from 'react';
 import { getProjects } from '@/app/actions';
-import { getTemplates } from '@/app/actions/template.actions';
+import { getTemplates } from '@/app/actions/whatsapp.actions';
 import type { WithId, Project, Template } from '@/lib/definitions';
 import { BulkActionsClient } from '@/components/wabasimplify/bulk-actions-client';
 import { Skeleton } from '@/components/ui/skeleton';
