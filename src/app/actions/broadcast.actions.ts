@@ -1,5 +1,6 @@
 
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -559,5 +560,79 @@ export async function handleRequeueBroadcast(
     } catch (e: any) {
         console.error('Failed to requeue broadcast:', e);
         return { error: 'An unexpected error occurred while requeuing the broadcast.' };
+    }
+}
+
+
+export async function handleBulkBroadcast(templateId: string, projectIds: string[]): Promise<{ message?: string, error?: string }> {
+    if (!templateId || !ObjectId.isValid(templateId) || projectIds.length === 0) {
+        return { error: 'A template and at least one project must be selected.' };
+    }
+
+    const { db } = await connectToDatabase();
+    let jobsCreated = 0;
+    
+    try {
+        for (const projectId of projectIds) {
+            const projectObjectId = new ObjectId(projectId);
+            const project = await getProjectById(projectId);
+            const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId) });
+
+            if (!project || !template || !project.phoneNumbers?.[0]?.id) {
+                console.warn(`Skipping bulk broadcast for project ${projectId}: Project, template, or phone number not found.`);
+                continue;
+            }
+
+            const broadcastJobData: Omit<WithId<BroadcastJob>, '_id'> = {
+                projectId: projectObjectId,
+                broadcastType: 'template',
+                templateId: new ObjectId(templateId),
+                templateName: template.name,
+                phoneNumberId: project.phoneNumbers[0].id, // Use the first available number
+                accessToken: project.accessToken,
+                status: 'QUEUED',
+                createdAt: new Date(),
+                contactCount: 0,
+                fileName: `Bulk Broadcast: ${template.name}`,
+                components: template.components,
+                language: template.language,
+                category: template.category,
+                variableMappings: [], // No variables for this simple bulk send
+            };
+
+            const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData as any);
+            const broadcastId = broadcastResult.insertedId;
+            
+            // Get all contacts for the project
+            const contactsCursor = db.collection('contacts').find({ projectId: projectObjectId });
+            let contactCount = 0;
+            let contactBatch: Partial<Contact>[] = [];
+
+            for await (const contact of contactsCursor) {
+                contactBatch.push(contact);
+                if (contactBatch.length >= BATCH_SIZE) {
+                    const { insertedCount } = await processContactBatch(db, broadcastId, contactBatch, false);
+                    contactCount += insertedCount;
+                    contactBatch = [];
+                }
+            }
+            if (contactBatch.length > 0) {
+                const { insertedCount } = await processContactBatch(db, broadcastId, contactBatch, false);
+                contactCount += insertedCount;
+            }
+            
+            if (contactCount > 0) {
+                await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount } });
+                jobsCreated++;
+            } else {
+                // If no contacts, clean up the broadcast job
+                await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+            }
+        }
+        
+        revalidatePath('/dashboard/broadcasts');
+        return { message: `Successfully queued ${jobsCreated} broadcast campaigns.` };
+    } catch(e) {
+        return { error: getErrorMessage(e) };
     }
 }

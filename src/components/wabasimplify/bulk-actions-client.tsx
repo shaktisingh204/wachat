@@ -5,8 +5,9 @@ import { useState, useEffect } from 'react';
 import type { WithId, Project, Template } from '@/lib/definitions';
 import { BulkTemplateForm } from '@/components/wabasimplify/bulk-template-form';
 import { Button } from '@/components/ui/button';
-import { FileText, Rows } from 'lucide-react';
+import { FileText, Rows, Send } from 'lucide-react';
 import Link from 'next/link';
+import { BulkBroadcastForm } from './bulk-broadcast-form';
 
 interface BulkActionsClientProps {
     sourceProjectName: string;
@@ -37,6 +38,13 @@ export function BulkActionsClient({ sourceProjectName, allProjects, initialTempl
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
                     <BulkTemplateForm
+                        sourceProjectName={sourceProjectName}
+                        targetProjects={selectedProjects}
+                        templates={initialTemplates}
+                    />
+                </div>
+                 <div className="lg:col-span-1">
+                    <BulkBroadcastForm
                         sourceProjectName={sourceProjectName}
                         targetProjects={selectedProjects}
                         templates={initialTemplates}
