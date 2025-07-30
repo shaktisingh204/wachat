@@ -42,25 +42,27 @@ function SubmitButton() {
   );
 }
 
+interface SyncProjectsDialogProps {
+  onSuccess: () => void;
+}
 
-export function SyncProjectsDialog() {
+export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(handleSyncWabas, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
-  const router = useRouter();
 
   useEffect(() => {
     if (state.message) {
       toast({ title: 'Success!', description: state.message });
       formRef.current?.reset();
       setOpen(false);
-      router.refresh(); // Refresh the page to show new projects
+      onSuccess();
     }
     if (state.error) {
       toast({ title: 'Error Syncing Projects', description: state.error, variant: 'destructive' });
     }
-  }, [state, toast, router]);
+  }, [state, toast, onSuccess]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
