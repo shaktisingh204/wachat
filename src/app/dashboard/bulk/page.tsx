@@ -1,5 +1,5 @@
 
-import { Suspense, useMemo } from 'react';
+import { Suspense } from 'react';
 import { getProjects } from '@/app/actions';
 import { getTemplates } from '@/app/actions/template.actions';
 import type { WithId, Project, Template } from '@/lib/definitions';
@@ -25,14 +25,19 @@ export default async function BulkPage({ searchParams }: { searchParams?: { [key
     const projectIds = typeof searchParams?.projectIds === 'string' ? searchParams.projectIds.split(',') : [];
     
     // Fetch all necessary data on the server
-    const projects = await getProjects(undefined, 'whatsapp');
-    const templates = projectIds.length > 0 && projects.some(p => p._id.toString() === projectIds[0]) 
-        ? await getTemplates(projectIds[0]) 
-        : [];
+    const allProjects = await getProjects(undefined, 'whatsapp');
+    const sourceProject = allProjects.find(p => p._id.toString() === projectIds[0]);
+    const templates = sourceProject ? await getTemplates(sourceProject._id.toString()) : [];
+    const selectedProjects = allProjects.filter(p => projectIds.includes(p._id.toString()));
 
     return (
         <Suspense fallback={<BulkActionsSkeleton />}>
-            <BulkActionsClient allProjects={projects} initialTemplates={templates} initialProjectIds={projectIds} />
+            <BulkActionsClient 
+                sourceProjectName={sourceProject?.name || ''}
+                allProjects={allProjects} 
+                initialTemplates={templates} 
+                initialSelectedProjects={selectedProjects} 
+            />
         </Suspense>
     );
 }
