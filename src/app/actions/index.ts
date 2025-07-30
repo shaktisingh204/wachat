@@ -811,7 +811,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
         // Get all WABAs for that business
         let allWabas: MetaWaba[] = [];
         let nextUrl: string | undefined = `https://graph.facebook.com/${apiVersion}/${businessId}/client_whatsapp_business_accounts?access_token=${accessToken}&limit=100`;
-        console.log(nextUrl);
+        console.error(nextUrl);
         while(nextUrl) {
             const response = await fetch(nextUrl);
             const responseData: MetaWabasResponse = await response.json();
