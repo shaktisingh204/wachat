@@ -21,7 +21,7 @@ import { hashPassword, comparePassword, createSessionToken, verifySessionToken, 
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import { premadeTemplates } from '@/lib/premade-templates';
-import { getMetaFlows } from './actions/meta-flow.actions';
+import { getMetaFlows } from './meta-flow.actions';
 import { getErrorMessage } from '@/lib/utils';
 // Re-exports for server actions are handled by direct imports in components now.
 import { headers } from 'next/headers';
@@ -895,4 +895,3 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
         return { error: getErrorMessage(e) || 'An unexpected error occurred during project sync.' };
     }
 }
-```
