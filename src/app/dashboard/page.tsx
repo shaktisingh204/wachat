@@ -15,6 +15,7 @@ import type { Project, ProjectGroup } from "@/lib/definitions";
 import { SyncProjectsDialog } from "@/components/wabasimplify/sync-projects-dialog";
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Card, CardContent } from '@/components/ui/card';
 
 export default function SelectProjectPage() {
     const searchParams = useSearchParams();
