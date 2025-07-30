@@ -1,3 +1,4 @@
+
 const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
@@ -9,7 +10,7 @@ const hostname = '0.0.0.0'; // Changed from 'localhost' for production environme
 const port = parseInt(process.env.PORT, 10) || 3001;
 
 // For Next.js app
-const app = next({ dev, hostname, port });
+const app = next({ dev, hostname, port, dir: __dirname });
 const handle = app.getRequestHandler();
 
 if (cluster.isPrimary) {
