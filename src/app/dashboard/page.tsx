@@ -18,7 +18,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 export default function SelectProjectPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const query = searchParams.get('query') || '';
+    const query = searchParams ? searchParams.get('query') || '' : '';
     const [projects, setProjects] = useState<WithId<Project>[]>([]);
     const [selectionMode, setSelectionMode] = useState(false);
     const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
@@ -56,7 +56,7 @@ export default function SelectProjectPage() {
                     </p>
                 </div>
                  <div className="flex flex-wrap items-center gap-2">
-                    <SyncProjectsDialog />
+                    <SyncProjectsDialog onSuccess={fetchProjects} />
                      <Button asChild>
                       <Link href="/dashboard/setup">
                           <PlusCircle className="mr-2 h-4 w-4" />
