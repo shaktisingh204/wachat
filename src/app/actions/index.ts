@@ -834,35 +834,20 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
         
         const defaultPlan = await db.collection<Plan>('plans').findOne({ isDefault: true });
 
-        // Prepare bulk operations with ownership transfer
-        const bulkOps = await Promise.all(allWabas.map(async (waba) => {
-            const phoneNumbersResponse = await fetch(
-                `https://graph.facebook.com/${apiVersion}/${waba.id}/phone_numbers?access_token=${accessToken}&fields=verified_name,display_phone_number,id,quality_rating,code_verification_status,platform_type,throughput`
-            );
-            const phoneNumbersData: MetaPhoneNumbersResponse = await phoneNumbersResponse.json();
-            
-            const phoneNumbers: PhoneNumber[] = phoneNumbersData.data ? phoneNumbersData.data.map((num: any) => ({
-                id: num.id,
-                display_phone_number: num.display_phone_number,
-                verified_name: num.verified_name,
-                code_verification_status: num.code_verification_status,
-                quality_rating: num.quality_rating,
-                platform_type: num.platform_type,
-                throughput: num.throughput,
-            })) : [];
-
+        // Prepare bulk operations with ownership transfer. This is a two-step process.
+        // Step 1: Create/update projects with basic info.
+        const initialBulkOps = allWabas.map(waba => {
             const projectDoc = {
                 userId: new ObjectId(session.user._id),
                 name: waba.name,
                 accessToken: accessToken,
                 appId: appId,
-                phoneNumbers: phoneNumbers,
+                phoneNumbers: [], // Initially empty
                 businessId: businessId,
                 hasCatalogManagement: true,
                 ...(groupId && { groupId }),
                 ...(groupName && { groupName }),
             };
-
             return {
                 updateOne: {
                     filter: { wabaId: waba.id },
@@ -879,13 +864,13 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
                     upsert: true,
                 }
             };
-        }));
-        
-        if (bulkOps.length > 0) {
-            const result = await db.collection('projects').bulkWrite(bulkOps);
+        });
+
+        if (initialBulkOps.length > 0) {
+            const result = await db.collection('projects').bulkWrite(initialBulkOps);
             const syncedCount = result.upsertedCount + result.modifiedCount;
             revalidatePath('/dashboard');
-            return { message: `Successfully synced ${syncedCount} project(s) and assigned them to you.` };
+            return { message: `Successfully queued ${syncedCount} project(s) for full sync. Details will be populated in the background.` };
         } else {
             return { message: "No new projects to sync." };
         }
