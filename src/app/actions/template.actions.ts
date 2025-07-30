@@ -282,6 +282,41 @@ export async function handleCreateTemplate(
     }
 }
 
+export async function handleBulkCreateTemplate(
+    prevState: CreateTemplateState,
+    formData: FormData
+): Promise<CreateTemplateState> {
+    const projectIdsString = formData.get('projectIds') as string;
+    const projectIds = projectIdsString.split(',');
+    
+    let successCount = 0;
+    let lastError = '';
+
+    for(const projectId of projectIds) {
+        const tempFormData = new FormData();
+        formData.forEach((value, key) => {
+            if(key !== 'projectIds') {
+                tempFormData.append(key, value);
+            }
+        });
+        tempFormData.append('projectId', projectId);
+
+        const result = await handleCreateTemplate(prevState, tempFormData);
+        if(result.error) {
+            const project = await getProjectById(projectId);
+            lastError += `Project "${project?.name || projectId}": ${result.error}\n`;
+        } else {
+            successCount++;
+        }
+    }
+    
+    if (lastError) {
+        return { error: `Completed with errors:\n${lastError}`};
+    }
+
+    return { message: `Template successfully created for ${successCount} projects.` };
+}
+
 export async function handleCreateFlowTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
     const flowId = formData.get('flowId') as string; 
@@ -326,7 +361,7 @@ export async function handleCreateFlowTemplate(prevState: any, formData: FormDat
     try {
         const { wabaId, accessToken } = project;
         const response = await axios.post(
-            `https://graph.facebook.com/v23.0/${wabaId}/message_templates`,
+            `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates`,
             payload,
             { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
         );
