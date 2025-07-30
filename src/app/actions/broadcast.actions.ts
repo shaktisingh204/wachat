@@ -1,6 +1,7 @@
 
 
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -563,75 +564,96 @@ export async function handleRequeueBroadcast(
     }
 }
 
-
-export async function handleBulkBroadcast(templateId: string, projectIds: string[]): Promise<{ message?: string, error?: string }> {
-    if (!templateId || !ObjectId.isValid(templateId) || projectIds.length === 0) {
-        return { error: 'A template and at least one project must be selected.' };
+export async function handleBulkBroadcast(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectIdsString = formData.get('projectIds') as string;
+    const projectIds = projectIdsString ? projectIdsString.split(',') : [];
+    const templateName = formData.get('templateName') as string;
+    const language = formData.get('language') as string;
+    const contactFile = formData.get('contactFile') as File;
+    
+    if (projectIds.length === 0 || !templateName || !language || !contactFile || contactFile.size === 0) {
+        return { error: 'Projects, template name, language, and a contact file are required.' };
     }
 
     const { db } = await connectToDatabase();
     let jobsCreated = 0;
     
     try {
-        for (const projectId of projectIds) {
+        let allContacts: any[] = [];
+        if (contactFile.name.endsWith('.csv')) {
+            const csvText = await contactFile.text();
+            allContacts = Papa.parse(csvText, { header: true, skipEmptyLines: true }).data;
+        } else if (contactFile.name.endsWith('.xlsx')) {
+            const fileBuffer = Buffer.from(await contactFile.arrayBuffer());
+            const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+            const sheetName = workbook.SheetNames[0];
+            if (!sheetName) throw new Error('The XLSX file contains no sheets.');
+            const worksheet = workbook.Sheets[sheetName];
+            allContacts = XLSX.utils.sheet_to_json(worksheet);
+        } else {
+            return { error: 'Unsupported file type. Please use .csv or .xlsx.' };
+        }
+
+        if (allContacts.length === 0) {
+            return { error: 'No contacts found in the uploaded file.' };
+        }
+        
+        const contactsPerProject = Math.ceil(allContacts.length / projectIds.length);
+        
+        for (let i = 0; i < projectIds.length; i++) {
+            const projectId = projectIds[i];
             const projectObjectId = new ObjectId(projectId);
             const project = await getProjectById(projectId);
-            const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId) });
+
+            // Fetch the specific template for this project
+            const template = await db.collection<Template>('templates').findOne({
+                projectId: projectObjectId,
+                name: templateName,
+                language: language
+            });
 
             if (!project || !template || !project.phoneNumbers?.[0]?.id) {
-                console.warn(`Skipping bulk broadcast for project ${projectId}: Project, template, or phone number not found.`);
+                console.warn(`Skipping bulk broadcast for project ${projectId}: Project, template (${templateName}/${language}), or phone number not found.`);
                 continue;
             }
 
             const broadcastJobData: Omit<WithId<BroadcastJob>, '_id'> = {
                 projectId: projectObjectId,
                 broadcastType: 'template',
-                templateId: new ObjectId(templateId),
+                templateId: template._id,
                 templateName: template.name,
-                phoneNumberId: project.phoneNumbers[0].id, // Use the first available number
+                phoneNumberId: project.phoneNumbers[0].id,
                 accessToken: project.accessToken,
                 status: 'QUEUED',
                 createdAt: new Date(),
                 contactCount: 0,
-                fileName: `Bulk Broadcast: ${template.name}`,
+                fileName: `Bulk: ${contactFile.name}`,
                 components: template.components,
                 language: template.language,
                 category: template.category,
-                variableMappings: [], // No variables for this simple bulk send
+                variableMappings: [],
             };
 
             const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData as any);
             const broadcastId = broadcastResult.insertedId;
             
-            // Get all contacts for the project
-            const contactsCursor = db.collection('contacts').find({ projectId: projectObjectId });
-            let contactCount = 0;
-            let contactBatch: Partial<Contact>[] = [];
-
-            for await (const contact of contactsCursor) {
-                contactBatch.push(contact);
-                if (contactBatch.length >= BATCH_SIZE) {
-                    const { insertedCount } = await processContactBatch(db, broadcastId, contactBatch, false);
-                    contactCount += insertedCount;
-                    contactBatch = [];
-                }
-            }
-            if (contactBatch.length > 0) {
-                const { insertedCount } = await processContactBatch(db, broadcastId, contactBatch, false);
-                contactCount += insertedCount;
-            }
+            const contactChunk = allContacts.slice(i * contactsPerProject, (i + 1) * contactsPerProject);
             
-            if (contactCount > 0) {
-                await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount } });
-                jobsCreated++;
+            if (contactChunk.length > 0) {
+                const { insertedCount } = await processContactBatch(db, broadcastId, contactChunk, true);
+                if (insertedCount > 0) {
+                    await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount: insertedCount } });
+                    jobsCreated++;
+                } else {
+                    await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+                }
             } else {
-                // If no contacts, clean up the broadcast job
-                await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+                 await db.collection('broadcasts').deleteOne({ _id: broadcastId });
             }
         }
         
         revalidatePath('/dashboard/broadcasts');
-        return { message: `Successfully queued ${jobsCreated} broadcast campaigns.` };
+        return { message: `Successfully queued ${jobsCreated} broadcast campaigns, distributing ${allContacts.length} contacts.` };
     } catch(e) {
         return { error: getErrorMessage(e) };
     }
