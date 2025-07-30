@@ -1,8 +1,8 @@
 
 'use client';
 
-import { useState, useTransition, useEffect } from 'react';
-import { useFormStatus } from 'react-dom';
+import { useState, useTransition, useEffect, useRef } from 'react';
+import { useFormStatus, useFormState } from 'react-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,7 +33,7 @@ interface BulkBroadcastFormProps {
 }
 
 export function BulkBroadcastForm({ sourceProjectName, targetProjects }: BulkBroadcastFormProps) {
-  const [state, formAction] = useActionState(handleBulkBroadcast, initialState);
+  const [state, formAction] = useFormState(handleBulkBroadcast, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const [file, setFile] = useState<File | null>(null);
