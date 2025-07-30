@@ -78,7 +78,7 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
           <DialogHeader>
             <DialogTitle>Sync Projects with Meta</DialogTitle>
             <DialogDescription>
-              Enter a permanent User Access Token from your Meta Business account to sync your projects.
+              Enter a permanent User Access Token and your App ID to sync your projects.
             </DialogDescription>
           </DialogHeader>
 
@@ -95,6 +95,15 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                <p className="text-xs text-muted-foreground">
                 Follow the manual setup guide for instructions on generating a token.
               </p>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="appId">App ID</Label>
+                <Input
+                    id="appId"
+                    name="appId"
+                    placeholder="Your Meta App ID"
+                    required
+                />
             </div>
              <div className="space-y-2">
                 <Label htmlFor="groupName">Group Name (Optional)</Label>

@@ -785,10 +785,11 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     }
 
     const accessToken = formData.get('accessToken') as string;
+    const appId = formData.get('appId') as string;
     const groupName = formData.get('groupName') as string | undefined;
 
-    if (!accessToken) {
-        return { error: 'Access Token is required.' };
+    if (!accessToken || !appId) {
+        return { error: 'Access Token and App ID are required.' };
     }
     
     const apiVersion = 'v23.0';
@@ -864,6 +865,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
                 userId: new ObjectId(session.user._id),
                 name: waba.name,
                 accessToken: accessToken,
+                appId: appId,
                 phoneNumbers: phoneNumbers,
                 businessId: businessId,
                 hasCatalogManagement: true,
