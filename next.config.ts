@@ -5,9 +5,6 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 
 const nextConfig = {
   /* config options here */
-  serverActions: {
-    bodySizeLimit: '50mb',
-  },
   typescript: {
     ignoreBuildErrors: true,
   },
