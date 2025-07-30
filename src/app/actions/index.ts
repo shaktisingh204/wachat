@@ -72,6 +72,7 @@ import type {
     InitiatePaymentResult,
     AdminUserView,
     KanbanColumnData,
+    ProjectGroup
 } from '@/lib/definitions';
 
 
@@ -784,6 +785,8 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     }
 
     const accessToken = formData.get('accessToken') as string;
+    const groupName = formData.get('groupName') as string | undefined;
+
     if (!accessToken) {
         return { error: 'Access Token is required.' };
     }
@@ -793,6 +796,16 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     try {
         const { db } = await connectToDatabase();
         
+        let groupId: ObjectId | undefined;
+        if (groupName) {
+            const groupResult = await db.collection<ProjectGroup>('project_groups').insertOne({
+                userId: new ObjectId(session.user._id),
+                name: groupName,
+                createdAt: new Date(),
+            });
+            groupId = groupResult.insertedId;
+        }
+
         // 1. Get user's business ID
         const businessesResponse = await axios.get(`https://graph.facebook.com/${apiVersion}/me/businesses`, {
             params: { access_token: accessToken }
@@ -854,6 +867,8 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
                 phoneNumbers: phoneNumbers,
                 businessId: businessId,
                 hasCatalogManagement: true,
+                ...(groupId && { groupId }),
+                ...(groupName && { groupName }),
             };
 
             return {

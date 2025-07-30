@@ -558,6 +558,13 @@ export type EcommPage = {
     updatedAt: Date;
 }
 
+export type ProjectGroup = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    createdAt: Date;
+};
+
 export type Project = {
     _id: ObjectId;
     userId: ObjectId;
@@ -568,6 +575,8 @@ export type Project = {
     accessToken: string;
     phoneNumbers: PhoneNumber[];
     createdAt: Date;
+    groupId?: ObjectId;
+    groupName?: string;
     messagesPerSecond?: number;
     reviewStatus?: string;
     banState?: string;

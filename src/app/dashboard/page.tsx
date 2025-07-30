@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
@@ -6,14 +7,14 @@ import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
 import { ProjectCard } from "@/components/wabasimplify/project-card";
-import { FileText, PlusCircle, Rows, X } from "lucide-react";
+import { FileText, PlusCircle, Rows, X, Briefcase, Folder } from "lucide-react";
 import type { WithId } from "mongodb";
 import { ProjectSearch } from "@/components/wabasimplify/project-search";
 import { Button } from "@/components/ui/button";
-import type { Project } from "@/lib/definitions";
+import type { Project, ProjectGroup } from "@/lib/definitions";
 import { SyncProjectsDialog } from "@/components/wabasimplify/sync-projects-dialog";
 import { useRouter, useSearchParams } from 'next/navigation';
-
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 export default function SelectProjectPage() {
     const searchParams = useSearchParams();
@@ -46,6 +47,25 @@ export default function SelectProjectPage() {
         router.push(`/dashboard/bulk?${params.toString()}`);
     }
 
+    const groupedProjects = useMemo(() => {
+        const grouped: { [key: string]: WithId<Project>[] } = {};
+        const ungrouped: WithId<Project>[] = [];
+        
+        projects.forEach(p => {
+            if (p.groupId && p.groupName) {
+                if (!grouped[p.groupName]) {
+                    grouped[p.groupName] = [];
+                }
+                grouped[p.groupName].push(p);
+            } else {
+                ungrouped.push(p);
+            }
+        });
+
+        return { grouped, ungrouped };
+    }, [projects]);
+
+
     return (
         <div className="flex flex-col gap-8">
             <div className="flex flex-wrap justify-between items-start gap-4">
@@ -76,16 +96,48 @@ export default function SelectProjectPage() {
             </div>
 
             {projects.length > 0 ? (
-                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {projects.map((project) => (
-                        <ProjectCard 
-                            key={project._id.toString()} 
-                            project={project} 
-                            selectionMode={selectionMode}
-                            isSelected={selectedProjects.includes(project._id.toString())}
-                            onSelect={handleSelectProject}
-                        />
+                <div className="space-y-6">
+                    {Object.entries(groupedProjects.grouped).map(([groupName, groupProjects]) => (
+                        <Accordion key={groupName} type="single" collapsible defaultValue="item-1">
+                            <AccordionItem value="item-1">
+                                <AccordionTrigger className="text-xl font-semibold hover:no-underline">
+                                    <div className="flex items-center gap-2">
+                                        <Folder className="h-5 w-5 text-muted-foreground" />
+                                        {groupName} ({groupProjects.length})
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-4">
+                                        {groupProjects.map((project) => (
+                                            <ProjectCard 
+                                                key={project._id.toString()} 
+                                                project={project} 
+                                                selectionMode={selectionMode}
+                                                isSelected={selectedProjects.includes(project._id.toString())}
+                                                onSelect={handleSelectProject}
+                                            />
+                                        ))}
+                                    </div>
+                                </AccordionContent>
+                            </AccordionItem>
+                        </Accordion>
                     ))}
+                     {groupedProjects.ungrouped.length > 0 && (
+                        <div>
+                             <h2 className="text-xl font-semibold mb-4 flex items-center gap-2"><Briefcase className="h-5 w-5 text-muted-foreground" /> Ungrouped Projects</h2>
+                             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                                {groupedProjects.ungrouped.map((project) => (
+                                    <ProjectCard 
+                                        key={project._id.toString()} 
+                                        project={project} 
+                                        selectionMode={selectionMode}
+                                        isSelected={selectedProjects.includes(project._id.toString())}
+                                        onSelect={handleSelectProject}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
             ) : (
                  <div className="col-span-full">
