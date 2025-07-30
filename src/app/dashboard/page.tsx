@@ -53,9 +53,9 @@ export default function SelectProjectPage() {
     };
 
     const handleBulkAction = () => {
-        const params = new URLSearchParams();
-        params.set('projectIds', selectedProjects.join(','));
-        router.push(`/dashboard/bulk?${params.toString()}`);
+        // Use localStorage to pass a large number of IDs to avoid URL length limits
+        localStorage.setItem('bulkProjectIds', JSON.stringify(selectedProjects));
+        router.push(`/dashboard/bulk`);
     }
 
     const groupedProjects = useMemo(() => {

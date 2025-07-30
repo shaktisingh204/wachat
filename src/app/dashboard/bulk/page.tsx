@@ -1,5 +1,7 @@
 
-import { Suspense } from 'react';
+'use client';
+
+import { Suspense, useEffect, useState, useTransition } from 'react';
 import { getProjects } from '@/app/actions';
 import { getTemplates } from '@/app/actions/whatsapp.actions';
 import type { WithId, Project, Template } from '@/lib/definitions';
@@ -21,23 +23,49 @@ function BulkActionsSkeleton() {
     );
 }
 
-export default async function BulkPage({ searchParams }: { searchParams?: { [key: string]: string | string[] | undefined }}) {
-    const projectIds = typeof searchParams?.projectIds === 'string' ? searchParams.projectIds.split(',') : [];
-    
-    // Fetch all necessary data on the server
-    const allProjects = await getProjects(undefined, 'whatsapp');
-    const sourceProject = allProjects.find(p => p._id.toString() === projectIds[0]);
-    const templates = sourceProject ? await getTemplates(sourceProject._id.toString()) : [];
-    const selectedProjects = allProjects.filter(p => projectIds.includes(p._id.toString()));
+function BulkPageContent() {
+    const [allProjects, setAllProjects] = useState<WithId<Project>[]>([]);
+    const [templates, setTemplates] = useState<WithId<Template>[]>([]);
+    const [selectedProjects, setSelectedProjects] = useState<WithId<Project>[]>([]);
+    const [isLoading, startTransition] = useTransition();
+
+    useEffect(() => {
+        startTransition(async () => {
+            const storedProjectIds = JSON.parse(localStorage.getItem('bulkProjectIds') || '[]');
+            if (storedProjectIds.length > 0) {
+                const fetchedProjects = await getProjects(undefined, 'whatsapp');
+                const filteredProjects = fetchedProjects.filter(p => storedProjectIds.includes(p._id.toString()));
+                setAllProjects(fetchedProjects);
+                setSelectedProjects(filteredProjects);
+                
+                const sourceProject = filteredProjects[0];
+                if(sourceProject) {
+                    const fetchedTemplates = await getTemplates(sourceProject._id.toString());
+                    setTemplates(fetchedTemplates);
+                }
+            }
+        });
+    }, []);
+
+    if (isLoading) {
+        return <BulkActionsSkeleton />;
+    }
 
     return (
+        <BulkActionsClient 
+            sourceProjectName={selectedProjects[0]?.name || ''}
+            allProjects={allProjects} 
+            initialTemplates={templates} 
+            initialSelectedProjects={selectedProjects} 
+        />
+    );
+}
+
+
+export default function BulkPage() {
+    return (
         <Suspense fallback={<BulkActionsSkeleton />}>
-            <BulkActionsClient 
-                sourceProjectName={sourceProject?.name || ''}
-                allProjects={allProjects} 
-                initialTemplates={templates} 
-                initialSelectedProjects={selectedProjects} 
-            />
+            <BulkPageContent />
         </Suspense>
     );
 }
