@@ -1,33 +1,58 @@
 
 'use client';
 
-import { Suspense, useEffect, useState, useTransition } from 'react';
+import { Suspense, useEffect, useState, useTransition, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { getProjectById } from '@/app/actions';
+import { getProjectById, getTemplates } from '@/app/actions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Database } from 'lucide-react';
 import Link from 'next/link';
-import type { WithId, Project } from '@/lib/definitions';
+import type { WithId, Project, Template } from '@/lib/definitions';
+import { BulkTemplateForm } from '@/components/wabasimplify/bulk-template-form';
+
+function BulkPageSkeleton() {
+    return (
+        <div className="space-y-6">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-64 w-full" />
+            <Skeleton className="h-48 w-full" />
+        </div>
+    );
+}
 
 function BulkPageContent() {
     const searchParams = useSearchParams();
     const [projects, setProjects] = useState<WithId<Project>[]>([]);
+    const [templates, setTemplates] = useState<WithId<Template>[]>([]);
     const [isLoading, startTransition] = useTransition();
 
-    useEffect(() => {
-        const projectIdsParam = searchParams.get('projectIds');
-        if (projectIdsParam) {
-            const projectIds = projectIdsParam.split(',');
-            startTransition(async () => {
-                const fetchedProjects = await Promise.all(
-                    projectIds.map(id => getProjectById(id))
-                );
-                setProjects(fetchedProjects.filter(Boolean) as WithId<Project>[]);
-            });
+    const projectIds = searchParams.get('projectIds')?.split(',') || [];
+
+    const fetchData = useCallback(async () => {
+        if (projectIds.length > 0) {
+            const fetchedProjects = await Promise.all(
+                projectIds.map(id => getProjectById(id))
+            );
+            setProjects(fetchedProjects.filter(Boolean) as WithId<Project>[]);
+
+            // Fetch templates from the first project to use as a source
+            const templatesData = await getTemplates(projectIds[0]);
+            setTemplates(templatesData);
         }
-    }, [searchParams]);
+    }, [projectIds]);
+
+    useEffect(() => {
+        startTransition(() => {
+            fetchData();
+        });
+    }, [fetchData]);
+
+
+    if (isLoading) {
+        return <BulkPageSkeleton />;
+    }
 
     return (
         <div className="flex flex-col gap-8">
@@ -41,42 +66,43 @@ function BulkPageContent() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Selected Projects</CardTitle>
+                    <CardTitle>Selected Projects ({projects.length})</CardTitle>
                     <CardDescription>
-                        Data for the selected projects will be displayed and processed here.
+                        Actions performed on this page will apply to all of the projects listed below.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {isLoading ? (
-                        <div className="space-y-2">
-                            <Skeleton className="h-8 w-full" />
-                            <Skeleton className="h-8 w-full" />
-                            <Skeleton className="h-8 w-full" />
-                        </div>
-                    ) : projects.length > 0 ? (
-                        <ul className="space-y-2">
+                    {projects.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             {projects.map(p => (
-                                <li key={p._id.toString()} className="flex items-center gap-3 p-2 border rounded-md">
+                                <div key={p._id.toString()} className="flex items-center gap-3 p-2 border rounded-md bg-muted/50">
                                     <Database className="h-5 w-5 text-muted-foreground"/>
                                     <div>
-                                        <p className="font-semibold">{p.name}</p>
-                                        <p className="text-xs text-muted-foreground font-mono">{p._id.toString()}</p>
+                                        <p className="font-semibold text-sm">{p.name}</p>
                                     </div>
-                                </li>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     ) : (
                         <p className="text-muted-foreground text-center py-8">No projects selected.</p>
                     )}
                 </CardContent>
             </Card>
+
+            {projects.length > 0 && templates.length > 0 && (
+                <BulkTemplateForm
+                    sourceProjectName={projects[0]?.name || ''}
+                    targetProjects={projects}
+                    templates={templates}
+                />
+            )}
         </div>
     );
 }
 
 export default function BulkPage() {
     return (
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<BulkPageSkeleton />}>
             <BulkPageContent />
         </Suspense>
     )
