@@ -788,6 +788,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     const appId = formData.get('appId') as string;
     const businessId = formData.get('businessId') as string;
     const groupName = formData.get('groupName') as string | undefined;
+    console.error('https://graph.facebook.com/${apiVersion}/${businessId}/client_whatsapp_business_accounts?access_token=${accessToken}&limit=100');
 
     if (!accessToken || !appId || !businessId) {
         return { error: 'Access Token, App ID, and Business ID are required.' };
