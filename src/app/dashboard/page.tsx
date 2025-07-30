@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
@@ -7,7 +6,7 @@ import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
 import { ProjectCard } from "@/components/wabasimplify/project-card";
-import { FileText, PlusCircle, Rows, X, Briefcase, Folder } from "lucide-react";
+import { FileText, PlusCircle, Rows, X, Briefcase, Folder, CheckSquare } from "lucide-react";
 import type { WithId } from "mongodb";
 import { ProjectSearch } from "@/components/wabasimplify/project-search";
 import { Button } from "@/components/ui/button";
@@ -40,6 +39,17 @@ export default function SelectProjectPage() {
             ? prev.filter(id => id !== projectId)
             : [...prev, projectId]
         );
+    };
+    
+    const handleSelectGroup = (projectIds: string[]) => {
+        const allSelectedInGroup = projectIds.every(id => selectedProjects.includes(id));
+        if (allSelectedInGroup) {
+            // If all are selected, deselect them
+            setSelectedProjects(prev => prev.filter(id => !projectIds.includes(id)));
+        } else {
+            // Otherwise, select all (ensuring no duplicates)
+            setSelectedProjects(prev => [...new Set([...prev, ...projectIds])]);
+        }
     };
 
     const handleBulkAction = () => {
@@ -105,6 +115,20 @@ export default function SelectProjectPage() {
                                     <div className="flex items-center gap-2">
                                         <Folder className="h-5 w-5 text-muted-foreground" />
                                         {groupName} ({groupProjects.length})
+                                        {selectionMode && (
+                                            <Button 
+                                                variant="ghost" 
+                                                size="sm" 
+                                                className="ml-4 h-7"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleSelectGroup(groupProjects.map(p => p._id.toString()));
+                                                }}
+                                            >
+                                                <CheckSquare className="mr-2 h-4 w-4" />
+                                                Select All
+                                            </Button>
+                                        )}
                                     </div>
                                 </AccordionTrigger>
                                 <AccordionContent>
