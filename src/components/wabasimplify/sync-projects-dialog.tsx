@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -77,7 +78,7 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
           <DialogHeader>
             <DialogTitle>Sync Projects with Meta</DialogTitle>
             <DialogDescription>
-              Enter a permanent User Access Token from your Meta Business account to sync your projects. This will assign synced projects to you.
+              Enter a permanent User Access Token from your Meta Business account to sync your projects.
             </DialogDescription>
           </DialogHeader>
 
@@ -94,6 +95,11 @@ export function SyncProjectsDialog({ onSuccess }: SyncProjectsDialogProps) {
                <p className="text-xs text-muted-foreground">
                 Follow the manual setup guide for instructions on generating a token.
               </p>
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="groupName">Group Name (Optional)</Label>
+                <Input id="groupName" name="groupName" placeholder="e.g. My Agency's Clients" />
+                <p className="text-xs text-muted-foreground">All synced projects will be added to this new group.</p>
             </div>
           </div>
           <DialogFooter>
