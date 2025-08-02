@@ -36,7 +36,7 @@ async function submitTemplateToMeta(project: WithId<Project>, template: WithId<T
 }
 
 
-export async function POST(request: Request) {
+async function handleSync() {
     try {
         const { db } = await connectToDatabase();
         
@@ -91,4 +91,13 @@ export async function POST(request: Request) {
         console.error('Error in sync-local-templates cron job:', error);
         return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
     }
+}
+
+
+export async function POST(request: Request) {
+    return handleSync();
+}
+
+export async function GET(request: Request) {
+    return handleSync();
 }
