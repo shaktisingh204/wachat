@@ -320,11 +320,19 @@ export async function handleBulkCreateTemplate(
             const headerComponent: any = { type: 'HEADER', format: headerFormat };
             if (headerFormat === 'TEXT') {
                 headerComponent.text = headerText;
+                if (headerText.match(/{{\s*(\d+)\s*}}/g)) {
+                    headerComponent.example = { header_text: ['example_header_var'] };
+                }
             }
             components.push(headerComponent);
         }
         
-        if (bodyText) components.push({ type: 'BODY', text: bodyText });
+        const bodyComponent: any = { type: 'BODY', text: bodyText };
+        if (bodyText.match(/{{\s*(\d+)\s*}}/g)) {
+            bodyComponent.example = { body_text: [['example_body_var']] };
+        }
+        components.push(bodyComponent);
+
         if (footerText) components.push({ type: 'FOOTER', text: footerText });
         if (buttons.length > 0) {
             const formattedButtons = buttons.map((button: any) => ({
@@ -362,6 +370,7 @@ export async function handleBulkCreateTemplate(
         return { error: getErrorMessage(e) };
     }
 }
+
 
 export async function handleCreateFlowTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const projectId = formData.get('projectId') as string;
