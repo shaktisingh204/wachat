@@ -1,4 +1,5 @@
 
+
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
@@ -40,10 +41,12 @@ async function handleSync() {
     try {
         const { db } = await connectToDatabase();
         
-        const localTemplates = await db.collection<WithId<Template>>('templates').find({ status: 'LOCAL' }).toArray();
+        const localTemplates = await db.collection<WithId<Template>>('templates').find({ 
+            status: { $in: ['LOCAL', 'FAILED_SUBMISSION'] }
+        }).toArray();
 
         if (localTemplates.length === 0) {
-            return NextResponse.json({ message: 'No local templates found to sync.' });
+            return NextResponse.json({ message: 'No local or failed templates found to sync.' });
         }
         
         const projectIds = [...new Set(localTemplates.map(t => t.projectId.toString()))];
