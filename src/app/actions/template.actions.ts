@@ -14,6 +14,8 @@ import { getErrorMessage } from '@/lib/utils';
 import { premadeTemplates } from '@/lib/premade-templates';
 import type { Project, Template, CreateTemplateState, MetaTemplate, MetaTemplatesResponse, LibraryTemplate, TemplateCategory } from '@/lib/definitions';
 
+const API_VERSION = 'v23.0';
+
 async function getMediaHandleForTemplate(file: File | null, url: string | null, accessToken: string, appId: string): Promise<{ handle: string | null; error?: string; }> {
     if (!file && !url) return { handle: null, error: undefined };
 
@@ -35,11 +37,11 @@ async function getMediaHandleForTemplate(file: File | null, url: string | null, 
             return { handle: null, error: undefined };
         }
 
-        const sessionUrl = `https://graph.facebook.com/v23.0/${appId}/uploads?file_length=${fileLength}&file_type=${fileType}&access_token=${accessToken}`;
+        const sessionUrl = `https://graph.facebook.com/${API_VERSION}/${appId}/uploads?file_length=${fileLength}&file_type=${fileType}&access_token=${accessToken}`;
         const sessionResponse = await axios.post(sessionUrl, {});
         const uploadSessionId = sessionResponse.data.id;
 
-        const uploadUrl = `https://graph.facebook.com/v23.0/${uploadSessionId}`;
+        const uploadUrl = `https://graph.facebook.com/${API_VERSION}/${uploadSessionId}`;
         const uploadResponse = await axios.post(uploadUrl, mediaData, { headers: { Authorization: `OAuth ${accessToken}` } });
         return { handle: uploadResponse.data.h, error: undefined };
     } catch (uploadError: any) {
@@ -237,7 +239,7 @@ export async function handleCreateTemplate(
         }
     
         const response = await fetch(
-            `https://graph.facebook.com/v23.0/${wabaId}/message_templates`,
+            `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates`,
             {
             method: 'POST',
             headers: {
@@ -288,33 +290,50 @@ export async function handleBulkCreateTemplate(
 ): Promise<CreateTemplateState> {
     const projectIdsString = formData.get('projectIds') as string;
     const projectIds = projectIdsString.split(',');
+    const { db } = await connectToDatabase();
     
-    let successCount = 0;
-    let lastError = '';
+    // We are just saving locally. A cron job will pick them up to submit to meta.
+    try {
+        const name = (formData.get('name') as string || '').trim();
+        const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
+        const language = formData.get('language') as string;
+        const body = (formData.get('body') as string || '').trim();
+        const footer = (formData.get('footer') as string || '').trim();
+        const buttonsJson = formData.get('buttons') as string;
+        const buttons = buttonsJson ? JSON.parse(buttonsJson) : [];
+        const headerFormat = formData.get('headerFormat') as string;
+        const headerText = (formData.get('headerText') as string || '').trim();
 
-    for(const projectId of projectIds) {
-        const tempFormData = new FormData();
-        formData.forEach((value, key) => {
-            if(key !== 'projectIds') {
-                tempFormData.append(key, value);
+        let components: any[] = [];
+        if (headerFormat !== 'NONE') components.push({ type: 'HEADER', format: headerFormat, ...(headerFormat === 'TEXT' && { text: headerText }) });
+        if (body) components.push({ type: 'BODY', text: body });
+        if (footer) components.push({ type: 'FOOTER', text: footer });
+        if (buttons.length > 0) components.push({ type: 'BUTTONS', buttons });
+
+        const bulkOps = projectIds.map(projectId => ({
+            insertOne: {
+                document: {
+                    projectId: new ObjectId(projectId),
+                    name,
+                    category,
+                    language,
+                    body,
+                    components,
+                    status: 'LOCAL',
+                    qualityScore: 'UNKNOWN',
+                    createdAt: new Date()
+                }
             }
-        });
-        tempFormData.append('projectId', projectId);
-
-        const result = await handleCreateTemplate(prevState, tempFormData);
-        if(result.error) {
-            const project = await getProjectById(projectId);
-            lastError += `Project "${project?.name || projectId}": ${result.error}\n`;
-        } else {
-            successCount++;
+        }));
+        
+        if (bulkOps.length > 0) {
+            await db.collection('templates').bulkWrite(bulkOps as any[]);
         }
-    }
-    
-    if (lastError) {
-        return { error: `Completed with errors:\n${lastError}`};
-    }
 
-    return { message: `Template successfully created for ${successCount} projects.` };
+        return { message: `Template queued for creation across ${projectIds.length} projects. It will be submitted to Meta shortly.` };
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
 }
 
 export async function handleCreateFlowTemplate(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {

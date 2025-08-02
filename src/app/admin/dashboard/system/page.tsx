@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { RunCronJobsButton } from "@/components/wabasimplify/run-cron-jobs-button";
 import { PhonePeSettingsForm } from "@/components/wabasimplify/phonepe-settings-form";
 import { getPaymentGatewaySettings } from "@/app/actions";
+import { SyncLocalTemplatesButton } from "@/components/wabasimplify/sync-local-templates-button";
 
 export default async function SystemHealthPage() {
     const phonePeSettings = await getPaymentGatewaySettings();
@@ -33,6 +34,7 @@ export default async function SystemHealthPage() {
                 <CardContent className="flex flex-wrap gap-2">
                     <SubscribeAllButton />
                     <RunCronJobsButton />
+                    <SyncLocalTemplatesButton />
                 </CardContent>
             </Card>
 
