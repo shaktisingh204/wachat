@@ -306,6 +306,7 @@ export async function handleBulkCreateTemplate(
         const buttonsJson = formData.get('buttons') as string;
         const headerFormat = formData.get('headerFormat') as string;
         const headerText = cleanText(formData.get('headerText') as string);
+        const headerSampleFile = formData.get('headerSampleFile') as File;
         
         const buttons = (buttonsJson ? JSON.parse(buttonsJson) : []).map((button: any) => ({
             ...button,
@@ -315,57 +316,67 @@ export async function handleBulkCreateTemplate(
             example: Array.isArray(button.example) ? button.example.map((ex: string) => (ex || '').trim()) : button.example,
         }));
         
-        let components: any[] = [];
-        if (headerFormat !== 'NONE') {
-            const headerComponent: any = { type: 'HEADER', format: headerFormat };
-            if (headerFormat === 'TEXT') {
-                headerComponent.text = headerText;
-                if (headerText.match(/{{\s*(\d+)\s*}}/g)) {
-                    headerComponent.example = { header_text: ['example_header_var'] };
+        const projects = await db.collection<WithId<Project>>('projects').find({_id: {$in: projectIds.map(id => new ObjectId(id))}}).toArray();
+
+        const bulkOps = [];
+        for (const project of projects) {
+            let components: any[] = [];
+            
+            if (headerFormat !== 'NONE') {
+                const headerComponent: any = { type: 'HEADER', format: headerFormat };
+                if (headerFormat === 'TEXT') {
+                    headerComponent.text = headerText;
+                     if (headerText.match(/{{\s*(\d+)\s*}}/g)) {
+                        headerComponent.example = { header_text: ['example_header_var'] };
+                    }
+                } else if (headerSampleFile && headerSampleFile.size > 0 && project.appId && project.accessToken) {
+                    const { handle, error } = await getMediaHandleForTemplate(headerSampleFile, null, project.accessToken, project.appId);
+                    if(error) {
+                        console.warn(`Skipping media header for project ${project.name}: ${error}`);
+                    } else if (handle) {
+                        headerComponent.example = { header_handle: [handle] };
+                    }
                 }
+                components.push(headerComponent);
             }
-            components.push(headerComponent);
-        }
-        
-        const bodyComponent: any = { type: 'BODY', text: bodyText };
-        if (bodyText.match(/{{\s*(\d+)\s*}}/g)) {
-            bodyComponent.example = { body_text: [['example_body_var']] };
-        }
-        components.push(bodyComponent);
+            
+            const bodyComponent: any = { type: 'BODY', text: bodyText };
+             if (bodyText.match(/{{\s*(\d+)\s*}}/g)) {
+                bodyComponent.example = { body_text: [['example_body_var']] };
+            }
+            components.push(bodyComponent);
 
-        if (footerText) components.push({ type: 'FOOTER', text: footerText });
-        if (buttons.length > 0) {
-            const formattedButtons = buttons.map((button: any) => ({
-                type: button.type,
-                text: button.text,
-                ...(button.url && { url: button.url, example: button.example }),
-                ...(button.phone_number && { phone_number: button.phone_number })
-            }));
-            components.push({ type: 'BUTTONS', buttons: formattedButtons });
-        }
+            if (footerText) components.push({ type: 'FOOTER', text: footerText });
+            if (buttons.length > 0) {
+                const formattedButtons = buttons.map((button: any) => ({
+                    type: button.type,
+                    text: button.text,
+                    ...(button.url && { url: button.url, example: button.example }),
+                    ...(button.phone_number && { phone_number: button.phone_number })
+                }));
+                components.push({ type: 'BUTTONS', buttons: formattedButtons });
+            }
 
-
-        const bulkOps = projectIds.map(projectId => ({
-            insertOne: {
-                document: {
-                    projectId: new ObjectId(projectId),
-                    name,
-                    category,
-                    language,
-                    body: bodyText,
-                    components,
-                    status: 'LOCAL',
-                    qualityScore: 'UNKNOWN',
-                    createdAt: new Date()
+            bulkOps.push({
+                insertOne: {
+                    document: {
+                        projectId: project._id,
+                        name, category, language,
+                        body: bodyText,
+                        components,
+                        status: 'LOCAL',
+                        qualityScore: 'UNKNOWN',
+                        createdAt: new Date()
+                    }
                 }
-            }
-        }));
+            });
+        }
         
         if (bulkOps.length > 0) {
             await db.collection('templates').bulkWrite(bulkOps as any[]);
         }
 
-        return { message: `Template queued for creation across ${projectIds.length} projects. It will be submitted to Meta shortly.` };
+        return { message: `Template queued for creation across ${bulkOps.length} projects. Run the sync cron job to submit them to Meta.` };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
