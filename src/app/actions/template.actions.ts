@@ -292,23 +292,50 @@ export async function handleBulkCreateTemplate(
     const projectIds = projectIdsString.split(',');
     const { db } = await connectToDatabase();
     
-    // We are just saving locally. A cron job will pick them up to submit to meta.
+    const cleanText = (text: string | null | undefined): string => {
+        if (!text) return '';
+        return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
+    };
+
     try {
         const name = (formData.get('name') as string || '').trim();
         const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
         const language = formData.get('language') as string;
-        const body = (formData.get('body') as string || '').trim();
-        const footer = (formData.get('footer') as string || '').trim();
+        const bodyText = cleanText(formData.get('body') as string);
+        const footerText = cleanText(formData.get('footer') as string);
         const buttonsJson = formData.get('buttons') as string;
-        const buttons = buttonsJson ? JSON.parse(buttonsJson) : [];
         const headerFormat = formData.get('headerFormat') as string;
-        const headerText = (formData.get('headerText') as string || '').trim();
-
+        const headerText = cleanText(formData.get('headerText') as string);
+        
+        const buttons = (buttonsJson ? JSON.parse(buttonsJson) : []).map((button: any) => ({
+            ...button,
+            text: cleanText(button.text),
+            url: (button.url || '').trim(),
+            phone_number: (button.phone_number || '').trim(),
+            example: Array.isArray(button.example) ? button.example.map((ex: string) => (ex || '').trim()) : button.example,
+        }));
+        
         let components: any[] = [];
-        if (headerFormat !== 'NONE') components.push({ type: 'HEADER', format: headerFormat, ...(headerFormat === 'TEXT' && { text: headerText }) });
-        if (body) components.push({ type: 'BODY', text: body });
-        if (footer) components.push({ type: 'FOOTER', text: footer });
-        if (buttons.length > 0) components.push({ type: 'BUTTONS', buttons });
+        if (headerFormat !== 'NONE') {
+            const headerComponent: any = { type: 'HEADER', format: headerFormat };
+            if (headerFormat === 'TEXT') {
+                headerComponent.text = headerText;
+            }
+            components.push(headerComponent);
+        }
+        
+        if (bodyText) components.push({ type: 'BODY', text: bodyText });
+        if (footerText) components.push({ type: 'FOOTER', text: footerText });
+        if (buttons.length > 0) {
+            const formattedButtons = buttons.map((button: any) => ({
+                type: button.type,
+                text: button.text,
+                ...(button.url && { url: button.url, example: button.example }),
+                ...(button.phone_number && { phone_number: button.phone_number })
+            }));
+            components.push({ type: 'BUTTONS', buttons: formattedButtons });
+        }
+
 
         const bulkOps = projectIds.map(projectId => ({
             insertOne: {
@@ -317,7 +344,7 @@ export async function handleBulkCreateTemplate(
                     name,
                     category,
                     language,
-                    body,
+                    body: bodyText,
                     components,
                     status: 'LOCAL',
                     qualityScore: 'UNKNOWN',
