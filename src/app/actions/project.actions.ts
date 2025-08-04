@@ -518,3 +518,42 @@ export async function handleUpdateContactDetails(prevState: any, formData: FormD
         return { success: false, error: 'Failed to update contact.' };
     }
 }
+
+export async function handleBulkUpdateAppId(projectIds: string[], newAppId: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    if (!projectIds || projectIds.length === 0 || !newAppId) {
+        return { success: false, error: 'Project IDs and a new App ID are required.' };
+    }
+    
+    try {
+        const { db } = await connectToDatabase();
+        const objectIds = projectIds.map(id => new ObjectId(id));
+        
+        // Ensure user owns all selected projects
+        const ownedProjectsCount = await db.collection('projects').countDocuments({
+            _id: { $in: objectIds },
+            userId: new ObjectId(session.user._id)
+        });
+
+        if (ownedProjectsCount !== projectIds.length) {
+            return { success: false, error: 'You do not have permission to modify one or more of the selected projects.' };
+        }
+
+        const result = await db.collection('projects').updateMany(
+            { _id: { $in: objectIds } },
+            { $set: { appId: newAppId } }
+        );
+
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'No matching projects found to update.' };
+        }
+
+        revalidatePath('/dashboard');
+        return { success: true };
+
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
