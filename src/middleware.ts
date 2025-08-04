@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { verifyAdminJwt, verifyJwt } from './lib/jwt';
+import { verifyAdminSessionToken, verifySessionToken } from './lib/auth';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -12,8 +12,8 @@ export async function middleware(request: NextRequest) {
   const isDashboard = pathname.startsWith('/dashboard');
   const isAdminDashboard = pathname.startsWith('/admin/dashboard');
 
-  const sessionPayload = sessionToken ? await verifyJwt(sessionToken) : null;
-  const adminSessionPayload = adminSessionToken ? await verifyAdminJwt(adminSessionToken) : null;
+  const sessionPayload = sessionToken ? await verifySessionToken(sessionToken) : null;
+  const adminSessionPayload = adminSessionToken ? await verifyAdminSessionToken(adminSessionToken) : null;
   
   const sessionValid = !!sessionPayload;
   const adminSessionValid = !!adminSessionPayload;
