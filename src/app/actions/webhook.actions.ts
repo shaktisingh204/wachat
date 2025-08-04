@@ -1,5 +1,5 @@
 
-'use server';
+'use client';
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { revalidatePath } from "next/cache";
@@ -8,6 +8,8 @@ import { ObjectId, WithId, Filter } from "mongodb";
 import { getProjectById } from ".";
 import { handleSingleMessageEvent, processStatusUpdateBatch, processSingleWebhook } from "@/lib/webhook-processor";
 import type { WebhookLog, Project, WebhookLogListItem } from "@/lib/definitions";
+import { verifyAdminJwt } from '@/lib/jwt';
+import { cookies } from 'next/headers';
 
 function getEventSummaryForLog(log: WithId<WebhookLog>): string {
     try {
@@ -196,8 +198,6 @@ export async function handleClearProcessedLogs(): Promise<{ message?: string; er
     }
 }
 
-import { verifyAdminJwt } from '@/lib/jwt';
-import { cookies } from 'next/headers';
 async function getAdminSession(): Promise<{ isAdmin: boolean }> {
     const cookieStore = cookies();
     const sessionCookie = cookieStore.get('admin_session');
