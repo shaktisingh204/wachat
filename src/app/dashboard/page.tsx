@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
@@ -6,7 +7,7 @@ import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
 import { ProjectCard } from "@/components/wabasimplify/project-card";
-import { FileText, PlusCircle, Rows, X, Briefcase, Folder, CheckSquare } from "lucide-react";
+import { FileText, PlusCircle, Rows, X, Briefcase, Folder, CheckSquare, Settings } from "lucide-react";
 import type { WithId } from "mongodb";
 import { ProjectSearch } from "@/components/wabasimplify/project-search";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,8 @@ import { SyncProjectsDialog } from "@/components/wabasimplify/sync-projects-dial
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Card, CardContent } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { BulkChangeAppIdDialog } from '@/components/wabasimplify/bulk-change-app-id-dialog';
 
 export default function SelectProjectPage() {
     const searchParams = useSearchParams();
@@ -23,6 +26,7 @@ export default function SelectProjectPage() {
     const [projects, setProjects] = useState<WithId<Project>[]>([]);
     const [selectionMode, setSelectionMode] = useState(false);
     const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
+    const [isAppIdDialogOpen, setIsAppIdDialogOpen] = useState(false);
     
     const fetchProjects = useCallback(async () => {
         const projectsData = await getProjects(query, 'whatsapp');
@@ -52,7 +56,7 @@ export default function SelectProjectPage() {
         }
     };
 
-    const handleBulkAction = () => {
+    const handleNavigateToBulk = () => {
         // Use localStorage to pass a large number of IDs to avoid URL length limits
         localStorage.setItem('bulkProjectIds', JSON.stringify(selectedProjects));
         router.push(`/dashboard/bulk`);
@@ -79,6 +83,15 @@ export default function SelectProjectPage() {
 
     return (
         <div className="flex flex-col gap-8">
+             <BulkChangeAppIdDialog 
+                isOpen={isAppIdDialogOpen} 
+                onOpenChange={setIsAppIdDialogOpen}
+                projectIds={selectedProjects}
+                onSuccess={() => {
+                    fetchProjects();
+                    setSelectedProjects([]);
+                }}
+            />
             <div className="flex flex-wrap justify-between items-start gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline">Select a Project ({projects.length})</h1>
@@ -185,10 +198,22 @@ export default function SelectProjectPage() {
                  <Card className="fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-md shadow-2xl z-50 animate-fade-in-up">
                     <CardContent className="p-3 flex items-center justify-between">
                         <p className="text-sm font-medium">{selectedProjects.length} project(s) selected</p>
-                        <Button onClick={handleBulkAction}>
-                            <Rows className="mr-2 h-4 w-4" />
-                            Bulk Actions
-                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button>
+                                    <Rows className="mr-2 h-4 w-4" />
+                                    Bulk Actions
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onSelect={handleNavigateToBulk}>
+                                    Bulk Template / Broadcast
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onSelect={() => setIsAppIdDialogOpen(true)}>
+                                    Change App ID
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </CardContent>
                 </Card>
             )}
