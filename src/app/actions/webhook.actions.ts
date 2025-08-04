@@ -1,5 +1,5 @@
 
-'use client';
+'use server';
 
 import { connectToDatabase } from "@/lib/mongodb";
 import { revalidatePath } from "next/cache";
@@ -200,14 +200,13 @@ export async function handleClearProcessedLogs(): Promise<{ message?: string; er
 
 async function getAdminSession(): Promise<{ isAdmin: boolean }> {
     const cookieStore = cookies();
-    const sessionCookie = cookieStore.get('admin_session');
-    const sessionToken = sessionCookie?.value;
+    const sessionCookie = cookieStore.get('admin_session')?.value;
     
-    if (!sessionToken) {
+    if (!sessionCookie) {
         return { isAdmin: false };
     }
 
-    const payload = await verifyAdminJwt(sessionToken);
+    const payload = await verifyAdminJwt(sessionCookie);
     if (payload && payload.role === 'admin') {
         return { isAdmin: true };
     }
