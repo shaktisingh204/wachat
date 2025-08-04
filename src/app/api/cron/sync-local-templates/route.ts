@@ -8,6 +8,7 @@ import axios from 'axios';
 import { getErrorMessage } from '@/lib/utils';
 
 const API_VERSION = 'v23.0';
+const BATCH_SIZE = 10; // Process 10 templates per cron run to avoid timeouts
 
 async function submitTemplateToMeta(project: WithId<Project>, template: WithId<Template>) {
     const { wabaId, accessToken, appId } = project;
@@ -41,15 +42,16 @@ async function handleSync() {
     try {
         const { db } = await connectToDatabase();
         
-        const localTemplates = await db.collection<WithId<Template>>('templates').find({ 
+        // Fetch a small batch of templates to process, not all of them
+        const templatesToProcess = await db.collection<WithId<Template>>('templates').find({ 
             status: { $in: ['LOCAL', 'FAILED_SUBMISSION'] }
-        }).toArray();
+        }).limit(BATCH_SIZE).toArray();
 
-        if (localTemplates.length === 0) {
+        if (templatesToProcess.length === 0) {
             return NextResponse.json({ message: 'No local or failed templates found to sync.' });
         }
         
-        const projectIds = [...new Set(localTemplates.map(t => t.projectId.toString()))];
+        const projectIds = [...new Set(templatesToProcess.map(t => t.projectId.toString()))];
         const projects = await db.collection<WithId<Project>>('projects').find({ _id: { $in: projectIds.map(id => new ObjectId(id)) } }).toArray();
         const projectsMap = new Map(projects.map(p => [p._id.toString(), p]));
         
@@ -57,11 +59,12 @@ async function handleSync() {
         let failureCount = 0;
         const errors = [];
 
-        for (const template of localTemplates) {
+        for (const template of templatesToProcess) {
             const project = projectsMap.get(template.projectId.toString());
             if (!project) {
                 failureCount++;
                 errors.push(`Project not found for template: ${template.name}`);
+                await db.collection('templates').updateOne({ _id: template._id }, { $set: { status: 'FAILED_SUBMISSION', error: 'Project not found' } });
                 continue;
             }
             
@@ -70,7 +73,7 @@ async function handleSync() {
                 
                 await db.collection('templates').updateOne(
                     { _id: template._id },
-                    { $set: { status: metaResponse.status || 'PENDING', metaId: metaResponse.id } }
+                    { $set: { status: metaResponse.status || 'PENDING', metaId: metaResponse.id, error: null } }
                 );
                 successCount++;
             } catch (e: any) {
@@ -83,7 +86,7 @@ async function handleSync() {
             }
         }
         
-        let message = `Sync complete. ${successCount} submitted, ${failureCount} failed.`;
+        let message = `Sync complete for batch. ${successCount} submitted, ${failureCount} failed.`;
         if (errors.length > 0) {
             message += `\nErrors: ${errors.join('; ')}`;
         }
@@ -104,3 +107,4 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     return handleSync();
 }
+
