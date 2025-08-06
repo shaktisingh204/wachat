@@ -51,6 +51,16 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer }) => {
+    // This is to solve the "Module not found: Can't resolve 'child_process'" error
+    // See: https://github.com/mongodb/node-mongodb-native/pull/3616
+    if (!isServer) {
+        config.externals.push({
+            'mongodb-client-encryption': 'empty',
+        });
+    }
+    return config;
+  },
 };
 
 module.exports = withBundleAnalyzer(nextConfig);
