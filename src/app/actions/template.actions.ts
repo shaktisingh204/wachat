@@ -309,7 +309,6 @@ export async function handleBulkCreateTemplate(
         const buttonsJson = formData.get('buttons') as string;
         const headerFormat = formData.get('headerFormat') as string;
         const headerText = cleanText(formData.get('headerText') as string);
-        const headerSampleFile = formData.get('headerSampleFile') as File;
         
         const buttons = (buttonsJson ? JSON.parse(buttonsJson) : []).map((button: any) => ({
             ...button,
@@ -323,31 +322,18 @@ export async function handleBulkCreateTemplate(
 
         for (const project of projects) {
             try {
-                if (!project.wabaId || !project.accessToken || !project.appId) {
-                    throw new Error('Project is missing required WABA, App ID, or Access Token.');
-                }
-                
                 const components: any[] = [];
                 
                 if (headerFormat !== 'NONE') {
                     const headerComponent: any = { type: 'HEADER', format: headerFormat };
                     if (headerFormat === 'TEXT') {
                         headerComponent.text = headerText;
-                         if (headerText.match(/{{\s*(\d+)\s*}}/g)) {
-                            headerComponent.example = { header_text: ['example_header_var'] };
-                        }
-                    } else if (headerSampleFile && headerSampleFile.size > 0) {
-                        const { handle, error } = await getMediaHandleForTemplate(headerSampleFile, null, project.accessToken, project.appId);
-                        if (error) throw new Error(error);
-                        if (handle) headerComponent.example = { header_handle: [handle] };
                     }
+                    // Note: Media handling is removed for bulk local save
                     components.push(headerComponent);
                 }
                 
                 const bodyComponent: any = { type: 'BODY', text: bodyText };
-                 if (bodyText.match(/{{\s*(\d+)\s*}}/g)) {
-                    bodyComponent.example = { body_text: [['example_body_var']] };
-                }
                 components.push(bodyComponent);
 
                 if (footerText) components.push({ type: 'FOOTER', text: footerText });
@@ -361,25 +347,12 @@ export async function handleBulkCreateTemplate(
                     components.push({ type: 'BUTTONS', buttons: formattedButtons });
                 }
 
-                const payload = { name, language, category, allow_category_change: true, components };
-
-                const response = await axios.post(
-                    `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/message_templates`,
-                    payload,
-                    { headers: { 'Authorization': `Bearer ${project.accessToken}`, 'Content-Type': 'application/json' } }
-                );
-                
-                if (response.data.error) throw new Error(getErrorMessage({ response: { data: response.data } }));
-                const newMetaTemplateId = response.data?.id;
-                if (!newMetaTemplateId) throw new Error('Meta API did not return a template ID.');
-
                 await db.collection('templates').insertOne({
                     projectId: project._id,
                     name, category, language,
                     body: bodyText,
                     components,
-                    status: response.data?.status || 'PENDING',
-                    metaId: newMetaTemplateId,
+                    status: 'LOCAL',
                     qualityScore: 'UNKNOWN',
                     createdAt: new Date()
                 } as any);
@@ -392,7 +365,7 @@ export async function handleBulkCreateTemplate(
             }
         }
         
-        let message = `Template submitted for ${successes} project(s).`;
+        let message = `Template saved as 'LOCAL' for ${successes} project(s). They will be submitted by the next cron run.`;
         if (errors.length > 0) {
             message += ` Failed on ${errors.length} project(s).`;
             return { error: `Errors:\n- ${errors.join('\n- ')}`, message };
