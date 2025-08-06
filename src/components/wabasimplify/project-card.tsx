@@ -43,7 +43,6 @@ export const ProjectCard = React.memo(function ProjectCard({ project, selectionM
                 localStorage.setItem('activeProjectName', project.name);
             }
             router.push('/dashboard/overview');
-            router.refresh();
         }
     };
     
