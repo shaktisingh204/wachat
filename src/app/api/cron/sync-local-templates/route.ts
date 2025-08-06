@@ -76,6 +76,7 @@ async function handleSync() {
         let successCount = 0;
         let failureCount = 0;
         const errors = [];
+        let firstPayloadString: string | null = null;
 
         for (const template of templatesToProcess) {
             const project = projectsMap.get(template.projectId.toString());
@@ -86,6 +87,18 @@ async function handleSync() {
                 continue;
             }
             
+            // Capture the payload for debugging before attempting submission
+            const payloadForDebug = {
+                name: template.name,
+                language: template.language,
+                category: template.category,
+                allow_category_change: true,
+                components: template.components,
+            };
+            if (!firstPayloadString) {
+                firstPayloadString = JSON.stringify(payloadForDebug, null, 2);
+            }
+
             try {
                 const metaResponse = await submitTemplateToMeta(project, template);
                 
@@ -109,6 +122,10 @@ async function handleSync() {
             message += `\nErrors: ${errors.join('; ')}`;
         }
 
+        if (firstPayloadString) {
+            message += `\n\nDEBUG PAYLOAD (First Template):\n${firstPayloadString}`;
+        }
+
         return NextResponse.json({ message });
 
     } catch (error: any) {
@@ -125,3 +142,4 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     return handleSync();
 }
+
