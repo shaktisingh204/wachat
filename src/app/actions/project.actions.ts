@@ -531,6 +531,7 @@ export async function handleBulkUpdateAppId(prevState: any, formData: FormData):
     }
     
     const projectIds = projectIdsString.split(',');
+    console.log(`Bulk updating App ID for ${projectIds.length} projects to ${newAppId}`);
     
     try {
         const { db } = await connectToDatabase();
