@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -255,7 +254,7 @@ export async function handleCreateTemplate(
     
         if (!response.ok) {
             console.error('Meta Template Creation Error:', responseData?.error || responseText);
-            const errorMessage = responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error creating template.';
+            const errorMessage = getErrorMessage({ response: { data: responseData }});
             return { error: `API Error: ${errorMessage}` };
         }
 
@@ -622,3 +621,5 @@ export async function handleApplyTemplateToProjects(templateId: string, projectI
         return { success: false, error: getErrorMessage(e) };
     }
 }
+
+    
