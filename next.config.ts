@@ -52,12 +52,14 @@ const nextConfig = {
     ],
   },
   webpack: (config, { isServer }) => {
-    // This is to solve the "Module not found: Can't resolve 'child_process'" error
-    // See: https://github.com/mongodb/node-mongodb-native/pull/3616
+    // This is to solve the "Module not found" errors for Node.js built-in modules.
     if (!isServer) {
-        config.externals.push({
-            'mongodb-client-encryption': 'empty',
-        });
+      config.externals.push({
+        'mongodb-client-encryption': 'empty',
+        'fs': 'empty',
+        'net': 'empty',
+        'tls': 'empty',
+      });
     }
     return config;
   },
