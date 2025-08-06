@@ -1,5 +1,7 @@
 
 
+'use client';
+
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
@@ -24,17 +26,23 @@ async function submitTemplateToMeta(project: WithId<Project>, template: WithId<T
         components: template.components,
     };
 
-    const response = await axios.post(
-        `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates`,
-        payload,
-        { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
-    );
-    
-    if (response.data.error) {
-        throw new Error(getErrorMessage({ response: { data: response.data } }));
+    try {
+        const response = await axios.post(
+            `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates`,
+            payload,
+            { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
+        );
+        
+        // This check is for cases where Meta returns a 200 OK but with an error object in the body.
+        if (response.data.error) {
+            throw new Error(getErrorMessage({ response: { data: response.data } }));
+        }
+        
+        return response.data;
+    } catch(error: any) {
+        // This block catches non-2xx responses from axios and passes the detailed error data.
+        throw new Error(getErrorMessage(error));
     }
-
-    return response.data;
 }
 
 
@@ -73,7 +81,7 @@ async function handleSync() {
             const project = projectsMap.get(template.projectId.toString());
             if (!project) {
                 failureCount++;
-                errors.push(`Project not found for template: ${template.name}`);
+                errors.push(`Template "${template.name}" on Project ID ${template.projectId}: Project not found`);
                 await db.collection('templates').updateOne({ _id: template._id }, { $set: { status: 'FAILED_SUBMISSION', error: 'Project not found', lastSubmissionAttemptAt: new Date() } });
                 continue;
             }
@@ -117,4 +125,3 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     return handleSync();
 }
-
