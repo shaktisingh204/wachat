@@ -323,6 +323,10 @@ export async function handleBulkCreateTemplate(
 
         for (const project of projects) {
             try {
+                if (!project.wabaId || !project.accessToken || !project.appId) {
+                    throw new Error('Project is missing required WABA, App ID, or Access Token.');
+                }
+                
                 const components: any[] = [];
                 
                 if (headerFormat !== 'NONE') {
@@ -333,15 +337,9 @@ export async function handleBulkCreateTemplate(
                             headerComponent.example = { header_text: ['example_header_var'] };
                         }
                     } else if (headerSampleFile && headerSampleFile.size > 0) {
-                        if (!project.appId || !project.accessToken) {
-                            throw new Error('Project is missing App ID or Access Token required for media upload.');
-                        }
                         const { handle, error } = await getMediaHandleForTemplate(headerSampleFile, null, project.accessToken, project.appId);
-                        if(error) {
-                             throw new Error(error);
-                        } else if (handle) {
-                            headerComponent.example = { header_handle: [handle] };
-                        }
+                        if (error) throw new Error(error);
+                        if (handle) headerComponent.example = { header_handle: [handle] };
                     }
                     components.push(headerComponent);
                 }
@@ -363,12 +361,25 @@ export async function handleBulkCreateTemplate(
                     components.push({ type: 'BUTTONS', buttons: formattedButtons });
                 }
 
+                const payload = { name, language, category, allow_category_change: true, components };
+
+                const response = await axios.post(
+                    `https://graph.facebook.com/${API_VERSION}/${project.wabaId}/message_templates`,
+                    payload,
+                    { headers: { 'Authorization': `Bearer ${project.accessToken}`, 'Content-Type': 'application/json' } }
+                );
+                
+                if (response.data.error) throw new Error(getErrorMessage({ response: { data: response.data } }));
+                const newMetaTemplateId = response.data?.id;
+                if (!newMetaTemplateId) throw new Error('Meta API did not return a template ID.');
+
                 await db.collection('templates').insertOne({
                     projectId: project._id,
                     name, category, language,
                     body: bodyText,
                     components,
-                    status: 'LOCAL',
+                    status: response.data?.status || 'PENDING',
+                    metaId: newMetaTemplateId,
                     qualityScore: 'UNKNOWN',
                     createdAt: new Date()
                 } as any);
@@ -381,12 +392,13 @@ export async function handleBulkCreateTemplate(
             }
         }
         
-        let message = `Template queued for creation on ${successes} project(s).`;
+        let message = `Template submitted for ${successes} project(s).`;
         if (errors.length > 0) {
             message += ` Failed on ${errors.length} project(s).`;
             return { error: `Errors:\n- ${errors.join('\n- ')}`, message };
         }
 
+        revalidatePath('/dashboard/templates');
         return { message };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
