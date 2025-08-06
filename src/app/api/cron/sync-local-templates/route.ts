@@ -42,13 +42,23 @@ async function handleSync() {
     try {
         const { db } = await connectToDatabase();
         
-        // Fetch a small batch of templates to process, not all of them
+        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
         const templatesToProcess = await db.collection<WithId<Template>>('templates').find({ 
-            status: { $in: ['LOCAL', 'FAILED_SUBMISSION'] }
+             $or: [
+                { status: 'LOCAL' },
+                { 
+                    status: 'FAILED_SUBMISSION',
+                    $or: [
+                        { lastSubmissionAttemptAt: { $exists: false } },
+                        { lastSubmissionAttemptAt: { $lt: oneHourAgo } }
+                    ]
+                }
+            ]
         }).limit(BATCH_SIZE).toArray();
 
         if (templatesToProcess.length === 0) {
-            return NextResponse.json({ message: 'No local or failed templates found to sync.' });
+            return NextResponse.json({ message: 'No local or eligible failed templates found to sync.' });
         }
         
         const projectIds = [...new Set(templatesToProcess.map(t => t.projectId.toString()))];
@@ -64,7 +74,7 @@ async function handleSync() {
             if (!project) {
                 failureCount++;
                 errors.push(`Project not found for template: ${template.name}`);
-                await db.collection('templates').updateOne({ _id: template._id }, { $set: { status: 'FAILED_SUBMISSION', error: 'Project not found' } });
+                await db.collection('templates').updateOne({ _id: template._id }, { $set: { status: 'FAILED_SUBMISSION', error: 'Project not found', lastSubmissionAttemptAt: new Date() } });
                 continue;
             }
             
@@ -73,7 +83,7 @@ async function handleSync() {
                 
                 await db.collection('templates').updateOne(
                     { _id: template._id },
-                    { $set: { status: metaResponse.status || 'PENDING', metaId: metaResponse.id, error: null } }
+                    { $set: { status: metaResponse.status || 'PENDING', metaId: metaResponse.id, error: null, lastSubmissionAttemptAt: new Date() } }
                 );
                 successCount++;
             } catch (e: any) {
@@ -81,7 +91,7 @@ async function handleSync() {
                 errors.push(`Template "${template.name}": ${e.message}`);
                  await db.collection('templates').updateOne(
                     { _id: template._id },
-                    { $set: { status: 'FAILED_SUBMISSION', error: e.message } }
+                    { $set: { status: 'FAILED_SUBMISSION', error: e.message, lastSubmissionAttemptAt: new Date() } }
                 );
             }
         }
