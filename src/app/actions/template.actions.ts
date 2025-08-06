@@ -297,6 +297,9 @@ export async function handleBulkCreateTemplate(
         return text.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim();
     };
 
+    let successes = 0;
+    const errors: string[] = [];
+    
     try {
         const name = (formData.get('name') as string || '').trim();
         const category = formData.get('category') as 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
@@ -318,65 +321,73 @@ export async function handleBulkCreateTemplate(
         
         const projects = await db.collection<WithId<Project>>('projects').find({_id: {$in: projectIds.map(id => new ObjectId(id))}}).toArray();
 
-        const bulkOps = [];
         for (const project of projects) {
-            let components: any[] = [];
-            
-            if (headerFormat !== 'NONE') {
-                const headerComponent: any = { type: 'HEADER', format: headerFormat };
-                if (headerFormat === 'TEXT') {
-                    headerComponent.text = headerText;
-                     if (headerText.match(/{{\s*(\d+)\s*}}/g)) {
-                        headerComponent.example = { header_text: ['example_header_var'] };
+            try {
+                const components: any[] = [];
+                
+                if (headerFormat !== 'NONE') {
+                    const headerComponent: any = { type: 'HEADER', format: headerFormat };
+                    if (headerFormat === 'TEXT') {
+                        headerComponent.text = headerText;
+                         if (headerText.match(/{{\s*(\d+)\s*}}/g)) {
+                            headerComponent.example = { header_text: ['example_header_var'] };
+                        }
+                    } else if (headerSampleFile && headerSampleFile.size > 0) {
+                        if (!project.appId || !project.accessToken) {
+                            throw new Error('Project is missing App ID or Access Token required for media upload.');
+                        }
+                        const { handle, error } = await getMediaHandleForTemplate(headerSampleFile, null, project.accessToken, project.appId);
+                        if(error) {
+                             throw new Error(error);
+                        } else if (handle) {
+                            headerComponent.example = { header_handle: [handle] };
+                        }
                     }
-                } else if (headerSampleFile && headerSampleFile.size > 0 && project.appId && project.accessToken) {
-                    const { handle, error } = await getMediaHandleForTemplate(headerSampleFile, null, project.accessToken, project.appId);
-                    if(error) {
-                        console.warn(`Skipping media header for project ${project.name}: ${error}`);
-                    } else if (handle) {
-                        headerComponent.example = { header_handle: [handle] };
-                    }
+                    components.push(headerComponent);
                 }
-                components.push(headerComponent);
-            }
-            
-            const bodyComponent: any = { type: 'BODY', text: bodyText };
-             if (bodyText.match(/{{\s*(\d+)\s*}}/g)) {
-                bodyComponent.example = { body_text: [['example_body_var']] };
-            }
-            components.push(bodyComponent);
-
-            if (footerText) components.push({ type: 'FOOTER', text: footerText });
-            if (buttons.length > 0) {
-                const formattedButtons = buttons.map((button: any) => ({
-                    type: button.type,
-                    text: button.text,
-                    ...(button.url && { url: button.url, example: button.example }),
-                    ...(button.phone_number && { phone_number: button.phone_number })
-                }));
-                components.push({ type: 'BUTTONS', buttons: formattedButtons });
-            }
-
-            bulkOps.push({
-                insertOne: {
-                    document: {
-                        projectId: project._id,
-                        name, category, language,
-                        body: bodyText,
-                        components,
-                        status: 'LOCAL',
-                        qualityScore: 'UNKNOWN',
-                        createdAt: new Date()
-                    }
+                
+                const bodyComponent: any = { type: 'BODY', text: bodyText };
+                 if (bodyText.match(/{{\s*(\d+)\s*}}/g)) {
+                    bodyComponent.example = { body_text: [['example_body_var']] };
                 }
-            });
+                components.push(bodyComponent);
+
+                if (footerText) components.push({ type: 'FOOTER', text: footerText });
+                if (buttons.length > 0) {
+                    const formattedButtons = buttons.map((button: any) => ({
+                        type: button.type,
+                        text: button.text,
+                        ...(button.url && { url: button.url, example: button.example }),
+                        ...(button.phone_number && { phone_number: button.phone_number })
+                    }));
+                    components.push({ type: 'BUTTONS', buttons: formattedButtons });
+                }
+
+                await db.collection('templates').insertOne({
+                    projectId: project._id,
+                    name, category, language,
+                    body: bodyText,
+                    components,
+                    status: 'LOCAL',
+                    qualityScore: 'UNKNOWN',
+                    createdAt: new Date()
+                } as any);
+
+                successes++;
+            } catch (e: any) {
+                const errorMessage = `Project "${project.name}": ${getErrorMessage(e)}`;
+                console.warn(errorMessage);
+                errors.push(errorMessage);
+            }
         }
         
-        if (bulkOps.length > 0) {
-            await db.collection('templates').bulkWrite(bulkOps as any[]);
+        let message = `Template queued for creation on ${successes} project(s).`;
+        if (errors.length > 0) {
+            message += ` Failed on ${errors.length} project(s).`;
+            return { error: `Errors:\n- ${errors.join('\n- ')}`, message };
         }
 
-        return { message: `Template queued for creation across ${bulkOps.length} projects. Run the sync cron job to submit them to Meta.` };
+        return { message };
     } catch (e: any) {
         return { error: getErrorMessage(e) };
     }
