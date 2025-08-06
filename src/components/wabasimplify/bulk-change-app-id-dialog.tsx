@@ -41,13 +41,7 @@ interface BulkChangeAppIdDialogProps {
 export function BulkChangeAppIdDialog({ isOpen, onOpenChange, projectIds, onSuccess }: BulkChangeAppIdDialogProps) {
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
-  
-  const bulkUpdateAction = async (prevState: any, formData: FormData) => {
-    const newAppId = formData.get('appId') as string;
-    return await handleBulkUpdateAppId(projectIds, newAppId);
-  }
-
-  const [state, formAction] = useActionState(bulkUpdateAction, initialState);
+  const [state, formAction] = useActionState(handleBulkUpdateAppId, initialState);
 
   useEffect(() => {
     if (state.success) {
@@ -64,6 +58,7 @@ export function BulkChangeAppIdDialog({ isOpen, onOpenChange, projectIds, onSucc
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <form action={formAction} ref={formRef}>
+          <input type="hidden" name="projectIds" value={projectIds.join(',')} />
           <DialogHeader>
             <DialogTitle>Bulk Change App ID</DialogTitle>
             <DialogDescription>
