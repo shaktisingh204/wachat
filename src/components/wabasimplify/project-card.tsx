@@ -6,7 +6,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Phone, Calendar, BarChart2, Briefcase, Webhook } from 'lucide-react';
+import { Phone, Calendar, BarChart2, Briefcase, Webhook, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { WithId, Project } from '@/lib/definitions';
 import { DeleteProjectButton } from './delete-project-button';
@@ -124,6 +124,10 @@ export const ProjectCard = React.memo(function ProjectCard({ project, selectionM
                 </CardDescription>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground space-y-2 flex-grow">
+                 <div className="flex items-center gap-2 pt-1">
+                    <ClipboardList className="h-4 w-4" />
+                    <span>App ID: <span className="font-mono">{project.appId || 'Not set'}</span></span>
+                </div>
                  <div className="flex items-center gap-2 pt-1">
                     <Phone className="h-4 w-4" />
                     <span>{project.phoneNumbers?.length || 0} Phone Number(s)</span>
