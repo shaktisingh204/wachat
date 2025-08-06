@@ -519,13 +519,18 @@ export async function handleUpdateContactDetails(prevState: any, formData: FormD
     }
 }
 
-export async function handleBulkUpdateAppId(projectIds: string[], newAppId: string): Promise<{ success: boolean; error?: string }> {
+export async function handleBulkUpdateAppId(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
     const session = await getSession();
     if (!session?.user) return { success: false, error: 'Access denied.' };
 
-    if (!projectIds || projectIds.length === 0 || !newAppId) {
+    const projectIdsString = formData.get('projectIds') as string;
+    const newAppId = formData.get('appId') as string;
+
+    if (!projectIdsString || !newAppId) {
         return { success: false, error: 'Project IDs and a new App ID are required.' };
     }
+    
+    const projectIds = projectIdsString.split(',');
     
     try {
         const { db } = await connectToDatabase();
