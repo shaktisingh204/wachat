@@ -287,8 +287,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     if (isClient) {
       const storedProjectId = localStorage.getItem('activeProjectId');
       setActiveProjectId(storedProjectId);
+    }
+  }, [isClient, pathname]); // Re-check on path change
 
-      if (pathname.startsWith('/dashboard/facebook')) {
+  React.useEffect(() => {
+     if (pathname.startsWith('/dashboard/facebook')) {
           setActiveApp('facebook');
       } else if (pathname.startsWith('/dashboard/instagram')) {
           setActiveApp('instagram');
@@ -318,13 +321,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         setActiveProjectName(null);
       } else {
         const name = localStorage.getItem('activeProjectName');
-        setActiveProjectName(name || (storedProjectId ? 'Loading project...' : 'No Project Selected'));
+        setActiveProjectName(name || (activeProjectId ? 'Loading project...' : 'No Project Selected'));
       }
-    }
-  }, [pathname, isClient]);
+  }, [pathname, activeProjectId]);
 
   React.useEffect(() => {
     if (isClient) {
+        setIsVerifying(true);
         getSession().then(session => {
             if(session?.user) {
                 setSessionUser(session.user as any);
@@ -342,19 +345,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         });
     }
   }, [isClient, activeProjectId]);
-
-  const appIcons = [
-    { id: 'whatsapp', href: '/dashboard', icon: WhatsAppIcon, label: 'Wachat Suite', className: 'bg-[#25D366] text-white', hoverClassName: 'bg-card text-[#25D366] hover:bg-accent' },
-    { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite', className: 'bg-blue-600 text-white', hoverClassName: 'bg-card text-blue-600 hover:bg-accent' },
-    { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram Suite', className: 'bg-instagram text-white', hoverClassName: 'bg-card text-instagram hover:bg-accent' },
-    { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite', className: 'bg-rose-500 text-white', hoverClassName: 'bg-card text-rose-500 hover:bg-accent' },
-    { id: 'email', href: '/dashboard/email', icon: Mail, label: 'Email Suite', className: 'bg-cyan-500 text-white', hoverClassName: 'bg-card text-cyan-500 hover:bg-accent' },
-    { id: 'sms', href: '/dashboard/sms', icon: MessageSquare, label: 'SMS Suite', className: 'bg-violet-500 text-white', hoverClassName: 'bg-card text-violet-500 hover:bg-accent' },
-    { id: 'website-builder', href: '/dashboard/website-builder', icon: Brush, label: 'Website Builder', className: 'bg-teal-500 text-white', hoverClassName: 'bg-card text-teal-500 hover:bg-accent' },
-    { id: 'seo-suite', href: '/dashboard/seo', icon: SeoIcon, label: 'SEO Suite', className: 'bg-indigo-500 text-white', hoverClassName: 'bg-card text-indigo-500 hover:bg-accent' },
-    { id: 'url-shortener', href: '/dashboard/url-shortener', icon: LinkIcon, label: 'URL Shortener', className: 'bg-purple-600 text-white', hoverClassName: 'bg-card text-purple-600 hover:bg-accent' },
-    { id: 'qr-code-maker', href: '/dashboard/qr-code-maker', icon: QrCode, label: 'QR Code Maker', className: 'bg-orange-500 text-white', hoverClassName: 'bg-card text-orange-500 hover:bg-accent' },
-  ];
   
   if (!isClient || isVerifying) {
       return <FullPageSkeleton />;
