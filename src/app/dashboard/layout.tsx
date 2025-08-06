@@ -232,6 +232,19 @@ const seoMenuItems = [
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe },
 ];
 
+const appIcons = [
+    { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat Suite', href: '/dashboard', className: 'bg-green-100 text-green-700', hoverClassName: 'hover:bg-green-100 hover:text-green-700' },
+    { id: 'facebook', icon: FacebookAppIcon, label: 'Facebook Suite', href: '/dashboard/facebook', className: 'bg-blue-100 text-blue-700', hoverClassName: 'hover:bg-blue-100 hover:text-blue-700' },
+    { id: 'instagram', icon: InstagramIcon, label: 'Instagram Suite', href: '/dashboard/instagram', className: 'bg-purple-100 text-purple-700', hoverClassName: 'hover:bg-purple-100 hover:text-purple-700' },
+    { id: 'crm', icon: Handshake, label: 'CRM Suite', href: '/dashboard/crm', className: 'bg-orange-100 text-orange-700', hoverClassName: 'hover:bg-orange-100 hover:text-orange-700' },
+    { id: 'email', icon: Mail, label: 'Email Suite', href: '/dashboard/email', className: 'bg-sky-100 text-sky-700', hoverClassName: 'hover:bg-sky-100 hover:text-sky-700' },
+    { id: 'sms', icon: MessageSquare, label: 'SMS Suite', href: '/dashboard/sms', className: 'bg-indigo-100 text-indigo-700', hoverClassName: 'hover:bg-indigo-100 hover:text-indigo-700' },
+    { id: 'website-builder', icon: Brush, label: 'Website Builder', href: '/dashboard/website-builder', className: 'bg-rose-100 text-rose-700', hoverClassName: 'hover:bg-rose-100 hover:text-rose-700' },
+    { id: 'url-shortener', icon: LinkIcon, label: 'URL Shortener', href: '/dashboard/url-shortener', className: 'bg-teal-100 text-teal-700', hoverClassName: 'hover:bg-teal-100 hover:text-teal-700' },
+    { id: 'qr-code-maker', icon: QrCode, label: 'QR Code Maker', href: '/dashboard/qr-code-maker', className: 'bg-stone-100 text-stone-700', hoverClassName: 'hover:bg-stone-100 hover:text-stone-700' },
+    { id: 'seo-suite', icon: SeoIcon, label: 'SEO Suite', href: '/dashboard/seo', className: 'bg-amber-100 text-amber-700', hoverClassName: 'hover:bg-amber-100 hover:text-amber-700' },
+];
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
