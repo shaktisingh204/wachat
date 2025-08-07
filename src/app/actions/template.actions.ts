@@ -254,9 +254,8 @@ export async function handleCreateTemplate(
         const responseData = responseText ? JSON.parse(responseText) : null;
     
         if (!response.ok) {
-            console.error('Meta Template Creation Error:', responseData?.error || responseText);
             const errorMessage = getErrorMessage({ response: { data: responseData }});
-            return { error: `API Error: ${errorMessage}` };
+            return { error: `API Error: ${errorMessage}`, payload: JSON.stringify(payload, null, 2) };
         }
 
         const newMetaTemplateId = responseData?.id;
@@ -317,52 +316,40 @@ export async function handleBulkCreateTemplate(
             example: Array.isArray(button.example) ? button.example.map((ex: string) => (ex || '').trim()) : button.example,
         }));
         
-        const projects = await db.collection<WithId<Project>>('projects').find({_id: {$in: projectIds.map(id => new ObjectId(id))}}).toArray();
-        let headerMediaHandle: string | null = null;
-        
+        let headerMediaDataUri: string | null = null;
         if (headerFormat && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && headerSampleFile && headerSampleFile.size > 0) {
-            const firstProject = projects[0];
-            if (firstProject && firstProject.appId && firstProject.accessToken) {
-                const mediaResult = await getMediaHandleForTemplate(headerSampleFile, null, firstProject.accessToken, firstProject.appId);
-                if (mediaResult.error) {
-                    return { error: `Media upload failed for all projects: ${mediaResult.error}` };
-                }
-                headerMediaHandle = mediaResult.handle;
-            } else {
-                 return { error: "Could not upload media: The first project in the bulk list is missing necessary credentials (App ID, Access Token)." };
+            const buffer = Buffer.from(await headerSampleFile.arrayBuffer());
+            headerMediaDataUri = `data:${headerSampleFile.type};base64,${buffer.toString('base64')}`;
+        }
+        
+        const components: any[] = [];
+        if (headerFormat !== 'NONE') {
+            const headerComponent: any = { type: 'HEADER', format: headerFormat };
+            if (headerFormat === 'TEXT') {
+                headerComponent.text = headerText;
             }
+            components.push(headerComponent);
+        }
+        components.push({ type: 'BODY', text: bodyText });
+        if (footerText) components.push({ type: 'FOOTER', text: footerText });
+        if (buttons.length > 0) {
+            const formattedButtons = buttons.map((button: any) => ({
+                type: button.type, text: button.text, ...(button.url && { url: button.url, example: button.example }), ...(button.phone_number && { phone_number: button.phone_number })
+            }));
+            components.push({ type: 'BUTTONS', buttons: formattedButtons });
         }
 
-        for (const project of projects) {
+
+        for (const projectId of projectIds) {
             try {
-                const components: any[] = [];
+                const projectObjectId = new ObjectId(projectId);
                 
-                if (headerFormat !== 'NONE') {
-                    const headerComponent: any = { type: 'HEADER', format: headerFormat };
-                    if (headerFormat === 'TEXT') {
-                        headerComponent.text = headerText;
-                    } else if (headerMediaHandle) {
-                        headerComponent.example = { header_handle: [headerMediaHandle] };
-                    }
-                    components.push(headerComponent);
-                }
-                
-                const bodyComponent: any = { type: 'BODY', text: bodyText };
-                components.push(bodyComponent);
-
-                if (footerText) components.push({ type: 'FOOTER', text: footerText });
-                if (buttons.length > 0) {
-                    const formattedButtons = buttons.map((button: any) => ({
-                        type: button.type, text: button.text, ...(button.url && { url: button.url, example: button.example }), ...(button.phone_number && { phone_number: button.phone_number })
-                    }));
-                    components.push({ type: 'BUTTONS', buttons: formattedButtons });
-                }
-
                 await db.collection('templates').insertOne({
-                    projectId: project._id,
+                    projectId: projectObjectId,
                     name, category, language,
                     body: bodyText,
                     components,
+                    headerMediaDataUri,
                     status: 'LOCAL',
                     qualityScore: 'UNKNOWN',
                     createdAt: new Date()
@@ -370,7 +357,7 @@ export async function handleBulkCreateTemplate(
 
                 successes++;
             } catch (e: any) {
-                const errorMessage = `Project "${project.name}": ${getErrorMessage(e)}`;
+                const errorMessage = `Project ID ${projectId}: ${getErrorMessage(e)}`;
                 console.warn(errorMessage);
                 errors.push(errorMessage);
             }

@@ -10,18 +10,44 @@ import { getErrorMessage } from '@/lib/utils';
 const API_VERSION = 'v23.0';
 const BATCH_SIZE = 10; // Process 10 templates per cron run to avoid timeouts
 
+async function getMediaHandleForDataUri(dataUri: string, accessToken: string, appId: string): Promise<string> {
+    const response = await fetch(dataUri);
+    const blob = await response.blob();
+    const buffer = Buffer.from(await blob.arrayBuffer());
+
+    const sessionUrl = `https://graph.facebook.com/${API_VERSION}/${appId}/uploads?file_length=${buffer.length}&file_type=${blob.type}&access_token=${accessToken}`;
+    const sessionResponse = await axios.post(sessionUrl, {});
+    const uploadSessionId = sessionResponse.data.id;
+
+    const uploadUrl = `https://graph.facebook.com/${API_VERSION}/${uploadSessionId}`;
+    const uploadResponse = await axios.post(uploadUrl, buffer, { headers: { Authorization: `OAuth ${accessToken}` } });
+    
+    return uploadResponse.data.h;
+}
+
 async function submitTemplateToMeta(project: WithId<Project>, template: WithId<Template>) {
     const { wabaId, accessToken, appId } = project;
     if (!wabaId || !accessToken || !appId) {
         throw new Error(`Project ${project._id} is missing required credentials.`);
     }
 
+    const components = [...template.components];
+
+    // Handle header media from data URI if it exists
+    if (template.headerMediaDataUri) {
+        const headerComponentIndex = components.findIndex(c => c.type === 'HEADER');
+        if (headerComponentIndex > -1) {
+            const handle = await getMediaHandleForDataUri(template.headerMediaDataUri, accessToken, appId);
+            components[headerComponentIndex].example = { header_handle: [handle] };
+        }
+    }
+    
     const payload = {
         name: template.name,
         language: template.language,
         category: template.category,
         allow_category_change: true,
-        components: template.components,
+        components: components,
     };
 
     try {
@@ -31,13 +57,9 @@ async function submitTemplateToMeta(project: WithId<Project>, template: WithId<T
             { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
         );
         
-        if (response.data.error) {
-            throw response.data.error;
-        }
-        
         return response.data;
     } catch(error: any) {
-        // Re-throw the original error so the caller can inspect its properties
+        // Re-throw the original error object to preserve all details from Meta
         throw error;
     }
 }
@@ -101,7 +123,7 @@ async function handleSync() {
                 
                 await db.collection('templates').updateOne(
                     { _id: template._id },
-                    { $set: { status: metaResponse.status || 'PENDING', metaId: metaResponse.id, error: null, lastSubmissionAttemptAt: new Date() } }
+                    { $set: { status: metaResponse.status || 'PENDING', metaId: metaResponse.id, error: null, lastSubmissionAttemptAt: new Date(), headerMediaDataUri: null } }
                 );
                 successCount++;
             } catch (e: any) {
