@@ -1,3 +1,4 @@
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -144,7 +145,7 @@ export async function getProjects(options: {
     page?: number,
     limit?: number
 } = {}): Promise<{ projects: WithId<Project>[], total: number }> {
-    const { query, moduleType = 'all', page = 1, limit = 0 } = options;
+    const { query, moduleType = 'all', page = 1, limit = 50 } = options;
     const session = await getSession();
     if (!session?.user) {
         return { projects: [], total: 0 };
@@ -173,9 +174,17 @@ export async function getProjects(options: {
         
         const skip = (page - 1) * limit;
 
-        const pipeline: any[] = [
+        const basePipeline: any[] = [
             { $match: filter },
             { $sort: { name: 1 } },
+        ];
+        
+        const countPipeline = [...basePipeline, { $count: 'total' }];
+
+        const dataPipeline: any[] = [
+            ...basePipeline,
+            { $skip: skip },
+            { $limit: limit },
             {
                 $lookup: {
                     from: 'plans',
@@ -199,15 +208,8 @@ export async function getProjects(options: {
             }
         ];
 
-        const countPipeline = [...pipeline, { $count: 'total' }];
-
-        if (limit > 0) {
-            pipeline.push({ $skip: skip });
-            pipeline.push({ $limit: limit });
-        }
-
         const [projects, countResult] = await Promise.all([
-            db.collection('projects').aggregate(pipeline).toArray(),
+            db.collection('projects').aggregate(dataPipeline).toArray(),
             db.collection('projects').aggregate(countPipeline).toArray(),
         ]);
         
@@ -367,6 +369,29 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
 
     } catch (error: any) {
         console.error("Exception in getProjectById:", error);
+        return null;
+    }
+}
+
+export async function getProjectForBroadcast(projectId: string): Promise<(Pick<WithId<Project>, '_id' | 'name' | 'phoneNumbers' | 'tags' | 'optInOutSettings'>) | null> {
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const project = await db.collection('projects').findOne(
+            { _id: new ObjectId(projectId) },
+            { projection: { name: 1, phoneNumbers: 1, optInOutSettings: 1, tags: 1 } }
+        );
+        
+        if (!project) {
+            console.error("Project not found for ID:", projectId);
+            return null;
+        }
+        
+        return JSON.parse(JSON.stringify(project));
+    } catch (error: any) {
+        console.error("Exception in getProjectForBroadcast:", error);
         return null;
     }
 }
