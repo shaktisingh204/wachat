@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
@@ -33,8 +34,8 @@ export default function SelectProjectPage() {
     
     const fetchProjects = useCallback(async () => {
         const { projects: projectsData, total } = await getProjects({ query, moduleType: 'whatsapp', page, limit });
-        setProjects(projectsData);
-        setTotalProjects(total);
+        setProjects(projectsData || []);
+        setTotalProjects(total || 0);
     }, [query, page, limit]);
 
     useEffect(() => {
@@ -71,16 +72,18 @@ export default function SelectProjectPage() {
         const grouped: { [key: string]: WithId<Project>[] } = {};
         const ungrouped: WithId<Project>[] = [];
         
-        projects.forEach(p => {
-            if (p.groupId && p.groupName) {
-                if (!grouped[p.groupName]) {
-                    grouped[p.groupName] = [];
+        if (Array.isArray(projects)) {
+            projects.forEach(p => {
+                if (p.groupId && p.groupName) {
+                    if (!grouped[p.groupName]) {
+                        grouped[p.groupName] = [];
+                    }
+                    grouped[p.groupName].push(p);
+                } else {
+                    ungrouped.push(p);
                 }
-                grouped[p.groupName].push(p);
-            } else {
-                ungrouped.push(p);
-            }
-        });
+            });
+        }
 
         return { grouped, ungrouped };
     }, [projects]);
