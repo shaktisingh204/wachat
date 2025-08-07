@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -308,16 +309,29 @@ export async function handleBulkCreateTemplate(
         const buttonsJson = formData.get('buttons') as string;
         const headerFormat = formData.get('headerFormat') as string;
         const headerText = cleanText(formData.get('headerText') as string);
+        const headerSampleFile = formData.get('headerSampleFile') as File;
         
         const buttons = (buttonsJson ? JSON.parse(buttonsJson) : []).map((button: any) => ({
-            ...button,
-            text: cleanText(button.text),
-            url: (button.url || '').trim(),
+            ...button, text: cleanText(button.text), url: (button.url || '').trim(),
             phone_number: (button.phone_number || '').trim(),
             example: Array.isArray(button.example) ? button.example.map((ex: string) => (ex || '').trim()) : button.example,
         }));
         
         const projects = await db.collection<WithId<Project>>('projects').find({_id: {$in: projectIds.map(id => new ObjectId(id))}}).toArray();
+        let headerMediaHandle: string | null = null;
+        
+        if (headerFormat && ['IMAGE', 'VIDEO', 'DOCUMENT'].includes(headerFormat) && headerSampleFile && headerSampleFile.size > 0) {
+            const firstProject = projects[0];
+            if (firstProject && firstProject.appId && firstProject.accessToken) {
+                const mediaResult = await getMediaHandleForTemplate(headerSampleFile, null, firstProject.accessToken, firstProject.appId);
+                if (mediaResult.error) {
+                    return { error: `Media upload failed for all projects: ${mediaResult.error}` };
+                }
+                headerMediaHandle = mediaResult.handle;
+            } else {
+                 return { error: "Could not upload media: The first project in the bulk list is missing necessary credentials (App ID, Access Token)." };
+            }
+        }
 
         for (const project of projects) {
             try {
@@ -327,8 +341,9 @@ export async function handleBulkCreateTemplate(
                     const headerComponent: any = { type: 'HEADER', format: headerFormat };
                     if (headerFormat === 'TEXT') {
                         headerComponent.text = headerText;
+                    } else if (headerMediaHandle) {
+                        headerComponent.example = { header_handle: [headerMediaHandle] };
                     }
-                    // Note: Media handling is removed for bulk local save
                     components.push(headerComponent);
                 }
                 
@@ -338,10 +353,7 @@ export async function handleBulkCreateTemplate(
                 if (footerText) components.push({ type: 'FOOTER', text: footerText });
                 if (buttons.length > 0) {
                     const formattedButtons = buttons.map((button: any) => ({
-                        type: button.type,
-                        text: button.text,
-                        ...(button.url && { url: button.url, example: button.example }),
-                        ...(button.phone_number && { phone_number: button.phone_number })
+                        type: button.type, text: button.text, ...(button.url && { url: button.url, example: button.example }), ...(button.phone_number && { phone_number: button.phone_number })
                     }));
                     components.push({ type: 'BUTTONS', buttons: formattedButtons });
                 }
