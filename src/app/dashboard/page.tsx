@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
@@ -27,17 +26,18 @@ export default function SelectProjectPage() {
     const page = Number(searchParams.get('page')) || 1;
     const limit = Number(searchParams.get('limit')) || 50;
     
-    const [projects, setProjects] = useState<WithId<Project>[]>([]);
-    const [totalProjects, setTotalProjects] = useState(0);
+    const [allProjects, setAllProjects] = useState<WithId<Project>[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [selectionMode, setSelectionMode] = useState(false);
     const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
     const [isAppIdDialogOpen, setIsAppIdDialogOpen] = useState(false);
     
     const fetchProjects = useCallback(async () => {
-        const data = await getProjects({ query, moduleType: 'whatsapp', page, limit });
-        setProjects(data.projects || []);
-        setTotalProjects(data.total || 0);
-    }, [query, page, limit]);
+        setIsLoading(true);
+        const data = await getProjects(query, 'whatsapp');
+        setAllProjects(data || []);
+        setIsLoading(false);
+    }, [query]);
 
     useEffect(() => {
         fetchProjects();
@@ -50,9 +50,15 @@ export default function SelectProjectPage() {
             : [...prev, projectId]
         );
     };
+
+    const paginatedProjects = useMemo(() => {
+        const start = (page - 1) * limit;
+        const end = start + limit;
+        return allProjects.slice(start, end);
+    }, [allProjects, page, limit]);
     
     const handleSelectAllOnPage = () => {
-        const currentPageIds = projects.map(p => p._id.toString());
+        const currentPageIds = paginatedProjects.map(p => p._id.toString());
         const allOnPageSelected = currentPageIds.every(id => selectedProjects.includes(id));
         
         if (allOnPageSelected) {
@@ -73,23 +79,21 @@ export default function SelectProjectPage() {
         const grouped: { [key: string]: WithId<Project>[] } = {};
         const ungrouped: WithId<Project>[] = [];
         
-        if (Array.isArray(projects)) {
-            projects.forEach(p => {
-                if (p.groupId && p.groupName) {
-                    if (!grouped[p.groupName]) {
-                        grouped[p.groupName] = [];
-                    }
-                    grouped[p.groupName].push(p);
-                } else {
-                    ungrouped.push(p);
+        paginatedProjects.forEach(p => {
+            if (p.groupId && p.groupName) {
+                if (!grouped[p.groupName]) {
+                    grouped[p.groupName] = [];
                 }
-            });
-        }
+                grouped[p.groupName].push(p);
+            } else {
+                ungrouped.push(p);
+            }
+        });
 
         return { grouped, ungrouped };
-    }, [projects]);
+    }, [paginatedProjects]);
     
-    const totalPages = Math.ceil(totalProjects / limit);
+    const totalPages = Math.ceil(allProjects.length / limit);
 
     const handlePageChange = (newPage: number) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -118,7 +122,7 @@ export default function SelectProjectPage() {
             />
             <div className="flex flex-wrap justify-between items-start gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">Select a Project ({totalProjects})</h1>
+                    <h1 className="text-3xl font-bold font-headline">Select a Project ({allProjects.length})</h1>
                     <p className="text-muted-foreground">
                         Choose an existing project or connect a new one to get started.
                     </p>
@@ -144,12 +148,12 @@ export default function SelectProjectPage() {
                 {selectionMode && (
                     <Button variant="outline" onClick={handleSelectAllOnPage}>
                         <CheckSquare className="mr-2 h-4 w-4" />
-                        Select Page ({projects.length})
+                        Select Page ({paginatedProjects.length})
                     </Button>
                 )}
             </div>
 
-            {projects.length > 0 ? (
+            {allProjects.length > 0 ? (
                 <div className="space-y-6">
                     {Object.entries(groupedProjects.grouped).map(([groupName, groupProjects]) => (
                         <Accordion key={groupName} type="single" collapsible defaultValue="item-1">
