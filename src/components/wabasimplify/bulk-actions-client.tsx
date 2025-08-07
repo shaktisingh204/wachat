@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { FileText, Rows, Send } from 'lucide-react';
 import Link from 'next/link';
 import { BulkBroadcastForm } from './bulk-broadcast-form';
+import { useRouter } from 'next/navigation';
 
 interface BulkActionsClientProps {
     sourceProjectName: string;
@@ -18,12 +19,16 @@ interface BulkActionsClientProps {
 
 export function BulkActionsClient({ sourceProjectName, allProjects, initialTemplates, initialSelectedProjects }: BulkActionsClientProps) {
     const [selectedProjects, setSelectedProjects] = useState<WithId<Project>[]>(initialSelectedProjects);
+    const router = useRouter();
     
     useEffect(() => {
         document.title = "Bulk Actions | SabNode";
     }, []);
 
-    const projectIdsQuery = selectedProjects.map(p => p._id.toString()).join(',');
+    const handleCreateTemplateClick = () => {
+        localStorage.setItem('bulkProjectIds', JSON.stringify(selectedProjects.map(p => p._id.toString())));
+        router.push('/dashboard/bulk/template');
+    }
 
     return (
          <div className="flex flex-col gap-8">
@@ -51,14 +56,12 @@ export function BulkActionsClient({ sourceProjectName, allProjects, initialTempl
                     />
                 </div>
                  <div className="lg:col-span-1">
-                    <Button asChild className="w-full h-full min-h-48 text-lg">
-                        <Link href={`/dashboard/bulk/template?projectIds=${projectIdsQuery}`}>
-                            <FileText className="mr-4 h-8 w-8" />
-                            <div>
-                                <p className="font-semibold">Create & Apply New Template</p>
-                                <p className="text-sm font-normal text-primary-foreground/80">Build a template from scratch and apply to all.</p>
-                            </div>
-                        </Link>
+                    <Button onClick={handleCreateTemplateClick} className="w-full h-full min-h-48 text-lg">
+                        <FileText className="mr-4 h-8 w-8" />
+                        <div>
+                            <p className="font-semibold">Create & Apply New Template</p>
+                            <p className="text-sm font-normal text-primary-foreground/80">Build a template from scratch and apply to all.</p>
+                        </div>
                     </Button>
                 </div>
             </div>
