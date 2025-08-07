@@ -1,4 +1,5 @@
 
+
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
@@ -30,16 +31,17 @@ async function submitTemplateToMeta(project: WithId<Project>, template: WithId<T
             { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
         );
         
-        // This check is for cases where Meta returns a 200 OK but with an error object in the body.
         if (response.data.error) {
             throw new Error(getErrorMessage({ response: { data: response.data } }));
         }
         
         return response.data;
     } catch(error: any) {
-        if(error.response) {
-            throw new Error(getErrorMessage(error));
+        // Axios wraps the error, so we need to extract the response data from error.response
+        if(error.response?.data) {
+             throw new Error(getErrorMessage({ response: { data: error.response.data } }));
         }
+        // Fallback for non-axios errors
         throw error;
     }
 }
@@ -141,3 +143,4 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     return handleSync();
 }
+

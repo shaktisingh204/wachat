@@ -619,7 +619,7 @@ export async function handleApplyTemplateToProjects(templateId: string, projectI
         const bulkOps = projectIds.map(pid => ({
             updateOne: {
                 filter: { name: templateToCopy.name, language: templateToCopy.language, projectId: new ObjectId(pid) },
-                update: { $set: { ...templateToCopy, projectId: new ObjectId(pid) } },
+                update: { $set: { ...templateToCopy, projectId: new ObjectId(pid), status: 'LOCAL' } }, // Always save as LOCAL for cron to pick up
                 upsert: true
             }
         }));
