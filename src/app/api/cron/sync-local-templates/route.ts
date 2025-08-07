@@ -1,7 +1,5 @@
 
 
-'use client';
-
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
@@ -40,8 +38,10 @@ async function submitTemplateToMeta(project: WithId<Project>, template: WithId<T
         
         return response.data;
     } catch(error: any) {
-        // This block catches non-2xx responses from axios and passes the detailed error data.
-        throw new Error(getErrorMessage(error));
+        if(error.response) {
+            throw new Error(getErrorMessage(error));
+        }
+        throw error;
     }
 }
 
