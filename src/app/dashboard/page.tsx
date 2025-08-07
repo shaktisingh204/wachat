@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
@@ -7,7 +5,7 @@ import type { Metadata } from "next";
 import Link from 'next/link';
 import { getProjects } from "@/app/actions";
 import { ProjectCard } from "@/components/wabasimplify/project-card";
-import { FileText, PlusCircle, Rows, X, Briefcase, Folder, CheckSquare, Settings } from "lucide-react";
+import { FileText, PlusCircle, Rows, X, Briefcase, Folder, CheckSquare, Settings, ChevronLeft, ChevronRight } from "lucide-react";
 import type { WithId } from "mongodb";
 import { ProjectSearch } from "@/components/wabasimplify/project-search";
 import { Button } from "@/components/ui/button";
@@ -18,20 +16,26 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Card, CardContent } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { BulkChangeAppIdDialog } from '@/components/wabasimplify/bulk-change-app-id-dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export default function SelectProjectPage() {
     const searchParams = useSearchParams();
     const router = useRouter();
-    const query = searchParams ? searchParams.get('query') || '' : '';
+    const query = searchParams.get('query') || '';
+    const page = Number(searchParams.get('page')) || 1;
+    const limit = Number(searchParams.get('limit')) || 50;
+    
     const [projects, setProjects] = useState<WithId<Project>[]>([]);
+    const [totalProjects, setTotalProjects] = useState(0);
     const [selectionMode, setSelectionMode] = useState(false);
     const [selectedProjects, setSelectedProjects] = useState<string[]>([]);
     const [isAppIdDialogOpen, setIsAppIdDialogOpen] = useState(false);
     
     const fetchProjects = useCallback(async () => {
-        const projectsData = await getProjects(query, 'whatsapp');
+        const { projects: projectsData, total } = await getProjects({ query, moduleType: 'whatsapp', page, limit });
         setProjects(projectsData);
-    }, [query]);
+        setTotalProjects(total);
+    }, [query, page, limit]);
 
     useEffect(() => {
         fetchProjects();
@@ -45,19 +49,20 @@ export default function SelectProjectPage() {
         );
     };
     
-    const handleSelectGroup = (projectIds: string[]) => {
-        const allSelectedInGroup = projectIds.every(id => selectedProjects.includes(id));
-        if (allSelectedInGroup) {
-            // If all are selected, deselect them
-            setSelectedProjects(prev => prev.filter(id => !projectIds.includes(id)));
+    const handleSelectAllOnPage = () => {
+        const currentPageIds = projects.map(p => p._id.toString());
+        const allOnPageSelected = currentPageIds.every(id => selectedProjects.includes(id));
+        
+        if (allOnPageSelected) {
+            // Deselect all on current page
+            setSelectedProjects(prev => prev.filter(id => !currentPageIds.includes(id)));
         } else {
-            // Otherwise, select all (ensuring no duplicates)
-            setSelectedProjects(prev => [...new Set([...prev, ...projectIds])]);
+            // Select all on current page
+            setSelectedProjects(prev => [...new Set([...prev, ...currentPageIds])]);
         }
     };
 
     const handleNavigateToBulk = () => {
-        // Use localStorage to pass a large number of IDs to avoid URL length limits
         localStorage.setItem('bulkProjectIds', JSON.stringify(selectedProjects));
         router.push(`/dashboard/bulk`);
     }
@@ -79,6 +84,21 @@ export default function SelectProjectPage() {
 
         return { grouped, ungrouped };
     }, [projects]);
+    
+    const totalPages = Math.ceil(totalProjects / limit);
+
+    const handlePageChange = (newPage: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('page', String(newPage));
+        router.push(`?${params.toString()}`);
+    }
+
+    const handleLimitChange = (newLimit: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('limit', newLimit);
+        params.set('page', '1'); // Reset to first page
+        router.push(`?${params.toString()}`);
+    }
 
 
     return (
@@ -94,7 +114,7 @@ export default function SelectProjectPage() {
             />
             <div className="flex flex-wrap justify-between items-start gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold font-headline">Select a Project ({projects.length})</h1>
+                    <h1 className="text-3xl font-bold font-headline">Select a Project ({totalProjects})</h1>
                     <p className="text-muted-foreground">
                         Choose an existing project or connect a new one to get started.
                     </p>
@@ -117,6 +137,12 @@ export default function SelectProjectPage() {
                <Button variant="outline" onClick={() => setSelectionMode(!selectionMode)}>
                     {selectionMode ? 'Cancel Selection' : 'Select Projects'}
                 </Button>
+                {selectionMode && (
+                    <Button variant="outline" onClick={handleSelectAllOnPage}>
+                        <CheckSquare className="mr-2 h-4 w-4" />
+                        Select Page ({projects.length})
+                    </Button>
+                )}
             </div>
 
             {projects.length > 0 ? (
@@ -131,20 +157,6 @@ export default function SelectProjectPage() {
                                             {groupName} ({groupProjects.length})
                                         </div>
                                     </AccordionTrigger>
-                                     {selectionMode && (
-                                        <Button 
-                                            variant="ghost" 
-                                            size="sm" 
-                                            className="ml-4 h-7"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleSelectGroup(groupProjects.map(p => p._id.toString()));
-                                            }}
-                                        >
-                                            <CheckSquare className="mr-2 h-4 w-4" />
-                                            Select All
-                                        </Button>
-                                    )}
                                 </div>
                                 <AccordionContent>
                                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 pt-4">
@@ -193,6 +205,45 @@ export default function SelectProjectPage() {
                     </div>
                 </div>
             )}
+             <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">Rows per page</span>
+                    <Select value={String(limit)} onValueChange={handleLimitChange}>
+                        <SelectTrigger className="w-20">
+                            <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="10">10</SelectItem>
+                            <SelectItem value="25">25</SelectItem>
+                            <SelectItem value="50">50</SelectItem>
+                            <SelectItem value="100">100</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div className="flex items-center space-x-2">
+                    <span className="text-sm text-muted-foreground">
+                        Page {page} of {totalPages > 0 ? totalPages : 1}
+                    </span>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(page - 1)}
+                        disabled={page <= 1}
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                        <span className="hidden sm:inline ml-2">Previous</span>
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handlePageChange(page + 1)}
+                        disabled={page >= totalPages}
+                    >
+                         <span className="hidden sm:inline mr-2">Next</span>
+                         <ChevronRight className="h-4 w-4" />
+                    </Button>
+                </div>
+            </div>
             
             {selectionMode && selectedProjects.length > 0 && (
                  <Card className="fixed bottom-4 left-1/2 -translate-x-1/2 w-full max-w-md shadow-2xl z-50 animate-fade-in-up">

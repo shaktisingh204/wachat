@@ -1,5 +1,3 @@
-
-
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -21,7 +19,7 @@ import { hashPassword, comparePassword, createSessionToken, verifySessionToken, 
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import { premadeTemplates } from '@/lib/premade-templates';
-import { getMetaFlows } from './meta-flow.actions';
+import { getMetaFlows } from './actions/meta-flow.actions';
 import { getErrorMessage } from '@/lib/utils';
 // Re-exports for server actions are handled by direct imports in components now.
 import { headers } from 'next/headers';
@@ -140,10 +138,16 @@ export async function handleSuggestContent(topic: string): Promise<{ suggestions
   }
 }
 
-export async function getProjects(query?: string, moduleType: 'whatsapp' | 'facebook' | 'all' = 'all'): Promise<WithId<Project>[]> {
+export async function getProjects(options: {
+    query?: string,
+    moduleType?: 'whatsapp' | 'facebook' | 'all',
+    page?: number,
+    limit?: number
+} = {}): Promise<{ projects: WithId<Project>[], total: number }> {
+    const { query, moduleType = 'all', page = 1, limit = 0 } = options;
     const session = await getSession();
     if (!session?.user) {
-        return [];
+        return { projects: [], total: 0 };
     }
     try {
         const { db } = await connectToDatabase();
@@ -167,7 +171,9 @@ export async function getProjects(query?: string, moduleType: 'whatsapp' | 'face
             filter.wabaId = { $exists: false }; // a project with both is a whatsapp project
         }
         
-        const projects = await db.collection('projects').aggregate([
+        const skip = (page - 1) * limit;
+
+        const pipeline: any[] = [
             { $match: filter },
             { $sort: { name: 1 } },
             {
@@ -191,12 +197,26 @@ export async function getProjects(query?: string, moduleType: 'whatsapp' | 'face
                     planInfo: 0
                 }
             }
-        ]).toArray();
+        ];
 
-        return JSON.parse(JSON.stringify(projects));
+        const countPipeline = [...pipeline, { $count: 'total' }];
+
+        if (limit > 0) {
+            pipeline.push({ $skip: skip });
+            pipeline.push({ $limit: limit });
+        }
+
+        const [projects, countResult] = await Promise.all([
+            db.collection('projects').aggregate(pipeline).toArray(),
+            db.collection('projects').aggregate(countPipeline).toArray(),
+        ]);
+        
+        const total = countResult[0]?.total || 0;
+
+        return { projects: JSON.parse(JSON.stringify(projects)), total };
     } catch (error) {
         console.error("Failed to fetch projects for user:", error);
-        return [];
+        return { projects: [], total: 0 };
     }
 }
 
