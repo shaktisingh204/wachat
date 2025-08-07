@@ -16,6 +16,9 @@ export const getErrorMessage = (error: any): string => {
             let message = apiError.error_user_title 
                 ? `${apiError.error_user_title}: ${apiError.error_user_msg}` 
                 : apiError.message || 'An unknown API error occurred.';
+            if (apiError.code) {
+                 message += ` (Code: ${apiError.code})`
+            }
             if (apiError.error_subcode) {
                 message += ` (Subcode: ${apiError.error_subcode})`;
             }
@@ -48,5 +51,6 @@ export const getErrorMessage = (error: any): string => {
     // Fallback for other types
     return String(error) || 'An unknown error occurred';
 };
+
 
 
