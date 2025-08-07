@@ -26,9 +26,12 @@ async function getMediaHandleForDataUri(dataUri: string, accessToken: string, ap
 }
 
 async function submitTemplateToMeta(project: WithId<Project>, template: WithId<Template>) {
-    const { wabaId, accessToken, appId } = project;
-    if (!wabaId || !accessToken || !appId) {
-        throw new Error(`Project ${project._id} is missing required credentials.`);
+    const { wabaId, appId } = project;
+    // IMPORTANT: Use the project's system user token as the primary token
+    const primaryAccessToken = project.accessToken;
+
+    if (!wabaId || !primaryAccessToken || !appId) {
+        throw new Error(`Project ${project._id} is missing required credentials (WABA ID, App ID, or Access Token).`);
     }
 
     const components = [...template.components];
@@ -37,8 +40,14 @@ async function submitTemplateToMeta(project: WithId<Project>, template: WithId<T
     if (template.headerMediaDataUri) {
         const headerComponentIndex = components.findIndex(c => c.type === 'HEADER');
         if (headerComponentIndex > -1) {
-            const handle = await getMediaHandleForDataUri(template.headerMediaDataUri, accessToken, appId);
-            components[headerComponentIndex].example = { header_handle: [handle] };
+            try {
+                // Use the primary token for the upload, as it's a system user token.
+                const handle = await getMediaHandleForDataUri(template.headerMediaDataUri, primaryAccessToken, appId);
+                components[headerComponentIndex].example = { header_handle: [handle] };
+            } catch (uploadError) {
+                 console.error(`Media upload failed for template ${template.name}`, uploadError);
+                throw new Error(`Media upload failed: ${getErrorMessage(uploadError)}`);
+            }
         }
     }
     
@@ -54,7 +63,7 @@ async function submitTemplateToMeta(project: WithId<Project>, template: WithId<T
         const response = await axios.post(
             `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates`,
             payload,
-            { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
+            { headers: { 'Authorization': `Bearer ${primaryAccessToken}`, 'Content-Type': 'application/json' } }
         );
         
         return response.data;
@@ -66,8 +75,10 @@ async function submitTemplateToMeta(project: WithId<Project>, template: WithId<T
 
 
 async function handleSync() {
+    let db;
     try {
-        const { db } = await connectToDatabase();
+        const conn = await connectToDatabase();
+        db = conn.db;
         
         const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
@@ -101,19 +112,13 @@ async function handleSync() {
             const project = projectsMap.get(template.projectId.toString());
             if (!project) {
                 failureCount++;
-                errors.push(`Template "${template.name}" on Project ID ${template.projectId}: Project not found`);
+                const errorMsg = `Template "${template.name}" on Project ID ${template.projectId}: Project not found`;
+                errors.push(errorMsg);
                 await db.collection('templates').updateOne({ _id: template._id }, { $set: { status: 'FAILED_SUBMISSION', error: 'Project not found', lastSubmissionAttemptAt: new Date() } });
                 continue;
             }
             
-            // Capture the payload for debugging before attempting submission
-            const payloadForDebug = {
-                name: template.name,
-                language: template.language,
-                category: template.category,
-                allow_category_change: true,
-                components: template.components,
-            };
+            const payloadForDebug = { name: template.name, language: template.language, category: template.category, allow_category_change: true, components: template.components, };
             if (!firstPayloadString) {
                 firstPayloadString = JSON.stringify(payloadForDebug, null, 2);
             }
@@ -150,7 +155,7 @@ async function handleSync() {
 
     } catch (error: any) {
         console.error('Error in sync-local-templates cron job:', error);
-        return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
+        return new NextResponse(`Internal Server Error: ${getErrorMessage(error)}`, { status: 500 });
     }
 }
 
@@ -162,3 +167,4 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     return handleSync();
 }
+

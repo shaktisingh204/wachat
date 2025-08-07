@@ -445,7 +445,7 @@ export async function handleRunCron(): Promise<{ message?: string; error?: strin
         return { message: result.message || 'Cron run completed successfully. No new jobs to process.' };
     } catch (e: any) {
         console.error('Manual cron run failed:', e);
-        return { error: e.message || 'An unexpected error occurred while running the scheduler.' };
+        return { error: getErrorMessage(e) || 'An unexpected error occurred while running the scheduler.' };
     }
 }
 
