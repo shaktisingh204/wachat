@@ -32,16 +32,12 @@ async function submitTemplateToMeta(project: WithId<Project>, template: WithId<T
         );
         
         if (response.data.error) {
-            throw new Error(getErrorMessage({ response: { data: response.data } }));
+            throw response.data.error;
         }
         
         return response.data;
     } catch(error: any) {
-        // Axios wraps the error, so we need to extract the response data from error.response
-        if(error.response?.data) {
-             throw new Error(getErrorMessage({ response: { data: error.response.data } }));
-        }
-        // Fallback for non-axios errors
+        // Re-throw the original error so the caller can inspect its properties
         throw error;
     }
 }
@@ -109,11 +105,12 @@ async function handleSync() {
                 );
                 successCount++;
             } catch (e: any) {
+                const errorMessage = getErrorMessage(e);
                 failureCount++;
-                errors.push(`Template "${template.name}": ${e.message}`);
+                errors.push(`Template "${template.name}": ${errorMessage}`);
                  await db.collection('templates').updateOne(
                     { _id: template._id },
-                    { $set: { status: 'FAILED_SUBMISSION', error: e.message, lastSubmissionAttemptAt: new Date() } }
+                    { $set: { status: 'FAILED_SUBMISSION', error: errorMessage, lastSubmissionAttemptAt: new Date() } }
                 );
             }
         }
@@ -143,4 +140,3 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     return handleSync();
 }
-

@@ -1,4 +1,5 @@
 
+
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import axios from 'axios';
@@ -40,5 +41,9 @@ export const getErrorMessage = (error: any): string => {
         }
         return error.message;
     }
+    if (typeof error === 'object' && error !== null) {
+        return JSON.stringify(error);
+    }
     return String(error) || 'An unknown error occurred';
 };
+
