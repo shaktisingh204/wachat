@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
@@ -33,9 +34,9 @@ export default function SelectProjectPage() {
     const [isAppIdDialogOpen, setIsAppIdDialogOpen] = useState(false);
     
     const fetchProjects = useCallback(async () => {
-        const { projects: projectsData, total } = await getProjects({ query, moduleType: 'whatsapp', page, limit });
-        setProjects(projectsData || []);
-        setTotalProjects(total || 0);
+        const data = await getProjects({ query, moduleType: 'whatsapp', page, limit });
+        setProjects(data.projects || []);
+        setTotalProjects(data.total || 0);
     }, [query, page, limit]);
 
     useEffect(() => {
