@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, useEffect, useState, useTransition } from 'react';
+import { Suspense, useEffect, useState, useTransition, useMemo, useCallback } from 'react';
 import { getProjects } from '@/app/actions';
 import { getTemplates } from '@/app/actions/whatsapp.actions';
 import type { WithId, Project, Template } from '@/lib/definitions';
@@ -29,7 +29,7 @@ function BulkPageContent() {
     const [selectedProjects, setSelectedProjects] = useState<WithId<Project>[]>([]);
     const [isLoading, startTransition] = useTransition();
 
-    useEffect(() => {
+    const fetchInitialData = useCallback(() => {
         startTransition(async () => {
             const storedProjectIds = JSON.parse(localStorage.getItem('bulkProjectIds') || '[]');
             if (storedProjectIds.length > 0) {
@@ -46,6 +46,10 @@ function BulkPageContent() {
             }
         });
     }, []);
+
+    useEffect(() => {
+        fetchInitialData();
+    }, [fetchInitialData]);
 
     if (isLoading) {
         return <BulkActionsSkeleton />;

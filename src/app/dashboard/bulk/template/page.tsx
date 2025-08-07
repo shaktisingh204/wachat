@@ -1,5 +1,7 @@
 
-import { Suspense } from 'react';
+'use client';
+
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { CreateTemplateForm } from '@/components/wabasimplify/create-template-form';
 import { getProjectById } from '@/app/actions';
@@ -19,7 +21,32 @@ function BulkTemplatePageSkeleton() {
     );
 }
 
-async function BulkTemplatePageContent({ projectIds }: { projectIds: string[] }) {
+function BulkTemplatePageContent() {
+    const [projectIds, setProjectIds] = useState<string[]>([]);
+    const [projects, setProjects] = useState<WithId<Project>[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const storedProjectIds = JSON.parse(localStorage.getItem('bulkProjectIds') || '[]');
+        setProjectIds(storedProjectIds);
+        
+        async function fetchProjects() {
+            if (storedProjectIds.length > 0) {
+                const fetchedProjects = await Promise.all(
+                    storedProjectIds.map((id: string) => getProjectById(id))
+                );
+                setProjects(fetchedProjects.filter(Boolean) as WithId<Project>[]);
+            }
+            setIsLoading(false);
+        }
+        
+        fetchProjects();
+    }, []);
+
+    if (isLoading) {
+        return <BulkTemplatePageSkeleton />;
+    }
+
     if (projectIds.length === 0) {
         return (
              <Alert variant="destructive">
@@ -32,25 +59,20 @@ async function BulkTemplatePageContent({ projectIds }: { projectIds: string[] })
         )
     }
 
-    const projects = await Promise.all(
-        projectIds.map(id => getProjectById(id))
-    );
-    const validProjects = projects.filter(Boolean) as WithId<Project>[];
-
     return (
         <div className="flex flex-col gap-8">
             <div>
                  <Button variant="ghost" asChild className="mb-2 -ml-4">
-                    <Link href={`/dashboard/bulk?projectIds=${projectIds.join(',')}`}>
+                    <Link href="/dashboard/bulk">
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to Bulk Actions
                     </Link>
                 </Button>
                 <h1 className="text-3xl font-bold font-headline">Create Bulk Template</h1>
-                <p className="text-muted-foreground">This template will be created for all {validProjects.length} selected projects.</p>
+                <p className="text-muted-foreground">This template will be created for all {projects.length} selected projects.</p>
             </div>
              <div className="flex flex-wrap gap-2">
-                {validProjects.map(p => (
+                {projects.map(p => (
                     <div key={p._id.toString()} className="flex items-center gap-2 p-2 text-xs border rounded-md bg-muted/50">
                         <Database className="h-4 w-4 text-muted-foreground"/>
                         <span className="font-semibold">{p.name}</span>
@@ -65,12 +87,10 @@ async function BulkTemplatePageContent({ projectIds }: { projectIds: string[] })
     );
 }
 
-export default function BulkTemplatePage({ searchParams }: { searchParams?: { [key: string]: string | string[] | undefined }}) {
-    const projectIds = typeof searchParams?.projectIds === 'string' ? searchParams.projectIds.split(',') : [];
-    
+export default function BulkTemplatePage() {
     return (
         <Suspense fallback={<BulkTemplatePageSkeleton />}>
-            <BulkTemplatePageContent projectIds={projectIds} />
+            <BulkTemplatePageContent />
         </Suspense>
     );
 }
