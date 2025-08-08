@@ -59,6 +59,10 @@ const nextConfig = {
         'fs': 'empty',
         'net': 'empty',
         'tls': 'empty',
+        'child_process': 'empty',
+        'dns': 'empty',
+        'timers/promises': 'empty',
+        'fs/promises': 'empty'
       });
     }
     return config;
