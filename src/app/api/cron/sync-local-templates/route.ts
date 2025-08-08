@@ -1,5 +1,7 @@
 
 
+'use client';
+
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
@@ -26,11 +28,10 @@ async function getMediaHandleForDataUri(dataUri: string, accessToken: string, ap
 }
 
 async function submitTemplateToMeta(project: WithId<Project>, template: WithId<Template>) {
-    const { wabaId, appId } = project;
-    // IMPORTANT: Use the project's system user token as the primary token
-    const primaryAccessToken = project.accessToken;
+    // The project's main 'accessToken' should be the long-lived System User token.
+    const { wabaId, accessToken, appId } = project;
 
-    if (!wabaId || !primaryAccessToken || !appId) {
+    if (!wabaId || !accessToken || !appId) {
         throw new Error(`Project ${project._id} is missing required credentials (WABA ID, App ID, or Access Token).`);
     }
 
@@ -41,8 +42,7 @@ async function submitTemplateToMeta(project: WithId<Project>, template: WithId<T
         const headerComponentIndex = components.findIndex(c => c.type === 'HEADER');
         if (headerComponentIndex > -1) {
             try {
-                // Use the primary token for the upload, as it's a system user token.
-                const handle = await getMediaHandleForDataUri(template.headerMediaDataUri, primaryAccessToken, appId);
+                const handle = await getMediaHandleForDataUri(template.headerMediaDataUri, accessToken, appId);
                 components[headerComponentIndex].example = { header_handle: [handle] };
             } catch (uploadError) {
                  console.error(`Media upload failed for template ${template.name}`, uploadError);
@@ -63,7 +63,7 @@ async function submitTemplateToMeta(project: WithId<Project>, template: WithId<T
         const response = await axios.post(
             `https://graph.facebook.com/${API_VERSION}/${wabaId}/message_templates`,
             payload,
-            { headers: { 'Authorization': `Bearer ${primaryAccessToken}`, 'Content-Type': 'application/json' } }
+            { headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' } }
         );
         
         return response.data;
@@ -135,9 +135,16 @@ async function handleSync() {
                 const errorMessage = getErrorMessage(e);
                 failureCount++;
                 errors.push(`Template "${template.name}": ${errorMessage}`);
+                
+                let finalStatus: Template['status'] = 'FAILED_SUBMISSION';
+                 if (errorMessage.includes('account restricted')) {
+                    finalStatus = 'REJECTED'; 
+                    await db.collection('projects').updateOne({ _id: project._id }, { $set: { banState: 'RESTRICTED' }});
+                }
+
                  await db.collection('templates').updateOne(
                     { _id: template._id },
-                    { $set: { status: 'FAILED_SUBMISSION', error: errorMessage, lastSubmissionAttemptAt: new Date() } }
+                    { $set: { status: finalStatus, error: errorMessage, lastSubmissionAttemptAt: new Date() } }
                 );
             }
         }

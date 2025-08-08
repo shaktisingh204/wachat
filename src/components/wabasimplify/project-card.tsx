@@ -111,6 +111,11 @@ export const ProjectCard = React.memo(function ProjectCard({ project, selectionM
                  <div className="flex justify-between items-start gap-2">
                     <CardTitle className={cn("text-base leading-tight font-semibold", selectionMode && 'pl-6')}>{project.name}</CardTitle>
                     <div className="flex items-center gap-1">
+                        {project.banState === 'RESTRICTED' && (
+                             <Badge variant="destructive" className="capitalize text-xs flex-shrink-0">
+                                Disabled
+                            </Badge>
+                        )}
                         {project.reviewStatus && project.reviewStatus !== 'UNKNOWN' && (
                             <Badge variant={getReviewStatusVariant(project.reviewStatus)} className="capitalize text-xs flex-shrink-0">
                                 {project.reviewStatus.replace(/_/g, ' ').toLowerCase()}
