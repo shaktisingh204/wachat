@@ -138,7 +138,7 @@ async function handleSync() {
                 
                 let finalStatus: Template['status'] = 'FAILED_SUBMISSION';
                  if (errorMessage.includes('account restricted')) {
-                    finalStatus = 'REJECTED'; 
+                    // Don't change status to REJECTED, keep it as FAILED_SUBMISSION but mark the project
                     await db.collection('projects').updateOne({ _id: project._id }, { $set: { banState: 'RESTRICTED' }});
                 }
 
