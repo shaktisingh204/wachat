@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
-import type { CrmContact, CrmPermissions, User } from '@/lib/definitions';
+import type { CrmContact, CrmPermissions, User, CrmAccount } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -71,6 +71,40 @@ export async function getCrmContactById(contactId: string): Promise<WithId<CrmCo
 
     } catch(e) {
         return null;
+    }
+}
+
+export async function addCrmClient(prevState: any, formData: FormData): Promise<{ message?: string, error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+
+    try {
+        const newAccount: Partial<CrmAccount> = {
+            userId: new ObjectId(session.user._id),
+            name: formData.get('businessName') as string,
+            industry: formData.get('clientIndustry') as string,
+            phone: formData.get('phone') as string,
+            email: formData.get('email') as string,
+            // ... add other fields from the new form to your CrmAccount definition and here
+            createdAt: new Date(),
+        };
+
+        if (!newAccount.name) {
+            return { error: 'Business Name is required.' };
+        }
+        
+        // This is a simplified action. You would expand your CrmAccount and CrmContact
+        // definitions in `lib/definitions.ts` to store all the new fields,
+        // then save them to the database here.
+        // For now, it saves to the crm_accounts collection.
+
+        const { db } = await connectToDatabase();
+        await db.collection('crm_accounts').insertOne(newAccount as CrmAccount);
+        
+        revalidatePath('/dashboard/crm/sales/clients');
+        return { message: 'Client added successfully.' };
+    } catch(e: any) {
+        return { error: getErrorMessage(e) };
     }
 }
 

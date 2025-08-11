@@ -19,6 +19,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CrmAddContactDialog } from '@/components/wabasimplify/crm-add-contact-dialog';
 import { CrmImportContactsDialog } from '@/components/wabasimplify/crm-import-contacts-dialog';
 import { formatDistanceToNow } from 'date-fns';
+import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dialog';
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -89,7 +90,7 @@ export default function CrmClientsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                     <CrmImportContactsDialog onImported={fetchData} />
-                    <CrmAddContactDialog onAdded={fetchData} accounts={accounts} />
+                    <CrmAddClientDialog onClientAdded={fetchData} />
                 </div>
             </div>
             
