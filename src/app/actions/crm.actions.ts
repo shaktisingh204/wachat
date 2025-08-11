@@ -84,8 +84,7 @@ export async function addCrmClient(prevState: any, formData: FormData): Promise<
             name: formData.get('businessName') as string,
             industry: formData.get('clientIndustry') as string,
             phone: formData.get('phone') as string,
-            email: formData.get('email') as string,
-            // ... add other fields from the new form to your CrmAccount definition and here
+            // email: formData.get('email') as string, // CrmAccount doesn't have email yet
             createdAt: new Date(),
         };
 
