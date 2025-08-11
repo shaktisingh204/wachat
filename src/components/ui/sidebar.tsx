@@ -4,8 +4,8 @@
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-import { PanelLeft } from "lucide-react"
-
+import { PanelLeft, ChevronDown } from "lucide-react"
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -559,6 +559,7 @@ const SidebarMenuButton = React.forwardRef<
     asChild?: boolean
     isActive?: boolean
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
+    subItems?: any[]
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
@@ -567,13 +568,37 @@ const SidebarMenuButton = React.forwardRef<
       isActive = false,
       variant = "default",
       tooltip,
+      subItems,
       className,
+      children,
       ...props
     },
     ref
   ) => {
     const Comp = asChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
+
+    if (subItems && subItems.length > 0) {
+      return (
+        <Collapsible>
+          <CollapsibleTrigger asChild>
+            <Comp
+              ref={ref}
+              data-sidebar="menu-button"
+              data-active={isActive}
+              className={cn(sidebarMenuButtonVariants({ variant }), className, 'justify-between')}
+              {...props}
+            >
+                {children}
+                <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden group-data-[state=open]:rotate-180" />
+            </Comp>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
+            <SidebarMenuSub>{subItems.map((item, index) => <SidebarMenuSubItem key={index}><SidebarMenuSubButton href={item.href} asChild><Link href={item.href}><item.icon className="mr-2 h-4 w-4" />{item.label}</Link></SidebarMenuSubButton></SidebarMenuSubItem>)}</SidebarMenuSub>
+          </CollapsibleContent>
+        </Collapsible>
+      );
+    }
 
     const button = (
       <Comp
@@ -582,7 +607,7 @@ const SidebarMenuButton = React.forwardRef<
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant }), className)}
         {...props}
-      />
+      >{children}</Comp>
     )
 
     if (!tooltip) {
