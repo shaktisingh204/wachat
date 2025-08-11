@@ -148,6 +148,13 @@ export function CrmAddClientDialog({ onClientAdded }: CrmAddClientDialogProps) {
                     <div className="space-y-2"><Label>Attachments</Label><Input type="file" multiple /></div>
                 </AccordionContent>
               </AccordionItem>
+              <AccordionItem value="account-details">
+                <AccordionTrigger>Account Details (Optional)</AccordionTrigger>
+                 <AccordionContent className="pt-2 text-center text-muted-foreground">
+                    <p className="text-sm">Enable Advanced Accounting to create or link ledger.</p>
+                    <Button variant="outline" size="sm" className="mt-2" disabled>Enable Now</Button>
+                </AccordionContent>
+              </AccordionItem>
             </Accordion>
           </ScrollArea>
           <DialogFooter className="pt-6">
