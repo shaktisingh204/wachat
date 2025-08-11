@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File, BadgeInfo
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -180,6 +180,20 @@ const instagramMenuGroups = [
 
 const crmMenuItems = [
     { href: '/dashboard/crm', label: 'CRM Dashboard', icon: LayoutDashboard },
+    {
+        label: 'Sales',
+        icon: TrendingUp,
+        subItems: [
+            { href: '/dashboard/crm/sales/clients', label: 'Clients & Prospects', icon: Users },
+            { href: '/dashboard/crm/sales/quotations', label: 'Quotation & Estimates', icon: FileText },
+            { href: '/dashboard/crm/sales/proforma', label: 'Proforma Invoices', icon: BadgeInfo },
+            { href: '/dashboard/crm/sales/invoices', label: 'Invoices', icon: FileText },
+            { href: '/dashboard/crm/sales/receipts', label: 'Payment Receipts', icon: CreditCard },
+            { href: '/dashboard/crm/sales/orders', label: 'Sales Orders', icon: ShoppingBag },
+            { href: '/dashboard/crm/sales/delivery', label: 'Delivery Challans', icon: Truck },
+            { href: '/dashboard/crm/sales/credit-notes', label: 'Credit Notes', icon: Repeat },
+        ]
+    },
     { href: '/dashboard/crm/contacts', label: 'Leads & Contacts', icon: Users },
     { href: '/dashboard/crm/accounts', label: 'Accounts', icon: Building },
     { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
@@ -408,7 +422,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       </SidebarGroupLabel>
                     )}
                     {group.items.map((item: any) => {
-                      const isConnectionLink = item.href.includes('all-projects') || item.href.includes('connections') || item.href.includes('setup');
+                      const isConnectionLink = item.href?.includes('all-projects') || item.href?.includes('connections') || item.href?.includes('setup');
                       const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp' || activeApp === 'instagram';
                       
                       const hasActiveProjectForSuite =
@@ -439,12 +453,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         item.href === '/dashboard/sms' ||
                         item.href === '/dashboard/website-builder';
 
-                      const isActive = isBasePage ? pathname === item.href : pathname.startsWith(item.href);
+                      const isActive = isBasePage ? pathname === item.href : (item.href && pathname.startsWith(item.href));
 
                       return (
-                        <SidebarMenuItem key={item.href}>
+                        <SidebarMenuItem key={item.label}>
                           <SidebarMenuButton
                             asChild
+                            subItems={item.subItems}
                             isActive={isActive}
                             tooltip={tooltipText}
                             disabled={isDisabled}
