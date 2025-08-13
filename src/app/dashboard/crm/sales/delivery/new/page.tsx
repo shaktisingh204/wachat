@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useActionState, useRef } from 'react';
@@ -11,12 +12,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle, Truck } from 'lucide-react';
+import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
-import type { WithId, CrmAccount } from '@/lib/definitions';
+import type { WithId, CrmAccount, DeliveryChallanLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { saveDeliveryChallan } from '@/app/actions/crm-delivery-challans.actions';
+
 
 const yourBusinessDetails = {
     name: 'WAPLIA DIGITAL SOLUTIONS',
@@ -25,16 +28,20 @@ const yourBusinessDetails = {
     pan: 'FNSPK2133N'
 }
 
-type LineItem = {
-    id: string;
-    name: string;
-    hsnCode?: string;
-    quantity: number;
-    unit?: string;
-    rate?: number;
-};
+const initialState = { message: null, error: null };
 
-const LineItemsTable = ({ items, setItems }: { items: LineItem[], setItems: React.Dispatch<React.SetStateAction<LineItem[]>>}) => {
+function SaveButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" disabled={pending}>
+      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+      Save
+    </Button>
+  );
+}
+
+
+const LineItemsTable = ({ items, setItems }: { items: DeliveryChallanLineItem[], setItems: React.Dispatch<React.SetStateAction<DeliveryChallanLineItem[]>>}) => {
     const handleAddItem = () => {
         setItems([...items, { id: `item-${Date.now()}`, name: '', quantity: 1 }]);
     };
@@ -43,7 +50,7 @@ const LineItemsTable = ({ items, setItems }: { items: LineItem[], setItems: Reac
         setItems(items.filter(item => item.id !== id));
     };
 
-    const handleItemChange = (id: string, field: keyof Omit<LineItem, 'id'>, value: string | number) => {
+    const handleItemChange = (id: string, field: keyof Omit<DeliveryChallanLineItem, 'id'>, value: string | number) => {
         setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
     
@@ -81,19 +88,37 @@ const LineItemsTable = ({ items, setItems }: { items: LineItem[], setItems: Reac
 }
 
 export default function NewDeliveryChallanPage() {
+    const [state, formAction] = useActionState(saveDeliveryChallan, initialState);
+    const router = useRouter();
+    const { toast } = useToast();
+    
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
     const [challanDate, setChallanDate] = useState<Date | undefined>(new Date());
-    const [lineItems, setLineItems] = useState<LineItem[]>([{ id: '1', name: '', quantity: 1 }]);
+    const [lineItems, setLineItems] = useState<DeliveryChallanLineItem[]>([{ id: '1', name: '', quantity: 1 }]);
     
     useEffect(() => {
         getCrmAccounts().then(data => setClients(data.accounts));
     }, []);
 
+    useEffect(() => {
+        if (state.message) {
+            toast({ title: "Success!", description: state.message });
+            router.push('/dashboard/crm/sales/delivery');
+        }
+        if (state.error) {
+            toast({ title: "Error", description: state.error, variant: 'destructive' });
+        }
+    }, [state, router, toast]);
+
     const selectedClient = clients.find(c => c._id.toString() === selectedClientId);
 
     return (
-        <form action={() => {}}>
+        <form action={formAction}>
+            <input type="hidden" name="accountId" value={selectedClientId} />
+            <input type="hidden" name="challanDate" value={challanDate?.toISOString()} />
+            <input type="hidden" name="lineItems" value={JSON.stringify(lineItems)} />
+
             <div className="bg-muted/30">
                 <div className="container mx-auto p-4 md:p-8">
                      <header className="flex justify-between items-center mb-6">
@@ -103,11 +128,8 @@ export default function NewDeliveryChallanPage() {
                             </Button>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline" disabled>Save As Draft</Button>
-                             <Button type="submit" disabled>
-                                <Save className="mr-2 h-4 w-4" />
-                                Save
-                            </Button>
+                            <Button variant="outline" type="button">Save As Draft</Button>
+                             <SaveButton />
                         </div>
                      </header>
                     <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
@@ -126,7 +148,7 @@ export default function NewDeliveryChallanPage() {
                                 </div>
                                 <div>
                                     <h3 className="font-semibold mb-2">To (Consignee):</h3>
-                                     <Select value={selectedClientId} onValueChange={setSelectedClientId}>
+                                     <Select value={selectedClientId} onValueChange={setSelectedClientId} name="accountId" required>
                                         <SelectTrigger><SelectValue placeholder="Select a Client..."/></SelectTrigger>
                                         <SelectContent>{clients.map(client => <SelectItem key={client._id.toString()} value={client._id.toString()}>{client.name}</SelectItem>)}</SelectContent>
                                     </Select>
@@ -137,7 +159,7 @@ export default function NewDeliveryChallanPage() {
                             </section>
 
                             <section className="grid grid-cols-2 gap-4 mb-8">
-                                <div className="space-y-1"><Label className="text-xs">Challan No *</Label><Input defaultValue="DC-00001" className="h-8"/></div>
+                                <div className="space-y-1"><Label className="text-xs">Challan No *</Label><Input name="challanNumber" defaultValue="DC-00001" className="h-8" required /></div>
                                 <div className="space-y-1"><Label className="text-xs">Challan Date *</Label><DatePicker date={challanDate} setDate={setChallanDate} /></div>
                             </section>
 
@@ -149,16 +171,16 @@ export default function NewDeliveryChallanPage() {
                             
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                 <div className="space-y-4">
-                                    <div className="space-y-2"><Label>Reason for Delivery</Label><Input placeholder="e.g. For Job Work, Sale on Approval" /></div>
-                                    <div className="space-y-2"><Label>Notes (Optional)</Label><Textarea placeholder="Any special instructions..." /></div>
+                                    <div className="space-y-2"><Label>Reason for Delivery</Label><Input name="reason" placeholder="e.g. For Job Work, Sale on Approval" /></div>
+                                    <div className="space-y-2"><Label>Notes (Optional)</Label><Textarea name="notes" placeholder="Any special instructions..." /></div>
                                 </div>
                                 <div className="space-y-4">
                                      <h3 className="font-semibold">Transport Details</h3>
                                      <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label>Vehicle Number</Label><Input placeholder="e.g. RJ14 AB 1234"/></div>
-                                        <div className="space-y-2"><Label>Driver Name</Label><Input placeholder="e.g. John Doe"/></div>
+                                        <div className="space-y-2"><Label>Vehicle Number</Label><Input name="vehicleNumber" placeholder="e.g. RJ14 AB 1234"/></div>
+                                        <div className="space-y-2"><Label>Driver Name</Label><Input name="driverName" placeholder="e.g. John Doe"/></div>
                                      </div>
-                                      <div className="space-y-2"><Label>Transport Mode</Label><Input placeholder="e.g. By Road"/></div>
+                                      <div className="space-y-2"><Label>Transport Mode</Label><Input name="mode" placeholder="e.g. By Road"/></div>
                                 </div>
                             </section>
                             <Separator className="my-8"/>
