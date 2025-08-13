@@ -1,20 +1,21 @@
 
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
-import { useParams } from 'next/navigation';
+import { useEffect, useState, useTransition, useCallback } from 'react';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import { getCrmAccountById } from '@/app/actions/crm-accounts.actions';
 import { getCrmContacts } from '@/app/actions/crm.actions';
 import type { CrmAccount, CrmContact, WithId } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Building, Link as LinkIcon, Mail, Phone, Users } from 'lucide-react';
+import { ArrowLeft, Building, Link as LinkIcon, Mail, Phone, Users, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CrmNotes } from '@/components/wabasimplify/crm-notes';
 import Link from 'next/link';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ComposeEmailDialog } from '@/components/wabasimplify/crm-compose-email-dialog';
+
+const CONTACTS_PER_PAGE = 5;
 
 function AccountDetailPageSkeleton() {
     return (
@@ -34,24 +35,43 @@ function AccountDetailPageSkeleton() {
 
 export default function CrmAccountDetailPage() {
     const params = useParams();
+    const searchParams = useSearchParams();
+    const router = useRouter();
+
     const accountId = params.accountId as string;
+    const currentPage = Number(searchParams.get('page')) || 1;
+
     const [account, setAccount] = useState<WithId<CrmAccount> | null>(null);
     const [contacts, setContacts] = useState<WithId<CrmContact>[]>([]);
+    const [totalContacts, setTotalContacts] = useState(0);
     const [isLoading, startTransition] = useTransition();
     const [isComposeOpen, setIsComposeOpen] = useState(false);
 
-    useEffect(() => {
+    const totalPages = Math.ceil(totalContacts / CONTACTS_PER_PAGE);
+
+    const fetchData = useCallback(() => {
         if (accountId) {
             startTransition(async () => {
-                const [fetchedAccount, fetchedContacts] = await Promise.all([
+                const [fetchedAccount, fetchedContactsData] = await Promise.all([
                     getCrmAccountById(accountId),
-                    getCrmContacts(1, 100, undefined, accountId)
+                    getCrmContacts(currentPage, CONTACTS_PER_PAGE, undefined, accountId)
                 ]);
                 setAccount(fetchedAccount);
-                setContacts(fetchedContacts.contacts);
+                setContacts(fetchedContactsData.contacts);
+                setTotalContacts(fetchedContactsData.total);
             });
         }
-    }, [accountId]);
+    }, [accountId, currentPage]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const handlePageChange = (newPage: number) => {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set('page', String(newPage));
+        router.push(`?${params.toString()}`);
+    }
 
     if (isLoading || !account) {
         return <AccountDetailPageSkeleton />;
@@ -119,6 +139,13 @@ export default function CrmAccountDetailPage() {
                                     )) : <TableRow><TableCell colSpan={3} className="text-center">No contacts associated with this account.</TableCell></TableRow>}
                                 </TableBody>
                                </Table>
+                               {totalPages > 1 && (
+                                <div className="flex items-center justify-end space-x-2 pt-4">
+                                     <span className="text-sm text-muted-foreground">Page {currentPage} of {totalPages}</span>
+                                    <Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage <= 1}><ChevronLeft className="h-4 w-4" /></Button>
+                                    <Button variant="outline" size="sm" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage >= totalPages}><ChevronRight className="h-4 w-4" /></Button>
+                                </div>
+                               )}
                             </CardContent>
                         </Card>
                     </div>
