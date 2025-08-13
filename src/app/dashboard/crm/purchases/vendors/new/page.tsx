@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -17,6 +16,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { CrmAddBankAccountDialog } from '@/components/wabasimplify/crm-add-bank-account-dialog';
+import type { BankAccountDetails } from '@/lib/definitions';
 
 const initialState = { message: null, error: null };
 
@@ -35,7 +36,8 @@ export default function NewVendorLeadPage() {
     const { toast } = useToast();
     const router = useRouter();
     const formRef = useRef<HTMLFormElement>(null);
-    const [bankDetails, setBankDetails] = useState({ accountNumber: '', accountHolder: '', ifsc: '' });
+    const [bankDetails, setBankDetails] = useState<Partial<BankAccountDetails>>({});
+    const [isBankDialogOpen, setIsBankDialogOpen] = useState(false);
 
     useEffect(() => {
         if (state.message) {
@@ -49,6 +51,11 @@ export default function NewVendorLeadPage() {
 
     return (
         <div className="max-w-4xl mx-auto">
+            <CrmAddBankAccountDialog
+                isOpen={isBankDialogOpen}
+                onOpenChange={setIsBankDialogOpen}
+                onSave={(details) => setBankDetails(details)}
+            />
              <div>
                 <Button variant="ghost" asChild className="mb-2 -ml-4">
                     <Link href="/dashboard/crm/purchases/vendors"><ArrowLeft className="mr-2 h-4 w-4" />Back to Vendors</Link>
@@ -117,9 +124,19 @@ export default function NewVendorLeadPage() {
                             <AccordionItem value="bank">
                                 <AccordionTrigger>Bank Account Details (Optional)</AccordionTrigger>
                                 <AccordionContent className="space-y-4 pt-2">
-                                    <div className="space-y-2"><Label>Account Number</Label><Input value={bankDetails.accountNumber} onChange={e => setBankDetails(prev => ({...prev, accountNumber: e.target.value}))}/></div>
-                                    <div className="space-y-2"><Label>Account Holder Name</Label><Input value={bankDetails.accountHolder} onChange={e => setBankDetails(prev => ({...prev, accountHolder: e.target.value}))}/></div>
-                                    <div className="space-y-2"><Label>IFSC Code</Label><Input value={bankDetails.ifsc} onChange={e => setBankDetails(prev => ({...prev, ifsc: e.target.value}))}/></div>
+                                    <p className="text-sm text-muted-foreground">Record all payments received against this and future invoices in the respective Bank and other Payment Accounts.</p>
+                                    {bankDetails.accountNumber ? (
+                                        <div className="p-3 border rounded-md">
+                                            <p className="font-medium">{bankDetails.accountHolder}</p>
+                                            <p className="text-sm text-muted-foreground">Account: {bankDetails.accountNumber}</p>
+                                            <p className="text-sm text-muted-foreground">IFSC: {bankDetails.ifsc}</p>
+                                            <Button variant="link" size="sm" className="p-0 h-auto mt-2" onClick={() => setIsBankDialogOpen(true)}>Edit Details</Button>
+                                        </div>
+                                    ) : (
+                                        <Button type="button" variant="outline" onClick={() => setIsBankDialogOpen(true)}>
+                                            Add Bank Account
+                                        </Button>
+                                    )}
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
