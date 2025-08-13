@@ -12,7 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, Upload, Users } from 'lucide-react';
+import { Search, Plus, Upload, Users, FileText } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -89,6 +89,7 @@ export default function CrmClientsPage() {
                     <p className="text-muted-foreground">Manage your customer pipeline from prospect to deal.</p>
                 </div>
                 <div className="flex items-center gap-2">
+                    <Button variant="outline"><FileText className="mr-2 h-4 w-4"/>Generate Report</Button>
                     <CrmImportContactsDialog onImported={fetchData} />
                     <CrmAddClientDialog onClientAdded={fetchData} />
                 </div>
