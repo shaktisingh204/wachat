@@ -1477,6 +1477,17 @@ export type CrmWarehouse = {
     updatedAt: Date;
 };
 
+export type BankAccountDetails = {
+    accountNumber?: string;
+    accountHolder?: string;
+    ifsc?: string;
+    bankName?: string;
+    accountType?: 'current' | 'savings';
+    currency?: string;
+    swiftCode?: string;
+    ibanCode?: string;
+};
+
 export type CrmVendor = {
     _id: ObjectId;
     userId: ObjectId;
@@ -1493,11 +1504,7 @@ export type CrmVendor = {
     panName?: string;
     vendorType?: 'individual' | 'company';
     subject?: string;
-    bankAccountDetails?: {
-        accountNumber?: string;
-        accountHolder?: string;
-        ifsc?: string;
-    };
+    bankAccountDetails?: BankAccountDetails;
     createdAt: Date;
     updatedAt: Date;
 };
