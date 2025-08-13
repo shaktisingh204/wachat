@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from "next/link";
@@ -13,7 +14,7 @@ const salesNavItems = [
     { href: "/dashboard/crm/sales/proforma", label: "Proforma Invoices", icon: BadgeInfo },
     { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingBag },
     { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans", icon: Truck },
-    { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes", icon: Repeat, disabled: true },
+    { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes", icon: Repeat },
 ];
 
 export default function SalesLayout({ children }: { children: React.ReactNode }) {
