@@ -13,8 +13,12 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle } from 'lucide-react';
 import Link from 'next/link';
-import type { WithId, CrmAccount, InvoiceLineItem } from '@/lib/definitions';
+import type { WithId, CrmAccount, CreditNoteLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
+import { useToast } from '@/hooks/use-toast';
+import { useRouter } from 'next/navigation';
+import { saveCreditNote } from '@/app/actions/crm-credit-notes.actions';
+
 
 const yourBusinessDetails = {
     name: 'WAPLIA DIGITAL SOLUTIONS',
@@ -23,7 +27,19 @@ const yourBusinessDetails = {
     pan: 'FNSPK2133N'
 };
 
-const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[], setItems: React.Dispatch<React.SetStateAction<InvoiceLineItem[]>>, currency: string }) => {
+const initialState = { message: null, error: null };
+
+function SaveButton() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" disabled={pending}>
+      {pending ? <LoaderCircle className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+      Save Credit Note
+    </Button>
+  );
+}
+
+const LineItemsTable = ({ items, setItems, currency }: { items: CreditNoteLineItem[], setItems: React.Dispatch<React.SetStateAction<CreditNoteLineItem[]>>, currency: string }) => {
     const handleAddItem = () => {
         setItems([...items, { id: `item-${Date.now()}`, name: '', description: '', quantity: 1, rate: 0 }]);
     };
@@ -32,7 +48,7 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
         setItems(items.filter(item => item.id !== id));
     };
 
-    const handleItemChange = (id: string, field: keyof Omit<InvoiceLineItem, 'id'>, value: string | number) => {
+    const handleItemChange = (id: string, field: keyof Omit<CreditNoteLineItem, 'id'>, value: string | number) => {
         setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
     
@@ -79,19 +95,38 @@ const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[
 
 
 export default function NewCreditNotePage() {
+    const [state, formAction] = useActionState(saveCreditNote, initialState);
+    const router = useRouter();
+    const { toast } = useToast();
+
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
     const [creditNoteDate, setCreditNoteDate] = useState<Date | undefined>(new Date());
-    const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([{ id: '1', name: '', description: '', quantity: 1, rate: 0 }]);
+    const [lineItems, setLineItems] = useState<CreditNoteLineItem[]>([{ id: '1', name: '', description: '', quantity: 1, rate: 0 }]);
     
     useEffect(() => {
         getCrmAccounts().then(data => setClients(data.accounts));
     }, []);
 
+    useEffect(() => {
+        if (state.message) {
+            toast({ title: "Success!", description: state.message });
+            router.push('/dashboard/crm/sales/credit-notes');
+        }
+        if (state.error) {
+            toast({ title: "Error", description: state.error, variant: 'destructive' });
+        }
+    }, [state, router, toast]);
+
     const selectedClient = clients.find(c => c._id.toString() === selectedClientId);
 
     return (
-        <form>
+        <form action={formAction}>
+            <input type="hidden" name="accountId" value={selectedClientId} />
+            <input type="hidden" name="creditNoteDate" value={creditNoteDate?.toISOString()} />
+            <input type="hidden" name="lineItems" value={JSON.stringify(lineItems)} />
+            <input type="hidden" name="currency" value="INR" />
+
             <div className="bg-muted/30">
                 <div className="container mx-auto p-4 md:p-8">
                      <header className="flex justify-between items-center mb-6">
@@ -102,7 +137,7 @@ export default function NewCreditNotePage() {
                         </div>
                         <div className="flex items-center gap-2">
                             <Button variant="outline" type="button">Save As Draft</Button>
-                            <Button type="submit"><Save className="mr-2 h-4 w-4" />Save</Button>
+                            <SaveButton />
                         </div>
                      </header>
                     <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
@@ -150,3 +185,4 @@ export default function NewCreditNotePage() {
         </form>
     );
 }
+
