@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File, BadgeInfo
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File, BadgeInfo, IndianRupee, FilePlus, Star
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -192,6 +192,18 @@ const crmMenuItems = [
             { href: '/dashboard/crm/sales/orders', label: 'Sales Orders', icon: ShoppingBag },
             { href: '/dashboard/crm/sales/delivery', label: 'Delivery Challans', icon: Truck },
             { href: '/dashboard/crm/sales/credit-notes', label: 'Credit Notes', icon: Repeat },
+        ]
+    },
+    {
+        label: 'Purchases',
+        icon: ShoppingCart,
+        subItems: [
+            { href: '/dashboard/crm/purchases/vendors', label: 'Vendors & Suppliers', icon: Users },
+            { href: '/dashboard/crm/purchases/expenses', label: 'Purchases & Expenses', icon: IndianRupee },
+            { href: '/dashboard/crm/purchases/orders', label: 'Purchase Orders', icon: FilePlus },
+            { href: '/dashboard/crm/purchases/payouts', label: 'Payout Receipts', icon: CreditCard },
+            { href: '/dashboard/crm/purchases/debit-notes', label: 'Debit Notes', icon: Repeat },
+            { href: '/dashboard/crm/purchases/hire', label: 'Hire The Best Vendors', icon: Star },
         ]
     },
     { href: '/dashboard/crm/contacts', label: 'Leads & Contacts', icon: Users },
