@@ -1452,6 +1452,7 @@ export type EcommProduct = {
   _id: ObjectId;
   projectId: ObjectId;
   shopId: ObjectId;
+  userId: ObjectId;
   name: string;
   description?: string;
   price: number;
