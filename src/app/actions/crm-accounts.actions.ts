@@ -21,7 +21,7 @@ export async function getCrmAccounts(
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
         
-        const filter: Filter<CrmAccount> = { userId: userObjectId };
+        const filter: Filter<CrmAccount> = { userId: userObjectId, status: { $ne: 'archived' } };
         if (query) {
             const queryRegex = { $regex: query, $options: 'i' };
             filter.$or = [
@@ -80,6 +80,7 @@ export async function addCrmAccount(prevState: any, formData: FormData): Promise
             phone: formData.get('phone') as string | undefined,
             notes: [],
             createdAt: new Date(),
+            status: 'active'
         };
 
         if (!newAccount.name) {
@@ -93,5 +94,73 @@ export async function addCrmAccount(prevState: any, formData: FormData): Promise
         return { message: 'Account added successfully.' };
     } catch(e: any) {
         return { error: getErrorMessage(e) };
+    }
+}
+
+export async function updateCrmAccount(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, accountId?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: "Access denied" };
+    
+    const accountId = formData.get('accountId') as string;
+    if (!accountId || !ObjectId.isValid(accountId)) {
+        return { error: 'Invalid Account ID.' };
+    }
+
+    try {
+        const accountUpdates: Partial<CrmAccount> = {
+            name: formData.get('name') as string,
+            industry: formData.get('industry') as string | undefined,
+            website: formData.get('website') as string | undefined,
+            phone: formData.get('phone') as string | undefined,
+            updatedAt: new Date(),
+        };
+
+        if (!accountUpdates.name) {
+            return { error: 'Company Name is required.' };
+        }
+
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_accounts').updateOne(
+            { _id: new ObjectId(accountId), userId: new ObjectId(session.user._id) },
+            { $set: accountUpdates }
+        );
+
+        if (result.matchedCount === 0) {
+            return { error: 'Account not found or access denied.' };
+        }
+        
+        revalidatePath(`/dashboard/crm/accounts/${accountId}`);
+        revalidatePath('/dashboard/crm/accounts');
+        revalidatePath('/dashboard/crm/sales/clients');
+        return { message: 'Account updated successfully.', accountId };
+    } catch(e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function archiveCrmAccount(accountId: string): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: "Access denied" };
+
+    if (!accountId || !ObjectId.isValid(accountId)) {
+        return { success: false, error: 'Invalid Account ID.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('crm_accounts').updateOne(
+            { _id: new ObjectId(accountId), userId: new ObjectId(session.user._id) },
+            { $set: { status: 'archived', updatedAt: new Date() } }
+        );
+
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'Account not found or access denied.' };
+        }
+        
+        revalidatePath('/dashboard/crm/accounts');
+        revalidatePath('/dashboard/crm/sales/clients');
+        return { success: true };
+    } catch(e: any) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }

@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import { getCrmContacts } from '@/app/actions/crm.actions';
-import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
+import { getCrmAccounts, archiveCrmAccount } from '@/app/actions/crm-accounts.actions';
 import { useRouter } from 'next/navigation';
 import type { CrmContact, CrmAccount } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,6 +20,18 @@ import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dia
 import { ClientReportButton } from '@/components/wabasimplify/client-report-button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuGroup } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -51,11 +63,12 @@ export default function CrmClientsPage() {
     const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const router = useRouter();
+    const { toast } = useToast();
 
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [totalPages, setTotalPages] = useState(0);
-    const [sortConfig, setSortConfig] = useState<SortConfig>({ column: 'lastActivity', direction: 'desc' });
+    const [sortConfig, setSortConfig] = useState<SortConfig>({ column: 'createdAt', direction: 'desc' });
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
@@ -87,6 +100,16 @@ export default function CrmClientsPage() {
         if (score > 75) return 'text-green-600';
         if (score > 50) return 'text-yellow-600';
         return 'text-red-600';
+    };
+
+    const handleArchiveAccount = async (accountId: string) => {
+        const result = await archiveCrmAccount(accountId);
+        if (result.success) {
+            toast({ title: 'Success', description: 'Account archived successfully.' });
+            fetchData();
+        } else {
+            toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        }
     };
 
     const SortableHeader = ({ column, label }: { column: string, label: string }) => (
@@ -152,7 +175,7 @@ export default function CrmClientsPage() {
                                     ))
                                 ) : contacts.length > 0 ? (
                                     contacts.map((contact) => (
-                                        <TableRow key={contact._id.toString()}>
+                                        <TableRow key={contact._id.toString()} >
                                             <TableCell onClick={() => router.push(`/dashboard/crm/contacts/${contact._id.toString()}`)} className="cursor-pointer">
                                                 <div className="flex items-center gap-3">
                                                     <Avatar>
@@ -178,27 +201,44 @@ export default function CrmClientsPage() {
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuGroup>
                                                             <DropdownMenuLabel>Create New</DropdownMenuLabel>
-                                                            <DropdownMenuItem>Create New Lead</DropdownMenuItem>
-                                                            <DropdownMenuItem>Create Invoice</DropdownMenuItem>
-                                                            <DropdownMenuItem>Create Proforma Invoice</DropdownMenuItem>
-                                                            <DropdownMenuItem>Create Quotation</DropdownMenuItem>
-                                                            <DropdownMenuItem>Create Credit Note</DropdownMenuItem>
-                                                            <DropdownMenuItem>Create Debit Note</DropdownMenuItem>
+                                                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/deals/new?accountId=${contact.accountId}`)}>Create New Deal</DropdownMenuItem>
+                                                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/sales/invoices/new?accountId=${contact.accountId}`)}>Create Invoice</DropdownMenuItem>
+                                                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/sales/proforma/new?accountId=${contact.accountId}`)}>Create Proforma Invoice</DropdownMenuItem>
+                                                            <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/sales/quotations/new?accountId=${contact.accountId}`)}>Create Quotation</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>Create Credit Note</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>Create Debit Note</DropdownMenuItem>
                                                         </DropdownMenuGroup>
                                                         <DropdownMenuSeparator />
                                                          <DropdownMenuGroup>
                                                             <DropdownMenuLabel>View</DropdownMenuLabel>
-                                                            <DropdownMenuItem>See All Invoices</DropdownMenuItem>
-                                                            <DropdownMenuItem>See All Quotations</DropdownMenuItem>
-                                                            <DropdownMenuItem>See All Leads</DropdownMenuItem>
-                                                            <DropdownMenuItem>Activity History</DropdownMenuItem>
-                                                            <DropdownMenuItem>Client Statement</DropdownMenuItem>
-                                                            <DropdownMenuItem>Ledger Statement</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>See All Invoices</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>See All Quotations</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>See All Leads</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>Activity History</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>Client Statement</DropdownMenuItem>
+                                                            <DropdownMenuItem disabled>Ledger Statement</DropdownMenuItem>
                                                         </DropdownMenuGroup>
                                                         <DropdownMenuSeparator />
-                                                        <DropdownMenuItem>Add to Portfolio</DropdownMenuItem>
-                                                        <DropdownMenuItem><Edit className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
-                                                        <DropdownMenuItem className="text-destructive focus:bg-destructive/10">Archive</DropdownMenuItem>
+                                                        <DropdownMenuItem onSelect={() => router.push(`/dashboard/crm/accounts/${contact.accountId}/edit`)}>
+                                                            <Edit className="mr-2 h-4 w-4" />Edit
+                                                        </DropdownMenuItem>
+                                                         <AlertDialog>
+                                                            <AlertDialogTrigger asChild>
+                                                                <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10">
+                                                                     <Archive className="mr-2 h-4 w-4" />Archive
+                                                                </DropdownMenuItem>
+                                                            </AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader>
+                                                                    <AlertDialogTitle>Archive Account?</AlertDialogTitle>
+                                                                    <AlertDialogDescription>Archiving this account will hide it from the main list but will not delete its data.</AlertDialogDescription>
+                                                                </AlertDialogHeader>
+                                                                <AlertDialogFooter>
+                                                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                    <AlertDialogAction onClick={() => handleArchiveAccount(contact.accountId!.toString())}>Archive</AlertDialogAction>
+                                                                </AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
                                             </TableCell>
