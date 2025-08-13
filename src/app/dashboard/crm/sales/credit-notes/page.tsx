@@ -4,6 +4,7 @@
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Repeat, PlayCircle, Plus, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default function CreditNotesPage() {
     return (
@@ -25,9 +26,11 @@ export default function CreditNotesPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create First Credit Note
+                    <Button asChild>
+                        <Link href="/dashboard/crm/sales/credit-notes/new">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Create First Credit Note
+                        </Link>
                     </Button>
                      <Button variant="secondary">
                         <Upload className="mr-2 h-4 w-4" />
