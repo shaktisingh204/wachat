@@ -1,0 +1,193 @@
+'use client';
+
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DatePicker } from '@/components/ui/date-picker';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
+import { PlusCircle, Trash2, ArrowLeft, Save } from 'lucide-react';
+import Link from 'next/link';
+
+// Mock data, to be replaced with data fetching
+const mockClients = [
+    { id: '1', name: 'Gaurav Singh', address: 'Pratap Nagar, Jaipur, Rajasthan, India - 302033', phone: '+91 92570 62030' },
+    { id: '2', name: 'Acme Inc.', address: '123 Business Rd, San Francisco, CA 94105', phone: '+1 415-555-1234' },
+];
+
+const yourBusinessDetails = {
+    name: 'WAPLIA DIGITAL SOLUTIONS',
+    address: 'D-829, Malviya Nagar, Jaipur, Rajasthan, India - 302017',
+    gstin: '08FNSPK2133N1ZE',
+    pan: 'FNSPK2133N'
+}
+
+type LineItem = {
+    id: string;
+    name: string;
+    quantity: number;
+    rate: number;
+};
+
+const QuotationLineItems = () => {
+    const [items, setItems] = useState<LineItem[]>([{ id: '1', name: '', quantity: 1, rate: 1 }]);
+
+    const handleAddItem = () => {
+        setItems([...items, { id: `item-${Date.now()}`, name: '', quantity: 1, rate: 0 }]);
+    };
+
+    const handleRemoveItem = (id: string) => {
+        setItems(items.filter(item => item.id !== id));
+    };
+
+    const handleItemChange = (id: string, field: keyof Omit<LineItem, 'id'>, value: string | number) => {
+        setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
+    };
+
+    const calculateAmount = (quantity: number, rate: number) => {
+        return (quantity * rate).toFixed(2);
+    };
+    
+    const totalAmount = items.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
+
+    return (
+        <Card>
+            <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                        <thead className="bg-muted">
+                            <tr className="border-b">
+                                <th className="p-3 text-left font-medium">Item</th>
+                                <th className="p-3 text-right font-medium">Quantity</th>
+                                <th className="p-3 text-right font-medium">Rate</th>
+                                <th className="p-3 text-right font-medium">Amount</th>
+                                <th className="p-3"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {items.map((item, index) => (
+                                <tr key={item.id} className="border-b">
+                                    <td className="p-2"><Input placeholder="Name/SKU Id" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} /></td>
+                                    <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
+                                    <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
+                                    <td className="p-2 text-right font-medium">₹{calculateAmount(item.quantity, item.rate)}</td>
+                                    <td className="p-2"><Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+                <div className="p-4 space-y-2">
+                    <Button variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4"/>Add New Line</Button>
+                </div>
+                <Separator />
+                <div className="p-4 flex justify-end">
+                    <div className="w-full max-w-sm space-y-2">
+                        <div className="flex justify-between items-center"><span className="text-muted-foreground">Total (INR)</span><span className="font-bold text-lg">₹{totalAmount.toFixed(2)}</span></div>
+                    </div>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+const AddressCard = ({ title, name, address, gstin, pan }: { title: string, name: string, address: string, gstin?: string, pan?: string }) => (
+    <div>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-2">{title}</h3>
+        <Card>
+            <CardHeader>
+                <CardTitle className="text-base">{name}</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+                <p>{address}</p>
+                {gstin && <p>GSTIN: {gstin}</p>}
+                {pan && <p>PAN: {pan}</p>}
+            </CardContent>
+        </Card>
+    </div>
+)
+
+
+export default function NewQuotationPage() {
+    const [selectedClient, setSelectedClient] = useState(mockClients[0]);
+    const [quotationDate, setQuotationDate] = useState<Date | undefined>(new Date());
+    const [validTillDate, setValidTillDate] = useState<Date | undefined>(new Date(Date.now() + 15 * 24 * 60 * 60 * 1000));
+
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                 <div>
+                    <Button variant="ghost" asChild className="mb-2 -ml-4">
+                        <Link href="/dashboard/crm/sales/quotations"><ArrowLeft className="mr-2 h-4 w-4" />Back to Quotations</Link>
+                    </Button>
+                    <h1 className="text-3xl font-bold font-headline">New Quotation</h1>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button variant="outline">Save As Draft</Button>
+                    <Button><Save className="mr-2 h-4 w-4" />Save & Continue</Button>
+                </div>
+            </div>
+
+            <Card>
+                <CardContent className="pt-6 grid md:grid-cols-3 gap-6">
+                    <div className="space-y-2">
+                        <Label htmlFor="quotationNo">Quotation No *</Label>
+                        <Input id="quotationNo" defaultValue="A00001" />
+                    </div>
+                    <div className="space-y-2">
+                        <Label>Quotation Date *</Label>
+                        <DatePicker date={quotationDate} setDate={setQuotationDate} />
+                    </div>
+                     <div className="space-y-2">
+                        <Label>Valid Till Date</Label>
+                        <DatePicker date={validTillDate} setDate={setValidTillDate} />
+                    </div>
+                </CardContent>
+            </Card>
+
+            <div className="grid md:grid-cols-2 gap-6">
+                <AddressCard title="Quotation From" {...yourBusinessDetails} />
+                 <div>
+                    <h3 className="text-sm font-semibold text-muted-foreground mb-2">Quotation For</h3>
+                    <Select value={selectedClient.id} onValueChange={id => setSelectedClient(mockClients.find(c => c.id === id)!)}>
+                        <SelectTrigger><SelectValue placeholder="Select a client..." /></SelectTrigger>
+                        <SelectContent>
+                            {mockClients.map(client => <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                     <Card className="mt-2">
+                        <CardHeader><CardTitle className="text-base">{selectedClient.name}</CardTitle></CardHeader>
+                        <CardContent className="text-sm text-muted-foreground">
+                            <p>{selectedClient.address}</p>
+                            <p>{selectedClient.phone}</p>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
+
+            <QuotationLineItems />
+            
+            <Card>
+                <CardContent className="pt-6">
+                    <div className="grid md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                            <Label>Add Terms & Conditions</Label>
+                            <Textarea placeholder="Enter terms and conditions..."/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Add Notes</Label>
+                            <Textarea placeholder="Enter notes..."/>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>Add Attachments</Label>
+                            <Input type="file" multiple />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+}

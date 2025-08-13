@@ -15,9 +15,9 @@ export async function getQuotations(
     page: number = 1,
     limit: number = 20,
     query?: string
-): Promise<WithId<CrmQuotation>[]> {
+): Promise<{ quotations: WithId<CrmQuotation>[], total: number }> {
     const session = await getSession();
-    if (!session?.user) return [];
+    if (!session?.user) return { quotations: [], total: 0 };
 
     try {
         const { db } = await connectToDatabase();
@@ -27,16 +27,22 @@ export async function getQuotations(
         
         const skip = (page - 1) * limit;
 
-        const quotations = await db.collection('crm_quotations')
-            .find(filter)
-            .sort({ date: -1 })
-            .skip(skip)
-            .limit(limit)
-            .toArray();
+        const [quotations, total] = await Promise.all([
+            db.collection('crm_quotations')
+                .find(filter)
+                .sort({ date: -1 })
+                .skip(skip)
+                .limit(limit)
+                .toArray(),
+            db.collection('crm_quotations').countDocuments(filter)
+        ]);
 
-        return JSON.parse(JSON.stringify(quotations));
+        return {
+            quotations: JSON.parse(JSON.stringify(quotations)),
+            total
+        };
     } catch (e: any) {
         console.error("Failed to fetch CRM quotations:", e);
-        return [];
+        return { quotations: [], total: 0 };
     }
 }
