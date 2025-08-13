@@ -78,7 +78,7 @@ export default function VendorsPage() {
                         <Button asChild>
                             <Link href="/dashboard/crm/purchases/vendors/new">
                                 <Plus className="mr-2 h-4 w-4" />
-                                Add First Vendor
+                                Add First Vendor Lead
                             </Link>
                         </Button>
                     </CardContent>
@@ -100,7 +100,7 @@ export default function VendorsPage() {
                 <Button asChild>
                     <Link href="/dashboard/crm/purchases/vendors/new">
                         <Plus className="mr-2 h-4 w-4" />
-                        New Vendor
+                        Add Vendor Lead
                     </Link>
                 </Button>
             </div>
