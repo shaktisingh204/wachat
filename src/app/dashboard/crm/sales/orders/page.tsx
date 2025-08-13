@@ -4,6 +4,7 @@
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShoppingBag, Plus } from 'lucide-react';
+import Link from 'next/link';
 
 export default function SalesOrdersPage() {
     return (
@@ -19,9 +20,11 @@ export default function SalesOrdersPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create First Sales Order
+                    <Button asChild>
+                        <Link href="/dashboard/crm/sales/orders/new">
+                             <Plus className="mr-2 h-4 w-4" />
+                            Create First Sales Order
+                        </Link>
                     </Button>
                 </CardContent>
             </Card>
