@@ -3,7 +3,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
+import { type Db, ObjectId, type WithId, Filter, Sort } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getSession } from '@/app/actions';
 import type { CrmContact, CrmPermissions, User, CrmAccount } from '@/lib/definitions';
@@ -17,6 +17,8 @@ export async function getCrmContacts(
     limit: number = 20,
     query?: string,
     accountId?: string,
+    sortColumn?: string,
+    sortDirection?: 'asc' | 'desc',
 ): Promise<{ contacts: WithId<CrmContact>[], total: number }> {
     const session = await getSession();
     if (!session?.user) return { contacts: [], total: 0 };
@@ -39,9 +41,17 @@ export async function getCrmContacts(
         }
 
         const skip = (page - 1) * limit;
+        
+        const sort: Sort = {};
+        if (sortColumn && sortDirection) {
+            sort[sortColumn] = sortDirection === 'asc' ? 1 : -1;
+        } else {
+            sort.createdAt = -1; // Default sort
+        }
+
 
         const [contacts, total] = await Promise.all([
-            db.collection<CrmContact>('crm_contacts').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+            db.collection<CrmContact>('crm_contacts').find(filter).sort(sort).skip(skip).limit(limit).toArray(),
             db.collection('crm_contacts').countDocuments(filter)
         ]);
 
