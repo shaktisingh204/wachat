@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import { getCrmContacts } from '@/app/actions/crm.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import type { CrmContact, CrmAccount } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -52,24 +51,24 @@ export default function CrmClientsPage() {
 
     const [totalPages, setTotalPages] = useState(0);
 
-    const fetchData = useCallback((page: number, query: string) => {
+    const fetchData = useCallback(() => {
         startTransition(async () => {
             const [{ contacts: data, total }, accountsData] = await Promise.all([
-                getCrmContacts(page, CONTACTS_PER_PAGE, query),
+                getCrmContacts(currentPage, CONTACTS_PER_PAGE, searchQuery),
                 getCrmAccounts()
             ]);
             setContacts(data);
             setTotalPages(Math.ceil(total / CONTACTS_PER_PAGE));
             setAccounts(accountsData.accounts);
         });
-    }, []);
+    }, [currentPage, searchQuery]);
 
     useEffect(() => {
-        fetchData(currentPage, searchQuery);
+        fetchData();
     }, [fetchData, currentPage, searchQuery]);
 
     const handleSearch = useDebouncedCallback((term: string) => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(searchParams.toString());
         params.set('page', '1');
         if (term) {
             params.set('query', term);
@@ -78,7 +77,7 @@ export default function CrmClientsPage() {
         }
         router.replace(`${pathname}?${params.toString()}`);
     }, 300);
-
+    
     const leadScoreColor = (score: number) => {
         if (score > 75) return 'text-green-600';
         if (score > 50) return 'text-yellow-600';
@@ -97,7 +96,7 @@ export default function CrmClientsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                     <ClientReportButton />
-                    <CrmAddClientDialog onClientAdded={() => fetchData(1, '')} />
+                    <CrmAddClientDialog onClientAdded={fetchData} />
                 </div>
             </div>
             
