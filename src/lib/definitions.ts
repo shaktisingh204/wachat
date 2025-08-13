@@ -188,6 +188,7 @@ export type CrmAccount = {
     dealIds?: ObjectId[];
     createdAt: Date;
     updatedAt?: Date;
+    status?: 'active' | 'archived';
 };
 
 export type CrmContact = {
@@ -1555,6 +1556,33 @@ export type CrmQuotation = {
     createdAt: Date;
     updatedAt: Date;
 };
+
+export type PaymentRecord = {
+    id: string;
+    date: Date;
+    amount: number;
+    mode: 'Cash' | 'Cheque' | 'Bank Transfer' | 'Credit Card' | 'Other';
+    reference?: string;
+};
+
+export type CrmPaymentReceipt = {
+    _id: ObjectId;
+    userId: ObjectId;
+    accountId: ObjectId;
+    receiptNumber: string;
+    receiptDate: Date;
+    currency: string;
+    totalAmountReceived: number;
+    paymentRecords: PaymentRecord[];
+    notes?: string;
+    settledInvoices: {
+        invoiceId: ObjectId;
+        amountSettled: number;
+    }[];
+    createdAt: Date;
+    updatedAt: Date;
+};
+
 
 // --- SEO Suite Types ---
 

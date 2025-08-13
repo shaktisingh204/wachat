@@ -86,3 +86,23 @@ export async function saveInvoice(prevState: any, formData: FormData): Promise<{
         return { error: getErrorMessage(e) };
     }
 }
+
+export async function getUnpaidInvoicesByAccount(accountId: string): Promise<WithId<CrmInvoice>[]> {
+    const session = await getSession();
+    if (!session?.user) return [];
+
+    if (!ObjectId.isValid(accountId)) return [];
+    
+    try {
+        const { db } = await connectToDatabase();
+        const invoices = await db.collection('crm_invoices').find({
+            userId: new ObjectId(session.user._id),
+            accountId: new ObjectId(accountId),
+            status: { $in: ['Sent', 'Overdue', 'Partially Paid'] }
+        }).toArray();
+        
+        return JSON.parse(JSON.stringify(invoices));
+    } catch (e) {
+        return [];
+    }
+}
