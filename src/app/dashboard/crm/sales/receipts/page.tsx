@@ -4,6 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreditCard, PlayCircle, Plus } from "lucide-react";
+import Link from "next/link";
 
 export default function PaymentReceiptsPage() {
     return (
@@ -25,9 +26,11 @@ export default function PaymentReceiptsPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create First Payment Receipt
+                    <Button asChild>
+                        <Link href="/dashboard/crm/sales/receipts/new">
+                             <Plus className="mr-2 h-4 w-4" />
+                            Create First Payment Receipt
+                        </Link>
                     </Button>
                 </CardContent>
             </Card>
