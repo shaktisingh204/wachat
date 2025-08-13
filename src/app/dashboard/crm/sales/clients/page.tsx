@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
@@ -186,7 +187,7 @@ export default function CrmClientsPage() {
                                                         </DropdownMenuGroup>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem>Add to Portfolio</DropdownMenuItem>
-                                                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem><Edit className="mr-2 h-4 w-4" />Edit</DropdownMenuItem>
                                                         <DropdownMenuItem className="text-destructive focus:bg-destructive/10">Archive</DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
