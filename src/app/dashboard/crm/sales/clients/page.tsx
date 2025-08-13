@@ -11,12 +11,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, Upload, Users, FileText } from 'lucide-react';
+import { Search, Plus, Upload, Users, FileText, MoreVertical, Archive, Edit, Activity, File, FilePlus, ChevronRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dialog';
 import { ClientReportButton } from '@/components/wabasimplify/client-report-button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuGroup } from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -65,7 +67,7 @@ export default function CrmClientsPage() {
 
     useEffect(() => {
         fetchData();
-    }, [fetchData, currentPage, searchQuery]);
+    }, [fetchData]);
 
     const handleSearch = useDebouncedCallback((term: string) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -127,19 +129,20 @@ export default function CrmClientsPage() {
                                     <TableHead>Lead Score</TableHead>
                                     <TableHead>Assigned To</TableHead>
                                     <TableHead>Last Activity</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     [...Array(5)].map((_, i) => (
                                         <TableRow key={i}>
-                                            <TableCell colSpan={6}><Skeleton className="h-10 w-full" /></TableCell>
+                                            <TableCell colSpan={7}><Skeleton className="h-10 w-full" /></TableCell>
                                         </TableRow>
                                     ))
                                 ) : contacts.length > 0 ? (
                                     contacts.map((contact) => (
-                                        <TableRow key={contact._id.toString()} onClick={() => router.push(`/dashboard/crm/contacts/${contact._id.toString()}`)} className="cursor-pointer">
-                                            <TableCell>
+                                        <TableRow key={contact._id.toString()} >
+                                            <TableCell onClick={() => router.push(`/dashboard/crm/contacts/${contact._id.toString()}`)} className="cursor-pointer">
                                                 <div className="flex items-center gap-3">
                                                     <Avatar>
                                                         <AvatarImage src={contact.avatarUrl} data-ai-hint="person avatar" />
@@ -156,11 +159,43 @@ export default function CrmClientsPage() {
                                             <TableCell><span className={`font-bold ${leadScoreColor(contact.leadScore || 0)}`}>{contact.leadScore || 0}</span></TableCell>
                                             <TableCell>{contact.assignedTo || 'Unassigned'}</TableCell>
                                             <TableCell>{contact.lastActivity ? new Date(contact.lastActivity).toLocaleDateString() : 'N/A'}</TableCell>
+                                            <TableCell className="text-right">
+                                                 <DropdownMenu>
+                                                    <DropdownMenuTrigger asChild>
+                                                        <Button variant="ghost" size="icon"><MoreVertical className="h-4 w-4"/></Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                        <DropdownMenuGroup>
+                                                            <DropdownMenuLabel>Create New</DropdownMenuLabel>
+                                                            <DropdownMenuItem>Create New Lead</DropdownMenuItem>
+                                                            <DropdownMenuItem>Create Invoice</DropdownMenuItem>
+                                                            <DropdownMenuItem>Create Proforma Invoice</DropdownMenuItem>
+                                                            <DropdownMenuItem>Create Quotation</DropdownMenuItem>
+                                                            <DropdownMenuItem>Create Credit Note</DropdownMenuItem>
+                                                            <DropdownMenuItem>Create Debit Note</DropdownMenuItem>
+                                                        </DropdownMenuGroup>
+                                                        <DropdownMenuSeparator />
+                                                         <DropdownMenuGroup>
+                                                            <DropdownMenuLabel>View</DropdownMenuLabel>
+                                                            <DropdownMenuItem>See All Invoices</DropdownMenuItem>
+                                                            <DropdownMenuItem>See All Quotations</DropdownMenuItem>
+                                                            <DropdownMenuItem>See All Leads</DropdownMenuItem>
+                                                            <DropdownMenuItem>Activity History</DropdownMenuItem>
+                                                            <DropdownMenuItem>Client Statement</DropdownMenuItem>
+                                                            <DropdownMenuItem>Ledger Statement</DropdownMenuItem>
+                                                        </DropdownMenuGroup>
+                                                        <DropdownMenuSeparator />
+                                                        <DropdownMenuItem>Add to Portfolio</DropdownMenuItem>
+                                                        <DropdownMenuItem>Edit</DropdownMenuItem>
+                                                        <DropdownMenuItem className="text-destructive focus:bg-destructive/10">Archive</DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                </DropdownMenu>
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="h-24 text-center">No contacts found.</TableCell>
+                                        <TableCell colSpan={7} className="h-24 text-center">No contacts found.</TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>
