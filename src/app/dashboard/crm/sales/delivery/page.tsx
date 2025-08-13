@@ -1,8 +1,10 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Truck, Plus, Upload } from "lucide-react";
+import Link from 'next/link';
 
 export default function DeliveryChallansPage() {
     return (
@@ -18,11 +20,13 @@ export default function DeliveryChallansPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create First Delivery Challan
+                    <Button asChild>
+                        <Link href="/dashboard/crm/sales/delivery/new">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Create First Delivery Challan
+                        </Link>
                     </Button>
-                     <Button variant="secondary">
+                     <Button variant="secondary" disabled>
                         <Upload className="mr-2 h-4 w-4" />
                         Upload Delivery Challans
                     </Button>
