@@ -16,10 +16,8 @@ import { Search, Plus, Upload, Users, FileText } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { CrmAddContactDialog } from '@/components/wabasimplify/crm-add-contact-dialog';
-import { CrmImportContactsDialog } from '@/components/wabasimplify/crm-import-contacts-dialog';
-import { formatDistanceToNow } from 'date-fns';
 import { CrmAddClientDialog } from '@/components/wabasimplify/crm-add-client-dialog';
+import { ClientReportButton } from '@/components/wabasimplify/client-report-button';
 
 const CONTACTS_PER_PAGE = 20;
 
@@ -89,8 +87,7 @@ export default function CrmClientsPage() {
                     <p className="text-muted-foreground">Manage your customer pipeline from prospect to deal.</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline"><FileText className="mr-2 h-4 w-4"/>Generate Report</Button>
-                    <CrmImportContactsDialog onImported={fetchData} />
+                    <ClientReportButton />
                     <CrmAddClientDialog onClientAdded={fetchData} />
                 </div>
             </div>
