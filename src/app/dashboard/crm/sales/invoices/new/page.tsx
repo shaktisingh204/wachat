@@ -15,10 +15,10 @@ import { PlusCircle, Trash2, ArrowLeft, Save, File as FileIcon, Edit, ChevronDow
 import Link from 'next/link';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
-import type { WithId, CrmAccount, QuotationLineItem } from '@/lib/definitions';
+import type { WithId, CrmAccount, InvoiceLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { useToast } from '@/hooks/use-toast';
-import { saveQuotation } from '@/app/actions/crm-quotations.actions';
+import { saveInvoice } from '@/app/actions/crm-invoices.actions';
 import { useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
 
@@ -44,7 +44,7 @@ function SaveButton() {
   );
 }
 
-const LineItemsTable = ({ items, setItems, currency }: { items: QuotationLineItem[], setItems: React.Dispatch<React.SetStateAction<QuotationLineItem[]>>, currency: string }) => {
+const LineItemsTable = ({ items, setItems, currency }: { items: InvoiceLineItem[], setItems: React.Dispatch<React.SetStateAction<InvoiceLineItem[]>>, currency: string }) => {
     const handleAddItem = () => {
         setItems([...items, { id: `item-${Date.now()}`, name: '', description: '', quantity: 1, rate: 0 }]);
     };
@@ -53,7 +53,7 @@ const LineItemsTable = ({ items, setItems, currency }: { items: QuotationLineIte
         setItems(items.filter(item => item.id !== id));
     };
 
-    const handleItemChange = (id: string, field: keyof Omit<QuotationLineItem, 'id'>, value: string | number) => {
+    const handleItemChange = (id: string, field: keyof Omit<InvoiceLineItem, 'id'>, value: string | number) => {
         setItems(items.map(item => item.id === id ? { ...item, [field]: value } : item));
     };
     
@@ -99,8 +99,7 @@ const LineItemsTable = ({ items, setItems, currency }: { items: QuotationLineIte
 }
 
 export default function NewInvoicePage() {
-    // This is a placeholder action. You would create a `saveInvoice` action.
-    const [state, formAction] = useActionState(saveQuotation, initialState);
+    const [state, formAction] = useActionState(saveInvoice, initialState);
     const router = useRouter();
     const { toast } = useToast();
     
@@ -109,7 +108,7 @@ export default function NewInvoicePage() {
     const [selectedClientId, setSelectedClientId] = useState<string>('');
     const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(new Date());
     const [dueDate, setDueDate] = useState<Date | undefined>(new Date(Date.now() + 15 * 24 * 60 * 60 * 1000));
-    const [lineItems, setLineItems] = useState<QuotationLineItem[]>([{ id: '1', name: '', description: '', quantity: 1, rate: 0 }]);
+    const [lineItems, setLineItems] = useState<InvoiceLineItem[]>([{ id: '1', name: '', description: '', quantity: 1, rate: 0 }]);
     const [showTerms, setShowTerms] = useState(false);
     const [showNotes, setShowNotes] = useState(false);
     const [showAttachments, setShowAttachments] = useState(false);
@@ -141,8 +140,8 @@ export default function NewInvoicePage() {
         <form action={formAction}>
              {/* Hidden inputs for form submission */}
             <input type="hidden" name="accountId" value={selectedClientId} />
-            <input type="hidden" name="quotationDate" value={invoiceDate?.toISOString()} />
-            <input type="hidden" name="validTillDate" value={dueDate?.toISOString()} />
+            <input type="hidden" name="invoiceDate" value={invoiceDate?.toISOString()} />
+            <input type="hidden" name="dueDate" value={dueDate?.toISOString()} />
             <input type="hidden" name="lineItems" value={JSON.stringify(lineItems)} />
             <input type="hidden" name="termsAndConditions" value={JSON.stringify(terms.map(t => t.text))} />
             <input type="hidden" name="additionalInfo" value={JSON.stringify(additionalInfo.map(f => ({key: f.key, value: f.value})))} />
@@ -246,3 +245,4 @@ export default function NewInvoicePage() {
         </form>
     );
 }
+
