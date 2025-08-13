@@ -10,17 +10,24 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, FileText as FileTextIcon, LoaderCircle, Eye } from "lucide-react";
 import Link from 'next/link';
 import { getInvoices } from '@/app/actions/crm-invoices.actions';
-import type { WithId, CrmInvoice } from '@/lib/definitions';
+import type { WithId, CrmInvoice, CrmAccount } from '@/lib/definitions';
+import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 
 export default function InvoicesPage() {
     const [invoices, setInvoices] = useState<WithId<CrmInvoice>[]>([]);
+    const [accountsMap, setAccountsMap] = useState<Map<string, string>>(new Map());
     const [isLoading, startTransition] = useTransition();
     const router = useRouter();
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const data = await getInvoices();
-            setInvoices(data.invoices);
+            const [invoicesData, accountsData] = await Promise.all([
+                getInvoices(),
+                getCrmAccounts()
+            ]);
+            setInvoices(invoicesData.invoices);
+            const newMap = new Map(accountsData.accounts.map(acc => [acc._id.toString(), acc.name]));
+            setAccountsMap(newMap);
         });
     }, []);
 
@@ -83,7 +90,7 @@ export default function InvoicesPage() {
                                     invoices.map(q => (
                                         <TableRow key={q._id.toString()} className="cursor-pointer" onClick={() => { /* router.push(`/dashboard/crm/sales/invoices/${q._id.toString()}`) */ }}>
                                             <TableCell className="font-medium">{q.invoiceNumber}</TableCell>
-                                            <TableCell>Client Name Placeholder</TableCell>
+                                            <TableCell>{accountsMap.get(q.accountId.toString()) || 'Unknown Client'}</TableCell>
                                             <TableCell>{new Date(q.invoiceDate).toLocaleDateString()}</TableCell>
                                             <TableCell>{q.dueDate ? new Date(q.dueDate).toLocaleDateString() : 'N/A'}</TableCell>
                                             <TableCell><Badge variant={getStatusVariant(q.status)}>{q.status}</Badge></TableCell>
