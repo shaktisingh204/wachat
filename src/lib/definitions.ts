@@ -1481,10 +1481,23 @@ export type CrmVendor = {
     _id: ObjectId;
     userId: ObjectId;
     name: string;
-    contactPerson?: string;
     email?: string;
     phone?: string;
-    address?: string;
+    country?: string;
+    state?: string;
+    city?: string;
+    pincode?: string;
+    street?: string;
+    gstin?: string;
+    pan?: string;
+    panName?: string;
+    vendorType?: 'individual' | 'company';
+    subject?: string;
+    bankAccountDetails?: {
+        accountNumber?: string;
+        accountHolder?: string;
+        ifsc?: string;
+    };
     createdAt: Date;
     updatedAt: Date;
 };

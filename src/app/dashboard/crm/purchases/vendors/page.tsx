@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -43,13 +42,15 @@ export default function VendorsPage() {
     }, [fetchData]);
     
     const handleDelete = async (vendorId: string) => {
-        const result = await deleteCrmVendor(vendorId);
-        if(result.success) {
-            toast({ title: 'Success', description: 'Vendor deleted.' });
-            fetchData();
-        } else {
-             toast({ title: 'Error', description: result.error, variant: 'destructive' });
-        }
+        startTransition(async () => {
+            const result = await deleteCrmVendor(vendorId);
+            if(result.success) {
+                toast({ title: 'Success', description: 'Vendor deleted.' });
+                fetchData();
+            } else {
+                 toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
     }
 
     if (isLoading && vendors.length === 0) {
@@ -130,7 +131,7 @@ export default function VendorsPage() {
                                         <TableCell className="text-right">
                                              <AlertDialog>
                                                 <AlertDialogTrigger asChild>
-                                                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4"/></Button>
+                                                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
                                                 </AlertDialogTrigger>
                                                 <AlertDialogContent>
                                                     <AlertDialogHeader>
