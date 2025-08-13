@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -12,16 +11,23 @@ import { Plus, CreditCard, LoaderCircle, Eye } from "lucide-react";
 import Link from 'next/link';
 import { getPaymentReceipts } from '@/app/actions/crm-payment-receipts.actions';
 import type { WithId, CrmPaymentReceipt } from '@/lib/definitions';
+import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 
 export default function PaymentReceiptsPage() {
     const [receipts, setReceipts] = useState<WithId<CrmPaymentReceipt>[]>([]);
+    const [accountsMap, setAccountsMap] = useState<Map<string, string>>(new Map());
     const [isLoading, startTransition] = useTransition();
     const router = useRouter();
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const data = await getPaymentReceipts();
-            setReceipts(data.receipts);
+            const [receiptsData, accountsData] = await Promise.all([
+                getPaymentReceipts(),
+                getCrmAccounts()
+            ]);
+            setReceipts(receiptsData.receipts);
+            const newMap = new Map(accountsData.accounts.map(acc => [acc._id.toString(), acc.name]));
+            setAccountsMap(newMap);
         });
     }, []);
 
@@ -29,7 +35,6 @@ export default function PaymentReceiptsPage() {
         fetchData();
     }, [fetchData]);
     
-
     return (
         <div className="flex flex-col gap-8">
             <div className="flex flex-wrap items-center justify-between gap-4">
@@ -75,7 +80,7 @@ export default function PaymentReceiptsPage() {
                                     receipts.map(r => (
                                         <TableRow key={r._id.toString()} className="cursor-pointer" onClick={() => { /* router.push(`/dashboard/crm/sales/receipts/${r._id.toString()}`) */ }}>
                                             <TableCell className="font-medium">{r.receiptNumber}</TableCell>
-                                            <TableCell>Client Name Placeholder</TableCell>
+                                            <TableCell>{accountsMap.get(r.accountId.toString()) || 'Unknown Client'}</TableCell>
                                             <TableCell>{new Date(r.receiptDate).toLocaleDateString()}</TableCell>
                                             <TableCell className="text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: r.currency || 'INR' }).format(r.totalAmountReceived)}</TableCell>
                                         </TableRow>
@@ -95,4 +100,3 @@ export default function PaymentReceiptsPage() {
         </div>
     );
 }
-
