@@ -1500,6 +1500,34 @@ export type CrmStockAdjustment = {
     relatedSaleId?: ObjectId;
 };
 
+export type InvoiceLineItem = {
+    id: string;
+    name: string;
+    description: string;
+    quantity: number;
+    rate: number;
+};
+
+export type CrmInvoice = {
+    _id: ObjectId;
+    userId: ObjectId;
+    accountId: ObjectId;
+    invoiceNumber: string;
+    invoiceDate: Date;
+    dueDate?: Date;
+    lineItems: InvoiceLineItem[];
+    termsAndConditions: string[];
+    notes?: string;
+    attachments?: string[]; // URLs
+    additionalInfo?: { key: string; value: string }[];
+    status: 'Draft' | 'Sent' | 'Paid' | 'Partially Paid' | 'Overdue';
+    currency: string;
+    subtotal: number;
+    total: number;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
 export type QuotationLineItem = {
     id: string;
     name: string;
