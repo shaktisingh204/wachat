@@ -1,31 +1,41 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { Plus, FileText, LoaderCircle } from 'lucide-react';
 import { getQuotations } from '@/app/actions/crm-quotations.actions';
-import type { WithId } from 'mongodb';
-
-// Placeholder type, will be defined properly later
-type CrmQuotation = any;
+import type { WithId, CrmQuotation } from '@/lib/definitions';
+import Link from 'next/link';
 
 export default function QuotationsPage() {
     const [quotations, setQuotations] = useState<WithId<CrmQuotation>[]>([]);
     const [isLoading, startTransition] = useTransition();
+    const router = useRouter();
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
             const data = await getQuotations();
-            setQuotations(data);
+            setQuotations(data.quotations);
         });
     }, []);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
+    
+    const getStatusVariant = (status: string): "default" | "secondary" | "destructive" | "outline" => {
+        const s = status.toLowerCase();
+        if(s === 'accepted') return 'default';
+        if(s === 'sent') return 'secondary';
+        if(s === 'declined' || s === 'expired') return 'destructive';
+        return 'outline';
+    };
 
     return (
         <div className="flex flex-col gap-8">
@@ -37,9 +47,11 @@ export default function QuotationsPage() {
                     </h1>
                     <p className="text-muted-foreground">Create and manage your sales quotations.</p>
                 </div>
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    New Quotation
+                <Button asChild>
+                    <Link href="/dashboard/crm/sales/quotations/new">
+                        <Plus className="mr-2 h-4 w-4" />
+                        New Quotation
+                    </Link>
                 </Button>
             </div>
 
@@ -68,12 +80,15 @@ export default function QuotationsPage() {
                                         </TableCell>
                                     </TableRow>
                                 ) : quotations.length > 0 ? (
-                                    // This part will be populated later
-                                    <TableRow>
-                                        <TableCell colSpan={5} className="text-center h-24">
-                                            Data will be shown here.
-                                        </TableCell>
-                                    </TableRow>
+                                    quotations.map(q => (
+                                        <TableRow key={q._id.toString()} className="cursor-pointer" onClick={() => { /* router.push(`/dashboard/crm/sales/quotations/${q._id.toString()}`) */ }}>
+                                            <TableCell className="font-medium">{q.quotationNumber}</TableCell>
+                                            <TableCell>Client Name Placeholder</TableCell>
+                                            <TableCell>{new Date(q.quotationDate).toLocaleDateString()}</TableCell>
+                                            <TableCell><Badge variant={getStatusVariant(q.status)}>{q.status}</Badge></TableCell>
+                                            <TableCell className="text-right">{new Intl.NumberFormat('en-IN', { style: 'currency', currency: q.currency || 'INR' }).format(q.total)}</TableCell>
+                                        </TableRow>
+                                    ))
                                 ) : (
                                     <TableRow>
                                         <TableCell colSpan={5} className="h-24 text-center">
