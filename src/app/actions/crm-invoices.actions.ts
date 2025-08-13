@@ -98,7 +98,7 @@ export async function getUnpaidInvoicesByAccount(accountId: string): Promise<Wit
         const invoices = await db.collection('crm_invoices').find({
             userId: new ObjectId(session.user._id),
             accountId: new ObjectId(accountId),
-            status: { $in: ['Sent', 'Overdue', 'Partially Paid'] }
+            status: { $in: ['Sent', 'Overdue', 'Partially Paid', 'Draft'] }
         }).toArray();
         
         return JSON.parse(JSON.stringify(invoices));
