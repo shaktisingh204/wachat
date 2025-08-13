@@ -5,14 +5,14 @@ import { useState, useEffect, useCallback, useTransition, useMemo } from 'react'
 import type { WithId } from 'mongodb';
 import { getCrmContacts } from '@/app/actions/crm.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import type { CrmContact, CrmAccount } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, Upload, Users, FileText, MoreVertical, Archive, Edit, Activity, File, FilePlus, ChevronRight } from 'lucide-react';
+import { Search, Plus, Upload, Users, FileText, MoreVertical, Archive, Edit, Activity, File, FilePlus, ChevronRight, ChevronsUpDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -22,6 +22,11 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import Link from 'next/link';
 
 const CONTACTS_PER_PAGE = 20;
+
+type SortConfig = {
+    column: string;
+    direction: 'asc' | 'desc';
+};
 
 function ClientsPageSkeleton() {
     return (
@@ -46,46 +51,52 @@ export default function CrmClientsPage() {
     const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
 
-    const currentPage = Number(searchParams.get('page')) || 1;
-    const searchQuery = searchParams.get('query') || '';
-
+    const [currentPage, setCurrentPage] = useState(1);
+    const [searchQuery, setSearchQuery] = useState('');
     const [totalPages, setTotalPages] = useState(0);
+    const [sortConfig, setSortConfig] = useState<SortConfig>({ column: 'lastActivity', direction: 'desc' });
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
             const [{ contacts: data, total }, accountsData] = await Promise.all([
-                getCrmContacts(currentPage, CONTACTS_PER_PAGE, searchQuery),
+                getCrmContacts(currentPage, CONTACTS_PER_PAGE, searchQuery, undefined, sortConfig.column, sortConfig.direction),
                 getCrmAccounts()
             ]);
             setContacts(data);
             setTotalPages(Math.ceil(total / CONTACTS_PER_PAGE));
             setAccounts(accountsData.accounts);
         });
-    }, [currentPage, searchQuery]);
+    }, [currentPage, searchQuery, sortConfig]);
 
     useEffect(() => {
         fetchData();
     }, [fetchData]);
 
     const handleSearch = useDebouncedCallback((term: string) => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set('page', '1');
-        if (term) {
-            params.set('query', term);
-        } else {
-            params.delete('query');
-        }
-        router.replace(`${pathname}?${params.toString()}`);
+        setSearchQuery(term);
+        setCurrentPage(1);
     }, 300);
+
+    const handleSort = (column: string) => {
+        const isAsc = sortConfig.column === column && sortConfig.direction === 'asc';
+        setSortConfig({ column, direction: isAsc ? 'desc' : 'asc' });
+    };
     
     const leadScoreColor = (score: number) => {
         if (score > 75) return 'text-green-600';
         if (score > 50) return 'text-yellow-600';
         return 'text-red-600';
     };
+
+    const SortableHeader = ({ column, label }: { column: string, label: string }) => (
+        <TableHead onClick={() => handleSort(column)} className="cursor-pointer hover:bg-muted">
+            <div className="flex items-center gap-2">
+                {label}
+                {sortConfig.column === column && <ChevronsUpDown className="h-4 w-4" />}
+            </div>
+        </TableHead>
+    );
 
     return (
         <div className="flex flex-col gap-8">
@@ -115,7 +126,6 @@ export default function CrmClientsPage() {
                             <Input
                                 placeholder="Search by name, email, or company..."
                                 className="pl-8"
-                                defaultValue={searchQuery}
                                 onChange={(e) => handleSearch(e.target.value)}
                             />
                         </div>
@@ -124,12 +134,12 @@ export default function CrmClientsPage() {
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead>Contact</TableHead>
+                                    <SortableHeader column="name" label="Contact" />
                                     <TableHead>Company</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Lead Score</TableHead>
+                                    <SortableHeader column="status" label="Status" />
+                                    <SortableHeader column="leadScore" label="Lead Score" />
                                     <TableHead>Assigned To</TableHead>
-                                    <TableHead>Last Activity</TableHead>
+                                    <SortableHeader column="lastActivity" label="Last Activity" />
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -142,7 +152,7 @@ export default function CrmClientsPage() {
                                     ))
                                 ) : contacts.length > 0 ? (
                                     contacts.map((contact) => (
-                                        <TableRow key={contact._id.toString()} >
+                                        <TableRow key={contact._id.toString()}>
                                             <TableCell onClick={() => router.push(`/dashboard/crm/contacts/${contact._id.toString()}`)} className="cursor-pointer">
                                                 <div className="flex items-center gap-3">
                                                     <Avatar>
