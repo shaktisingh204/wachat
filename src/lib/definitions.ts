@@ -1,4 +1,5 @@
 
+
 import type { ObjectId, WithId } from 'mongodb';
 
 export type Website = {
@@ -1605,6 +1606,33 @@ export type CrmSalesOrder = {
     status: 'Draft' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled';
     currency: string;
     total: number;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type DeliveryChallanLineItem = {
+    id: string;
+    name: string;
+    hsnCode?: string;
+    quantity: number;
+    unit?: string;
+};
+
+export type CrmDeliveryChallan = {
+    _id: ObjectId;
+    userId: ObjectId;
+    accountId: ObjectId;
+    challanNumber: string;
+    challanDate: Date;
+    lineItems: DeliveryChallanLineItem[];
+    reason?: string;
+    transportDetails?: {
+        vehicleNumber?: string;
+        driverName?: string;
+        mode?: string;
+    };
+    notes?: string;
+    status: 'Draft' | 'In Transit' | 'Delivered' | 'Returned';
     createdAt: Date;
     updatedAt: Date;
 };
