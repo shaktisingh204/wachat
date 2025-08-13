@@ -34,13 +34,22 @@ export async function saveCrmVendor(prevState: any, formData: FormData): Promise
     const isEditing = !!vendorId;
 
     try {
-        const vendorData: Omit<CrmVendor, '_id' | 'createdAt'> = {
+        const vendorData: Partial<Omit<CrmVendor, '_id' | 'createdAt'>> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
-            contactPerson: formData.get('contactPerson') as string,
             email: formData.get('email') as string,
             phone: formData.get('phone') as string,
-            address: formData.get('address') as string,
+            country: formData.get('country') as string,
+            state: formData.get('state') as string,
+            city: formData.get('city') as string,
+            pincode: formData.get('pincode') as string,
+            street: formData.get('street') as string,
+            gstin: formData.get('gstin') as string,
+            pan: formData.get('pan') as string,
+            panName: formData.get('panName') as string,
+            vendorType: formData.get('vendorType') as CrmVendor['vendorType'],
+            subject: formData.get('subject') as string,
+            bankAccountDetails: JSON.parse(formData.get('bankAccountDetails') as string || '{}'),
             updatedAt: new Date(),
         };
 
@@ -56,7 +65,7 @@ export async function saveCrmVendor(prevState: any, formData: FormData): Promise
             await db.collection('crm_vendors').insertOne(vendorData as CrmVendor);
         }
         
-        revalidatePath('/dashboard/crm/inventory/vendors');
+        revalidatePath('/dashboard/crm/purchases/vendors');
         return { message: `Vendor "${vendorData.name}" saved successfully!` };
     } catch (e) {
         return { error: getErrorMessage(e) };
@@ -75,7 +84,7 @@ export async function deleteCrmVendor(vendorId: string): Promise<{ success: bool
     
     try {
         await db.collection('crm_vendors').deleteOne({ _id: new ObjectId(vendorId) });
-        revalidatePath(`/dashboard/crm/inventory/vendors`);
+        revalidatePath(`/dashboard/crm/purchases/vendors`);
         return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };

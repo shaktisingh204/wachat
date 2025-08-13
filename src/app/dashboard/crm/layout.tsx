@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -39,7 +40,7 @@ export const crmMenuItems = [
             { href: '/dashboard/crm/sales/proforma', label: 'Proforma Invoices', icon: BadgeInfo },
             { href: '/dashboard/crm/sales/invoices', label: 'Invoices', icon: FileText },
             { href: '/dashboard/crm/sales/receipts', label: 'Payment Receipts', icon: CreditCard },
-            { href: '/dashboard/crm/sales/orders', label: 'Sales Orders', icon: ShoppingBag },
+            { href: '/dashboard/crm/sales/orders', label: 'Sales Orders', icon: ShoppingCart },
             { href: '/dashboard/crm/sales/delivery', label: 'Delivery Challans', icon: Truck },
             { href: '/dashboard/crm/sales/credit-notes', label: 'Credit Notes', icon: Repeat },
         ]
@@ -48,7 +49,7 @@ export const crmMenuItems = [
         label: 'Purchases',
         icon: ShoppingCart,
         subItems: [
-            { href: '/dashboard/crm/purchases/leads', label: 'Vendor Leads', icon: Contact },
+            { href: '/dashboard/crm/purchases/vendors/new', label: 'Vendor Leads', icon: Contact },
             { href: '/dashboard/crm/purchases/vendors', label: 'Vendors & Suppliers', icon: Users },
             { href: '/dashboard/crm/purchases/expenses', label: 'Purchases & Expenses', icon: IndianRupee },
             { href: '/dashboard/crm/purchases/orders', label: 'Purchase Orders', icon: FilePlus },
