@@ -277,6 +277,16 @@ body {
 }
 
 @layer utilities {
+    .has-tooltip [data-tooltip] {
+        @apply relative cursor-pointer;
+    }
+    .has-tooltip [data-tooltip]:after {
+        @apply absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background content-[attr(data-tooltip)];
+    }
+    .has-tooltip:hover [data-tooltip]:after {
+        @apply block;
+    }
+
     .bg-auth-texture {
         background-color: #f0f2f5;
     }

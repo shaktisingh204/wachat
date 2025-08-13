@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -9,8 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2, ArrowLeft, Save } from 'lucide-react';
+import { PlusCircle, Trash2, ArrowLeft, Save, File, Edit, ChevronDown, Info, Upload } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Mock data, to be replaced with data fetching
 const mockClients = [
@@ -96,7 +99,7 @@ const QuotationLineItems = () => {
 
 const AddressCard = ({ title, name, address, gstin, pan }: { title: string, name: string, address: string, gstin?: string, pan?: string }) => (
     <div>
-        <h3 className="text-sm font-semibold text-muted-foreground mb-2">{title}</h3>
+        <h3 className="text-sm font-semibold text-muted-foreground mb-2 flex items-center">{title} <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto"><Edit className="h-4 w-4"/></Button></h3>
         <Card>
             <CardHeader>
                 <CardTitle className="text-base">{name}</CardTitle>
@@ -109,7 +112,6 @@ const AddressCard = ({ title, name, address, gstin, pan }: { title: string, name
         </Card>
     </div>
 )
-
 
 export default function NewQuotationPage() {
     const [selectedClient, setSelectedClient] = useState(mockClients[0]);
@@ -124,6 +126,7 @@ export default function NewQuotationPage() {
                         <Link href="/dashboard/crm/sales/quotations"><ArrowLeft className="mr-2 h-4 w-4" />Back to Quotations</Link>
                     </Button>
                     <h1 className="text-3xl font-bold font-headline">New Quotation</h1>
+                    <Input placeholder="Add Subtitle (e.g. For Website Redesign)" className="border-0 shadow-none -ml-3 p-0 h-auto text-muted-foreground focus-visible:ring-0" />
                 </div>
                 <div className="flex items-center gap-2">
                     <Button variant="outline">Save As Draft</Button>
@@ -172,18 +175,23 @@ export default function NewQuotationPage() {
             
             <Card>
                 <CardContent className="pt-6">
-                    <div className="grid md:grid-cols-3 gap-4">
+                    <div className="grid md:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label>Add Terms & Conditions</Label>
+                            <Label>Terms & Conditions</Label>
                             <Textarea placeholder="Enter terms and conditions..."/>
                         </div>
                         <div className="space-y-2">
-                            <Label>Add Notes</Label>
+                            <Label>Notes</Label>
                             <Textarea placeholder="Enter notes..."/>
                         </div>
-                        <div className="space-y-2">
-                            <Label>Add Attachments</Label>
-                            <Input type="file" multiple />
+                         <div className="space-y-2 md:col-span-2">
+                            <Label>Attachments</Label>
+                            <div className="flex items-center gap-2 p-4 border-2 border-dashed rounded-lg">
+                                <Upload className="h-5 w-5 text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground">Drag & drop files here, or</span>
+                                <Button type="button" variant="outline" size="sm">Browse</Button>
+                                <Input type="file" multiple className="sr-only"/>
+                            </div>
                         </div>
                     </div>
                 </CardContent>
