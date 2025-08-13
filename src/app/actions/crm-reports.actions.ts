@@ -17,10 +17,8 @@ export async function generateClientReportData(): Promise<{ success: boolean; da
         const { db } = await connectToDatabase();
         const userObjectId = new ObjectId(session.user._id);
 
-        const [accounts, contacts] = await Promise.all([
-            db.collection<CrmAccount>('crm_accounts').find({ userId: userObjectId }).toArray(),
-            db.collection<CrmContact>('crm_contacts').find({ userId: userObjectId }).toArray(),
-        ]);
+        const accounts = await db.collection<CrmAccount>('crm_accounts').find({ userId: userObjectId }).toArray();
+        const contacts = await db.collection<CrmContact>('crm_contacts').find({ userId: userObjectId }).toArray();
         
         const contactsByAccountId: { [key: string]: CrmContact[] } = {};
         for (const contact of contacts) {
