@@ -1500,6 +1500,34 @@ export type CrmStockAdjustment = {
     relatedSaleId?: ObjectId;
 };
 
+export type QuotationLineItem = {
+    id: string;
+    name: string;
+    description: string;
+    quantity: number;
+    rate: number;
+};
+
+export type CrmQuotation = {
+    _id: ObjectId;
+    userId: ObjectId;
+    accountId: ObjectId;
+    quotationNumber: string;
+    quotationDate: Date;
+    validTillDate?: Date;
+    lineItems: QuotationLineItem[];
+    termsAndConditions: string[];
+    notes?: string;
+    attachments?: string[]; // URLs
+    additionalInfo?: { key: string; value: string }[];
+    status: 'Draft' | 'Sent' | 'Accepted' | 'Declined' | 'Expired';
+    currency: string;
+    subtotal: number;
+    total: number;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
 // --- SEO Suite Types ---
 
 export type BrandMention = {
