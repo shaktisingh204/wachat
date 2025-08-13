@@ -1637,6 +1637,29 @@ export type CrmDeliveryChallan = {
     updatedAt: Date;
 };
 
+export type CreditNoteLineItem = {
+    id: string;
+    name: string;
+    description: string;
+    quantity: number;
+    rate: number;
+};
+
+export type CrmCreditNote = {
+    _id: ObjectId;
+    userId: ObjectId;
+    accountId: ObjectId;
+    creditNoteNumber: string;
+    creditNoteDate: Date;
+    originalInvoiceNumber?: string;
+    lineItems: CreditNoteLineItem[];
+    reason?: string;
+    currency: string;
+    total: number;
+    createdAt: Date;
+    updatedAt: Date;
+};
+
 
 // --- SEO Suite Types ---
 
