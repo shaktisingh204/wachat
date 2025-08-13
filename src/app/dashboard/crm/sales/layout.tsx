@@ -4,12 +4,13 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, FileText, Handshake, TrendingUp, BadgeInfo } from "lucide-react";
+import { Users, FileText, Handshake, TrendingUp, BadgeInfo, CreditCard } from "lucide-react";
 
 const salesNavItems = [
     { href: "/dashboard/crm/sales/clients", label: "Clients & Prospects", icon: Users },
     { href: "/dashboard/crm/sales/quotations", label: "Quotations & Estimates", icon: FileText },
     { href: "/dashboard/crm/sales/invoices", label: "Invoices", icon: FileText },
+    { href: "/dashboard/crm/sales/receipts", label: "Payment Receipts", icon: CreditCard },
     { href: "/dashboard/crm/sales/proforma", label: "Proforma Invoices", icon: BadgeInfo },
 ];
 
