@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2, ArrowLeft, Save, File, Edit, ChevronDown, Info, Upload } from 'lucide-react';
+import { PlusCircle, Trash2, ArrowLeft, Save, File, Edit, ChevronDown, Info, Upload, Image as ImageIcon } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -31,15 +31,27 @@ const yourBusinessDetails = {
 type LineItem = {
     id: string;
     name: string;
+    description: string;
     quantity: number;
     rate: number;
 };
 
+type TermItem = {
+    id: string;
+    text: string;
+}
+
+type AdditionalInfoItem = {
+    id: string;
+    key: string;
+    value: string;
+}
+
 const QuotationLineItems = () => {
-    const [items, setItems] = useState<LineItem[]>([{ id: '1', name: '', quantity: 1, rate: 1 }]);
+    const [items, setItems] = useState<LineItem[]>([{ id: '1', name: '', description: '', quantity: 1, rate: 1 }]);
 
     const handleAddItem = () => {
-        setItems([...items, { id: `item-${Date.now()}`, name: '', quantity: 1, rate: 0 }]);
+        setItems([...items, { id: `item-${Date.now()}`, name: '', description: '', quantity: 1, rate: 0 }]);
     };
 
     const handleRemoveItem = (id: string) => {
@@ -113,6 +125,65 @@ const AddressCard = ({ title, name, address, gstin, pan }: { title: string, name
     </div>
 )
 
+const TermsAndConditions = () => {
+    const [terms, setTerms] = useState<TermItem[]>([
+        { id: '1', text: 'Applicable taxes will be extra.' },
+        { id: '2', text: 'Work will resume after advance payment.' },
+    ]);
+
+    const handleAddTerm = () => {
+        setTerms([...terms, { id: `term-${Date.now()}`, text: '' }]);
+    };
+
+    const handleRemoveTerm = (id: string) => {
+        setTerms(terms.filter(term => term.id !== id));
+    };
+
+    const handleTermChange = (id: string, value: string) => {
+        setTerms(terms.map(term => term.id === id ? { ...term, text: value } : term));
+    };
+
+    return (
+        <div className="space-y-2">
+            <Label>Terms & Conditions</Label>
+            {terms.map((term, index) => (
+                <div key={term.id} className="flex items-center gap-2">
+                    <span className="text-sm text-muted-foreground">{String(index + 1).padStart(2, '0')}</span>
+                    <Input value={term.text} onChange={(e) => handleTermChange(term.id, e.target.value)} />
+                    <Button variant="ghost" size="icon" onClick={() => handleRemoveTerm(term.id)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+            ))}
+            <Button variant="outline" size="sm" onClick={handleAddTerm}><PlusCircle className="mr-2 h-4 w-4"/>Add New Term</Button>
+        </div>
+    );
+};
+
+const AdditionalInfo = () => {
+    const [fields, setFields] = useState<AdditionalInfoItem[]>([]);
+     const handleAddField = () => {
+        setFields([...fields, { id: `field-${Date.now()}`, key: '', value: '' }]);
+    };
+    const handleRemoveField = (id: string) => {
+        setFields(fields.filter(field => field.id !== id));
+    };
+     const handleFieldChange = (id: string, field: 'key' | 'value', value: string) => {
+        setFields(fields.map(f => f.id === id ? { ...f, [field]: value } : f));
+    };
+    return (
+        <div className="space-y-2">
+            <Label>Additional Info</Label>
+             {fields.map((field, index) => (
+                <div key={field.id} className="flex items-center gap-2">
+                    <Input placeholder="Field Name" value={field.key} onChange={e => handleFieldChange(field.id, 'key', e.target.value)} />
+                    <Input placeholder="Value" value={field.value} onChange={e => handleFieldChange(field.id, 'value', e.target.value)} />
+                    <Button variant="ghost" size="icon" onClick={() => handleRemoveField(field.id)}><Trash2 className="h-4 w-4" /></Button>
+                </div>
+            ))}
+            <Button variant="outline" size="sm" onClick={handleAddField}><PlusCircle className="mr-2 h-4 w-4"/>Add More Fields</Button>
+        </div>
+    );
+}
+
 export default function NewQuotationPage() {
     const [selectedClient, setSelectedClient] = useState(mockClients[0]);
     const [quotationDate, setQuotationDate] = useState<Date | undefined>(new Date());
@@ -173,29 +244,59 @@ export default function NewQuotationPage() {
 
             <QuotationLineItems />
             
-            <Card>
-                <CardContent className="pt-6">
-                    <div className="grid md:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>Terms & Conditions</Label>
-                            <Textarea placeholder="Enter terms and conditions..."/>
-                        </div>
+            <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                    <Card>
+                         <CardHeader><CardTitle>Signature</CardTitle></CardHeader>
+                        <CardContent className="space-y-4">
+                            <div className="flex gap-4">
+                                <Button variant="outline" className="flex-1"><Upload className="mr-2 h-4 w-4"/> Upload Signature</Button>
+                                <Button variant="outline" className="flex-1" disabled>Use Signature Pad</Button>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Signature Label</Label>
+                                <Input defaultValue="Authorised Signatory" />
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader><CardTitle>Attachments</CardTitle></CardHeader>
+                        <CardContent>
+                            <div className="flex items-center justify-center w-full">
+                                <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
+                                        <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                                        <p className="text-xs text-muted-foreground">Max file size 10 MB</p>
+                                    </div>
+                                    <input id="dropzone-file" type="file" className="hidden" />
+                                </label>
+                            </div> 
+                        </CardContent>
+                    </Card>
+                </div>
+                 <Card>
+                    <CardHeader><CardTitle>Additional Information</CardTitle></CardHeader>
+                    <CardContent className="space-y-4">
+                        <TermsAndConditions />
+                        <Separator />
                         <div className="space-y-2">
                             <Label>Notes</Label>
-                            <Textarea placeholder="Enter notes..."/>
+                            <Textarea />
                         </div>
-                         <div className="space-y-2 md:col-span-2">
-                            <Label>Attachments</Label>
-                            <div className="flex items-center gap-2 p-4 border-2 border-dashed rounded-lg">
-                                <Upload className="h-5 w-5 text-muted-foreground" />
-                                <span className="text-sm text-muted-foreground">Drag & drop files here, or</span>
-                                <Button type="button" variant="outline" size="sm">Browse</Button>
-                                <Input type="file" multiple className="sr-only"/>
-                            </div>
+                        <Separator />
+                        <AdditionalInfo />
+                        <Separator />
+                        <div className="space-y-2">
+                             <Label>Your Contact Details</Label>
+                             <div className="space-y-2">
+                                <Input type="email" placeholder="Your Email (optional)" />
+                                <Input type="tel" placeholder="Your Phone (optional)" />
+                             </div>
                         </div>
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
     );
 }
