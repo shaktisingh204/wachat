@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import { getCrmContacts } from '@/app/actions/crm.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import type { CrmContact, CrmAccount } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -43,32 +44,41 @@ export default function CrmClientsPage() {
     const [accounts, setAccounts] = useState<WithId<CrmAccount>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const [searchQuery, setSearchQuery] = useState('');
+    const currentPage = Number(searchParams.get('page')) || 1;
+    const searchQuery = searchParams.get('query') || '';
+
     const [totalPages, setTotalPages] = useState(0);
 
-    const fetchData = useCallback(() => {
+    const fetchData = useCallback((page: number, query: string) => {
         startTransition(async () => {
             const [{ contacts: data, total }, accountsData] = await Promise.all([
-                getCrmContacts(currentPage, CONTACTS_PER_PAGE, searchQuery),
+                getCrmContacts(page, CONTACTS_PER_PAGE, query),
                 getCrmAccounts()
             ]);
             setContacts(data);
             setTotalPages(Math.ceil(total / CONTACTS_PER_PAGE));
             setAccounts(accountsData.accounts);
         });
-    }, [currentPage, searchQuery]);
+    }, []);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        fetchData(currentPage, searchQuery);
+    }, [fetchData, currentPage, searchQuery]);
 
     const handleSearch = useDebouncedCallback((term: string) => {
-        setSearchQuery(term);
-        setCurrentPage(1);
+        const params = new URLSearchParams(searchParams);
+        params.set('page', '1');
+        if (term) {
+            params.set('query', term);
+        } else {
+            params.delete('query');
+        }
+        router.replace(`${pathname}?${params.toString()}`);
     }, 300);
-    
+
     const leadScoreColor = (score: number) => {
         if (score > 75) return 'text-green-600';
         if (score > 50) return 'text-yellow-600';
@@ -87,7 +97,7 @@ export default function CrmClientsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                     <ClientReportButton />
-                    <CrmAddClientDialog onClientAdded={fetchData} />
+                    <CrmAddClientDialog onClientAdded={() => fetchData(1, '')} />
                 </div>
             </div>
             
@@ -103,6 +113,7 @@ export default function CrmClientsPage() {
                             <Input
                                 placeholder="Search by name, email, or company..."
                                 className="pl-8"
+                                defaultValue={searchQuery}
                                 onChange={(e) => handleSearch(e.target.value)}
                             />
                         </div>
