@@ -3,17 +3,16 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2, ArrowLeft, Save, File, Edit, ChevronDown, Info, Upload, Image as ImageIcon } from 'lucide-react';
+import { PlusCircle, Trash2, ArrowLeft, Save, File as FileIcon, Edit, ChevronDown, Info, Upload, Image as ImageIcon, Settings, Printer, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 // Mock data, to be replaced with data fetching
 const mockClients = [
@@ -69,61 +68,43 @@ const QuotationLineItems = () => {
     const totalAmount = items.reduce((sum, item) => sum + (item.quantity * item.rate), 0);
 
     return (
-        <Card>
-            <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead className="bg-muted">
-                            <tr className="border-b">
-                                <th className="p-3 text-left font-medium">Item</th>
-                                <th className="p-3 text-right font-medium">Quantity</th>
-                                <th className="p-3 text-right font-medium">Rate</th>
-                                <th className="p-3 text-right font-medium">Amount</th>
-                                <th className="p-3"></th>
+        <div className="mt-6">
+            <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                    <thead className="bg-muted">
+                        <tr className="border-b">
+                            <th className="p-3 text-left font-medium">Item</th>
+                            <th className="p-3 text-right font-medium">Quantity</th>
+                            <th className="p-3 text-right font-medium">Rate</th>
+                            <th className="p-3 text-right font-medium">Amount</th>
+                            <th className="p-3"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {items.map((item, index) => (
+                            <tr key={item.id} className="border-b">
+                                <td className="p-2"><Input placeholder="Name/SKU Id" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} /></td>
+                                <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
+                                <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
+                                <td className="p-2 text-right font-medium">₹{calculateAmount(item.quantity, item.rate)}</td>
+                                <td className="p-2"><Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {items.map((item, index) => (
-                                <tr key={item.id} className="border-b">
-                                    <td className="p-2"><Input placeholder="Name/SKU Id" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} /></td>
-                                    <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
-                                    <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
-                                    <td className="p-2 text-right font-medium">₹{calculateAmount(item.quantity, item.rate)}</td>
-                                    <td className="p-2"><Button variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+            <div className="p-4 space-y-2">
+                <Button variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4"/>Add New Line</Button>
+            </div>
+            <Separator />
+            <div className="p-4 flex justify-end">
+                <div className="w-full max-w-sm space-y-2">
+                    <div className="flex justify-between items-center"><span className="text-muted-foreground">Total (INR)</span><span className="font-bold text-lg">₹{totalAmount.toFixed(2)}</span></div>
                 </div>
-                <div className="p-4 space-y-2">
-                    <Button variant="outline" size="sm" onClick={handleAddItem}><PlusCircle className="mr-2 h-4 w-4"/>Add New Line</Button>
-                </div>
-                <Separator />
-                <div className="p-4 flex justify-end">
-                    <div className="w-full max-w-sm space-y-2">
-                        <div className="flex justify-between items-center"><span className="text-muted-foreground">Total (INR)</span><span className="font-bold text-lg">₹{totalAmount.toFixed(2)}</span></div>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }
-
-const AddressCard = ({ title, name, address, gstin, pan }: { title: string, name: string, address: string, gstin?: string, pan?: string }) => (
-    <div>
-        <h3 className="text-sm font-semibold text-muted-foreground mb-2 flex items-center">{title} <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto"><Edit className="h-4 w-4"/></Button></h3>
-        <Card>
-            <CardHeader>
-                <CardTitle className="text-base">{name}</CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-                <p>{address}</p>
-                {gstin && <p>GSTIN: {gstin}</p>}
-                {pan && <p>PAN: {pan}</p>}
-            </CardContent>
-        </Card>
-    </div>
-)
 
 const TermsAndConditions = () => {
     const [terms, setTerms] = useState<TermItem[]>([
@@ -145,7 +126,7 @@ const TermsAndConditions = () => {
 
     return (
         <div className="space-y-2">
-            <Label>Terms & Conditions</Label>
+            <Label className="font-semibold">Terms & Conditions</Label>
             {terms.map((term, index) => (
                 <div key={term.id} className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">{String(index + 1).padStart(2, '0')}</span>
@@ -171,7 +152,7 @@ const AdditionalInfo = () => {
     };
     return (
         <div className="space-y-2">
-            <Label>Additional Info</Label>
+            <Label className="font-semibold">Additional Info</Label>
              {fields.map((field, index) => (
                 <div key={field.id} className="flex items-center gap-2">
                     <Input placeholder="Field Name" value={field.key} onChange={e => handleFieldChange(field.id, 'key', e.target.value)} />
@@ -190,110 +171,114 @@ export default function NewQuotationPage() {
     const [validTillDate, setValidTillDate] = useState<Date | undefined>(new Date(Date.now() + 15 * 24 * 60 * 60 * 1000));
 
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                 <div>
-                    <Button variant="ghost" asChild className="mb-2 -ml-4">
-                        <Link href="/dashboard/crm/sales/quotations"><ArrowLeft className="mr-2 h-4 w-4" />Back to Quotations</Link>
-                    </Button>
-                    <h1 className="text-3xl font-bold font-headline">New Quotation</h1>
-                    <Input placeholder="Add Subtitle (e.g. For Website Redesign)" className="border-0 shadow-none -ml-3 p-0 h-auto text-muted-foreground focus-visible:ring-0" />
-                </div>
-                <div className="flex items-center gap-2">
-                    <Button variant="outline">Save As Draft</Button>
-                    <Button><Save className="mr-2 h-4 w-4" />Save & Continue</Button>
-                </div>
-            </div>
-
-            <Card>
-                <CardContent className="pt-6 grid md:grid-cols-3 gap-6">
-                    <div className="space-y-2">
-                        <Label htmlFor="quotationNo">Quotation No *</Label>
-                        <Input id="quotationNo" defaultValue="A00001" />
+        <div className="bg-muted/30">
+            <div className="container mx-auto p-4 md:p-8">
+                {/* Header Actions */}
+                 <header className="flex justify-between items-center mb-6">
+                     <div>
+                        <Button variant="ghost" asChild className="-ml-4">
+                            <Link href="/dashboard/crm/sales/quotations"><ArrowLeft className="mr-2 h-4 w-4" />Back to Quotations</Link>
+                        </Button>
                     </div>
-                    <div className="space-y-2">
-                        <Label>Quotation Date *</Label>
-                        <DatePicker date={quotationDate} setDate={setQuotationDate} />
+                    <div className="flex items-center gap-2">
+                        <Button variant="outline">Save As Draft</Button>
+                        <Button><Save className="mr-2 h-4 w-4" />Save & Continue</Button>
                     </div>
-                     <div className="space-y-2">
-                        <Label>Valid Till Date</Label>
-                        <DatePicker date={validTillDate} setDate={setValidTillDate} />
-                    </div>
-                </CardContent>
-            </Card>
+                 </header>
 
-            <div className="grid md:grid-cols-2 gap-6">
-                <AddressCard title="Quotation From" {...yourBusinessDetails} />
-                 <div>
-                    <h3 className="text-sm font-semibold text-muted-foreground mb-2">Quotation For</h3>
-                    <Select value={selectedClient.id} onValueChange={id => setSelectedClient(mockClients.find(c => c.id === id)!)}>
-                        <SelectTrigger><SelectValue placeholder="Select a client..." /></SelectTrigger>
-                        <SelectContent>
-                            {mockClients.map(client => <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>)}
-                        </SelectContent>
-                    </Select>
-                     <Card className="mt-2">
-                        <CardHeader><CardTitle className="text-base">{selectedClient.name}</CardTitle></CardHeader>
-                        <CardContent className="text-sm text-muted-foreground">
-                            <p>{selectedClient.address}</p>
-                            <p>{selectedClient.phone}</p>
-                        </CardContent>
-                    </Card>
-                </div>
-            </div>
-
-            <QuotationLineItems />
-            
-            <div className="grid md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                    <Card>
-                         <CardHeader><CardTitle>Signature</CardTitle></CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="flex gap-4">
-                                <Button variant="outline" className="flex-1"><Upload className="mr-2 h-4 w-4"/> Upload Signature</Button>
-                                <Button variant="outline" className="flex-1" disabled>Use Signature Pad</Button>
+                {/* Main Document Card */}
+                <Card className="max-w-4xl mx-auto shadow-2xl p-4 sm:p-8 md:p-12">
+                    <CardContent className="p-0">
+                        {/* Document Header */}
+                        <header className="grid grid-cols-2 gap-8 mb-8">
+                            <div>
+                                <h1 className="text-3xl font-bold text-primary">QUOTATION</h1>
+                                <Input placeholder="Add Subtitle (e.g. For Website Redesign)" className="border-0 shadow-none -ml-3 p-0 h-auto text-muted-foreground focus-visible:ring-0 text-base" />
                             </div>
-                            <div className="space-y-2">
-                                <Label>Signature Label</Label>
-                                <Input defaultValue="Authorised Signatory" />
+                            <div className="flex justify-end">
+                                {/* Placeholder for Logo */}
+                                <div className="w-32 h-32 bg-muted flex items-center justify-center rounded-md">
+                                    <ImageIcon className="h-12 w-12 text-muted-foreground/50"/>
+                                </div>
                             </div>
-                        </CardContent>
-                    </Card>
-                    <Card>
-                        <CardHeader><CardTitle>Attachments</CardTitle></CardHeader>
-                        <CardContent>
-                            <div className="flex items-center justify-center w-full">
-                                <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
-                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <Upload className="w-8 h-8 mb-4 text-muted-foreground" />
-                                        <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                                        <p className="text-xs text-muted-foreground">Max file size 10 MB</p>
+                        </header>
+                        
+                        <Separator className="my-8"/>
+
+                        {/* From/To Addresses */}
+                        <section className="grid grid-cols-2 gap-8 text-sm mb-8">
+                            <div>
+                                <h3 className="font-semibold mb-2">From:</h3>
+                                <p className="font-bold">{yourBusinessDetails.name}</p>
+                                <p className="text-muted-foreground">{yourBusinessDetails.address}</p>
+                                <p className="text-muted-foreground">GSTIN: {yourBusinessDetails.gstin}</p>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold mb-2">To:</h3>
+                                 <Select value={selectedClient.id} onValueChange={id => setSelectedClient(mockClients.find(c => c.id === id)!)}>
+                                    <SelectTrigger className="font-bold text-left justify-start p-0 border-0 h-auto shadow-none"><SelectValue /></SelectTrigger>
+                                    <SelectContent>{mockClients.map(client => <SelectItem key={client.id} value={client.id}>{client.name}</SelectItem>)}</SelectContent>
+                                </Select>
+                                <p className="text-muted-foreground">{selectedClient.address}</p>
+                                <p className="text-muted-foreground">{selectedClient.phone}</p>
+                            </div>
+                        </section>
+
+                        {/* Quotation Details */}
+                        <section className="grid grid-cols-3 gap-4 mb-8">
+                            <div className="space-y-1">
+                                <Label htmlFor="quotationNo" className="text-xs">Quotation No *</Label>
+                                <Input id="quotationNo" name="quotationNo" defaultValue="A00001" className="h-8"/>
+                            </div>
+                             <div className="space-y-1">
+                                <Label className="text-xs">Quotation Date *</Label>
+                                <DatePicker date={quotationDate} setDate={setQuotationDate} className="h-8"/>
+                            </div>
+                            <div className="space-y-1">
+                                <Label className="text-xs">Valid Till Date</Label>
+                                <DatePicker date={validTillDate} setDate={setValidTillDate} className="h-8"/>
+                            </div>
+                        </section>
+
+                        {/* Line Items Table */}
+                        <section>
+                            <QuotationLineItems />
+                        </section>
+                        
+                        <Separator className="my-8"/>
+
+                        {/* Footer Sections */}
+                        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+                             <div className="space-y-6">
+                                <TermsAndConditions />
+                                <AdditionalInfo />
+                            </div>
+                             <div className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label className="font-semibold">Attachments</Label>
+                                    <div className="flex items-center justify-center w-full">
+                                        <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed rounded-lg cursor-pointer bg-muted/50 hover:bg-muted">
+                                            <div className="flex flex-col items-center justify-center">
+                                                <Upload className="w-6 h-6 mb-2 text-muted-foreground" />
+                                                <p className="text-xs text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                                            </div>
+                                            <input id="dropzone-file" type="file" className="hidden" />
+                                        </label>
+                                    </div> 
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="font-semibold">Notes</Label>
+                                    <Textarea placeholder="Any additional notes for the client..."/>
+                                </div>
+                                 <div className="space-y-2">
+                                    <Label className="font-semibold">Signature</Label>
+                                    <div className="h-24 border rounded-md bg-muted/50 flex items-center justify-center">
+                                        <Button variant="outline">Upload Signature</Button>
                                     </div>
-                                    <input id="dropzone-file" type="file" className="hidden" />
-                                </label>
-                            </div> 
-                        </CardContent>
-                    </Card>
-                </div>
-                 <Card>
-                    <CardHeader><CardTitle>Additional Information</CardTitle></CardHeader>
-                    <CardContent className="space-y-4">
-                        <TermsAndConditions />
-                        <Separator />
-                        <div className="space-y-2">
-                            <Label>Notes</Label>
-                            <Textarea />
-                        </div>
-                        <Separator />
-                        <AdditionalInfo />
-                        <Separator />
-                        <div className="space-y-2">
-                             <Label>Your Contact Details</Label>
-                             <div className="space-y-2">
-                                <Input type="email" placeholder="Your Email (optional)" />
-                                <Input type="tel" placeholder="Your Phone (optional)" />
-                             </div>
-                        </div>
+                                </div>
+                            </div>
+                        </section>
+
                     </CardContent>
                 </Card>
             </div>
