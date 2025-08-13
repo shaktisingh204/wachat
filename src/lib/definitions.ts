@@ -1492,6 +1492,9 @@ export type CrmVendor = {
     _id: ObjectId;
     userId: ObjectId;
     name: string;
+    displayName?: string;
+    industry?: string;
+    logoUrl?: string;
     email?: string;
     phone?: string;
     country?: string;
@@ -1503,8 +1506,12 @@ export type CrmVendor = {
     pan?: string;
     panName?: string;
     vendorType?: 'individual' | 'company';
+    taxTreatment?: string;
     subject?: string;
     bankAccountDetails?: BankAccountDetails;
+    showEmailInInvoice?: boolean;
+    showPhoneInInvoice?: boolean;
+    attachments?: string[];
     createdAt: Date;
     updatedAt: Date;
 };

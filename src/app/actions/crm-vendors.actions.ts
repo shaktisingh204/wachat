@@ -36,6 +36,7 @@ export async function saveCrmVendor(prevState: any, formData: FormData): Promise
         const vendorData: Partial<Omit<CrmVendor, '_id' | 'createdAt'>> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('name') as string,
+            industry: formData.get('clientIndustry') as string | undefined,
             email: formData.get('email') as string,
             phone: formData.get('phone') as string,
             country: formData.get('country') as string,
@@ -47,6 +48,8 @@ export async function saveCrmVendor(prevState: any, formData: FormData): Promise
             pan: formData.get('pan') as string,
             panName: formData.get('panName') as string,
             vendorType: formData.get('vendorType') as CrmVendor['vendorType'],
+            taxTreatment: formData.get('taxTreatment') as string,
+            displayName: formData.get('displayName') as string,
             subject: formData.get('subject') as string,
             bankAccountDetails: JSON.parse(formData.get('bankAccountDetails') as string || '{}'),
             updatedAt: new Date(),
