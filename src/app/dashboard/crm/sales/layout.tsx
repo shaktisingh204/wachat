@@ -9,6 +9,7 @@ import { Users, FileText, Handshake, TrendingUp, BadgeInfo } from "lucide-react"
 const salesNavItems = [
     { href: "/dashboard/crm/sales/clients", label: "Clients & Prospects", icon: Users },
     { href: "/dashboard/crm/sales/quotations", label: "Quotations & Estimates", icon: FileText },
+    { href: "/dashboard/crm/sales/invoices", label: "Invoices", icon: FileText },
     { href: "/dashboard/crm/sales/proforma", label: "Proforma Invoices", icon: BadgeInfo },
 ];
 
