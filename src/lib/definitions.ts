@@ -1,5 +1,4 @@
 
-
 import type { ObjectId, WithId } from 'mongodb';
 
 export type Website = {
@@ -592,7 +591,7 @@ export type Project = {
     adAccountId?: string;
     facebookPageId?: string;
     facebookCommentAutoReply?: FacebookCommentAutoReplySettings;
-    facebookWelcomeMessage?: FacebookWelcomeMessageSettings;
+    facebookWelcomeMessageSettings?: FacebookWelcomeMessageSettings;
     postRandomizer?: PostRandomizerSettings;
     widgetSettings?: WhatsAppWidgetSettings;
     tags?: Tag[];
@@ -1522,6 +1521,7 @@ export type CrmInvoice = {
     attachments?: string[]; // URLs
     additionalInfo?: { key: string; value: string }[];
     status: 'Draft' | 'Sent' | 'Paid' | 'Partially Paid' | 'Overdue';
+    paidAmount?: number;
     currency: string;
     subtotal: number;
     total: number;
@@ -1576,9 +1576,35 @@ export type CrmPaymentReceipt = {
     paymentRecords: PaymentRecord[];
     notes?: string;
     settledInvoices: {
-        invoiceId: ObjectId;
+        invoiceId: string;
         amountSettled: number;
     }[];
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type SalesOrderLineItem = {
+    id: string;
+    name: string;
+    description: string;
+    quantity: number;
+    rate: number;
+};
+
+export type CrmSalesOrder = {
+    _id: ObjectId;
+    userId: ObjectId;
+    accountId: ObjectId;
+    orderNumber: string;
+    orderDate: Date;
+    deliveryDate?: Date;
+    lineItems: SalesOrderLineItem[];
+    paymentTerms?: string;
+    shippingDetails?: string;
+    notes?: string;
+    status: 'Draft' | 'Confirmed' | 'Shipped' | 'Delivered' | 'Cancelled';
+    currency: string;
+    total: number;
     createdAt: Date;
     updatedAt: Date;
 };
@@ -1627,4 +1653,3 @@ export type Backlink = {
 // --- Security Types ---
 export type SessionPayload = { userId: string; email: string; jti: string; expires: number };
 export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; expires: number };
-

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, useActionState, useRef, useTransition } from 'react';
+import { useState, useEffect, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -13,17 +13,11 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { PlusCircle, Trash2, ArrowLeft, Save, LoaderCircle, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
-import type { WithId, CrmAccount } from '@/lib/definitions';
+import type { WithId, CrmAccount, SalesOrderLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { useToast } from '@/hooks/use-toast';
-
-type SalesOrderLineItem = {
-  id: string;
-  name: string;
-  description: string;
-  quantity: number;
-  rate: number;
-};
+import { saveSalesOrder } from '@/app/actions/crm-sales-orders.actions';
+import { useRouter } from 'next/navigation';
 
 const initialState = { message: null, error: null };
 
@@ -92,6 +86,10 @@ const LineItemsTable = ({ items, setItems, currency }: { items: SalesOrderLineIt
 }
 
 export default function NewSalesOrderPage() {
+    const [state, formAction] = useActionState(saveSalesOrder, initialState);
+    const router = useRouter();
+    const { toast } = useToast();
+    
     const [clients, setClients] = useState<WithId<CrmAccount>[]>([]);
     const [selectedClientId, setSelectedClientId] = useState<string>('');
     const [orderDate, setOrderDate] = useState<Date | undefined>(new Date());
@@ -102,11 +100,27 @@ export default function NewSalesOrderPage() {
     useEffect(() => {
         getCrmAccounts().then(data => setClients(data.accounts));
     }, []);
+
+    useEffect(() => {
+        if (state.message) {
+            toast({ title: 'Success!', description: state.message });
+            router.push('/dashboard/crm/sales/orders');
+        }
+        if (state.error) {
+            toast({ title: 'Error', description: state.error, variant: 'destructive' });
+        }
+    }, [state, toast, router]);
       
     const selectedClient = clients.find(c => c._id.toString() === selectedClientId);
 
     return (
-        <form action={() => console.log('Form submitted')}>
+        <form action={formAction}>
+            <input type="hidden" name="accountId" value={selectedClientId} />
+            <input type="hidden" name="orderDate" value={orderDate?.toISOString()} />
+            <input type="hidden" name="deliveryDate" value={deliveryDate?.toISOString()} />
+            <input type="hidden" name="lineItems" value={JSON.stringify(lineItems)} />
+            <input type="hidden" name="notes" value={notes} />
+
             <div className="bg-muted/30">
                 <div className="container mx-auto p-4 md:p-8">
                      <header className="flex justify-between items-center mb-6">
@@ -131,7 +145,7 @@ export default function NewSalesOrderPage() {
                             <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
                                     <h3 className="font-semibold mb-2">Customer Details:</h3>
-                                     <Select value={selectedClientId} onValueChange={setSelectedClientId}>
+                                     <Select name="accountId" required value={selectedClientId} onValueChange={setSelectedClientId}>
                                         <SelectTrigger><SelectValue placeholder="Select a Client..."/></SelectTrigger>
                                         <SelectContent>{clients.map(client => <SelectItem key={client._id.toString()} value={client._id.toString()}>{client.name}</SelectItem>)}</SelectContent>
                                     </Select>
@@ -143,9 +157,10 @@ export default function NewSalesOrderPage() {
                                 </div>
                                 <div>
                                      <div className="grid grid-cols-2 gap-4">
+                                        <div className="space-y-1"><Label htmlFor="orderNumber">Order #</Label><Input id="orderNumber" name="orderNumber" defaultValue="SO-0001" className="h-8"/></div>
                                         <div className="space-y-1"><Label className="text-xs">Order Date *</Label><DatePicker date={orderDate} setDate={setOrderDate} /></div>
-                                        <div className="space-y-1"><Label className="text-xs">Expected Delivery Date</Label><DatePicker date={deliveryDate} setDate={setDeliveryDate} /></div>
                                     </div>
+                                    <div className="mt-2 space-y-1"><Label className="text-xs">Expected Delivery Date</Label><DatePicker date={deliveryDate} setDate={setDeliveryDate} /></div>
                                 </div>
                             </section>
 
@@ -157,8 +172,8 @@ export default function NewSalesOrderPage() {
                             
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                  <div className="space-y-4">
-                                    <div className="space-y-2"><Label className="font-semibold">Payment Terms</Label><Textarea placeholder="e.g. 50% advance, 50% on delivery." /></div>
-                                    <div className="space-y-2"><Label className="font-semibold">Shipping Details</Label><Textarea placeholder="e.g. Shipping method, tracking information..." /></div>
+                                    <div className="space-y-2"><Label className="font-semibold">Payment Terms</Label><Textarea name="paymentTerms" placeholder="e.g. 50% advance, 50% on delivery." /></div>
+                                    <div className="space-y-2"><Label className="font-semibold">Shipping Details</Label><Textarea name="shippingDetails" placeholder="e.g. Shipping method, tracking information..." /></div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="font-semibold">Notes</Label>
