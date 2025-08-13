@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { User, Building, FolderKanban } from 'lucide-react';
@@ -17,17 +17,16 @@ interface CrmDealCardProps {
 }
 
 export function CrmDealCard({ deal, contact, account, taskCount = 0, index }: CrmDealCardProps) {
-    const router = useRouter();
     
     return (
          <Draggable draggableId={deal._id.toString()} index={index}>
             {(provided) => (
-                <div
+                <Link
+                    href={`/dashboard/crm/deals/${deal._id.toString()}`}
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    onClick={() => router.push(`/dashboard/crm/deals/${deal._id.toString()}`)}
-                    className="cursor-pointer"
+                    className="cursor-pointer block"
                 >
                     <Card className="bg-card shadow-sm hover:shadow-md transition-shadow">
                         <CardHeader className="p-3">
@@ -48,7 +47,7 @@ export function CrmDealCard({ deal, contact, account, taskCount = 0, index }: Cr
                             </Avatar>
                         </CardFooter>
                     </Card>
-                </div>
+                </Link>
             )}
         </Draggable>
     );
