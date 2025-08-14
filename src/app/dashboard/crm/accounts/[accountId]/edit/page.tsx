@@ -15,7 +15,7 @@ import type { WithId, CrmAccount } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
-const initialState = { message: null, error: null };
+const initialState = { message: null, error: null, accountId: undefined };
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -51,12 +51,16 @@ export default function EditCrmAccountPage() {
     useEffect(() => {
         if (state.message) {
             toast({ title: 'Success!', description: state.message });
-            router.push(`/dashboard/crm/accounts/${accountId}`);
+            if (state.accountId) {
+                router.push(`/dashboard/crm/accounts/${state.accountId}`);
+            } else {
+                router.push('/dashboard/crm/accounts');
+            }
         }
         if (state.error) {
             toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
-    }, [state, toast, accountId, router]);
+    }, [state, toast, router]);
 
     if (isLoading || !account) {
         return <Skeleton className="h-96 w-full" />;
@@ -102,8 +106,8 @@ export default function EditCrmAccountPage() {
                     <CardFooter>
                         <SubmitButton />
                     </CardFooter>
-                </form>
-            </Card>
+                </Card>
+            </form>
         </div>
     );
 }
