@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -399,6 +400,18 @@ function PageContent() {
         }
     }
     
+     const handleGenerateFlow = async () => {
+        if (!aiPrompt.trim()) return;
+        startGenerateTransition(async () => {
+            const result = await generateFlowBuilderFlow({ prompt: aiPrompt });
+            setNodes(result.nodes);
+            setEdges(result.edges);
+            setCurrentFlow(null); // It's a new unsaved flow
+            setAiPrompt('');
+            toast({title: 'Flow Generated!', description: 'Your new workflow is ready on the canvas.'})
+        });
+    }
+    
     // ... all the other handlers ...
     const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
         e.preventDefault();
@@ -561,11 +574,29 @@ function PageContent() {
             </div>
         )
     }
-
+    
     // ... The rest of the JSX for rendering the flow builder
     return (
         <div className="flex flex-col h-full gap-4">
             {/* The rest of the component's JSX */}
+             <Card className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-lg shadow-2xl">
+                <CardContent className="p-2">
+                    <div className="flex items-center gap-2">
+                        <Wand2 className="h-5 w-5 text-muted-foreground shrink-0" />
+                        <Input 
+                            placeholder="Describe your workflow and let AI build it..." 
+                            className="border-none shadow-none focus-visible:ring-0" 
+                            value={aiPrompt}
+                            onChange={(e) => setAiPrompt(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleGenerateFlow()}
+                        />
+                        <Button onClick={handleGenerateFlow} disabled={isGenerating || !aiPrompt.trim()}>
+                            {isGenerating && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                            Generate
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }
@@ -573,6 +604,13 @@ function PageContent() {
 export default function FlowBuilderPage() {
     return <PageContent />;
 }
+
+const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
+    if (!sourcePos || !targetPos) return '';
+    const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
+    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    return path;
+};
 
 const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
     if (!node || !handleId) return null;
