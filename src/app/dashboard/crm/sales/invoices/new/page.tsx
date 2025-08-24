@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DatePicker } from '@/components/ui/date-picker';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
-import { PlusCircle, Trash2, ArrowLeft, Save, File as FileIcon, Edit, ChevronDown, Info, Upload, Image as ImageIcon, Settings, Printer, Share2, LoaderCircle, Repeat, Checkbox } from 'lucide-react';
+import { PlusCircle, Trash2, ArrowLeft, Save, File as FileIcon, Edit, ChevronDown, Info, Upload, Image as ImageIcon, Settings, Printer, Share2, LoaderCircle, Repeat } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { v4 as uuidv4 } from 'uuid';
@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { saveInvoice } from '@/app/actions/crm-invoices.actions';
 import { useRouter } from 'next/navigation';
 import { Switch } from '@/components/ui/switch';
+import { Checkbox } from '@/components/ui/checkbox';
 
 type TermItem = { id: string; text: string; }
 type AdditionalInfoItem = { id: string; key: string; value: string; }
@@ -132,7 +133,7 @@ export default function NewInvoicePage() {
         if (state.error) {
           toast({ title: 'Error', description: state.error, variant: 'destructive' });
         }
-    }, [state, toast, router]);
+      }, [state, toast, router]);
       
     const selectedClient = clients.find(c => c._id.toString() === selectedClientId);
 
@@ -156,7 +157,7 @@ export default function NewInvoicePage() {
                             </Button>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline">Save As Draft</Button>
+                            <Button variant="outline" type="button">Save As Draft</Button>
                             <SaveButton />
                         </div>
                      </header>
@@ -189,7 +190,8 @@ export default function NewInvoicePage() {
                                     </Select>
                                     {selectedClient && (
                                         <>
-                                            <p className="text-muted-foreground mt-1">{selectedClient?.phone}</p>
+                                            <p className="text-muted-foreground">{selectedClient.address}</p>
+                                            <p className="text-muted-foreground">{selectedClient.phone}</p>
                                         </>
                                     )}
                                 </div>
