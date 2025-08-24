@@ -60,7 +60,7 @@ export const crmMenuItems = [
     { href: '/dashboard/crm/contacts', label: 'Leads & Contacts', icon: Users },
     { href: '/dashboard/crm/accounts', label: 'Accounts', icon: Building },
     { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
-    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingBag },
+    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingCart },
     { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck },
     { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKanban },
     { href: '/dashboard/crm/email', label: 'Email', icon: Mail },
