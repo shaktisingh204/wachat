@@ -21,7 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const initialState = { message: null, error: null };
 
-function SubmitButton() {
+function CollectionSubmitButton() {
   const { pending } = useFormStatus();
 
   return (
@@ -82,7 +82,7 @@ export function CreateCollectionDialog({ catalogId, projectId, onCollectionCreat
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <SubmitButton />
+            <CollectionSubmitButton />
           </DialogFooter>
         </form>
       </DialogContent>
