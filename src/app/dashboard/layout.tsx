@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingCart, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File, BadgeInfo, IndianRupee, FilePlus, Star
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingCart, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File, BadgeInfo, IndianRupee, FilePlus, Star, ShoppingBag
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -189,7 +189,7 @@ const crmMenuItems = [
             { href: '/dashboard/crm/sales/proforma', label: 'Proforma Invoices', icon: BadgeInfo },
             { href: '/dashboard/crm/sales/invoices', label: 'Invoices', icon: FileText },
             { href: '/dashboard/crm/sales/receipts', label: 'Payment Receipts', icon: CreditCard },
-            { href: '/dashboard/crm/sales/orders', label: 'Sales Orders', icon: ShoppingBag },
+            { href: '/dashboard/crm/sales/orders', label: 'Sales Orders', icon: ShoppingCart },
             { href: '/dashboard/crm/sales/delivery', label: 'Delivery Challans', icon: Truck },
             { href: '/dashboard/crm/sales/credit-notes', label: 'Credit Notes', icon: Repeat },
         ]
@@ -210,7 +210,7 @@ const crmMenuItems = [
     { href: '/dashboard/crm/contacts', label: 'Leads & Contacts', icon: Users },
     { href: '/dashboard/crm/accounts', label: 'Accounts', icon: Building },
     { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
-    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingBag },
+    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingCart },
     { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck },
     { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKanban },
     { href: '/dashboard/crm/email', label: 'Email', icon: Mail },
@@ -310,7 +310,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat Suite', href: '/dashboard', className: 'bg-green-100 text-green-700', hoverClassName: 'hover:bg-green-100 hover:text-green-700' },
     { id: 'facebook', icon: MetaIcon, label: 'Meta Suite', href: '/dashboard/facebook/all-projects', className: 'bg-blue-100 text-blue-700', hoverClassName: 'hover:bg-blue-100 hover:text-blue-700' },
     { id: 'instagram', icon: InstagramIcon, label: 'Instagram Suite', href: '/dashboard/instagram/connections', className: 'bg-purple-100 text-purple-700', hoverClassName: 'hover:bg-purple-100 hover:text-purple-700' },
-    { id: 'crm', icon: Handshake, label: 'CRM Suite', href: '/dashboard/crm', className: 'bg-orange-100 text-orange-700', hoverClassName: 'hover:bg-orange-100 hover:text-orange-700' },
+    { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite', className: 'bg-orange-100 text-orange-700', hoverClassName: 'hover:bg-orange-100 hover:text-orange-700' },
     { id: 'email', icon: Mail, label: 'Email Suite', href: '/dashboard/email', className: 'bg-sky-100 text-sky-700', hoverClassName: 'hover:bg-sky-100 hover:text-sky-700' },
     { id: 'sms', icon: MessageSquare, label: 'SMS Suite', href: '/dashboard/sms', className: 'bg-indigo-100 text-indigo-700', hoverClassName: 'hover:bg-indigo-100 hover:text-indigo-700' },
     { id: 'website-builder', icon: Brush, label: 'Website Builder', href: '/dashboard/website-builder', className: 'bg-rose-100 text-rose-700', hoverClassName: 'hover:bg-rose-100 hover:text-rose-700' },
