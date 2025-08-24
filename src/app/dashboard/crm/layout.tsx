@@ -48,7 +48,7 @@ export const crmMenuItems = [
         label: 'Purchases',
         icon: ShoppingCart,
         subItems: [
-            { href: '/dashboard/crm/purchases/vendors/new', label: 'Vendor Leads', icon: Contact },
+            { href: '/dashboard/crm/purchases/leads', label: 'Vendor Leads', icon: Contact },
             { href: '/dashboard/crm/purchases/vendors', label: 'Vendors & Suppliers', icon: Users },
             { href: '/dashboard/crm/purchases/expenses', label: 'Purchases & Expenses', icon: IndianRupee },
             { href: '/dashboard/crm/purchases/orders', label: 'Purchase Orders', icon: FilePlus },
