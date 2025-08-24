@@ -32,12 +32,12 @@ function SubmitButton() {
 }
 
 interface CreateCollectionDialogProps {
-  projectId: string;
-  catalogId: string;
-  onCollectionCreated: () => void;
+  catalogId: string,
+  projectId: string,
+  onCollectionCreated: () => void,
 }
 
-export function CreateCollectionDialog({ projectId, catalogId, onCollectionCreated }: CreateCollectionDialogProps) {
+export function CreateCollectionDialog({ catalogId, projectId, onCollectionCreated }: CreateCollectionDialogProps) {
   const [open, setOpen] = useState(false);
   const [state, formAction] = useActionState(createProductSet, initialState);
   const { toast } = useToast();
@@ -84,3 +84,8 @@ export function CreateCollectionDialog({ projectId, catalogId, onCollectionCreat
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
