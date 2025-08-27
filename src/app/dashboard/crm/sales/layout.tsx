@@ -20,14 +20,14 @@ const salesNavItems = [
 export default function SalesLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
 
-    const activeTab = navItems.find(item => pathname.startsWith(item.href))?.href || "/dashboard/crm/sales/clients";
+    const activeTab = salesNavItems.find(item => pathname.startsWith(item.href))?.href || "/dashboard/crm/sales/clients";
 
     return (
         <div className="flex flex-col gap-6 h-full">
             <Tabs defaultValue={activeTab} className="w-full">
                 <TabsList className="overflow-x-auto whitespace-nowrap">
                     {salesNavItems.map(item => (
-                         <TabsTrigger key={item.href} value={item.href} asChild disabled={item.disabled}>
+                         <TabsTrigger key={item.href} value={item.href} asChild>
                             <Link href={item.href}>
                                 <item.icon className="mr-2 h-4 w-4"/>
                                 {item.label}
