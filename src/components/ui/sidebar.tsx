@@ -590,7 +590,7 @@ const SidebarMenuButton = React.forwardRef<
               className={cn(sidebarMenuButtonVariants({ variant }), className, 'justify-between')}
               {...props}
             >
-                {children}
+                <span className="flex items-center gap-3">{children}</span>
                 <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden group-data-[state=open]:rotate-180" />
             </Comp>
           </CollapsibleTrigger>
