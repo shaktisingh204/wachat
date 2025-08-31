@@ -51,6 +51,21 @@ const nextConfig = {
       },
     ],
   },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+        config.externals.push('mongodb-client-encryption');
+        config.resolve.fallback = {
+            ...config.resolve.fallback,
+            fs: false,
+            dns: false,
+            net: false,
+            tls: false,
+            'child_process': false,
+        };
+    }
+    config.experiments = { ...config.experiments, topLevelAwait: true };
+    return config;
+  },
 };
 
 module.exports = withBundleAnalyzer(nextConfig);
