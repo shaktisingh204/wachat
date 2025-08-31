@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingCart, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File, BadgeInfo, IndianRupee, FilePlus, Star, ShoppingBag
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingCart, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File, BadgeInfo, IndianRupee, FilePlus, Star
 } from 'lucide-react';
 import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
@@ -183,6 +183,7 @@ const crmMenuItems = [
     {
         label: 'Sales',
         icon: TrendingUp,
+        href: '#',
         subItems: [
             { href: '/dashboard/crm/sales/clients', label: 'Clients & Prospects', icon: Users },
             { href: '/dashboard/crm/sales/quotations', label: 'Quotation & Estimates', icon: FileText },
@@ -197,6 +198,7 @@ const crmMenuItems = [
     {
         label: 'Purchases',
         icon: ShoppingCart,
+        href: '#',
         subItems: [
             { href: '/dashboard/crm/purchases/leads', label: 'Vendor Leads', icon: Contact },
             { href: '/dashboard/crm/purchases/vendors', label: 'Vendors & Suppliers', icon: Users },
