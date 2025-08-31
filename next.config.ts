@@ -51,22 +51,6 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config, { isServer }) => {
-    // This is to solve the "Module not found" errors for Node.js built-in modules.
-    if (!isServer) {
-      config.externals.push({
-        'mongodb-client-encryption': 'empty',
-        'fs': 'empty',
-        'net': 'empty',
-        'tls': 'empty',
-        'child_process': 'empty',
-        'dns': 'empty',
-        'timers/promises': 'empty',
-        'fs/promises': 'empty'
-      });
-    }
-    return config;
-  },
 };
 
 module.exports = withBundleAnalyzer(nextConfig);
