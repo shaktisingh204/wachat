@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { suggestTemplateContent } from '@/ai/flows/template-content-suggestions';
@@ -315,13 +316,13 @@ export async function getAllProjectsForAdmin(
 
 
 export async function getProjectById(projectId: string, apiUserId?: string): Promise<WithId<Project> | null> {
-    let session;
-    if (!apiUserId) {
-        session = await getSession();
-    }
-    const { isAdmin } = await getAdminSession();
-
+    const [session, { isAdmin }] = await Promise.all([
+        getSession(),
+        getAdminSession()
+    ]);
+    
     if (!session?.user && !isAdmin && !apiUserId) {
+        console.error(`getProjectById: No session or admin rights for project ${projectId}`);
         return null;
     }
 
