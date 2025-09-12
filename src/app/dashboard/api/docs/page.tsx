@@ -67,11 +67,38 @@ const wachatApiDocs = [
     "projectId": "60d5f1b4c7b8c2a3e4f5a6b7",
     "phoneNumberId": "10987654321",
     "templateId": "61e8c9a3b9f8d4e7f8a1b2c3",
-    "tagIds": ["tag_id_1", "tag_id_2"]
+    "tagIds": ["60d5f1b4c7b8c2a3e4f5a6b8", "60d5f1b4c7b8c2a3e4f5a6b9"]
   }'`,
         response: `{
   "success": true,
   "message": "Broadcast successfully queued for 150 contacts. Sending will begin shortly."
+}`
+    },
+    {
+        endpoint: 'POST /v1/broadcasts/start-bulk',
+        description: 'Starts a new broadcast campaign by providing a list of contacts directly in the request body.',
+        bodyParams: [
+            { name: 'projectId', type: 'string', desc: 'The ID of the project to send from.' },
+            { name: 'phoneNumberId', type: 'string', desc: 'The phone number ID within the project to send from.' },
+            { name: 'templateId', type: 'string', desc: 'The ID of the approved message template to send.' },
+            { name: 'contacts', type: 'object[]', desc: 'An array of contact objects. Each object must have a `phone` property and can have properties for variables (e.g., `variable1`, `variable2`).' },
+        ],
+        example: `curl -X POST \\
+  https://yourapp.com/api/v1/broadcasts/start-bulk \\
+  -H 'Authorization: Bearer YOUR_API_KEY' \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "projectId": "60d5f1b4c7b8c2a3e4f5a6b7",
+    "phoneNumberId": "10987654321",
+    "templateId": "61e8c9a3b9f8d4e7f8a1b2c3",
+    "contacts": [
+        { "phone": "15551112222", "variable1": "John", "variable2": "your recent order" },
+        { "phone": "15553334444", "variable1": "Jane", "variable2": "your appointment" }
+    ]
+  }'`,
+        response: `{
+  "success": true,
+  "message": "Broadcast successfully queued via API for 2 contacts. Sending will begin shortly."
 }`
     },
     {
@@ -235,3 +262,5 @@ export default function ApiDocsPage() {
         </div>
     );
 }
+
+    
