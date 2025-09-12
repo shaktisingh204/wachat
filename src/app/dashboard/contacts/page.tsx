@@ -137,20 +137,23 @@ export default function ContactsPage() {
         setActiveProjectId(storedProjectId);
     }, []);
     
-    useEffect(() => {
-        if(isClient && activeProjectId) {
-            fetchData(activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags);
-        } else if (isClient && !activeProjectId) {
-            startTransition(async () => {
-                const projects = await getProjects();
-                 if (projects && projects.length > 0) {
-                    router.push('/dashboard');
-                } else {
-                    router.push('/dashboard/setup');
-                }
-            });
+     useEffect(() => {
+        if (isClient) {
+            if (activeProjectId) {
+                fetchData(activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags);
+            } else {
+                 startTransition(async () => {
+                    const projects = await getProjects();
+                    if (projects && projects.length > 0) {
+                        router.push('/dashboard');
+                    } else {
+                        router.push('/dashboard/setup');
+                    }
+                });
+            }
         }
-    }, [isClient, activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags, fetchData, router, startTransition]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isClient, activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags]);
 
 
     const updateSearchParam = useDebouncedCallback((key: string, value: string | null) => {
