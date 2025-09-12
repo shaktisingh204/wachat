@@ -241,6 +241,11 @@ const smsMenuItems = [
     { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
 ];
 
+const apiMenuItems = [
+    { href: '/dashboard/api', label: 'API Keys', icon: KeyRound },
+    { href: '/dashboard/api/docs', label: 'API Docs', icon: BookCopy },
+];
+
 const urlShortenerMenuItems = [
     { href: '/dashboard/url-shortener', label: 'Shortener', icon: LinkIcon },
     { href: '/dashboard/url-shortener/settings', label: 'Settings', icon: Settings },
@@ -297,6 +302,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         case 'sms': items = [{ title: 'SMS Suite', items: smsMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'url-shortener': items = [{ title: null, items: urlShortenerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'qr-code-maker': items = [{ title: null, items: qrCodeMakerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
+        case 'api': items = [{ title: null, items: apiMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'seo-suite': items = [{ title: null, items: seoMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         case 'website-builder': items = [{ title: null, items: portfolioMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
         default: items = [{ title: null, items: wachatMenuItems }]; break;
@@ -315,6 +321,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite', className: 'bg-orange-100 text-orange-700', hoverClassName: 'hover:bg-orange-100 hover:text-orange-700' },
     { id: 'email', icon: Mail, label: 'Email Suite', href: '/dashboard/email', className: 'bg-sky-100 text-sky-700', hoverClassName: 'hover:bg-sky-100 hover:text-sky-700' },
     { id: 'sms', icon: MessageSquare, label: 'SMS Suite', href: '/dashboard/sms', className: 'bg-indigo-100 text-indigo-700', hoverClassName: 'hover:bg-indigo-100 hover:text-indigo-700' },
+    { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api', className: 'bg-gray-100 text-gray-700', hoverClassName: 'hover:bg-gray-100 hover:text-gray-700' },
     { id: 'website-builder', icon: Brush, label: 'Website Builder', href: '/dashboard/website-builder', className: 'bg-rose-100 text-rose-700', hoverClassName: 'hover:bg-rose-100 hover:text-rose-700' },
     { id: 'url-shortener', icon: LinkIcon, label: 'URL Shortener', href: '/dashboard/url-shortener', className: 'bg-teal-100 text-teal-700', hoverClassName: 'hover:bg-teal-100 hover:text-teal-700' },
     { id: 'qr-code-maker', icon: QrCode, label: 'QR Code Maker', href: '/dashboard/qr-code-maker', className: 'bg-stone-100 text-stone-700', hoverClassName: 'hover:bg-stone-100 hover:text-stone-700' },
@@ -347,6 +354,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           setActiveApp('url-shortener');
       } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
           setActiveApp('qr-code-maker');
+      } else if (pathname.startsWith('/dashboard/api')) {
+          setActiveApp('api');
       } else if (pathname.startsWith('/dashboard/seo')) {
           setActiveApp('seo-suite');
       } else if (pathname.startsWith('/dashboard/website-builder')) {
@@ -445,7 +454,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         (activeApp === 'whatsapp' && hasActiveWhatsAppProject) ||
                         (activeApp === 'instagram' && hasActiveFacebookProject);
 
-                      const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard' && activeApp !== 'crm' && activeApp !== 'website-builder' && activeApp !== 'email';
+                      const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard' && activeApp !== 'crm' && activeApp !== 'website-builder' && activeApp !== 'email' && activeApp !== 'api';
 
                       let tooltipText = item.label;
                       if (isDisabled) {
@@ -466,6 +475,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         item.href === '/dashboard/crm' ||
                         item.href === '/dashboard/email' ||
                         item.href === '/dashboard/sms' ||
+                        item.href === '/dashboard/api' ||
                         item.href === '/dashboard/website-builder';
 
                       const isActive = isBasePage ? pathname === item.href : (item.href && pathname.startsWith(item.href));

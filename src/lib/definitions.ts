@@ -407,6 +407,16 @@ export type Agent = {
     role: string;
 };
 
+export type ApiKey = {
+    _id: ObjectId;
+    name: string;
+    key: string; // The actual API key, stored hashed
+    lastUsed?: Date;
+    requestCount: number;
+    createdAt: Date;
+    revoked: boolean;
+};
+
 export type Tag = {
     _id: string;
     name: string;
@@ -949,6 +959,7 @@ export type User = {
     email: string;
     password?: string;
     createdAt: Date;
+    apiKeys?: ApiKey[];
     tags?: Tag[];
     customDomains?: CustomDomain[];
     facebookUserAccessToken?: string;
