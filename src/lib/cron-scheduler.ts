@@ -1,4 +1,5 @@
 
+
 'use server';
 
 /**
@@ -187,6 +188,7 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
                             parameters.push({ type: 'text', text: contact[`variable${varNum}`] || '' });
                         });
                     }
+                     if (parameters.length > 0) payloadComponents.push({ type: 'header', parameters });
                 } else if (['IMAGE', 'VIDEO', 'DOCUMENT', 'AUDIO'].includes(headerComponent.format)) {
                     const format = headerComponent.format.toLowerCase();
                     let parameter: any;
@@ -199,10 +201,10 @@ async function executeSingleBroadcast(db: Db, job: BroadcastJobType, perJobRate:
                         }
                     }
                     if (parameter) {
-                        parameters.push(parameter);
+                        // Media parameters are not nested inside a 'parameters' array
+                        payloadComponents.push({ type: 'header', parameters: [parameter] });
                     }
                 }
-                if (parameters.length > 0) payloadComponents.push({ type: 'header', parameters });
             }
 
             const bodyComponent = job.components.find(c => c.type === 'BODY');
