@@ -92,20 +92,17 @@ export async function addCrmClient(prevState: any, formData: FormData): Promise<
         const newAccount: Partial<CrmAccount> = {
             userId: new ObjectId(session.user._id),
             name: formData.get('businessName') as string,
-            industry: formData.get('clientIndustry') as string,
-            phone: formData.get('phone') as string,
-            // email: formData.get('email') as string, // CrmAccount doesn't have email yet
+            industry: formData.get('clientIndustry') as string | undefined,
+            website: formData.get('website') as string | undefined,
+            phone: formData.get('phone') as string | undefined,
+            notes: [],
             createdAt: new Date(),
+            status: 'active'
         };
 
         if (!newAccount.name) {
             return { error: 'Business Name is required.' };
         }
-        
-        // This is a simplified action. You would expand your CrmAccount and CrmContact
-        // definitions in `lib/definitions.ts` to store all the new fields,
-        // then save them to the database here.
-        // For now, it saves to the crm_accounts collection.
 
         const { db } = await connectToDatabase();
         await db.collection('crm_accounts').insertOne(newAccount as CrmAccount);
