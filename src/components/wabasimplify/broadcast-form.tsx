@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useFormStatus } from 'react-dom';
@@ -28,11 +27,11 @@ const initialState = {
   error: null,
 };
 
-function SubmitButton() {
+function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
 
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending || disabled}>
       {pending ? (
         <>
           <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
@@ -278,7 +277,7 @@ export function BroadcastForm({ templates, project, metaFlows, onSuccess }: Broa
 
           </CardContent>
           <CardFooter className="flex justify-end">
-          <SubmitButton />
+          <SubmitButton disabled={!selectedPhoneNumber} />
           </CardFooter>
       </form>
     </Card>
