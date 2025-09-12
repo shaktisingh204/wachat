@@ -1104,7 +1104,7 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
             await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { "activeFlow.waitingSince": new Date() } });
         }
 
-        if (logger && flowStatus === 'finished') {
+        if (logger && (flowStatus === 'finished' || flowStatus === 'error')) {
             logger.log("Flow execution finished.");
             await logger.save();
         } else if (!handled) {
@@ -1114,7 +1114,7 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
     
     // Invalidate cache to trigger UI refresh
     revalidatePath('/dashboard/chat');
-    revalidatePath('/dashboard/broadcasts');
+    revalidatePath('/dashboard/contacts');
 }
 
 
