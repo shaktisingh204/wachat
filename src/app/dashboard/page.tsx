@@ -51,6 +51,13 @@ export default function SelectProjectPage() {
         );
     };
 
+    const handleToggleSelectionMode = () => {
+        if (selectionMode) {
+            setSelectedProjects([]);
+        }
+        setSelectionMode(!selectionMode);
+    };
+
     const paginatedProjects = useMemo(() => {
         const start = (page - 1) * limit;
         const end = start + limit;
@@ -142,7 +149,7 @@ export default function SelectProjectPage() {
               <div className="flex-grow md:max-w-sm">
                   <ProjectSearch placeholder="Search projects by name..." />
               </div>
-               <Button variant="outline" onClick={() => setSelectionMode(!selectionMode)}>
+               <Button variant="outline" onClick={handleToggleSelectionMode}>
                     {selectionMode ? 'Cancel Selection' : 'Select Projects'}
                 </Button>
                 {selectionMode && (
@@ -278,4 +285,3 @@ export default function SelectProjectPage() {
             )}
         </div>
     )
-}
