@@ -1,7 +1,4 @@
 
-
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -53,7 +50,7 @@ const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial
             variables = { ...row };
             if (keys.length > 0) delete (variables as any)[keys[0]];
         } else {
-            phone = row.waId;
+            phone = row.waId || (row as any).phone;
             variables = row.variables || {};
         }
         
@@ -127,6 +124,81 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
         });
     });
 };
+
+export async function handleStartApiBroadcast(
+  data: {
+    projectId: string;
+    phoneNumberId: string;
+    templateId: string;
+    contacts: Partial<Contact>[];
+    variableMappings?: any[];
+  }
+): Promise<BroadcastState> {
+  const { db } = await connectToDatabase();
+  const { projectId, phoneNumberId, templateId, contacts, variableMappings } = data;
+  let broadcastId: ObjectId | null = null;
+  
+  try {
+    const project = await getProjectById(projectId);
+    if (!project) {
+      return { error: 'Project not found or you do not have access.' };
+    }
+    const accessToken = project.accessToken;
+
+    if (!templateId || !ObjectId.isValid(templateId)) return { error: 'Invalid Template ID.' };
+    const template = await db.collection<Template>('templates').findOne({ _id: new ObjectId(templateId), projectId: new ObjectId(projectId) });
+    if (!template) return { error: 'Selected template not found for this project.' };
+
+    const broadcastJobData: Omit<WithId<BroadcastJob>, '_id'> = {
+        projectId: new ObjectId(projectId),
+        broadcastType: 'template',
+        templateId: new ObjectId(templateId),
+        templateName: template.name,
+        phoneNumberId,
+        accessToken,
+        status: 'QUEUED',
+        createdAt: new Date(),
+        contactCount: 0,
+        fileName: 'API Request',
+        components: template.components,
+        language: template.language,
+        category: template.category,
+        variableMappings: variableMappings || []
+    };
+    
+    const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData as any);
+    broadcastId = broadcastResult.insertedId;
+    
+    let contactCount = 0;
+    if (contacts.length > BATCH_SIZE) {
+      for (let i = 0; i < contacts.length; i += BATCH_SIZE) {
+        const batch = contacts.slice(i, i + BATCH_SIZE);
+        const { insertedCount } = await processContactBatch(db, broadcastId, batch, false);
+        contactCount += insertedCount;
+      }
+    } else {
+      const { insertedCount } = await processContactBatch(db, broadcastId, contacts, false);
+      contactCount = insertedCount;
+    }
+
+    if (contactCount === 0) {
+        await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+        return { error: 'No valid contacts with phone numbers found to send to.' };
+    }
+    
+    await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount } });
+
+    revalidatePath('/dashboard/broadcasts');
+    return { message: `Broadcast successfully queued via API for ${contactCount} contacts. Sending will begin shortly.` };
+
+  } catch (e: any) {
+    if (broadcastId) {
+      await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+      await db.collection('broadcast_contacts').deleteMany({ broadcastId });
+    }
+    return { error: getErrorMessage(e) };
+  }
+}
 
 
 export async function handleStartBroadcast(
@@ -238,7 +310,7 @@ export async function handleStartBroadcast(
     if (audienceType === 'tags') {
         const contactsCursor = db.collection('contacts').find({
             projectId: projectObjectId,
-            tagIds: { $in: tagIds },
+            tagIds: { $in: tagIds.map(id => new ObjectId(id)) },
         });
 
         let contactBatch: Partial<Contact>[] = [];
@@ -658,3 +730,5 @@ export async function handleBulkBroadcast(prevState: any, formData: FormData): P
         return { error: getErrorMessage(e) };
     }
 }
+
+    
