@@ -55,18 +55,31 @@ export function AddContactDialog({ project, selectedPhoneNumberId }: AddContactD
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
-    if (state?.message) {
+    if (state.message) {
       toast({ title: 'Success!', description: state.message });
       formRef.current?.reset();
       setOpen(false);
     }
-    if (state?.error) {
+    if (state.error) {
       toast({ title: 'Error', description: state.error, variant: 'destructive' });
+    }
+    // Reset form state after processing, successful or not, to re-enable the button
+    const form = formRef.current;
+    if (form) {
+        // This is a way to tell react-dom to reset the form state for the next submission
+        form.requestSubmit(); 
     }
   }, [state, toast]);
 
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+        formRef.current?.reset();
+    }
+    setOpen(isOpen);
+  };
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button disabled={!selectedPhoneNumberId}>
             <UserPlus className="mr-2 h-4 w-4" />
