@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
@@ -199,14 +200,11 @@ export function ChatClient() {
         }
         const result = await findOrCreateContact(project._id.toString(), selectedPhoneNumberId, waId);
         if (result.error) {
-            toast({ title: 'Error', description: result.error, variant: 'destructive'});
+            toast({ title: 'Error', description: result.error, variant: 'destructive' });
         }
         if (result.contact) {
-            const { contacts, total } = await getContactsPageData(project._id.toString(), selectedPhoneNumberId, 1, '', undefined);
-            setContacts(contacts);
-            setHasMoreContacts(contacts.length < total);
-            setContactPage(1);
-
+            // Optimistically update the UI instead of a full re-fetch
+            setContacts(prev => [result.contact!, ...prev.filter(c => c._id.toString() !== result.contact?._id.toString())]);
             handleSelectContact(result.contact);
             setIsNewChatDialogOpen(false);
         }
