@@ -408,6 +408,17 @@ export default function BroadcastPage() {
 
   const isLoadingData = isRefreshing && !project;
 
+  const onBroadcastSuccess = () => {
+      if (activeProjectId) {
+        // Go back to first page to see the new broadcast
+        if (currentPage === 1) {
+            fetchData(activeProjectId, 1, false);
+        } else {
+            setCurrentPage(1);
+        }
+      }
+  }
+
   return (
     <>
       <div className="flex flex-col gap-8">
@@ -421,7 +432,12 @@ export default function BroadcastPage() {
         {isLoadingData ? (
             <Skeleton className="h-64 w-full"/>
         ) : (
-            <BroadcastForm templates={templates} project={project} metaFlows={metaFlows} />
+            <BroadcastForm 
+                templates={templates} 
+                project={project} 
+                metaFlows={metaFlows} 
+                onSuccess={onBroadcastSuccess}
+            />
         )}
 
         <Card className="card-gradient card-gradient-blue">
