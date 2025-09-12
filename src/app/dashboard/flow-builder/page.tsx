@@ -400,7 +400,7 @@ function PageContent() {
         }
     }
     
-     const handleGenerateFlow = async () => {
+     const handleGenerateFlow = () => {
         if (!aiPrompt.trim()) return;
         startGenerateTransition(async () => {
             const result = await generateFlowBuilderFlow({ prompt: aiPrompt });
@@ -575,6 +575,7 @@ function PageContent() {
         )
     }
     
+    // ... The rest of the JSX for rendering the flow builder
     return (
         <div className="flex flex-col h-full gap-4">
             {/* The rest of the component's JSX */}
@@ -603,6 +604,13 @@ function PageContent() {
 export default function FlowBuilderPage() {
     return <PageContent />;
 }
+
+const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
+    if (!sourcePos || !targetPos) return '';
+    const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
+    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    return path;
+};
 
 const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
     if (!node || !handleId) return null;
