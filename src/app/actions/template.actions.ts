@@ -583,8 +583,7 @@ export async function deleteTemplateCategory(id: string): Promise<{ message?: st
         revalidatePath('/admin/dashboard/template-library');
         return { message: 'Category deleted successfully.' };
     } catch (e: any) {
-        console.error('Failed to delete category:', e);
-        return { error: 'Failed to delete category.' };
+        return { error: e.message || 'An unexpected error occurred.' };
     }
 }
 
