@@ -23,11 +23,19 @@ export async function handleAddNewContact(
     const projectId = formData.get('projectId') as string;
     const phoneNumberId = formData.get('phoneNumberId') as string;
     const name = formData.get('name') as string;
-    const waId = (formData.get('waId') as string).replace(/\D/g, ''); 
+    const rawWaId = formData.get('waId') as string;
 
-    if (!projectId || !phoneNumberId || !name || !waId) {
+    if (!projectId || !phoneNumberId || !name || !rawWaId) {
         return { error: 'All fields are required.' };
     }
+
+    // Basic validation for phone number format before stripping characters
+    const phoneRegex = /^\+?[0-9\s\-()]{7,20}$/;
+    if (!phoneRegex.test(rawWaId)) {
+        return { error: 'Invalid phone number format. Please enter a valid number.' };
+    }
+    
+    const waId = rawWaId.replace(/\D/g, ''); 
 
     const hasAccess = await getProjectById(projectId, apiUser ? apiUser._id.toString() : undefined);
     if (!hasAccess) return { error: "Access denied." };
