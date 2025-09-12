@@ -71,7 +71,6 @@ import type {
     InitiatePaymentResult,
     AdminUserView,
     KanbanColumnData,
-    ProjectGroup
 } from '@/lib/definitions';
 
 
@@ -139,20 +138,28 @@ export async function handleSuggestContent(topic: string): Promise<{ suggestions
   }
 }
 
-export async function getProjects(options: {
-    query?: string,
-    moduleType?: 'whatsapp' | 'facebook' | 'all',
-    page?: number,
-    limit?: number
-} = {}): Promise<{ projects: WithId<Project>[], total: number }> {
-    const { query, moduleType = 'all', page = 1, limit = 50 } = options;
-    const session = await getSession();
-    if (!session?.user) {
-        return { projects: [], total: 0 };
+export async function getProjects(
+    options: {
+        query?: string,
+        moduleType?: 'whatsapp' | 'facebook' | 'all',
+        page?: number,
+        limit?: number,
+        apiUserId?: string,
+    } = {}): Promise<{ projects: WithId<Project>[], total: number }> {
+    const { query, moduleType = 'all', page = 1, limit = 50, apiUserId } = options;
+    
+    let session;
+    if (!apiUserId) {
+        session = await getSession();
+        if (!session?.user) {
+            return { projects: [], total: 0 };
+        }
     }
+    
     try {
         const { db } = await connectToDatabase();
-        const userObjectId = new ObjectId(session.user._id);
+        
+        const userObjectId = apiUserId ? new ObjectId(apiUserId) : new ObjectId(session!.user._id);
 
         const filter: Filter<Project> = {
             $or: [
@@ -203,7 +210,8 @@ export async function getProjects(options: {
             },
             {
                 $project: {
-                    planInfo: 0
+                    planInfo: 0,
+                    accessToken: 0, // Never expose tokens over API
                 }
             }
         ];
@@ -306,13 +314,17 @@ export async function getAllProjectsForAdmin(
 }
 
 
-export async function getProjectById(projectId: string): Promise<WithId<Project> | null> {
-    const session = await getSession();
+export async function getProjectById(projectId: string, apiUserId?: string): Promise<WithId<Project> | null> {
+    let session;
+    if (!apiUserId) {
+        session = await getSession();
+    }
     const { isAdmin } = await getAdminSession();
 
-    if (!session?.user && !isAdmin) {
+    if (!session?.user && !isAdmin && !apiUserId) {
         return null;
     }
+
     try {
         if (!ObjectId.isValid(projectId)) {
             console.error("Invalid Project ID in getProjectById:", projectId);
@@ -355,9 +367,10 @@ export async function getProjectById(projectId: string): Promise<WithId<Project>
             return JSON.parse(JSON.stringify(project));
         }
 
-        if (session?.user) {
-            const isOwner = project.userId.toString() === session.user._id.toString();
-            const isAgent = project.agents?.some(agent => agent.userId.toString() === session.user._id.toString());
+        const userId = apiUserId || session?.user?._id;
+        if (userId) {
+            const isOwner = project.userId.toString() === userId.toString();
+            const isAgent = project.agents?.some(agent => agent.userId.toString() === userId.toString());
 
             if (isOwner || isAgent) {
                 return JSON.parse(JSON.stringify(project));

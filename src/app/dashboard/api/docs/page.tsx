@@ -8,6 +8,73 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 
 const wachatApiDocs = [
     {
+        endpoint: 'GET /v1/projects/list',
+        description: 'Retrieves a list of all projects accessible by the API key user.',
+        bodyParams: [],
+        example: `curl -X GET \\
+  https://yourapp.com/api/v1/projects/list \\
+  -H 'Authorization: Bearer YOUR_API_KEY'`,
+        response: `{
+  "success": true,
+  "data": [
+    {
+      "_id": "60d5f1b4c7b8c2a3e4f5a6b7",
+      "name": "My Main Project",
+      "wabaId": "1234567890"
+    }
+  ]
+}`
+    },
+    {
+        endpoint: 'POST /v1/contacts/create',
+        description: 'Creates a new contact within a specified project.',
+        bodyParams: [
+            { name: 'projectId', type: 'string', desc: 'The ID of the project to add the contact to.' },
+            { name: 'phoneNumberId', type: 'string', desc: 'The phone number ID within the project to associate with.' },
+            { name: 'name', type: 'string', desc: 'The name of the new contact.' },
+            { name: 'waId', type: 'string', desc: 'The contact\'s WhatsApp ID (phone number with country code).' },
+        ],
+        example: `curl -X POST \\
+  https://yourapp.com/api/v1/contacts/create \\
+  -H 'Authorization: Bearer YOUR_API_KEY' \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "projectId": "60d5f1b4c7b8c2a3e4f5a6b7",
+    "phoneNumberId": "10987654321",
+    "name": "Jane Doe",
+    "waId": "15559876543"
+  }'`,
+        response: `{
+  "success": true,
+  "message": "Contact added successfully.",
+  "contactId": "62e8c9a3b9f8d4e7f8a1b2c4"
+}`
+    },
+    {
+        endpoint: 'POST /v1/broadcasts/start',
+        description: 'Starts a new broadcast campaign to a list of contacts based on tags.',
+        bodyParams: [
+            { name: 'projectId', type: 'string', desc: 'The ID of the project to send from.' },
+            { name: 'phoneNumberId', type: 'string', desc: 'The phone number ID within the project to send from.' },
+            { name: 'templateId', type: 'string', desc: 'The ID of the approved message template to send.' },
+            { name: 'tagIds', type: 'string[]', desc: 'An array of Tag IDs. The broadcast will be sent to all contacts with these tags.' },
+        ],
+        example: `curl -X POST \\
+  https://yourapp.com/api/v1/broadcasts/start \\
+  -H 'Authorization: Bearer YOUR_API_KEY' \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "projectId": "60d5f1b4c7b8c2a3e4f5a6b7",
+    "phoneNumberId": "10987654321",
+    "templateId": "61e8c9a3b9f8d4e7f8a1b2c3",
+    "tagIds": ["tag_id_1", "tag_id_2"]
+  }'`,
+        response: `{
+  "success": true,
+  "message": "Broadcast successfully queued for 150 contacts. Sending will begin shortly."
+}`
+    },
+    {
         endpoint: 'POST /v1/messages/send-text',
         description: 'Sends a simple text message to a contact.',
         bodyParams: [
@@ -131,27 +198,31 @@ export default function ApiDocsPage() {
                             <AccordionContent className="pt-4 space-y-6">
                                  <p className="text-muted-foreground">{endpoint.description}</p>
                                 
-                                <h4 className="font-semibold">Request Body Parameters</h4>
-                                <div className="border rounded-md overflow-hidden">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Parameter</TableHead>
-                                                <TableHead>Type</TableHead>
-                                                <TableHead>Description</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {endpoint.bodyParams.map(param => (
-                                                <TableRow key={param.name}>
-                                                    <TableCell className="font-mono">{param.name}</TableCell>
-                                                    <TableCell className="font-mono text-xs">{param.type}</TableCell>
-                                                    <TableCell className="text-muted-foreground text-xs">{param.desc}</TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                </div>
+                                {endpoint.bodyParams.length > 0 && (
+                                    <>
+                                        <h4 className="font-semibold">Request Body Parameters</h4>
+                                        <div className="border rounded-md overflow-hidden">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead>Parameter</TableHead>
+                                                        <TableHead>Type</TableHead>
+                                                        <TableHead>Description</TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {endpoint.bodyParams.map(param => (
+                                                        <TableRow key={param.name}>
+                                                            <TableCell className="font-mono">{param.name}</TableCell>
+                                                            <TableCell className="font-mono text-xs">{param.type}</TableCell>
+                                                            <TableCell className="text-muted-foreground text-xs">{param.desc}</TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                        </div>
+                                    </>
+                                )}
                                 <h4 className="font-semibold">Example Request</h4>
                                 <CodeBlock code={endpoint.example} language="bash" />
                                  <h4 className="font-semibold">Example Response</h4>
@@ -164,4 +235,3 @@ export default function ApiDocsPage() {
         </div>
     );
 }
-
