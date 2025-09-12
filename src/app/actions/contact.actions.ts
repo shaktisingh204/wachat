@@ -6,13 +6,20 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
-import type { Contact, Project } from '@/lib/definitions';
+import type { Contact, Project, User } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { Readable } from 'stream';
 
-export async function handleAddNewContact(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+export async function handleAddNewContact(
+    prevState: any, 
+    formData: FormData,
+    apiUser?: WithId<User>
+): Promise<{ message?: string; error?: string, contactId?: string }> {
+    const session = apiUser ? { user: apiUser } : await getSession();
+    if (!session?.user) return { error: "Access denied." };
+
     const projectId = formData.get('projectId') as string;
     const phoneNumberId = formData.get('phoneNumberId') as string;
     const name = formData.get('name') as string;
@@ -22,7 +29,7 @@ export async function handleAddNewContact(prevState: any, formData: FormData): P
         return { error: 'All fields are required.' };
     }
 
-    const hasAccess = await getProjectById(projectId);
+    const hasAccess = await getProjectById(projectId, apiUser ? apiUser._id.toString() : undefined);
     if (!hasAccess) return { error: "Access denied." };
 
     try {
@@ -43,11 +50,11 @@ export async function handleAddNewContact(prevState: any, formData: FormData): P
             tagIds: [],
         };
 
-        await db.collection('contacts').insertOne(newContact as any);
+        const result = await db.collection('contacts').insertOne(newContact as any);
         
         revalidatePath('/dashboard/contacts');
         
-        return { message: 'Contact added successfully.' };
+        return { message: 'Contact added successfully.', contactId: result.insertedId.toString() };
     } catch (e: any) {
         console.error('Failed to add new contact:', e);
         return { error: e.message || 'An unexpected error occurred.' };
@@ -137,13 +144,14 @@ export async function getContactsPageData(
     page: number, 
     query: string,
     tags?: string[],
+    apiUserId?: string
 ): Promise<{
     project: WithId<Project> | null,
     contacts: WithId<Contact>[],
     total: number,
     selectedPhoneNumberId: string
 }> {
-    const projectData = await getProjectById(projectId);
+    const projectData = await getProjectById(projectId, apiUserId);
     if (!projectData) return { project: null, contacts: [], total: 0, selectedPhoneNumberId: '' };
 
     let selectedPhoneId = phoneNumberId;
