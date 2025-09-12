@@ -1,6 +1,6 @@
 
 
-'use server';
+'use client';
 
 import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
@@ -440,9 +440,8 @@ export async function handleCreateTemplate(
         const responseData = responseText ? JSON.parse(responseText) : null;
     
         if (!response.ok) {
-            console.error('Meta Template Creation Error:', responseData?.error || responseText);
-            const errorMessage = responseData?.error?.error_user_title || responseData?.error?.message || 'Unknown error creating template.';
-            return { error: `API Error: ${errorMessage}` };
+            const errorMessage = getErrorMessage({ response: { data: responseData }});
+            return { error: `API Error: ${errorMessage}`, payload: JSON.stringify(payload, null, 2) };
         }
 
         const newMetaTemplateId = responseData?.id;
@@ -1205,7 +1204,7 @@ export async function getPaymentConfigurationByName(projectId: string, configura
             throw new Error(getErrorMessage({ response }));
         }
 
-        const configuration = response.data.data?.[0];
+        const configuration = response.data;
 
         return { configuration };
     } catch (e: any) {
