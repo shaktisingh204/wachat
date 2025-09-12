@@ -10,8 +10,9 @@ import FormData from 'form-data';
 import axios from 'axios';
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getProjectById, getSession } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
+import { checkRateLimit } from '@/lib/rate-limiter';
 import type { Project, BroadcastJob, BroadcastState, Template, MetaFlow, Contact, BroadcastAttempt } from '@/lib/definitions';
 
 const BATCH_SIZE = 1000;
@@ -205,6 +206,16 @@ export async function handleStartBroadcast(
   prevState: BroadcastState,
   formData: FormData
 ): Promise<BroadcastState> {
+  const session = await getSession();
+  if (!session?.user) {
+    return { error: 'Authentication required to start a broadcast.' };
+  }
+
+  const { success, error } = await checkRateLimit(`broadcast:${session.user._id}`, 2, 60 * 1000); // 2 broadcasts per minute
+  if (!success) {
+    return { error };
+  }
+  
   let broadcastId: ObjectId | null = null;
   const { db } = await connectToDatabase();
 
