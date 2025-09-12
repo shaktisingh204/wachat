@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useFormStatus } from 'react-dom';
@@ -51,9 +52,10 @@ interface BroadcastFormProps {
     templates: WithId<Template>[];
     project: Pick<WithId<Project>, '_id' | 'phoneNumbers' | 'tags'> | null;
     metaFlows: WithId<MetaFlow>[];
+    onSuccess: () => void;
 }
 
-export function BroadcastForm({ templates, project, metaFlows }: BroadcastFormProps) {
+export function BroadcastForm({ templates, project, metaFlows, onSuccess }: BroadcastFormProps) {
   const [state, formAction] = useActionState(handleStartBroadcast, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
@@ -78,6 +80,7 @@ export function BroadcastForm({ templates, project, metaFlows }: BroadcastFormPr
       setSelectedPhoneNumber('');
       setSelectedTagIds([]);
       setAudienceType('file');
+      onSuccess();
     }
     if (state?.error) {
       toast({
@@ -86,7 +89,7 @@ export function BroadcastForm({ templates, project, metaFlows }: BroadcastFormPr
         variant: 'destructive',
       });
     }
-  }, [state, toast]);
+  }, [state, toast, onSuccess]);
 
 
   if (!project) {
