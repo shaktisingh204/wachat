@@ -149,7 +149,7 @@ export function BroadcastForm({ templates, project, metaFlows, onSuccess }: Broa
                 <SelectContent>
                     {(project?.phoneNumbers || []).map((phone) => (
                     <SelectItem key={phone.id} value={phone.id}>
-                        {phone.display_phone_number}
+                        {phone.display_phone_number} ({phone.verified_name})
                     </SelectItem>
                     ))}
                 </SelectContent>
@@ -277,7 +277,7 @@ export function BroadcastForm({ templates, project, metaFlows, onSuccess }: Broa
 
           </CardContent>
           <CardFooter className="flex justify-end">
-          <SubmitButton disabled={!selectedPhoneNumber} />
+          <SubmitButton disabled={!selectedPhoneNumber || !selectedTemplate} />
           </CardFooter>
       </form>
     </Card>
