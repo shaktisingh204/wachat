@@ -21,12 +21,7 @@ export async function verifyJwt(token: string): Promise<SessionPayload | null> {
             return null;
         }
 
-        return {
-            userId: payload.userId as string,
-            email: payload.email as string,
-            jti: payload.jti,
-            expires: payload.exp * 1000,
-        };
+        return payload as SessionPayload;
     } catch (error) {
         console.error('Error verifying JWT:', error);
         return null;
@@ -42,12 +37,7 @@ export async function verifyAdminJwt(token: string): Promise<AdminSessionPayload
             return null;
         }
         
-        return {
-            role: 'admin',
-            loggedInAt: payload.loggedInAt as number,
-            jti: payload.jti,
-            expires: payload.exp * 1000
-        };
+        return payload as AdminSessionPayload;
     } catch (error) {
         return null;
     }
