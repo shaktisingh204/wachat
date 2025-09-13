@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState, useTransition } from 'react';
@@ -22,6 +21,7 @@ import { useRouter } from 'next/navigation';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { NotebookText } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 
 const initialState = { message: null, error: null };
 
@@ -155,7 +155,7 @@ export default function RecordPaymentPage() {
                             <Card>
                                 <CardContent className="p-6 space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div className="space-y-1.5"><Label htmlFor="receiptNumber">Payment Receipt No *</Label><Input id="receiptNumber" name="receiptNumber" defaultValue="A00001" required/></div>
+                                        <div className="space-y-1.5"><Label htmlFor="receiptNumber">Payment Receipt No *</Label><Input id="receiptNumber" name="receiptNumber" defaultValue="A00001" required maxLength={50}/></div>
                                         <div className="space-y-1.5"><Label htmlFor="receiptDate">Receipt Date *</Label><DatePicker id="receiptDate" date={receiptDate} setDate={setReceiptDate} /></div>
                                     </div>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -186,6 +186,7 @@ export default function RecordPaymentPage() {
                                             <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-7 w-7" onClick={() => handleRemovePaymentRecord(record.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                                             <div className="grid md:grid-cols-2 gap-4"><div className="space-y-1.5"><Label>Amount *</Label><Input type="number" value={record.amount} onChange={(e) => handleRecordChange(record.id, 'amount', Number(e.target.value))}/></div><div className="space-y-1.5"><Label>Payment Date *</Label><DatePicker date={record.date} setDate={(d) => handleRecordChange(record.id, 'date', d)}/></div></div>
                                             <div className="space-y-1.5"><Label>Mode *</Label><Select value={record.mode} onValueChange={(v) => handleRecordChange(record.id, 'mode', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="Bank Transfer">Bank Transfer</SelectItem><SelectItem value="Cash">Cash</SelectItem><SelectItem value="Cheque">Cheque</SelectItem></SelectContent></Select></div>
+                                            <div className="space-y-1.5"><Label>Reference # (Optional)</Label><Input value={record.reference || ''} onChange={(e) => handleRecordChange(record.id, 'reference', e.target.value)} maxLength={100} /></div>
                                         </div>
                                     ))}
                                     <Button type="button" variant="outline" onClick={handleAddPaymentRecord}><PlusCircle className="mr-2 h-4 w-4" /> Add New Payment Record</Button>
@@ -226,7 +227,7 @@ export default function RecordPaymentPage() {
                                     )}
                                     <div className="space-y-2">
                                         <Label>Notes (Optional)</Label>
-                                        <Textarea name="notes" placeholder="e.g. Received via GPay"/>
+                                        <Textarea name="notes" placeholder="e.g. Received via GPay" maxLength={500}/>
                                     </div>
                                 </CardContent>
                                 <CardFooter className="justify-between">
