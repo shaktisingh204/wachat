@@ -87,7 +87,7 @@ export function CrmAddClientDialog({ onClientAdded }: CrmAddClientDialogProps) {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="businessName">Business Name *</Label>
-                      <Input id="businessName" name="businessName" required />
+                      <Input id="businessName" name="businessName" maxLength={100} required />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="clientIndustry">Client Industry</Label>
@@ -101,7 +101,7 @@ export function CrmAddClientDialog({ onClientAdded }: CrmAddClientDialogProps) {
                         </div>
                         <div className="space-y-2">
                              <Label htmlFor="city">City/Town</Label>
-                            <Input id="city" name="city" />
+                            <Input id="city" name="city" maxLength={100} />
                         </div>
                    </div>
                 </AccordionContent>
@@ -110,8 +110,8 @@ export function CrmAddClientDialog({ onClientAdded }: CrmAddClientDialogProps) {
                 <AccordionTrigger>Tax Information (Optional)</AccordionTrigger>
                 <AccordionContent className="space-y-4 pt-2">
                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2"><Label htmlFor="gstin">Business GSTIN</Label><Input id="gstin" name="gstin" /></div>
-                        <div className="space-y-2"><Label htmlFor="pan">Business PAN</Label><Input id="pan" name="pan" /></div>
+                        <div className="space-y-2"><Label htmlFor="gstin">Business GSTIN</Label><Input id="gstin" name="gstin" maxLength={15} /></div>
+                        <div className="space-y-2"><Label htmlFor="pan">Business PAN</Label><Input id="pan" name="pan" maxLength={10} /></div>
                    </div>
                    <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2"><Label>Client Type</Label><Select name="clientType"><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="individual">Individual</SelectItem><SelectItem value="company">Company</SelectItem></SelectContent></Select></div>
@@ -122,11 +122,11 @@ export function CrmAddClientDialog({ onClientAdded }: CrmAddClientDialogProps) {
               <AccordionItem value="address">
                 <AccordionTrigger>Address (Optional)</AccordionTrigger>
                 <AccordionContent className="space-y-4 pt-2">
-                    <div className="space-y-2"><Label htmlFor="street">Street Address</Label><Input id="street" name="street" /></div>
+                    <div className="space-y-2"><Label htmlFor="street">Street Address</Label><Input id="street" name="street" maxLength={200} /></div>
                     <div className="grid grid-cols-3 gap-4">
-                        <div className="space-y-2"><Label htmlFor="addressCity">City</Label><Input id="addressCity" name="addressCity" /></div>
-                        <div className="space-y-2"><Label htmlFor="addressState">State</Label><Input id="addressState" name="addressState" /></div>
-                        <div className="space-y-2"><Label htmlFor="addressZip">ZIP Code</Label><Input id="addressZip" name="addressZip" /></div>
+                        <div className="space-y-2"><Label htmlFor="addressCity">City</Label><Input id="addressCity" name="addressCity" maxLength={100} /></div>
+                        <div className="space-y-2"><Label htmlFor="addressState">State</Label><Input id="addressState" name="addressState" maxLength={100} /></div>
+                        <div className="space-y-2"><Label htmlFor="addressZip">ZIP Code</Label><Input id="addressZip" name="addressZip" maxLength={20} /></div>
                     </div>
                 </AccordionContent>
               </AccordionItem>
@@ -134,17 +134,17 @@ export function CrmAddClientDialog({ onClientAdded }: CrmAddClientDialogProps) {
                 <AccordionTrigger>Shipping Details (Optional)</AccordionTrigger>
                 <AccordionContent className="space-y-4 pt-2">
                     <div className="flex items-center space-x-2"><Checkbox id="copy-billing" /><Label htmlFor="copy-billing">Copy from billing address</Label></div>
-                    <div className="space-y-2"><Label htmlFor="shippingName">Name</Label><Input id="shippingName" name="shippingName" /></div>
-                    <div className="space-y-2"><Label htmlFor="shippingStreet">Street Address</Label><Input id="shippingStreet" name="shippingStreet" /></div>
+                    <div className="space-y-2"><Label htmlFor="shippingName">Name</Label><Input id="shippingName" name="shippingName" maxLength={100} /></div>
+                    <div className="space-y-2"><Label htmlFor="shippingStreet">Street Address</Label><Input id="shippingStreet" name="shippingStreet" maxLength={200} /></div>
                 </AccordionContent>
               </AccordionItem>
               <AccordionItem value="additional">
                 <AccordionTrigger>Additional Details (Optional)</AccordionTrigger>
                 <AccordionContent className="space-y-4 pt-2">
-                    <div className="space-y-2"><Label htmlFor="alias">Business Alias</Label><Input id="alias" name="alias" /></div>
+                    <div className="space-y-2"><Label htmlFor="alias">Business Alias</Label><Input id="alias" name="alias" maxLength={100} /></div>
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" /></div>
-                        <div className="space-y-2"><Label htmlFor="phone">Phone No.</Label><Input id="phone" name="phone" /></div>
+                        <div className="space-y-2"><Label htmlFor="email">Email</Label><Input id="email" name="email" type="email" maxLength={100} /></div>
+                        <div className="space-y-2"><Label htmlFor="phone">Phone No.</Label><Input id="phone" name="phone" maxLength={30} /></div>
                     </div>
                     <div className="space-y-2"><Label>Attachments</Label><Input type="file" multiple /></div>
                 </AccordionContent>
