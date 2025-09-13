@@ -4,6 +4,7 @@
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, Contact, PlayCircle, Upload } from "lucide-react";
+import Link from 'next/link';
 
 export default function VendorLeadsPage() {
     return (
@@ -25,11 +26,13 @@ export default function VendorLeadsPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Add New Vendor Lead
+                    <Button asChild>
+                        <Link href="/dashboard/crm/purchases/vendors/new">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Add New Vendor Lead
+                        </Link>
                     </Button>
-                     <Button variant="secondary">
+                     <Button variant="secondary" disabled>
                         <Upload className="mr-2 h-4 w-4" />
                         Import Leads
                     </Button>
