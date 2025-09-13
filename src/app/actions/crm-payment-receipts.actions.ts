@@ -54,7 +54,9 @@ export async function savePaymentReceipt(prevState: any, formData: FormData): Pr
         const settledInvoices = JSON.parse(formData.get('settledInvoices') as string || '[]');
         const totalAmountReceived = paymentRecords.reduce((sum: number, record: any) => sum + Number(record.amount || 0), 0);
 
-        const receiptData: Omit<CrmPaymentReceipt, '_id' | 'createdAt' | 'updatedAt'> = {
+        const newReceiptId = new ObjectId();
+        const receiptData: Omit<CrmPaymentReceipt, 'createdAt' | 'updatedAt'> = {
+            _id: newReceiptId,
             userId: new ObjectId(session.user._id),
             accountId: new ObjectId(formData.get('accountId') as string),
             receiptNumber: formData.get('receiptNumber') as string,
