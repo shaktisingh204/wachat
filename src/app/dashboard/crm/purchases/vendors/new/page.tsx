@@ -83,7 +83,7 @@ export default function NewVendorPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="name">Vendor's Business Name *</Label>
-                                        <Input id="name" name="name" required />
+                                        <Input id="name" name="name" required maxLength={100} />
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="clientIndustry">Vendor Industry</Label>
@@ -96,7 +96,7 @@ export default function NewVendorPage() {
                                         </div>
                                         <div className="space-y-2">
                                              <Label htmlFor="city">City/Town</Label>
-                                            <Input id="city" name="city" />
+                                            <Input id="city" name="city" maxLength={100} />
                                         </div>
                                    </div>
                                 </AccordionContent>
@@ -105,10 +105,10 @@ export default function NewVendorPage() {
                                 <AccordionTrigger>Tax Information (Optional)</AccordionTrigger>
                                 <AccordionContent className="space-y-4 pt-2">
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label>Business GSTIN</Label><Input name="gstin" /></div>
-                                        <div className="space-y-2"><Label>Business PAN</Label><Input name="pan" /></div>
+                                        <div className="space-y-2"><Label>Business GSTIN</Label><Input name="gstin" maxLength={15} /></div>
+                                        <div className="space-y-2"><Label>Business PAN</Label><Input name="pan" maxLength={10} /></div>
                                     </div>
-                                    <div className="space-y-2"><Label>Name as Per PAN</Label><Input name="panName" /></div>
+                                    <div className="space-y-2"><Label>Name as Per PAN</Label><Input name="panName" maxLength={100} /></div>
                                      <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2"><Label>Vendor Type</Label><RadioGroup name="vendorType" defaultValue="individual" className="flex gap-4 pt-2"><div className="flex items-center space-x-2"><RadioGroupItem value="individual" id="type-individual"/><Label htmlFor="type-individual" className="font-normal">Individual</Label></div><div className="flex items-center space-x-2"><RadioGroupItem value="company" id="type-company"/><Label htmlFor="type-company" className="font-normal">Company</Label></div></RadioGroup></div>
                                         <div className="space-y-2"><Label>Tax Treatment</Label><Select name="taxTreatment"><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="registered">Registered</SelectItem><SelectItem value="unregistered">Unregistered</SelectItem></SelectContent></Select></div>
@@ -120,28 +120,28 @@ export default function NewVendorPage() {
                                 <AccordionContent className="space-y-4 pt-2">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2"><Label>State / Province</Label><Select name="state"><SelectTrigger><SelectValue placeholder="Select..."/></SelectTrigger><SelectContent><SelectItem value="Rajasthan">Rajasthan</SelectItem></SelectContent></Select></div>
-                                        <div className="space-y-2"><Label>Postal Code / Zip Code</Label><Input name="pincode" /></div>
+                                        <div className="space-y-2"><Label>Postal Code / Zip Code</Label><Input name="pincode" maxLength={20}/></div>
                                     </div>
-                                    <div className="space-y-2"><Label>Street Address</Label><Input name="street" /></div>
+                                    <div className="space-y-2"><Label>Street Address</Label><Input name="street" maxLength={200}/></div>
                                 </AccordionContent>
                             </AccordionItem>
                              <AccordionItem value="additional">
                                 <AccordionTrigger>Additional Details (Optional)</AccordionTrigger>
                                 <AccordionContent className="space-y-4 pt-2">
-                                    <div className="space-y-2"><Label htmlFor="displayName">Display Name</Label><Input id="displayName" name="displayName" /></div>
+                                    <div className="space-y-2"><Label htmlFor="displayName">Display Name</Label><Input id="displayName" name="displayName" maxLength={100} /></div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
                                             <Label htmlFor="email">Email</Label>
-                                            <Input id="email" name="email" type="email" />
+                                            <Input id="email" name="email" type="email" maxLength={100} />
                                             <div className="flex items-center space-x-2"><Checkbox id="show-email"/><Label htmlFor="show-email" className="font-normal text-xs">Show in Invoice</Label></div>
                                         </div>
                                         <div className="space-y-2">
                                             <Label htmlFor="phone">Phone No.</Label>
-                                            <Input id="phone" name="phone" />
+                                            <Input id="phone" name="phone" maxLength={30} />
                                             <div className="flex items-center space-x-2"><Checkbox id="show-phone"/><Label htmlFor="show-phone" className="font-normal text-xs">Show in Invoice</Label></div>
                                         </div>
                                     </div>
-                                     <div className="space-y-2"><Label htmlFor="subject">Subject</Label><Input id="subject" name="subject" placeholder="Brief 4-5 words on what they’re looking for" /></div>
+                                     <div className="space-y-2"><Label htmlFor="subject">Subject</Label><Input id="subject" name="subject" placeholder="Brief 4-5 words on what they’re looking for" maxLength={100} /></div>
                                       <div className="space-y-2"><Label>Attachments</Label><Input type="file" multiple /></div>
                                 </AccordionContent>
                             </AccordionItem>
