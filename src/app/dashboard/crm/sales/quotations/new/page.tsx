@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useActionState, useRef, useTransition } from 'react';
@@ -79,7 +78,7 @@ const QuotationLineItems = ({ items, setItems, currency }: { items: QuotationLin
                     <tbody>
                         {items.map((item, index) => (
                             <tr key={item.id} className="border-b">
-                                <td className="p-2"><Input placeholder="Name/SKU Id" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required/></td>
+                                <td className="p-2"><Input placeholder="Name/SKU Id (Required)" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required maxLength={100} /></td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
                                 <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
                                 <td className="p-2 text-right font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
@@ -119,7 +118,7 @@ const TermsAndConditions = ({ terms, setTerms }: { terms: TermItem[], setTerms: 
             {terms.map((term, index) => (
                 <div key={term.id} className="flex items-center gap-2">
                     <span className="text-sm text-muted-foreground">{String(index + 1).padStart(2, '0')}</span>
-                    <Input value={term.text} onChange={(e) => handleTermChange(term.id, e.target.value)} />
+                    <Input value={term.text} onChange={(e) => handleTermChange(term.id, e.target.value)} maxLength={500} />
                     <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveTerm(term.id)}><Trash2 className="h-4 w-4" /></Button>
                 </div>
             ))}
@@ -142,13 +141,13 @@ const AdditionalInfo = ({ fields, setFields }: { fields: AdditionalInfoItem[], s
         <div className="space-y-2">
             <Label className="font-semibold">Additional Info</Label>
              {fields.map((field, index) => (
-                <div key={field.id} className="flex items-center gap-2">
-                    <Input placeholder="Field Name" value={field.key} onChange={e => handleFieldChange(field.id, 'key', e.target.value)} />
-                    <Input placeholder="Value" value={field.value} onChange={e => handleFieldChange(field.id, 'value', e.target.value)} />
-                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveField(field.id)}><Trash2 className="h-4 w-4" /></Button>
+                <div key={field.id} className="grid grid-cols-[1fr,1fr,auto] gap-2 items-center">
+                    <Input placeholder="Field Name" value={field.key} onChange={e => handleFieldChange(field.id, 'key', e.target.value)} maxLength={100} />
+                    <Input placeholder="Value" value={field.value} onChange={e => handleFieldChange(field.id, 'value', e.target.value)} maxLength={100} />
+                    <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveField(field.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button>
                 </div>
-            ))}
-            <Button type="button" variant="outline" size="sm" onClick={handleAddField}><PlusCircle className="mr-2 h-4 w-4"/>Add More Fields</Button>
+             ))}
+             <Button type="button" variant="outline" className="w-full" onClick={handleAddField}><PlusCircle className="mr-2 h-4 w-4"/>Add More Fields</Button>
         </div>
     );
 }
@@ -225,7 +224,7 @@ export default function NewQuotationPage() {
                             
                             <Separator className="my-8"/>
 
-                            <section className="grid grid-cols-2 gap-8 text-sm mb-8">
+                            <section className="grid md:grid-cols-2 gap-8 text-sm mb-8">
                                 <div>
                                     <h3 className="font-semibold mb-2">From:</h3>
                                     <p className="font-bold">{yourBusinessDetails.name}</p>
@@ -248,7 +247,7 @@ export default function NewQuotationPage() {
                             </section>
 
                             <section className="grid grid-cols-3 gap-4 mb-8">
-                                <div className="space-y-1"><Label htmlFor="quotationNumber" className="text-xs">Quotation No *</Label><Input id="quotationNumber" name="quotationNumber" defaultValue="A00001" className="h-8"/></div>
+                                <div className="space-y-1"><Label htmlFor="quotationNumber" className="text-xs">Quotation No *</Label><Input id="quotationNumber" name="quotationNumber" defaultValue="A00001" className="h-8" maxLength={50} /></div>
                                  <div className="space-y-1"><Label className="text-xs">Quotation Date *</Label><DatePicker date={quotationDate} setDate={setQuotationDate} className="h-8"/></div>
                                 <div className="space-y-1"><Label className="text-xs">Valid Till Date</Label><DatePicker date={validTillDate} setDate={setValidTillDate} className="h-8"/></div>
                             </section>
@@ -258,11 +257,11 @@ export default function NewQuotationPage() {
                             </section>
                             
                             <Separator className="my-8"/>
-
-                            <section className="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm">
+                            
+                            <section className="grid md:grid-cols-2 gap-8 text-sm">
                                  <div className="space-y-6">
                                     <TermsAndConditions terms={terms} setTerms={setTerms} />
-                                    <div className="space-y-2"><Label className="font-semibold">Additional Notes</Label><Textarea placeholder="Any additional notes for the client..." value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+                                    <div className="space-y-2"><Label className="font-semibold">Additional Notes</Label><Textarea placeholder="Any additional notes for the client..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500} /></div>
                                     <div className="space-y-2">
                                         <Label className="font-semibold">Attachments</Label>
                                         <div className="flex items-center justify-center w-full">
