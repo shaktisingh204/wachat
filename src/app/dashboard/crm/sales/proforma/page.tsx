@@ -1,9 +1,10 @@
 
 'use client';
 
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { BadgeInfo, PlayCircle, Plus, Upload } from "lucide-react";
+import { Plus, PlayCircle, Upload, BadgeInfo } from "lucide-react";
+import Link from 'next/link';
 
 export default function ProformaInvoicesPage() {
     return (
@@ -25,11 +26,13 @@ export default function ProformaInvoicesPage() {
                     </div>
                 </CardHeader>
                 <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Create your first proforma invoice
+                    <Button asChild>
+                        <Link href="/dashboard/crm/sales/proforma/new">
+                            <Plus className="mr-2 h-4 w-4" />
+                            Create your first proforma invoice
+                        </Link>
                     </Button>
-                     <Button variant="secondary">
+                     <Button variant="secondary" disabled>
                         <Upload className="mr-2 h-4 w-4" />
                         Upload Proforma invoices
                     </Button>
