@@ -16,8 +16,8 @@ import Link from 'next/link';
 import type { WithId, CrmAccount, CreditNoteLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 import { saveCreditNote } from '@/app/actions/crm-credit-notes.actions';
+import { useRouter } from 'next/navigation';
 
 
 const yourBusinessDetails = {
@@ -70,7 +70,7 @@ const LineItemsTable = ({ items, setItems, currency }: { items: CreditNoteLineIt
                     <tbody>
                         {items.map((item, index) => (
                             <tr key={item.id} className="border-b">
-                                <td className="p-2"><Input placeholder="Name/SKU Id" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required/></td>
+                                <td className="p-2"><Input placeholder="Name/SKU Id" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required maxLength={100}/></td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
                                 <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
                                 <td className="p-2 text-right font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
@@ -164,14 +164,14 @@ export default function NewCreditNotePage() {
                             </section>
 
                             <section className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-                                <div className="space-y-1"><Label className="text-xs">Credit Note No.</Label><Input name="creditNoteNumber" defaultValue="CN-00001" className="h-8"/></div>
+                                <div className="space-y-1"><Label className="text-xs">Credit Note No.</Label><Input name="creditNoteNumber" defaultValue="CN-00001" className="h-8" maxLength={50} /></div>
                                 <div className="space-y-1"><Label className="text-xs">Credit Note Date</Label><DatePicker date={creditNoteDate} setDate={setCreditNoteDate} className="h-8"/></div>
-                                 <div className="space-y-1"><Label className="text-xs">Original Invoice No.</Label><Input name="originalInvoiceNumber" className="h-8"/></div>
+                                 <div className="space-y-1"><Label className="text-xs">Original Invoice No.</Label><Input name="originalInvoiceNumber" className="h-8" maxLength={50} /></div>
                             </section>
                             
                              <section className="mb-8">
                                 <Label>Reason for Issuance</Label>
-                                <Textarea name="reason" placeholder="e.g. Return of goods, discount adjustment..." />
+                                <Textarea name="reason" placeholder="e.g. Return of goods, discount adjustment..." maxLength={500} />
                              </section>
 
                             <section>
@@ -185,4 +185,3 @@ export default function NewCreditNotePage() {
         </form>
     );
 }
-
