@@ -16,7 +16,6 @@ import Link from 'next/link';
 import type { WithId, CrmAccount, DeliveryChallanLineItem } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
 import { saveDeliveryChallan } from '@/app/actions/crm-delivery-challans.actions';
 
 
@@ -69,10 +68,10 @@ const LineItemsTable = ({ items, setItems }: { items: DeliveryChallanLineItem[],
                     <tbody>
                         {items.map((item, index) => (
                             <tr key={item.id} className="border-b">
-                                <td className="p-2"><Input placeholder="Item Name" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required/></td>
-                                <td className="p-2"><Input placeholder="e.g. 998314" value={item.hsnCode} onChange={e => handleItemChange(item.id, 'hsnCode', e.target.value)} /></td>
+                                <td className="p-2"><Input placeholder="Item Name" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required maxLength={100} /></td>
+                                <td className="p-2"><Input placeholder="e.g. 998314" value={item.hsnCode} onChange={e => handleItemChange(item.id, 'hsnCode', e.target.value)} maxLength={20} /></td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} required /></td>
-                                <td className="p-2"><Input placeholder="e.g. PCS, Kgs" value={item.unit} onChange={e => handleItemChange(item.id, 'unit', e.target.value)} /></td>
+                                <td className="p-2"><Input placeholder="e.g. PCS, Kgs" value={item.unit} onChange={e => handleItemChange(item.id, 'unit', e.target.value)} maxLength={20} /></td>
                                 <td className="p-2"><Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveItem(item.id)}><Trash2 className="h-4 w-4 text-destructive"/></Button></td>
                             </tr>
                         ))}
@@ -158,7 +157,7 @@ export default function NewDeliveryChallanPage() {
                             </section>
 
                             <section className="grid grid-cols-2 gap-4 mb-8">
-                                <div className="space-y-1"><Label className="text-xs">Challan No *</Label><Input name="challanNumber" defaultValue="DC-00001" className="h-8" required /></div>
+                                <div className="space-y-1"><Label className="text-xs">Challan No *</Label><Input name="challanNumber" defaultValue="DC-00001" className="h-8" required maxLength={50} /></div>
                                 <div className="space-y-1"><Label className="text-xs">Challan Date *</Label><DatePicker date={challanDate} setDate={setChallanDate} /></div>
                             </section>
 
@@ -170,16 +169,16 @@ export default function NewDeliveryChallanPage() {
                             
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                 <div className="space-y-4">
-                                    <div className="space-y-2"><Label>Reason for Delivery</Label><Input name="reason" placeholder="e.g. For Job Work, Sale on Approval" /></div>
-                                    <div className="space-y-2"><Label>Notes (Optional)</Label><Textarea name="notes" placeholder="Any special instructions..." /></div>
+                                    <div className="space-y-2"><Label>Reason for Delivery</Label><Input name="reason" placeholder="e.g. For Job Work, Sale on Approval" maxLength={200} /></div>
+                                    <div className="space-y-2"><Label>Notes (Optional)</Label><Textarea name="notes" placeholder="Any special instructions..." maxLength={500} /></div>
                                 </div>
                                 <div className="space-y-4">
                                      <h3 className="font-semibold">Transport Details</h3>
                                      <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2"><Label>Vehicle Number</Label><Input name="vehicleNumber" placeholder="e.g. RJ14 AB 1234"/></div>
-                                        <div className="space-y-2"><Label>Driver Name</Label><Input name="driverName" placeholder="e.g. John Doe"/></div>
+                                        <div className="space-y-2"><Label>Vehicle Number</Label><Input name="vehicleNumber" placeholder="e.g. RJ14 AB 1234" maxLength={20} /></div>
+                                        <div className="space-y-2"><Label>Driver Name</Label><Input name="driverName" placeholder="e.g. John Doe" maxLength={100} /></div>
                                      </div>
-                                      <div className="space-y-2"><Label>Transport Mode</Label><Input name="mode" placeholder="e.g. By Road"/></div>
+                                      <div className="space-y-2"><Label>Transport Mode</Label><Input name="mode" placeholder="e.g. By Road" maxLength={100} /></div>
                                 </div>
                             </section>
                             <Separator className="my-8"/>
