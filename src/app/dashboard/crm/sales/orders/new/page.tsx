@@ -62,7 +62,7 @@ const LineItemsTable = ({ items, setItems, currency }: { items: SalesOrderLineIt
                     <tbody>
                         {items.map((item, index) => (
                             <tr key={item.id} className="border-b">
-                                <td className="p-2"><Input placeholder="Item Name/Description" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required/></td>
+                                <td className="p-2"><Input placeholder="Item Name/Description" value={item.name} onChange={e => handleItemChange(item.id, 'name', e.target.value)} required maxLength={100} /></td>
                                 <td className="p-2"><Input type="number" className="w-24 text-right" value={item.quantity} onChange={e => handleItemChange(item.id, 'quantity', Number(e.target.value))} /></td>
                                 <td className="p-2"><Input type="number" className="w-32 text-right" value={item.rate} onChange={e => handleItemChange(item.id, 'rate', Number(e.target.value))} /></td>
                                 <td className="p-2 text-right font-medium">{new Intl.NumberFormat('en-IN', { style: 'currency', currency }).format(item.quantity * item.rate)}</td>
@@ -130,7 +130,7 @@ export default function NewSalesOrderPage() {
                             </Button>
                         </div>
                         <div className="flex items-center gap-2">
-                            <Button variant="outline">Save As Draft</Button>
+                            <Button variant="outline" type="button">Save As Draft</Button>
                             <SaveButton />
                         </div>
                      </header>
@@ -157,7 +157,7 @@ export default function NewSalesOrderPage() {
                                 </div>
                                 <div>
                                      <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-1"><Label htmlFor="orderNumber">Order #</Label><Input id="orderNumber" name="orderNumber" defaultValue="SO-0001" className="h-8"/></div>
+                                        <div className="space-y-1"><Label htmlFor="orderNumber">Order #</Label><Input id="orderNumber" name="orderNumber" defaultValue="SO-0001" className="h-8" maxLength={50}/></div>
                                         <div className="space-y-1"><Label className="text-xs">Order Date *</Label><DatePicker date={orderDate} setDate={setOrderDate} /></div>
                                     </div>
                                     <div className="mt-2 space-y-1"><Label className="text-xs">Expected Delivery Date</Label><DatePicker date={deliveryDate} setDate={setDeliveryDate} /></div>
@@ -172,12 +172,12 @@ export default function NewSalesOrderPage() {
                             
                             <section className="grid md:grid-cols-2 gap-8 mt-8">
                                  <div className="space-y-4">
-                                    <div className="space-y-2"><Label className="font-semibold">Payment Terms</Label><Textarea name="paymentTerms" placeholder="e.g. 50% advance, 50% on delivery." /></div>
-                                    <div className="space-y-2"><Label className="font-semibold">Shipping Details</Label><Textarea name="shippingDetails" placeholder="e.g. Shipping method, tracking information..." /></div>
+                                    <div className="space-y-2"><Label className="font-semibold">Payment Terms</Label><Textarea name="paymentTerms" placeholder="e.g. 50% advance, 50% on delivery." maxLength={500}/></div>
+                                    <div className="space-y-2"><Label className="font-semibold">Shipping Details</Label><Textarea name="shippingDetails" placeholder="e.g. Shipping method, tracking information..." maxLength={500}/></div>
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="font-semibold">Notes</Label>
-                                    <Textarea placeholder="Any special instructions for this order..." value={notes} onChange={(e) => setNotes(e.target.value)} />
+                                    <Textarea placeholder="Any special instructions for this order..." value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={500}/>
                                 </div>
                             </section>
                         </CardContent>
