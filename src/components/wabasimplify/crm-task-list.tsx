@@ -4,7 +4,6 @@
 import { useTransition } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -14,6 +13,7 @@ import { updateCrmTaskStatus, deleteCrmTask } from '@/app/actions/crm-tasks.acti
 import { useToast } from '@/hooks/use-toast';
 import type { WithId, CrmTask } from '@/lib/definitions';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 
 const priorityConfig = {
     High: { color: 'bg-red-500', label: 'High' },
@@ -33,8 +33,7 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
     const [isUpdating, startTransition] = useTransition();
     const { toast } = useToast();
 
-    const handleStatusChange = (taskId: string, currentStatus: CrmTask['status']) => {
-        const newStatus = currentStatus === 'Completed' ? 'To-Do' : 'Completed';
+    const handleStatusChange = (taskId: string, newStatus: CrmTask['status']) => {
         startTransition(async () => {
             const result = await updateCrmTaskStatus(taskId, newStatus);
             if (result.success) {
@@ -65,7 +64,7 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-10"></TableHead>
+                                <TableHead className="w-40">Status</TableHead>
                                 <TableHead>Task</TableHead>
                                 <TableHead>Type</TableHead>
                                 <TableHead>Due Date</TableHead>
@@ -83,11 +82,20 @@ export function CrmTaskList({ tasks, onTaskUpdated }: { tasks: WithId<CrmTask>[]
                                     return (
                                         <TableRow key={task._id.toString()} className={cn(isUpdating && 'opacity-50')}>
                                             <TableCell>
-                                                <Checkbox
-                                                    checked={task.status === 'Completed'}
-                                                    onCheckedChange={() => handleStatusChange(task._id.toString(), task.status)}
-                                                    disabled={isUpdating}
-                                                />
+                                                <Select value={task.status} onValueChange={(val) => handleStatusChange(task._id.toString(), val as any)}>
+                                                    <SelectTrigger className={cn(
+                                                        'h-8 text-xs w-32',
+                                                        task.status === 'Completed' && 'border-green-500 text-green-600',
+                                                        task.status === 'In Progress' && 'border-blue-500 text-blue-600'
+                                                    )}>
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="To-Do">To-Do</SelectItem>
+                                                        <SelectItem value="In Progress">In Progress</SelectItem>
+                                                        <SelectItem value="Completed">Completed</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
                                             </TableCell>
                                             <TableCell>
                                                 <p className={cn("font-medium", task.status === 'Completed' && 'line-through text-muted-foreground')}>
