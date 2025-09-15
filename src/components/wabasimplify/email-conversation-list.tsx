@@ -47,7 +47,7 @@ export function EmailConversationList({
             <div className="p-3 border-b flex-shrink-0">
                  <div className="relative">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Search inbox..." className="pl-8" />
+                    <Input placeholder="Search inbox..." className="pl-10" />
                 </div>
             </div>
             <ScrollArea className="flex-1">
@@ -87,4 +87,3 @@ export function EmailConversationList({
         </div>
     );
 }
-
