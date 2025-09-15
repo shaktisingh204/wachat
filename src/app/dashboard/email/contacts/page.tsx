@@ -1,10 +1,11 @@
 
 'use client';
 
-import { useState, useEffect, useCallback, useTransition } from 'react';
+import { useState, useEffect, useCallback, useTransition, useMemo } from 'react';
 import type { WithId } from 'mongodb';
 import { getEmailContacts } from '@/app/actions/email.actions';
-import type { EmailContact } from '@/lib/definitions';
+import { getSession } from '@/app/actions';
+import type { EmailContact, Tag, User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -16,11 +17,13 @@ import { EmailAddContactDialog } from '@/components/wabasimplify/email-add-conta
 import { EmailImportContactsDialog } from '@/components/wabasimplify/email-import-contacts-dialog';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
+import { Badge } from '@/components/ui/badge';
 
 const CONTACTS_PER_PAGE = 20;
 
 export default function EmailContactsPage() {
     const [contacts, setContacts] = useState<WithId<EmailContact>[]>([]);
+    const [user, setUser] = useState<(Omit<User, 'password'> & { _id: string, tags?: any[] }) | null>(null);
     const [isLoading, startTransition] = useTransition();
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -29,9 +32,13 @@ export default function EmailContactsPage() {
 
     const fetchData = useCallback(() => {
         startTransition(async () => {
-            const { contacts: data, total } = await getEmailContacts(currentPage, CONTACTS_PER_PAGE, searchQuery);
-            setContacts(data);
-            setTotalPages(Math.ceil(total / CONTACTS_PER_PAGE));
+            const [contactsData, sessionData] = await Promise.all([
+                getEmailContacts(currentPage, CONTACTS_PER_PAGE, searchQuery),
+                getSession()
+            ]);
+            setContacts(contactsData.contacts);
+            setTotalPages(Math.ceil(contactsData.total / CONTACTS_PER_PAGE));
+            setUser(sessionData?.user as any);
         });
     }, [currentPage, searchQuery]);
 
@@ -53,7 +60,7 @@ export default function EmailContactsPage() {
                 </div>
                 <div className="flex items-center gap-2">
                     <EmailImportContactsDialog onImported={fetchData} />
-                    <EmailAddContactDialog onAdded={fetchData} />
+                    <EmailAddContactDialog onAdded={fetchData} availableTags={user?.tags || []} />
                 </div>
             </div>
             
@@ -103,7 +110,18 @@ export default function EmailContactsPage() {
                                                     </div>
                                                 </div>
                                             </TableCell>
-                                            <TableCell>{contact.tags?.join(', ') || 'No tags'}</TableCell>
+                                            <TableCell>
+                                                <div className="flex flex-wrap gap-1">
+                                                    {(contact.tags || []).map(tagId => {
+                                                        const tag = user?.tags?.find(t => t._id === tagId);
+                                                        return tag ? (
+                                                            <Badge key={tagId} className="rounded" style={{ backgroundColor: tag.color, color: '#fff' }}>
+                                                                {tag.name}
+                                                            </Badge>
+                                                        ) : null;
+                                                    })}
+                                                </div>
+                                            </TableCell>
                                             <TableCell>{formatDistanceToNow(new Date(contact.createdAt), { addSuffix: true })}</TableCell>
                                         </TableRow>
                                     ))
