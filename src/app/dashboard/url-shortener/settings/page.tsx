@@ -77,7 +77,7 @@ export default function UrlShortenerSettingsPage() {
     const [addState, addAction] = useActionState(addCustomDomain, addDomainInitialState);
     const { copy } = useCopyToClipboard();
 
-    const fetchData = useCallback(() => {
+     const fetchData = useCallback(() => {
         startLoadingTransition(async () => {
             const data = await getCustomDomains();
             setDomains(data);
