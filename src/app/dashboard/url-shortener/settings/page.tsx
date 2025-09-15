@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useActionState, useEffect, useRef, useTransition, useState } from 'react';
+import { useActionState, useEffect, useRef, useTransition, useState, useCallback } from 'react';
 import { useFormStatus } from 'react-dom';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { BookOpen, Key, Link2, LoaderCircle, Info, Trash2, CheckCircle, Copy } from 'lucide-react';
+import { Key, LoaderCircle, Trash2, CheckCircle, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -30,7 +30,7 @@ function AddDomainButton() {
     )
 }
 
-function VerifyButton({ domainId }: { domainId: string }) {
+function VerifyButton({ domainId, onActionComplete }: { domainId: string, onActionComplete: () => void }) {
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
     
@@ -39,6 +39,7 @@ function VerifyButton({ domainId }: { domainId: string }) {
             const result = await verifyCustomDomain(domainId);
             if (result.success) {
                 toast({ title: "Domain Verified!", description: "You can now use this domain for your short links."});
+                onActionComplete();
             } else {
                 toast({ title: "Verification Failed", description: result.error, variant: 'destructive'});
             }
@@ -48,14 +49,17 @@ function VerifyButton({ domainId }: { domainId: string }) {
     return <Button onClick={onVerify} size="sm" disabled={isPending}>{isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}Verify</Button>;
 }
 
-function DeleteButton({ domainId }: { domainId: string }) {
+function DeleteButton({ domainId, onActionComplete }: { domainId: string, onActionComplete: () => void }) {
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
 
     const onDelete = () => {
         startTransition(async () => {
             const result = await deleteCustomDomain(domainId);
-            if (!result.success) {
+            if (result.success) {
+                toast({ title: 'Success', description: 'Domain deleted.'});
+                onActionComplete();
+            } else {
                 toast({ title: "Error", description: result.error, variant: "destructive"});
             }
         });
@@ -73,22 +77,27 @@ export default function UrlShortenerSettingsPage() {
     const [addState, addAction] = useActionState(addCustomDomain, addDomainInitialState);
     const { copy } = useCopyToClipboard();
 
-     useEffect(() => {
+    const fetchData = useCallback(() => {
         startLoadingTransition(async () => {
             const data = await getCustomDomains();
             setDomains(data);
         });
-    }, [addState]);
+    }, []);
+
+     useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     useEffect(() => {
         if (addState.success) {
             toast({ title: 'Domain Added', description: 'Please add the TXT record to your DNS provider to verify ownership.' });
             addFormRef.current?.reset();
+            fetchData(); // Re-fetch after adding
         }
         if (addState.error) {
             toast({ title: 'Error', description: addState.error, variant: 'destructive' });
         }
-    }, [addState, toast]);
+    }, [addState, toast, fetchData]);
 
     return (
         <div className="flex flex-col gap-8">
@@ -104,7 +113,7 @@ export default function UrlShortenerSettingsPage() {
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <form action={addAction} ref={addFormRef} className="space-y-2">
-                        <Label htmlFor="hostname">Your Domain</Label>
+                        <Label htmlFor="hostname">Add New Domain</Label>
                         <div className="flex gap-2">
                             <Input id="hostname" name="hostname" placeholder="e.g., links.mybrand.com" required />
                             <AddDomainButton />
@@ -113,6 +122,7 @@ export default function UrlShortenerSettingsPage() {
 
                     <Separator />
                      <div className="space-y-4">
+                        <h4 className="font-medium">Your Domains</h4>
                         {isLoading ? (
                             <Skeleton className="h-24 w-full" />
                         ) : domains.length > 0 ? (
@@ -127,15 +137,10 @@ export default function UrlShortenerSettingsPage() {
                                                 <Badge variant="secondary">Unverified</Badge>
                                             )}
                                         </div>
-                                        <DeleteButton domainId={domain._id.toString()} />
+                                        <DeleteButton domainId={domain._id.toString()} onActionComplete={fetchData} />
                                     </div>
                                     {domain.verified ? (
                                         <div className="p-3 bg-green-50 dark:bg-green-950 rounded-md text-sm space-y-3 border border-green-200 dark:border-green-800">
-                                            <div className="flex items-center gap-2 font-semibold text-green-800 dark:text-green-300">
-                                                <CheckCircle className="h-4 w-4"/>
-                                                Domain ownership verified!
-                                            </div>
-                                            <p className="text-muted-foreground">Now, configure the CNAME record in your DNS provider to point your domain to our servers. This enables the short links.</p>
                                             <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
                                                 <span className="text-muted-foreground">Type:</span> <span>CNAME</span>
                                                 <span className="text-muted-foreground">Host/Name:</span> <span>{domain.hostname}</span>
@@ -149,7 +154,6 @@ export default function UrlShortenerSettingsPage() {
                                         </div>
                                     ) : (
                                         <div className="p-3 bg-muted/50 rounded-md text-sm space-y-3">
-                                            <p className="text-muted-foreground">To verify this domain, add the following TXT record to your DNS settings:</p>
                                             <div className="grid grid-cols-[auto,1fr] gap-x-4 gap-y-1 font-mono text-xs">
                                                 <span className="text-muted-foreground">Type:</span> <span>TXT</span>
                                                 <span className="text-muted-foreground">Host:</span> <span>@ or {domain.hostname}</span>
@@ -160,7 +164,7 @@ export default function UrlShortenerSettingsPage() {
                                                 </div>
                                             </div>
                                              <div className="flex justify-end pt-2">
-                                                <VerifyButton domainId={domain._id.toString()} />
+                                                <VerifyButton domainId={domain._id.toString()} onActionComplete={fetchData} />
                                              </div>
                                         </div>
                                     )}
