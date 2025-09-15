@@ -67,7 +67,7 @@ export function EmailCampaignsClient() {
                                     <TableRow key={c._id.toString()}>
                                         <TableCell>
                                             <p className="font-medium">{c.name}</p>
-                                            <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(c.createdAt), {addSuffix: true})}</p>
+                                            <p className="text-xs text-muted-foreground">{c.sentAt ? formatDistanceToNow(new Date(c.sentAt), {addSuffix: true}) : 'Scheduled'}</p>
                                         </TableCell>
                                         <TableCell>
                                             <Badge variant={c.status === 'sent' ? 'default' : 'secondary'}>{c.status}</Badge>
