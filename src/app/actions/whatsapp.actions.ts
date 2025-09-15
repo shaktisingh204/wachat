@@ -893,6 +893,44 @@ export async function handleSyncTemplates(projectId: string): Promise<{ message?
     }
 }
 
+export async function findOrCreateContact(projectId: string, phoneNumberId: string, waId: string): Promise<{ contact?: WithId<Contact>; error?: string }> {
+    if (!projectId || !phoneNumberId || !waId) {
+        return { error: 'Missing required information.' };
+    }
+
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: "Access denied." };
+
+    try {
+        const { db } = await connectToDatabase();
+        const contactResult = await db.collection<Contact>('contacts').findOneAndUpdate(
+            { waId, projectId: new ObjectId(projectId) },
+            { 
+                $set: { phoneNumberId }, 
+                $setOnInsert: {
+                    waId,
+                    projectId: new ObjectId(projectId),
+                    name: `User (${waId.slice(-4)})`,
+                    createdAt: new Date(),
+                    status: 'new',
+                    tagIds: [],
+                }
+            },
+            { upsert: true, returnDocument: 'after' }
+        );
+        
+        if (contactResult) {
+            revalidatePath('/dashboard/chat');
+            revalidatePath('/dashboard/contacts');
+            return { contact: JSON.parse(JSON.stringify(contactResult)) };
+        } else {
+            return { error: 'Failed to find or create contact.' };
+        }
+    } catch (e: any) {
+        return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
 // --- PAYMENT ACTIONS ---
 
 export async function handleCreatePaymentConfiguration(prevState: any, formData: FormData): Promise<{ message?: string; error?: string; oauth_url?: string }> {
@@ -1230,3 +1268,6 @@ export async function getTransactionsForProject(projectId: string): Promise<With
         return [];
     }
 }
+
+
+    
