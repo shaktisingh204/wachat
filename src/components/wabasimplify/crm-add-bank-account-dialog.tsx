@@ -58,23 +58,23 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
                         </div>
                          <div className="space-y-2">
                             <Label>Bank Name *</Label>
-                            <Input placeholder="e.g. HDFC Bank" value={details.bankName || ''} onChange={e => setDetails(prev => ({...prev, bankName: e.target.value}))} required />
+                            <Input placeholder="e.g. HDFC Bank" value={details.bankName || ''} onChange={e => setDetails(prev => ({...prev, bankName: e.target.value}))} required maxLength={100} />
                         </div>
                          <div className="space-y-2">
                             <Label>Account Number *</Label>
-                            <Input value={details.accountNumber || ''} onChange={e => setDetails(prev => ({...prev, accountNumber: e.target.value}))} required />
+                            <Input value={details.accountNumber || ''} onChange={e => setDetails(prev => ({...prev, accountNumber: e.target.value}))} required maxLength={30} />
                         </div>
                          <div className="space-y-2">
                             <Label>Confirm Account Number *</Label>
-                            <Input value={confirmAccountNumber} onChange={e => setConfirmAccountNumber(e.target.value)} required />
+                            <Input value={confirmAccountNumber} onChange={e => setConfirmAccountNumber(e.target.value)} required maxLength={30} />
                         </div>
                          <div className="space-y-2">
                             <Label>IFSC Code *</Label>
-                            <Input value={details.ifsc || ''} onChange={e => setDetails(prev => ({...prev, ifsc: e.target.value}))} required />
+                            <Input value={details.ifsc || ''} onChange={e => setDetails(prev => ({...prev, ifsc: e.target.value}))} required maxLength={20} />
                         </div>
                          <div className="space-y-2">
                             <Label>Account Holder Name *</Label>
-                            <Input value={details.accountHolder || ''} onChange={e => setDetails(prev => ({...prev, accountHolder: e.target.value}))} required />
+                            <Input value={details.accountHolder || ''} onChange={e => setDetails(prev => ({...prev, accountHolder: e.target.value}))} required maxLength={100} />
                         </div>
                          <div className="space-y-2">
                             <Label>Account Type *</Label>
@@ -99,12 +99,12 @@ export function CrmAddBankAccountDialog({ isOpen, onOpenChange, onSave }: CrmAdd
                             <Switch id="show-swift" checked={showSwift} onCheckedChange={setShowSwift} />
                             <Label htmlFor="show-swift">Add SWIFT Code</Label>
                         </div>
-                        {showSwift && <div className="space-y-2"><Input value={details.swiftCode || ''} onChange={e => setDetails(prev => ({...prev, swiftCode: e.target.value}))} /></div>}
+                        {showSwift && <div className="space-y-2"><Input value={details.swiftCode || ''} onChange={e => setDetails(prev => ({...prev, swiftCode: e.target.value}))} maxLength={20} /></div>}
                         <div className="flex items-center space-x-2">
                             <Switch id="show-iban" checked={showIban} onCheckedChange={setShowIban} />
                             <Label htmlFor="show-iban">Add IBAN Code</Label>
                         </div>
-                        {showIban && <div className="space-y-2"><Input value={details.ibanCode || ''} onChange={e => setDetails(prev => ({...prev, ibanCode: e.target.value}))} /></div>}
+                        {showIban && <div className="space-y-2"><Input value={details.ibanCode || ''} onChange={e => setDetails(prev => ({...prev, ibanCode: e.target.value}))} maxLength={34} /></div>}
                     </div>
                 </ScrollArea>
                 <DialogFooter>
