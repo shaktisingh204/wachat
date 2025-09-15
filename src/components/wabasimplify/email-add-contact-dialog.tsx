@@ -85,7 +85,7 @@ export function EmailAddContactDialog({ onAdded, availableTags }: EmailAddContac
                  <div className="space-y-2">
                     <Label htmlFor="tags">Tags (Optional)</Label>
                     <MultiSelectCombobox
-                        options={availableTags.map(t => ({ value: t._id.toString(), label: t.name, color: t.color }))}
+                        options={availableTags.map(t => ({ value: t._id, label: t.name, color: t.color }))}
                         selected={selectedTagIds}
                         onSelectionChange={setSelectedTagIds}
                         placeholder="Select tags..."
