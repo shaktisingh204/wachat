@@ -284,4 +284,5 @@ export default function SelectProjectPage() {
                 </Card>
             )}
         </div>
-    )
+    );
+}
