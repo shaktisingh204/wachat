@@ -21,6 +21,9 @@ import type { WithId, CrmEmailTemplate, EmailCampaign } from '@/lib/definitions'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { DatePicker } from '../ui/date-picker';
 import { handleSendBulkEmail } from '@/app/actions/email.actions';
+import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from '../ui/card';
+import { Separator } from '../ui/separator';
+import { Switch } from '../ui/switch';
 
 const initialState = { message: null, error: null };
 
@@ -76,7 +79,7 @@ export function EmailCampaignForm({ templates, onSuccess }: EmailCampaignFormPro
 
   return (
     <form action={formAction} ref={formRef}>
-        <input type="hidden" name="scheduledAt" value={scheduledAt?.toISOString()} />
+        <input type="hidden" name="scheduledAt" value={isScheduled && scheduledAt ? scheduledAt.toISOString() : ''} />
         <Card className="flex-1">
             <CardHeader>
                 <CardTitle>New Email Campaign</CardTitle>
