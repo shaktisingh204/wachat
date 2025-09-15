@@ -19,6 +19,7 @@ import { WhatsAppIcon, MetaIcon, FacebookIcon as FacebookAppIcon, InstagramIcon,
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { MetaSuiteShowcase } from '@/components/wabasimplify/meta-suite-showcase';
+import { getSession } from '@/app/actions';
 
 const AppShowcase = ({ title, description, children, className, id }: { title: React.ReactNode, description: string, children: React.ReactNode, className?: string, id?: string }) => (
     <div id={id} className={cn("space-y-8 animate-fade-in", className)}>
@@ -587,6 +588,15 @@ const WhatsAppShowcase = ({ id }: { id?: string }) => {
 
 export default function HomePage() {
   const [activeApp, setActiveApp] = React.useState('overview');
+  const [session, setSession] = React.useState<any>(null);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    getSession().then(sessionData => {
+      setSession(sessionData);
+      setLoading(false);
+    });
+  }, []);
 
   const appIcons = [
     { id: 'overview', icon: Home, label: 'Overview' },
@@ -730,7 +740,18 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 flex h-14 items-center">
           <div className="mr-4 flex"><Link href="/" className="mr-6 flex items-center space-x-2"><SabNodeLogo className="h-8 w-auto" /></Link></div>
-          <div className="flex flex-1 items-center justify-end space-x-2"><Button variant="ghost" asChild><Link href="/login">Sign In</Link></Button><Button asChild><Link href="/signup">Sign Up</Link></Button></div>
+          <div className="flex flex-1 items-center justify-end space-x-2">
+            {loading ? <div className="h-10 w-24 bg-muted rounded-md animate-pulse"></div> : (
+              session ? (
+                <Button asChild><Link href="/dashboard">Dashboard</Link></Button>
+              ) : (
+                <>
+                  <Button variant="ghost" asChild><Link href="/login">Sign In</Link></Button>
+                  <Button asChild><Link href="/signup">Sign Up</Link></Button>
+                </>
+              )
+            )}
+          </div>
         </div>
       </header>
       <main className="flex-1 relative">
