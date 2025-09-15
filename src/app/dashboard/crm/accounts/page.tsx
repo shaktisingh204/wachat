@@ -11,11 +11,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Search, Plus, Building, NotebookPen } from 'lucide-react';
+import { Search, Plus, Building, NotebookPen, Edit } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useDebouncedCallback } from 'use-debounce';
 import { CrmAddAccountDialog } from '@/components/wabasimplify/crm-add-account-dialog';
 import { formatDistanceToNow } from 'date-fns';
+import Link from 'next/link';
 
 const ACCOUNTS_PER_PAGE = 20;
 
@@ -84,32 +85,40 @@ export default function CrmAccountsPage() {
                                     <TableHead>Industry</TableHead>
                                     <TableHead>Website</TableHead>
                                     <TableHead>Created</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {isLoading ? (
                                     [...Array(5)].map((_, i) => (
                                         <TableRow key={i}>
-                                            <TableCell colSpan={4}><Skeleton className="h-10 w-full" /></TableCell>
+                                            <TableCell colSpan={5}><Skeleton className="h-10 w-full" /></TableCell>
                                         </TableRow>
                                     ))
                                 ) : accounts.length > 0 ? (
                                     accounts.map((account) => (
-                                        <TableRow key={account._id.toString()} onClick={() => router.push(`/dashboard/crm/accounts/${account._id.toString()}`)} className="cursor-pointer">
+                                        <TableRow key={account._id.toString()}>
                                             <TableCell>
-                                                <div className="font-medium flex items-center gap-2">
+                                                <Link href={`/dashboard/crm/accounts/${account._id.toString()}`} className="font-medium flex items-center gap-2 hover:underline">
                                                     <Building className="h-4 w-4 text-muted-foreground"/>
                                                     {account.name}
-                                                </div>
+                                                </Link>
                                             </TableCell>
                                             <TableCell>{account.industry || 'N/A'}</TableCell>
                                             <TableCell>{account.website || 'N/A'}</TableCell>
                                             <TableCell>{formatDistanceToNow(new Date(account.createdAt), { addSuffix: true })}</TableCell>
+                                            <TableCell className="text-right">
+                                                <Button asChild variant="ghost" size="icon">
+                                                    <Link href={`/dashboard/crm/accounts/${account._id.toString()}/edit`}>
+                                                        <Edit className="h-4 w-4" />
+                                                    </Link>
+                                                </Button>
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={4} className="h-24 text-center">No accounts found.</TableCell>
+                                        <TableCell colSpan={5} className="h-24 text-center">No accounts found.</TableCell>
                                     </TableRow>
                                 )}
                             </TableBody>
