@@ -41,13 +41,15 @@ export function CrmEmailTemplatesManager() {
     }, []);
 
     const handleDelete = async (templateId: string) => {
-        const result = await deleteCrmEmailTemplate(templateId);
-        if (result.success) {
-            toast({ title: 'Success', description: 'Template deleted.' });
-            fetchData();
-        } else {
-            toast({ title: 'Error', description: result.error, variant: 'destructive' });
-        }
+        startLoading(async () => {
+            const result = await deleteCrmEmailTemplate(templateId);
+            if (result.success) {
+                toast({ title: 'Success', description: 'Template deleted.' });
+                fetchData();
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
     };
 
     const handleEdit = (template: WithId<CrmEmailTemplate>) => {
