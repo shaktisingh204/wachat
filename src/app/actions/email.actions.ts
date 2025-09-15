@@ -184,6 +184,20 @@ export async function saveEmailTemplate(prevState: any, formData: FormData): Pro
         }
 
         const { db } = await connectToDatabase();
+        
+        // Check for duplicate name
+        const existingTemplateFilter: Filter<CrmEmailTemplate> = {
+            name: templateData.name,
+            userId: new ObjectId(session.user._id)
+        };
+        if (isEditing && ObjectId.isValid(templateId)) {
+            existingTemplateFilter._id = { $ne: new ObjectId(templateId) };
+        }
+        const existingTemplate = await db.collection('email_templates').findOne(existingTemplateFilter);
+        if (existingTemplate) {
+            return { error: `A template with the name "${templateData.name}" already exists.` };
+        }
+
         if (isEditing && ObjectId.isValid(templateId)) {
             await db.collection('email_templates').updateOne(
                 { _id: new ObjectId(templateId), userId: new ObjectId(session.user._id) },
