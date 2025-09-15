@@ -1,44 +1,24 @@
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus } from "lucide-react";
+'use client';
+
+import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
+import { Repeat } from 'lucide-react';
 
 export default function AdjustmentsPage() {
     return (
-        <div className="space-y-4">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold">Stock Adjustments</h2>
-                 <Button>
-                    <Plus className="mr-2 h-4 w-4" />
-                    New Adjustment
-                </Button>
-            </div>
-
-            <Card>
+        <div className="flex justify-center items-center h-full">
+            <Card className="text-center max-w-2xl">
                 <CardHeader>
-                    <CardTitle>Adjustment History</CardTitle>
-                    <CardDescription>A log of all inventory changes.</CardDescription>
+                    <div className="mx-auto bg-muted p-4 rounded-full w-fit">
+                         <Repeat className="h-12 w-12 text-primary" />
+                    </div>
+                    <CardTitle className="mt-4 text-2xl">Stock Adjustments</CardTitle>
+                    <CardDescription>
+                        Coming Soon: Manually adjust stock levels for returns, damages, or stock takes.
+                    </CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Product</TableHead>
-                                <TableHead>Warehouse</TableHead>
-                                <TableHead>Reason</TableHead>
-                                <TableHead className="text-right">Quantity</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            <TableRow>
-                                <TableCell colSpan={5} className="text-center h-24">
-                                    No stock adjustments have been made yet.
-                                </TableCell>
-                            </TableRow>
-                        </TableBody>
-                    </Table>
+                 <CardContent>
+                    <p className="text-muted-foreground">This feature is under development.</p>
                 </CardContent>
             </Card>
         </div>
