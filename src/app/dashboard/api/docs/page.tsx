@@ -4,8 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { ArrowLeft, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 const wachatApiDocs = [
     {
@@ -214,54 +215,61 @@ export default function ApiDocsPage() {
                     <p className="text-sm text-muted-foreground mt-2">You can generate API keys from the <Link href="/dashboard/api" className="text-primary hover:underline">API settings page</Link>.</p>
                 </CardContent>
             </Card>
-            
+
             <div className="space-y-4">
-                <h2 className="text-2xl font-bold font-headline">Wachat Suite APIs</h2>
-                 <Accordion type="single" collapsible className="w-full">
-                    {wachatApiDocs.map((endpoint, i) => (
-                        <AccordionItem value={`item-${i}`} key={i}>
-                            <AccordionTrigger className="text-left">
-                                <span className="font-mono text-sm text-primary">{endpoint.endpoint}</span>
-                            </AccordionTrigger>
-                            <AccordionContent className="pt-4 space-y-6">
-                                 <p className="text-muted-foreground">{endpoint.description}</p>
-                                
-                                {endpoint.bodyParams.length > 0 && (
-                                    <>
-                                        <h4 className="font-semibold">Request Body Parameters</h4>
-                                        <div className="border rounded-md overflow-hidden">
-                                            <Table>
-                                                <TableHeader>
-                                                    <TableRow>
-                                                        <TableHead>Parameter</TableHead>
-                                                        <TableHead>Type</TableHead>
-                                                        <TableHead>Description</TableHead>
-                                                    </TableRow>
-                                                </TableHeader>
-                                                <TableBody>
-                                                    {endpoint.bodyParams.map(param => (
-                                                        <TableRow key={param.name}>
-                                                            <TableCell className="font-mono">{param.name}</TableCell>
-                                                            <TableCell className="font-mono text-xs">{param.type}</TableCell>
-                                                            <TableCell className="text-muted-foreground text-xs">{param.desc}</TableCell>
+                 <h2 className="text-2xl font-bold font-headline">Wachat Suite APIs</h2>
+                 <div className="space-y-6">
+                    {wachatApiDocs.map((endpoint, i) => {
+                        const [method, path] = endpoint.endpoint.split(' ');
+                        return (
+                            <Card key={i} className="card-gradient card-gradient-green">
+                                <CardHeader>
+                                    <div className="flex items-center gap-4">
+                                        <Badge className={method === 'GET' ? 'bg-blue-600' : 'bg-green-600'}>{method}</Badge>
+                                        <CardTitle className="font-mono text-lg">{path}</CardTitle>
+                                    </div>
+                                    <CardDescription>{endpoint.description}</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    {endpoint.bodyParams.length > 0 && (
+                                        <>
+                                            <h4 className="font-semibold">Request Body Parameters</h4>
+                                            <div className="border rounded-md overflow-hidden">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow>
+                                                            <TableHead>Parameter</TableHead>
+                                                            <TableHead>Type</TableHead>
+                                                            <TableHead>Description</TableHead>
                                                         </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
-                                        </div>
-                                    </>
-                                )}
-                                <h4 className="font-semibold">Example Request</h4>
-                                <CodeBlock code={endpoint.example} language="bash" />
-                                 <h4 className="font-semibold">Example Response</h4>
-                                <CodeBlock code={endpoint.response} language="json" />
-                            </AccordionContent>
-                        </AccordionItem>
-                    ))}
-                </Accordion>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {endpoint.bodyParams.map(param => (
+                                                            <TableRow key={param.name}>
+                                                                <TableCell className="font-mono">{param.name}</TableCell>
+                                                                <TableCell className="font-mono text-xs">{param.type}</TableCell>
+                                                                <TableCell className="text-muted-foreground text-xs">{param.desc}</TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        </>
+                                    )}
+                                    <div>
+                                        <h4 className="font-semibold mb-2">Example Request</h4>
+                                        <CodeBlock code={endpoint.example} language="bash" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-semibold mb-2">Example Response</h4>
+                                        <CodeBlock code={endpoint.response} language="json" />
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )
+                    })}
+                 </div>
             </div>
         </div>
     );
 }
-
-    
