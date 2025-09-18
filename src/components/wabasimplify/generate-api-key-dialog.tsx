@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LoaderCircle, Key, Copy, Check } from 'lucide-react';
+import { LoaderCircle, Key, Copy } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateApiKey } from '@/app/actions/api-keys.actions';
 import { useCopyToClipboard } from '@/hooks/use-copy-to-clipboard';
@@ -39,7 +39,12 @@ interface GenerateApiKeyDialogProps {
 }
 
 export function GenerateApiKeyDialog({ isOpen, onOpenChange, onKeyGenerated }: GenerateApiKeyDialogProps) {
-  const [state, formAction] = useActionState(generateApiKey, initialState);
+  const [state, formAction, isPending] = useActionState(async (previousState: any, formData: FormData) => {
+    const name = formData.get('name') as string;
+    if (!name) return { error: 'Key name is required.'};
+    return await generateApiKey(name);
+  }, initialState);
+
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
   const { copy } = useCopyToClipboard();
@@ -57,11 +62,11 @@ export function GenerateApiKeyDialog({ isOpen, onOpenChange, onKeyGenerated }: G
   const handleOpenChange = (open: boolean) => {
       if (!open) {
           formRef.current?.reset();
-          // Reset the state manually if the action was successful
-          if(state.success) {
-            state.success = false;
-            state.apiKey = undefined;
-          }
+          // Manually reset the action state when the dialog is closed.
+          // This is a workaround to ensure the success/API key view doesn't persist.
+          initialState.success = false;
+          initialState.apiKey = undefined;
+          initialState.error = undefined;
       }
       onOpenChange(open);
   }
@@ -111,7 +116,7 @@ export function GenerateApiKeyDialog({ isOpen, onOpenChange, onKeyGenerated }: G
             <Input id="name" name="name" placeholder="e.g., My Awesome App" required />
           </div>
           <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+            <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>Cancel</Button>
             <SubmitButton />
           </DialogFooter>
         </form>
