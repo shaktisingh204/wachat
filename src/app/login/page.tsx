@@ -89,7 +89,7 @@ export default function LoginPage() {
                     </div>
                 </CardContent>
                     <CardFooter className="justify-center">
-                    <p className="text-sm text-muted-foreground">Don't have an account? <Link href="/signup" className="font-semibold text-foreground hover:text-primary">Request Now</Link></p>
+                    <p className="text-sm text-muted-foreground">Don't have an account? <Link href="/signup" className="font-semibold text-foreground hover:text-primary">Register Now</Link></p>
                     </CardFooter>
             </form>
         </Card>
