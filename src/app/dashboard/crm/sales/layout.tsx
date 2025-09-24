@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Users, FileText, ShoppingBag, Truck, Repeat, BadgeInfo, CreditCard } from "lucide-react";
+import { Users, FileText, ShoppingCart, Truck, Repeat, BadgeInfo, CreditCard } from "lucide-react";
 
 const salesNavItems = [
     { href: "/dashboard/crm/sales/clients", label: "Clients", icon: Users },
@@ -42,3 +42,5 @@ export default function SalesLayout({ children }: { children: React.ReactNode })
         </div>
     );
 }
+
+    
