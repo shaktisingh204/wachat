@@ -1,29 +1,18 @@
-
-
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
 
 const nextConfig = {
-  /* config options here */
+  // ✅ REMOVE THIS block:
+  // serverActions: {
+  //   bodySizeLimit: '50mb',
+  // },
+
   typescript: {
     ignoreBuildErrors: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
-  },
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-        ],
-      },
-    ];
   },
   images: {
     remotePatterns: [
@@ -64,21 +53,6 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
-  },
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-        config.externals.push('mongodb-client-encryption');
-        config.resolve.fallback = {
-            ...config.resolve.fallback,
-            fs: false,
-            dns: false,
-            net: false,
-            tls: false,
-            'child_process': false,
-        };
-    }
-    config.experiments = { ...config.experiments, topLevelAwait: true };
-    return config;
   },
 };
 
