@@ -4,11 +4,6 @@ const withBundleAnalyzer = require('@next/bundle-analyzer')({
 });
 
 const nextConfig = {
-  // ✅ REMOVE THIS block:
-  // serverActions: {
-  //   bodySizeLimit: '50mb',
-  // },
-
   typescript: {
     ignoreBuildErrors: true,
   },
