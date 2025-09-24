@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { BarChart, Users, Send, MousePointerClick, Eye, TrendingUp } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
-import { MessageSquare } from "lucide-react";
 
 const StatCard = ({ title, value, icon: Icon, description }: { title: string, value: string | number, icon: React.ElementType, description?: string }) => (
     <Card>

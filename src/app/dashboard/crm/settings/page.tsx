@@ -28,7 +28,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { CrmEmailTemplatesManager } from "@/components/wabasimplify/crm-email-templates-manager";
-import { MessageSquare } from "lucide-react";  
 
 
 function PageSkeleton() {

@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { MessageSquare } from "lucide-react";  // ❌ not used
 
 const pathComponentMap: Record<string, React.ComponentType<any>> = {
   '/dashboard/crm': React.lazy(() => import('@/app/dashboard/crm/page')),
