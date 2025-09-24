@@ -132,7 +132,7 @@ const allMenuItems = crmMenuItems.flatMap(item =>
   item.subItems ? item.subItems.map(sub => ({ ...sub, parent: item.label })) : [{ ...item, parent: null }]
 );
 
-export const CrmTabLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export default function CrmTabLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [openTabs, setOpenTabs] = useState<Tab[]>([]);
   const [activeTab, setActiveTab] = useState<string>('');
@@ -219,5 +219,3 @@ export const CrmTabLayout: React.FC<{ children: React.ReactNode }> = ({ children
     </div>
   );
 };
-
-    
