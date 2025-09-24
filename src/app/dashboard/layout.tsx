@@ -236,6 +236,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [activeApp, setActiveApp] = React.useState('whatsapp');
 
   const isWebsiteBuilderPage = pathname.includes('/builder');
+  const isCrmPage = pathname.startsWith('/dashboard/crm');
   const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
   
   const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
@@ -396,44 +397,49 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return <>{children}</>;
   }
 
-  const renderMenuItems = (items: any[]) => {
-    return items.map((item: any) => (
-        <SidebarMenuItem key={item.label}>
-            <SidebarMenuButton
-                asChild
-                isActive={item.href === pathname || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
-                tooltip={item.label}
-            >
-                <Link href={item.href}>
-                    <item.icon className="h-4 w-4" />
-                    <span className="truncate">{item.label}</span>
-                    {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
-                </Link>
-            </SidebarMenuButton>
-        </SidebarMenuItem>
-    ));
-};
+  const renderMenuItems = (items: any[], isSubmenu = false) => {
+    return items.map((item: any) => {
+      const isCrmLink = item.href?.startsWith('/dashboard/crm');
+      const href = isCrmLink ? `${pathname}?tab=${item.href}` : item.href;
 
-const renderGroupedMenuItems = (groups: any[]) => {
+      return (
+        <SidebarMenuItem key={item.label}>
+          <SidebarMenuButton
+            asChild
+            isActive={!isCrmLink && (item.href === pathname || (item.href !== '/dashboard' && pathname.startsWith(item.href)))}
+            tooltip={item.label}
+            className={isSubmenu ? 'h-8' : ''}
+          >
+            <Link href={href} scroll={false}>
+              <item.icon className="h-4 w-4" />
+              <span className="truncate">{item.label}</span>
+              {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
+            </Link>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      );
+    });
+  };
+
+  const renderGroupedMenuItems = (groups: any[]) => {
     return groups.map((group, groupIndex) => (
-        <React.Fragment key={group.title || groupIndex}>
-            {group.title && (
-                <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
-                    <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
-                </SidebarGroupLabel>
-            )}
-            {group.items && renderMenuItems(group.items.filter((item: any) => !item.subItems))}
-            {group.subItems && (
-                <div className="group-data-[collapsible=icon]:hidden pl-4">
-                    <SidebarMenu>
-                        {renderMenuItems(group.subItems)}
-                    </SidebarMenu>
-                </div>
-            )}
-            {groupIndex < groups.length - 1 && <SidebarSeparator />}
-        </React.Fragment>
+      <React.Fragment key={group.title || groupIndex}>
+        {group.title && (
+          <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
+            <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
+          </SidebarGroupLabel>
+        )}
+        {group.items && renderMenuItems(group.items.filter((item: any) => !item.subItems))}
+        {group.subItems && (
+          <div className="group-data-[collapsible=icon]:hidden pl-7 space-y-1 py-1">
+            {renderMenuItems(group.subItems, true)}
+          </div>
+        )}
+        {groupIndex < groups.length - 1 && <SidebarSeparator />}
+      </React.Fragment>
     ));
-};
+  };
+
 
   return (
       <div data-theme={activeApp}>
@@ -450,7 +456,7 @@ const renderGroupedMenuItems = (groups: any[]) => {
                     activeApp === app.id ? app.className : app.hoverClassName
                   )}
                 >
-                  <Link href={app.href}><app.icon className="h-6 w-6" /></Link>
+                  <Link href={app.href} scroll={false}><app.icon className="h-6 w-6" /></Link>
                 </SidebarMenuButton>
               ))}
             </div>
@@ -468,43 +474,7 @@ const renderGroupedMenuItems = (groups: any[]) => {
             </SidebarHeader>
             <SidebarContent>
               <SidebarMenu>
-                 {activeApp === 'crm' ? (
-                  crmMenuItems.map((item: any) => (
-                    <React.Fragment key={item.label}>
-                       <SidebarMenuItem>
-                         <SidebarMenuButton
-                              asChild
-                              isActive={item.href === pathname && !item.subItems}
-                          >
-                           <Link href={item.href || '#'} className={!item.subItems ? '' : 'font-semibold'}>
-                               <item.icon className="h-4 w-4" />
-                               <span className="truncate">{item.label}</span>
-                           </Link>
-                          </SidebarMenuButton>
-                       </SidebarMenuItem>
-                       {item.subItems && (
-                           <div className="group-data-[collapsible=icon]:hidden pl-7 space-y-1 py-1">
-                               {item.subItems.map((sub: any) => (
-                                   <SidebarMenuItem key={sub.label}>
-                                       <SidebarMenuButton
-                                           asChild
-                                           isActive={sub.href === pathname || pathname.startsWith(sub.href)}
-                                           className="h-8"
-                                       >
-                                           <Link href={sub.href}>
-                                               <sub.icon className="h-4 w-4" />
-                                               <span className="truncate">{sub.label}</span>
-                                           </Link>
-                                       </SidebarMenuButton>
-                                   </SidebarMenuItem>
-                               ))}
-                           </div>
-                       )}
-                    </React.Fragment>
-                  ))
-                ) : (
-                  renderGroupedMenuItems(menuGroups)
-                )}
+                {renderGroupedMenuItems(menuGroups)}
               </SidebarMenu>
             </SidebarContent>
             <SidebarFooter>
@@ -611,7 +581,8 @@ const renderGroupedMenuItems = (groups: any[]) => {
             </header>
             <main className={cn(
                 "flex-1 flex flex-col h-full rounded-lg border bg-card",
-                isChatPage ? "overflow-hidden" : "p-4 md:p-6 lg:p-8 overflow-y-auto"
+                isChatPage ? "overflow-hidden" : "",
+                !isCrmPage && "p-4 md:p-6 lg:p-8 overflow-y-auto"
             )}>
                 {children}
             </main>
@@ -620,7 +591,3 @@ const renderGroupedMenuItems = (groups: any[]) => {
       </div>
   );
 }
-
-    
-
-    
