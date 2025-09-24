@@ -12,6 +12,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Check, Route } from 'lucide-react';
 import type { Metadata } from 'next';
+import { MessageSquare } from "lucide-react";
 
 const roadMapPhases = [
   { 
