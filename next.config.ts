@@ -1,3 +1,4 @@
+
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
 });
@@ -53,6 +54,22 @@ const nextConfig = {
         pathname: '/**',
       },
     ],
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      // Exclude server-only modules from the client-side build
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        dns: false,
+        tls: false,
+        child_process: false,
+        "mongodb-client-encryption": false,
+      };
+    }
+    config.experiments = { ...config.experiments, topLevelAwait: true };
+    return config;
   },
 };
 
