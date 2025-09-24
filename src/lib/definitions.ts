@@ -47,6 +47,16 @@ export type CrmPermissions = {
     }
 };
 
+export type CrmForm = {
+    _id: ObjectId;
+    userId: ObjectId;
+    name: string;
+    fields: any[]; // Simplified for now
+    submissionCount?: number;
+    createdAt: Date;
+    updatedAt?: Date;
+}
+
 export type EmailModulePermissions = {
     view?: boolean;
     create?: boolean;

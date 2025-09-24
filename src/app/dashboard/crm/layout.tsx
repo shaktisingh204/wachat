@@ -34,6 +34,7 @@ import CrmAnalyticsPage from '@/app/dashboard/crm/analytics/page';
 import CrmSettingsPage from '@/app/dashboard/crm/settings/page';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import PipelinesPage from '@/app/dashboard/crm/sales/pipelines/page';
+import CrmFormsPage from '@/app/dashboard/crm/sales/forms/page';
 
 type Tab = {
   id: string;
@@ -53,6 +54,7 @@ const pathComponentMap: Record<string, React.ComponentType<any>> = {
   '/dashboard/crm/sales/delivery': DeliveryChallansPage,
   '/dashboard/crm/sales/credit-notes': CreditNotesPage,
   '/dashboard/crm/sales/pipelines': PipelinesPage,
+  '/dashboard/crm/sales/forms': CrmFormsPage,
   '/dashboard/crm/purchases/leads': VendorLeadsPage,
   '/dashboard/crm/purchases/vendors': VendorsPage,
   '/dashboard/crm/purchases/expenses': ExpensesPage,
@@ -93,7 +95,7 @@ export const crmMenuItems = [
         icon: TrendingUp,
         subItems: [
             { href: '/dashboard/crm/sales/pipelines', label: 'All Pipelines', icon: Users },
-            { href: '#', label: 'Forms', icon: FileText },
+            { href: '/dashboard/crm/sales/forms', label: 'Forms', icon: FileText },
             { href: '#', label: 'New', icon: Plus },
             { href: '#', label: 'All Leads', icon: Users },
             { href: '#', label: 'Leads Summary', icon: BarChart },
