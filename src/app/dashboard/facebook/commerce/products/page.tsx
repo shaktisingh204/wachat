@@ -16,7 +16,6 @@ import { AlertCircle, PlusCircle, ServerCog, ShoppingBag, Link2, Lock, Repeat } 
 import { SyncCatalogsButton } from '@/components/wabasimplify/sync-catalogs-button';
 import { CreateCatalogDialog } from '@/components/wabasimplify/create-catalog-dialog';
 import { cn } from '@/lib/utils';
-import { MessageSquare } from "lucide-react";
 
 function CatalogCard({ catalog }: { catalog: WithId<Catalog> }) {
     return (
