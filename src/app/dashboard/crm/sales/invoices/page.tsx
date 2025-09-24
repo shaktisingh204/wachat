@@ -12,6 +12,7 @@ import Link from 'next/link';
 import { getInvoices } from '@/app/actions/crm-invoices.actions';
 import type { WithId, CrmInvoice, CrmAccount } from '@/lib/definitions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
+import { MessageSquare } from "lucide-react";
 
 export default function InvoicesPage() {
     const [invoices, setInvoices] = useState<WithId<CrmInvoice>[]>([]);
