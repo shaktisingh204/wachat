@@ -18,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Image from 'next/image';
 import type { FacebookPageDetails } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
+import { MessageSquare } from "lucide-react";
 
 const initialState = { message: null, error: null };
 
