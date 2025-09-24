@@ -33,6 +33,7 @@ export const crmMenuItems = [
     {
         label: 'Sales',
         icon: Briefcase,
+        href: '#',
         subItems: [
             { href: '/dashboard/crm/sales/clients', label: 'Clients & Prospects', icon: Users },
             { href: '/dashboard/crm/sales/quotations', label: 'Quotation & Estimates', icon: FileText },
@@ -47,6 +48,7 @@ export const crmMenuItems = [
     {
         label: 'Purchases',
         icon: ShoppingCart,
+        href: '#',
         subItems: [
             { href: '/dashboard/crm/purchases/leads', label: 'Vendor Leads', icon: Contact },
             { href: '/dashboard/crm/purchases/vendors', label: 'Vendors & Suppliers', icon: Users },

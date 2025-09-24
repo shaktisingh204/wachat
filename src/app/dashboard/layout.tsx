@@ -38,6 +38,7 @@ import { getSession, getProjects } from '@/app/actions';
 import type { Plan, WithId, Project, Agent } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
+import { crmMenuItems } from './crm/layout';
 
 
 function FullPageSkeleton() {
@@ -178,50 +179,6 @@ const instagramMenuGroups = [
   }
 ];
 
-const crmMenuItems = [
-    { href: '/dashboard/crm', label: 'CRM Dashboard', icon: LayoutDashboard },
-    {
-        label: 'Sales',
-        icon: TrendingUp,
-        href: '#',
-        subItems: [
-            { href: '/dashboard/crm/sales/clients', label: 'Clients & Prospects', icon: Users },
-            { href: '/dashboard/crm/sales/quotations', label: 'Quotation & Estimates', icon: FileText },
-            { href: '/dashboard/crm/sales/proforma', label: 'Proforma Invoices', icon: BadgeInfo },
-            { href: '/dashboard/crm/sales/invoices', label: 'Invoices', icon: FileText },
-            { href: '/dashboard/crm/sales/receipts', label: 'Payment Receipts', icon: CreditCard },
-            { href: '/dashboard/crm/sales/orders', label: 'Sales Orders', icon: ShoppingCart },
-            { href: '/dashboard/crm/sales/delivery', label: 'Delivery Challans', icon: Truck },
-            { href: '/dashboard/crm/sales/credit-notes', label: 'Credit Notes', icon: Repeat },
-        ]
-    },
-    {
-        label: 'Purchases',
-        icon: ShoppingCart,
-        href: '#',
-        subItems: [
-            { href: '/dashboard/crm/purchases/leads', label: 'Vendor Leads', icon: Contact },
-            { href: '/dashboard/crm/purchases/vendors', label: 'Vendors & Suppliers', icon: Users },
-            { href: '/dashboard/crm/purchases/expenses', label: 'Purchases & Expenses', icon: IndianRupee },
-            { href: '/dashboard/crm/purchases/orders', label: 'Purchase Orders', icon: FilePlus },
-            { href: '/dashboard/crm/purchases/payouts', label: 'Payout Receipts', icon: CreditCard },
-            { href: '/dashboard/crm/purchases/debit-notes', label: 'Debit Notes', icon: Repeat },
-            { href: '/dashboard/crm/purchases/hire', label: 'Hire The Best Vendors', icon: Star },
-        ]
-    },
-    { href: '/dashboard/crm/contacts', label: 'Leads & Contacts', icon: Users },
-    { href: '/dashboard/crm/accounts', label: 'Accounts', icon: Building },
-    { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
-    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingCart },
-    { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck },
-    { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKanban },
-    { href: '/dashboard/crm/email', label: 'Email', icon: Mail },
-    { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare },
-    { href: '/dashboard/crm/analytics', label: 'Analytics', icon: BarChart },
-    { href: '/dashboard/crm/automations', label: 'Automations', icon: Zap },
-    { href: '/dashboard/crm/settings', label: 'Settings', icon: Settings },
-];
-
 const emailMenuItems = [
     { href: '/dashboard/email', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/dashboard/email/inbox', label: 'Inbox', icon: Inbox },
@@ -292,23 +249,57 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return agentInfo?.role || 'none';
   }, [sessionUser, activeProject]);
 
-  const menuGroups = React.useMemo(() => {
-    let items: any;
+ const menuGroups = React.useMemo(() => {
+    let items;
+    let groups;
+
     switch (activeApp) {
-        case 'facebook': items = facebookMenuGroups.map(group => ({ ...group, items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent']}))})); break;
-        case 'instagram': items = instagramMenuGroups.map(group => ({ ...group, items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent']}))})); break;
-        case 'crm': items = [{ title: 'CRM Tools', items: crmMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        case 'email': items = [{ title: 'Email Suite', items: emailMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        case 'sms': items = [{ title: 'SMS Suite', items: smsMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        case 'url-shortener': items = [{ title: null, items: urlShortenerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        case 'qr-code-maker': items = [{ title: null, items: qrCodeMakerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        case 'api': items = [{ title: null, items: apiMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        case 'seo-suite': items = [{ title: null, items: seoMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        case 'website-builder': items = [{ title: null, items: portfolioMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }]; break;
-        default: items = [{ title: null, items: wachatMenuItems }]; break;
+        case 'facebook':
+            groups = facebookMenuGroups.map(group => ({
+                ...group,
+                items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent'] }))
+            }));
+            break;
+        case 'instagram':
+            groups = instagramMenuGroups.map(group => ({
+                ...group,
+                items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent'] }))
+            }));
+            break;
+        case 'crm':
+            groups = crmMenuItems.map(item => ({
+                ...item,
+                roles: ['owner', 'admin', 'agent'],
+                items: item.subItems?.map(sub => ({ ...sub, roles: ['owner', 'admin', 'agent'] })) || []
+            }));
+            break;
+        case 'email':
+            groups = [{ title: 'Email Suite', items: emailMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
+            break;
+        case 'sms':
+            groups = [{ title: 'SMS Suite', items: smsMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
+            break;
+        case 'url-shortener':
+            groups = [{ title: null, items: urlShortenerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
+            break;
+        case 'qr-code-maker':
+            groups = [{ title: null, items: qrCodeMakerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
+            break;
+        case 'api':
+            groups = [{ title: null, items: apiMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
+            break;
+        case 'seo-suite':
+            groups = [{ title: null, items: seoMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
+            break;
+        case 'website-builder':
+            groups = [{ title: null, items: portfolioMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
+            break;
+        default:
+            groups = [{ title: null, items: wachatMenuItems }];
+            break;
     }
     
-    return items.map((group: any) => ({
+    return groups.map((group: any) => ({
         ...group,
         items: group.items.filter((item: any) => item.roles?.includes(currentUserRole))
     }));
@@ -316,8 +307,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const appIcons = [
     { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat Suite', href: '/dashboard', className: 'bg-green-100 text-green-700', hoverClassName: 'hover:bg-green-100 hover:text-green-700' },
-    { id: 'facebook', icon: MetaIcon, label: 'Meta Suite', href: '/dashboard/facebook/all-projects', className: 'bg-blue-100 text-blue-700', hoverClassName: 'hover:bg-blue-100 hover:text-blue-700' },
-    { id: 'instagram', icon: InstagramIcon, label: 'Instagram Suite', href: '/dashboard/instagram/connections', className: 'bg-purple-100 text-purple-700', hoverClassName: 'hover:bg-purple-100 hover:text-purple-700' },
+    { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite', className: 'bg-blue-100 text-blue-700', hoverClassName: 'hover:bg-blue-100 hover:text-blue-700' },
+    { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram Suite', className: 'bg-purple-100 text-purple-700', hoverClassName: 'hover:bg-purple-100 hover:text-purple-700' },
     { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite', className: 'bg-orange-100 text-orange-700', hoverClassName: 'hover:bg-orange-100 hover:text-orange-700' },
     { id: 'email', icon: Mail, label: 'Email Suite', href: '/dashboard/email', className: 'bg-sky-100 text-sky-700', hoverClassName: 'hover:bg-sky-100 hover:text-sky-700' },
     { id: 'sms', icon: MessageSquare, label: 'SMS Suite', href: '/dashboard/sms', className: 'bg-indigo-100 text-indigo-700', hoverClassName: 'hover:bg-indigo-100 hover:text-indigo-700' },
@@ -405,6 +396,45 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     return <>{children}</>;
   }
 
+  const renderMenuItems = (items: any[]) => {
+    return items.map((item: any) => (
+        <SidebarMenuItem key={item.label}>
+            <SidebarMenuButton
+                asChild
+                isActive={item.href === pathname || (item.href !== '/dashboard' && pathname.startsWith(item.href))}
+                tooltip={item.label}
+            >
+                <Link href={item.href}>
+                    <item.icon className="h-4 w-4" />
+                    <span className="truncate">{item.label}</span>
+                    {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
+                </Link>
+            </SidebarMenuButton>
+        </SidebarMenuItem>
+    ));
+};
+
+const renderGroupedMenuItems = (groups: any[]) => {
+    return groups.map((group, groupIndex) => (
+        <React.Fragment key={group.title || groupIndex}>
+            {group.title && (
+                <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
+                    <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
+                </SidebarGroupLabel>
+            )}
+            {group.items && renderMenuItems(group.items.filter((item: any) => !item.subItems))}
+            {group.subItems && (
+                <div className="group-data-[collapsible=icon]:hidden pl-4">
+                    <SidebarMenu>
+                        {renderMenuItems(group.subItems)}
+                    </SidebarMenu>
+                </div>
+            )}
+            {groupIndex < groups.length - 1 && <SidebarSeparator />}
+        </React.Fragment>
+    ));
+};
+
   return (
       <div data-theme={activeApp}>
         <SidebarProvider>
@@ -438,70 +468,43 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </SidebarHeader>
             <SidebarContent>
               <SidebarMenu>
-                {menuGroups.map((group: any, groupIndex: number) => (
-                  <React.Fragment key={group.title || groupIndex}>
-                    {group.title && (
-                      <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
-                        <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
-                      </SidebarGroupLabel>
-                    )}
-                    {group.items.map((item: any) => {
-                      const isConnectionLink = item.href?.includes('all-projects') || item.href?.includes('connections') || item.href?.includes('setup');
-                      const suiteRequiresProject = activeApp === 'facebook' || activeApp === 'whatsapp' || activeApp === 'instagram';
-                      
-                      const hasActiveProjectForSuite =
-                        (activeApp === 'facebook' && hasActiveFacebookProject) ||
-                        (activeApp === 'whatsapp' && hasActiveWhatsAppProject) ||
-                        (activeApp === 'instagram' && hasActiveFacebookProject);
-
-                      const isDisabled = !isConnectionLink && suiteRequiresProject && !hasActiveProjectForSuite && item.href !== '/dashboard' && activeApp !== 'crm' && activeApp !== 'website-builder' && activeApp !== 'email' && activeApp !== 'api';
-
-                      let tooltipText = item.label;
-                      if (isDisabled) {
-                        tooltipText = `${item.label} (Select a project first)`;
-                      }
-
-                      const isBasePage =
-                        item.href === '/dashboard' ||
-                        item.href === '/dashboard/overview' ||
-                        item.href === '/dashboard/facebook' ||
-                        item.href === '/dashboard/instagram' ||
-                        item.href === '/dashboard/url-shortener' ||
-                        item.href === '/dashboard/qr-code-maker' ||
-                        item.href === '/dashboard/facebook/all-projects' ||
-                        item.href === '/dashboard/facebook/custom-ecommerce' ||
-                        item.href === '/dashboard/chatbot/agents' ||
-                        item.href === '/dashboard/seo' ||
-                        item.href === '/dashboard/crm' ||
-                        item.href === '/dashboard/email' ||
-                        item.href === '/dashboard/sms' ||
-                        item.href === '/dashboard/api' ||
-                        item.href === '/dashboard/website-builder';
-
-                      const isActive = isBasePage ? pathname === item.href : (item.href && pathname.startsWith(item.href));
-
-                      return (
-                        <SidebarMenuItem key={item.label}>
-                          <SidebarMenuButton
-                            asChild
-                            subItems={item.subItems}
-                            isActive={isActive}
-                            tooltip={tooltipText}
-                            disabled={isDisabled}
-                            aria-disabled={isDisabled}
+                 {activeApp === 'crm' ? (
+                  crmMenuItems.map((item: any) => (
+                    <React.Fragment key={item.label}>
+                       <SidebarMenuItem>
+                         <SidebarMenuButton
+                              asChild
+                              isActive={item.href === pathname && !item.subItems}
                           >
-                            <Link href={isDisabled ? '#' : item.href} className={cn(isDisabled && 'pointer-events-none')}>
-                              <item.icon className="h-4 w-4" />
-                              <span className="truncate">{item.label}</span>
-                              {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
-                            </Link>
+                           <Link href={item.href || '#'} className={!item.subItems ? '' : 'font-semibold'}>
+                               <item.icon className="h-4 w-4" />
+                               <span className="truncate">{item.label}</span>
+                           </Link>
                           </SidebarMenuButton>
-                        </SidebarMenuItem>
-                      );
-                    })}
-                    {group.title && groupIndex < menuGroups.length - 1 && <SidebarSeparator />}
-                  </React.Fragment>
-                ))}
+                       </SidebarMenuItem>
+                       {item.subItems && (
+                           <div className="group-data-[collapsible=icon]:hidden pl-7 space-y-1 py-1">
+                               {item.subItems.map((sub: any) => (
+                                   <SidebarMenuItem key={sub.label}>
+                                       <SidebarMenuButton
+                                           asChild
+                                           isActive={sub.href === pathname || pathname.startsWith(sub.href)}
+                                           className="h-8"
+                                       >
+                                           <Link href={sub.href}>
+                                               <sub.icon className="h-4 w-4" />
+                                               <span className="truncate">{sub.label}</span>
+                                           </Link>
+                                       </SidebarMenuButton>
+                                   </SidebarMenuItem>
+                               ))}
+                           </div>
+                       )}
+                    </React.Fragment>
+                  ))
+                ) : (
+                  renderGroupedMenuItems(menuGroups)
+                )}
               </SidebarMenu>
             </SidebarContent>
             <SidebarFooter>
