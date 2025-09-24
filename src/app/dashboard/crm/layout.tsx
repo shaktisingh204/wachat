@@ -83,7 +83,7 @@ export const crmMenuItems = [
             { href: '/dashboard/crm/sales/invoices', label: 'Invoices', icon: FileText },
             { href: '/dashboard/crm/sales/receipts', label: 'Payment Receipts', icon: CreditCard },
             { href: '/dashboard/crm/sales/proforma', label: 'Proforma Invoices', icon: BadgeInfo },
-            { href: '/dashboard/crm/sales/orders', label: 'Sales Orders', icon: ShoppingBag },
+            { href: '/dashboard/crm/sales/orders', label: 'Sales Orders', icon: ShoppingCart },
             { href: '/dashboard/crm/sales/delivery', label: 'Delivery Challans', icon: Truck },
             { href: '/dashboard/crm/sales/credit-notes', label: 'Credit Notes', icon: Repeat },
         ]
@@ -118,7 +118,7 @@ export const crmMenuItems = [
     { href: '/dashboard/crm/contacts', label: 'Contacts', icon: Users },
     { href: '/dashboard/crm/accounts', label: 'Accounts', icon: Building },
     { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
-    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingBag },
+    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingCart },
     { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck },
     { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKanban },
     { href: '/dashboard/crm/email', label: 'Email', icon: Mail },
