@@ -40,6 +40,7 @@ export async function verifyAdminJwt(token: string): Promise<AdminSessionPayload
         
         return payload as AdminSessionPayload;
     } catch (error) {
+        console.error("Admin JWT verification failed:", error);
         return null;
     }
 }
