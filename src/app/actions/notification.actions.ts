@@ -1,10 +1,9 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, Filter, WithId } from 'mongodb';
-import { getSession } from './index';
+import { getSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Notification, NotificationWithProject, Project } from '@/lib/definitions';
 
