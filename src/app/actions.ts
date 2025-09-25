@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 
 'use server';
@@ -4025,3 +4026,59 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
         return { success: false, error: 'Failed to update tags.' };
     }
 }
+=======
+'use server';
+
+import {
+  generatePostSuggestions,
+  GeneratePostSuggestionsOutput,
+} from '@/ai/flows/generate-post-suggestions';
+import { z } from 'zod';
+
+const schema = z.object({
+  facebookData: z.string().min(50, { message: 'Please provide at least 50 characters of data for better suggestions.' }),
+});
+
+type FormState = {
+  suggestions: string[];
+  errors: {
+    facebookData?: string[];
+    _form?: string[];
+  };
+};
+
+export async function getSuggestions(
+  prevState: FormState,
+  formData: FormData
+): Promise<FormState> {
+  const validatedFields = schema.safeParse({
+    facebookData: formData.get('facebookData'),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      suggestions: [],
+      errors: validatedFields.error.flatten().fieldErrors,
+    };
+  }
+
+  try {
+    const result: GeneratePostSuggestionsOutput = await generatePostSuggestions({
+      facebookData: validatedFields.data.facebookData,
+    });
+    
+    if (result.postSuggestions && result.postSuggestions.length > 0) {
+        return { suggestions: result.postSuggestions, errors: {} };
+    } else {
+        return { suggestions: [], errors: { _form: ['AI could not generate suggestions. Try modifying your input.'] } };
+    }
+
+  } catch (error) {
+    console.error(error);
+    return {
+      suggestions: [],
+      errors: { _form: ['An unexpected error occurred. Please try again.'] },
+    };
+  }
+}
+>>>>>>> 6e4890fa (Initial prototype)

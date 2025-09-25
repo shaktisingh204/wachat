@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # **App Name**: WABASimplify
 
 ## Core Features:
@@ -45,3 +46,23 @@ RGB: (52, 58, 64)
 Usage: Primary text, headings
 - Implement a modern and intuitive user interface with a focus on clean design principles.
 - Utilize a responsive design that adapts seamlessly to different screen sizes and devices.
+=======
+# **App Name**: SabNode Social Suite
+
+## Core Features:
+
+- Facebook API Integration: Connect to the Facebook API to fetch data.
+- Data Display: Display the fetched Facebook data in a user-friendly format.
+- Data Storage: Store data from Facebook in a MongoDB database.
+- Automated Post Generation Tool: Use AI to suggest new social media content from the data.
+
+## Style Guidelines:
+
+- Primary color: A vibrant blue (#29ABE2) to reflect the social nature of the application.
+- Background color: A light gray (#F0F2F5) for a clean and modern look.
+- Accent color: A contrasting orange (#FF9933) for important actions and highlights.
+- Body and headline font: 'PT Sans', a humanist sans-serif that provides a modern look and a little warmth.
+- Use flat, minimalist icons related to social media and data visualization.
+- Clean and intuitive layout for easy navigation.
+- Subtle animations and transitions to enhance user experience.
+>>>>>>> 6e4890fa (Initial prototype)
