@@ -29,9 +29,14 @@ export default {
 =======
     extend: {
       fontFamily: {
+<<<<<<< HEAD
         body: ['Inter', 'sans-serif'],
         headline: ['Inter', 'sans-serif'],
 >>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
+=======
+        body: ['PT Sans', 'sans-serif'],
+        headline: ['PT Sans', 'sans-serif'],
+>>>>>>> 6e4890fa (Initial prototype)
         code: ['monospace'],
       },
       colors: {
