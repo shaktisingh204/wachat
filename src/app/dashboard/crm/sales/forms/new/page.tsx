@@ -2,117 +2,100 @@
 'use client';
 
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import { ArrowLeft, Check, FileText } from 'lucide-react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, Code, CheckCircle, Eye } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 
-const pipelines = [
-    { id: 'default', name: 'Default Sales Pipeline' },
-    { id: 'service', name: 'Customer Service Pipeline' },
-    { id: 'enterprise', name: 'Enterprise Deals Pipeline' },
-];
-
-const StepIndicator = ({ step, title, currentStep }: { step: number; title: string; currentStep: number }) => (
-    <div className="flex items-center gap-3">
-        <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold ${currentStep >= step ? 'bg-primary text-primary-foreground' : 'bg-muted border'}`}>
-            {currentStep > step ? <Check className="h-5 w-5" /> : step}
-        </div>
-        <div>
-            <p className="text-sm text-muted-foreground">Step {step}</p>
-            <p className="font-semibold">{title}</p>
-        </div>
-    </div>
-);
-
-function Step1({ onContinue, selectedPipeline, setSelectedPipeline }: { onContinue: () => void, selectedPipeline: string, setSelectedPipeline: (val: string) => void }) {
+export default function NewCrmFormPage() {
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Select a Pipeline</CardTitle>
-                <CardDescription>Choose the sales pipeline where new leads from this form will be added.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-2">
-                    <Label htmlFor="pipeline-select">Pipeline</Label>
-                    <Select value={selectedPipeline} onValueChange={setSelectedPipeline}>
-                        <SelectTrigger id="pipeline-select">
-                            <SelectValue placeholder="Select a pipeline..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {pipelines.map(p => (
-                                <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-            </CardContent>
-            <CardFooter>
-                <Button onClick={onContinue} disabled={!selectedPipeline}>
-                    Save and Continue
-                </Button>
-            </CardFooter>
-        </Card>
-    );
-}
-
-function Step2({ onBack, selectedPipeline }: { onBack: () => void, selectedPipeline: string }) {
-     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Build Your Form</CardTitle>
-                <CardDescription>Add fields to your form for the "{pipelines.find(p => p.id === selectedPipeline)?.name}" pipeline.</CardDescription>
-            </CardHeader>
-            <CardContent className="text-center text-muted-foreground py-20 border-2 border-dashed m-6 rounded-lg">
-                <p>Form builder UI will be here.</p>
-            </CardContent>
-            <CardFooter>
-                 <Button onClick={onBack} variant="outline">
-                    Back
-                </Button>
-            </CardFooter>
-        </Card>
-    );
-}
-
-export default function NewFormPage() {
-    const [step, setStep] = useState(1);
-    const [selectedPipeline, setSelectedPipeline] = useState('');
-
-    return (
-        <div className="max-w-4xl mx-auto space-y-8">
-            <div className="flex justify-between items-start">
+        <div className="flex flex-col h-full">
+            <header className="flex-shrink-0 flex items-center justify-between gap-4 p-4 border-b bg-background">
                 <div>
-                     <Button variant="ghost" asChild className="-ml-4">
-                        <Link href="/dashboard/crm/sales/forms"><ArrowLeft className="mr-2 h-4 w-4" />Back to Forms</Link>
-                    </Button>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3 mt-2">
-                        <FileText className="h-8 w-8" />
-                        Create New Form
+                     <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink asChild>
+                                    <Link href="/dashboard/crm">Dashboard</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbLink asChild>
+                                    <Link href="/dashboard/crm/sales/forms">All Forms</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>Create Form</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                     <h1 className="text-2xl font-bold font-headline mt-2 flex items-center gap-2">
+                        <Link href="/dashboard/crm/sales/forms" className="p-1 rounded-md hover:bg-muted">
+                           <ArrowLeft className="h-5 w-5" />
+                        </Link>
+                        Create Form
                     </h1>
                 </div>
-                <div className="flex items-start space-x-8">
-                    <StepIndicator currentStep={step} step={1} title="Select Pipeline" />
-                    <StepIndicator currentStep={step} step={2} title="Build Form" />
+                <div className="flex items-center gap-2">
+                    <Button variant="outline">
+                        <Eye className="mr-2 h-4 w-4" />
+                        Preview
+                    </Button>
+                    <Button>
+                        <CheckCircle className="mr-2 h-4 w-4" />
+                        Publish Form
+                    </Button>
                 </div>
-            </div>
+            </header>
 
-            {step === 1 && (
-                <Step1 
-                    onContinue={() => setStep(2)}
-                    selectedPipeline={selectedPipeline}
-                    setSelectedPipeline={setSelectedPipeline}
-                />
-            )}
+            <main className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 p-6 overflow-y-auto">
+                {/* Form Builder Canvas */}
+                <div className="lg:col-span-2">
+                    <Card className="h-full min-h-[500px]">
+                        <CardHeader>
+                            <CardTitle>Form Builder</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="w-full h-96 bg-muted rounded-md border-2 border-dashed flex items-center justify-center">
+                                <p className="text-muted-foreground">Form builder canvas will be here.</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
 
-            {step === 2 && (
-                <Step2 
-                    onBack={() => setStep(1)}
-                    selectedPipeline={selectedPipeline}
-                />
-            )}
+                {/* Right Sidebar */}
+                <div className="lg:col-span-1 space-y-6">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Get Shareable Code</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground mb-4">
+                                To embed this form, copy and paste the code below into the HTML code on your website.
+                            </p>
+                             <Button variant="outline" className="w-full">
+                                <Code className="mr-2 h-4 w-4" />
+                                Get Code
+                            </Button>
+                        </CardContent>
+                    </Card>
+                    
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Form Preview</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                             <div className="w-full h-80 bg-muted rounded-md border flex items-center justify-center">
+                                <p className="text-muted-foreground">Live form preview.</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </main>
         </div>
     );
 }
