@@ -2,7 +2,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { getFlowLogs, getFlowLogById } from '@/app/actions';
+import { getFlowLogs, getFlowLogById } from '@/app/actions/webhook.actions';
 import type { FlowLog, FlowLogEntry } from '@/lib/definitions';
 import type { WithId } from "mongodb";
 
