@@ -5,6 +5,35 @@ import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
 import { getAdminSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { createAdminSessionToken } from '@/lib/auth';
+import { checkRateLimit } from '@/lib/rate-limiter';
+import { headers } from 'next/headers';
+
+export async function handleAdminLogin(prevState: any, formData: FormData): Promise<{ error?: string }> {
+    const headersList = headers();
+    const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
+
+    const { success: rateLimitSuccess, error: rateLimitError } = await checkRateLimit(`admin:${ip}`, 5, 60 * 1000); // 5 requests per minute
+    if (!rateLimitSuccess) {
+        return { error: rateLimitError };
+    }
+
+    const email = formData.get('email') as string;
+    const password = formData.get('password') as string;
+
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@wachat.com';
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin';
+
+    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+        const adminSessionToken = await createAdminSessionToken();
+        cookies().set('admin_session', adminSessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+        redirect('/admin/dashboard');
+    }
+
+    return { error: 'Invalid admin credentials.' };
+}
 
 export async function updateProjectCreditsByAdmin(projectId: string, credits: number): Promise<{ success: boolean, error?: string }> {
     const { isAdmin } = await getAdminSession();
