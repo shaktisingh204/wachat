@@ -1,10 +1,10 @@
 
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Code, CheckCircle, Eye, LoaderCircle, Save } from 'lucide-react';
+import { ArrowLeft, Code, Eye, LoaderCircle, Save } from 'lucide-react';
 import { CrmFormPreview } from '@/components/wabasimplify/crm-form-preview';
 import { WebsiteBlockEditor } from '@/components/wabasimplify/website-builder/website-block-editor';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +12,8 @@ import { saveCrmForm } from '@/app/actions/crm-forms.actions';
 import { useRouter } from 'next/navigation';
 import { CodeBlock } from '@/components/wabasimplify/code-block';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import type { FormField } from '@/lib/definitions';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function NewCrmFormPage() {
     const { toast } = useToast();
@@ -20,21 +22,24 @@ export default function NewCrmFormPage() {
     const [isEmbedDialogOpen, setIsEmbedDialogOpen] = useState(false);
     const [formId, setFormId] = useState<string | null>(null);
 
+    // This state will now hold the entire form configuration and will be updated by the editor.
     const [settings, setSettings] = useState({
         title: 'My New Form',
         description: 'Fill out the details below.',
         fields: [
-            { id: 'field_name', type: 'text', label: 'Name', placeholder: 'Enter your name', required: true, columnWidth: '100%' },
-            { id: 'field_email', type: 'email', label: 'Email', placeholder: 'Enter your email', required: true, columnWidth: '100%' },
-        ],
+            { id: uuidv4(), fieldId: 'name', type: 'text', label: 'Name', placeholder: 'Enter your name', required: true, columnWidth: '100%', size: 'md', labelPosition: 'above' },
+            { id: uuidv4(), fieldId: 'email', type: 'email', label: 'Email', placeholder: 'Enter your email', required: true, columnWidth: '100%', size: 'md', labelPosition: 'above' },
+        ] as FormField[],
         submitButtonText: 'Submit',
     });
 
-    const handleUpdate = (id: string, newSettings: any) => {
+    const handleUpdateBlock = (id: string, newSettings: any) => {
+        // Since we are editing the whole form as one "block", the id will be 'form-editor'
         setSettings(newSettings);
     };
 
-    const handleRemove = (id: string) => {
+    const handleRemoveBlock = (id: string) => {
+        // This action might not be relevant for a single-form editor, but we keep it for component consistency.
         console.log(`Remove action called for block ${id}, but not applicable here.`);
     };
     
@@ -57,7 +62,7 @@ export default function NewCrmFormPage() {
         });
     };
 
-    const embedCode = `<script src="${process.env.NEXT_PUBLIC_APP_URL}/api/crm/forms/embed/${formId}.js" async defer></script>`;
+    const embedCode = `<div data-sabnode-form-id="${formId}"></div>\n<script src="${process.env.NEXT_PUBLIC_APP_URL}/api/crm/forms/embed/${formId}.js" async defer></script>`;
 
     return (
          <div className="flex flex-col h-full">
@@ -98,8 +103,8 @@ export default function NewCrmFormPage() {
                 <div className="hidden lg:block lg:col-span-1 xl:col-span-1 bg-background border-l overflow-y-auto">
                     <WebsiteBlockEditor
                         selectedBlock={{ id: 'form-editor', type: 'form', settings: settings, children: [] }}
-                        onUpdate={handleUpdate}
-                        onRemove={handleRemove}
+                        onUpdate={handleUpdateBlock}
+                        onRemove={handleRemoveBlock}
                         availableProducts={[]}
                     />
                 </div>
@@ -107,4 +112,3 @@ export default function NewCrmFormPage() {
         </div>
     );
 }
-
