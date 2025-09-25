@@ -4,8 +4,8 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getProjectById } from '@/app/actions';
-import { handleRunCron } from '@/app/actions/index';
+import { getProjectById } from '@/app/actions/project.actions';
+import { handleRunCron } from '@/app/actions';
 import { handleStopBroadcast, getBroadcasts } from '@/app/actions/broadcast.actions';
 import { getTemplates, handleSyncTemplates } from '@/app/actions/whatsapp.actions';
 import { useRouter } from 'next/navigation';
