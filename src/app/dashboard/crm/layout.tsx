@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MessageSquare } from "lucide-react";  // ❌ not used
+import { MessageSquare } from "lucide-react";
 
 const pathComponentMap: Record<string, React.ComponentType<any>> = {
   '/dashboard/crm': React.lazy(() => import('@/app/dashboard/crm/page')),
@@ -58,6 +58,8 @@ export const crmMenuItems = [
         icon: Handshake,
         subItems: [
             { href: '/dashboard/crm/sales/clients', label: 'Clients', icon: Users },
+            { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
+            { href: '/dashboard/crm/sales/pipelines', label: 'Pipelines', icon: Users },
             { href: '/dashboard/crm/sales/quotations', label: 'Quotations', icon: FileText },
             { href: '/dashboard/crm/sales/invoices', label: 'Invoices', icon: FileText },
             { href: '/dashboard/crm/sales/receipts', label: 'Payment Receipts', icon: CreditCard },
@@ -65,27 +67,13 @@ export const crmMenuItems = [
             { href: '/dashboard/crm/sales/orders', label: 'Sales Orders', icon: ShoppingCart },
             { href: '/dashboard/crm/sales/delivery', label: 'Delivery Challans', icon: Truck },
             { href: '/dashboard/crm/sales/credit-notes', label: 'Credit Notes', icon: Repeat },
-        ]
-    },
-    {
-        label: 'Sales CRM',
-        icon: TrendingUp,
-        subItems: [
-            { href: '/dashboard/crm/sales/pipelines', label: 'All Pipelines', icon: Users },
             { href: '/dashboard/crm/sales/forms', label: 'Forms', icon: FileText },
-            { href: '#', label: 'New', icon: Plus },
-            { href: '#', label: 'All Leads', icon: Users },
-            { href: '#', label: 'Leads Summary', icon: BarChart },
-            { href: '#', label: 'Team Sales Report', icon: BarChart },
-            { href: '#', label: 'Client Performance Report', icon: BarChart },
-            { href: '#', label: 'Lead Source Report', icon: BarChart },
         ]
     },
     {
         label: 'Purchases',
         icon: ShoppingCart,
         subItems: [
-            { href: '/dashboard/crm/purchases/leads', label: 'Vendor Leads', icon: Users },
             { href: '/dashboard/crm/purchases/vendors', label: 'Vendors', icon: Briefcase },
             { href: '/dashboard/crm/purchases/expenses', label: 'Expenses', icon: CreditCard },
             { href: '/dashboard/crm/purchases/orders', label: 'Purchase Orders', icon: FileText },
@@ -96,8 +84,7 @@ export const crmMenuItems = [
     },
     { href: '/dashboard/crm/contacts', label: 'Contacts', icon: Users },
     { href: '/dashboard/crm/accounts', label: 'Accounts', icon: Building },
-    { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
-    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingCart },
+    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingBag },
     { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck },
     { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKanban },
     { href: '/dashboard/crm/email', label: 'Email', icon: Mail },

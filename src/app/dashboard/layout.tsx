@@ -375,9 +375,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             if(session?.user) {
                 setSessionUser(session.user as any);
                 getProjects().then(fetchedProjects => {
-                    setProjects(fetchedProjects);
+                    setProjects(fetchedProjects.projects);
                     if (activeProjectId) {
-                        const currentActiveProject = fetchedProjects.find(p => p._id.toString() === activeProjectId);
+                        const currentActiveProject = fetchedProjects.projects.find(p => p._id.toString() === activeProjectId);
                         setActiveProject(currentActiveProject || null);
                     } else {
                         setActiveProject(null);
