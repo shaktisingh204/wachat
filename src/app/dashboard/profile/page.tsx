@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useActionState, useRef } from 'react';
 import { useFormStatus } from 'react-dom';
-import { handleUpdateUserProfile, handleChangePassword, getSession } from '@/app/actions/user.actions';
+import { handleUpdateUserProfile, handleChangePassword, getSession } from '@/app/actions';
 import type { User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
