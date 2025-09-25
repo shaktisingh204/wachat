@@ -84,7 +84,7 @@ export const crmMenuItems = [
     },
     { href: '/dashboard/crm/contacts', label: 'Contacts', icon: Users },
     { href: '/dashboard/crm/accounts', label: 'Accounts', icon: Building },
-    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingBag },
+    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingCart },
     { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck },
     { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKanban },
     { href: '/dashboard/crm/email', label: 'Email', icon: Mail },
@@ -103,12 +103,16 @@ function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
     const searchParams = useSearchParams();
     const router = useRouter();
 
-    const initialTabId = searchParams.get('tab') || '/dashboard/crm';
-    const initialComponent = pathComponentMap[initialTabId] || pathComponentMap['/dashboard/crm'];
-    const initialLabel = allMenuItems.find(item => item.href === initialTabId)?.label || 'Dashboard';
-    
-    const [openTabs, setOpenTabs] = useState<Tab[]>([{ id: initialTabId, href: initialTabId, label: initialLabel, component: initialComponent }]);
-    const [activeTabId, setActiveTabId] = useState<string>(initialTabId);
+    const activeTabId = useMemo(() => searchParams.get('tab') || '/dashboard/crm', [searchParams]);
+
+    const [openTabs, setOpenTabs] = useState<Tab[]>(() => {
+        const matchingItem = allMenuItems.find(item => item.href === activeTabId);
+        const component = pathComponentMap[activeTabId];
+        if (matchingItem && component) {
+            return [{ id: activeTabId, href: activeTabId, label: matchingItem.label, component }];
+        }
+        return [];
+    });
 
     useEffect(() => {
         const tabId = searchParams.get('tab') || '/dashboard/crm';
@@ -122,7 +126,6 @@ function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
                     setOpenTabs(prev => [...prev, { id: tabId, href: tabId, label: matchingItem.label, component }]);
                 }
             }
-            setActiveTabId(tabId);
         }
     }, [searchParams, openTabs]);
 
@@ -130,23 +133,19 @@ function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
         e.stopPropagation();
         const tabIndex = openTabs.findIndex(tab => tab.id === tabIdToClose);
         
-        // Remove the tab
         const newTabs = openTabs.filter(tab => tab.id !== tabIdToClose);
         setOpenTabs(newTabs);
-
-        // If the active tab is being closed, find a new tab to activate
+        
         if (activeTabId === tabIdToClose) {
-            let newActiveTabId = '/dashboard/crm'; // Default
+            let newActiveTabId = '/dashboard/crm';
             if (newTabs.length > 0) {
                 newActiveTabId = newTabs[Math.max(0, tabIndex - 1)].id;
             }
-            setActiveTabId(newActiveTabId);
             router.push(`/dashboard/crm?tab=${newActiveTabId}`);
         }
     };
 
     const handleTabClick = (tabId: string) => {
-        setActiveTabId(tabId);
         router.push(`/dashboard/crm?tab=${tabId}`);
     };
 
