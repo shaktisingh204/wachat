@@ -5,11 +5,9 @@ import { connectToDatabase } from "@/lib/mongodb";
 import { revalidatePath } from "next/cache";
 import { getErrorMessage } from "@/lib/utils";
 import { ObjectId, WithId, Filter } from "mongodb";
-import { getProjectById } from ".";
+import { getProjectById, getAdminSession } from ".";
 import { handleSingleMessageEvent, processStatusUpdateBatch, processSingleWebhook } from "@/lib/webhook-processor";
 import type { WebhookLog, Project, WebhookLogListItem } from "@/lib/definitions";
-import { verifyAdminJwt } from '@/lib/jwt';
-import { cookies } from 'next/headers';
 
 function getEventSummaryForLog(log: WithId<WebhookLog>): string {
     try {
@@ -196,20 +194,4 @@ export async function handleClearProcessedLogs(): Promise<{ message?: string; er
         console.error('Failed to clear processed logs:', e);
         return { error: e.message || 'An unexpected error occurred.' };
     }
-}
-
-async function getAdminSession(): Promise<{ isAdmin: boolean }> {
-    const cookieStore = cookies();
-    const sessionCookie = cookieStore.get('admin_session')?.value;
-    
-    if (!sessionCookie) {
-        return { isAdmin: false };
-    }
-
-    const payload = await verifyAdminJwt(sessionCookie);
-    if (payload && payload.role === 'admin') {
-        return { isAdmin: true };
-    }
-
-    return { isAdmin: false };
 }

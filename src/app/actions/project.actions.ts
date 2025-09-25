@@ -2,11 +2,11 @@
 
 'use server';
 
-import { getProjectById, getSession } from '@/app/actions';
-import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers, handleSendMessage } from '@/app/actions/whatsapp.actions';
+import { getSession } from '@/app/actions';
+import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
-import type { Project, Plan, OptInOutSettings, UserAttribute, CannedMessage, Agent, Invitation, Contact } from '@/lib/definitions';
+import type { Project, Plan, OptInOutSettings, UserAttribute, CannedMessage, Agent, Invitation, Contact, KanbanColumnData } from '@/lib/definitions';
 import { ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
 import { revalidatePath } from 'next/cache';

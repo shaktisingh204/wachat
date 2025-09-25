@@ -2,8 +2,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Briefcase, CheckSquare, Server, AlertTriangle, MessageSquare, Send, GitFork, ServerCog, Edit } from 'lucide-react';
 import type { Metadata } from 'next';
-import { getAllProjectsForAdmin } from '@/app/actions';
-import { getPlans } from '@/app/actions/plan.actions';
+import { getAllProjectsForAdmin, getPlans } from '@/app/actions';
 import type { Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import {
