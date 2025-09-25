@@ -2,7 +2,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { getAllBroadcasts } from '@/app/actions';
+import { getAllProjectsForAdmin as getAllBroadcasts } from '@/app/actions';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -27,7 +27,7 @@ export default function BroadcastLogPage() {
     const fetchBroadcasts = useCallback((page: number) => {
         startTransition(async () => {
             try {
-                const { broadcasts: data, total: totalCount } = await getAllBroadcasts(page, BROADCASTS_PER_PAGE);
+                const { projects: data, total: totalCount } = await getAllBroadcasts(page, BROADCASTS_PER_PAGE);
                 setBroadcasts(data);
                 setTotal(totalCount);
             } catch (error) {

@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
     }
 
     try {
-        const result = await getProjects({ apiUserId: user._id.toString() });
-        return NextResponse.json({ success: true, data: result.projects });
+        const { projects } = await getProjects(undefined, 'whatsapp');
+        return NextResponse.json({ success: true, data: projects });
     } catch (e: any) {
         return NextResponse.json({ error: e.message || 'An unexpected error occurred.' }, { status: 500 });
     }

@@ -5,6 +5,7 @@ import { handleSendMessage } from '@/app/actions/whatsapp.actions';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Contact } from '@/lib/definitions';
+import { ObjectId } from 'mongodb';
 
 export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('Authorization');
@@ -13,10 +14,12 @@ export async function POST(request: NextRequest) {
     }
     const apiKey = authHeader.split(' ')[1];
 
-    const { success, user } = await authenticateApiKey(apiKey);
-    if (!success || !user) {
+    const authResult = await authenticateApiKey(apiKey);
+    if (!authResult.success || !authResult.user) {
         return NextResponse.json({ error: 'Unauthorized: Invalid API key.' }, { status: 401 });
     }
+    
+    const { user } = authResult;
 
     // Rate limiting
     const { success: rateLimitSuccess, error: rateLimitError } = await checkRateLimit(`api:${user._id.toString()}`, 60, 60 * 1000); // 60 reqs/min
@@ -36,10 +39,16 @@ export async function POST(request: NextRequest) {
 
         if (contactId) {
             const { db } = await connectToDatabase();
-            const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId), userId: user._id });
-            if (!contact) {
-                 return NextResponse.json({ error: 'Contact not found or you do not have permission.' }, { status: 404 });
+            // User must own the project this contact belongs to.
+            const contact = await db.collection<Contact>('contacts').findOne({ _id: new ObjectId(contactId) });
+             if (!contact) {
+                 return NextResponse.json({ error: 'Contact not found.' }, { status: 404 });
             }
+            const project = await db.collection('projects').findOne({ _id: contact.projectId, userId: user._id });
+             if (!project) {
+                 return NextResponse.json({ error: 'You do not have permission to access this contact.' }, { status: 403 });
+            }
+
             finalContactId = contact._id.toString();
             finalProjectId = contact.projectId.toString();
             finalPhoneNumberId = contact.phoneNumberId;
@@ -48,10 +57,14 @@ export async function POST(request: NextRequest) {
              if (!waId || !phoneNumberId || !projectId) {
                 return NextResponse.json({ error: 'waId, phoneNumberId, and projectId are required if contactId is not provided.' }, { status: 400 });
             }
-            finalWaId = waId;
-            finalPhoneNumberId = phoneNumberId;
-            finalProjectId = projectId;
-            finalContactId = 'temp_api_contact'; // A placeholder
+            const { db } = await connectToDatabase();
+            const project = await db.collection('projects').findOne({ _id: new ObjectId(projectId), userId: user._id });
+            if (!project) {
+                 return NextResponse.json({ error: 'You do not have permission to access this project.' }, { status: 403 });
+            }
+            // The findOrCreateContact action is not exposed for API use, this needs to be handled differently or exposed safely
+            // For now, let's assume this path requires a pre-existing contact or we handle it in a different way.
+            return NextResponse.json({ error: 'Contact creation via this endpoint is not yet supported. Please use the /contacts/create endpoint first or provide a contactId.' }, { status: 400 });
         }
 
         const formData = new FormData();

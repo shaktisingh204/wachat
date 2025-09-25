@@ -1,5 +1,4 @@
 
-
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
@@ -74,26 +73,4 @@ export async function GET(request: Request) {
 // Allow POST requests for manual triggering
 export async function POST(request: Request) {
     return GET(request);
-}
-
-// Mocking getTransporter for the new cron job context
-async function getTransporter(session: any) {
-    if (!session?.user) throw new Error("Authentication required.");
-    
-    const { db } = await connectToDatabase();
-    const settings = await db.collection('crm_email_settings').findOne({ userId: session.user._id });
-
-    if (!settings) throw new Error("Email settings not found for this user.");
-    
-    if (settings.provider === 'smtp' && settings.smtp) {
-        const nodemailer = require('nodemailer');
-        return nodemailer.createTransport({
-            host: settings.smtp.host,
-            port: settings.smtp.port,
-            secure: settings.smtp.secure,
-            auth: { user: settings.smtp.user, pass: settings.smtp.pass },
-        });
-    }
-
-    throw new Error("Unsupported email provider for this context.");
 }

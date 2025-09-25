@@ -1,12 +1,11 @@
 
-
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SubscribeAllButton } from "@/components/wabasimplify/subscribe-all-button";
 import { ShieldCheck } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { RunCronJobsButton } from "@/components/wabasimplify/run-cron-jobs-button";
 import { PhonePeSettingsForm } from "@/components/wabasimplify/phonepe-settings-form";
-import { getPaymentGatewaySettings } from "@/app/actions";
+import { getPaymentGatewaySettings } from "@/app/actions/billing.actions";
 import { SyncLocalTemplatesButton } from "@/components/wabasimplify/sync-local-templates-button";
 
 export default async function SystemHealthPage() {
