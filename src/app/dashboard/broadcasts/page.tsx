@@ -4,10 +4,8 @@
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getProjectById } from '@/app/actions/project.actions';
-import { handleRunCron } from '@/app/actions';
-import { handleStopBroadcast, getBroadcasts } from '@/app/actions/broadcast.actions';
-import { getTemplates, handleSyncTemplates } from '@/app/actions/whatsapp.actions';
+import { getProjectById, getTemplates, getBroadcasts, handleStopBroadcast, handleRunCron } from '@/app/actions';
+import { handleSyncTemplates } from '@/app/actions/whatsapp.actions';
 import { useRouter } from 'next/navigation';
 import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
