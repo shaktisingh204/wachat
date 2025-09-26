@@ -41,6 +41,11 @@ const pathComponentMap: Record<string, React.ComponentType<any>> = {
   '/dashboard/crm/analytics': React.lazy(() => import('@/app/dashboard/crm/analytics/page')),
   '/dashboard/crm/settings': React.lazy(() => import('@/app/dashboard/crm/settings/page')),
   '/dashboard/crm/automations': React.lazy(() => import('@/app/dashboard/crm/automations/page')),
+  // Detail pages
+  '/dashboard/crm/accounts/[accountId]': React.lazy(() => import('@/app/dashboard/crm/accounts/[accountId]/page')),
+  '/dashboard/crm/contacts/[contactId]': React.lazy(() => import('@/app/dashboard/crm/contacts/[contactId]/page')),
+  '/dashboard/crm/deals/[dealId]': React.lazy(() => import('@/app/dashboard/crm/deals/[dealId]/page')),
+  '/dashboard/crm/accounts/[accountId]/edit': React.lazy(() => import('@/app/dashboard/crm/accounts/[accountId]/edit/page')),
 };
 
 
@@ -100,34 +105,56 @@ const allMenuItems = crmMenuItems.flatMap(item =>
 
 function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const searchParams = useSearchParams();
     const router = useRouter();
 
-    const activeTabId = useMemo(() => searchParams.get('tab') || '/dashboard/crm', [searchParams]);
+    const getBaseTab = (path: string) => {
+        const segments = path.split('/').filter(Boolean); // e.g., ['dashboard', 'crm', 'accounts', '[accountId]']
+        if (segments.length <= 2) return '/dashboard/crm';
+        
+        const basePath = `/${segments.slice(0, 4).join('/')}`;
+        const match = allMenuItems.find(item => basePath.startsWith(item.href) && item.href !== '/dashboard/crm');
+        return match?.href || '/dashboard/crm';
+    };
+
+    const activeTabId = useMemo(() => getBaseTab(pathname), [pathname]);
 
     const [openTabs, setOpenTabs] = useState<Tab[]>(() => {
-        const matchingItem = allMenuItems.find(item => item.href === activeTabId);
-        const component = pathComponentMap[activeTabId];
+        const initialTabId = activeTabId;
+        const matchingItem = allMenuItems.find(item => item.href === initialTabId);
+        const component = pathComponentMap[initialTabId];
         if (matchingItem && component) {
-            return [{ id: activeTabId, href: activeTabId, label: matchingItem.label, component }];
+            return [{ id: initialTabId, href: initialTabId, label: matchingItem.label, component }];
         }
         return [];
     });
+    
+    const [activeComponent, setActiveComponent] = useState<React.ComponentType<any> | null>(null);
 
     useEffect(() => {
-        const tabId = searchParams.get('tab') || '/dashboard/crm';
-        const matchingItem = allMenuItems.find(item => item.href === tabId);
+        // Find the best match for the current full pathname
+        const sortedPaths = Object.keys(pathComponentMap).sort((a, b) => b.length - a.length);
+        const bestMatch = sortedPaths.find(p => {
+            const regex = new RegExp(`^${p.replace(/\[.*?\]/g, '[^/]+')}$`);
+            return regex.test(pathname);
+        });
 
+        const component = bestMatch ? pathComponentMap[bestMatch] : null;
+        setActiveComponent(() => component); // Using a function to ensure it updates correctly
+
+        const tabId = getBaseTab(pathname);
+        const matchingItem = allMenuItems.find(item => item.href === tabId);
+        
         if (matchingItem) {
             const existingTab = openTabs.find(tab => tab.id === tabId);
             if (!existingTab) {
-                const component = pathComponentMap[tabId];
-                if (component) {
-                    setOpenTabs(prev => [...prev, { id: tabId, href: tabId, label: matchingItem.label, component }]);
+                const tabComponent = pathComponentMap[tabId];
+                if (tabComponent) {
+                    setOpenTabs(prev => [...prev, { id: tabId, href: tabId, label: matchingItem.label, component: tabComponent }]);
                 }
             }
         }
-    }, [searchParams, openTabs]);
+    }, [pathname, openTabs]);
+
 
     const closeTab = (e: React.MouseEvent, tabIdToClose: string) => {
         e.stopPropagation();
@@ -141,12 +168,8 @@ function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
             if (newTabs.length > 0) {
                 newActiveTabId = newTabs[Math.max(0, tabIndex - 1)].id;
             }
-            router.push(`/dashboard/crm?tab=${newActiveTabId}`);
+            router.push(newActiveTabId);
         }
-    };
-
-    const handleTabClick = (tabId: string) => {
-        router.push(`/dashboard/crm?tab=${tabId}`);
     };
 
     return (
@@ -165,7 +188,7 @@ function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
                                         ? 'border-primary text-primary'
                                         : 'border-transparent text-muted-foreground'
                                 )}
-                                onClick={() => handleTabClick(tab.id)}
+                                onClick={() => router.push(tab.href)}
                             >
                                 {tab.label}
                                 <div
@@ -183,14 +206,7 @@ function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
             </div>
             <div className="flex-1 overflow-y-auto">
                 <Suspense fallback={<div className="p-8"><Skeleton className="h-96 w-full" /></div>}>
-                    {openTabs.map(tab => {
-                        const Component = tab.component;
-                        return (
-                            <div key={tab.id} className={cn("p-4 md:p-6 lg:p-8", activeTabId === tab.id ? 'block' : 'hidden')}>
-                                {Component && <Component />}
-                            </div>
-                        );
-                    })}
+                   {ActiveComponent && <div className="p-4 md:p-6 lg:p-8"><ActiveComponent /></div>}
                 </Suspense>
             </div>
         </div>
