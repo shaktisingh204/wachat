@@ -7,14 +7,23 @@ import { cn } from "@/lib/utils"
 
 const ScrollArea = React.forwardRef<
   React.ElementRef<typeof ScrollAreaPrimitive.Root>,
+<<<<<<< HEAD
   React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root> & { viewportClassName?: string }
 >(({ className, children, viewportClassName, ...props }, ref) => (
+=======
+  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
+>(({ className, children, ...props }, ref) => (
+>>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
   <ScrollAreaPrimitive.Root
     ref={ref}
     className={cn("relative overflow-hidden", className)}
     {...props}
   >
+<<<<<<< HEAD
     <ScrollAreaPrimitive.Viewport className={cn("h-full w-full rounded-[inherit]", viewportClassName)}>
+=======
+    <ScrollAreaPrimitive.Viewport className="h-full w-full rounded-[inherit]">
+>>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
       {children}
     </ScrollAreaPrimitive.Viewport>
     <ScrollBar />
