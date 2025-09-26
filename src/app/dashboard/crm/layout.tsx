@@ -107,30 +107,20 @@ function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
 
-    const getBaseTab = (path: string) => {
-        const segments = path.split('/').filter(Boolean); // e.g., ['dashboard', 'crm', 'accounts', '[accountId]']
-        if (segments.length <= 2) return '/dashboard/crm';
-        
-        const basePath = `/${segments.slice(0, 4).join('/')}`;
-        const match = allMenuItems.find(item => basePath.startsWith(item.href) && item.href !== '/dashboard/crm');
-        return match?.href || '/dashboard/crm';
-    };
 
-    const activeTabId = useMemo(() => getBaseTab(pathname), [pathname]);
+    const activeTabId = useMemo(() => searchParams.get('tab') || '/dashboard/crm', [searchParams]);
 
     const [openTabs, setOpenTabs] = useState<Tab[]>(() => {
-        const initialTabId = activeTabId;
-        const matchingItem = allMenuItems.find(item => item.href === initialTabId);
-        const component = pathComponentMap[initialTabId];
+        const matchingItem = allMenuItems.find(item => item.href === activeTabId);
+        const component = pathComponentMap[activeTabId];
         if (matchingItem && component) {
-            return [{ id: initialTabId, href: initialTabId, label: matchingItem.label, component }];
+            return [{ id: activeTabId, href: activeTabId, label: matchingItem.label, component }];
         }
         return [];
     });
-    
-    const [activeComponent, setActiveComponent] = useState<React.ComponentType<any> | null>(null);
 
-    useEffect(() => {
+    useEffect(() => {git add src/app/dashboard/crm/layout.tsx
+
         // Find the best match for the current full pathname
         const sortedPaths = Object.keys(pathComponentMap).sort((a, b) => b.length - a.length);
         const bestMatch = sortedPaths.find(p => {
@@ -168,10 +158,21 @@ function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
             if (newTabs.length > 0) {
                 newActiveTabId = newTabs[Math.max(0, tabIndex - 1)].id;
             }
+<<<<<<< HEAD
             router.push(newActiveTabId);
         }
     };
 
+=======
+            router.push(`/dashboard/crm?tab=${newActiveTabId}`);
+        }
+    };
+
+    const handleTabClick = (tabId: string) => {
+        router.push(`/dashboard/crm?tab=${tabId}`);
+    };
+
+>>>>>>> fe396806 (in crm module tabs are amazing but when i clicking in sidebar a tab open)
     return (
         <div className="flex flex-col h-full">
             <div className="flex-shrink-0">
