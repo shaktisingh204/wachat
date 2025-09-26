@@ -1,9 +1,13 @@
+<<<<<<< HEAD
 
+=======
+>>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 {
   "name": "nextn",
   "version": "0.1.0",
   "private": true,
   "scripts": {
+<<<<<<< HEAD
     "dev": "next dev --turbopack -p 3001",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
@@ -11,18 +15,34 @@
     "zoru": "next start -p 3001",
     "start": "NODE_ENV=production node server.js",
     "start:pm2": "pm2 start server.js --name sabnode -- -p 3001",
+=======
+    "dev": "next dev --turbopack -p 9002",
+    "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
+    "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
+    "build": "NODE_ENV=production next build",
+    "start": "next start",
+>>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@azure/msal-node": "^2.10.0",
     "@genkit-ai/googleai": "^1.8.0",
     "@genkit-ai/next": "^1.8.0",
+=======
+    "@genkit-ai/googleai": "^1.14.1",
+    "@genkit-ai/next": "^1.14.1",
+>>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
     "@hookform/resolvers": "^4.1.3",
     "@radix-ui/react-accordion": "^1.2.3",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-avatar": "^1.1.3",
     "@radix-ui/react-checkbox": "^1.1.4",
+<<<<<<< HEAD
+=======
+    "@radix-ui/react-collapsible": "^1.1.11",
+>>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
     "@radix-ui/react-dialog": "^1.1.6",
     "@radix-ui/react-dropdown-menu": "^2.1.6",
     "@radix-ui/react-label": "^2.1.2",
@@ -34,11 +54,16 @@
     "@radix-ui/react-select": "^2.1.6",
     "@radix-ui/react-separator": "^1.1.2",
     "@radix-ui/react-slider": "^1.2.3",
+<<<<<<< HEAD
     "@radix-ui/react-slot": "^1.1.2",
+=======
+    "@radix-ui/react-slot": "^1.2.3",
+>>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
     "@radix-ui/react-switch": "^1.1.3",
     "@radix-ui/react-tabs": "^1.1.3",
     "@radix-ui/react-toast": "^1.2.6",
     "@radix-ui/react-tooltip": "^1.1.8",
+<<<<<<< HEAD
     "axios": "^1.7.2",
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
@@ -91,6 +116,32 @@
     "@types/react-dom": "^18",
     "@types/uuid": "^10.0.0",
     "genkit-cli": "^1.8.0",
+=======
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^3.6.0",
+    "dotenv": "^16.5.0",
+    "embla-carousel-react": "^8.6.0",
+    "firebase": "^11.9.1",
+    "genkit": "^1.14.1",
+    "lucide-react": "^0.475.0",
+    "next": "15.3.3",
+    "patch-package": "^8.0.0",
+    "react": "^18.3.1",
+    "react-day-picker": "^8.10.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.54.2",
+    "recharts": "^2.15.1",
+    "tailwind-merge": "^3.0.1",
+    "tailwindcss-animate": "^1.0.7",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "genkit-cli": "^1.14.1",
+>>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"

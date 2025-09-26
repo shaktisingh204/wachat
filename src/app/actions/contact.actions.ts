@@ -199,3 +199,23 @@ export async function getContactsPageData(
         selectedPhoneNumberId: selectedPhoneId
     };
 }
+
+export async function updateContactTags(contactId: string, tagIds: string[]): Promise<{ success: boolean, error?: string }> {
+    if (!ObjectId.isValid(contactId)) return { success: false, error: 'Invalid contact ID' };
+
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Authentication required' };
+    
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('contacts').updateOne(
+            { _id: new ObjectId(contactId) },
+            { $set: { tagIds: tagIds.map(id => new ObjectId(id)) } }
+        );
+        revalidatePath('/dashboard/chat');
+        revalidatePath('/dashboard/contacts');
+        return { success: true };
+    } catch(e: any) {
+        return { success: false, error: 'Failed to update tags.' };
+    }
+}

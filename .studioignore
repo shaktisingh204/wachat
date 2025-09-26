@@ -1,0 +1,7 @@
+# Ignore entire actions file
+src/app/actions.ts
+
+# (optional) Ignore any test or build artifacts
+node_modules/
+dist/
+build/

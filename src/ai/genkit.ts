@@ -2,10 +2,15 @@ import {genkit} from 'genkit';
 import {googleAI} from '@genkit-ai/googleai';
 
 export const ai = genkit({
+<<<<<<< HEAD
   plugins: [
     googleAI({
       apiKey: process.env.GOOGLE_API_KEY,
     }),
   ],
   model: 'googleai/gemini-2.0-flash',
+=======
+  plugins: [googleAI()],
+  model: 'googleai/gemini-2.5-flash',
+>>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 });

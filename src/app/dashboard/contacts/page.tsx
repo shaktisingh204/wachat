@@ -1,11 +1,11 @@
 
+
 'use client';
 
 import { useEffect, useState, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { getProjects } from '@/app/actions';
-import { getContactsPageData } from '@/app/actions/contact.actions';
+import { getProjects, getContactsPageData } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, Tag } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -81,7 +81,7 @@ function TagsFilter({ tags, selectedTags, onSelectionChange }: { tags: Tag[], se
                     <CommandList>
                         <CommandEmpty>No tags found.</CommandEmpty>
                         <CommandGroup>
-                             {tags.map((tag) => (
+                             {(tags || []).map((tag) => (
                                 <CommandItem
                                     key={tag._id}
                                     value={tag.name}
@@ -143,7 +143,7 @@ export default function ContactsPage() {
                 fetchData(activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags);
             } else {
                  startTransition(async () => {
-                    const projects = await getProjects();
+                    const { projects } = await getProjects();
                     if (projects && projects.length > 0) {
                         router.push('/dashboard');
                     } else {
