@@ -3,6 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
+body {
+  font-family: 'PT Sans', sans-serif;
+}
+
 @layer base {
   :root {
     --background: 210 17% 98%;
@@ -227,7 +231,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-body;
+    @apply bg-background text-foreground;
   }
 }
 
@@ -391,5 +395,3 @@
         }
     }
 }
-
-    
