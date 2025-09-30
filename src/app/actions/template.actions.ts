@@ -15,6 +15,26 @@ import type { Project, Template, CreateTemplateState, MetaTemplate, MetaTemplate
 
 const API_VERSION = 'v23.0';
 
+export async function getTemplates(projectId: string): Promise<WithId<Template>[]> {
+    if (!projectId || !ObjectId.isValid(projectId)) {
+        return [];
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const project = await getProjectById(projectId);
+        if (!project) return [];
+        
+        const templates = await db.collection('templates').find({ projectId: new ObjectId(projectId) }).sort({ createdAt: -1 }).toArray();
+
+        return JSON.parse(JSON.stringify(templates));
+    } catch (error) {
+        console.error("Failed to fetch templates:", error);
+        return [];
+    }
+}
+
+
 async function getMediaHandleForTemplate(file: File | null, url: string | null, accessToken: string, appId: string): Promise<{ handle: string | null; error?: string; }> {
     if (!file && !url) return { handle: null, error: undefined };
 
