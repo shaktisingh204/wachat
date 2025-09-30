@@ -32,7 +32,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import {
   LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus
 } from 'lucide-react';
-import { SabNodeBrandLogo, MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { SabNodeLogo } from '@/components/wabasimplify/logo';
+import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getSession, getProjects } from '@/app/actions';
 import type { Plan, WithId, Project, Agent } from '@/lib/definitions';
@@ -335,16 +336,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }));
             break;
         case 'crm':
-            groups = crmMenuItems.flatMap(item => {
-                if (!item.subItems) {
-                    return [{ title: null, items: [{ ...item, roles: ['owner', 'admin', 'agent'] }] }];
-                }
-                return { 
-                    title: item.label,
-                    icon: item.icon,
-                    items: item.subItems.map(subItem => ({ ...subItem, roles: ['owner', 'admin', 'agent'] }))
-                };
-            });
+            groups = crmMenuItems.map(item => ({
+                title: item.subItems ? item.label : null,
+                icon: item.icon,
+                items: (item.subItems || [item]).map(subItem => ({ ...subItem, roles: ['owner', 'admin', 'agent'] }))
+            }));
             break;
         case 'email':
             groups = [{ title: 'Email Suite', items: emailMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
@@ -469,7 +465,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           >
             <SidebarHeader className="p-4">
               <div className="flex items-center gap-2">
-                <SabNodeBrandLogo className="size-8 shrink-0" />
+                <SabNodeLogo className="h-6 w-auto shrink-0" />
                 <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden truncate">SabNode</span>
               </div>
             </SidebarHeader>
