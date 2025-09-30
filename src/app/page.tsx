@@ -586,7 +586,7 @@ const WhatsAppShowcase = ({ id }: { id?: string }) => {
     );
 };
 
-export default function HomePage() {
+export default function Home() {
   const [activeApp, setActiveApp] = React.useState('overview');
   const [session, setSession] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
@@ -811,10 +811,4 @@ export default function HomePage() {
       </footer>
     </div>
   );
-export default function Home() {
-  return <></>;
-import { redirect } from 'next/navigation';
-
-export default function Home() {
-  redirect('/dashboard');
 }
