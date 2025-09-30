@@ -1,6 +1,6 @@
 
 
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/user.actions';
 import { getErrorMessage } from '@/lib/utils';
 import axios from 'axios';
 

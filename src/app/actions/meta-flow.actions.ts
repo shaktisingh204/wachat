@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { type Db, ObjectId, type WithId } from 'mongodb';
 import axios from 'axios';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/user.actions';
 import type { Project, MetaFlow } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 

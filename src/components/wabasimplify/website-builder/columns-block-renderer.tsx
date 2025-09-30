@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React from 'react';
@@ -50,8 +51,11 @@ export const ColumnsBlockRenderer: React.FC<ColumnsBlockRendererProps> = (props)
                     margin: columnSettings.margin ? `${columnSettings.margin.top || 0}px ${columnSettings.margin.right || 0}px ${columnSettings.margin.bottom || 0}px ${columnSettings.margin.left || 0}px` : undefined,
                     borderStyle: columnSettings.border?.type,
                     borderColor: columnSettings.border?.color,
-                    borderWidth: columnSettings.border?.width ? `${columnSettings.border.width}px` : undefined,
-                    borderRadius: columnSettings.border?.radius ? `${columnSettings.border.radius}px` : undefined,
+                    borderTopWidth: columnSettings.border?.width?.top ? `${columnSettings.border.width.top}px` : undefined,
+                    borderRightWidth: columnSettings.border?.width?.right ? `${columnSettings.border.width.right}px` : undefined,
+                    borderBottomWidth: columnSettings.border?.width?.bottom ? `${columnSettings.border.width.bottom}px` : undefined,
+                    borderLeftWidth: columnSettings.border?.width?.left ? `${columnSettings.border.width.left}px` : undefined,
+                    borderRadius: columnSettings.border?.radius ? `${columnSettings.border.radius.tl || 0}px ${columnSettings.border.radius.tr || 0}px ${columnSettings.border.radius.br || 0}px ${columnSettings.border.radius.bl || 0}px` : undefined,
                     boxShadow: columnSettings.boxShadow,
                     zIndex: columnSettings.zIndex,
                     order: columnSettings.order || undefined,

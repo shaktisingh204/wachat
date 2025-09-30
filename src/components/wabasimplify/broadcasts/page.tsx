@@ -1,9 +1,10 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, getProjectById, getBroadcasts, handleStopBroadcast, handleSyncTemplates, handleRunCron, getProjects } from '@/app/actions';
+import { getTemplates, handleStopBroadcast, handleSyncTemplates, handleRunCron, getProjects } from '@/app/actions/user.actions';
 import { useRouter } from 'next/navigation';
 import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
@@ -36,8 +37,8 @@ import {
 import { RequeueBroadcastDialog } from '@/components/wabasimplify/requeue-broadcast-dialog';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import { Separator } from '@/components/ui/separator';
+import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 
 
 type Broadcast = {
@@ -157,6 +158,10 @@ function formatDuration(start: string, end: string) {
     let difference = endDate - startDate;
     if (difference < 0) difference = 0;
     
+    if (difference < 1000) {
+        return '< 1s';
+    }
+
     const hours = Math.floor(difference / 3600000);
     const minutes = Math.floor((difference % 3600000) / 60000);
     const seconds = Math.floor(((difference % 3600000) % 60000) / 1000);
@@ -400,6 +405,17 @@ export default function BroadcastPage() {
 
   const isLoadingData = isRefreshing && !project;
 
+  const onBroadcastSuccess = () => {
+      if (activeProjectId) {
+        // Go back to first page to see the new broadcast
+        if (currentPage === 1) {
+            fetchData(activeProjectId, 1, false);
+        } else {
+            setCurrentPage(1);
+        }
+      }
+  }
+
   return (
     <>
       <div className="flex flex-col gap-8">
@@ -413,7 +429,12 @@ export default function BroadcastPage() {
         {isLoadingData ? (
             <Skeleton className="h-64 w-full"/>
         ) : (
-            <BroadcastForm templates={templates} project={project} metaFlows={metaFlows} />
+            <BroadcastForm 
+                templates={templates} 
+                project={project} 
+                metaFlows={metaFlows} 
+                onSuccess={onBroadcastSuccess}
+            />
         )}
 
         <Card className="card-gradient card-gradient-blue">

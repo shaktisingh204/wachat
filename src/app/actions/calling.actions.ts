@@ -1,10 +1,11 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { type WithId, ObjectId } from 'mongodb';
 import axios from 'axios';
-import { getProjectById } from '@/app/actions';
+import { getProjectById } from '@/app/actions/user.actions';
 import type { Project, PhoneNumber, CallingSettings } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import { connectToDatabase } from '@/lib/mongodb';

@@ -2,7 +2,7 @@
 
 'use server';
 
-import { getSession } from '@/app/actions';
+import { getSession, getProjectById } from '@/app/actions/user.actions';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
@@ -559,7 +559,7 @@ export async function handleBulkUpdateAppId(prevState: any, formData: FormData):
         revalidatePath('/dashboard');
         return { success: true };
 
-    } catch (e) {
+    } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
     }
 }
