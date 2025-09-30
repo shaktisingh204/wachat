@@ -6,7 +6,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { X, Briefcase, Handshake, Building, Users, ShoppingCart, Truck, FolderKanban, Mail, BarChart, Zap, Settings, LayoutDashboard, FileText, CreditCard, BadgeInfo, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { MessageSquare } from "lucide-react";
@@ -103,24 +103,22 @@ const allMenuItems = crmMenuItems.flatMap(item =>
   item.subItems ? item.subItems.map(sub => ({ ...sub, parent: item.label })) : [{ ...item, parent: null }]
 );
 
+function getBaseTab(pathname: string) {
+    // This logic ensures sub-pages are mapped to their parent tab
+    if (pathname.match(/\/dashboard\/crm\/(accounts|contacts|deals)\/.+/)) {
+        return `/dashboard/crm/${pathname.split('/')[3]}`;
+    }
+    return pathname;
+}
+
 function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
+    const searchParams = useSearchParams();
 
+    const [activeComponent, setActiveComponent] = useState<React.ComponentType<any> | null>(null);
 
-    const activeTabId = useMemo(() => searchParams.get('tab') || '/dashboard/crm', [searchParams]);
-
-    const [openTabs, setOpenTabs] = useState<Tab[]>(() => {
-        const matchingItem = allMenuItems.find(item => item.href === activeTabId);
-        const component = pathComponentMap[activeTabId];
-        if (matchingItem && component) {
-            return [{ id: activeTabId, href: activeTabId, label: matchingItem.label, component }];
-        }
-        return [];
-    });
-
-    useEffect(() => {git add src/app/dashboard/crm/layout.tsx
-
+    useEffect(() => {
         // Find the best match for the current full pathname
         const sortedPaths = Object.keys(pathComponentMap).sort((a, b) => b.length - a.length);
         const bestMatch = sortedPaths.find(p => {
@@ -129,82 +127,15 @@ function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
         });
 
         const component = bestMatch ? pathComponentMap[bestMatch] : null;
-        setActiveComponent(() => component); // Using a function to ensure it updates correctly
+        setActiveComponent(() => component);
 
-        const tabId = getBaseTab(pathname);
-        const matchingItem = allMenuItems.find(item => item.href === tabId);
-        
-        if (matchingItem) {
-            const existingTab = openTabs.find(tab => tab.id === tabId);
-            if (!existingTab) {
-                const tabComponent = pathComponentMap[tabId];
-                if (tabComponent) {
-                    setOpenTabs(prev => [...prev, { id: tabId, href: tabId, label: matchingItem.label, component: tabComponent }]);
-                }
-            }
-        }
-    }, [pathname, openTabs]);
-
-
-    const closeTab = (e: React.MouseEvent, tabIdToClose: string) => {
-        e.stopPropagation();
-        const tabIndex = openTabs.findIndex(tab => tab.id === tabIdToClose);
-        
-        const newTabs = openTabs.filter(tab => tab.id !== tabIdToClose);
-        setOpenTabs(newTabs);
-        
-        if (activeTabId === tabIdToClose) {
-            let newActiveTabId = '/dashboard/crm';
-            if (newTabs.length > 0) {
-                newActiveTabId = newTabs[Math.max(0, tabIndex - 1)].id;
-            }
-            router.push(newActiveTabId);
-        }
-    };
-
-            router.push(`/dashboard/crm?tab=${newActiveTabId}`);
-        }
-    };
-
-    const handleTabClick = (tabId: string) => {
-        router.push(`/dashboard/crm?tab=${tabId}`);
-    };
+    }, [pathname]);
 
     return (
         <div className="flex flex-col h-full">
-            <div className="flex-shrink-0">
-                <ScrollArea className="w-full whitespace-nowrap border-b">
-                    <div className="flex items-center px-1">
-                        {openTabs.map(tab => (
-                            <Button
-                                key={tab.id}
-                                variant="ghost"
-                                size="sm"
-                                className={cn(
-                                    'flex items-center gap-2 pr-1 rounded-b-none border-b-2',
-                                    activeTabId === tab.id
-                                        ? 'border-primary text-primary'
-                                        : 'border-transparent text-muted-foreground'
-                                )}
-                                onClick={() => router.push(tab.href)}
-                            >
-                                {tab.label}
-                                <div
-                                    role="button"
-                                    onClick={(e) => closeTab(e, tab.id)}
-                                    className="p-1 rounded-full hover:bg-muted"
-                                >
-                                    <X className="h-3 w-3" />
-                                </div>
-                            </Button>
-                        ))}
-                    </div>
-                    <ScrollBar orientation="horizontal" />
-                </ScrollArea>
-            </div>
             <div className="flex-1 overflow-y-auto">
                 <Suspense fallback={<div className="p-8"><Skeleton className="h-96 w-full" /></div>}>
-                   {ActiveComponent && <div className="p-4 md:p-6 lg:p-8"><ActiveComponent /></div>}
+                   {activeComponent && <div className="p-4 md:p-6 lg:p-8"><activeComponent /></div>}
                 </Suspense>
             </div>
         </div>
