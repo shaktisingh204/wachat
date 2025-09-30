@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
 import {
-  Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, MessageCircle, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Wifi, Type, Clock,
+  Send, GitBranch, MessageSquare, Bot, ArrowRight, Star, ChevronDown, Quote, Check, AtSign, Zap, ShoppingBag, Pencil, ServerCog, Megaphone, Play, LayoutGrid, Users, Shield, Repeat, ClipboardList, ArrowLeft, Video, Phone, MoreVertical, Smile, Paperclip, Camera, Mic, CheckCheck, Home, Link as LinkIcon, QrCode, BarChart, FileText, Newspaper, Wifi, Type, Clock,
   Facebook, Twitter, Linkedin, Handshake
 } from 'lucide-react';
 import Image from 'next/image';
@@ -45,27 +45,6 @@ const OverviewFeatureCard = ({ icon: Icon, title, description, gradient }: { ico
             <p className="text-muted-foreground">{description}</p>
         </CardContent>
     </Card>
-);
-
-const ComingSoonCard = ({ title, icon: Icon }: { title: string, icon: React.ElementType }) => (
-     <Card className="hover:shadow-lg hover:-translate-y-1 transition-transform flex flex-col items-center justify-center text-center p-6 bg-muted/50 opacity-70">
-        <div className="p-4 bg-foreground/10 rounded-full mb-4">
-            <Icon className="h-8 w-8 text-muted-foreground" />
-        </div>
-        <CardTitle>{title}</CardTitle>
-        <CardContent className="p-0 mt-2">
-            <p className="text-sm text-muted-foreground">Coming Soon!</p>
-        </CardContent>
-    </Card>
-);
-
-const OverviewShowcase = () => (
-    <AppShowcase title="Welcome to SabNode" description="An all-in-one platform for your messaging and marketing needs. Select a tool on the right to learn more.">
-        <OverviewFeatureCard icon={Send} title="WhatsApp Campaigns" description="Launch targeted broadcast campaigns with detailed, real-time analytics." gradient="card-gradient-green" />
-        <OverviewFeatureCard icon={Megaphone} title="Facebook Ads" description="Create and manage 'Click to WhatsApp' ad campaigns directly from the dashboard." gradient="card-gradient-blue" />
-        <OverviewFeatureCard icon={LinkIcon} title="URL Shortener" description="Create branded, trackable short links with expiration dates and detailed analytics." gradient="card-gradient-purple" />
-        <OverviewFeatureCard icon={QrCode} title="QR Code Generator" description="Generate custom QR codes for URLs, Wi-Fi, contact cards, and more." gradient="card-gradient-orange" />
-    </AppShowcase>
 );
 
 const WhatsAppShowcase = ({ id }: { id?: string }) => {
@@ -586,6 +565,14 @@ const WhatsAppShowcase = ({ id }: { id?: string }) => {
     );
 };
 
+const OverviewShowcase = () => (
+    <div className="container mx-auto px-4 py-16 text-center">
+        <h2 className="text-4xl font-bold font-headline">Welcome to SabNode</h2>
+        <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">Your all-in-one business communication and marketing automation platform. Select a suite from the sidebar to get started.</p>
+    </div>
+);
+
+
 export default function Home() {
   const [activeApp, setActiveApp] = React.useState('overview');
   const [session, setSession] = React.useState<any>(null);
@@ -728,8 +715,7 @@ export default function Home() {
             </section>
         );
       case 'crm':
-        return <section id="crm-suite"><OverviewShowcase /></section>; // Placeholder, can create a new component later
-      case 'overview':
+        return <section id="crm-suite"><OverviewShowcase /></section>; 
       default:
         return <section id="overview"><OverviewShowcase /></section>;
     }

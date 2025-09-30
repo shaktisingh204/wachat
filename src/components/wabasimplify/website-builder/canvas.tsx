@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import { Trash2, GripVertical, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { BlockRenderer } from './block-renderer';
-import { Separator } from '@/components/ui/separator';
 import React from 'react';
 
 interface CanvasProps {
