@@ -239,7 +239,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isCrmPage = pathname.startsWith('/dashboard/crm');
   const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
   
-  const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
+  const facebookProjects = projects?.filter(p => p.facebookPageId && !p.wabaId) || [];
   const hasActiveWhatsAppProject = activeProjectId && projects.some(p => p._id.toString() === activeProjectId && p.wabaId);
   const hasActiveFacebookProject = activeProjectId && facebookProjects.some(p => p._id.toString() === activeProjectId);
 
@@ -267,11 +267,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }));
             break;
         case 'crm':
-            groups = crmMenuItems.map(item => ({
+            groups = crmMenuItems.map(item => ({ 
                 title: item.label,
                 icon: item.icon,
                 href: item.href,
-                items: (item.subItems || []).map(sub => ({ ...sub, roles: ['owner', 'admin', 'agent'] })),
+                subItems: item.subItems,
                 roles: ['owner', 'admin', 'agent']
             }));
             break;
@@ -303,7 +303,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     
     return groups.map((group: any) => ({
         ...group,
-        items: (group.items || []).filter((item: any) => item.roles?.includes(currentUserRole))
+        items: (group.items || group.subItems || []).filter((item: any) => item.roles?.includes(currentUserRole))
     }));
   }, [activeApp, currentUserRole]);
 
@@ -376,9 +376,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             if(session?.user) {
                 setSessionUser(session.user as any);
                 getProjects().then(fetchedProjects => {
-                    setProjects(fetchedProjects.projects);
+                    setProjects(fetchedProjects.projects || []);
                     if (activeProjectId) {
-                        const currentActiveProject = fetchedProjects.projects.find(p => p._id.toString() === activeProjectId);
+                        const currentActiveProject = (fetchedProjects.projects || []).find(p => p._id.toString() === activeProjectId);
                         setActiveProject(currentActiveProject || null);
                     } else {
                         setActiveProject(null);
@@ -427,25 +427,27 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const renderGroupedMenuItems = (groups: any[]) => {
     return groups.map((group, groupIndex) => (
       <React.Fragment key={group.title || groupIndex}>
-        {group.title && !group.items.some((item: any) => item.subItems) && (
+        {group.title && (
           <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
             <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
           </SidebarGroupLabel>
         )}
-        {renderMenuItems(group.items.filter((item:any) => !item.subItems))}
         
-        {/* Render collapsible groups */}
-        {(group.items || []).filter((item: any) => item.subItems).map((subGroup: any) => (
-            <SidebarMenuItem key={subGroup.label}>
-                <SidebarMenuButton
-                    subItems={subGroup.subItems}
-                    tooltip={subGroup.label}
-                >
-                    <subGroup.icon className="h-4 w-4" />
-                    <span>{subGroup.label}</span>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-        ))}
+        {group.href && renderMenuItems([group], false)}
+
+        {(group.items || []).map((item: any) => {
+            if(item.subItems) {
+                return (
+                    <SidebarMenuItem key={item.href}>
+                        <SidebarMenuButton subItems={item.subItems} tooltip={item.label}>
+                            <item.icon className="h-4 w-4" />
+                            <span>{item.label}</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                );
+            }
+            return renderMenuItems([item], false)[0];
+        })}
 
         {groupIndex < groups.length - 1 && <SidebarSeparator />}
       </React.Fragment>
