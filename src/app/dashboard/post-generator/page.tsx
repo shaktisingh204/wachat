@@ -2,7 +2,7 @@
 'use client';
 
 import { useFormState, useFormStatus } from 'react-dom';
-import { Copy, Lightbulb, Loader2, MagicWand } from 'lucide-react';
+import { Copy, Lightbulb, Loader2, Sparkles } from 'lucide-react';
 
 import { getSuggestions } from '@/app/actions/ai-actions';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,7 @@ function SubmitButton() {
         </>
       ) : (
         <>
-          <MagicWand className="mr-2 h-4 w-4" />
+          <Sparkles className="mr-2 h-4 w-4" />
           Generate Suggestions
         </>
       )}
@@ -106,7 +106,7 @@ export default function PostGeneratorPage() {
             ))
           ) : (
             <div className="flex flex-col items-center justify-center text-center p-8 border-2 border-dashed rounded-lg h-full">
-              <MagicWand className="h-10 w-10 text-muted-foreground" />
+              <Sparkles className="h-10 w-10 text-muted-foreground" />
               <p className="mt-4 text-muted-foreground">
                 Your generated post suggestions will appear here.
               </p>
