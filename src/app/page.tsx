@@ -13,10 +13,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/componen
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
-import { Input } from '@/components/ui/input';
 import { WhatsAppIcon, MetaIcon, SeoIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 import { MetaSuiteShowcase } from '@/components/wabasimplify/meta-suite-showcase';
 import { getSession } from '@/app/actions';
 
@@ -435,7 +433,7 @@ export default function Home() {
                                     <Badge style={{backgroundColor: '#60a5fa'}}>Social Media</Badge>
                                 </div>
                                 <div className="flex items-center gap-2 pt-2 text-sm text-muted-foreground">
-                                    <Clock className="h-4 w-4" />
+                                    <ChevronDown className="h-4 w-4" />
                                     <span>Expires: 31 Dec 2024</span>
                                 </div>
                             </div>

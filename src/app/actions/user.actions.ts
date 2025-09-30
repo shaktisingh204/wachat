@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -14,6 +15,256 @@ import { headers } from 'next/headers';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';
 import { verifyAdminJwt } from '@/lib/jwt';
+
+export async function getProjectById(projectId: string, userId?: string) {
+    if (!ObjectId.isValid(projectId)) {
+        console.error("Invalid Project ID in getProjectById:", projectId);
+        return null;
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const projectObjectId = new ObjectId(projectId);
+
+        let query: Filter<Project> = { _id: projectObjectId };
+
+        if (!userId) {
+            const session = await getSession();
+            if (!session?.user) return null;
+            userId = session.user._id;
+        }
+
+        query = {
+            ...query,
+            $or: [
+                { userId: new ObjectId(userId) },
+                { 'agents.userId': new ObjectId(userId) }
+            ]
+        };
+        
+        const project = await db.collection('projects').findOne(query);
+
+        if (!project) return null;
+        
+        const plan = project.planId ? await db.collection('plans').findOne({ _id: project.planId }) : null;
+        const finalProject = { ...project, plan };
+        
+        return JSON.parse(JSON.stringify(finalProject));
+    } catch (error) {
+        console.error("Failed to fetch project by ID:", error);
+        return null;
+    }
+}
+
+export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'): Promise<{ projects: WithId<Project>[] }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { projects: [] };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const userObjectId = new ObjectId(session.user._id);
+
+        const projectFilter: Filter<Project> = {
+            $or: [
+                { userId: userObjectId },
+                { 'agents.userId': userObjectId },
+            ],
+        };
+
+        if (query) {
+            projectFilter.name = { $regex: query, $options: 'i' };
+        }
+        
+        if (type === 'whatsapp') {
+            projectFilter.wabaId = { $exists: true, $ne: null };
+        } else if (type === 'facebook') {
+            projectFilter.facebookPageId = { $exists: true, $ne: null };
+            projectFilter.wabaId = { $exists: false }; // Exclude whatsapp projects
+        }
+
+
+        const projects = await db.collection<Project>('projects')
+            .find(projectFilter)
+            .sort({ createdAt: -1 })
+            .toArray();
+
+        return { projects: JSON.parse(JSON.stringify(projects)) };
+    } catch (error) {
+        console.error("Failed to fetch projects:", error);
+        return { projects: [] };
+    }
+}
+
+export async function getAllProjectsForAdmin(
+    page: number = 1,
+    limit: number = 10,
+    query?: string
+): Promise<{ projects: WithId<any>[], total: number }> {
+     try {
+        const { db } = await connectToDatabase();
+        const filter: Filter<Project> = {};
+        if (query) {
+             filter.name = { $regex: query, $options: 'i' };
+        }
+        
+        const skip = (page - 1) * limit;
+        
+        const [projects, total] = await Promise.all([
+             db.collection<Project>('projects').aggregate([
+                { $match: filter },
+                { $sort: { createdAt: -1 } },
+                { $skip: skip },
+                { $limit: limit },
+                {
+                    $lookup: {
+                        from: 'plans',
+                        localField: 'planId',
+                        foreignField: '_id',
+                        as: 'plan'
+                    }
+                },
+                {
+                    $unwind: { path: '$plan', preserveNullAndEmptyArrays: true }
+                }
+             ]).toArray(),
+             db.collection('projects').countDocuments(filter)
+        ]);
+
+        return { projects: JSON.parse(JSON.stringify(projects)), total };
+    } catch(e) {
+        return { projects: [], total: 0 };
+    }
+}
+
+export async function handleDeleteUserProject(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) {
+        return { error: 'Authentication required.' };
+    }
+    
+    const projectId = formData.get('projectId') as string;
+    
+    if (!projectId || !ObjectId.isValid(projectId)) {
+        return { error: 'Invalid Project ID provided.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        const projectToDelete = await db.collection('projects').findOne({
+            _id: new ObjectId(projectId),
+            userId: new ObjectId(session.user._id)
+        });
+
+        if (!projectToDelete) {
+            return { error: 'Project not found or you do not have permission to delete it.' };
+        }
+
+        // Add more deletion logic here if needed (e.g., associated data)
+        await db.collection('projects').deleteOne({ _id: new ObjectId(projectId) });
+        
+        revalidatePath('/dashboard');
+
+        return { message: 'Project has been successfully deleted.' };
+
+    } catch (e: any) {
+        console.error('Failed to delete project:', e);
+        return { error: e.message || 'An unexpected error occurred while deleting the project.' };
+    }
+}
+
+export async function handleRunCron() {
+    try {
+        const result = await processBroadcastJob();
+        return { message: result.message, error: null };
+    } catch (e: any) {
+        return { message: null, error: e.message || 'An unknown error occurred.' };
+    }
+}
+
+export async function handleSyncWabas(prevState: any, formData: FormData): Promise<{ message?: string, error?: string, count?: number }> {
+    const accessToken = formData.get('accessToken') as string;
+    const appId = formData.get('appId') as string;
+    const businessId = formData.get('businessId') as string;
+    const groupName = formData.get('groupName') as string;
+
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+    
+    if (!accessToken || !appId || !businessId) {
+        return { error: 'Access Token, App ID, and Business ID are required.'};
+    }
+    
+    try {
+        const { db } = await connectToDatabase();
+
+        let groupId: ObjectId | undefined;
+        if(groupName) {
+            const groupResult = await db.collection('project_groups').insertOne({
+                userId: new ObjectId(session.user._id),
+                name: groupName,
+                createdAt: new Date()
+            });
+            groupId = groupResult.insertedId;
+        }
+
+        const response = await axios.get(`https://graph.facebook.com/v23.0/${businessId}/whatsapp_business_accounts`, {
+            params: {
+                fields: 'id,name',
+                access_token: accessToken,
+            }
+        });
+
+        const wabas = response.data.data;
+        if (wabas.length === 0) {
+            return { message: "No WhatsApp Business Accounts found in this business portfolio." };
+        }
+
+        const bulkOps = wabas.map((waba: any) => ({
+            updateOne: {
+                filter: { userId: new ObjectId(session.user._id), wabaId: waba.id },
+                update: {
+                    $set: {
+                        name: waba.name,
+                        accessToken: accessToken,
+                        appId: appId,
+                        businessId: businessId,
+                        ...(groupId && groupName && { groupId, groupName }),
+                    },
+                    $setOnInsert: {
+                        userId: new ObjectId(session.user._id),
+                        wabaId: waba.id,
+                        createdAt: new Date(),
+                        messagesPerSecond: 80,
+                    },
+                },
+                upsert: true,
+            },
+        }));
+
+        const result = await db.collection('projects').bulkWrite(bulkOps);
+        const syncedCount = result.upsertedCount + result.modifiedCount;
+
+        // Subscribe new projects
+        if (result.upsertedIds) {
+            for (const id of Object.values(result.upsertedIds)) {
+                const newProject = await db.collection<Project>('projects').findOne({_id: id});
+                if(newProject) {
+                    await handleSyncPhoneNumbers(newProject._id.toString());
+                    await handleSubscribeProjectWebhook(newProject.wabaId!, newProject.appId!, newProject.accessToken);
+                }
+            }
+        }
+        
+        revalidatePath('/dashboard');
+        return { message: `Successfully synced ${syncedCount} project(s).`, count: syncedCount };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
 
 export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
     const cookieStore = cookies();
@@ -177,5 +428,97 @@ export async function getUsersForAdmin(
         return { users: JSON.parse(JSON.stringify(users)), total };
     } catch(e) {
         return { users: [], total: 0 };
+    }
+}
+
+export async function handleUpdateUserProfile(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+
+    const name = formData.get('name') as string;
+    const tagsJSON = formData.get('tags') as string | null;
+
+    if (!name && !tagsJSON) {
+        return { error: 'No data provided to update.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        
+        const updateData: any = {};
+        if (name) {
+            updateData.name = name;
+        }
+        if (tagsJSON) {
+            // This ensures we save tags with ObjectIDs if they are new
+            const parsedTags = JSON.parse(tagsJSON).map((tag: any) => ({
+                _id: tag._id && !tag._id.startsWith('temp_') ? new ObjectId(tag._id) : new ObjectId(),
+                name: tag.name,
+                color: tag.color
+            }));
+            updateData.tags = parsedTags;
+        }
+
+        const result = await db.collection('users').updateOne(
+            { _id: new ObjectId(session.user._id) },
+            { $set: updateData }
+        );
+
+        if (result.matchedCount === 0) {
+            return { error: 'User not found.' };
+        }
+        
+        revalidatePath('/dashboard/profile');
+        revalidatePath('/dashboard/settings');
+        revalidatePath('/dashboard/url-shortener/settings');
+        return { message: 'Profile updated successfully.' };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function handleChangePassword(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { error: 'Authentication required.' };
+    
+    const currentPassword = formData.get('currentPassword') as string;
+    const newPassword = formData.get('newPassword') as string;
+    const confirmPassword = formData.get('confirmPassword') as string;
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        return { error: 'All fields are required.' };
+    }
+
+    if (newPassword.length < 6) {
+        return { error: 'New password must be at least 6 characters long.' };
+    }
+
+    if (newPassword !== confirmPassword) {
+        return { error: 'New passwords do not match.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const user = await db.collection<User>('users').findOne({ _id: new ObjectId(session.user._id) });
+        if (!user || !user.password) {
+            return { error: 'User not found or password is not set.' };
+        }
+        
+        const passwordMatch = await comparePassword(currentPassword, user.password);
+        if (!passwordMatch) {
+            return { error: 'Current password is incorrect.' };
+        }
+        
+        const newHashedPassword = await hashPassword(newPassword);
+        await db.collection('users').updateOne(
+            { _id: user._id },
+            { $set: { password: newHashedPassword } }
+        );
+
+        return { message: 'Password updated successfully.' };
+
+    } catch (e: any) {
+        return { error: getErrorMessage(e) };
     }
 }

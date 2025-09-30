@@ -94,7 +94,7 @@ export const ProductBreadcrumbsRenderer: React.FC<ProductBlockProps> = ({ produc
         <div className={cn("flex items-center gap-2 text-sm text-muted-foreground", alignClass)}>
             <span>Home</span>
             <span>/</span>
-            <span>{product?.category || 'Products'}</span>
+            <span>Products</span>
             <span>/</span>
             <span className="text-foreground">{product?.name || 'Product'}</span>
         </div>
