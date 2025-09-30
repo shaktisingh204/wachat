@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -521,5 +520,17 @@ export async function deleteLibraryTemplate(id: string): Promise<{ message?: str
         return { message: 'Custom template removed from the library.' };
     } catch (e: any) {
         return { error: e.message || 'An unexpected error occurred.' };
+    }
+}
+
+export async function getLibraryTemplates() {
+    try {
+        const { db } = await connectToDatabase();
+        const customTemplates = await db.collection('library_templates').find({}).sort({ name: 1 }).toArray();
+        const allTemplates = [...premadeTemplates, ...customTemplates];
+        return JSON.parse(JSON.stringify(allTemplates));
+    } catch (e) {
+        console.error("Failed to fetch library templates:", e);
+        return premadeTemplates; 
     }
 }
