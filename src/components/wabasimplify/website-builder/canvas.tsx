@@ -99,6 +99,7 @@ const PublicCanvas = ({ layout, products, isNested, shopSlug, contextData }: Can
 
 export function Canvas(props: CanvasProps) {
     if (props.isEditable) {
+        // The type assertion for onBlockClick and onRemoveBlock is safe because they are guaranteed to exist when isEditable is true.
         return <EditableCanvas {...props} droppableId={props.droppableId!} onBlockClick={props.onBlockClick!} onRemoveBlock={props.onRemoveBlock!} />;
     }
     return <PublicCanvas {...props} />;
