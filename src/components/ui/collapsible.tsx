@@ -1,11 +1,10 @@
+
 "use client"
 
 import * as React from "react"
 import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
 
 import { cn } from "@/lib/utils"
-
-import * as CollapsiblePrimitive from "@radix-ui/react-collapsible"
 
 const Collapsible = CollapsiblePrimitive.Root
 
@@ -26,8 +25,6 @@ const CollapsibleContent = React.forwardRef<
     {children}
   </CollapsiblePrimitive.CollapsibleContent>
 ))
-
 CollapsibleContent.displayName = "CollapsibleContent"
-const CollapsibleContent = CollapsiblePrimitive.CollapsibleContent
 
 export { Collapsible, CollapsibleTrigger, CollapsibleContent }
