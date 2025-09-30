@@ -3,6 +3,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import { MessageSquare } from 'lucide-react';
 
 // This page is now deprecated. It's being replaced by the shop-specific version.
 // This component will redirect users to the new location to avoid confusion.

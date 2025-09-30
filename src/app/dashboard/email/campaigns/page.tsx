@@ -1,9 +1,8 @@
 
-
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Send } from 'lucide-react';
+import { Send, MessageSquare } from 'lucide-react';
 import { EmailCampaignsClient } from '@/components/wabasimplify/email-campaigns-client';
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,4 +24,3 @@ export default function EmailCampaignsPage() {
         </div>
     );
 }
-

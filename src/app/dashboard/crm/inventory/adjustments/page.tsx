@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Repeat } from 'lucide-react';
+import { Repeat, MessageSquare } from 'lucide-react';
 
 export default function AdjustmentsPage() {
     return (
