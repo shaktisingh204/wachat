@@ -7,10 +7,10 @@ import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Handshake, Building, Users, ShoppingCart, Truck, FolderKanban, Mail, BarChart, Zap, Settings, LayoutDashboard,
-  FileText, CreditCard, BadgeInfo, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass,
-  Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, Star
+  FileText, CreditCard, BadgeInfo, Repeat, Star, Briefcase
 } from 'lucide-react';
 
+// We now lazy load all pages
 const LazyClientsPage = React.lazy(() => import('@/app/dashboard/crm/sales/clients/page'));
 const LazyQuotationsPage = React.lazy(() => import('@/app/dashboard/crm/sales/quotations/page'));
 const LazyInvoicesPage = React.lazy(() => import('@/app/dashboard/crm/sales/invoices/page'));
@@ -74,13 +74,6 @@ const pathComponentMap: Record<string, React.ComponentType<any>> = {
 };
 
 
-type Tab = {
-  id: string;
-  label: string;
-  href: string;
-  component: React.ComponentType<any>;
-};
-
 export const crmMenuItems = [
     { href: '/dashboard/crm', label: 'Dashboard', icon: LayoutDashboard },
     {
@@ -126,7 +119,7 @@ export const crmMenuItems = [
 
 function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const ActiveComponent = pathComponentMap[pathname] || CrmDashboardPage;
+    const ActiveComponent = pathComponentMap[pathname] || LazyCrmDashboardPage;
 
     return (
         <div className="flex flex-col h-full">

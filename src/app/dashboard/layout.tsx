@@ -336,11 +336,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }));
             break;
         case 'crm':
-            groups = crmMenuItems.map(item => ({
-                title: item.subItems ? item.label : null,
-                icon: item.icon,
-                items: (item.subItems || [item]).map(subItem => ({ ...subItem, roles: ['owner', 'admin', 'agent'] }))
-            }));
+            groups = crmMenuItems.map(item => {
+                if (item.subItems) {
+                    return {
+                        title: item.label,
+                        icon: item.icon,
+                        items: item.subItems.map(subItem => ({ ...subItem, roles: ['owner', 'admin', 'agent'] }))
+                    };
+                }
+                return {
+                    title: null,
+                    items: [{ ...item, roles: ['owner', 'admin', 'agent'] }]
+                };
+            });
             break;
         case 'email':
             groups = [{ title: 'Email Suite', items: emailMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
