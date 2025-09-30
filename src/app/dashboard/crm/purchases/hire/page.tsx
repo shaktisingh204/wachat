@@ -1,9 +1,8 @@
 
-
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Star } from 'lucide-react';
+import { Star, MessageSquare } from 'lucide-react';
 
 export default function HireVendorsPage() {
     return (
