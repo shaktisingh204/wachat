@@ -271,7 +271,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 title: item.label,
                 icon: item.icon,
                 href: item.href,
-                items: item.items || [], // Ensure items is always an array
+                items: item.subItems, // Use subItems here
                 roles: ['owner', 'admin', 'agent']
             }));
             break;
@@ -400,18 +400,20 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const renderMenuItems = (items: any[], isSubmenu = false) => {
     return items.map((item: any) => {
-      const isCrmLink = item.href?.startsWith('/dashboard/crm');
-      const href = isCrmLink ? `${pathname}?tab=${item.href}` : item.href;
-
+        const isActive = (
+            item.href === pathname || 
+            (item.href !== '/dashboard' && pathname.startsWith(item.href)) ||
+            (item.href === '/dashboard/crm/sales/clients' && pathname.startsWith('/dashboard/crm/accounts')) // special case
+        );
       return (
-        <SidebarMenuItem key={item.label}>
+        <SidebarMenuItem key={item.href}>
           <SidebarMenuButton
             asChild
-            isActive={!isCrmLink && (item.href === pathname || (item.href !== '/dashboard' && pathname.startsWith(item.href)))}
+            isActive={isActive}
             tooltip={item.label}
             className={isSubmenu ? 'h-8' : ''}
           >
-            <Link href={href} scroll={false}>
+            <Link href={item.href} scroll={false}>
               <item.icon className="h-4 w-4" />
               <span className="truncate">{item.label}</span>
               {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
@@ -430,12 +432,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
           </SidebarGroupLabel>
         )}
-        {group.items && renderMenuItems(group.items.filter((item: any) => !item.subItems))}
-        {group.subItems && (
-          <div className="group-data-[collapsible=icon]:hidden pl-7 space-y-1 py-1">
-            {renderMenuItems(group.subItems, true)}
-          </div>
-        )}
+        {(group.items || []).filter((item: any) => !item.items && !item.subItems).length > 0 && renderMenuItems(group.items.filter((item:any) => !item.items && !item.subItems))}
+        
+        {/* Render collapsible groups */}
+        {(group.items || []).filter((item: any) => item.items || item.subItems).map((subGroup: any) => (
+            <SidebarMenuItem key={subGroup.label}>
+                <SidebarMenuButton
+                    subItems={subGroup.items || subGroup.subItems}
+                    tooltip={subGroup.label}
+                >
+                    <subGroup.icon className="h-4 w-4" />
+                    <span>{subGroup.label}</span>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+        ))}
+
         {groupIndex < groups.length - 1 && <SidebarSeparator />}
       </React.Fragment>
     ));

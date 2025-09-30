@@ -61,7 +61,7 @@ export const crmMenuItems = [
     {
         label: 'Sales',
         icon: Handshake,
-        items: [
+        subItems: [
             { href: '/dashboard/crm/sales/clients', label: 'Clients', icon: Users },
             { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
             { href: '/dashboard/crm/sales/pipelines', label: 'Pipelines', icon: Users },
@@ -78,7 +78,7 @@ export const crmMenuItems = [
     {
         label: 'Purchases',
         icon: ShoppingCart,
-        items: [
+        subItems: [
             { href: '/dashboard/crm/purchases/vendors', label: 'Vendors', icon: Briefcase },
             { href: '/dashboard/crm/purchases/expenses', label: 'Expenses', icon: CreditCard },
             { href: '/dashboard/crm/purchases/orders', label: 'Purchase Orders', icon: FileText },
@@ -100,7 +100,7 @@ export const crmMenuItems = [
 ];
 
 const allMenuItems = crmMenuItems.flatMap(item => 
-  item.items ? item.items.map(sub => ({ ...sub, parent: item.label })) : [{ ...item, parent: null }]
+  item.subItems ? item.subItems.map(sub => ({ ...sub, parent: item.label })) : [{ ...item, parent: null }]
 );
 
 function getBaseTab(pathname: string) {
