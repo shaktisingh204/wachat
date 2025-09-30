@@ -3,7 +3,7 @@
 import { useFormState, useFormStatus } from 'react-dom';
 import { Copy, Lightbulb, Loader2, MagicWand } from 'lucide-react';
 
-import { getSuggestions } from '@/app/actions';
+import { getSuggestions } from '@/app/actions/ai-actions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
