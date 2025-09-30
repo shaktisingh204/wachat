@@ -1,3 +1,4 @@
+
 <<<<<<< HEAD
 # SabNode
 
@@ -61,6 +62,29 @@ Once your `.env.local` file is configured, you can run the application:
 ```bash
 npm install
 npm run dev
+```
+
+## Database Migrations
+
+### Assign Default Plan to Users
+
+If you have existing users created before the plans system was implemented, you can run a script to assign them the default plan.
+
+**Option 1: Using the Node.js script**
+
+```bash
+npm run db:assign-plan
+```
+
+**Option 2: Using the MongoDB Shell**
+
+You can also run the migration script directly in the MongoDB shell. This is useful if you are running the database in a separate environment.
+
+1. Make sure `mongosh` is installed.
+2. Run the following command from your project root, replacing `your_mongodb_connection_string` with your actual MongoDB URI:
+
+```bash
+mongosh "your_mongodb_connection_string" --file scripts/assign-default-plan.mongo.js
 ```
 
 ## Setting up Webhooks
