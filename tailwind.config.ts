@@ -1,9 +1,6 @@
-<<<<<<< HEAD
+
 import type { Config } from 'tailwindcss';
 const { fontFamily } = require("tailwindcss/defaultTheme")
-=======
-import type {Config} from 'tailwindcss';
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 
 export default {
   darkMode: ['class'],
@@ -13,7 +10,6 @@ export default {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
-<<<<<<< HEAD
     container: {
       center: true,
       padding: '2rem',
@@ -24,19 +20,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ['var(--font-sans)', ...fontFamily.sans],
-        body: ['var(--font-inter)', 'sans-serif'],
-        headline: ['var(--font-inter)', 'sans-serif'],
-=======
-    extend: {
-      fontFamily: {
-<<<<<<< HEAD
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
-=======
         body: ['PT Sans', 'sans-serif'],
         headline: ['PT Sans', 'sans-serif'],
->>>>>>> 6e4890fa (Initial prototype)
         code: ['monospace'],
       },
       colors: {
@@ -113,7 +98,6 @@ export default {
             height: '0',
           },
         },
-<<<<<<< HEAD
         'collapsible-down': {
           from: { height: '0' },
           to: { height: 'var(--radix-collapsible-content-height)' },
@@ -122,19 +106,16 @@ export default {
           from: { height: 'var(--radix-collapsible-content-height)' },
           to: { height: '0' },
         },
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
-<<<<<<< HEAD
         'collapsible-down': 'collapsible-down 0.2s ease-out',
         'collapsible-up': 'collapsible-up 0.2s ease-out',
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
       },
     },
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
+
+    
