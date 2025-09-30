@@ -9,11 +9,8 @@ const Popover = PopoverPrimitive.Root
 
 const PopoverTrigger = PopoverPrimitive.Trigger
 
-<<<<<<< HEAD
 const PopoverAnchor = PopoverPrimitive.Anchor
 
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 const PopoverContent = React.forwardRef<
   React.ElementRef<typeof PopoverPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
@@ -33,8 +30,5 @@ const PopoverContent = React.forwardRef<
 ))
 PopoverContent.displayName = PopoverPrimitive.Content.displayName
 
-<<<<<<< HEAD
 export { Popover, PopoverTrigger, PopoverContent, PopoverAnchor }
-=======
 export { Popover, PopoverTrigger, PopoverContent }
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)

@@ -1,18 +1,14 @@
-<<<<<<< HEAD
 
 
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 import axios from 'axios';
-=======
 import { clsx, type ClassValue } from "clsx"
 import { twMerge } from "tailwind-merge"
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
-<<<<<<< HEAD
 
 export const getErrorMessage = (error: any): string => {
     // Axios error with a response from the server
@@ -60,5 +56,3 @@ export const getErrorMessage = (error: any): string => {
 
 
 
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)

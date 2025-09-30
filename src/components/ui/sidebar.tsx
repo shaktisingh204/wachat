@@ -1,34 +1,25 @@
-<<<<<<< HEAD
 
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 "use client"
 
 import * as React from "react"
 import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
-<<<<<<< HEAD
 import { PanelLeft, ChevronDown } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-=======
 import { PanelLeft } from "lucide-react"
 
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-<<<<<<< HEAD
 import {
   Sheet,
   SheetContent,
   SheetDescription,
   SheetTitle,
 } from "@/components/ui/sheet"
-=======
 import { Sheet, SheetContent } from "@/components/ui/sheet"
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 import { Skeleton } from "@/components/ui/skeleton"
 import {
   Tooltip,
@@ -36,20 +27,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-<<<<<<< HEAD
 import Link from "next/link"
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
 const SIDEBAR_WIDTH = "16rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
-<<<<<<< HEAD
 const SIDEBAR_WIDTH_ICON = "4.5rem"
-=======
 const SIDEBAR_WIDTH_ICON = "3rem"
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
@@ -167,11 +152,8 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-<<<<<<< HEAD
               "group/sidebar-wrapper flex h-svh w-full overflow-hidden has-[[data-variant=inset]]:bg-sidebar",
-=======
               "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
               className
             )}
             ref={ref}
@@ -191,26 +173,20 @@ const Sidebar = React.forwardRef<
   React.ComponentProps<"div"> & {
     side?: "left" | "right"
     variant?: "sidebar" | "floating" | "inset"
-<<<<<<< HEAD
     collapsible?: "offcanvas" | "icon" | "none",
     sideOffset?: string,
     innerClassName?: string,
-=======
     collapsible?: "offcanvas" | "icon" | "none"
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
   }
 >(
   (
     {
       side = "left",
       variant = "sidebar",
-<<<<<<< HEAD
       collapsible = "icon",
       sideOffset = '0px',
       innerClassName,
-=======
       collapsible = "offcanvas",
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
       className,
       children,
       ...props
@@ -240,11 +216,8 @@ const Sidebar = React.forwardRef<
           <SheetContent
             data-sidebar="sidebar"
             data-mobile="true"
-<<<<<<< HEAD
             className={cn("w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden", innerClassName)}
-=======
             className="w-[--sidebar-width] bg-sidebar p-0 text-sidebar-foreground [&>button]:hidden"
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
             style={
               {
                 "--sidebar-width": SIDEBAR_WIDTH_MOBILE,
@@ -252,13 +225,10 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
-<<<<<<< HEAD
             <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
             <SheetDescription className="sr-only">
               Select an option to navigate to a different page.
             </SheetDescription>
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
             <div className="flex h-full w-full flex-col">{children}</div>
           </SheetContent>
         </Sheet>
@@ -268,22 +238,16 @@ const Sidebar = React.forwardRef<
     return (
       <div
         ref={ref}
-<<<<<<< HEAD
         style={{
           marginLeft: 8,
         }}
         className="group hidden md:block text-sidebar-foreground"
-=======
         className="group peer hidden md:block text-sidebar-foreground"
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
         data-state={state}
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
         data-side={side}
-<<<<<<< HEAD
         {...props}
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
       >
         {/* This is what handles the sidebar gap on desktop */}
         <div
@@ -292,11 +256,8 @@ const Sidebar = React.forwardRef<
             "group-data-[collapsible=offcanvas]:w-0",
             "group-data-[side=right]:rotate-180",
             variant === "floating" || variant === "inset"
-<<<<<<< HEAD
               ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
-=======
               ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
           )}
         />
@@ -304,7 +265,6 @@ const Sidebar = React.forwardRef<
           className={cn(
             "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
             side === "left"
-<<<<<<< HEAD
               ? "group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
             // Adjust the padding for floating and inset variants.
@@ -321,7 +281,6 @@ const Sidebar = React.forwardRef<
               "flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-md",
               innerClassName
             )}
-=======
               ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
               : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
             // Adjust the padding for floating and inset variants.
@@ -335,7 +294,6 @@ const Sidebar = React.forwardRef<
           <div
             data-sidebar="sidebar"
             className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
           >
             {children}
           </div>
@@ -403,7 +361,6 @@ SidebarRail.displayName = "SidebarRail"
 
 const SidebarInset = React.forwardRef<
   HTMLDivElement,
-<<<<<<< HEAD
   React.ComponentProps<"div"> & { sideOffset?: string }
 >(({ className, sideOffset = "0px", ...props }, ref) => {
   return (
@@ -417,7 +374,6 @@ const SidebarInset = React.forwardRef<
         "peer-data-[state=collapsed]:md:ml-[calc(var(--sidebar-offset)+var(--sidebar-width-icon))]",
         "peer-data-[variant=floating]:peer-data-[state=expanded]:md:ml-[calc(var(--sidebar-offset)+var(--sidebar-width)+theme(spacing.4)+2px)]",
         "peer-data-[variant=floating]:peer-data-[state=collapsed]:md:ml-[calc(var(--sidebar-offset)+var(--sidebar-width-icon)+theme(spacing.4)+2px)]",
-=======
   React.ComponentProps<"main">
 >(({ className, ...props }, ref) => {
   return (
@@ -426,7 +382,6 @@ const SidebarInset = React.forwardRef<
       className={cn(
         "relative flex min-h-svh flex-1 flex-col bg-background",
         "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
         className
       )}
       {...props}
@@ -476,11 +431,8 @@ const SidebarFooter = React.forwardRef<
     <div
       ref={ref}
       data-sidebar="footer"
-<<<<<<< HEAD
       className={cn("mt-auto flex flex-col gap-2 p-2", className)}
-=======
       className={cn("flex flex-col gap-2 p-2", className)}
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
       {...props}
     />
   )
@@ -511,11 +463,8 @@ const SidebarContent = React.forwardRef<
       ref={ref}
       data-sidebar="content"
       className={cn(
-<<<<<<< HEAD
         "flex min-h-0 flex-1 flex-col gap-2 overflow-auto p-2 group-data-[collapsible=icon]:overflow-hidden",
-=======
         "flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden",
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
         className
       )}
       {...props}
@@ -623,7 +572,6 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
-<<<<<<< HEAD
   "peer/menu-button flex h-10 w-full flex-row items-center justify-start gap-3 whitespace-nowrap rounded-md px-3 text-sm outline-none ring-sidebar-ring transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-primary data-[active=true]:font-medium data-[active=true]:text-sidebar-primary-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:h-10 group-data-[collapsible=icon]:w-10 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 [&>span]:truncate [&>span]:group-data-[collapsible=icon]:hidden [&>svg]:size-5 [&>svg]:shrink-0",
   {
     variants: {
@@ -631,7 +579,6 @@ const sidebarMenuButtonVariants = cva(
         default: "text-sidebar-foreground/80 hover:text-sidebar-foreground",
         outline:
           "bg-background shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:bg-sidebar-accent hover:text-sidebar-foreground hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]",
-=======
   "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
@@ -644,15 +591,11 @@ const sidebarMenuButtonVariants = cva(
         default: "h-8 text-sm",
         sm: "h-7 text-xs",
         lg: "h-12 text-sm group-data-[collapsible=icon]:!p-0",
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
       },
     },
     defaultVariants: {
       variant: "default",
-<<<<<<< HEAD
-=======
       size: "default",
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
     },
   }
 )
@@ -663,10 +606,7 @@ const SidebarMenuButton = React.forwardRef<
     asChild?: boolean
     isActive?: boolean
     tooltip?: string | React.ComponentProps<typeof TooltipContent>
-<<<<<<< HEAD
     subItems?: any[]
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
   } & VariantProps<typeof sidebarMenuButtonVariants>
 >(
   (
@@ -674,16 +614,13 @@ const SidebarMenuButton = React.forwardRef<
       asChild = false,
       isActive = false,
       variant = "default",
-<<<<<<< HEAD
       tooltip,
       subItems,
       className,
       children,
-=======
       size = "default",
       tooltip,
       className,
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
       ...props
     },
     ref
@@ -691,7 +628,6 @@ const SidebarMenuButton = React.forwardRef<
     const Comp = asChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
 
-<<<<<<< HEAD
     if (subItems && subItems.length > 0) {
       return (
         <Collapsible>
@@ -716,24 +652,19 @@ const SidebarMenuButton = React.forwardRef<
       );
     }
 
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
     const button = (
       <Comp
         ref={ref}
         data-sidebar="menu-button"
-<<<<<<< HEAD
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant }), className)}
         {...props}
       >{children}</Comp>
-=======
         data-size={size}
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
         {...props}
       />
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
     )
 
     if (!tooltip) {
@@ -775,18 +706,15 @@ const SidebarMenuAction = React.forwardRef<
       ref={ref}
       data-sidebar="menu-action"
       className={cn(
-<<<<<<< HEAD
         "absolute right-2 top-1/2 -translate-y-1/2 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0",
         // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 after:md:hidden",
-=======
         "absolute right-1 top-1.5 flex aspect-square w-5 items-center justify-center rounded-md p-0 text-sidebar-foreground outline-none ring-sidebar-ring transition-transform hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 peer-hover/menu-button:text-sidebar-accent-foreground [&>svg]:size-4 [&>svg]:shrink-0",
         // Increases the hit area of the button on mobile.
         "after:absolute after:-inset-2 after:md:hidden",
         "peer-data-[size=sm]/menu-button:top-1",
         "peer-data-[size=default]/menu-button:top-1.5",
         "peer-data-[size=lg]/menu-button:top-2.5",
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
         "group-data-[collapsible=icon]:hidden",
         showOnHover &&
           "group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-[state=open]:opacity-100 peer-data-[active=true]/menu-button:text-sidebar-accent-foreground md:opacity-0",
@@ -806,16 +734,13 @@ const SidebarMenuBadge = React.forwardRef<
     ref={ref}
     data-sidebar="menu-badge"
     className={cn(
-<<<<<<< HEAD
       "absolute right-2 top-2 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-sidebar-foreground select-none pointer-events-none",
       "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
-=======
       "absolute right-1 flex h-5 min-w-5 items-center justify-center rounded-md px-1 text-xs font-medium tabular-nums text-sidebar-foreground select-none pointer-events-none",
       "peer-hover/menu-button:text-sidebar-accent-foreground peer-data-[active=true]/menu-button:text-sidebar-accent-foreground",
       "peer-data-[size=sm]/menu-button:top-1",
       "peer-data-[size=default]/menu-button:top-1.5",
       "peer-data-[size=lg]/menu-button:top-2.5",
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
       "group-data-[collapsible=icon]:hidden",
       className
     )}

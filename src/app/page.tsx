@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 'use client';
 
@@ -813,14 +811,10 @@ export default function HomePage() {
       </footer>
     </div>
   );
-=======
 export default function Home() {
   return <></>;
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
-=======
 import { redirect } from 'next/navigation';
 
 export default function Home() {
   redirect('/dashboard');
->>>>>>> 6e4890fa (Initial prototype)
 }
