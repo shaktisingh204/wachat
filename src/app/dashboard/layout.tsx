@@ -271,7 +271,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 title: item.label,
                 icon: item.icon,
                 href: item.href,
-                items: item.subItems, // Use subItems here
+                items: (item.subItems || []).map(sub => ({ ...sub, roles: ['owner', 'admin', 'agent'] })),
                 roles: ['owner', 'admin', 'agent']
             }));
             break;
@@ -427,18 +427,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const renderGroupedMenuItems = (groups: any[]) => {
     return groups.map((group, groupIndex) => (
       <React.Fragment key={group.title || groupIndex}>
-        {group.title && (
+        {group.title && !group.items.some((item: any) => item.subItems) && (
           <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
             <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
           </SidebarGroupLabel>
         )}
-        {(group.items || []).filter((item: any) => !item.items && !item.subItems).length > 0 && renderMenuItems(group.items.filter((item:any) => !item.items && !item.subItems))}
+        {renderMenuItems(group.items.filter((item:any) => !item.subItems))}
         
         {/* Render collapsible groups */}
-        {(group.items || []).filter((item: any) => item.items || item.subItems).map((subGroup: any) => (
+        {(group.items || []).filter((item: any) => item.subItems).map((subGroup: any) => (
             <SidebarMenuItem key={subGroup.label}>
                 <SidebarMenuButton
-                    subItems={subGroup.items || subGroup.subItems}
+                    subItems={subGroup.subItems}
                     tooltip={subGroup.label}
                 >
                     <subGroup.icon className="h-4 w-4" />
