@@ -251,8 +251,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }, [sessionUser, activeProject]);
 
  const menuGroups = React.useMemo(() => {
-    let items;
-    let groups;
+    let groups: any[];
 
     switch (activeApp) {
         case 'facebook':
@@ -269,9 +268,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             break;
         case 'crm':
             groups = crmMenuItems.map(item => ({
-                ...item,
-                roles: ['owner', 'admin', 'agent'],
-                items: item.subItems?.map(sub => ({ ...sub, roles: ['owner', 'admin', 'agent'] })) || []
+                title: item.label,
+                icon: item.icon,
+                href: item.href,
+                items: item.items || [], // Ensure items is always an array
+                roles: ['owner', 'admin', 'agent']
             }));
             break;
         case 'email':
@@ -302,7 +303,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     
     return groups.map((group: any) => ({
         ...group,
-        items: group.items.filter((item: any) => item.roles?.includes(currentUserRole))
+        items: (group.items || []).filter((item: any) => item.roles?.includes(currentUserRole))
     }));
   }, [activeApp, currentUserRole]);
 
