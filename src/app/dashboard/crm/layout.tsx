@@ -158,12 +158,10 @@ function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
             if (newTabs.length > 0) {
                 newActiveTabId = newTabs[Math.max(0, tabIndex - 1)].id;
             }
-<<<<<<< HEAD
             router.push(newActiveTabId);
         }
     };
 
-=======
             router.push(`/dashboard/crm?tab=${newActiveTabId}`);
         }
     };
@@ -172,7 +170,6 @@ function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
         router.push(`/dashboard/crm?tab=${tabId}`);
     };
 
->>>>>>> fe396806 (in crm module tabs are amazing but when i clicking in sidebar a tab open)
     return (
         <div className="flex flex-col h-full">
             <div className="flex-shrink-0">

@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 import * as React from "react"
 
 import { cn } from "@/lib/utils"
@@ -34,17 +31,14 @@ const CardHeader = React.forwardRef<
 CardHeader.displayName = "CardHeader"
 
 const CardTitle = React.forwardRef<
-<<<<<<< HEAD
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
   <h3
-=======
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
     ref={ref}
     className={cn(
       "text-2xl font-semibold leading-none tracking-tight",
@@ -56,17 +50,14 @@ const CardTitle = React.forwardRef<
 CardTitle.displayName = "CardTitle"
 
 const CardDescription = React.forwardRef<
-<<<<<<< HEAD
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
   <p
-=======
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
     ref={ref}
     className={cn("text-sm text-muted-foreground", className)}
     {...props}

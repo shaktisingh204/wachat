@@ -1,23 +1,15 @@
-<<<<<<< HEAD
 
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-<<<<<<< HEAD
 body {
-<<<<<<< HEAD
   font-family: 'PT Sans', sans-serif;
-=======
   font-family: Arial, Helvetica, sans-serif;
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 }
 
 @layer base {
   :root {
-<<<<<<< HEAD
     --background: 210 17% 98%;
     --foreground: 210 10% 23%;
     --card: 0 0% 100%;
@@ -196,15 +188,12 @@ body {
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-background: 220 10% 12%;
     --sidebar-border: 220 10% 20%;
-=======
     --background: 0 0% 100%;
     --foreground: 0 0% 3.9%;
-=======
 @layer base {
   :root {
     --background: 216 17% 95%;
     --foreground: 224 71% 4%;
->>>>>>> 6e4890fa (Initial prototype)
     --card: 0 0% 100%;
     --card-foreground: 224 71% 4%;
     --popover: 0 0% 100%;
@@ -255,7 +244,6 @@ body {
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-<<<<<<< HEAD
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
@@ -272,8 +260,6 @@ body {
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
-=======
     --border: 215 28% 17%;
     --input: 215 28% 17%;
     --ring: 197 71% 52%;
@@ -290,7 +276,6 @@ body {
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-border: 215 28% 17%;
     --sidebar-ring: 197 71% 52%;
->>>>>>> 6e4890fa (Initial prototype)
   }
 }
 
@@ -302,7 +287,6 @@ body {
     @apply bg-background text-foreground;
   }
 }
-<<<<<<< HEAD
 
 @layer components {
     .card-gradient {
@@ -454,5 +438,3 @@ body {
         }
     }
 }
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)

@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 
 
 'use server';
@@ -4026,7 +4025,6 @@ export async function updateContactTags(contactId: string, tagIds: string[]): Pr
         return { success: false, error: 'Failed to update tags.' };
     }
 }
-=======
 'use server';
 
 import {
@@ -4081,4 +4079,3 @@ export async function getSuggestions(
     };
   }
 }
->>>>>>> 6e4890fa (Initial prototype)

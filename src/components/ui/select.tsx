@@ -2,16 +2,13 @@
 
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
-<<<<<<< HEAD
 import { Check, ChevronDown, ChevronUp, Search } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
-=======
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
 
 import { cn } from "@/lib/utils"
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 
 const Select = SelectPrimitive.Root
 
@@ -76,7 +73,6 @@ SelectScrollDownButton.displayName =
 
 const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
-<<<<<<< HEAD
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> & { searchable?: boolean }
 >(({ className, children, position = "popper", searchable = false, ...props }, ref) => {
   const [searchTerm, setSearchTerm] = React.useState("");
@@ -112,10 +108,8 @@ const SelectContent = React.forwardRef<
   }, [children, searchTerm, searchable]);
   
   return (
-=======
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
 >(({ className, children, position = "popper", ...props }, ref) => (
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
       ref={ref}
@@ -128,7 +122,6 @@ const SelectContent = React.forwardRef<
       position={position}
       {...props}
     >
-<<<<<<< HEAD
         {searchable && (
             <div className="sticky top-0 z-10 bg-popover p-1">
                 <div className="relative">
@@ -142,34 +135,26 @@ const SelectContent = React.forwardRef<
                 </div>
             </div>
         )}
-=======
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
       <SelectScrollUpButton />
       <SelectPrimitive.Viewport
         className={cn(
           "p-1",
           position === "popper" &&
-<<<<<<< HEAD
             !searchable &&
             "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
         )}
       >
         {filteredChildren}
-=======
             "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
         )}
       >
         {children}
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
       </SelectPrimitive.Viewport>
       <SelectScrollDownButton />
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
-<<<<<<< HEAD
 )})
-=======
 ))
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)
 SelectContent.displayName = SelectPrimitive.Content.displayName
 
 const SelectLabel = React.forwardRef<
