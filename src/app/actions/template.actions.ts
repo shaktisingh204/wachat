@@ -534,3 +534,45 @@ export async function getLibraryTemplates() {
         return premadeTemplates; 
     }
 }
+
+export async function handleApplyTemplateToProjects(sourceTemplateId: string, targetProjectIds: string[]): Promise<{ success: boolean, error?: string }> {
+    if (!sourceTemplateId || targetProjectIds.length === 0) {
+        return { success: false, error: 'Source template and target projects are required.' };
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const sourceTemplate = await db.collection<Template>('templates').findOne({ _id: new ObjectId(sourceTemplateId) });
+
+        if (!sourceTemplate) {
+            return { success: false, error: 'Source template not found.' };
+        }
+
+        const bulkOps = targetProjectIds.map(projectId => {
+            const newTemplate = {
+                ...sourceTemplate,
+                _id: new ObjectId(), // generate new ID
+                projectId: new ObjectId(projectId),
+                status: 'LOCAL', // Mark as local for the cron job to pick up
+                metaId: '', // Clear meta ID as it's a new template for the target project
+                createdAt: new Date(),
+            };
+            delete newTemplate.headerSampleUrl; // Don't copy sample URL directly
+
+            return {
+                updateOne: {
+                    filter: { projectId: new ObjectId(projectId), name: sourceTemplate.name, language: sourceTemplate.language },
+                    update: { $set: newTemplate },
+                    upsert: true,
+                }
+            };
+        });
+
+        await db.collection('templates').bulkWrite(bulkOps);
+
+        return { success: true };
+    } catch (e: any) {
+        console.error("Error applying template to projects:", e);
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
