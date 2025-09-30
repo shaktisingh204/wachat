@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
-import { Send } from 'lucide-react';
+import { Send, MessageSquare } from 'lucide-react';
 
 export default function SmsCampaignsPage() {
     return (

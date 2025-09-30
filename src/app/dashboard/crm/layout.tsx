@@ -5,9 +5,9 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Handshake, Building, Users, ShoppingCart, Truck, FolderKanban, Mail, BarChart, Zap, Settings, LayoutDashboard,
-  FileText, CreditCard, BadgeInfo, Repeat, Star, Briefcase
+import { 
+    Handshake, Building, Users, ShoppingCart, Truck, FolderKanban, Mail, BarChart, Zap, Settings, LayoutDashboard,
+    FileText, CreditCard, BadgeInfo, Repeat, Star, Briefcase, MessageSquare
 } from 'lucide-react';
 
 // We now lazy load all pages
