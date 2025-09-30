@@ -1,51 +1,76 @@
 
 'use client';
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { X, Briefcase, Handshake, Building, Users, ShoppingCart, Truck, FolderKanban, Mail, BarChart, Zap, Settings, LayoutDashboard, FileText, CreditCard, BadgeInfo, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { ScrollArea, ScrollBar } from '../ui/scroll-area';
+import React from 'react';
+import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
-import { MessageSquare } from "lucide-react";
+import {
+  Handshake, Building, Users, ShoppingCart, Truck, FolderKanban, Mail, BarChart, Zap, Settings, LayoutDashboard,
+  FileText, CreditCard, BadgeInfo, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass,
+  Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, Star
+} from 'lucide-react';
+
+const LazyClientsPage = React.lazy(() => import('@/app/dashboard/crm/sales/clients/page'));
+const LazyQuotationsPage = React.lazy(() => import('@/app/dashboard/crm/sales/quotations/page'));
+const LazyInvoicesPage = React.lazy(() => import('@/app/dashboard/crm/sales/invoices/page'));
+const LazyReceiptsPage = React.lazy(() => import('@/app/dashboard/crm/sales/receipts/page'));
+const LazyProformaPage = React.lazy(() => import('@/app/dashboard/crm/sales/proforma/page'));
+const LazySalesOrdersPage = React.lazy(() => import('@/app/dashboard/crm/sales/orders/page'));
+const LazyDeliveryPage = React.lazy(() => import('@/app/dashboard/crm/sales/delivery/page'));
+const LazyCreditNotesPage = React.lazy(() => import('@/app/dashboard/crm/sales/credit-notes/page'));
+const LazyPipelinesPage = React.lazy(() => import('@/app/dashboard/crm/sales/pipelines/page'));
+const LazyFormsPage = React.lazy(() => import('@/app/dashboard/crm/sales/forms/page'));
+const LazyLeadsPage = React.lazy(() => import('@/app/dashboard/crm/purchases/leads/page'));
+const LazyVendorsPage = React.lazy(() => import('@/app/dashboard/crm/purchases/vendors/page'));
+const LazyExpensesPage = React.lazy(() => import('@/app/dashboard/crm/purchases/expenses/page'));
+const LazyPurchaseOrdersPage = React.lazy(() => import('@/app/dashboard/crm/purchases/orders/page'));
+const LazyPayoutsPage = React.lazy(() => import('@/app/dashboard/crm/purchases/payouts/page'));
+const LazyDebitNotesPage = React.lazy(() => import('@/app/dashboard/crm/purchases/debit-notes/page'));
+const LazyHirePage = React.lazy(() => import('@/app/dashboard/crm/purchases/hire/page'));
+const LazyCrmDashboardPage = React.lazy(() => import('@/app/dashboard/crm/page'));
+const LazyCrmContactsPage = React.lazy(() => import('@/app/dashboard/crm/contacts/page'));
+const LazyCrmAccountsPage = React.lazy(() => import('@/app/dashboard/crm/accounts/page'));
+const LazyCrmDealsPage = React.lazy(() => import('@/app/dashboard/crm/deals/page'));
+const LazyCrmProductsPage = React.lazy(() => import('@/app/dashboard/crm/products/page'));
+const LazyCrmInventoryLayout = React.lazy(() => import('@/app/dashboard/crm/inventory/layout'));
+const LazyCrmTasksPage = React.lazy(() => import('@/app/dashboard/crm/tasks/page'));
+const LazyCrmEmailPage = React.lazy(() => import('@/app/dashboard/crm/email/page'));
+const LazyCrmTeamChatPage = React.lazy(() => import('@/app/dashboard/crm/team-chat/page'));
+const LazyCrmAnalyticsPage = React.lazy(() => import('@/app/dashboard/crm/analytics/page'));
+const LazyCrmSettingsPage = React.lazy(() => import('@/app/dashboard/crm/settings/page'));
+const LazyCrmAutomationsPage = React.lazy(() => import('@/app/dashboard/crm/automations/page'));
 
 const pathComponentMap: Record<string, React.ComponentType<any>> = {
-  '/dashboard/crm': React.lazy(() => import('@/app/dashboard/crm/page')),
-  '/dashboard/crm/sales/clients': React.lazy(() => import('@/app/dashboard/crm/sales/clients/page')),
-  '/dashboard/crm/sales/quotations': React.lazy(() => import('@/app/dashboard/crm/sales/quotations/page')),
-  '/dashboard/crm/sales/invoices': React.lazy(() => import('@/app/dashboard/crm/sales/invoices/page')),
-  '/dashboard/crm/sales/receipts': React.lazy(() => import('@/app/dashboard/crm/sales/receipts/page')),
-  '/dashboard/crm/sales/proforma': React.lazy(() => import('@/app/dashboard/crm/sales/proforma/page')),
-  '/dashboard/crm/sales/orders': React.lazy(() => import('@/app/dashboard/crm/sales/orders/page')),
-  '/dashboard/crm/sales/delivery': React.lazy(() => import('@/app/dashboard/crm/sales/delivery/page')),
-  '/dashboard/crm/sales/credit-notes': React.lazy(() => import('@/app/dashboard/crm/sales/credit-notes/page')),
-  '/dashboard/crm/sales/pipelines': React.lazy(() => import('@/app/dashboard/crm/sales/pipelines/page')),
-  '/dashboard/crm/sales/forms': React.lazy(() => import('@/app/dashboard/crm/sales/forms/page')),
-  '/dashboard/crm/purchases/leads': React.lazy(() => import('@/app/dashboard/crm/purchases/leads/page')),
-  '/dashboard/crm/purchases/vendors': React.lazy(() => import('@/app/dashboard/crm/purchases/vendors/page')),
-  '/dashboard/crm/purchases/expenses': React.lazy(() => import('@/app/dashboard/crm/purchases/expenses/page')),
-  '/dashboard/crm/purchases/orders': React.lazy(() => import('@/app/dashboard/crm/purchases/orders/page')),
-  '/dashboard/crm/purchases/payouts': React.lazy(() => import('@/app/dashboard/crm/purchases/payouts/page')),
-  '/dashboard/crm/purchases/debit-notes': React.lazy(() => import('@/app/dashboard/crm/purchases/debit-notes/page')),
-  '/dashboard/crm/purchases/hire': React.lazy(() => import('@/app/dashboard/crm/purchases/hire/page')),
-  '/dashboard/crm/contacts': React.lazy(() => import('@/app/dashboard/crm/contacts/page')),
-  '/dashboard/crm/accounts': React.lazy(() => import('@/app/dashboard/crm/accounts/page')),
-  '/dashboard/crm/deals': React.lazy(() => import('@/app/dashboard/crm/deals/page')),
-  '/dashboard/crm/products': React.lazy(() => import('@/app/dashboard/crm/products/page')),
-  '/dashboard/crm/inventory': React.lazy(() => import('@/app/dashboard/crm/inventory/layout')),
-  '/dashboard/crm/tasks': React.lazy(() => import('@/app/dashboard/crm/tasks/page')),
-  '/dashboard/crm/email': React.lazy(() => import('@/app/dashboard/crm/email/page')),
-  '/dashboard/crm/team-chat': React.lazy(() => import('@/app/dashboard/crm/team-chat/page')),
-  '/dashboard/crm/analytics': React.lazy(() => import('@/app/dashboard/crm/analytics/page')),
-  '/dashboard/crm/settings': React.lazy(() => import('@/app/dashboard/crm/settings/page')),
-  '/dashboard/crm/automations': React.lazy(() => import('@/app/dashboard/crm/automations/page')),
-  // Detail pages
-  '/dashboard/crm/accounts/[accountId]': React.lazy(() => import('@/app/dashboard/crm/accounts/[accountId]/page')),
-  '/dashboard/crm/contacts/[contactId]': React.lazy(() => import('@/app/dashboard/crm/contacts/[contactId]/page')),
-  '/dashboard/crm/deals/[dealId]': React.lazy(() => import('@/app/dashboard/crm/deals/[dealId]/page')),
-  '/dashboard/crm/accounts/[accountId]/edit': React.lazy(() => import('@/app/dashboard/crm/accounts/[accountId]/edit/page')),
+  '/dashboard/crm': LazyCrmDashboardPage,
+  '/dashboard/crm/sales/clients': LazyClientsPage,
+  '/dashboard/crm/sales/quotations': LazyQuotationsPage,
+  '/dashboard/crm/sales/invoices': LazyInvoicesPage,
+  '/dashboard/crm/sales/receipts': LazyReceiptsPage,
+  '/dashboard/crm/sales/proforma': LazyProformaPage,
+  '/dashboard/crm/sales/orders': LazySalesOrdersPage,
+  '/dashboard/crm/sales/delivery': LazyDeliveryPage,
+  '/dashboard/crm/sales/credit-notes': LazyCreditNotesPage,
+  '/dashboard/crm/sales/pipelines': LazyPipelinesPage,
+  '/dashboard/crm/sales/forms': LazyFormsPage,
+  '/dashboard/crm/purchases/leads': LazyLeadsPage,
+  '/dashboard/crm/purchases/vendors': LazyVendorsPage,
+  '/dashboard/crm/purchases/expenses': LazyExpensesPage,
+  '/dashboard/crm/purchases/orders': LazyPurchaseOrdersPage,
+  '/dashboard/crm/purchases/payouts': LazyPayoutsPage,
+  '/dashboard/crm/purchases/debit-notes': LazyDebitNotesPage,
+  '/dashboard/crm/purchases/hire': LazyHirePage,
+  '/dashboard/crm/contacts': LazyCrmContactsPage,
+  '/dashboard/crm/accounts': LazyCrmAccountsPage,
+  '/dashboard/crm/deals': LazyCrmDealsPage,
+  '/dashboard/crm/products': LazyCrmProductsPage,
+  '/dashboard/crm/inventory': LazyCrmInventoryLayout,
+  '/dashboard/crm/tasks': LazyCrmTasksPage,
+  '/dashboard/crm/email': LazyCrmEmailPage,
+  '/dashboard/crm/team-chat': LazyCrmTeamChatPage,
+  '/dashboard/crm/analytics': LazyCrmAnalyticsPage,
+  '/dashboard/crm/settings': LazyCrmSettingsPage,
+  '/dashboard/crm/automations': LazyCrmAutomationsPage,
 };
 
 
@@ -99,43 +124,15 @@ export const crmMenuItems = [
     { href: '/dashboard/crm/settings', label: 'Settings', icon: Settings },
 ];
 
-const allMenuItems = crmMenuItems.flatMap(item => 
-  item.subItems ? item.subItems.map(sub => ({ ...sub, parent: item.label })) : [{ ...item, parent: null }]
-);
-
-function getBaseTab(pathname: string) {
-    // This logic ensures sub-pages are mapped to their parent tab
-    if (pathname.match(/\/dashboard\/crm\/(accounts|contacts|deals)\/.+/)) {
-        return `/dashboard/crm/${pathname.split('/')[3]}`;
-    }
-    return pathname;
-}
-
 function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const router = useRouter();
-    const searchParams = useSearchParams();
-
-    const [activeComponent, setActiveComponent] = useState<React.ComponentType<any> | null>(null);
-
-    useEffect(() => {
-        // Find the best match for the current full pathname
-        const sortedPaths = Object.keys(pathComponentMap).sort((a, b) => b.length - a.length);
-        const bestMatch = sortedPaths.find(p => {
-            const regex = new RegExp(`^${p.replace(/\[.*?\]/g, '[^/]+')}$`);
-            return regex.test(pathname);
-        });
-
-        const component = bestMatch ? pathComponentMap[bestMatch] : null;
-        setActiveComponent(() => component);
-
-    }, [pathname]);
+    const ActiveComponent = pathComponentMap[pathname] || CrmDashboardPage;
 
     return (
         <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
                 <Suspense fallback={<div className="p-8"><Skeleton className="h-96 w-full" /></div>}>
-                   {activeComponent && <div className="p-4 md:p-6 lg:p-8"><activeComponent /></div>}
+                   <ActiveComponent />
                 </Suspense>
             </div>
         </div>
