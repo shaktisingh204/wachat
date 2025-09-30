@@ -49,7 +49,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProjects } from '@/app/actions';
-import { getTemplates } from '@/app/actions/whatsapp.actions';
+import { getTemplates } from '@/app/actions/template.actions';
 import { saveFlow, getFlowById, getFlowsForProject, deleteFlow } from '@/app/actions/flow.actions';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import type { Flow, FlowNode, FlowEdge, Template, MetaFlow, Project } from '@/lib/definitions';
@@ -400,7 +400,7 @@ function PageContent() {
         }
     }
     
-     const handleGenerateFlow = () => {
+     const handleGenerateFlow = async () => {
         if (!aiPrompt.trim()) return;
         startGenerateTransition(async () => {
             const result = await generateFlowBuilderFlow({ prompt: aiPrompt });

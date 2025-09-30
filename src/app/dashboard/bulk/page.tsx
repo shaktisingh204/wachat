@@ -3,7 +3,7 @@
 
 import { Suspense, useEffect, useState, useTransition, useMemo, useCallback } from 'react';
 import { getProjects } from '@/app/actions';
-import { getTemplates } from '@/app/actions/whatsapp.actions';
+import { getTemplates } from '@/app/actions/template.actions';
 import type { WithId, Project, Template } from '@/lib/definitions';
 import { BulkActionsClient } from '@/components/wabasimplify/bulk-actions-client';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -32,10 +32,11 @@ function BulkPageContent() {
     const fetchInitialData = useCallback(() => {
         startTransition(async () => {
             const storedProjectIds = JSON.parse(localStorage.getItem('bulkProjectIds') || '[]');
+            const { projects: fetchedProjects } = await getProjects(undefined, 'whatsapp');
+            setAllProjects(fetchedProjects);
+            
             if (storedProjectIds.length > 0) {
-                const fetchedProjects = await getProjects(undefined, 'whatsapp');
                 const filteredProjects = fetchedProjects.filter(p => storedProjectIds.includes(p._id.toString()));
-                setAllProjects(fetchedProjects);
                 setSelectedProjects(filteredProjects);
                 
                 const sourceProject = filteredProjects[0];
