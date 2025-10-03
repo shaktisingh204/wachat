@@ -232,7 +232,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [activeProject, setActiveProject] = React.useState<WithId<Project> | null>(null);
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
   const [activeProjectId, setActiveProjectId] = React.useState<string | null>(null);
-  const [isClient, setIsClient] = React.useState(false);
   const [isVerifying, setIsVerifying] = React.useState(true);
   const [activeApp, setActiveApp] = React.useState('whatsapp');
 
@@ -241,76 +240,69 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
   
   React.useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  React.useEffect(() => {
-    if (isClient) {
-      const storedProjectId = localStorage.getItem('activeProjectId');
-      setActiveProjectId(storedProjectId);
-
-      const isDashboardHome = pathname === '/dashboard';
-      if (isDashboardHome) {
-        localStorage.removeItem('activeProjectId');
-        localStorage.removeItem('activeProjectName');
-        setActiveProjectId(null);
-        setActiveProjectName(null);
-      } else {
-        const name = localStorage.getItem('activeProjectName');
-        setActiveProjectName(name || (storedProjectId ? 'Loading project...' : 'No Project Selected'));
-      }
-    }
-  }, [isClient, pathname]);
-
-  React.useEffect(() => {
-     if (pathname.startsWith('/dashboard/facebook')) {
-          setActiveApp('facebook');
-      } else if (pathname.startsWith('/dashboard/instagram')) {
-          setActiveApp('instagram');
-      } else if (pathname.startsWith('/dashboard/crm')) {
-          setActiveApp('crm');
-      } else if (pathname.startsWith('/dashboard/email')) {
-          setActiveApp('email');
-      } else if (pathname.startsWith('/dashboard/sms')) {
-          setActiveApp('sms');
-      } else if (pathname.startsWith('/dashboard/url-shortener')) {
-          setActiveApp('url-shortener');
-      } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
-          setActiveApp('qr-code-maker');
-      } else if (pathname.startsWith('/dashboard/api')) {
-          setActiveApp('api');
-      } else if (pathname.startsWith('/dashboard/seo')) {
-          setActiveApp('seo-suite');
-      } else if (pathname.startsWith('/dashboard/website-builder')) {
-          setActiveApp('website-builder');
-      } else {
-          setActiveApp('whatsapp');
-      }
-  }, [pathname]);
-
-  React.useEffect(() => {
-    if (isClient) {
-        setIsVerifying(true);
-        getSession().then(session => {
-            if(session?.user) {
-                setSessionUser(session.user as any);
-                getProjects().then(fetchedProjectsData => {
-                    const fetchedProjects = fetchedProjectsData?.projects || [];
-                    setProjects(fetchedProjects);
-                    if (activeProjectId) {
-                        const currentActiveProject = fetchedProjects.find(p => p._id.toString() === activeProjectId);
-                        setActiveProject(currentActiveProject || null);
-                    } else {
-                        setActiveProject(null);
-                    }
-                });
-            } else {
-              router.push('/login');
+    const fetchInitialData = async () => {
+        try {
+            const session = await getSession();
+            if (!session?.user) {
+                router.push('/login');
+                return;
             }
+            setSessionUser(session.user as any);
+
+            const { projects: fetchedProjects } = await getProjects();
+            setProjects(fetchedProjects || []);
+
+            const storedProjectId = localStorage.getItem('activeProjectId');
+            const storedProjectName = localStorage.getItem('activeProjectName');
+            const isDashboardHome = pathname === '/dashboard';
+
+            if (isDashboardHome) {
+                localStorage.removeItem('activeProjectId');
+                localStorage.removeItem('activeProjectName');
+                setActiveProjectId(null);
+                setActiveProjectName(null);
+                setActiveProject(null);
+            } else if (storedProjectId) {
+                setActiveProjectId(storedProjectId);
+                setActiveProjectName(storedProjectName || 'Loading...');
+                const currentActiveProject = fetchedProjects.find(p => p._id.toString() === storedProjectId);
+                setActiveProject(currentActiveProject || null);
+            }
+
+             if (pathname.startsWith('/dashboard/facebook')) {
+                setActiveApp('facebook');
+            } else if (pathname.startsWith('/dashboard/instagram')) {
+                setActiveApp('instagram');
+            } else if (pathname.startsWith('/dashboard/crm')) {
+                setActiveApp('crm');
+            } else if (pathname.startsWith('/dashboard/email')) {
+                setActiveApp('email');
+            } else if (pathname.startsWith('/dashboard/sms')) {
+                setActiveApp('sms');
+            } else if (pathname.startsWith('/dashboard/url-shortener')) {
+                setActiveApp('url-shortener');
+            } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
+                setActiveApp('qr-code-maker');
+            } else if (pathname.startsWith('/dashboard/api')) {
+                setActiveApp('api');
+            } else if (pathname.startsWith('/dashboard/seo')) {
+                setActiveApp('seo-suite');
+            } else if (pathname.startsWith('/dashboard/website-builder')) {
+                setActiveApp('website-builder');
+            } else {
+                setActiveApp('whatsapp');
+            }
+
+        } catch (error) {
+            console.error("Failed to initialize dashboard layout:", error);
+            router.push('/login');
+        } finally {
             setIsVerifying(false);
-        });
-    }
-  }, [isClient, activeProjectId, router]);
+        }
+    };
+    
+    fetchInitialData();
+  }, [pathname, router]);
 
   const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
 
@@ -531,15 +523,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <header className="flex items-center justify-between p-3 border bg-card rounded-lg shrink-0">
               <div className="flex items-center gap-2">
                 <SidebarTrigger />
-                {activeApp === 'facebook' && isClient ? (
+                {activeApp === 'facebook' && isClient && activeProject ? (
                     <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
                   ) : (
                     <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
                         <Briefcase className="h-4 w-4" />
-                        {!isClient ? (
+                        {isVerifying ? (
                             <Skeleton className="h-4 w-32" />
                         ) : (
-                            <span className="truncate">{activeProjectName}</span>
+                            <span className="truncate">{activeProjectName || 'No Project Selected'}</span>
                         )}
                     </div>
                   )}
