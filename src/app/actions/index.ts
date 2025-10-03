@@ -50,3 +50,9 @@ export * from './facebook-flow.actions';
 export * from './plan.actions';
 export * from './notification.actions';
 export * from './ai-actions';
+
+// This needs to be a server action file, so we export a dummy function
+export async function dummyAction() {
+    'use server';
+    // This function does nothing.
+}
