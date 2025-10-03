@@ -1,4 +1,5 @@
 
+
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getPaymentGatewaySettings } from '@/app/actions';
@@ -86,3 +87,5 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Internal Server Error', details: error.message }, { status: 500 });
     }
 }
+
+    
