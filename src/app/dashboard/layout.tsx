@@ -304,11 +304,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         setActiveProject(null);
                     }
                 });
+            } else {
+              router.push('/login');
             }
             setIsVerifying(false);
         });
     }
-  }, [isClient, activeProjectId]);
+  }, [isClient, activeProjectId, router]);
 
   const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
 
