@@ -28,7 +28,7 @@ export async function handleAdminLogin(prevState: any, formData: FormData): Prom
 
     if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
         const adminSessionToken = await createAdminSessionToken();
-        cookies().set('admin_session', adminSessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+        await cookies().set('admin_session', adminSessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
         redirect('/admin/dashboard');
     }
 
