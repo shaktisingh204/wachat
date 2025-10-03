@@ -119,13 +119,14 @@ export const crmMenuItems = [
 
 function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const ActiveComponent = pathComponentMap[pathname] || LazyCrmDashboardPage;
-
+    // The logic to render specific page components is now handled by Next.js routing.
+    // This component now only needs to render the children passed to it.
+    
     return (
         <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
                 <Suspense fallback={<div className="p-8"><Skeleton className="h-96 w-full" /></div>}>
-                   <ActiveComponent />
+                   {children}
                 </Suspense>
             </div>
         </div>

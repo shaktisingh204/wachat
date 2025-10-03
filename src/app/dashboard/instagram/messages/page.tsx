@@ -2,6 +2,7 @@
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { MessageSquare } from "lucide-react";
 
 export default function InstagramMessagesPage() {
     return (

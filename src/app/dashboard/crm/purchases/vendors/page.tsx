@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Users, LoaderCircle, Edit, Trash2, Briefcase } from "lucide-react";
+import { Plus, Users, LoaderCircle, Edit, Trash2 } from "lucide-react";
 import Link from 'next/link';
 import { getCrmVendors, deleteCrmVendor } from '@/app/actions/crm-vendors.actions';
 import type { WithId, CrmVendor } from '@/lib/definitions';
@@ -61,46 +61,14 @@ export default function VendorsPage() {
         )
     }
 
-    if (!isLoading && vendors.length === 0) {
-        return (
-            <div className="flex justify-center items-center h-full">
-                <Card className="text-center max-w-2xl">
-                    <CardHeader>
-                        <div className="mx-auto bg-muted p-4 rounded-full w-fit">
-                             <Users className="h-12 w-12 text-primary" />
-                        </div>
-                        <CardTitle className="mt-4 text-2xl">Vendors & Suppliers</CardTitle>
-                        <CardDescription>
-                           Manage all your vendors and suppliers in one place.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Button asChild>
-                            <Link href="/dashboard/crm/purchases/vendors/new">
-                                <Plus className="mr-2 h-4 w-4" />
-                                Add New Vendor
-                            </Link>
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
-        )
-    }
-
     return (
-        <div className="flex flex-col gap-8">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <Users className="h-8 w-8" />
-                        Vendors & Suppliers
-                    </h1>
-                    <p className="text-muted-foreground">Manage your vendor relationships.</p>
-                </div>
-                <Button asChild>
+        <div className="space-y-4">
+            <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold">Vendors</h2>
+                 <Button asChild>
                     <Link href="/dashboard/crm/purchases/vendors/new">
                         <Plus className="mr-2 h-4 w-4" />
-                        Add New Vendor
+                        New Vendor
                     </Link>
                 </Button>
             </div>
@@ -108,21 +76,22 @@ export default function VendorsPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>All Vendors</CardTitle>
+                    <CardDescription>A list of your suppliers.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="border rounded-md">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Vendor Name</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Phone</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead className="text-right">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {vendors.map(vendor => (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Vendor Name</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Phone</TableHead>
+                                <TableHead>Type</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                             {vendors.length > 0 ? (
+                                vendors.map(vendor => (
                                     <TableRow key={vendor._id.toString()}>
                                         <TableCell className="font-medium">{vendor.name}</TableCell>
                                         <TableCell>{vendor.email || 'N/A'}</TableCell>
@@ -146,10 +115,16 @@ export default function VendorsPage() {
                                             </AlertDialog>
                                         </TableCell>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="text-center h-24">
+                                        No vendors have been added yet.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
                 </CardContent>
             </Card>
         </div>
