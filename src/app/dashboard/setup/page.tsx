@@ -11,7 +11,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 
 export default function SetupPage() {
-  const appId = process.env.NEXT_PUBLIC_META_APP_ID;
+  const appId = process.env.NEXT_PUBLIC_FACEBOOK_APP_ID;
   const configId = process.env.NEXT_PUBLIC_META_CONFIG_ID;
   const [includeCatalog, setIncludeCatalog] = useState(true);
 

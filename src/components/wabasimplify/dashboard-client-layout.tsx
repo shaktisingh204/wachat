@@ -251,7 +251,9 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 
         const { projects: fetchedProjects } = await getProjects() || { projects: [] };
         if (!fetchedProjects || fetchedProjects.length === 0) {
-            router.push('/dashboard/setup');
+            // Don't redirect, just show dashboard with no projects state.
+            setProjects([]);
+            setIsVerifying(false);
             return;
         }
         setProjects(fetchedProjects);
