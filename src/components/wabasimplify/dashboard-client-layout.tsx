@@ -250,33 +250,27 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         setSessionUser(session.user);
 
         const { projects: fetchedProjects } = await getProjects() || { projects: [] };
-        setProjects(fetchedProjects || []);
+        if (!fetchedProjects || fetchedProjects.length === 0) {
+            router.push('/dashboard/setup');
+            return;
+        }
+        setProjects(fetchedProjects);
 
         const storedProjectId = localStorage.getItem('activeProjectId');
         
-        if (pathname.startsWith('/dashboard/facebook')) {
-          setActiveApp('facebook');
-        } else if (pathname.startsWith('/dashboard/instagram')) {
-          setActiveApp('instagram');
-        } else if (pathname.startsWith('/dashboard/crm')) {
-          setActiveApp('crm');
-        } else if (pathname.startsWith('/dashboard/email')) {
-          setActiveApp('email');
-        } else if (pathname.startsWith('/dashboard/sms')) {
-          setActiveApp('sms');
-        } else if (pathname.startsWith('/dashboard/url-shortener')) {
-          setActiveApp('url-shortener');
-        } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
-          setActiveApp('qr-code-maker');
-        } else if (pathname.startsWith('/dashboard/api')) {
-          setActiveApp('api');
-        } else if (pathname.startsWith('/dashboard/seo')) {
-          setActiveApp('seo-suite');
-        } else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) {
-          setActiveApp('website-builder');
-        } else {
-          setActiveApp('whatsapp');
-        }
+        if (pathname.startsWith('/dashboard/facebook')) { setActiveApp('facebook'); }
+        else if (pathname.startsWith('/dashboard/instagram')) { setActiveApp('instagram'); }
+        else if (pathname.startsWith('/dashboard/crm')) { setActiveApp('crm'); }
+        else if (pathname.startsWith('/dashboard/email')) { setActiveApp('email'); }
+        else if (pathname.startsWith('/dashboard/sms')) { setActiveApp('sms'); }
+        else if (pathname.startsWith('/dashboard/url-shortener')) { setActiveApp('url-shortener'); }
+        else if (pathname.startsWith('/dashboard/qr-code-maker')) { setActiveApp('qr-code-maker'); }
+        else if (pathname.startsWith('/dashboard/api')) { setActiveApp('api'); }
+        else if (pathname.startsWith('/dashboard/seo')) { setActiveApp('seo-suite'); }
+        else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) { setActiveApp('website-builder'); }
+        else { setActiveApp('whatsapp'); }
+
+        const projectExists = fetchedProjects.some(p => p._id.toString() === storedProjectId);
 
         if (pathname === '/dashboard') {
             localStorage.removeItem('activeProjectId');
@@ -284,11 +278,17 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             setActiveProjectId(null);
             setActiveProjectName(null);
             setActiveProject(null);
-        } else if (storedProjectId) {
+        } else if (storedProjectId && projectExists) {
             setActiveProjectId(storedProjectId);
-            const currentActiveProject = (fetchedProjects || []).find(p => p._id.toString() === storedProjectId);
+            const currentActiveProject = fetchedProjects.find(p => p._id.toString() === storedProjectId);
             setActiveProject(currentActiveProject || null);
             setActiveProjectName(currentActiveProject?.name || 'Loading...');
+        } else {
+            localStorage.removeItem('activeProjectId');
+            localStorage.removeItem('activeProjectName');
+            setActiveProjectId(null);
+            setActiveProjectName('Select a Project');
+            setActiveProject(null);
         }
       } catch (error) {
         console.error("Failed to initialize dashboard layout:", error);
