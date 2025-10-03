@@ -17,7 +17,7 @@ import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { intelligentTranslate } from '@/ai/flows/intelligent-translate-flow';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { hashPassword, comparePassword, createSessionToken, createAdminSessionToken, type SessionPayload, type AdminSessionPayload } from '@/lib/auth';
+import { hashPassword, comparePassword, createSessionToken, verifyJwt, createAdminSessionToken, verifyAdminJwt, type SessionPayload, type AdminSessionPayload } from '@/lib/auth';
 import { v4 as uuidv4 } from 'uuid';
 import { createHash } from 'crypto';
 import { premadeTemplates } from '@/lib/premade-templates';
@@ -84,7 +84,7 @@ export async function getSession(): Promise<{ user: Omit<User, 'password' | 'pla
         return null;
     }
 
-    const payload = await verifyAdminJwt(sessionToken);
+    const payload = await verifyJwt(sessionToken);
     if (!payload) {
         return null;
     }
@@ -116,7 +116,7 @@ export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
         return { isAdmin: false };
     }
 
-    const payload = await getAdminSession(sessionToken);
+    const payload = await verifyAdminJwt(sessionToken);
     if (payload && payload.role === 'admin') {
         return { isAdmin: true };
     }
