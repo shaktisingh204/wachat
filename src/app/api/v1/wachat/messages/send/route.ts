@@ -1,4 +1,5 @@
 
+
 import { NextRequest, NextResponse } from 'next/server';
 import { authenticateApiKey } from '@/app/actions/api-keys.actions';
 import { handleSendMessage } from '@/app/actions/whatsapp.actions';
@@ -6,6 +7,7 @@ import { checkRateLimit } from '@/lib/rate-limiter';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Contact } from '@/lib/definitions';
 import { ObjectId } from 'mongodb';
+import { findOrCreateContact } from '@/app/actions/whatsapp.actions';
 
 export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('Authorization');
@@ -62,9 +64,15 @@ export async function POST(request: NextRequest) {
             if (!project) {
                  return NextResponse.json({ error: 'You do not have permission to access this project.' }, { status: 403 });
             }
-            // The findOrCreateContact action is not exposed for API use, this needs to be handled differently or exposed safely
-            // For now, let's assume this path requires a pre-existing contact or we handle it in a different way.
-            return NextResponse.json({ error: 'Contact creation via this endpoint is not yet supported. Please use the /contacts/create endpoint first or provide a contactId.' }, { status: 400 });
+            const { contact, error } = await findOrCreateContact(projectId, phoneNumberId, waId);
+            if (error || !contact) {
+                return NextResponse.json({ error: `Could not find or create contact: ${error}` }, { status: 500 });
+            }
+
+            finalWaId = waId;
+            finalPhoneNumberId = phoneNumberId;
+            finalProjectId = projectId;
+            finalContactId = contact._id.toString();
         }
 
         const formData = new FormData();
@@ -85,3 +93,5 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: e.message || 'An unexpected error occurred.' }, { status: 500 });
     }
 }
+
+    

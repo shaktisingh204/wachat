@@ -7,14 +7,13 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { type WithId, ObjectId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { createSessionToken, verifySessionToken, hashPassword, comparePassword } from '@/lib/auth';
+import { createSessionToken, verifyJwt, hashPassword, comparePassword, createAdminSessionToken, verifyAdminJwt, type SessionPayload, type AdminSessionPayload } from '@/lib/auth';
 import { getErrorMessage } from '@/lib/utils';
 import type { Project, User, Plan, Invitation } from '@/lib/definitions';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { headers } from 'next/headers';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { handleSubscribeProjectWebhook } from '@/app/actions/whatsapp.actions';
-import { verifyAdminJwt } from '@/lib/jwt';
 
 export async function getProjectById(projectId: string, userId?: string) {
     if (!ObjectId.isValid(projectId)) {
@@ -376,7 +375,7 @@ export async function getSession() {
     const sessionToken = cookies().get('session')?.value;
     if (!sessionToken) return null;
 
-    const payload = await verifySessionToken(sessionToken);
+    const payload = await verifyJwt(sessionToken);
     if (!payload) return null;
 
     try {
@@ -522,3 +521,5 @@ export async function handleChangePassword(prevState: any, formData: FormData): 
         return { error: getErrorMessage(e) };
     }
 }
+
+    
