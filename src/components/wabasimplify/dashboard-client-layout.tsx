@@ -36,7 +36,7 @@ import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getSession, getProjects } from '@/app/actions';
-import type { Plan, WithId, Project, Agent } from '@/lib/definitions';
+import type { Plan, WithId, Project, Agent, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
 import { crmMenuItems } from '@/app/dashboard/crm/layout';
@@ -250,7 +250,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         setSessionUser(session.user);
 
         const { projects: fetchedProjects } = await getProjects() || { projects: [] };
-        setProjects(fetchedProjects);
+        setProjects(fetchedProjects || []);
 
         const storedProjectId = localStorage.getItem('activeProjectId');
         
@@ -272,7 +272,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
           setActiveApp('api');
         } else if (pathname.startsWith('/dashboard/seo')) {
           setActiveApp('seo-suite');
-        } else if (pathname.startsWith('/dashboard/website-builder')) {
+        } else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) {
           setActiveApp('website-builder');
         } else {
           setActiveApp('whatsapp');
