@@ -286,7 +286,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             setActiveProject(null);
         } else if (storedProjectId) {
             setActiveProjectId(storedProjectId);
-            const currentActiveProject = fetchedProjects.find(p => p._id.toString() === storedProjectId);
+            const currentActiveProject = (fetchedProjects || []).find(p => p._id.toString() === storedProjectId);
             setActiveProject(currentActiveProject || null);
             setActiveProjectName(currentActiveProject?.name || 'Loading...');
         }

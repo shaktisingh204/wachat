@@ -564,5 +564,3 @@ export async function handleBulkUpdateAppId(prevState: any, formData: FormData):
         return { success: false, error: getErrorMessage(e) };
     }
 }
-
-    

@@ -88,6 +88,10 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
             .find(projectFilter)
             .sort({ createdAt: -1 })
             .toArray();
+            
+        if (!projects) {
+            return { projects: [] };
+        }
 
         return { projects: JSON.parse(JSON.stringify(projects)) };
     } catch (error) {
