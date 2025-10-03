@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -270,7 +269,7 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
 }
 
 export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('admin_session')?.value;
     
     if (!sessionCookie) {
@@ -312,7 +311,7 @@ export async function handleLogin(prevState: any, formData: FormData): Promise<{
         }
 
         const sessionToken = await createSessionToken({ userId: user._id.toString(), email: user.email });
-        cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+        await cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
         redirect('/dashboard');
 
@@ -360,7 +359,7 @@ export async function handleSignup(prevState: any, formData: FormData): Promise<
         const result = await db.collection('users').insertOne(newUser as User);
 
         const sessionToken = await createSessionToken({ userId: result.insertedId.toString(), email: newUser.email });
-        cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+        await cookies().set('session', sessionToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
         redirect('/dashboard');
         
