@@ -1,7 +1,5 @@
 
 
-'use client';
-
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId, WithId } from 'mongodb';
@@ -174,4 +172,3 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
     return handleSync();
 }
-
