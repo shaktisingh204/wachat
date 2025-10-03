@@ -85,12 +85,7 @@ export const CustomEcommerceIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 export const WachatSidebarTopLogo = (props: React.SVGProps<SVGSVGElement>) => (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" {...props}>
-      <g fill="none" fillRule="evenodd">
-        <path d="M10 25h4M12 20h4M14 15h4" stroke="#fff" strokeWidth="2" strokeLinecap="round" />
-        <path fill="#4CAF50" d="M33.42 11.23c-1.29-1.3-3.13-2.02-5.2-1.95-3.53.12-6.45 2.5-7.44 5.88-1.4 4.88 1.15 9.9 5.23 12.1 1.25.67 2.65.95 4.06.77 3.52-.44 6.22-3.23 6.6-6.76.5-4.53-2.33-8.6-6.25-9.97-1.1-.39-2.25-.53-3.38-.43m-1.38 18.13c-4.9-2.62-7.8-8.5-6.2-14.1s7.1-9.35 12.02-6.73c4.9 2.62 7.8 8.5 6.2 14.1s-7.1 9.35-12.02 6.73"/>
-      </g>
-    </svg>
+    <SabNodeLogo {...props} />
 );
 
 export { Home };

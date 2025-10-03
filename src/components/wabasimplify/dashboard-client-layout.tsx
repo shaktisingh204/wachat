@@ -227,81 +227,78 @@ const seoMenuItems = [
 export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const [sessionUser, setSessionUser] = React.useState<{ _id: string, name: string; email: string, credits?: number, plan?: WithId<Plan> } | null>(null);
+  const [sessionUser, setSessionUser] = React.useState<any>(null);
   const [projects, setProjects] = React.useState<WithId<Project>[]>([]);
   const [activeProject, setActiveProject] = React.useState<WithId<Project> | null>(null);
   const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
   const [activeProjectId, setActiveProjectId] = React.useState<string | null>(null);
-  const [isVerifying, setIsVerifying] = React.useState(true);
   const [activeApp, setActiveApp] = React.useState('whatsapp');
+  const [isVerifying, setIsVerifying] = React.useState(true);
 
   const isWebsiteBuilderPage = pathname.includes('/builder');
   const isCrmPage = pathname.startsWith('/dashboard/crm');
   const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
   
   React.useEffect(() => {
-    const fetchInitialData = async () => {
-        try {
-            const session = await getSession();
-            if (!session?.user) {
-                router.push('/login');
-                return;
-            }
-            setSessionUser(session.user as any);
-
-            const { projects: fetchedProjects } = await getProjects() || { projects: [] };
-            setProjects(fetchedProjects);
-
-            const storedProjectId = localStorage.getItem('activeProjectId');
-            const storedProjectName = localStorage.getItem('activeProjectName');
-            const isDashboardHome = pathname === '/dashboard';
-
-            if (isDashboardHome) {
-                localStorage.removeItem('activeProjectId');
-                localStorage.removeItem('activeProjectName');
-                setActiveProjectId(null);
-                setActiveProjectName(null);
-                setActiveProject(null);
-            } else if (storedProjectId) {
-                setActiveProjectId(storedProjectId);
-                setActiveProjectName(storedProjectName || 'Loading...');
-                const currentActiveProject = fetchedProjects.find(p => p._id.toString() === storedProjectId);
-                setActiveProject(currentActiveProject || null);
-            }
-
-             if (pathname.startsWith('/dashboard/facebook')) {
-                setActiveApp('facebook');
-            } else if (pathname.startsWith('/dashboard/instagram')) {
-                setActiveApp('instagram');
-            } else if (pathname.startsWith('/dashboard/crm')) {
-                setActiveApp('crm');
-            } else if (pathname.startsWith('/dashboard/email')) {
-                setActiveApp('email');
-            } else if (pathname.startsWith('/dashboard/sms')) {
-                setActiveApp('sms');
-            } else if (pathname.startsWith('/dashboard/url-shortener')) {
-                setActiveApp('url-shortener');
-            } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
-                setActiveApp('qr-code-maker');
-            } else if (pathname.startsWith('/dashboard/api')) {
-                setActiveApp('api');
-            } else if (pathname.startsWith('/dashboard/seo')) {
-                setActiveApp('seo-suite');
-            } else if (pathname.startsWith('/dashboard/website-builder')) {
-                setActiveApp('website-builder');
-            } else {
-                setActiveApp('whatsapp');
-            }
-
-        } catch (error) {
-            console.error("Failed to initialize dashboard layout:", error);
-            router.push('/login');
-        } finally {
-            setIsVerifying(false);
+    const fetchAndSetData = async () => {
+      try {
+        const session = await getSession();
+        if (!session?.user) {
+          router.push('/login');
+          return;
         }
+        setSessionUser(session.user);
+
+        const { projects: fetchedProjects } = await getProjects() || { projects: [] };
+        setProjects(fetchedProjects);
+
+        const storedProjectId = localStorage.getItem('activeProjectId');
+        
+        if (pathname.startsWith('/dashboard/facebook')) {
+          setActiveApp('facebook');
+        } else if (pathname.startsWith('/dashboard/instagram')) {
+          setActiveApp('instagram');
+        } else if (pathname.startsWith('/dashboard/crm')) {
+          setActiveApp('crm');
+        } else if (pathname.startsWith('/dashboard/email')) {
+          setActiveApp('email');
+        } else if (pathname.startsWith('/dashboard/sms')) {
+          setActiveApp('sms');
+        } else if (pathname.startsWith('/dashboard/url-shortener')) {
+          setActiveApp('url-shortener');
+        } else if (pathname.startsWith('/dashboard/qr-code-maker')) {
+          setActiveApp('qr-code-maker');
+        } else if (pathname.startsWith('/dashboard/api')) {
+          setActiveApp('api');
+        } else if (pathname.startsWith('/dashboard/seo')) {
+          setActiveApp('seo-suite');
+        } else if (pathname.startsWith('/dashboard/website-builder')) {
+          setActiveApp('website-builder');
+        } else {
+          setActiveApp('whatsapp');
+        }
+
+        if (pathname === '/dashboard') {
+            localStorage.removeItem('activeProjectId');
+            localStorage.removeItem('activeProjectName');
+            setActiveProjectId(null);
+            setActiveProjectName(null);
+            setActiveProject(null);
+        } else if (storedProjectId) {
+            setActiveProjectId(storedProjectId);
+            const currentActiveProject = fetchedProjects.find(p => p._id.toString() === storedProjectId);
+            setActiveProject(currentActiveProject || null);
+            setActiveProjectName(currentActiveProject?.name || 'Loading...');
+        }
+      } catch (error) {
+        console.error("Failed to initialize dashboard layout:", error);
+        router.push('/login');
+      } finally {
+        setIsVerifying(false);
+      }
     };
     
-    fetchInitialData();
+    fetchAndSetData();
   }, [pathname, router]);
 
   const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
