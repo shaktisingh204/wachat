@@ -1,5 +1,5 @@
-
 import type { NextConfig } from 'next';
+const webpack = require('webpack');
 
 const withBundleAnalyzer = require('@next/bundle-analyzer')({
   enabled: process.env.ANALYZE === 'true',
@@ -26,7 +26,7 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-       {
+      {
         protocol: 'https',
         hostname: 'images.unsplash.com',
         port: '',
@@ -65,8 +65,15 @@ const nextConfig: NextConfig = {
     ],
   },
   webpack: (config, { isServer }) => {
+    // Ignore MongoDB optional native deps when bundling
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp:
+          /^(@mongodb-js\/zstd|snappy|kerberos|aws4|@aws-sdk\/credential-providers|mongodb-client-encryption)$/,
+      })
+    );
+
     if (!isServer) {
-      // Exclude server-only modules from the client-side build
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
@@ -74,10 +81,20 @@ const nextConfig: NextConfig = {
         dns: false,
         tls: false,
         child_process: false,
-        "mongodb-client-encryption": false,
+        module: false,
       };
     }
+
     config.experiments = { ...config.experiments, topLevelAwait: true };
+
+    // Optional: silence "Critical dependency" warnings from dynamic requires
+    config.ignoreWarnings = [
+      {
+        module: /@opentelemetry\/instrumentation/,
+      },
+      /Critical dependency: the request of a dependency is an expression/,
+    ];
+
     return config;
   },
 };
