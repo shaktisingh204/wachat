@@ -3,6 +3,7 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { nanoid } from 'nanoid';
 import type { SessionPayload, AdminSessionPayload } from './definitions';
+import { connectToDatabase } from './mongodb';
 
 function getJwtSecretKey(): Uint8Array {
     const secret = process.env.JWT_SECRET;
@@ -12,13 +13,29 @@ function getJwtSecretKey(): Uint8Array {
     return new TextEncoder().encode(secret);
 }
 
-// This function is safe for both Edge and Node.js runtimes.
+async function isTokenRevoked(jti: string): Promise<boolean> {
+    try {
+        const { db } = await connectToDatabase();
+        const revokedToken = await db.collection('revoked_tokens').findOne({ jti });
+        return !!revokedToken;
+    } catch (error) {
+        console.error("Error checking for revoked token:", error);
+        return true; 
+    }
+}
+
+
 export async function verifyJwt(token: string): Promise<SessionPayload | null> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey());
         
         if (!payload.jti || !payload.exp || !payload.userId || !payload.email) {
             console.error('JWT payload missing required fields');
+            return null;
+        }
+
+        if (await isTokenRevoked(payload.jti)) {
+            console.warn(`Attempted to use a revoked token: ${payload.jti}`);
             return null;
         }
 
@@ -29,12 +46,17 @@ export async function verifyJwt(token: string): Promise<SessionPayload | null> {
     }
 }
 
-// This function is safe for both Edge and Node.js runtimes.
+
 export async function verifyAdminJwt(token: string): Promise<AdminSessionPayload | null> {
     try {
         const { payload } = await jwtVerify(token, getJwtSecretKey());
 
         if (payload.role !== 'admin' || !payload.jti || !payload.exp) {
+            return null;
+        }
+
+        if (await isTokenRevoked(payload.jti)) {
+            console.warn(`Attempted to use a revoked admin token: ${payload.jti}`);
             return null;
         }
         
