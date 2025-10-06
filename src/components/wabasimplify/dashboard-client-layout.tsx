@@ -251,7 +251,6 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 
         const { projects: fetchedProjects } = await getProjects() || { projects: [] };
         if (!fetchedProjects || fetchedProjects.length === 0) {
-            // Don't redirect, just show dashboard with no projects state.
             setProjects([]);
             setIsVerifying(false);
             return;
@@ -441,26 +440,9 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   return (
       <div data-theme={activeApp}>
         <SidebarProvider>
-          <div className="fixed top-2 left-2 bottom-2 z-20 hidden md:flex">
-            <div className="flex h-full w-16 flex-col items-center gap-4 rounded-lg border bg-card py-4 shadow-md">
-              {appIcons.map(app => (
-                <SidebarMenuButton
-                  asChild
-                  key={app.id}
-                  tooltip={app.label}
-                  className={cn(
-                    'h-12 w-12 rounded-lg transition-colors',
-                    activeApp === app.id ? app.className : app.hoverClassName
-                  )}
-                >
-                  <Link href={app.href} scroll={false}><app.icon className="h-6 w-6" /></Link>
-                </SidebarMenuButton>
-              ))}
-            </div>
-          </div>
           <Sidebar
             variant="floating"
-            sideOffset="calc(4rem + 8px)"
+            collapsible="offcanvas"
             className="peer"
           >
             <SidebarHeader className="p-4">
@@ -517,10 +499,31 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
               </SidebarMenu>
             </SidebarFooter>
           </Sidebar>
-          <SidebarInset sideOffset="calc(4rem + 8px)" className="flex flex-col h-screen p-2 gap-2">
-            <header className="flex items-center justify-between p-3 border bg-card rounded-lg shrink-0">
+          <SidebarInset className="flex flex-col h-screen p-2 gap-2">
+             <header className="flex h-14 items-center justify-between gap-4 rounded-lg border bg-card px-4">
+              <div className="flex-1">
+                <div className="flex gap-2">
+                  <SidebarTrigger />
+                  <div className="flex gap-2 items-center">
+                    {appIcons.map(app => (
+                        <SidebarMenuButton
+                            asChild
+                            key={app.id}
+                            tooltip={app.label}
+                            className={cn(
+                                'h-9 w-9 rounded-md transition-colors',
+                                activeApp === app.id ? app.className : 'hover:bg-muted'
+                            )}
+                        >
+                            <Link href={app.href} scroll={false}><app.icon className="h-5 w-5"/></Link>
+                        </SidebarMenuButton>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </header>
+            <header className="flex h-16 items-center justify-between gap-4 rounded-lg border bg-card px-4">
               <div className="flex items-center gap-2">
-                <SidebarTrigger />
                 {activeApp === 'facebook' && isClient && activeProject ? (
                     <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
                   ) : (
