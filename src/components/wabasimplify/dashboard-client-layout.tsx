@@ -30,7 +30,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -39,7 +39,8 @@ import { getSession, getProjects } from '@/app/actions';
 import type { Plan, WithId, Project, Agent, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
-import { crmMenuItems } from '@/app/dashboard/crm/layout';
+import { crmMenuItems, pathComponentMap } from '@/app/dashboard/crm/layout';
+import { Suspense } from 'react';
 
 
 function FullPageSkeleton() {
@@ -224,6 +225,14 @@ const seoMenuItems = [
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe },
 ];
 
+type Tab = {
+    id: string;
+    title: string;
+    icon: React.ElementType;
+    href: string;
+    component: React.ComponentType;
+};
+
 export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
@@ -235,8 +244,10 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   const [activeApp, setActiveApp] = React.useState('whatsapp');
   const [isVerifying, setIsVerifying] = React.useState(true);
 
+  const [openTabs, setOpenTabs] = React.useState<Tab[]>([]);
+  const [activeTab, setActiveTab] = React.useState<string | null>(null);
+
   const isWebsiteBuilderPage = pathname.includes('/builder');
-  const isCrmPage = pathname.startsWith('/dashboard/crm');
   const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
   
   React.useEffect(() => {
@@ -259,17 +270,18 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 
         const storedProjectId = localStorage.getItem('activeProjectId');
         
-        if (pathname.startsWith('/dashboard/facebook')) { setActiveApp('facebook'); }
-        else if (pathname.startsWith('/dashboard/instagram')) { setActiveApp('instagram'); }
-        else if (pathname.startsWith('/dashboard/crm')) { setActiveApp('crm'); }
-        else if (pathname.startsWith('/dashboard/email')) { setActiveApp('email'); }
-        else if (pathname.startsWith('/dashboard/sms')) { setActiveApp('sms'); }
-        else if (pathname.startsWith('/dashboard/url-shortener')) { setActiveApp('url-shortener'); }
-        else if (pathname.startsWith('/dashboard/qr-code-maker')) { setActiveApp('qr-code-maker'); }
-        else if (pathname.startsWith('/dashboard/api')) { setActiveApp('api'); }
-        else if (pathname.startsWith('/dashboard/seo')) { setActiveApp('seo-suite'); }
-        else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) { setActiveApp('website-builder'); }
-        else { setActiveApp('whatsapp'); }
+        let currentApp = 'whatsapp';
+        if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
+        else if (pathname.startsWith('/dashboard/instagram')) { currentApp = 'instagram'; }
+        else if (pathname.startsWith('/dashboard/crm')) { currentApp = 'crm'; }
+        else if (pathname.startsWith('/dashboard/email')) { currentApp = 'email'; }
+        else if (pathname.startsWith('/dashboard/sms')) { currentApp = 'sms'; }
+        else if (pathname.startsWith('/dashboard/url-shortener')) { currentApp = 'url-shortener'; }
+        else if (pathname.startsWith('/dashboard/qr-code-maker')) { currentApp = 'qr-code-maker'; }
+        else if (pathname.startsWith('/dashboard/api')) { currentApp = 'api'; }
+        else if (pathname.startsWith('/dashboard/seo')) { currentApp = 'seo-suite'; }
+        else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) { currentApp = 'website-builder'; }
+        setActiveApp(currentApp);
 
         const projectExists = fetchedProjects.some(p => p._id.toString() === storedProjectId);
 
@@ -301,6 +313,60 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     
     fetchAndSetData();
   }, [pathname, router]);
+  
+  const openTab = (item: { href: string; label: string; icon: React.ElementType, component?: React.ComponentType }) => {
+    const tabId = item.href;
+    if (!openTabs.some(tab => tab.id === tabId)) {
+        if(item.component){
+            setOpenTabs(prev => [...prev, { id: tabId, title: item.label, icon: item.icon, href: item.href, component: item.component }]);
+        }
+    }
+    setActiveTab(tabId);
+    router.push(item.href, { scroll: false });
+  };
+
+  const closeTab = (tabId: string) => {
+    const tabIndex = openTabs.findIndex(tab => tab.id === tabId);
+    setOpenTabs(prev => prev.filter(tab => tab.id !== tabId));
+
+    if (activeTab === tabId) {
+        const nextTab = openTabs[tabIndex - 1] || openTabs[tabIndex + 1] || null;
+        setActiveTab(nextTab?.id || null);
+        if (nextTab) {
+            router.push(nextTab.href, { scroll: false });
+        } else {
+            router.push('/dashboard', { scroll: false });
+        }
+    }
+  };
+  
+  React.useEffect(() => {
+    // This effect ensures that a tab is opened when the user navigates directly to a URL
+    const allMenuItems = [
+        ...wachatMenuItems,
+        ...emailMenuItems,
+        ...smsMenuItems,
+        ...apiMenuItems,
+        ...urlShortenerMenuItems,
+        ...qrCodeMakerMenuItems,
+        ...portfolioMenuItems,
+        ...seoMenuItems,
+        ...facebookMenuGroups.flatMap(g => g.items),
+        ...instagramMenuGroups.flatMap(g => g.items),
+        ...crmMenuItems.flatMap(g => g.subItems || [g]),
+    ];
+    
+    const matchingItem = allMenuItems.find(item => item.href === pathname);
+    const component = pathComponentMap[pathname];
+
+    if (matchingItem && component && !openTabs.some(t => t.id === pathname)) {
+        openTab({ ...matchingItem, component });
+    }
+    
+    if (activeTab !== pathname && openTabs.some(t => t.id === pathname)) {
+      setActiveTab(pathname);
+    }
+  }, [pathname]);
 
   const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
 
@@ -313,59 +379,38 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 
   const menuGroups = React.useMemo(() => {
     let groups: any[];
+    let allItems: any[] = [];
+    switch (activeApp) {
+        case 'facebook': allItems = facebookMenuGroups.flatMap(g => g.items); break;
+        case 'instagram': allItems = instagramMenuGroups.flatMap(g => g.items); break;
+        case 'crm': allItems = crmMenuItems.flatMap(g => g.subItems || [g]); break;
+        case 'email': allItems = emailMenuItems; break;
+        case 'sms': allItems = smsMenuItems; break;
+        case 'url-shortener': allItems = urlShortenerMenuItems; break;
+        case 'qr-code-maker': allItems = qrCodeMakerMenuItems; break;
+        case 'api': allItems = apiMenuItems; break;
+        case 'seo-suite': allItems = seoMenuItems; break;
+        case 'website-builder': allItems = portfolioMenuItems; break;
+        default: allItems = wachatMenuItems; break;
+    }
+    
+    const componentMap = { ...pathComponentMap }; // Add other suites' maps
+    allItems.forEach(item => {
+        if(componentMap[item.href]) item.component = componentMap[item.href];
+    });
 
     switch (activeApp) {
-        case 'facebook':
-            groups = facebookMenuGroups.map(group => ({
-                ...group,
-                items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent'] }))
-            }));
-            break;
-        case 'instagram':
-            groups = instagramMenuGroups.map(group => ({
-                ...group,
-                items: group.items.map(item => ({ ...item, roles: ['owner', 'admin', 'agent'] }))
-            }));
-            break;
-        case 'crm':
-            groups = crmMenuItems.map(item => {
-                if (item.subItems) {
-                    return {
-                        title: item.label,
-                        icon: item.icon,
-                        items: item.subItems.map(subItem => ({ ...subItem, roles: ['owner', 'admin', 'agent'] }))
-                    };
-                }
-                return {
-                    title: null,
-                    items: [{ ...item, roles: ['owner', 'admin', 'agent'] }]
-                };
-            });
-            break;
-        case 'email':
-            groups = [{ title: 'Email Suite', items: emailMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
-            break;
-        case 'sms':
-            groups = [{ title: 'SMS Suite', items: smsMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
-            break;
-        case 'url-shortener':
-            groups = [{ title: null, items: urlShortenerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
-            break;
-        case 'qr-code-maker':
-            groups = [{ title: null, items: qrCodeMakerMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
-            break;
-        case 'api':
-            groups = [{ title: null, items: apiMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
-            break;
-        case 'seo-suite':
-            groups = [{ title: null, items: seoMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
-            break;
-        case 'website-builder':
-            groups = [{ title: null, items: portfolioMenuItems.map(item => ({...item, roles: ['owner', 'admin', 'agent']})) }];
-            break;
-        default:
-            groups = [{ title: null, items: wachatMenuItems }];
-            break;
+        case 'facebook': groups = facebookMenuGroups; break;
+        case 'instagram': groups = instagramMenuGroups; break;
+        case 'crm': groups = crmMenuItems.map(item => ({ title: item.label, icon: item.icon, items: item.subItems || [item] })); break;
+        case 'email': groups = [{ title: null, items: emailMenuItems }]; break;
+        case 'sms': groups = [{ title: null, items: smsMenuItems }]; break;
+        case 'url-shortener': groups = [{ title: null, items: urlShortenerMenuItems }]; break;
+        case 'qr-code-maker': groups = [{ title: null, items: qrCodeMakerMenuItems }]; break;
+        case 'api': groups = [{ title: null, items: apiMenuItems }]; break;
+        case 'seo-suite': groups = [{ title: null, items: seoMenuItems }]; break;
+        case 'website-builder': groups = [{ title: null, items: portfolioMenuItems }]; break;
+        default: groups = [{ title: null, items: wachatMenuItems }]; break;
     }
     
     return groups.map((group: any) => ({
@@ -398,10 +443,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 
   const renderMenuItems = (items: any[], isSubmenu = false) => {
     return items.map((item: any) => {
-        const isActive = (
-            item.href === pathname || 
-            (item.href !== '/dashboard' && pathname.startsWith(item.href))
-        );
+        const isActive = activeTab === item.href;
       return (
         <SidebarMenuItem key={item.href}>
           <SidebarMenuButton
@@ -409,12 +451,13 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             isActive={isActive}
             tooltip={item.label}
             className={isSubmenu ? 'h-8' : ''}
+            onClick={() => item.component && openTab(item)}
           >
-            <Link href={item.href} scroll={false}>
+            <button>
               <item.icon className="h-4 w-4" />
               <span className="truncate">{item.label}</span>
               {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
-            </Link>
+            </button>
           </SidebarMenuButton>
         </SidebarMenuItem>
       );
@@ -436,6 +479,8 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
       </React.Fragment>
     ));
   };
+
+  const ActiveComponent = openTabs.find(tab => tab.id === activeTab)?.component;
 
   return (
       <div data-theme={activeApp}>
@@ -579,12 +624,36 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                 </DropdownMenu>
               </div>
             </header>
-            <main className={cn(
-                "flex-1 flex flex-col h-full rounded-lg border bg-card",
-                isChatPage ? "overflow-hidden" : "",
-                !isCrmPage && "p-4 md:p-6 lg:p-8 overflow-y-auto"
-            )}>
-                {children}
+            <main className="flex-1 flex flex-col rounded-lg border bg-card overflow-hidden">
+                <div className="flex-shrink-0 border-b">
+                    <ScrollArea className="w-full whitespace-nowrap">
+                        <div className="flex w-max">
+                            {openTabs.map(tab => (
+                                <div key={tab.id} className={cn("flex items-center border-r transition-colors", activeTab === tab.id ? 'bg-background' : 'bg-muted hover:bg-background/80')}>
+                                    <Button variant="ghost" className="h-10 px-3 rounded-none" onClick={() => setActiveTab(tab.id)}>
+                                        <tab.icon className="mr-2 h-4 w-4"/> {tab.title}
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm mr-2" onClick={() => closeTab(tab.id)}>
+                                        <X className="h-4 w-4"/>
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                        <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                    {openTabs.map(tab => (
+                        <div key={tab.id} className={cn("h-full w-full", activeTab === tab.id ? 'block' : 'hidden')}>
+                            {React.createElement(tab.component, { children })}
+                        </div>
+                    ))}
+                    {openTabs.length === 0 && (
+                        <div className="h-full w-full flex items-center justify-center">
+                            {children}
+                        </div>
+                    )}
+                </div>
             </main>
           </SidebarInset>
         </SidebarProvider>
