@@ -43,3 +43,4 @@ export default async function ShopPage({ params }: { params: { slug: string } })
         </main>
     );
 }
+
