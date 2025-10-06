@@ -70,7 +70,7 @@ export function AdminUpdateCreditsButton({ projectId, currentCredits }: AdminUpd
           </div>
           <DialogFooter>
             <Button type="button" variant="ghost" onClick={() => setOpen(false)}>Cancel</Button>
-            <Button type="submit" disabled={isPending}>
+             <Button type="submit" disabled={isPending}>
               {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />}
               Save Credits
             </Button>
