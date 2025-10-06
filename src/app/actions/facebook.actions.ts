@@ -1,6 +1,4 @@
 
-
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -197,7 +195,7 @@ export async function handleFacebookOAuthCallback(code: string): Promise<{ succe
                         facebookPageId: page.id,
                         phoneNumbers: [],
                         createdAt: new Date(),
-                        messagesPerSecond: 10000,
+                        messagesPerSecond: 80,
                     },
                 },
                 upsert: true,
@@ -256,7 +254,7 @@ export async function handleManualFacebookPageSetup(prevState: any, formData: Fo
             accessToken: accessToken,
             phoneNumbers: [],
             createdAt: new Date(),
-            messagesPerSecond: 10000,
+            messagesPerSecond: 80,
         };
 
         const result = await db.collection('projects').insertOne(newProject as any);
@@ -1741,4 +1739,6 @@ export async function savePersistentMenu(prevState: any, formData: FormData): Pr
         return { success: false, error: getErrorMessage(e) };
     }
 }
+    
+
     

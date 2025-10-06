@@ -1,5 +1,4 @@
 
-
 'use server';
 
 /**
@@ -386,7 +385,7 @@ export async function processBroadcastJob() {
                     { projection: { messagesPerSecond: 1 } }
                 );
 
-                const totalRateForProject = project?.messagesPerSecond || 1000;
+                const totalRateForProject = project?.messagesPerSecond || 80;
                 const perJobRate = Math.max(1, Math.floor(totalRateForProject / jobsForThisProject.length));
 
                 for (const job of jobsForThisProject) {
@@ -427,3 +426,5 @@ export async function processBroadcastJob() {
 }
 
   
+
+    
