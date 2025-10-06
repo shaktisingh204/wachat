@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { getSession, getProjectById } from '@/app/actions/user.actions';
@@ -73,7 +72,7 @@ export async function handleManualWachatSetup(prevState: any, formData: FormData
             accessToken: accessToken,
             phoneNumbers: [],
             createdAt: new Date(),
-            messagesPerSecond: 10000,
+            messagesPerSecond: 80,
             planId: defaultPlan?._id,
             credits: defaultPlan?.signupCredits || 0,
             hasCatalogManagement: includeCatalog,
@@ -629,3 +628,5 @@ export async function getWhatsAppProjectsForAdmin(
 }
 
   
+
+    
