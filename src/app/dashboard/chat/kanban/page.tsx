@@ -1,14 +1,10 @@
 
-import type { Metadata } from 'next';
+
 import { Suspense } from 'react';
 import { KanbanBoard } from '@/components/wabasimplify/kanban-board';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const dynamic = 'force-dynamic';
-
-export const metadata: Metadata = {
-  title: 'Chat Kanban | SabNode',
-};
 
 function KanbanPageSkeleton() {
     return (

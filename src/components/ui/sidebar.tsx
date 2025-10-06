@@ -600,7 +600,7 @@ const SidebarMenuButton = React.forwardRef<
             </Comp>
           </CollapsibleTrigger>
           <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
-            <SidebarMenuSub>{subItems.map((item, index) => <SidebarMenuSubItem key={index}><SidebarMenuSubButton href={item.href} asChild><Link href={item.href}><item.icon className="mr-2 h-4 w-4" />{item.label}</Link></SidebarMenuSubButton></SidebarMenuSubItem>)}</CollapsibleSub>
+            <SidebarMenuSub>{subItems.map((item, index) => <SidebarMenuSubItem key={index}><SidebarMenuSubButton href={item.href} asChild><Link href={item.href}><item.icon className="mr-2 h-4 w-4" />{item.label}</Link></SidebarMenuSubButton></SidebarMenuSubItem>)}</CollapsibleContent>
           </CollapsibleContent>
         </Collapsible>
       );
