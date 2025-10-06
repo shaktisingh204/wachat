@@ -71,17 +71,16 @@ export default function BroadcastReportPage() {
 
   const broadcastId = params.broadcastId as string;
 
-  const fetchPageData = useCallback(async (page: number, filterValue: FilterStatus, showToast = false) => {
-    if (!broadcastId) {
-      setIsPageLoading(false);
+  const fetchPageData = useCallback(async (id: string, page: number, filterValue: FilterStatus, showToast = false) => {
+    if (!id || id.startsWith('%5B') || id.endsWith('%5D')) { // Check for placeholder value
       return;
     }
     
     startRefreshTransition(async () => {
         try {
             const [broadcastData, attemptsData] = await Promise.all([
-                getBroadcastById(broadcastId),
-                getBroadcastAttempts(broadcastId, page, ATTEMPTS_PER_PAGE, filterValue),
+                getBroadcastById(id),
+                getBroadcastAttempts(id, page, ATTEMPTS_PER_PAGE, filterValue),
             ]);
 
             if (broadcastData) {
@@ -101,12 +100,14 @@ export default function BroadcastReportPage() {
           toast({ title: "Error", description: "Failed to load broadcast details.", variant: "destructive" });
         }
     });
-  }, [broadcastId, router, toast]);
+  }, [router, toast]);
 
   useEffect(() => {
     setIsPageLoading(true);
-    fetchPageData(currentPage, filter).finally(() => setIsPageLoading(false));
-  }, [currentPage, filter, fetchPageData]);
+    if(broadcastId) {
+        fetchPageData(broadcastId, currentPage, filter).finally(() => setIsPageLoading(false));
+    }
+  }, [currentPage, filter, fetchPageData, broadcastId]);
 
 
   useEffect(() => {
@@ -116,15 +117,15 @@ export default function BroadcastReportPage() {
 
       if (shouldAutoRefresh) {
           const interval = setInterval(() => {
-            fetchPageData(currentPage, filter, false);
+            fetchPageData(broadcastId, currentPage, filter, false);
           }, 5000);
           return () => clearInterval(interval);
       }
-  }, [broadcast, isPageLoading, fetchPageData, currentPage, filter]);
+  }, [broadcast, isPageLoading, fetchPageData, currentPage, filter, broadcastId]);
 
 
   const onRefresh = () => {
-    fetchPageData(currentPage, filter, true);
+    fetchPageData(broadcastId, currentPage, filter, true);
   };
 
   const handleFilterChange = (value: string) => {
