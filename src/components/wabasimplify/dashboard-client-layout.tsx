@@ -42,6 +42,8 @@ import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-proj
 import { Badge } from '@/components/ui/badge';
 import { Suspense } from 'react';
 import { crmMenuItems } from '@/app/dashboard/crm/layout';
+import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
+import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 
 
 const LazyDashboardOverviewPage = React.lazy(() => import('@/app/dashboard/overview/page'));
@@ -532,11 +534,11 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         case 'crm': groups = crmMenuItems.map(item => ({ title: item.label, icon: item.icon, items: item.subItems || [item] })); break;
         case 'email': groups = [{ title: null, items: emailMenuItems }]; break;
         case 'sms': groups = [{ title: null, items: smsMenuItems }]; break;
-        case 'url-shortener': groups = [{ title: null, items: urlShortenerMenuItems }]; break;
-        case 'qr-code-maker': groups = [{ title: null, items: qrCodeMakerMenuItems }]; break;
         case 'api': groups = [{ title: null, items: apiMenuItems }]; break;
         case 'seo-suite': groups = [{ title: null, items: seoMenuItems }]; break;
         case 'website-builder': groups = [{ title: null, items: portfolioMenuItems }]; break;
+        case 'url-shortener': groups = [{ title: null, items: urlShortenerMenuItems }]; break;
+        case 'qr-code-maker': groups = [{ title: null, items: qrCodeMakerMenuItems }]; break;
         default: groups = [{ title: null, items: wachatMenuItems }]; break;
     }
     
