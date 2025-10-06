@@ -7,9 +7,7 @@ function FullPageSkeleton() {
     return (
       <div className="flex h-screen w-screen">
         <div className="hidden md:flex w-16 border-r p-2"><Skeleton className="h-full w-full"/></div>
-        <div className="w-72 border-r p-2 hidden md:block"><Skeleton className="h-full w-full"/></div>
         <div className="flex-1 flex flex-col">
-            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
             <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
             <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
             <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>

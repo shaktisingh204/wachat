@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -34,7 +33,7 @@ export function WebsiteBuilderHeader({
           </Link>
         </Button>
         <SurfaceSwitcher
-          site={site}
+          shop={site}
           pages={pages}
           activeSurface={activeSurface}
           onSwitch={onSwitchSurface}

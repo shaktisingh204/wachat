@@ -38,40 +38,11 @@ const LazyCrmAnalyticsPage = React.lazy(() => import('@/app/dashboard/crm/analyt
 const LazyCrmSettingsPage = React.lazy(() => import('@/app/dashboard/crm/settings/page'));
 const LazyCrmAutomationsPage = React.lazy(() => import('@/app/dashboard/crm/automations/page'));
 
-export const pathComponentMap: { [key: string]: React.ComponentType<any> } = {
-  '/dashboard/crm': LazyCrmDashboardPage,
-  '/dashboard/crm/sales/clients': LazyClientsPage,
-  '/dashboard/crm/sales/quotations': LazyQuotationsPage,
-  '/dashboard/crm/sales/invoices': LazyInvoicesPage,
-  '/dashboard/crm/sales/receipts': LazyReceiptsPage,
-  '/dashboard/crm/sales/proforma': LazyProformaPage,
-  '/dashboard/crm/sales/orders': LazySalesOrdersPage,
-  '/dashboard/crm/sales/delivery': LazyDeliveryPage,
-  '/dashboard/crm/sales/credit-notes': LazyCreditNotesPage,
-  '/dashboard/crm/sales/pipelines': LazyPipelinesPage,
-  '/dashboard/crm/sales/forms': LazyFormsPage,
-  '/dashboard/crm/purchases/vendors': LazyVendorsPage,
-  '/dashboard/crm/purchases/expenses': LazyExpensesPage,
-  '/dashboard/crm/purchases/orders': LazyPurchaseOrdersPage,
-  '/dashboard/crm/purchases/payouts': LazyPayoutsPage,
-  '/dashboard/crm/purchases/debit-notes': LazyDebitNotesPage,
-  '/dashboard/crm/purchases/hire': LazyHirePage,
-  '/dashboard/crm/contacts': LazyCrmContactsPage,
-  '/dashboard/crm/accounts': LazyCrmAccountsPage,
-  '/dashboard/crm/deals': LazyCrmDealsPage,
-  '/dashboard/crm/products': LazyCrmProductsPage,
-  '/dashboard/crm/inventory': LazyCrmInventoryLayout,
-  '/dashboard/crm/tasks': LazyCrmTasksPage,
-  '/dashboard/crm/email': LazyCrmEmailPage,
-  '/dashboard/crm/team-chat': LazyCrmTeamChatPage,
-  '/dashboard/crm/analytics': LazyCrmAnalyticsPage,
-  '/dashboard/crm/settings': LazyCrmSettingsPage,
-  '/dashboard/crm/automations': LazyCrmAutomationsPage,
-};
-
+// The component map is now centralized in the main dashboard layout.
+// This file primarily defines the menu structure for the CRM module.
 
 export const crmMenuItems = [
-    { href: '/dashboard/crm', label: 'Dashboard', icon: LayoutDashboard },
+    { href: '/dashboard/crm', label: 'Dashboard', icon: LayoutDashboard, component: LazyCrmDashboardPage },
     {
         label: 'Sales',
         icon: Handshake,
