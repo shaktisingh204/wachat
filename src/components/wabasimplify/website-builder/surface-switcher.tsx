@@ -27,6 +27,9 @@ export function SurfaceSwitcher({ shop, pages, activeSurface, onSwitch }: Surfac
         { id: 'header', name: 'Header' },
         { id: 'footer', name: 'Footer' },
         { id: 'productPage', name: 'Single Product Template' },
+        { id: 'productsPage', name: 'All Products Template' },
+        { id: 'categoryPage', name: 'Category Page Template' },
+        { id: 'searchPage', name: 'Search Results Template' },
         { id: 'cartPage', name: 'Cart Page Template' },
     ];
     

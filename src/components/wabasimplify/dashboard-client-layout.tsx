@@ -39,17 +39,117 @@ import { getSession, getProjects } from '@/app/actions';
 import type { Plan, WithId, Project, Agent, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
-import { crmMenuItems, pathComponentMap } from '@/app/dashboard/crm/layout';
 import { Suspense } from 'react';
 
+const LazyDashboardOverviewPage = React.lazy(() => import('@/app/dashboard/overview/page'));
+const LazyChatPage = React.lazy(() => import('@/app/dashboard/chat/page'));
+const LazyKanbanPage = React.lazy(() => import('@/app/dashboard/chat/kanban/page'));
+const LazyContactsPage = React.lazy(() => import('@/app/dashboard/contacts/page'));
+const LazyBroadcastsPage = React.lazy(() => import('@/app/dashboard/broadcasts/page'));
+const LazyBroadcastReportPage = React.lazy(() => import('@/app/dashboard/broadcasts/[broadcastId]/page'));
+const LazyTemplatesPage = React.lazy(() => import('@/app/dashboard/templates/page'));
+const LazyCreateTemplatePage = React.lazy(() => import('@/app/dashboard/templates/create/page'));
+const LazyTemplateLibraryPage = React.lazy(() => import('@/app/dashboard/templates/library/page'));
+const LazyCatalogPage = React.lazy(() => import('@/app/dashboard/catalog/page'));
+const LazyCatalogProductsPage = React.lazy(() => import('@/app/dashboard/facebook/commerce/products/[catalogId]/page'));
+const LazyCallsLayout = React.lazy(() => import('@/app/dashboard/calls/layout'));
+const LazyFlowBuilderPage = React.lazy(() => import('@/app/dashboard/flow-builder/page'));
+const LazyFlowBuilderDocsPage = React.lazy(() => import('@/app/dashboard/flow-builder/docs/page'));
+const LazyMetaFlowsPage = React.lazy(() => import('@/app/dashboard/flows/page'));
+const LazyCreateMetaFlowPage = React.lazy(() => import('@/app/dashboard/flows/create/page'));
+const LazyFlowsUserGuidePage = React.lazy(() => import('@/app/dashboard/flows/docs/page'));
+const LazyIntegrationsLayout = React.lazy(() => import('@/app/dashboard/integrations/layout'));
+const LazyWhatsAppPayLayout = React.lazy(() => import('@/app/dashboard/whatsapp-pay/layout'));
+const LazyNumbersPage = React.lazy(() => import('@/app/dashboard/numbers/page'));
+const LazyWebhooksPage = React.lazy(() => import('@/app/dashboard/webhooks/page'));
+const LazySettingsPage = React.lazy(() => import('@/app/dashboard/settings/page'));
+const LazyBillingPage = React.lazy(() => import('@/app/dashboard/billing/page'));
+const LazyBillingHistoryPage = React.lazy(() => import('@/app/dashboard/billing/history/page'));
+const LazyNotificationsPage = React.lazy(() => import('@/app/dashboard/notifications/page'));
+const LazyProfilePage = React.lazy(() => import('@/app/dashboard/profile/page'));
+const LazySetupPage = React.lazy(() => import('@/app/dashboard/setup/page'));
+
+const LazyFacebookDashboardPage = React.lazy(() => import('@/app/dashboard/facebook/page'));
+const LazyAllFacebookPagesPage = React.lazy(() => import('@/app/dashboard/facebook/all-projects/page'));
+const LazyFacebookPostsPage = React.lazy(() => import('@/app/dashboard/facebook/posts/page'));
+const LazyScheduledPostsPage = React.lazy(() => import('@/app/dashboard/facebook/scheduled/page'));
+const LazyLiveStudioPage = React.lazy(() => import('@/app/dashboard/facebook/live-studio/page'));
+const LazyPostRandomizerPage = React.lazy(() => import('@/app/dashboard/facebook/post-randomizer/page'));
+const LazyFacebookMessagesPage = React.lazy(() => import('@/app/dashboard/facebook/messages/page'));
+const LazyFacebookKanbanPage = React.lazy(() => import('@/app/dashboard/facebook/kanban/page'));
+const LazyFacebookAutomationPage = React.lazy(() => import('@/app/dashboard/facebook/auto-reply/page'));
+const LazyFacebookAgentsPage = React.lazy(() => import('@/app/dashboard/facebook/agents/page'));
+const LazyFacebookKnowledgePage = React.lazy(() => import('@/app/dashboard/facebook/knowledge/page'));
+const LazyCustomEcommerceDashboard = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/page'));
+const LazyEcommProductsPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/products/page'));
+const LazyEcommOrdersPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/orders/page'));
+const LazyEcommWebsiteBuilderPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/website-builder/page'));
+const LazyEcommFlowBuilderPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/flow-builder/page'));
+const LazyEcommSettingsPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/settings/page'));
+const LazyCommerceProductsPage = React.lazy(() => import('@/app/dashboard/facebook/commerce/products/page'));
+const LazyCommerceShopPage = React.lazy(() => import('@/app/dashboard/facebook/commerce/shop/page'));
+const LazyCommerceOrdersPage = React.lazy(() => import('@/app/dashboard/facebook/commerce/orders/page'));
+const LazyCommerceAnalyticsPage = React.lazy(() => import('@/app/dashboard/facebook/commerce/analytics/page'));
+const LazyCommerceApiPage = React.lazy(() => import('@/app/dashboard/facebook/commerce/api/page'));
+const LazyFacebookAdsPage = React.lazy(() => import('@/app/dashboard/facebook/ads/page'));
+const LazyFacebookBroadcastsPage = React.lazy(() => import('@/app/dashboard/facebook/broadcasts/page'));
+const LazyFacebookSubscribersPage = React.lazy(() => import('@/app/dashboard/facebook/subscribers/page'));
+const LazyFacebookAudiencesPage = React.lazy(() => import('@/app/dashboard/facebook/audiences/page'));
+const LazyFacebookPagesPage = React.lazy(() => import('@/app/dashboard/facebook/pages/page'));
+const LazyFacebookWebhooksPage = React.lazy(() => import('@/app/dashboard/facebook/webhooks/page'));
+const LazyFacebookSettingsPage = React.lazy(() => import('@/app/dashboard/facebook/settings/page'));
+
+const LazyInstagramConnectionsPage = React.lazy(() => import('@/app/dashboard/instagram/connections/page'));
+const LazyInstagramSetupPage = React.lazy(() => import('@/app/dashboard/instagram/setup/page'));
+const LazyInstagramDashboardPage = React.lazy(() => import('@/app/dashboard/instagram/page'));
+const LazyInstagramCreatePostPage = React.lazy(() => import('@/app/dashboard/instagram/create-post/page'));
+const LazyInstagramFeedPage = React.lazy(() => import('@/app/dashboard/instagram/feed/page'));
+const LazyInstagramStoriesPage = React.lazy(() => import('@/app/dashboard/instagram/stories/page'));
+const LazyInstagramReelsPage = React.lazy(() => import('@/app/dashboard/instagram/reels/page'));
+const LazyInstagramMessagesPage = React.lazy(() => import('@/app/dashboard/instagram/messages/page'));
+const LazyInstagramDiscoveryPage = React.lazy(() => import('@/app/dashboard/instagram/discovery/page'));
+const LazyInstagramHashtagSearchPage = React.lazy(() => import('@/app/dashboard/instagram/hashtag-search/page'));
+const LazyInstagramMediaDetailsPage = React.lazy(() => import('@/app/dashboard/instagram/media/[mediaId]/page'));
+
+const LazyEmailDashboardPage = React.lazy(() => import('@/app/dashboard/email/page'));
+const LazyEmailInboxPage = React.lazy(() => import('@/app/dashboard/email/inbox/page'));
+const LazyEmailCampaignsPage = React.lazy(() => import('@/app/dashboard/email/campaigns/page'));
+const LazyEmailContactsPage = React.lazy(() => import('@/app/dashboard/email/contacts/page'));
+const LazyEmailTemplatesPage = React.lazy(() => import('@/app/dashboard/email/templates/page'));
+const LazyEmailAnalyticsPage = React.lazy(() => import('@/app/dashboard/email/analytics/page'));
+const LazyEmailVerificationPage = React.lazy(() => import('@/app/dashboard/email/verification/page'));
+const LazyEmailSettingsPage = React.lazy(() => import('@/app/dashboard/email/settings/page'));
+
+const LazySmsDashboardPage = React.lazy(() => import('@/app/dashboard/sms/page'));
+const LazySmsCampaignsPage = React.lazy(() => import('@/app/dashboard/sms/campaigns/page'));
+const LazySmsContactsPage = React.lazy(() => import('@/app/dashboard/sms/contacts/page'));
+const LazySmsAnalyticsPage = React.lazy(() => import('@/app/dashboard/sms/analytics/page'));
+const LazySmsSettingsPage = React.lazy(() => import('@/app/dashboard/sms/settings/page'));
+
+const LazyApiKeysPage = React.lazy(() => import('@/app/dashboard/api/page'));
+const LazyApiDocsPage = React.lazy(() => import('@/app/dashboard/api/docs/page'));
+
+const LazyUrlShortenerPage = React.lazy(() => import('@/app/dashboard/url-shortener/page'));
+const LazyShortUrlAnalyticsPage = React.lazy(() => import('@/app/dashboard/url-shortener/[id]/page'));
+const LazyUrlShortenerSettingsPage = React.lazy(() => import('@/app/dashboard/url-shortener/settings/page'));
+
+const LazyQrCodeMakerPage = React.lazy(() => import('@/app/dashboard/qr-code-maker/page'));
+const LazyQrCodeSettingsPage = React.lazy(() => import('@/app/dashboard/qr-code-maker/settings/page'));
+
+const LazyWebsiteBuilderDashboard = React.lazy(() => import('@/app/dashboard/website-builder/page'));
+const LazyPortfolioBuilderPage = React.lazy(() => import('@/app/dashboard/portfolio/manage/[portfolioId]/builder/page'));
+
+const LazySeoDashboardPage = React.lazy(() => import('@/app/dashboard/seo/page'));
+const LazyBrandRadarPage = React.lazy(() => import('@/app/dashboard/seo/brand-radar/page'));
+const LazySiteExplorerPage = React.lazy(() => import('@/app/dashboard/seo/site-explorer/page'));
+
+const LazyCrmLayout = React.lazy(() => import('@/app/dashboard/crm/layout'));
 
 function FullPageSkeleton() {
     return (
       <div className="flex h-screen w-screen">
         <div className="hidden md:flex w-16 border-r p-2"><Skeleton className="h-full w-full"/></div>
-        <div className="w-72 border-r p-2 hidden md:block"><Skeleton className="h-full w-full"/></div>
         <div className="flex-1 flex flex-col">
-            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
             <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
             <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
             <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
@@ -59,93 +159,104 @@ function FullPageSkeleton() {
 }
 
 const wachatMenuItems = [
-  { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
-  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'] },
-  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'] },
-  { href: '/dashboard/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'] },
-  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'] },
-  { href: '/dashboard/templates', label: 'Templates', icon: FileText, roles: ['owner', 'admin'] },
-  { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, roles: ['owner', 'admin'] },
-  { href: '/dashboard/calls', label: 'Calls', icon: PhoneCall, roles: ['owner', 'admin'] },
-  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'] },
-  { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: ServerCog, roles: ['owner', 'admin'] },
-  { href: '/dashboard/integrations', label: 'Integrations', icon: Zap, roles: ['owner', 'admin'] },
-  { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: WaPayIcon, roles: ['owner', 'admin'] },
-  { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'] },
-  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'] },
-  { href: '/dashboard/settings', label: 'Settings', icon: Settings, roles: ['owner', 'admin'] },
-  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard, roles: ['owner', 'admin'] },
-  { href: '/dashboard/notifications', label: 'Notifications', icon: History, roles: ['owner', 'admin'] },
+  { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'], component: null },
+  { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'], component: LazyDashboardOverviewPage },
+  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'], component: LazyChatPage },
+  { href: '/dashboard/chat/kanban', label: 'Kanban Board', icon: LayoutGrid, roles: ['owner', 'admin'], component: LazyKanbanPage },
+  { href: '/dashboard/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'], component: LazyContactsPage },
+  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'], component: LazyBroadcastsPage },
+  { href: '/dashboard/broadcasts/[broadcastId]', label: 'Broadcast Report', icon: Send, roles: ['owner', 'admin'], component: LazyBroadcastReportPage },
+  { href: '/dashboard/templates', label: 'Templates', icon: FileText, roles: ['owner', 'admin'], component: LazyTemplatesPage },
+  { href: '/dashboard/templates/create', label: 'Create Template', icon: Plus, roles: ['owner', 'admin'], component: LazyCreateTemplatePage },
+  { href: '/dashboard/templates/library', label: 'Template Library', icon: BookCopy, roles: ['owner', 'admin'], component: LazyTemplateLibraryPage },
+  { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, roles: ['owner', 'admin'], component: LazyCatalogPage },
+  { href: '/dashboard/calls', label: 'Calls', icon: PhoneCall, roles: ['owner', 'admin'], component: LazyCallsLayout },
+  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'], component: LazyFlowBuilderPage },
+  { href: '/dashboard/flow-builder/docs', label: 'Flow Docs', icon: BookCopy, roles: ['owner', 'admin'], component: LazyFlowBuilderDocsPage },
+  { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: ServerCog, roles: ['owner', 'admin'], component: LazyMetaFlowsPage },
+  { href: '/dashboard/flows/create', label: 'Create Meta Flow', beta: true, icon: Plus, roles: ['owner', 'admin'], component: LazyCreateMetaFlowPage },
+  { href: '/dashboard/flows/docs', label: 'Meta Flow Docs', beta: true, icon: BookCopy, roles: ['owner', 'admin'], component: LazyFlowsUserGuidePage },
+  { href: '/dashboard/integrations', label: 'Integrations', icon: Zap, roles: ['owner', 'admin'], component: LazyIntegrationsLayout },
+  { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: WaPayIcon, roles: ['owner', 'admin'], component: LazyWhatsAppPayLayout },
+  { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'], component: LazyNumbersPage },
+  { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'], component: LazyWebhooksPage },
+  { href: '/dashboard/settings', label: 'Settings', icon: Settings, roles: ['owner', 'admin'], component: LazySettingsPage },
+  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard, roles: ['owner', 'admin'], component: LazyBillingPage },
+  { href: '/dashboard/billing/history', label: 'Billing History', icon: History, roles: ['owner', 'admin'], component: LazyBillingHistoryPage },
+  { href: '/dashboard/notifications', label: 'Notifications', icon: History, roles: ['owner', 'admin'], component: LazyNotificationsPage },
+  { href: '/dashboard/profile', label: 'Profile', icon: Users, roles: ['owner', 'admin', 'agent'], component: LazyProfilePage },
+  { href: '/dashboard/setup', label: 'Setup', icon: Wrench, roles: ['owner'], component: LazySetupPage },
 ];
 
 const facebookMenuGroups = [
   {
     title: 'General',
     items: [
-      { href: '/dashboard/facebook/all-projects', label: 'Project Connections', icon: Wrench },
-      { href: '/dashboard/facebook', label: 'Dashboard', icon: LayoutDashboard },
+      { href: '/dashboard/facebook/all-projects', label: 'Project Connections', icon: Wrench, component: LazyAllFacebookPagesPage },
+      { href: '/dashboard/facebook', label: 'Dashboard', icon: LayoutDashboard, component: LazyFacebookDashboardPage },
     ],
   },
   {
     title: 'Content',
     items: [
-      { href: '/dashboard/facebook/posts', label: 'Posts', icon: Newspaper },
-      { href: '/dashboard/facebook/scheduled', label: 'Scheduled', icon: Calendar },
-      { href: '/dashboard/facebook/live-studio', label: 'Live Studio', icon: Video },
-      { href: '/dashboard/facebook/post-randomizer', label: 'Post Randomizer', icon: Repeat },
+      { href: '/dashboard/facebook/posts', label: 'Posts', icon: Newspaper, component: LazyFacebookPostsPage },
+      { href: '/dashboard/facebook/scheduled', label: 'Scheduled', icon: Calendar, component: LazyScheduledPostsPage },
+      { href: '/dashboard/facebook/live-studio', label: 'Live Studio', icon: Video, component: LazyLiveStudioPage },
+      { href: '/dashboard/facebook/post-randomizer', label: 'Post Randomizer', icon: Repeat, component: LazyPostRandomizerPage },
     ],
   },
   {
     title: 'Engagement',
     items: [
-        { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare },
-        { href: '/dashboard/facebook/kanban', label: 'Kanban Board', icon: LayoutGrid },
-        { href: '/dashboard/facebook/auto-reply', label: 'Automation', icon: Bot },
+        { href: '/dashboard/facebook/messages', label: 'Messages', icon: MessageSquare, component: LazyFacebookMessagesPage },
+        { href: '/dashboard/facebook/kanban', label: 'Kanban Board', icon: LayoutGrid, component: LazyFacebookKanbanPage },
+        { href: '/dashboard/facebook/auto-reply', label: 'Automation', icon: Bot, component: LazyFacebookAutomationPage },
     ]
   },
   {
     title: 'AI & Automation',
     items: [
-        { href: '/dashboard/facebook/agents', label: 'AI Agents', icon: Bot },
-        { href: '/dashboard/facebook/knowledge', label: 'Knowledge Base', icon: BookCopy },
+        { href: '/dashboard/facebook/agents', label: 'AI Agents', icon: Bot, component: LazyFacebookAgentsPage },
+        { href: '/dashboard/facebook/knowledge', label: 'Knowledge Base', icon: BookCopy, component: LazyFacebookKnowledgePage },
     ]
   },
    {
     title: 'Custom Shops',
     items: [
-      { href: '/dashboard/facebook/custom-ecommerce', label: 'Shops Dashboard', icon: LayoutDashboard },
-      { href: '/dashboard/facebook/custom-ecommerce/products', label: 'Products', icon: ShoppingBag },
-      { href: '/dashboard/facebook/custom-ecommerce/orders', label: 'Orders', icon: Package },
-      { href: '/dashboard/facebook/custom-ecommerce/appearance', label: 'Appearance', icon: Palette },
-      { href: '/dashboard/facebook/custom-ecommerce/flow-builder', label: 'Chat Bot', icon: Bot },
-      { href: '/dashboard/facebook/custom-ecommerce/settings', label: 'Settings', icon: Settings },
+      { href: '/dashboard/facebook/custom-ecommerce', label: 'Shops Dashboard', icon: LayoutDashboard, component: LazyCustomEcommerceDashboard },
+      { href: '/dashboard/facebook/custom-ecommerce/manage/[shopId]/products', label: 'Products', icon: ShoppingBag, component: LazyEcommProductsPage },
+      { href: '/dashboard/facebook/custom-ecommerce/manage/[shopId]/orders', label: 'Orders', icon: Package, component: LazyEcommOrdersPage },
+      { href: '/dashboard/facebook/custom-ecommerce/manage/[shopId]/website-builder', label: 'Website Builder', icon: Brush, component: LazyEcommWebsiteBuilderPage },
+      { href: '/dashboard/facebook/custom-ecommerce/manage/[shopId]/flow-builder', label: 'Chat Bot', icon: Bot, component: LazyEcommFlowBuilderPage },
+      { href: '/dashboard/facebook/custom-ecommerce/manage/[shopId]/settings', label: 'Settings', icon: Settings, component: LazyEcommSettingsPage },
     ],
   },
   {
     title: 'Meta Commerce',
     items: [
-        { href: '/dashboard/facebook/commerce/products', label: 'Products & Collections', icon: ShoppingBag },
-        { href: '/dashboard/facebook/commerce/shop', label: 'Shop Setup', icon: LayoutGrid },
-        { href: '/dashboard/facebook/commerce/orders', label: 'Orders', icon: Package },
-        { href: '/dashboard/facebook/commerce/analytics', label: 'Analytics', icon: BarChart },
-        { href: '/dashboard/facebook/commerce/api', label: 'APIs', icon: Server },
+        { href: '/dashboard/facebook/commerce/products', label: 'Products & Collections', icon: ShoppingBag, component: LazyCommerceProductsPage },
+        { href: '/dashboard/facebook/commerce/products/[catalogId]', label: 'Catalog Products', icon: ShoppingBag, component: LazyCatalogProductsPage },
+        { href: '/dashboard/facebook/commerce/shop', label: 'Shop Setup', icon: LayoutGrid, component: LazyCommerceShopPage },
+        { href: '/dashboard/facebook/commerce/orders', label: 'Orders', icon: Package, component: LazyCommerceOrdersPage },
+        { href: '/dashboard/facebook/commerce/analytics', label: 'Analytics', icon: BarChart, component: LazyCommerceAnalyticsPage },
+        { href: '/dashboard/facebook/commerce/api', label: 'APIs', icon: Server, component: LazyCommerceApiPage },
     ]
   },
   {
     title: 'Growth Tools',
     items: [
-        { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone },
-        { href: '/dashboard/facebook/broadcasts', label: 'Broadcasts', icon: Send },
-        { href: '/dashboard/facebook/subscribers', label: 'Subscribers', icon: Users },
-        { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users },
+        { href: '/dashboard/facebook/ads', label: 'Ads Manager', icon: Megaphone, component: LazyFacebookAdsPage },
+        { href: '/dashboard/facebook/broadcasts', label: 'Broadcasts', icon: Send, component: LazyFacebookBroadcastsPage },
+        { href: '/dashboard/facebook/subscribers', label: 'Subscribers', icon: Users, component: LazyFacebookSubscribersPage },
+        { href: '/dashboard/facebook/audiences', label: 'Audiences', icon: Users, component: LazyFacebookAudiencesPage },
     ]
   },
   {
       title: 'Configuration',
       items: [
-        { href: '/dashboard/facebook/pages', label: 'All Pages', icon: Newspaper },
-        { href: '/dashboard/facebook/webhooks', label: 'Webhooks', icon: Webhook },
-        { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings },
+        { href: '/dashboard/facebook/pages', label: 'All Pages', icon: Newspaper, component: LazyFacebookPagesPage },
+        { href: '/dashboard/facebook/webhooks', label: 'Webhooks', icon: Webhook, component: LazyFacebookWebhooksPage },
+        { href: '/dashboard/facebook/settings', label: 'Settings', icon: Settings, component: LazyFacebookSettingsPage },
       ]
   }
 ];
@@ -154,78 +265,97 @@ const instagramMenuGroups = [
   {
     title: 'General',
     items: [
-      { href: '/dashboard/instagram/connections', label: 'Connections', icon: Wrench },
-      { href: '/dashboard/instagram/setup', label: 'Setup', icon: Plus },
-      { href: '/dashboard/instagram', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/dashboard/instagram/create-post', label: 'Create Post', icon: Pencil },
+      { href: '/dashboard/instagram/connections', label: 'Connections', icon: Wrench, component: LazyInstagramConnectionsPage },
+      { href: '/dashboard/instagram/setup', label: 'Setup', icon: Plus, component: LazyInstagramSetupPage },
+      { href: '/dashboard/instagram', label: 'Dashboard', icon: LayoutDashboard, component: LazyInstagramDashboardPage },
+      { href: '/dashboard/instagram/create-post', label: 'Create Post', icon: Pencil, component: LazyInstagramCreatePostPage },
     ],
   },
   {
     title: 'Content',
     items: [
-      { href: '/dashboard/instagram/feed', label: 'Feed', icon: Newspaper },
-      { href: '/dashboard/instagram/stories', label: 'Stories', icon: Clapperboard },
-      { href: '/dashboard/instagram/reels', label: 'Reels', icon: Video },
+      { href: '/dashboard/instagram/feed', label: 'Feed', icon: Newspaper, component: LazyInstagramFeedPage },
+      { href: '/dashboard/instagram/stories', label: 'Stories', icon: Clapperboard, component: LazyInstagramStoriesPage },
+      { href: '/dashboard/instagram/reels', label: 'Reels', icon: Video, component: LazyInstagramReelsPage },
+      { href: '/dashboard/instagram/media/[mediaId]', label: 'Media Details', icon: Video, component: LazyInstagramMediaDetailsPage },
     ],
   },
   {
     title: 'Engagement',
     items: [
-        { href: '/dashboard/instagram/messages', label: 'Messages', icon: MessageSquare },
+        { href: '/dashboard/instagram/messages', label: 'Messages', icon: MessageSquare, component: LazyInstagramMessagesPage },
     ]
   },
   {
     title: 'Growth',
     items: [
-        { href: '/dashboard/instagram/discovery', label: 'Discovery', icon: Compass },
-        { href: '/dashboard/instagram/hashtag-search', label: 'Hashtag Search', icon: Search },
+        { href: '/dashboard/instagram/discovery', label: 'Discovery', icon: Compass, component: LazyInstagramDiscoveryPage },
+        { href: '/dashboard/instagram/hashtag-search', label: 'Hashtag Search', icon: Search, component: LazyInstagramHashtagSearchPage },
     ]
   }
 ];
 
 const emailMenuItems = [
-    { href: '/dashboard/email', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/email/inbox', label: 'Inbox', icon: Inbox },
-    { href: '/dashboard/email/campaigns', label: 'Campaigns', icon: Send },
-    { href: '/dashboard/email/contacts', label: 'Contacts', icon: Contact },
-    { href: '/dashboard/email/templates', label: 'Templates', icon: FileText },
-    { href: '/dashboard/email/analytics', label: 'Analytics', icon: BarChart },
-    { href: '/dashboard/email/verification', label: 'Verification', icon: ShieldCheck },
-    { href: '/dashboard/email/settings', label: 'Settings', icon: Settings },
+    { href: '/dashboard/email', label: 'Dashboard', icon: LayoutDashboard, component: LazyEmailDashboardPage },
+    { href: '/dashboard/email/inbox', label: 'Inbox', icon: Inbox, component: LazyEmailInboxPage },
+    { href: '/dashboard/email/campaigns', label: 'Campaigns', icon: Send, component: LazyEmailCampaignsPage },
+    { href: '/dashboard/email/contacts', label: 'Contacts', icon: Contact, component: LazyEmailContactsPage },
+    { href: '/dashboard/email/templates', label: 'Templates', icon: FileText, component: LazyEmailTemplatesPage },
+    { href: '/dashboard/email/analytics', label: 'Analytics', icon: BarChart, component: LazyEmailAnalyticsPage },
+    { href: '/dashboard/email/verification', label: 'Verification', icon: ShieldCheck, component: LazyEmailVerificationPage },
+    { href: '/dashboard/email/settings', label: 'Settings', icon: Settings, component: LazyEmailSettingsPage },
 ];
 
 const smsMenuItems = [
-    { href: '/dashboard/sms', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/sms/campaigns', label: 'Campaigns', icon: Send },
-    { href: '/dashboard/sms/contacts', label: 'Contacts', icon: Users },
-    { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart },
-    { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
+    { href: '/dashboard/sms', label: 'Dashboard', icon: LayoutDashboard, component: LazySmsDashboardPage },
+    { href: '/dashboard/sms/campaigns', label: 'Campaigns', icon: Send, component: LazySmsCampaignsPage },
+    { href: '/dashboard/sms/contacts', label: 'Contacts', icon: Users, component: LazySmsContactsPage },
+    { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart, component: LazySmsAnalyticsPage },
+    { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings, component: LazySmsSettingsPage },
 ];
 
 const apiMenuItems = [
-    { href: '/dashboard/api', label: 'API Keys', icon: KeyRound },
-    { href: '/dashboard/api/docs', label: 'API Docs', icon: BookCopy },
+    { href: '/dashboard/api', label: 'API Keys', icon: KeyRound, component: LazyApiKeysPage },
+    { href: '/dashboard/api/docs', label: 'API Docs', icon: BookCopy, component: LazyApiDocsPage },
 ];
 
 const urlShortenerMenuItems = [
-    { href: '/dashboard/url-shortener', label: 'Shortener', icon: LinkIcon },
-    { href: '/dashboard/url-shortener/settings', label: 'Settings', icon: Settings },
+    { href: '/dashboard/url-shortener', label: 'Shortener', icon: LinkIcon, component: LazyUrlShortenerPage },
+    { href: '/dashboard/url-shortener/settings', label: 'Settings', icon: Settings, component: LazyUrlShortenerSettingsPage },
+    { href: '/dashboard/url-shortener/[id]', label: 'Analytics', icon: BarChart, component: LazyShortUrlAnalyticsPage },
 ];
 
 const qrCodeMakerMenuItems = [
-    { href: '/dashboard/qr-code-maker', label: 'QR Maker', icon: QrCode },
-    { href: '/dashboard/qr-code-maker/settings', label: 'Settings', icon: Settings },
+    { href: '/dashboard/qr-code-maker', label: 'QR Maker', icon: QrCode, component: LazyQrCodeMakerPage },
+    { href: '/dashboard/qr-code-maker/settings', label: 'Settings', icon: Settings, component: LazyQrCodeSettingsPage },
 ];
 
 const portfolioMenuItems = [
-    { href: '/dashboard/website-builder', label: 'Websites', icon: LayoutGrid },
+    { href: '/dashboard/website-builder', label: 'Websites', icon: LayoutGrid, component: LazyWebsiteBuilderDashboard },
+    { href: '/dashboard/portfolio/manage/[portfolioId]/builder', label: 'Portfolio Builder', icon: Brush, component: LazyPortfolioBuilderPage },
 ];
 
 const seoMenuItems = [
-    { href: '/dashboard/seo', label: 'Dashboard', icon: TrendingUp },
-    { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss },
-    { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe },
+    { href: '/dashboard/seo', label: 'Dashboard', icon: TrendingUp, component: LazySeoDashboardPage },
+    { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss, component: LazyBrandRadarPage },
+    { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, component: LazySiteExplorerPage },
 ];
+
+const allMenuItems = [
+    ...wachatMenuItems, ...emailMenuItems, ...smsMenuItems, ...apiMenuItems, ...urlShortenerMenuItems,
+    ...qrCodeMakerMenuItems, ...portfolioMenuItems, ...seoMenuItems,
+    ...facebookMenuGroups.flatMap(g => g.items),
+    ...instagramMenuGroups.flatMap(g => g.items),
+    ...crmMenuItems.flatMap(g => g.subItems || [g]),
+];
+
+const pathComponentMap: { [key: string]: React.ComponentType<any> } = allMenuItems.reduce((acc, item) => {
+    if (item.component) {
+        acc[item.href] = item.component;
+    }
+    return acc;
+}, {} as { [key: string]: React.ComponentType<any> });
+
 
 type Tab = {
     id: string;
@@ -318,7 +448,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 
   const getUrlParent = (url: string) => url.substring(0, url.lastIndexOf('/'));
   
-  const openTab = (item: { href: string; label: string; icon: React.ElementType, component?: React.ComponentType }) => {
+  const openTab = React.useCallback((item: { href: string; label: string; icon: React.ElementType, component?: React.ComponentType }) => {
     const tabId = item.href;
     const activeTabObject = openTabs.find(tab => tab.id === activeTab);
     const activeTabParent = activeTabObject ? getUrlParent(activeTabObject.href) : null;
@@ -339,8 +469,10 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         }
     }
     setActiveTab(tabId);
-    router.push(item.href, { scroll: false });
-  };
+    if(pathname !== item.href) {
+        router.push(item.href, { scroll: false });
+    }
+  }, [openTabs, activeTab, router, pathname]);
 
   const closeTab = (tabId: string) => {
     const tabIndex = openTabs.findIndex(tab => tab.id === tabId);
@@ -358,25 +490,16 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   };
   
   React.useEffect(() => {
-    const allMenuItems = [
-        ...wachatMenuItems,
-        ...emailMenuItems,
-        ...smsMenuItems,
-        ...apiMenuItems,
-        ...urlShortenerMenuItems,
-        ...qrCodeMakerMenuItems,
-        ...portfolioMenuItems,
-        ...seoMenuItems,
-        ...facebookMenuGroups.flatMap(g => g.items),
-        ...instagramMenuGroups.flatMap(g => g.items),
-        ...crmMenuItems.flatMap(g => g.subItems || [g]),
-    ];
-    
-    const matchingItem = allMenuItems.find(item => item.href === pathname);
-    const component = pathComponentMap[pathname];
+    const matchingItem = allMenuItems.find(item => {
+        if(item.href.includes('[')) {
+             const regex = new RegExp(`^${item.href.replace(/\[\w+\]/g, '([^/]+)')}$`);
+             return regex.test(pathname);
+        }
+        return item.href === pathname;
+    });
 
-    if (matchingItem && component) {
-        openTab({ ...matchingItem, component });
+    if (matchingItem && matchingItem.component) {
+        openTab({ ...matchingItem, href: pathname, label: activeTab ? openTabs.find(t => t.id === activeTab)!.title : matchingItem.label });
     }
     
     if (activeTab !== pathname && openTabs.some(t => t.id === pathname)) {
@@ -388,33 +511,14 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 
   const currentUserRole = React.useMemo(() => {
     if (!sessionUser || !activeProject) return 'owner'; 
-    if (sessionUser._id === activeProject.userId.toString()) return 'owner';
+    if (sessionUser._id.toString() === activeProject.userId.toString()) return 'owner';
     const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id);
     return agentInfo?.role || 'none';
   }, [sessionUser, activeProject]);
 
   const menuGroups = React.useMemo(() => {
     let groups: any[];
-    let allItems: any[] = [];
-    switch (activeApp) {
-        case 'facebook': allItems = facebookMenuGroups.flatMap(g => g.items); break;
-        case 'instagram': allItems = instagramMenuGroups.flatMap(g => g.items); break;
-        case 'crm': allItems = crmMenuItems.flatMap(g => g.subItems || [g]); break;
-        case 'email': allItems = emailMenuItems; break;
-        case 'sms': allItems = smsMenuItems; break;
-        case 'url-shortener': allItems = urlShortenerMenuItems; break;
-        case 'qr-code-maker': allItems = qrCodeMakerMenuItems; break;
-        case 'api': allItems = apiMenuItems; break;
-        case 'seo-suite': allItems = seoMenuItems; break;
-        case 'website-builder': allItems = portfolioMenuItems; break;
-        default: allItems = wachatMenuItems; break;
-    }
     
-    const componentMap = { ...pathComponentMap }; // Add other suites' maps
-    allItems.forEach(item => {
-        if(componentMap[item.href]) item.component = componentMap[item.href];
-    });
-
     switch (activeApp) {
         case 'facebook': groups = facebookMenuGroups; break;
         case 'instagram': groups = instagramMenuGroups; break;
@@ -431,7 +535,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     
     return groups.map((group: any) => ({
         ...group,
-        items: (group.items || []).filter((item: any) => item.roles?.includes(currentUserRole))
+        items: (group.items || []).filter((item: any) => item.roles ? item.roles.includes(currentUserRole) : true)
     }));
   }, [activeApp, currentUserRole]);
 
@@ -453,12 +557,13 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
       return <FullPageSkeleton />;
   }
   
-  if (isWebsiteBuilderPage) {
+  if (isWebsiteBuilderPage || isChatPage) {
     return <>{children}</>;
   }
 
   const renderMenuItems = (items: any[], isSubmenu = false) => {
     return items.map((item: any) => {
+        if (!item.component && !item.subItems) return null;
         const isActive = activeTab === item.href;
       return (
         <SidebarMenuItem key={item.href}>
@@ -468,6 +573,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             tooltip={item.label}
             className={isSubmenu ? 'h-8' : ''}
             onClick={() => item.component && openTab(item)}
+            subItems={item.subItems}
           >
             <button>
               <item.icon className="h-4 w-4" />
@@ -503,7 +609,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         <SidebarProvider>
           <Sidebar
             variant="floating"
-            collapsible="offcanvas"
+            collapsible="icon"
             className="peer"
           >
             <SidebarHeader className="p-4">
@@ -536,18 +642,11 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                       <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
-                        <Link href="/dashboard/profile">Profile</Link>
+                        <button className="w-full" onClick={() => openTab({ href: '/dashboard/profile', label: 'Profile', icon: Users, component: LazyProfilePage })}>Profile</button>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link href="/dashboard/billing">Billing</Link>
+                        <button className="w-full" onClick={() => openTab({ href: '/dashboard/billing', label: 'Billing', icon: CreditCard, component: LazyBillingPage })}>Billing</button>
                       </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/dashboard/billing/history">Billing History</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link href="/dashboard/settings">Settings</Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <Link href="/api/auth/logout">
                             <LogOut className="mr-2 h-4 w-4" />
@@ -618,17 +717,11 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                     <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
-                        <Link href="/dashboard/profile">Profile</Link>
+                        <button className="w-full" onClick={() => openTab({ href: '/dashboard/profile', label: 'Profile', icon: Users, component: LazyProfilePage })}>Profile</button>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                        <Link href="/dashboard/billing">Billing</Link>
-                      </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        <Link href="/dashboard/billing/history">Billing History</Link>
-                      </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        <Link href="/dashboard/settings">Settings</Link>
-                      </DropdownMenuItem>
+                        <button className="w-full" onClick={() => openTab({ href: '/dashboard/billing', label: 'Billing', icon: CreditCard, component: LazyBillingPage })}>Billing</button>
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem asChild>
                         <Link href="/api/auth/logout">
