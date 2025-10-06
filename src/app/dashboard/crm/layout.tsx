@@ -2,12 +2,11 @@
 'use client';
 
 import React from 'react';
-import { usePathname } from 'next/navigation';
 import { Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
     Handshake, Building, Users, ShoppingCart, Truck, FolderKanban, Mail, BarChart, Zap, Settings, LayoutDashboard,
-    FileText, CreditCard, BadgeInfo, Repeat, Star, Briefcase, MessageSquare
+    FileText, CreditCard, BadgeInfo, Repeat, Star, Briefcase, MessageSquare, KeyRound
 } from 'lucide-react';
 
 const LazyClientsPage = React.lazy(() => import('@/app/dashboard/crm/sales/clients/page'));
@@ -39,7 +38,7 @@ const LazyCrmAnalyticsPage = React.lazy(() => import('@/app/dashboard/crm/analyt
 const LazyCrmSettingsPage = React.lazy(() => import('@/app/dashboard/crm/settings/page'));
 const LazyCrmAutomationsPage = React.lazy(() => import('@/app/dashboard/crm/automations/page'));
 
-export const pathComponentMap: Record<string, React.ComponentType<any>> = {
+export const pathComponentMap: { [key: string]: React.ComponentType<any> } = {
   '/dashboard/crm': LazyCrmDashboardPage,
   '/dashboard/crm/sales/clients': LazyClientsPage,
   '/dashboard/crm/sales/quotations': LazyQuotationsPage,
@@ -77,63 +76,49 @@ export const crmMenuItems = [
         label: 'Sales',
         icon: Handshake,
         subItems: [
-            { href: '/dashboard/crm/sales/clients', label: 'Clients', icon: Users },
-            { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake },
-            { href: '/dashboard/crm/sales/pipelines', label: 'Pipelines', icon: Users },
-            { href: '/dashboard/crm/sales/quotations', label: 'Quotations', icon: FileText },
-            { href: '/dashboard/crm/sales/invoices', label: 'Invoices', icon: FileText },
-            { href: '/dashboard/crm/sales/receipts', label: 'Payment Receipts', icon: CreditCard },
-            { href: '/dashboard/crm/sales/proforma', label: 'Proforma Invoices', icon: BadgeInfo },
-            { href: '/dashboard/crm/sales/orders', label: 'Sales Orders', icon: ShoppingCart },
-            { href: '/dashboard/crm/sales/delivery', label: 'Delivery Challans', icon: Truck },
-            { href: '/dashboard/crm/sales/credit-notes', label: 'Credit Notes', icon: Repeat },
-            { href: '/dashboard/crm/sales/forms', label: 'Forms', icon: FileText },
+            { href: '/dashboard/crm/sales/clients', label: 'Clients', icon: Users, component: LazyClientsPage },
+            { href: '/dashboard/crm/sales/pipelines', label: 'Pipelines', icon: Users, component: LazyPipelinesPage },
+            { href: '/dashboard/crm/sales/quotations', label: 'Quotations', icon: FileText, component: LazyQuotationsPage },
+            { href: '/dashboard/crm/sales/invoices', label: 'Invoices', icon: FileText, component: LazyInvoicesPage },
+            { href: '/dashboard/crm/sales/receipts', label: 'Payment Receipts', icon: CreditCard, component: LazyReceiptsPage },
+            { href: '/dashboard/crm/sales/proforma', label: 'Proforma Invoices', icon: BadgeInfo, component: LazyProformaPage },
+            { href: '/dashboard/crm/sales/orders', label: 'Sales Orders', icon: ShoppingCart, component: LazySalesOrdersPage },
+            { href: '/dashboard/crm/sales/delivery', label: 'Delivery Challans', icon: Truck, component: LazyDeliveryPage },
+            { href: '/dashboard/crm/sales/credit-notes', label: 'Credit Notes', icon: Repeat, component: LazyCreditNotesPage },
+            { href: '/dashboard/crm/sales/forms', label: 'Forms', icon: FileText, component: LazyFormsPage },
         ]
     },
     {
         label: 'Purchases',
         icon: ShoppingCart,
         subItems: [
-            { href: '/dashboard/crm/purchases/vendors', label: 'Vendors', icon: Briefcase },
-            { href: '/dashboard/crm/purchases/expenses', label: 'Expenses', icon: CreditCard },
-            { href: '/dashboard/crm/purchases/orders', label: 'Purchase Orders', icon: FileText },
-            { href: '/dashboard/crm/purchases/payouts', label: 'Payout Receipts', icon: CreditCard },
-            { href: '/dashboard/crm/purchases/debit-notes', label: 'Debit Notes', icon: Repeat },
-            { href: '/dashboard/crm/purchases/hire', label: 'Hire The Best Vendors', icon: Star },
+            { href: '/dashboard/crm/purchases/vendors', label: 'Vendors', icon: Briefcase, component: LazyVendorsPage },
+            { href: '/dashboard/crm/purchases/expenses', label: 'Expenses', icon: CreditCard, component: LazyExpensesPage },
+            { href: '/dashboard/crm/purchases/orders', label: 'Purchase Orders', icon: FileText, component: LazyPurchaseOrdersPage },
+            { href: '/dashboard/crm/purchases/payouts', label: 'Payout Receipts', icon: CreditCard, component: LazyPayoutsPage },
+            { href: '/dashboard/crm/purchases/debit-notes', label: 'Debit Notes', icon: Repeat, component: LazyDebitNotesPage },
+            { href: '/dashboard/crm/purchases/hire', label: 'Hire The Best Vendors', icon: Star, component: LazyHirePage },
         ]
     },
-    { href: '/dashboard/crm/contacts', label: 'Contacts', icon: Users },
-    { href: '/dashboard/crm/accounts', label: 'Accounts', icon: Building },
-    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingCart },
-    { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck },
-    { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKanban },
-    { href: '/dashboard/crm/email', label: 'Email', icon: Mail },
-    { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare },
-    { href: '/dashboard/crm/automations', label: 'Automations', icon: Zap },
-    { href: '/dashboard/crm/analytics', label: 'Analytics', icon: BarChart },
-    { href: '/dashboard/crm/settings', label: 'Settings', icon: Settings },
+    { href: '/dashboard/crm/contacts', label: 'Contacts', icon: Users, component: LazyCrmContactsPage },
+    { href: '/dashboard/crm/accounts', label: 'Accounts', icon: Building, component: LazyCrmAccountsPage },
+    { href: '/dashboard/crm/deals', label: 'Deals', icon: Handshake, component: LazyCrmDealsPage },
+    { href: '/dashboard/crm/products', label: 'Products', icon: ShoppingCart, component: LazyCrmProductsPage },
+    { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck, component: LazyCrmInventoryLayout },
+    { href: '/dashboard/crm/tasks', label: 'Tasks', icon: FolderKanban, component: LazyCrmTasksPage },
+    { href: '/dashboard/crm/email', label: 'Email', icon: Mail, component: LazyCrmEmailPage },
+    { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare, component: LazyCrmTeamChatPage },
+    { href: '/dashboard/crm/automations', label: 'Automations', icon: Zap, component: LazyCrmAutomationsPage },
+    { href: '/dashboard/crm/analytics', label: 'Analytics', icon: BarChart, component: LazyCrmAnalyticsPage },
+    { href: '/dashboard/crm/settings', label: 'Settings', icon: Settings, component: LazyCrmSettingsPage },
 ];
 
 function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-    // The logic to render specific page components is now handled by the main dashboard layout.
-    // This component now only needs to render the children passed to it, which will be the correct page component for the current route.
-    
-    const PageComponent = pathComponentMap[pathname];
-
-    if (!PageComponent) {
-        // Fallback for sub-routes that don't have a direct mapping, e.g., /.../[id]/edit
-        return <div className="p-8">{children}</div>;
-    }
-    
+    // This component now just renders children, as the logic is in the main DashboardClientLayout
     return (
-        <div className="flex flex-col h-full">
-            <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
-                <Suspense fallback={<div className="p-8"><Skeleton className="h-96 w-full" /></div>}>
-                   <PageComponent />
-                </Suspense>
-            </div>
-        </div>
+      <Suspense fallback={<div className="p-8"><Skeleton className="h-96 w-full" /></div>}>
+        {children}
+      </Suspense>
     );
 }
 
