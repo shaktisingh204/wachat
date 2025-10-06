@@ -7,6 +7,7 @@ import { RunCronJobsButton } from "@/components/wabasimplify/run-cron-jobs-butto
 import { PhonePeSettingsForm } from "@/components/wabasimplify/phonepe-settings-form";
 import { getPaymentGatewaySettings } from "@/app/actions";
 import { SyncLocalTemplatesButton } from "@/components/wabasimplify/sync-local-templates-button";
+import { WebhookProcessingToggle } from "@/components/wabasimplify/webhook-processing-toggle";
 
 export default async function SystemHealthPage() {
     const phonePeSettings = await getPaymentGatewaySettings();
@@ -24,16 +25,20 @@ export default async function SystemHealthPage() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <ShieldCheck className="h-5 w-5" />
-                        System Actions
+                        System Controls
                     </CardTitle>
                     <CardDescription>
                         These actions help maintain the system, sync data with Meta, and run scheduled tasks on demand.
                     </CardDescription>
                 </CardHeader>
-                <CardContent className="flex flex-wrap gap-2">
-                    <SubscribeAllButton />
-                    <RunCronJobsButton />
-                    <SyncLocalTemplatesButton />
+                <CardContent className="space-y-4">
+                    <div className="flex flex-wrap gap-2">
+                        <SubscribeAllButton />
+                        <RunCronJobsButton />
+                        <SyncLocalTemplatesButton />
+                    </div>
+                     <Separator />
+                    <WebhookProcessingToggle />
                 </CardContent>
             </Card>
 
