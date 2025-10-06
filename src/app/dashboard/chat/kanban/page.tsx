@@ -1,5 +1,7 @@
 
 
+'use client';
+
 import { Suspense } from 'react';
 import { KanbanBoard } from '@/components/wabasimplify/kanban-board';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -19,9 +21,11 @@ function KanbanPageSkeleton() {
 export default function KanbanPage() {
     return (
         <div className="h-full flex flex-col">
-            <Suspense className="h-full" fallback={<KanbanPageSkeleton />}>
+            <Suspense fallback={<KanbanPageSkeleton />}>
                 <KanbanBoard />
             </Suspense>
         </div>
     );
 }
+
+    
