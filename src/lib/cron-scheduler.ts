@@ -1,4 +1,5 @@
 
+
 'use server';
 
 /**
@@ -48,8 +49,8 @@ type Project = {
     messagesPerSecond?: number;
 };
 
-const WRITE_INTERVAL_MS = 5000;
-const BATCH_WRITE_SIZE = 500;
+const WRITE_INTERVAL_MS = 2000;
+const BATCH_WRITE_SIZE = 1000;
 
 const getAxiosErrorMessage = (error: any): string => {
     if (axios.isAxiosError(error)) {
@@ -424,3 +425,5 @@ export async function processBroadcastJob() {
         throw new Error(`Cron scheduler failed: ${getAxiosErrorMessage(error)}`);
     }
 }
+
+  
