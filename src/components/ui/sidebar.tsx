@@ -137,27 +137,25 @@ const SidebarProvider = React.forwardRef<
     )
 
     return (
-      <SidebarContext.Provider value={contextValue}>
-        <TooltipProvider delayDuration={0}>
-          <div
-            style={
-              {
-                "--sidebar-width": SIDEBAR_WIDTH,
-                "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-                ...style,
-              } as React.CSSProperties
-            }
-            className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full",
-              className
-            )}
-            ref={ref}
-            {...props}
-          >
-            {children}
-          </div>
-        </TooltipProvider>
-      </SidebarContext.Provider>
+      <TooltipProvider delayDuration={0}>
+        <div
+          style={
+            {
+              "--sidebar-width": SIDEBAR_WIDTH,
+              "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+              ...style,
+            } as React.CSSProperties
+          }
+          className={cn(
+            "group/sidebar-wrapper flex min-h-svh w-full",
+            className
+          )}
+          ref={ref}
+          {...props}
+        >
+          {children}
+        </div>
+      </TooltipProvider>
     )
   }
 )
@@ -578,53 +576,66 @@ const SidebarMenuButton = React.forwardRef<
     const Comp = asChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
 
-    const trigger = (
-      <Comp
-        ref={ref}
-        data-sidebar="menu-button"
-        data-active={isActive}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        {...props}
-      >
-        <div className="flex w-full items-center justify-between">
-          <span className="flex items-center gap-3">{children}</span>
-          {subItems && subItems.length > 0 && (
-            <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180" />
-          )}
-        </div>
-      </Comp>
+    const triggerContent = (
+      <div className="flex w-full items-center justify-between">
+        <span className="flex items-center gap-3">{children}</span>
+        {subItems && subItems.length > 0 && (
+          <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180" />
+        )}
+      </div>
+    );
+    
+    const trigger = subItems && subItems.length > 0 ? (
+        <CollapsibleTrigger asChild>
+            <Comp
+                ref={ref}
+                data-sidebar="menu-button"
+                data-active={isActive}
+                className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+                {...props}
+            >
+                {triggerContent}
+            </Comp>
+        </CollapsibleTrigger>
+    ) : (
+        <Comp
+            ref={ref}
+            data-sidebar="menu-button"
+            data-active={isActive}
+            className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+            {...props}
+        >
+            {triggerContent}
+        </Comp>
     );
 
-    if (subItems && subItems.length > 0) {
-      return (
+    const maybeCollapsible = subItems && subItems.length > 0 ? (
         <Collapsible>
-          <CollapsibleTrigger asChild>
             {trigger}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
-             <SidebarMenuSub>
-              {subItems.map((item: any, index: number) => (
-                <SidebarMenuSubItem key={index}>
-                  <SidebarMenuSubButton asChild>
-                    <Link href={item.href}><item.icon className="mr-2 h-4 w-4" />{item.label}</Link>
-                  </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-              ))}
-            </SidebarMenuSub>
-          </CollapsibleContent>
+            <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
+                <SidebarMenuSub>
+                    {subItems.map((item: any, index: number) => (
+                        <SidebarMenuSubItem key={index}>
+                            <SidebarMenuSubButton asChild>
+                                <Link href={item.href}><item.icon className="mr-2 h-4 w-4" />{item.label}</Link>
+                            </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                    ))}
+                </SidebarMenuSub>
+            </CollapsibleContent>
         </Collapsible>
-      );
-    }
+    ) : trigger;
+    
 
     if (!tooltip) {
-      return trigger;
+      return maybeCollapsible;
     }
 
     const tooltipContent = typeof tooltip === "string" ? { children: tooltip } : tooltip;
 
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{trigger}</TooltipTrigger>
+        <TooltipTrigger asChild>{maybeCollapsible}</TooltipTrigger>
         <TooltipContent
           side="right"
           align="center"
