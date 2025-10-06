@@ -454,8 +454,8 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     const activeTabParent = activeTabObject ? getUrlParent(activeTabObject.href) : null;
     const newTabParent = getUrlParent(item.href);
 
-    if (activeTabParent && newTabParent.startsWith(activeTabParent)) {
-        // Replace current tab if navigating within the same "folder"
+    if (activeTabParent && newTabParent.startsWith(activeTabParent) && !item.href.includes('[') && !activeTabParent.includes('[')) {
+        // Replace current tab if navigating within the same "folder" and not a dynamic route
         const updatedTabs = openTabs.map(tab => 
             tab.id === activeTab 
                 ? { ...tab, id: tabId, title: item.label, href: item.href, icon: item.icon, component: item.component! }
@@ -465,7 +465,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     } else if (!openTabs.some(tab => tab.id === tabId)) {
         // Open a new tab
         if(item.component){
-            setOpenTabs(prev => [...prev, { id: tabId, title: item.label, icon: item.icon, href: item.href, component: item.component }]);
+            setOpenTabs(prev => [...prev, { id: tabId, title: item.label, icon: item.icon, href: item.href, component: item.component! }]);
         }
     }
     setActiveTab(tabId);
@@ -499,12 +499,15 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     });
 
     if (matchingItem && matchingItem.component) {
-        openTab({ ...matchingItem, href: pathname, label: activeTab ? openTabs.find(t => t.id === activeTab)!.title : matchingItem.label });
+        const activeTabInList = openTabs.find(t => t.id === activeTab);
+        const title = activeTabInList ? activeTabInList.title : matchingItem.label;
+        openTab({ ...matchingItem, href: pathname, label: title });
     }
     
     if (activeTab !== pathname && openTabs.some(t => t.id === pathname)) {
       setActiveTab(pathname);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
@@ -608,7 +611,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
       <div data-theme={activeApp}>
         <SidebarProvider>
           <Sidebar
-            variant="floating"
+            variant="sidebar"
             collapsible="icon"
             className="peer"
           >
@@ -647,6 +650,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                       <DropdownMenuItem asChild>
                         <button className="w-full" onClick={() => openTab({ href: '/dashboard/billing', label: 'Billing', icon: CreditCard, component: LazyBillingPage })}>Billing</button>
                       </DropdownMenuItem>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem asChild>
                         <Link href="/api/auth/logout">
                             <LogOut className="mr-2 h-4 w-4" />
@@ -659,81 +663,46 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
               </SidebarMenu>
             </SidebarFooter>
           </Sidebar>
-          <SidebarInset className="flex flex-col h-screen p-2 gap-2">
-             <header className="flex h-14 items-center justify-between gap-4 rounded-lg border bg-card px-4">
-              <div className="flex-1">
-                <div className="flex gap-2">
-                  <SidebarTrigger />
-                  <div className="flex gap-2 items-center">
-                    {appIcons.map(app => (
-                        <SidebarMenuButton
-                            asChild
-                            key={app.id}
-                            tooltip={app.label}
-                            className={cn(
-                                'h-9 w-9 rounded-md transition-colors',
-                                activeApp === app.id ? app.className : 'hover:bg-muted'
-                            )}
-                        >
-                            <Link href={app.href} scroll={false}><app.icon className="h-5 w-5"/></Link>
-                        </SidebarMenuButton>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </header>
-            <header className="flex h-16 items-center justify-between gap-4 rounded-lg border bg-card px-4">
-              <div className="flex items-center gap-2">
-                {activeApp === 'facebook' && isClient && activeProject ? (
-                    <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
-                  ) : (
-                    <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
-                        <Briefcase className="h-4 w-4" />
-                        {isVerifying ? (
-                            <Skeleton className="h-4 w-32" />
-                        ) : (
-                            <span className="truncate">{activeProjectName || 'No Project Selected'}</span>
-                        )}
+          <SidebarInset className="flex flex-col h-screen">
+            <header className="flex h-16 items-center justify-between gap-4 border-b bg-background/80 backdrop-blur-sm px-4">
+                <div className="flex items-center gap-2">
+                    <SidebarTrigger />
+                    <div className="flex gap-2 items-center">
+                        {appIcons.map(app => (
+                            <SidebarMenuButton
+                                asChild
+                                key={app.id}
+                                tooltip={app.label}
+                                className={cn(
+                                    'h-9 w-9 rounded-md transition-colors',
+                                    activeApp === app.id ? app.className : 'hover:bg-muted'
+                                )}
+                            >
+                                <Link href={app.href} scroll={false}><app.icon className="h-5 w-5"/></Link>
+                            </SidebarMenuButton>
+                        ))}
                     </div>
-                  )}
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
-                    <CreditCard className="h-4 w-4" />
-                    <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
-                  </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                        <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                      </Avatar>
-                      <span className="hidden md:inline">{sessionUser?.name || 'User'}</span>
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                        <button className="w-full" onClick={() => openTab({ href: '/dashboard/profile', label: 'Profile', icon: Users, component: LazyProfilePage })}>Profile</button>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        <button className="w-full" onClick={() => openTab({ href: '/dashboard/billing', label: 'Billing', icon: CreditCard, component: LazyBillingPage })}>Billing</button>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                        <Link href="/api/auth/logout">
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span>Logout</span>
-                        </Link>
-                      </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    {activeApp === 'facebook' && isClient && activeProject ? (
+                        <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
+                    ) : (
+                        <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
+                            <Briefcase className="h-4 w-4" />
+                            {isVerifying ? (
+                                <Skeleton className="h-4 w-32" />
+                            ) : (
+                                <span className="truncate">{activeProjectName || 'No Project Selected'}</span>
+                            )}
+                        </div>
+                    )}
+                     <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
+                        <CreditCard className="h-4 w-4" />
+                        <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
+                    </div>
+                </div>
             </header>
-            <main className="flex-1 flex flex-col rounded-lg border bg-card overflow-hidden">
+            <main className="flex-1 flex flex-col overflow-hidden">
                 <div className="flex-shrink-0 border-b">
                     <ScrollArea className="w-full whitespace-nowrap">
                         <div className="flex w-max">
@@ -753,12 +722,12 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                 </div>
                 <div className="flex-1 overflow-y-auto">
                     {openTabs.map(tab => (
-                        <div key={tab.id} className={cn("h-full w-full", activeTab === tab.id ? 'block' : 'hidden')}>
+                        <div key={tab.id} className={cn("h-full w-full p-4 md:p-6 lg:p-8", activeTab === tab.id ? 'block' : 'hidden')}>
                             {React.createElement(tab.component, { children })}
                         </div>
                     ))}
                     {openTabs.length === 0 && (
-                        <div className="h-full w-full flex items-center justify-center">
+                        <div className="h-full w-full p-4 md:p-6 lg:p-8">
                             {children}
                         </div>
                     )}

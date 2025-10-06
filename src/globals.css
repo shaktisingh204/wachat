@@ -334,10 +334,7 @@ body {
         animation: kanban-drag 7s ease-in-out infinite;
         animation-delay: 2.5s;
     }
-    .px-3 {
-        padding-left: 0.90rem;
-        padding-right: .75rem;
-    }
+    
     @keyframes fade-in {
         from { opacity: 0; }
         to { opacity: 1; }

@@ -342,13 +342,12 @@ const SidebarInset = React.forwardRef<
         "md:peer-data-[state=expanded]:peer-data-[variant=sidebar]:pl-[--sidebar-width]",
         "md:peer-data-[state=expanded]:peer-data-[variant=inset]:ml-[--sidebar-width]",
         "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
-        "md:peer-data-[collapsible=icon]:pl-[var(--sidebar-width-icon)]",
+        "md:peer-data-[collapsible=icon]:pl-[calc(var(--sidebar-width-icon)_+_theme(spacing.2))]",
         "md:peer-data-[collapsible=icon]:peer-data-[variant=inset]:ml-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]",
         className
       )}
       style={{
         ...style,
-        paddingLeft: sideOffset
       }}
       {...props}
     />
@@ -615,7 +614,9 @@ const SidebarMenuButton = React.forwardRef<
         data-active={isActive}
         className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
         {...props}
-      />
+      >
+        {children}
+      </Comp>
     )
 
     if (!tooltip) {
