@@ -185,3 +185,32 @@ export async function setWebhookProcessingStatus(enabled: boolean): Promise<{ su
         return { success: false, error: 'Database error occurred.' };
     }
 }
+
+export async function getDiwaliThemeStatus(): Promise<{ enabled: boolean }> {
+    try {
+        const { db } = await connectToDatabase();
+        const setting = await db.collection('system_settings').findOne({ _id: 'diwali_theme' });
+        return { enabled: setting ? setting.enabled : false };
+    } catch (error) {
+        console.error("Failed to get Diwali theme status:", error);
+        return { enabled: false };
+    }
+}
+
+export async function setDiwaliThemeStatus(enabled: boolean): Promise<{ success: boolean; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { success: false, error: 'Permission denied.' };
+    
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('system_settings').updateOne(
+            { _id: 'diwali_theme' },
+            { $set: { enabled } },
+            { upsert: true }
+        );
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to set Diwali theme status:", error);
+        return { success: false, error: 'Database error occurred.' };
+    }
+}

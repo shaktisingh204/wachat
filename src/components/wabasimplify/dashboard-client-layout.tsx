@@ -36,6 +36,7 @@ import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getSession, getProjects } from '@/app/actions';
+import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 import type { Plan, WithId, Project, Agent, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
@@ -377,6 +378,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   const [activeProjectId, setActiveProjectId] = React.useState<string | null>(null);
   const [activeApp, setActiveApp] = React.useState('whatsapp');
   const [isVerifying, setIsVerifying] = React.useState(true);
+  const [isDiwaliTheme, setIsDiwaliTheme] = React.useState(false);
 
   const [openTabs, setOpenTabs] = React.useState<Tab[]>([]);
   const [activeTab, setActiveTab] = React.useState<string | null>(null);
@@ -387,12 +389,14 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   React.useEffect(() => {
     const fetchAndSetData = async () => {
       try {
-        const session = await getSession();
+        const [session, { enabled: diwaliEnabled }] = await Promise.all([getSession(), getDiwaliThemeStatus()]);
+        
         if (!session?.user) {
           router.push('/login');
           return;
         }
         setSessionUser(session.user);
+        setIsDiwaliTheme(diwaliEnabled);
 
         const { projects: fetchedProjects } = await getProjects() || { projects: [] };
         if (!fetchedProjects || fetchedProjects.length === 0) {
@@ -410,8 +414,6 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         else if (pathname.startsWith('/dashboard/crm')) { currentApp = 'crm'; }
         else if (pathname.startsWith('/dashboard/email')) { currentApp = 'email'; }
         else if (pathname.startsWith('/dashboard/sms')) { currentApp = 'sms'; }
-        else if (pathname.startsWith('/dashboard/url-shortener')) { currentApp = 'url-shortener'; }
-        else if (pathname.startsWith('/dashboard/qr-code-maker')) { currentApp = 'qr-code-maker'; }
         else if (pathname.startsWith('/dashboard/api')) { currentApp = 'api'; }
         else if (pathname.startsWith('/dashboard/seo')) { currentApp = 'seo-suite'; }
         else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) { currentApp = 'website-builder'; }
@@ -563,7 +565,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   }
   
   if (isWebsiteBuilderPage || isChatPage) {
-    return <>{children}</>;
+    return <div className={cn(isDiwaliTheme && 'diwali-theme')}>{children}</div>;
   }
 
   const renderMenuItems = (items: any[], isSubmenu = false) => {
@@ -610,7 +612,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   const ActiveComponent = openTabs.find(tab => tab.id === activeTab)?.component;
 
   return (
-      <div data-theme={activeApp}>
+      <div data-theme={activeApp} className={cn(isDiwaliTheme && 'diwali-theme')}>
         <SidebarProvider>
           <div className="flex h-screen bg-background">
             {/* Primary Sidebar Rail */}
@@ -750,3 +752,4 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
       </div>
   );
 }
+
