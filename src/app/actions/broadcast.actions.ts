@@ -2,7 +2,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { type Db, ObjectId, type WithId } from 'mongodb';
+import { type Db, ObjectId, type WithId, Filter } from 'mongodb';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { Readable } from 'stream';
@@ -452,6 +452,33 @@ export async function getBroadcasts(
         return { broadcasts: [], total: 0 };
     }
 }
+
+export async function getAllBroadcasts(
+    page: number = 1,
+    limit: number = 10,
+    query?: string
+): Promise<{ broadcasts: WithId<any>[], total: number }> {
+    try {
+        const { db } = await connectToDatabase();
+        const filter: Filter<BroadcastJob> = {};
+        if (query) {
+             filter.templateName = { $regex: query, $options: 'i' };
+        }
+        
+        const skip = (page - 1) * limit;
+        
+        const [broadcasts, total] = await Promise.all([
+             db.collection<BroadcastJob>('broadcasts').find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).toArray(),
+             db.collection('broadcasts').countDocuments(filter)
+        ]);
+
+        return { broadcasts: JSON.parse(JSON.stringify(broadcasts)), total };
+    } catch(e) {
+        console.error("Failed to get all broadcasts for admin:", e);
+        return { broadcasts: [], total: 0 };
+    }
+}
+
 
 export async function getBroadcastAttempts(
     broadcastId: string, 
