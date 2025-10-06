@@ -6,7 +6,6 @@ import { Slot } from "@radix-ui/react-slot"
 import { VariantProps, cva } from "class-variance-authority"
 import { PanelLeft, ChevronDown } from "lucide-react"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
-
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -29,9 +28,9 @@ import Link from "next/link"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "15rem" // adjusted for new layout
+const SIDEBAR_WIDTH = "15rem"
 const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3.5rem" // adjusted for new layout
+const SIDEBAR_WIDTH_ICON = "3.5rem"
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
@@ -579,7 +578,7 @@ const SidebarMenuButton = React.forwardRef<
     const Comp = asChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
 
-    const buttonContent = (
+    const trigger = (
       <Comp
         ref={ref}
         data-sidebar="menu-button"
@@ -590,7 +589,7 @@ const SidebarMenuButton = React.forwardRef<
         <div className="flex w-full items-center justify-between">
           <span className="flex items-center gap-3">{children}</span>
           {subItems && subItems.length > 0 && (
-            <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden group-data-[state=open]:rotate-180" />
+            <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden data-[state=open]:rotate-180" />
           )}
         </div>
       </Comp>
@@ -600,7 +599,7 @@ const SidebarMenuButton = React.forwardRef<
       return (
         <Collapsible>
           <CollapsibleTrigger asChild>
-            {buttonContent}
+            {trigger}
           </CollapsibleTrigger>
           <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
              <SidebarMenuSub>
@@ -618,14 +617,14 @@ const SidebarMenuButton = React.forwardRef<
     }
 
     if (!tooltip) {
-      return buttonContent;
+      return trigger;
     }
 
     const tooltipContent = typeof tooltip === "string" ? { children: tooltip } : tooltip;
 
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
+        <TooltipTrigger asChild>{trigger}</TooltipTrigger>
         <TooltipContent
           side="right"
           align="center"
@@ -807,5 +806,3 @@ export {
   SidebarTrigger,
   useSidebar,
 }
-
-  
