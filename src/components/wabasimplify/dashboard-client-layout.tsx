@@ -50,6 +50,8 @@ function FullPageSkeleton() {
         <div className="w-72 border-r p-2 hidden md:block"><Skeleton className="h-full w-full"/></div>
         <div className="flex-1 flex flex-col">
             <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
+            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
+            <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
             <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
         </div>
       </div>
@@ -313,10 +315,25 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     
     fetchAndSetData();
   }, [pathname, router]);
+
+  const getUrlParent = (url: string) => url.substring(0, url.lastIndexOf('/'));
   
   const openTab = (item: { href: string; label: string; icon: React.ElementType, component?: React.ComponentType }) => {
     const tabId = item.href;
-    if (!openTabs.some(tab => tab.id === tabId)) {
+    const activeTabObject = openTabs.find(tab => tab.id === activeTab);
+    const activeTabParent = activeTabObject ? getUrlParent(activeTabObject.href) : null;
+    const newTabParent = getUrlParent(item.href);
+
+    if (activeTabParent && newTabParent.startsWith(activeTabParent)) {
+        // Replace current tab if navigating within the same "folder"
+        const updatedTabs = openTabs.map(tab => 
+            tab.id === activeTab 
+                ? { ...tab, id: tabId, title: item.label, href: item.href, icon: item.icon, component: item.component! }
+                : tab
+        );
+        setOpenTabs(updatedTabs);
+    } else if (!openTabs.some(tab => tab.id === tabId)) {
+        // Open a new tab
         if(item.component){
             setOpenTabs(prev => [...prev, { id: tabId, title: item.label, icon: item.icon, href: item.href, component: item.component }]);
         }
@@ -341,7 +358,6 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   };
   
   React.useEffect(() => {
-    // This effect ensures that a tab is opened when the user navigates directly to a URL
     const allMenuItems = [
         ...wachatMenuItems,
         ...emailMenuItems,
@@ -359,7 +375,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     const matchingItem = allMenuItems.find(item => item.href === pathname);
     const component = pathComponentMap[pathname];
 
-    if (matchingItem && component && !openTabs.some(t => t.id === pathname)) {
+    if (matchingItem && component) {
         openTab({ ...matchingItem, component });
     }
     
