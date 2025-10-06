@@ -5,6 +5,7 @@ import type { Db, Filter, ObjectId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
 import { processSingleWebhook, handleSingleMessageEvent, processStatusUpdateBatch, processIncomingMessageBatch, processCommentWebhook, processMessengerWebhook, processOrderWebhook, processCatalogWebhook } from '@/lib/webhook-processor';
 import { revalidatePath } from 'next/cache';
+import { getWebhookProcessingStatus } from '@/app/actions/admin.actions';
 
 const getSearchableText = (payload: any): string => {
     let text = '';
@@ -113,6 +114,13 @@ export async function GET(request: NextRequest) {
  * It now processes events instantly instead of queueing them.
  */
 export async function POST(request: NextRequest) {
+  // First, check if webhook processing is enabled globally.
+  const { enabled } = await getWebhookProcessingStatus();
+  if (!enabled) {
+      console.warn("Webhook processing is disabled by admin. Skipping event.");
+      return NextResponse.json({ status: 'skipped_disabled' }, { status: 200 });
+  }
+
   let logId: ObjectId | null = null;
   try {
     const payloadText = await request.text();

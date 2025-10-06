@@ -12,7 +12,7 @@ import { checkRateLimit } from '@/lib/rate-limiter';
 import { headers } from 'next/headers';
 
 export async function handleAdminLogin(prevState: any, formData: FormData): Promise<{ error?: string }> {
-    const headersList = headers();
+    const headersList = await headers();
     const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
 
     const { success: rateLimitSuccess, error: rateLimitError } = await checkRateLimit(`admin:${ip}`, 5, 60 * 1000); // 5 requests per minute
@@ -127,5 +127,36 @@ export async function handleDeleteProjectByAdmin(prevState: any, formData: FormD
     } catch (e: any) {
         console.error('Failed to delete project:', e);
         return { error: e.message || 'An unexpected error occurred while deleting the project.' };
+    }
+}
+
+
+export async function getWebhookProcessingStatus(): Promise<{ enabled: boolean }> {
+    try {
+        const { db } = await connectToDatabase();
+        const setting = await db.collection('system_settings').findOne({ _id: 'webhook_processing' });
+        // Default to enabled if the setting doesn't exist
+        return { enabled: setting ? setting.enabled : true };
+    } catch (error) {
+        console.error("Failed to get webhook status:", error);
+        return { enabled: true }; // Fail-safe to enabled
+    }
+}
+
+export async function setWebhookProcessingStatus(enabled: boolean): Promise<{ success: boolean; error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { success: false, error: 'Permission denied.' };
+    
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('system_settings').updateOne(
+            { _id: 'webhook_processing' },
+            { $set: { enabled } },
+            { upsert: true }
+        );
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to set webhook status:", error);
+        return { success: false, error: 'Database error occurred.' };
     }
 }
