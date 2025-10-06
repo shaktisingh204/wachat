@@ -346,9 +346,11 @@ const SidebarInset = React.forwardRef<
         "md:peer-data-[collapsible=icon]:peer-data-[variant=inset]:ml-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]",
         className
       )}
-      style={{
-        ...style,
-      }}
+      style={
+        {
+          ...style,
+        } as React.CSSProperties
+      }
       {...props}
     />
   )
