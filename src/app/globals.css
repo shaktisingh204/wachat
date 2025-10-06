@@ -35,16 +35,18 @@ body {
     --chart-5: 350.2 83.2% 53.3%;
     --radius: 0.5rem;
     --instagram: 327 92% 55%;
-    
-    /* Neutral Sidebar as default */
-    --sidebar-background: 220 13% 97%;
-    --sidebar-foreground: 220 10% 25%;
+
+    /* Sidebar variables based on the user's image */
+    --sidebar-background: 220 16% 96%; /* Light gray for the primary rail */
+    --sidebar-foreground: 220 10% 40%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 134 61% 41%;
-    --sidebar-accent: 220 14% 93%;
-    --sidebar-accent-foreground: 220 10% 15%;
-    --sidebar-primary: 220 10% 25%;
-    --sidebar-primary-foreground: 0 0% 100%;
+    
+    --sidebar-secondary-background: 0 0% 100%; /* White for the secondary panel */
+    --sidebar-secondary-foreground: 220 10% 25%;
+    
+    --sidebar-active-background: 134 61% 95%; /* Light green for active icon background */
+    --sidebar-active-foreground: 134 61% 30%; /* Darker green for active icon */
   }
 
   .dark {
@@ -67,16 +69,18 @@ body {
     --border: 210 10% 28%;
     --input: 210 10% 28%;
     --ring: 134 61% 41%;
-
-    /* Neutral Sidebar for Dark Mode */
-    --sidebar-background: 220 10% 18%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-border: 220 10% 25%;
+    
+    /* Dark mode sidebar variables */
+    --sidebar-background: 220 10% 12%; 
+    --sidebar-foreground: 210 40% 80%;
+    --sidebar-border: 220 10% 20%;
     --sidebar-ring: 134 61% 41%;
-    --sidebar-accent: 220 10% 22%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-primary: 210 40% 98%;
-    --sidebar-primary-foreground: 220 10% 12%;
+
+    --sidebar-secondary-background: 220 10% 18%; /* Dark gray for secondary panel */
+    --sidebar-secondary-foreground: 210 40% 98%;
+
+    --sidebar-active-background: 145 60% 25%;
+    --sidebar-active-foreground: 145 60% 85%;
   }
 }
 
@@ -89,58 +93,7 @@ body {
   }
 }
 
-@layer components {
-    .card-gradient {
-      @apply relative overflow-hidden;
-    }
-    .card-gradient::before {
-      content: '';
-      @apply absolute inset-0 opacity-[0.15] z-0;
-    }
-    .card-gradient-blue::before {
-      @apply bg-gradient-to-br from-blue-400 via-blue-200 to-sky-100;
-    }
-    .card-gradient-purple::before {
-      @apply bg-gradient-to-br from-purple-400 via-purple-200 to-violet-100;
-    }
-    .card-gradient-green::before {
-      @apply bg-gradient-to-br from-green-400 via-green-200 to-emerald-100;
-    }
-    .card-gradient-orange::before {
-      @apply bg-gradient-to-br from-orange-400 via-orange-200 to-amber-100;
-    }
-    .card-gradient > * {
-      @apply relative z-10;
-    }
-    .dnd-placeholder {
-        @apply bg-primary/10 border-2 border-dashed border-primary rounded-lg;
-    }
-}
-
-
-.scroll-container {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
-}
-.scroll-container::-webkit-scrollbar {
-  display: none; /* Chrome/Safari/Opera */
-}
-/* Also hide the custom Radix scrollbar used in the component */
-.scroll-container ~ [data-radix-scroll-area-scrollbar] {
-    display: none;
-}
-
 @layer utilities {
-    .has-tooltip [data-tooltip] {
-        @apply relative cursor-pointer;
-    }
-    .has-tooltip [data-tooltip]:after {
-        @apply absolute top-full left-1/2 -translate-x-1/2 mt-2 hidden whitespace-nowrap rounded-md bg-foreground px-2 py-1 text-xs text-background content-[attr(data-tooltip)];
-    }
-    .has-tooltip:hover [data-tooltip]:after {
-        @apply block;
-    }
-
     .bg-auth-texture {
         background-color: #f0f2f5;
     }
@@ -155,9 +108,6 @@ body {
     .dark .bg-chat-texture {
         background-color: #0b141a;
     }
-    .bg-instagram {
-        background: var(--instagram-gradient, linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%));
-    }
     .text-instagram {
         color: hsl(var(--instagram));
     }
@@ -171,22 +121,6 @@ body {
     .animate-fade-in {
         animation: fade-in 0.5s ease-in-out forwards;
         opacity: 0;
-    }
-    .animate-draw {
-        animation: draw 2s ease-out forwards;
-        stroke-dasharray: 1000;
-        stroke-dashoffset: 1000;
-        opacity: 0;
-    }
-    .animate-draw-long {
-      animation: draw-long 3s ease-out forwards;
-      stroke-dasharray: 2000;
-      stroke-dashoffset: 2000;
-      opacity: 0;
-    }
-    .animate-kanban-drag {
-        animation: kanban-drag 7s ease-in-out infinite;
-        animation-delay: 2.5s;
     }
     
     @keyframes fade-in {
@@ -209,40 +143,6 @@ body {
         }
         to {
             transform: translateY(0);
-        }
-    }
-    @keyframes draw {
-      to {
-        stroke-dashoffset: 0;
-        opacity: 1;
-      }
-    }
-    @keyframes draw-long {
-      to {
-        stroke-dashoffset: 0;
-        opacity: 1;
-      }
-    }
-    @keyframes kanban-drag {
-        0%, 20% {
-            transform: translate(0, 0);
-            opacity: 1;
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-        }
-        30% {
-            transform: translate(5px, -10px) rotate(-3deg);
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-            opacity: 0.95;
-        }
-        80% {
-            transform: translate(calc(100% + 1rem), 80px) rotate(0deg);
-            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-            opacity: 0.95;
-        }
-        100% {
-            transform: translate(calc(100% + 1rem), 80px) rotate(0deg);
-            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-            opacity: 1;
         }
     }
 }

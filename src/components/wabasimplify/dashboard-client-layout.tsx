@@ -23,28 +23,24 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarTrigger,
-  SidebarInset,
-  SidebarSeparator,
-  SidebarGroupLabel,
   SidebarProvider,
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Heart, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Palette, Bot, BookCopy, LayoutGrid, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getSession, getProjects } from '@/app/actions';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
-import type { Plan, WithId, Project, Agent, User } from '@/lib/definitions';
+import type { Plan, WithId, Project, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
 import { Suspense } from 'react';
 import { crmMenuItems } from '@/app/dashboard/crm/layout';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
-
 
 const LazyDashboardOverviewPage = React.lazy(() => import('@/app/dashboard/overview/page'));
 const LazyChatPage = React.lazy(() => import('@/app/dashboard/chat/page'));
@@ -550,17 +546,17 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   }, [activeApp, currentUserRole]);
 
   const appIcons = [
-    { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat Suite', href: '/dashboard', className: 'bg-green-100 text-green-700', hoverClassName: 'hover:bg-green-100 hover:text-green-700' },
-    { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite', className: 'bg-blue-100 text-blue-700', hoverClassName: 'hover:bg-blue-100 hover:text-blue-700' },
-    { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram Suite', className: 'bg-purple-100 text-purple-700', hoverClassName: 'hover:bg-purple-100 hover:text-purple-700' },
-    { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite', className: 'bg-orange-100 text-orange-700', hoverClassName: 'hover:bg-orange-100 hover:text-orange-700' },
-    { id: 'email', icon: Mail, label: 'Email Suite', href: '/dashboard/email', className: 'bg-sky-100 text-sky-700', hoverClassName: 'hover:bg-sky-100 hover:text-sky-700' },
-    { id: 'sms', icon: MessageSquare, label: 'SMS Suite', href: '/dashboard/sms', className: 'bg-indigo-100 text-indigo-700', hoverClassName: 'hover:bg-indigo-100 hover:text-indigo-700' },
-    { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api', className: 'bg-gray-100 text-gray-700', hoverClassName: 'hover:bg-gray-100 hover:text-gray-700' },
-    { id: 'website-builder', icon: Brush, label: 'Website Builder', href: '/dashboard/website-builder', className: 'bg-rose-100 text-rose-700', hoverClassName: 'hover:bg-rose-100 hover:text-rose-700' },
-    { id: 'url-shortener', icon: LinkIcon, label: 'URL Shortener', href: '/dashboard/url-shortener', className: 'bg-teal-100 text-teal-700', hoverClassName: 'hover:bg-teal-100 hover:text-teal-700' },
-    { id: 'qr-code-maker', icon: QrCode, label: 'QR Code Maker', href: '/dashboard/qr-code-maker', className: 'bg-stone-100 text-stone-700', hoverClassName: 'hover:bg-stone-100 hover:text-stone-700' },
-    { id: 'seo-suite', icon: SeoIcon, label: 'SEO Suite', href: '/dashboard/seo', className: 'bg-amber-100 text-amber-700', hoverClassName: 'hover:bg-amber-100 hover:text-amber-700' },
+    { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat Suite', href: '/dashboard' },
+    { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
+    { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram Suite' },
+    { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite' },
+    { id: 'email', icon: Mail, label: 'Email Suite', href: '/dashboard/email' },
+    { id: 'sms', icon: MessageSquare, label: 'SMS Suite', href: '/dashboard/sms' },
+    { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api' },
+    { id: 'website-builder', icon: Brush, label: 'Website Builder', href: '/dashboard/website-builder' },
+    { id: 'url-shortener', icon: LinkIcon, label: 'URL Shortener', href: '/dashboard/url-shortener' },
+    { id: 'qr-code-maker', icon: QrCode, label: 'QR Code Maker', href: '/dashboard/qr-code-maker' },
+    { id: 'seo-suite', icon: SeoIcon, label: 'SEO Suite', href: '/dashboard/seo' },
   ];
   
   if (isVerifying) {
@@ -615,7 +611,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   const ActiveComponent = openTabs.find(tab => tab.id === activeTab)?.component;
 
   return (
-      <div data-theme={activeApp} className={cn(isDiwaliTheme && 'diwali-theme')}>
+      <div className={cn(isDiwaliTheme && 'diwali-theme')}>
         <SidebarProvider>
           <div className="flex h-screen bg-background">
             {/* Primary Sidebar Rail */}
@@ -628,9 +624,10 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                         key={app.id}
                         asChild
                         tooltip={app.label}
+                        isActive={activeApp === app.id}
                         className={cn(
                             'h-10 w-10 rounded-lg transition-colors',
-                            activeApp === app.id ? app.className : 'hover:bg-muted'
+                            activeApp === app.id ? 'bg-sidebar-active-background text-sidebar-active-foreground' : 'text-sidebar-foreground hover:bg-sidebar-accent'
                         )}
                     >
                         <Link href={app.href} scroll={false}><app.icon className="h-5 w-5"/></Link>
@@ -642,14 +639,15 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             <Sidebar
                 variant="sidebar"
                 collapsible="icon"
-                className="peer group/sidebar w-[240px] border-r"
+                className="peer group/sidebar w-[240px] border-r bg-sidebar-secondary"
             >
-              <SidebarHeader className="p-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold group-data-[collapsible=icon]:hidden truncate">
-                    {appIcons.find(app => app.id === activeApp)?.label}
-                  </span>
-                </div>
+              <SidebarHeader className="p-4 flex items-center gap-2">
+                <Link href="/dashboard" className="flex items-center gap-2">
+                    <SabNodeLogo className="h-8 w-auto" />
+                </Link>
+                <span className="text-lg font-semibold truncate group-data-[collapsible=icon]:hidden">
+                    SabNode
+                </span>
               </SidebarHeader>
               <SidebarContent>
                 <SidebarMenu>
@@ -695,7 +693,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             </Sidebar>
             
             <div className="flex-1 flex flex-col min-w-0">
-              <header className="flex h-16 items-center justify-between gap-4 border-b bg-background/80 backdrop-blur-sm px-4 flex-shrink-0">
+              <header className="flex h-16 items-center justify-between gap-4 border-b px-4 flex-shrink-0">
                   <div className="flex items-center gap-2">
                       <SidebarTrigger />
                   </div>
