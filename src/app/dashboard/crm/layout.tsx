@@ -10,7 +10,6 @@ import {
     FileText, CreditCard, BadgeInfo, Repeat, Star, Briefcase, MessageSquare
 } from 'lucide-react';
 
-// We now lazy load all pages
 const LazyClientsPage = React.lazy(() => import('@/app/dashboard/crm/sales/clients/page'));
 const LazyQuotationsPage = React.lazy(() => import('@/app/dashboard/crm/sales/quotations/page'));
 const LazyInvoicesPage = React.lazy(() => import('@/app/dashboard/crm/sales/invoices/page'));
@@ -21,7 +20,6 @@ const LazyDeliveryPage = React.lazy(() => import('@/app/dashboard/crm/sales/deli
 const LazyCreditNotesPage = React.lazy(() => import('@/app/dashboard/crm/sales/credit-notes/page'));
 const LazyPipelinesPage = React.lazy(() => import('@/app/dashboard/crm/sales/pipelines/page'));
 const LazyFormsPage = React.lazy(() => import('@/app/dashboard/crm/sales/forms/page'));
-const LazyLeadsPage = React.lazy(() => import('@/app/dashboard/crm/purchases/leads/page'));
 const LazyVendorsPage = React.lazy(() => import('@/app/dashboard/crm/purchases/vendors/page'));
 const LazyExpensesPage = React.lazy(() => import('@/app/dashboard/crm/purchases/expenses/page'));
 const LazyPurchaseOrdersPage = React.lazy(() => import('@/app/dashboard/crm/purchases/orders/page'));
@@ -41,7 +39,7 @@ const LazyCrmAnalyticsPage = React.lazy(() => import('@/app/dashboard/crm/analyt
 const LazyCrmSettingsPage = React.lazy(() => import('@/app/dashboard/crm/settings/page'));
 const LazyCrmAutomationsPage = React.lazy(() => import('@/app/dashboard/crm/automations/page'));
 
-const pathComponentMap: Record<string, React.ComponentType<any>> = {
+export const pathComponentMap: Record<string, React.ComponentType<any>> = {
   '/dashboard/crm': LazyCrmDashboardPage,
   '/dashboard/crm/sales/clients': LazyClientsPage,
   '/dashboard/crm/sales/quotations': LazyQuotationsPage,
@@ -53,7 +51,6 @@ const pathComponentMap: Record<string, React.ComponentType<any>> = {
   '/dashboard/crm/sales/credit-notes': LazyCreditNotesPage,
   '/dashboard/crm/sales/pipelines': LazyPipelinesPage,
   '/dashboard/crm/sales/forms': LazyFormsPage,
-  '/dashboard/crm/purchases/leads': LazyLeadsPage,
   '/dashboard/crm/purchases/vendors': LazyVendorsPage,
   '/dashboard/crm/purchases/expenses': LazyExpensesPage,
   '/dashboard/crm/purchases/orders': LazyPurchaseOrdersPage,
@@ -119,14 +116,21 @@ export const crmMenuItems = [
 
 function CrmTabLayoutContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    // The logic to render specific page components is now handled by Next.js routing.
-    // This component now only needs to render the children passed to it.
+    // The logic to render specific page components is now handled by the main dashboard layout.
+    // This component now only needs to render the children passed to it, which will be the correct page component for the current route.
+    
+    const PageComponent = pathComponentMap[pathname];
+
+    if (!PageComponent) {
+        // Fallback for sub-routes that don't have a direct mapping, e.g., /.../[id]/edit
+        return <div className="p-8">{children}</div>;
+    }
     
     return (
         <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
                 <Suspense fallback={<div className="p-8"><Skeleton className="h-96 w-full" /></div>}>
-                   {children}
+                   <PageComponent />
                 </Suspense>
             </div>
         </div>
