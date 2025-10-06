@@ -584,66 +584,63 @@ const SidebarMenuButton = React.forwardRef<
     const Comp = asChild ? Slot : "button"
     const { isMobile, state } = useSidebar()
 
+    const buttonContent = (
+      <Comp
+        ref={ref}
+        data-sidebar="menu-button"
+        data-active={isActive}
+        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+        {...props}
+      >
+        <div className="flex w-full items-center justify-between">
+          <span className="flex items-center gap-3">{children}</span>
+          {subItems && subItems.length > 0 && (
+            <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden group-data-[state=open]:rotate-180" />
+          )}
+        </div>
+      </Comp>
+    );
+
     if (subItems && subItems.length > 0) {
       return (
         <Collapsible>
           <CollapsibleTrigger asChild>
-            <Comp
-              ref={ref}
-              data-sidebar="menu-button"
-              data-active={isActive}
-              className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-              {...props}
-            >
-              <div className="flex w-full items-center justify-between">
-                <span className="flex items-center gap-3">{children}</span>
-                <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-data-[collapsible=icon]:hidden group-data-[state=open]:rotate-180" />
-              </div>
-            </Comp>
+            {buttonContent}
           </CollapsibleTrigger>
           <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
-            <SidebarMenuSub>{subItems.map((item, index) => <SidebarMenuSubItem key={index}><SidebarMenuSubButton href={item.href} asChild><Link href={item.href}><item.icon className="mr-2 h-4 w-4" />{item.label}</Link></SidebarMenuSubButton></SidebarMenuSubItem>)}</CollapsibleContent>
+            <SidebarMenuSub>
+              {subItems.map((item, index) => (
+                <SidebarMenuSubItem key={index}>
+                  <SidebarMenuSubButton href={item.href} asChild>
+                    <Link href={item.href}><item.icon className="mr-2 h-4 w-4" />{item.label}</Link>
+                  </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+              ))}
+            </SidebarMenuSub>
           </CollapsibleContent>
         </Collapsible>
       );
     }
 
-    const button = (
-      <Comp
-        ref={ref}
-        data-sidebar="menu-button"
-        data-size={size}
-        data-active={isActive}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        {...props}
-      >
-        {children}
-      </Comp>
-    )
-
     if (!tooltip) {
-      return button
+      return buttonContent;
     }
 
-    if (typeof tooltip === "string") {
-      tooltip = {
-        children: tooltip,
-      }
-    }
+    const tooltipContent = typeof tooltip === "string" ? { children: tooltip } : tooltip;
 
     return (
       <Tooltip>
-        <TooltipTrigger asChild>{button}</TooltipTrigger>
+        <TooltipTrigger asChild>{buttonContent}</TooltipTrigger>
         <TooltipContent
           side="right"
           align="center"
           hidden={state !== "collapsed" || isMobile}
-          {...tooltip}
+          {...tooltipContent}
         />
       </Tooltip>
-    )
+    );
   }
-)
+);
 SidebarMenuButton.displayName = "SidebarMenuButton"
 
 const SidebarMenuAction = React.forwardRef<
