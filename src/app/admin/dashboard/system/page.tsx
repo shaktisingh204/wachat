@@ -8,6 +8,7 @@ import { PhonePeSettingsForm } from "@/components/wabasimplify/phonepe-settings-
 import { getPaymentGatewaySettings } from "@/app/actions";
 import { SyncLocalTemplatesButton } from "@/components/wabasimplify/sync-local-templates-button";
 import { WebhookProcessingToggle } from "@/components/wabasimplify/webhook-processing-toggle";
+import { DiwaliThemeToggle } from "@/components/wabasimplify/diwali-theme-toggle";
 
 export default async function SystemHealthPage() {
     const phonePeSettings = await getPaymentGatewaySettings();
@@ -39,6 +40,7 @@ export default async function SystemHealthPage() {
                     </div>
                      <Separator />
                     <WebhookProcessingToggle />
+                    <DiwaliThemeToggle />
                 </CardContent>
             </Card>
 
