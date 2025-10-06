@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import * as React from 'react';
@@ -28,9 +29,11 @@ import {
 } from '@/components/ui/sidebar';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users } from 'lucide-react';
+import { WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/admin/dashboard/whatsapp-projects', label: 'WhatsApp Projects', icon: WhatsAppIcon },
   { href: '/admin/dashboard/users', label: 'Users', icon: Users },
   { href: '/admin/dashboard/plans', label: 'Plans', icon: CreditCard },
   { href: '/admin/dashboard/template-library', label: 'Template Library', icon: BookCopy },

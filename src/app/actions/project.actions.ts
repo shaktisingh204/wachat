@@ -6,8 +6,8 @@ import { getSession, getProjectById } from '@/app/actions/user.actions';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
-import type { Project, Plan, OptInOutSettings, UserAttribute, CannedMessage, Agent, Invitation, Contact, KanbanColumnData } from '@/lib/definitions';
-import { ObjectId, type WithId } from 'mongodb';
+import type { Project, Plan, OptInOutSettings, UserAttribute, CannedMessage, Agent, Invitation, Contact, KanbanColumnData, User } from '@/lib/definitions';
+import { ObjectId, type WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { revalidatePath } from 'next/cache';
 
@@ -561,5 +561,70 @@ export async function handleBulkUpdateAppId(prevState: any, formData: FormData):
 
     } catch (e: any) {
         return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getWhatsAppProjectsForAdmin(
+    page: number = 1,
+    limit: number = 10,
+    query?: string,
+    userId?: string
+): Promise<{ projects: (WithId<Project> & { owner: { name: string, email: string } })[], total: number, users: WithId<User>[] }> {
+     try {
+        const { db } = await connectToDatabase();
+        
+        const filter: Filter<Project> = { wabaId: { $exists: true, $ne: null } };
+        if (query) {
+             filter.name = { $regex: query, $options: 'i' };
+        }
+        if (userId) {
+            filter.userId = new ObjectId(userId);
+        }
+        
+        const skip = (page - 1) * limit;
+        
+        const pipeline = [
+            { $match: filter },
+            { $sort: { createdAt: -1 } },
+            { $skip: skip },
+            { $limit: limit },
+            {
+                $lookup: {
+                    from: 'users',
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'ownerInfo'
+                }
+            },
+            {
+                $unwind: { path: '$ownerInfo', preserveNullAndEmptyArrays: true }
+            },
+            {
+                $addFields: {
+                    owner: {
+                        name: '$ownerInfo.name',
+                        email: '$ownerInfo.email'
+                    }
+                }
+            },
+            {
+                $project: { ownerInfo: 0 }
+            }
+        ];
+        
+        const [projects, total, users] = await Promise.all([
+             db.collection<Project>('projects').aggregate(pipeline).toArray(),
+             db.collection('projects').countDocuments(filter),
+             db.collection('users').find({}, { projection: { name: 1, email: 1 } }).toArray()
+        ]);
+
+        return { 
+            projects: JSON.parse(JSON.stringify(projects)), 
+            total,
+            users: JSON.parse(JSON.stringify(users))
+        };
+    } catch(e) {
+        console.error("Failed to get WhatsApp projects for admin:", e);
+        return { projects: [], total: 0, users: [] };
     }
 }
