@@ -37,7 +37,7 @@ body {
     --instagram: 327 92% 55%;
     
     /* Neutral Sidebar as default */
-    --sidebar-background: 0 0% 100%;
+    --sidebar-background: 220 13% 97%;
     --sidebar-foreground: 220 10% 25%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 134 61% 41%;
@@ -69,11 +69,11 @@ body {
     --ring: 134 61% 41%;
 
     /* Neutral Sidebar for Dark Mode */
-    --sidebar-background: 220 10% 12%;
+    --sidebar-background: 220 10% 18%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-border: 220 10% 20%;
+    --sidebar-border: 220 10% 25%;
     --sidebar-ring: 134 61% 41%;
-    --sidebar-accent: 220 10% 18%;
+    --sidebar-accent: 220 10% 22%;
     --sidebar-accent-foreground: 210 40% 98%;
     --sidebar-primary: 210 40% 98%;
     --sidebar-primary-foreground: 220 10% 12%;

@@ -29,9 +29,9 @@ import Link from "next/link"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7
-const SIDEBAR_WIDTH = "16rem"
+const SIDEBAR_WIDTH = "15rem" // adjusted for new layout
 const SIDEBAR_WIDTH_MOBILE = "18rem"
-const SIDEBAR_WIDTH_ICON = "3rem"
+const SIDEBAR_WIDTH_ICON = "3.5rem" // adjusted for new layout
 const SIDEBAR_KEYBOARD_SHORTCUT = "b"
 
 type SidebarContext = {
@@ -178,7 +178,7 @@ const Sidebar = React.forwardRef<
     {
       side = "left",
       variant = "sidebar",
-      collapsible = "offcanvas",
+      collapsible = "icon",
       sideOffset = '0px',
       innerClassName,
       className,
@@ -600,7 +600,7 @@ const SidebarMenuButton = React.forwardRef<
             </Comp>
           </CollapsibleTrigger>
           <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
-            <SidebarMenuSub>{subItems.map((item, index) => <SidebarMenuSubItem key={index}><SidebarMenuSubButton href={item.href} asChild><Link href={item.href}><item.icon className="mr-2 h-4 w-4" />{item.label}</Link></SidebarMenuSubButton></SidebarMenuSubItem>)}</SidebarMenuSub>
+            <SidebarMenuSub>{subItems.map((item, index) => <SidebarMenuSubItem key={index}><SidebarMenuSubButton href={item.href} asChild><Link href={item.href}><item.icon className="mr-2 h-4 w-4" />{item.label}</Link></SidebarMenuSubButton></SidebarMenuSubItem>)}</CollapsibleSub>
           </CollapsibleContent>
         </Collapsible>
       );
