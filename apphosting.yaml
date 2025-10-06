@@ -4,8 +4,4 @@
 runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
-<<<<<<< HEAD
   maxInstances: 100
-=======
-  maxInstances: 1
->>>>>>> 253f92ef (Initialized workspace with Firebase Studio)

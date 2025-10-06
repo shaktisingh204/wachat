@@ -22,6 +22,7 @@ import { AdminDeleteProjectButton } from '@/components/wabasimplify/admin-delete
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 import { AdminUpdateCreditsButton } from '@/components/wabasimplify/admin-update-credits-button';
+import { AdminUpdateMpsButton } from '@/components/wabasimplify/admin-update-mps-button';
 import { AdminAssignPlanDialog } from '@/components/wabasimplify/admin-assign-plan-dialog';
 import { getAllBroadcasts } from '@/app/actions';
 
@@ -161,6 +162,7 @@ export default async function AdminDashboardPage({
                         <TableHead>Project Name</TableHead>
                         <TableHead>Plan</TableHead>
                         <TableHead>Credits</TableHead>
+                        <TableHead>Concurrency</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                     </TableHeader>
@@ -171,8 +173,10 @@ export default async function AdminDashboardPage({
                             <TableCell className="font-medium">{project.name}</TableCell>
                             <TableCell><Badge variant="outline">{project.plan?.name || 'N/A'}</Badge></TableCell>
                             <TableCell>{project.credits?.toLocaleString() || 0}</TableCell>
+                            <TableCell>{project.messagesPerSecond || 'N/A'} msg/s</TableCell>
                             <TableCell className="text-right">
                                <AdminUpdateCreditsButton projectId={project._id.toString()} currentCredits={project.credits || 0} />
+                               <AdminUpdateMpsButton projectId={project._id.toString()} currentMps={project.messagesPerSecond || 80} />
                                <AdminAssignPlanDialog
                                  projectId={project._id.toString()}
                                  projectName={project.name}
@@ -185,7 +189,7 @@ export default async function AdminDashboardPage({
                         ))
                     ) : (
                         <TableRow>
-                        <TableCell colSpan={4} className="h-24 text-center">
+                        <TableCell colSpan={5} className="h-24 text-center">
                             No projects found.
                         </TableCell>
                         </TableRow>

@@ -60,6 +60,31 @@ export async function updateProjectCreditsByAdmin(projectId: string, credits: nu
     }
 }
 
+export async function updateProjectMpsByAdmin(projectId: string, mps: number): Promise<{ success: boolean, error?: string }> {
+    const { isAdmin } = await getAdminSession();
+    if (!isAdmin) return { success: false, error: 'Permission denied.' };
+
+    if (!ObjectId.isValid(projectId) || isNaN(mps) || mps < 1) {
+        return { success: false, error: 'Invalid project ID or messages-per-second amount.' };
+    }
+    
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $set: { messagesPerSecond: mps } }
+        );
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'Project not found.' };
+        }
+        revalidatePath('/admin/dashboard');
+        return { success: true };
+    } catch (error) {
+        console.error("Failed to update project MPS:", error);
+        return { success: false, error: 'An unexpected database error occurred.' };
+    }
+}
+
 export async function updateProjectPlanByAdmin(projectId: string, planId: string): Promise<{ success: boolean, error?: string }> {
     const { isAdmin } = await getAdminSession();
     if (!isAdmin) return { success: false, error: 'Permission denied.' };
