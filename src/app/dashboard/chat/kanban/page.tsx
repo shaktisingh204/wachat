@@ -1,12 +1,9 @@
 
-
 'use client';
 
 import { Suspense } from 'react';
 import { KanbanBoard } from '@/components/wabasimplify/kanban-board';
 import { Skeleton } from '@/components/ui/skeleton';
-
-export const dynamic = 'force-dynamic';
 
 function KanbanPageSkeleton() {
     return (

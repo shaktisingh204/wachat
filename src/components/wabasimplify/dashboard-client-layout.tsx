@@ -153,7 +153,8 @@ const LazyCrmLayout = React.lazy(() => import('@/app/dashboard/crm/layout'));
 function FullPageSkeleton() {
     return (
       <div className="flex h-screen w-screen">
-        <div className="hidden md:flex w-16 border-r p-2"><Skeleton className="h-full w-full"/></div>
+        {/* Sidebar Rail */}
+        <div className="hidden md:flex w-16 border-r p-2 bg-muted/30"><Skeleton className="h-full w-full"/></div>
         <div className="flex-1 flex flex-col">
             <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
             <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
@@ -577,7 +578,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
       return (
         <SidebarMenuItem key={item.href}>
           <SidebarMenuButton
-            asChild
+            asChild={!item.subItems}
             isActive={isActive}
             tooltip={item.label}
             className={isSubmenu ? 'h-8' : ''}
@@ -737,8 +738,10 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                   </div>
                   <div className="flex-1 overflow-y-auto">
                       {openTabs.map(tab => (
-                          <div key={tab.id} className={cn("h-full w-full p-4 md:p-6 lg:p-8", activeTab === tab.id ? 'block' : 'hidden')}>
-                              {React.createElement(tab.component, { children })}
+                          <div key={tab.id} className={cn("h-full w-full", activeTab === tab.id ? 'block' : 'hidden')}>
+                              <div className="p-4 md:p-6 lg:p-8">
+                                {React.createElement(tab.component, { children })}
+                              </div>
                           </div>
                       ))}
                       {openTabs.length === 0 && (
@@ -754,3 +757,5 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
       </div>
   );
 }
+
+    

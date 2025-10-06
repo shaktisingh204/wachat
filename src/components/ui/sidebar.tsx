@@ -149,7 +149,7 @@ const SidebarProvider = React.forwardRef<
               } as React.CSSProperties
             }
             className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
+              "group/sidebar-wrapper flex min-h-svh w-full",
               className
             )}
             ref={ref}
@@ -338,12 +338,7 @@ const SidebarInset = React.forwardRef<
     <main
       ref={ref}
       className={cn(
-        "relative flex min-h-svh flex-1 flex-col bg-background",
-        "md:peer-data-[state=expanded]:peer-data-[variant=sidebar]:pl-[--sidebar-width]",
-        "md:peer-data-[state=expanded]:peer-data-[variant=inset]:ml-[--sidebar-width]",
-        "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
-        "md:peer-data-[collapsible=icon]:pl-[calc(var(--sidebar-width-icon)_+_theme(spacing.2))]",
-        "md:peer-data-[collapsible=icon]:peer-data-[variant=inset]:ml-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]",
+        "relative flex flex-1 flex-col bg-background",
         className
       )}
       style={
@@ -608,10 +603,10 @@ const SidebarMenuButton = React.forwardRef<
             {buttonContent}
           </CollapsibleTrigger>
           <CollapsibleContent className="group-data-[collapsible=icon]:hidden">
-            <SidebarMenuSub>
-              {subItems.map((item, index) => (
+             <SidebarMenuSub>
+              {subItems.map((item: any, index: number) => (
                 <SidebarMenuSubItem key={index}>
-                  <SidebarMenuSubButton href={item.href} asChild>
+                  <SidebarMenuSubButton asChild>
                     <Link href={item.href}><item.icon className="mr-2 h-4 w-4" />{item.label}</Link>
                   </SidebarMenuSubButton>
                 </SidebarMenuSubItem>
@@ -812,3 +807,5 @@ export {
   SidebarTrigger,
   useSidebar,
 }
+
+  
