@@ -99,7 +99,7 @@ export async function getProjects(query?: string, type?: 'whatsapp' | 'facebook'
     }
 }
 
-export async function getAllProjectsForAdmin(
+export async function getProjectsForAdmin(
     page: number = 1,
     limit: number = 10,
     query?: string

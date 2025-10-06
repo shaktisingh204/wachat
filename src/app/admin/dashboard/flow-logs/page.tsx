@@ -2,7 +2,7 @@
 'use client';
 
 import { useCallback, useEffect, useState, useTransition } from "react";
-import { getWebhookLogs as getFlowLogs, getWebhookLogPayload as getFlowLogById } from '@/app/actions';
+import { getWebhookLogs, getWebhookLogPayload } from '@/app/actions';
 import type { FlowLog, FlowLogEntry } from '@/lib/definitions';
 import type { WithId } from "mongodb";
 
@@ -34,7 +34,7 @@ export default function FlowLogsPage() {
         startTransition(async () => {
             try {
                 // @ts-ignore
-                const { logs: newLogs, total } = await getFlowLogs(page, LOGS_PER_PAGE, query);
+                const { logs: newLogs, total } = await getWebhookLogs(page, LOGS_PER_PAGE, query);
                 setLogs(newLogs);
                 setTotalPages(Math.ceil(total / LOGS_PER_PAGE));
             } catch (error) {
@@ -56,7 +56,7 @@ export default function FlowLogsPage() {
         setSelectedLog(null);
         setLoadingPayload(true);
         // @ts-ignore
-        const fullLog = await getFlowLogById(logSummary._id.toString());
+        const fullLog = await getWebhookLogPayload(logSummary._id.toString());
         setSelectedLog(fullLog);
         setLoadingPayload(false);
     };
