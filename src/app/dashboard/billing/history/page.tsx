@@ -6,16 +6,11 @@ import type { WithId } from 'mongodb';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import type { Metadata } from 'next';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ChevronLeft, Receipt } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
-
-export const metadata: Metadata = {
-  title: 'Billing History | SabNode',
-};
 
 const getStatusVariant = (status: Transaction['status']) => {
     switch (status) {

@@ -1,14 +1,10 @@
 
-import type { Metadata } from 'next';
+
 import { Suspense } from 'react';
 import { ChatClient } from '@/components/wabasimplify/chat-client';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export const dynamic = 'force-dynamic';
-
-export const metadata: Metadata = {
-  title: 'Live Chat | SabNode',
-};
 
 function ChatPageSkeleton() {
     return <Skeleton className="h-full w-full rounded-xl" />;
