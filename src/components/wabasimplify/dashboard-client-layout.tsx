@@ -41,6 +41,8 @@ import type { Plan, WithId, Project, Agent, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
 import { Suspense } from 'react';
+import { crmMenuItems } from '@/app/dashboard/crm/layout';
+
 
 const LazyDashboardOverviewPage = React.lazy(() => import('@/app/dashboard/overview/page'));
 const LazyChatPage = React.lazy(() => import('@/app/dashboard/chat/page'));
@@ -341,8 +343,6 @@ const seoMenuItems = [
     { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss, component: LazyBrandRadarPage },
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, component: LazySiteExplorerPage },
 ];
-
-const { crmMenuItems } = React.lazy(() => import('@/app/dashboard/crm/layout'));
 
 const allMenuItems = [
     ...wachatMenuItems, ...emailMenuItems, ...smsMenuItems, ...apiMenuItems, ...urlShortenerMenuItems,
@@ -752,4 +752,3 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
       </div>
   );
 }
-

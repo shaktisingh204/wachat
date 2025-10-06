@@ -38,9 +38,6 @@ const LazyCrmAnalyticsPage = React.lazy(() => import('@/app/dashboard/crm/analyt
 const LazyCrmSettingsPage = React.lazy(() => import('@/app/dashboard/crm/settings/page'));
 const LazyCrmAutomationsPage = React.lazy(() => import('@/app/dashboard/crm/automations/page'));
 
-// The component map is now centralized in the main dashboard layout.
-// This file primarily defines the menu structure for the CRM module.
-
 export const crmMenuItems = [
     { href: '/dashboard/crm', label: 'Dashboard', icon: LayoutDashboard, component: LazyCrmDashboardPage },
     {
