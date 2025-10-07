@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X, LayoutGrid, BookCopy
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X, LayoutGrid, BookCopy, Bot
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -79,7 +79,7 @@ const LazyPostRandomizerPage = React.lazy(() => import('@/app/dashboard/facebook
 const LazyFacebookMessagesPage = React.lazy(() => import('@/app/dashboard/facebook/messages/page'));
 const LazyFacebookKanbanPage = React.lazy(() => import('@/app/dashboard/facebook/kanban/page'));
 const LazyFacebookAutomationPage = React.lazy(() => import('@/app/dashboard/facebook/auto-reply/page'));
-const LazyFacebookAgentsPage = React.lazy(() => import('@/app/dashboard/facebook/agents/page'));
+const LazyFacebookAgentsPage = React.lazy(() import('@/app/dashboard/facebook/agents/page'));
 const LazyFacebookKnowledgePage = React.lazy(() => import('@/app/dashboard/facebook/knowledge/page'));
 const LazyCustomEcommerceDashboard = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/page'));
 const LazyEcommProductsPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/products/page'));
@@ -144,18 +144,7 @@ const LazySeoDashboardPage = React.lazy(() => import('@/app/dashboard/seo/page')
 const LazyBrandRadarPage = React.lazy(() => import('@/app/dashboard/seo/brand-radar/page'));
 const LazySiteExplorerPage = React.lazy(() => import('@/app/dashboard/seo/site-explorer/page'));
 
-const LazyCrmDashboardPage = React.lazy(() => import('@/app/dashboard/crm/page'));
-const LazyCrmContactsPage = React.lazy(() => import('@/app/dashboard/crm/contacts/page'));
-const LazyCrmAccountsPage = React.lazy(() => import('@/app/dashboard/crm/accounts/page'));
-const LazyCrmDealsPage = React.lazy(() => import('@/app/dashboard/crm/deals/page'));
-const LazyCrmProductsPage = React.lazy(() => import('@/app/dashboard/crm/products/page'));
-const LazyCrmInventoryLayout = React.lazy(() => import('@/app/dashboard/crm/inventory/layout'));
-const LazyCrmTasksPage = React.lazy(() => import('@/app/dashboard/crm/tasks/page'));
-const LazyCrmEmailPage = React.lazy(() => import('@/app/dashboard/crm/email/page'));
-const LazyCrmTeamChatPage = React.lazy(() => import('@/app/dashboard/crm/team-chat/page'));
-const LazyCrmAnalyticsPage = React.lazy(() => import('@/app/dashboard/crm/analytics/page'));
-const LazyCrmSettingsPage = React.lazy(() => import('@/app/dashboard/crm/settings/page'));
-const LazyCrmAutomationsPage = React.lazy(() => import('@/app/dashboard/crm/automations/page'));
+const LazyCrmLayout = React.lazy(() => import('@/app/dashboard/crm/layout'));
 
 function FullPageSkeleton() {
     return (
@@ -783,3 +772,5 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
       </div>
   );
 }
+
+    
