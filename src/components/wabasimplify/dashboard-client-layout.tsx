@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X, LayoutGrid
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X, LayoutGrid, BookCopy
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -144,7 +144,18 @@ const LazySeoDashboardPage = React.lazy(() => import('@/app/dashboard/seo/page')
 const LazyBrandRadarPage = React.lazy(() => import('@/app/dashboard/seo/brand-radar/page'));
 const LazySiteExplorerPage = React.lazy(() => import('@/app/dashboard/seo/site-explorer/page'));
 
-const LazyCrmLayout = React.lazy(() => import('@/app/dashboard/crm/layout'));
+const LazyCrmDashboardPage = React.lazy(() => import('@/app/dashboard/crm/page'));
+const LazyCrmContactsPage = React.lazy(() => import('@/app/dashboard/crm/contacts/page'));
+const LazyCrmAccountsPage = React.lazy(() => import('@/app/dashboard/crm/accounts/page'));
+const LazyCrmDealsPage = React.lazy(() => import('@/app/dashboard/crm/deals/page'));
+const LazyCrmProductsPage = React.lazy(() => import('@/app/dashboard/crm/products/page'));
+const LazyCrmInventoryLayout = React.lazy(() => import('@/app/dashboard/crm/inventory/layout'));
+const LazyCrmTasksPage = React.lazy(() => import('@/app/dashboard/crm/tasks/page'));
+const LazyCrmEmailPage = React.lazy(() => import('@/app/dashboard/crm/email/page'));
+const LazyCrmTeamChatPage = React.lazy(() => import('@/app/dashboard/crm/team-chat/page'));
+const LazyCrmAnalyticsPage = React.lazy(() => import('@/app/dashboard/crm/analytics/page'));
+const LazyCrmSettingsPage = React.lazy(() => import('@/app/dashboard/crm/settings/page'));
+const LazyCrmAutomationsPage = React.lazy(() => import('@/app/dashboard/crm/automations/page'));
 
 function FullPageSkeleton() {
     return (
@@ -342,6 +353,23 @@ const seoMenuItems = [
     { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss, component: LazyBrandRadarPage },
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, component: LazySiteExplorerPage },
 ];
+
+const LazyCrmClientsPage = React.lazy(() => import('@/app/dashboard/crm/sales/clients/page'));
+const LazyCrmQuotationsPage = React.lazy(() => import('@/app/dashboard/crm/sales/quotations/page'));
+const LazyCrmInvoicesPage = React.lazy(() => import('@/app/dashboard/crm/sales/invoices/page'));
+const LazyCrmReceiptsPage = React.lazy(() => import('@/app/dashboard/crm/sales/receipts/page'));
+const LazyCrmProformaPage = React.lazy(() => import('@/app/dashboard/crm/sales/proforma/page'));
+const LazyCrmSalesOrdersPage = React.lazy(() => import('@/app/dashboard/crm/sales/orders/page'));
+const LazyCrmDeliveryPage = React.lazy(() => import('@/app/dashboard/crm/sales/delivery/page'));
+const LazyCrmCreditNotesPage = React.lazy(() => import('@/app/dashboard/crm/sales/credit-notes/page'));
+const LazyCrmPipelinesPage = React.lazy(() => import('@/app/dashboard/crm/sales/pipelines/page'));
+const LazyCrmFormsPage = React.lazy(() => import('@/app/dashboard/crm/sales/forms/page'));
+const LazyCrmVendorsPage = React.lazy(() => import('@/app/dashboard/crm/purchases/vendors/page'));
+const LazyCrmExpensesPage = React.lazy(() => import('@/app/dashboard/crm/purchases/expenses/page'));
+const LazyCrmPurchaseOrdersPage = React.lazy(() => import('@/app/dashboard/crm/purchases/orders/page'));
+const LazyCrmPayoutsPage = React.lazy(() => import('@/app/dashboard/crm/purchases/payouts/page'));
+const LazyCrmDebitNotesPage = React.lazy(() => import('@/app/dashboard/crm/purchases/debit-notes/page'));
+const LazyCrmHirePage = React.lazy(() => import('@/app/dashboard/crm/purchases/hire/page'));
 
 const allMenuItems = [
     ...wachatMenuItems, ...emailMenuItems, ...smsMenuItems, ...apiMenuItems, ...urlShortenerMenuItems,
