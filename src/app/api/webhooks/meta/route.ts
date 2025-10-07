@@ -1,11 +1,13 @@
 
+
+'use server';
+
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import type { Db, Filter, ObjectId } from 'mongodb';
 import type { Project } from '@/lib/definitions';
-import { processSingleWebhook, handleSingleMessageEvent, processStatusUpdateBatch, processIncomingMessageBatch, processCommentWebhook, processMessengerWebhook, processOrderWebhook, processCatalogWebhook } from '@/lib/webhook-processor';
-import { revalidatePath } from 'next/cache';
 import { getWebhookProcessingStatus } from '@/app/actions/admin.actions';
+
 
 const getSearchableText = (payload: any): string => {
     let text = '';
@@ -68,7 +70,6 @@ async function findProjectIdFromWebhook(db: Db, payload: any): Promise<ObjectId 
                 if (project) return project._id;
             }
             
-            // Fallback to WABA ID if phone number ID doesn't match (e.g., for non-message events or unsynced numbers)
             const wabaId = entry.id;
             if (wabaId && wabaId !== '0') {
                 const project = await db.collection<Project>('projects').findOne({ wabaId: wabaId }, { projection: { _id: 1 } });
@@ -111,121 +112,43 @@ export async function GET(request: NextRequest) {
 
 /**
  * Handles incoming webhook event notifications from Meta.
- * It now processes events instantly instead of queueing them.
+ * It now queues events in the database for asynchronous processing.
  */
 export async function POST(request: NextRequest) {
-  // First, check if webhook processing is enabled globally.
-  const { enabled } = await getWebhookProcessingStatus();
-  if (!enabled) {
-      console.warn("Webhook processing is disabled by admin. Skipping event.");
-      return NextResponse.json({ status: 'skipped_disabled' }, { status: 200 });
-  }
-
-  let logId: ObjectId | null = null;
   try {
     const payloadText = await request.text();
     if (!payloadText) {
         return NextResponse.json({ status: "ignored_empty_body" }, { status: 200 });
     }
-
     const payload = JSON.parse(payloadText);
     const { db } = await connectToDatabase();
     
-    // Log first, process second
+    // Log to the main log collection for historical purposes, but don't process.
     const projectId = await findProjectIdFromWebhook(db, payload);
     const searchableText = getSearchableText(payload);
-    const logResult = await db.collection('webhook_logs').insertOne({
-        payload: payload, searchableText, projectId: projectId,
-        processed: false, createdAt: new Date(),
-    });
-    logId = logResult.insertedId;
     
-    let processingError: Error | null = null;
-
-    try {
-        if (!projectId) {
-            throw new Error('Could not find a matching project for this webhook event.');
-        }
-        
-        const project = await db.collection<Project>('projects').findOne({ _id: projectId });
-        if (!project) {
-            throw new Error(`Project with ID ${projectId} not found.`);
-        }
-
-        // --- Start Processing Logic ---
-        const entry = payload.entry?.[0];
-        if (!entry) {
-            throw new Error('Webhook payload missing "entry" object.');
-        }
-
-        for (const change of (entry.changes || [])) {
-            const field = change.field;
-            const value = change.value;
-
-            switch (field) {
-                case 'messages':
-                    if (value.statuses) {
-                        await processStatusUpdateBatch(db, value.statuses);
-                    }
-                    if (value.messages) {
-                        for (const message of value.messages) {
-                            const contactProfile = value.contacts?.find((c: any) => c.wa_id === message.from) || {};
-                            await handleSingleMessageEvent(db, project, message, contactProfile, value.metadata.phone_number_id);
-                        }
-                    }
-                    break;
-                case 'feed':
-                    if (value.item === 'comment' && value.verb === 'add') {
-                        await processCommentWebhook(db, project, value);
-                    }
-                    break;
-                case 'commerce_orders':
-                    await processOrderWebhook(db, project, value);
-                    break;
-                case 'catalog_product_events':
-                    await processCatalogWebhook(db, project, value);
-                    break;
-                default:
-                    // For other non-message events
-                    await processSingleWebhook(db, project, { object: payload.object, entry: [{...entry, changes: [change] }] }, logId);
-                    break;
-            }
-        }
-        
-        if (payload.object === 'page' && entry.messaging) {
-            for (const messagingEvent of entry.messaging) {
-                await processMessengerWebhook(db, project, messagingEvent);
-            }
-        }
-
-    } catch (e: any) {
-        processingError = e;
-        console.error(`Error processing webhook batch for project ${projectId}:`, e.message);
-    }
-
-    await db.collection('webhook_logs').updateOne({ _id: logId }, {
-      $set: {
-        processed: true,
-        error: processingError ? processingError.message : null,
-      },
+    await db.collection('webhook_logs').insertOne({
+        payload: payload, searchableText, projectId: projectId,
+        processed: false, // Will be marked by the processor
+        createdAt: new Date(),
     });
 
-    return NextResponse.json({ status: 'processed' }, { status: 200 });
+    // Add to the processing queue.
+    await db.collection('webhook_queue').insertOne({
+        payload,
+        projectId,
+        status: 'PENDING',
+        createdAt: new Date(),
+    });
+    
+    // Immediately return a success response.
+    return NextResponse.json({ status: 'queued' }, { status: 200 });
 
   } catch (error: any) {
     if (error instanceof SyntaxError) {
         return NextResponse.json({ status: "ignored_invalid_json" }, { status: 200 });
     }
-      
     console.error('Fatal error in webhook ingestion:', error);
-    if (logId) {
-        try {
-            const { db } = await connectToDatabase();
-            await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: `Ingestion Error: ${error.message}` }});
-        } catch (dbError) {
-             console.error('Failed to mark log as error during ingestion failure:', dbError);
-        }
-    }
     return new NextResponse('Internal Server Error', { status: 500 });
   }
 }
