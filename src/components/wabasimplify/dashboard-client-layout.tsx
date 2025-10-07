@@ -343,8 +343,6 @@ const seoMenuItems = [
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, component: LazySiteExplorerPage },
 ];
 
-const LazyCrmLayout = React.lazy(() => import('@/app/dashboard/crm/layout'));
-
 const allMenuItems = [
     ...wachatMenuItems, ...emailMenuItems, ...smsMenuItems, ...apiMenuItems, ...urlShortenerMenuItems,
     ...qrCodeMakerMenuItems, ...portfolioMenuItems, ...seoMenuItems,
@@ -757,5 +755,3 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
       </div>
   );
 }
-
-    
