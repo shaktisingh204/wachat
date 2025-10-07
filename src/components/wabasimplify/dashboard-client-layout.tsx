@@ -37,7 +37,7 @@ import type { Plan, WithId, Project, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
 import { Suspense } from 'react';
-import { CrmTabLayout, crmMenuItems } from '@/app/dashboard/crm/layout';
+import { crmMenuItems } from '@/app/dashboard/crm/layout';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 
@@ -142,6 +142,21 @@ const LazyPortfolioBuilderPage = React.lazy(() => import('@/app/dashboard/portfo
 const LazySeoDashboardPage = React.lazy(() => import('@/app/dashboard/seo/page'));
 const LazyBrandRadarPage = React.lazy(() => import('@/app/dashboard/seo/brand-radar/page'));
 const LazySiteExplorerPage = React.lazy(() => import('@/app/dashboard/seo/site-explorer/page'));
+
+const LazyCrmDashboardPage = React.lazy(() => import('@/app/dashboard/crm/page'));
+const LazyCrmSalesLayout = React.lazy(() => import('@/app/dashboard/crm/sales/layout'));
+const LazyCrmContactsPage = React.lazy(() => import('@/app/dashboard/crm/contacts/page'));
+const LazyCrmAccountsPage = React.lazy(() => import('@/app/dashboard/crm/accounts/page'));
+const LazyCrmDealsPage = React.lazy(() => import('@/app/dashboard/crm/deals/page'));
+const LazyCrmTasksPage = React.lazy(() => import('@/app/dashboard/crm/tasks/page'));
+const LazyCrmProductsPage = React.lazy(() => import('@/app/dashboard/crm/products/page'));
+const LazyCrmInventoryLayout = React.lazy(() => import('@/app/dashboard/crm/inventory/layout'));
+const LazyCrmPurchasesLayout = React.lazy(() => import('@/app/dashboard/crm/purchases/layout'));
+const LazyCrmAutomationsPage = React.lazy(() => import('@/app/dashboard/crm/automations/page'));
+const LazyCrmAnalyticsPage = React.lazy(() => import('@/app/dashboard/crm/analytics/page'));
+const LazyCrmSettingsPage = React.lazy(() => import('@/app/dashboard/crm/settings/page'));
+const LazyCrmTeamChatPage = React.lazy(() => import('@/app/dashboard/crm/team-chat/page'));
+
 
 const wachatMenuItems = [
   { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'], component: null },
@@ -349,6 +364,20 @@ type Tab = {
     component: React.ComponentType;
 };
 
+function FullPageSkeleton() {
+    return (
+      <div className="flex h-screen w-screen">
+        {/* Sidebar Rail */}
+        <div className="hidden md:flex w-16 border-r p-2 bg-muted/30"><Skeleton className="h-full w-full"/></div>
+        <div className="flex-1 flex flex-col">
+            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
+            <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
+            <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
+        </div>
+      </div>
+    );
+}
+
 const LayoutContent = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
@@ -452,7 +481,7 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
     } else if (!openTabs.some(tab => tab.id === tabId)) {
         // Open a new tab
         if(item.component){
-            setOpenTabs(prev => [...prev, { id: tabId, title: item.label, icon: item.icon, href: item.href, component: item.component! }]);
+            setOpenTabs(prev => [...prev, { id: tabId, title: item.label, href: item.href, icon: item.icon, component: item.component! }]);
         }
     }
     setActiveTab(tabId);
