@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X, LayoutGrid, BookCopy
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X, LayoutGrid, Bot, BookCopy
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -38,7 +38,7 @@ import type { Plan, WithId, Project, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
 import { Suspense } from 'react';
-import { crmMenuItems } from '@/app/dashboard/crm/layout';
+import { CrmTabLayout, crmMenuItems } from '@/app/dashboard/crm/layout';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 
@@ -147,6 +147,7 @@ const LazySiteExplorerPage = React.lazy(() => import('@/app/dashboard/seo/site-e
 function FullPageSkeleton() {
     return (
       <div className="flex h-screen w-screen">
+        {/* Sidebar Rail */}
         <div className="hidden md:flex w-16 border-r p-2 bg-muted/30"><Skeleton className="h-full w-full"/></div>
         <div className="flex-1 flex flex-col">
             <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
@@ -339,8 +340,6 @@ const seoMenuItems = [
     { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss, component: LazyBrandRadarPage },
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, component: LazySiteExplorerPage },
 ];
-
-const LazyCrmLayout = React.lazy(() => import('@/app/dashboard/crm/layout'));
 
 const allMenuItems = [
     ...wachatMenuItems, ...emailMenuItems, ...smsMenuItems, ...apiMenuItems, ...urlShortenerMenuItems,
@@ -757,4 +756,3 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         </SidebarProvider>
     );
 }
-
