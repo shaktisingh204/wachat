@@ -79,7 +79,7 @@ const LazyPostRandomizerPage = React.lazy(() => import('@/app/dashboard/facebook
 const LazyFacebookMessagesPage = React.lazy(() => import('@/app/dashboard/facebook/messages/page'));
 const LazyFacebookKanbanPage = React.lazy(() => import('@/app/dashboard/facebook/kanban/page'));
 const LazyFacebookAutomationPage = React.lazy(() => import('@/app/dashboard/facebook/auto-reply/page'));
-const LazyFacebookAgentsPage = React.lazy(() import('@/app/dashboard/facebook/agents/page'));
+const LazyFacebookAgentsPage = React.lazy(() => import('@/app/dashboard/facebook/agents/page'));
 const LazyFacebookKnowledgePage = React.lazy(() => import('@/app/dashboard/facebook/knowledge/page'));
 const LazyCustomEcommerceDashboard = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/page'));
 const LazyEcommProductsPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/products/page'));
@@ -343,22 +343,10 @@ const seoMenuItems = [
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, component: LazySiteExplorerPage },
 ];
 
-const LazyCrmClientsPage = React.lazy(() => import('@/app/dashboard/crm/sales/clients/page'));
-const LazyCrmQuotationsPage = React.lazy(() => import('@/app/dashboard/crm/sales/quotations/page'));
-const LazyCrmInvoicesPage = React.lazy(() => import('@/app/dashboard/crm/sales/invoices/page'));
-const LazyCrmReceiptsPage = React.lazy(() => import('@/app/dashboard/crm/sales/receipts/page'));
-const LazyCrmProformaPage = React.lazy(() => import('@/app/dashboard/crm/sales/proforma/page'));
-const LazyCrmSalesOrdersPage = React.lazy(() => import('@/app/dashboard/crm/sales/orders/page'));
-const LazyCrmDeliveryPage = React.lazy(() => import('@/app/dashboard/crm/sales/delivery/page'));
-const LazyCrmCreditNotesPage = React.lazy(() => import('@/app/dashboard/crm/sales/credit-notes/page'));
-const LazyCrmPipelinesPage = React.lazy(() => import('@/app/dashboard/crm/sales/pipelines/page'));
-const LazyCrmFormsPage = React.lazy(() => import('@/app/dashboard/crm/sales/forms/page'));
-const LazyCrmVendorsPage = React.lazy(() => import('@/app/dashboard/crm/purchases/vendors/page'));
-const LazyCrmExpensesPage = React.lazy(() => import('@/app/dashboard/crm/purchases/expenses/page'));
-const LazyCrmPurchaseOrdersPage = React.lazy(() => import('@/app/dashboard/crm/purchases/orders/page'));
-const LazyCrmPayoutsPage = React.lazy(() => import('@/app/dashboard/crm/purchases/payouts/page'));
-const LazyCrmDebitNotesPage = React.lazy(() => import('@/app/dashboard/crm/purchases/debit-notes/page'));
-const LazyCrmHirePage = React.lazy(() => import('@/app/dashboard/crm/purchases/hire/page'));
+const crmMenuItemsWithLayout = crmMenuItems.map(item => ({
+    ...item,
+    component: LazyCrmLayout,
+}));
 
 const allMenuItems = [
     ...wachatMenuItems, ...emailMenuItems, ...smsMenuItems, ...apiMenuItems, ...urlShortenerMenuItems,
@@ -772,5 +760,3 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
       </div>
   );
 }
-
-    
