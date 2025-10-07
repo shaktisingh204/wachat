@@ -1,25 +1,33 @@
 
+
 import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 
 export const dynamic = 'force-dynamic';
 
-// This cron job is intended to be run periodically (e.g., every hour)
-// to clear out old, processed webhook logs to keep the database clean.
 export async function GET(request: Request) {
   try {
     const { db } = await connectToDatabase();
     
-    const result = await db.collection('webhook_logs').deleteMany({
-        processed: true
+    // Deletes logs that were processed successfully over an hour ago.
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+
+    const queueResult = await db.collection('webhook_queue').deleteMany({
+        status: 'PROCESSED',
+        processedAt: { $lt: oneHourAgo }
     });
 
-    return NextResponse.json({
-        message: `Successfully cleared ${result.deletedCount} processed webhook log(s).`,
-        deletedCount: result.deletedCount 
+    const logsResult = await db.collection('webhook_logs').deleteMany({
+        processed: true,
+        createdAt: { $lt: oneHourAgo }
     });
+
+    const message = `Successfully cleared ${queueResult.deletedCount} processed queue items and ${logsResult.deletedCount} old log entries.`;
+    
+    return NextResponse.json({ message });
+
   } catch (error: any) {
-    console.error('Error in cleanup-logs cron trigger:', error);
+    console.error('Error in cleanup cron job:', error);
     return new NextResponse(`Internal Server Error: ${error.message}`, { status: 500 });
   }
 }
@@ -27,3 +35,4 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
     return GET(request);
 }
+
