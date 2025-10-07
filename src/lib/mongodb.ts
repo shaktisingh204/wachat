@@ -1,3 +1,4 @@
+
 import { MongoClient, Db } from 'mongodb';
 import { config } from 'dotenv';
 
@@ -21,7 +22,10 @@ export async function connectToDatabase() {
     return { client: cachedClient, db: cachedDb };
   }
 
-  const client = new MongoClient(uri!);
+  // Cap the connection pool size to 90% of the default (100)
+  const client = new MongoClient(uri!, {
+    maxPoolSize: 90,
+  });
 
   await client.connect();
 
