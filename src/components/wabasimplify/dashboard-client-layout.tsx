@@ -144,8 +144,6 @@ const LazySeoDashboardPage = React.lazy(() => import('@/app/dashboard/seo/page')
 const LazyBrandRadarPage = React.lazy(() => import('@/app/dashboard/seo/brand-radar/page'));
 const LazySiteExplorerPage = React.lazy(() => import('@/app/dashboard/seo/site-explorer/page'));
 
-const LazyCrmLayout = React.lazy(() => import('@/app/dashboard/crm/layout'));
-
 function FullPageSkeleton() {
     return (
       <div className="flex h-screen w-screen">
@@ -342,9 +340,7 @@ const seoMenuItems = [
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, component: LazySiteExplorerPage },
 ];
 
-const crmMenuItems = [
-    { href: '/dashboard/crm', label: 'Dashboard', icon: LayoutDashboard, component: LazyCrmLayout },
-];
+const LazyCrmLayout = React.lazy(() => import('@/app/dashboard/crm/layout'));
 
 const allMenuItems = [
     ...wachatMenuItems, ...emailMenuItems, ...smsMenuItems, ...apiMenuItems, ...urlShortenerMenuItems,
@@ -565,52 +561,52 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     return <div className={cn(isDiwaliTheme && 'diwali-theme')}>{children}</div>;
   }
   
-  const renderMenuItems = (items: any[], isSubmenu = false) => {
-    return items.map((item: any) => {
-        if (!item.component && !item.subItems) return null;
-        const isActive = activeTab === item.href;
+  const LayoutContent = () => {
+    const renderMenuItems = (items: any[], isSubmenu = false) => {
+        return items.map((item: any) => {
+            if (!item.component && !item.subItems) return null;
+            const isActive = activeTab === item.href;
+          return (
+            <SidebarMenuItem key={item.href}>
+              <SidebarMenuButton
+                asChild={!item.subItems}
+                isActive={isActive}
+                tooltip={item.label}
+                className={isSubmenu ? 'h-8' : ''}
+                onClick={() => item.component && openTab(item)}
+                subItems={item.subItems}
+              >
+                <button>
+                  <item.icon className="h-4 w-4" />
+                  <span className="truncate">{item.label}</span>
+                  {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
+                </button>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          );
+        });
+      };
+    
+      const renderGroupedMenuItems = (groups: any[]) => {
+        return groups.map((group, groupIndex) => (
+          <React.Fragment key={group.title || groupIndex}>
+            {group.title && (
+              <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
+                <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
+              </SidebarGroupLabel>
+            )}
+            
+            {group.items && renderMenuItems(group.items, false)}
+    
+            {groupIndex < groups.length - 1 && <SidebarSeparator />}
+          </React.Fragment>
+        ));
+      };
+
+      const ActiveComponent = openTabs.find(tab => tab.id === activeTab)?.component;
+
       return (
-        <SidebarMenuItem key={item.href}>
-          <SidebarMenuButton
-            asChild={!item.subItems}
-            isActive={isActive}
-            tooltip={item.label}
-            className={isSubmenu ? 'h-8' : ''}
-            onClick={() => item.component && openTab(item)}
-            subItems={item.subItems}
-          >
-            <button>
-              <item.icon className="h-4 w-4" />
-              <span className="truncate">{item.label}</span>
-              {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
-            </button>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      );
-    });
-  };
-
-  const renderGroupedMenuItems = (groups: any[]) => {
-    return groups.map((group, groupIndex) => (
-      <React.Fragment key={group.title || groupIndex}>
-        {group.title && (
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
-            <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
-          </SidebarGroupLabel>
-        )}
-        
-        {group.items && renderMenuItems(group.items, false)}
-
-        {groupIndex < groups.length - 1 && <SidebarSeparator />}
-      </React.Fragment>
-    ));
-  };
-
-  const ActiveComponent = openTabs.find(tab => tab.id === activeTab)?.component;
-
-  return (
-      <SidebarProvider>
-         <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
+        <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
             {isVerifying ? (
                 <FullPageSkeleton />
             ) : (
@@ -750,7 +746,12 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                 </>
             )}
         </div>
+      )
+  };
+  
+  return (
+    <SidebarProvider>
+        <LayoutContent />
     </SidebarProvider>
-  )
+  );
 }
- 
