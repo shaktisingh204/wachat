@@ -2,6 +2,7 @@
 import { Suspense } from 'react';
 import { DashboardClientLayout } from '@/components/wabasimplify/dashboard-client-layout';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SidebarProvider } from '@/components/ui/sidebar';
 
 function FullPageSkeleton() {
     return (
@@ -20,9 +21,11 @@ function FullPageSkeleton() {
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <Suspense fallback={<FullPageSkeleton />}>
+      <SidebarProvider>
         <DashboardClientLayout>
             {children}
         </DashboardClientLayout>
+      </SidebarProvider>
     </Suspense>
   );
 }

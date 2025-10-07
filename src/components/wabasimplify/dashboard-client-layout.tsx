@@ -23,7 +23,6 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarTrigger,
-  SidebarProvider,
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -143,20 +142,6 @@ const LazyPortfolioBuilderPage = React.lazy(() => import('@/app/dashboard/portfo
 const LazySeoDashboardPage = React.lazy(() => import('@/app/dashboard/seo/page'));
 const LazyBrandRadarPage = React.lazy(() => import('@/app/dashboard/seo/brand-radar/page'));
 const LazySiteExplorerPage = React.lazy(() => import('@/app/dashboard/seo/site-explorer/page'));
-
-function FullPageSkeleton() {
-    return (
-      <div className="flex h-screen w-screen">
-        {/* Sidebar Rail */}
-        <div className="hidden md:flex w-16 border-r p-2 bg-muted/30"><Skeleton className="h-full w-full"/></div>
-        <div className="flex-1 flex flex-col">
-            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
-            <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
-            <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
-        </div>
-      </div>
-    );
-}
 
 const wachatMenuItems = [
   { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'], component: null },
@@ -750,9 +735,5 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
   };
 
 export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <SidebarProvider>
-            <LayoutContent>{children}</LayoutContent>
-        </SidebarProvider>
-    );
+    return <LayoutContent>{children}</LayoutContent>;
 }
