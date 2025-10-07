@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X, LayoutGrid
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X, LayoutGrid, BookCopy
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -365,7 +365,7 @@ type Tab = {
     component: React.ComponentType;
 };
 
-export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
+const LayoutContent = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
   const [sessionUser, setSessionUser] = React.useState<any>(null);
@@ -414,6 +414,8 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         else if (pathname.startsWith('/dashboard/api')) { currentApp = 'api'; }
         else if (pathname.startsWith('/dashboard/seo')) { currentApp = 'seo-suite'; }
         else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) { currentApp = 'website-builder'; }
+        else if (pathname.startsWith('/dashboard/url-shortener')) { currentApp = 'url-shortener'; }
+        else if (pathname.startsWith('/dashboard/qr-code-maker')) { currentApp = 'qr-code-maker'; }
         setActiveApp(currentApp);
 
         const projectExists = fetchedProjects.some(p => p._id.toString() === storedProjectId);
@@ -561,7 +563,6 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     return <div className={cn(isDiwaliTheme && 'diwali-theme')}>{children}</div>;
   }
   
-  const LayoutContent = () => {
     const renderMenuItems = (items: any[], isSubmenu = false) => {
         return items.map((item: any) => {
             if (!item.component && !item.subItems) return null;
@@ -748,10 +749,12 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         </div>
       )
   };
-  
-  return (
-    <SidebarProvider>
-        <LayoutContent />
-    </SidebarProvider>
-  );
+
+export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <SidebarProvider>
+            <LayoutContent>{children}</LayoutContent>
+        </SidebarProvider>
+    );
 }
+
