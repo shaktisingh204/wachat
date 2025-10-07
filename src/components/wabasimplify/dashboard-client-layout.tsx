@@ -134,6 +134,7 @@ const LazyPortfolioBuilderPage = React.lazy(() => import('@/app/dashboard/portfo
 const LazySeoDashboardPage = React.lazy(() => import('@/app/dashboard/seo/page'));
 const LazyBrandRadarPage = React.lazy(() => import('@/app/dashboard/seo/brand-radar/page'));
 const LazySiteExplorerPage = React.lazy(() => import('@/app/dashboard/seo/site-explorer/page'));
+const LazyCrmLayout = React.lazy(() => import('@/app/dashboard/crm/layout'));
 const LazyCrmDashboardPage = React.lazy(() => import('@/app/dashboard/crm/page'));
 const LazyCrmSalesLayout = React.lazy(() => import('@/app/dashboard/crm/sales/layout'));
 const LazyCrmContactsPage = React.lazy(() => import('@/app/dashboard/crm/contacts/page'));
@@ -332,6 +333,7 @@ const seoMenuItems = [
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, component: LazySiteExplorerPage },
 ];
 
+
 const allMenuItems = [
     ...wachatMenuItems, ...emailMenuItems, ...smsMenuItems, ...apiMenuItems, ...urlShortenerMenuItems,
     ...qrCodeMakerMenuItems, ...portfolioMenuItems, ...seoMenuItems,
@@ -355,7 +357,21 @@ type Tab = {
     component: React.ComponentType;
 };
 
-const DashboardClientLayout = ({ children }: { children: React.ReactNode }) => {
+function FullPageSkeleton() {
+    return (
+      <div className="flex h-screen w-screen bg-background">
+        <div className="w-16 border-r bg-muted/30 p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="hidden md:block w-60 border-r bg-muted/30 p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="flex-1 flex flex-col">
+            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
+            <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
+            <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
+        </div>
+      </div>
+    );
+};
+
+const LayoutContent = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
   const [sessionUser, setSessionUser] = React.useState<any>(null);
@@ -597,7 +613,7 @@ const DashboardClientLayout = ({ children }: { children: React.ReactNode }) => {
       return (
         <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
             {isVerifying ? (
-                <DashboardClientLayout.Skeleton />
+                <FullPageSkeleton />
             ) : (
                 <>
                     {/* Primary Sidebar Rail */}
@@ -738,17 +754,21 @@ const DashboardClientLayout = ({ children }: { children: React.ReactNode }) => {
       )
   };
 
-const LayoutContentWrapper = ({ children }: { children: React.ReactNode }) => {
-    return <SidebarProvider><LayoutContent>{children}</LayoutContent></SidebarProvider>
+export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
+    return (
+        <SidebarProvider>
+            <React.Suspense fallback={<FullPageSkeleton />}>
+                <LayoutContent>{children}</LayoutContent>
+            </React.Suspense>
+        </SidebarProvider>
+    )
 }
-
-export { LayoutContentWrapper as DashboardClientLayout };
-
 
 DashboardClientLayout.Skeleton = function FullPageSkeleton() {
     return (
       <div className="flex h-screen w-screen bg-background">
         <div className="w-16 border-r bg-muted/30 p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="hidden md:block w-60 border-r bg-muted/30 p-2"><Skeleton className="h-full w-full"/></div>
         <div className="flex-1 flex flex-col">
             <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
             <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
