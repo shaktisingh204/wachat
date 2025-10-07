@@ -23,10 +23,11 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarTrigger,
+  SidebarProvider,
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookUser, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X, LayoutGrid, Bot, BookCopy
+  LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Route, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookCopy, Contact, FileUp, Inbox, ShieldCheck, KeyRound, Search, Plus, Hand, File as FileIcon, Star, BadgeInfo, IndianRupee, FilePlus, X, LayoutGrid, Bot
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -36,11 +37,11 @@ import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 import type { Plan, WithId, Project, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
-import { Suspense } from 'react';
 import { crmMenuItems } from '@/app/dashboard/crm/layout';
 import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
 
+// Lazy load all page components
 const LazyDashboardOverviewPage = React.lazy(() => import('@/app/dashboard/overview/page'));
 const LazyChatPage = React.lazy(() => import('@/app/dashboard/chat/page'));
 const LazyKanbanPage = React.lazy(() => import('@/app/dashboard/chat/kanban/page'));
@@ -68,7 +69,6 @@ const LazyBillingHistoryPage = React.lazy(() => import('@/app/dashboard/billing/
 const LazyNotificationsPage = React.lazy(() => import('@/app/dashboard/notifications/page'));
 const LazyProfilePage = React.lazy(() => import('@/app/dashboard/profile/page'));
 const LazySetupPage = React.lazy(() => import('@/app/dashboard/setup/page'));
-
 const LazyFacebookDashboardPage = React.lazy(() => import('@/app/dashboard/facebook/page'));
 const LazyAllFacebookPagesPage = React.lazy(() => import('@/app/dashboard/facebook/all-projects/page'));
 const LazyFacebookPostsPage = React.lazy(() => import('@/app/dashboard/facebook/posts/page'));
@@ -98,7 +98,6 @@ const LazyFacebookAudiencesPage = React.lazy(() => import('@/app/dashboard/faceb
 const LazyFacebookPagesPage = React.lazy(() => import('@/app/dashboard/facebook/pages/page'));
 const LazyFacebookWebhooksPage = React.lazy(() => import('@/app/dashboard/facebook/webhooks/page'));
 const LazyFacebookSettingsPage = React.lazy(() => import('@/app/dashboard/facebook/settings/page'));
-
 const LazyInstagramConnectionsPage = React.lazy(() => import('@/app/dashboard/instagram/connections/page'));
 const LazyInstagramSetupPage = React.lazy(() => import('@/app/dashboard/instagram/setup/page'));
 const LazyInstagramDashboardPage = React.lazy(() => import('@/app/dashboard/instagram/page'));
@@ -110,7 +109,6 @@ const LazyInstagramMessagesPage = React.lazy(() => import('@/app/dashboard/insta
 const LazyInstagramDiscoveryPage = React.lazy(() => import('@/app/dashboard/instagram/discovery/page'));
 const LazyInstagramHashtagSearchPage = React.lazy(() => import('@/app/dashboard/instagram/hashtag-search/page'));
 const LazyInstagramMediaDetailsPage = React.lazy(() => import('@/app/dashboard/instagram/media/[mediaId]/page'));
-
 const LazyEmailDashboardPage = React.lazy(() => import('@/app/dashboard/email/page'));
 const LazyEmailInboxPage = React.lazy(() => import('@/app/dashboard/email/inbox/page'));
 const LazyEmailCampaignsPage = React.lazy(() => import('@/app/dashboard/email/campaigns/page'));
@@ -119,30 +117,23 @@ const LazyEmailTemplatesPage = React.lazy(() => import('@/app/dashboard/email/te
 const LazyEmailAnalyticsPage = React.lazy(() => import('@/app/dashboard/email/analytics/page'));
 const LazyEmailVerificationPage = React.lazy(() => import('@/app/dashboard/email/verification/page'));
 const LazyEmailSettingsPage = React.lazy(() => import('@/app/dashboard/email/settings/page'));
-
 const LazySmsDashboardPage = React.lazy(() => import('@/app/dashboard/sms/page'));
 const LazySmsCampaignsPage = React.lazy(() => import('@/app/dashboard/sms/campaigns/page'));
 const LazySmsContactsPage = React.lazy(() => import('@/app/dashboard/sms/contacts/page'));
 const LazySmsAnalyticsPage = React.lazy(() => import('@/app/dashboard/sms/analytics/page'));
 const LazySmsSettingsPage = React.lazy(() => import('@/app/dashboard/sms/settings/page'));
-
 const LazyApiKeysPage = React.lazy(() => import('@/app/dashboard/api/page'));
 const LazyApiDocsPage = React.lazy(() => import('@/app/dashboard/api/docs/page'));
-
 const LazyUrlShortenerPage = React.lazy(() => import('@/app/dashboard/url-shortener/page'));
 const LazyShortUrlAnalyticsPage = React.lazy(() => import('@/app/dashboard/url-shortener/[id]/page'));
 const LazyUrlShortenerSettingsPage = React.lazy(() => import('@/app/dashboard/url-shortener/settings/page'));
-
 const LazyQrCodeMakerPage = React.lazy(() => import('@/app/dashboard/qr-code-maker/page'));
 const LazyQrCodeSettingsPage = React.lazy(() => import('@/app/dashboard/qr-code-maker/settings/page'));
-
 const LazyWebsiteBuilderDashboard = React.lazy(() => import('@/app/dashboard/website-builder/page'));
 const LazyPortfolioBuilderPage = React.lazy(() => import('@/app/dashboard/portfolio/manage/[portfolioId]/builder/page'));
-
 const LazySeoDashboardPage = React.lazy(() => import('@/app/dashboard/seo/page'));
 const LazyBrandRadarPage = React.lazy(() => import('@/app/dashboard/seo/brand-radar/page'));
 const LazySiteExplorerPage = React.lazy(() => import('@/app/dashboard/seo/site-explorer/page'));
-
 const LazyCrmDashboardPage = React.lazy(() => import('@/app/dashboard/crm/page'));
 const LazyCrmSalesLayout = React.lazy(() => import('@/app/dashboard/crm/sales/layout'));
 const LazyCrmContactsPage = React.lazy(() => import('@/app/dashboard/crm/contacts/page'));
@@ -157,35 +148,35 @@ const LazyCrmAnalyticsPage = React.lazy(() => import('@/app/dashboard/crm/analyt
 const LazyCrmSettingsPage = React.lazy(() => import('@/app/dashboard/crm/settings/page'));
 const LazyCrmTeamChatPage = React.lazy(() => import('@/app/dashboard/crm/team-chat/page'));
 
-
+// Main menu definitions
 const wachatMenuItems = [
   { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'], component: null },
   { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'], component: LazyDashboardOverviewPage },
-  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'], component: LazyChatPage },
-  { href: '/dashboard/chat/kanban', label: 'Kanban Board', icon: LayoutGrid, roles: ['owner', 'admin'], component: LazyKanbanPage },
+  { href: '/dashboard/chat', label: 'Live Chat', icon: MessageSquare, roles: ['owner', 'admin', 'agent'], component: LazyChatPage, subItems: [
+    { href: '/dashboard/chat/kanban', label: 'Kanban Board', icon: LayoutGrid, component: LazyKanbanPage },
+  ]},
   { href: '/dashboard/contacts', label: 'Contacts', icon: Users, roles: ['owner', 'admin', 'agent'], component: LazyContactsPage },
-  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'], component: LazyBroadcastsPage },
-  { href: '/dashboard/broadcasts/[broadcastId]', label: 'Broadcast Report', icon: Send, roles: ['owner', 'admin'], component: LazyBroadcastReportPage },
-  { href: '/dashboard/templates', label: 'Templates', icon: FileText, roles: ['owner', 'admin'], component: LazyTemplatesPage },
-  { href: '/dashboard/templates/create', label: 'Create Template', icon: Plus, roles: ['owner', 'admin'], component: LazyCreateTemplatePage },
-  { href: '/dashboard/templates/library', label: 'Template Library', icon: BookCopy, roles: ['owner', 'admin'], component: LazyTemplateLibraryPage },
+  { href: '/dashboard/broadcasts', label: 'Campaigns', icon: Send, roles: ['owner', 'admin'], component: LazyBroadcastsPage, subItems: [
+    { href: '/dashboard/broadcasts/[broadcastId]', label: 'Broadcast Report', icon: Send, component: LazyBroadcastReportPage },
+  ]},
+  { href: '/dashboard/templates', label: 'Templates', icon: FileText, roles: ['owner', 'admin'], component: LazyTemplatesPage, subItems: [
+    { href: '/dashboard/templates/create', label: 'Create Template', icon: Plus, component: LazyCreateTemplatePage },
+    { href: '/dashboard/templates/library', label: 'Template Library', icon: BookCopy, component: LazyTemplateLibraryPage },
+  ]},
   { href: '/dashboard/catalog', label: 'Catalog', icon: ShoppingBag, roles: ['owner', 'admin'], component: LazyCatalogPage },
   { href: '/dashboard/calls', label: 'Calls', icon: PhoneCall, roles: ['owner', 'admin'], component: LazyCallsLayout },
-  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'], component: LazyFlowBuilderPage },
-  { href: '/dashboard/flow-builder/docs', label: 'Flow Docs', icon: BookCopy, roles: ['owner', 'admin'], component: LazyFlowBuilderDocsPage },
-  { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: ServerCog, roles: ['owner', 'admin'], component: LazyMetaFlowsPage },
-  { href: '/dashboard/flows/create', label: 'Create Meta Flow', beta: true, icon: Plus, roles: ['owner', 'admin'], component: LazyCreateMetaFlowPage },
-  { href: '/dashboard/flows/docs', label: 'Meta Flow Docs', beta: true, icon: BookCopy, roles: ['owner', 'admin'], component: LazyFlowsUserGuidePage },
+  { href: '/dashboard/flow-builder', label: 'Flow Builder', icon: GitFork, roles: ['owner', 'admin'], component: LazyFlowBuilderPage, subItems: [
+    { href: '/dashboard/flow-builder/docs', label: 'Flow Docs', icon: BookCopy, component: LazyFlowBuilderDocsPage },
+  ]},
+  { href: '/dashboard/flows', label: 'Meta Flows', beta: true, icon: ServerCog, roles: ['owner', 'admin'], component: LazyMetaFlowsPage, subItems: [
+    { href: '/dashboard/flows/create', label: 'Create Meta Flow', beta: true, icon: Plus, component: LazyCreateMetaFlowPage },
+    { href: '/dashboard/flows/docs', label: 'Meta Flow Docs', beta: true, icon: BookCopy, component: LazyFlowsUserGuidePage },
+  ]},
   { href: '/dashboard/integrations', label: 'Integrations', icon: Zap, roles: ['owner', 'admin'], component: LazyIntegrationsLayout },
   { href: '/dashboard/whatsapp-pay', label: 'WhatsApp Pay', icon: WaPayIcon, roles: ['owner', 'admin'], component: LazyWhatsAppPayLayout },
   { href: '/dashboard/numbers', label: 'Numbers', icon: Phone, roles: ['owner', 'admin'], component: LazyNumbersPage },
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'], component: LazyWebhooksPage },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings, roles: ['owner', 'admin'], component: LazySettingsPage },
-  { href: '/dashboard/billing', label: 'Billing', icon: CreditCard, roles: ['owner', 'admin'], component: LazyBillingPage },
-  { href: '/dashboard/billing/history', label: 'Billing History', icon: History, roles: ['owner', 'admin'], component: LazyBillingHistoryPage },
-  { href: '/dashboard/notifications', label: 'Notifications', icon: History, roles: ['owner', 'admin'], component: LazyNotificationsPage },
-  { href: '/dashboard/profile', label: 'Profile', icon: Users, roles: ['owner', 'admin', 'agent'], component: LazyProfilePage },
-  { href: '/dashboard/setup', label: 'Setup', icon: Wrench, roles: ['owner'], component: LazySetupPage },
 ];
 
 const facebookMenuGroups = [
@@ -364,21 +355,7 @@ type Tab = {
     component: React.ComponentType;
 };
 
-function FullPageSkeleton() {
-    return (
-      <div className="flex h-screen w-screen">
-        {/* Sidebar Rail */}
-        <div className="hidden md:flex w-16 border-r p-2 bg-muted/30"><Skeleton className="h-full w-full"/></div>
-        <div className="flex-1 flex flex-col">
-            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
-            <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
-            <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
-        </div>
-      </div>
-    );
-}
-
-const LayoutContent = ({ children }: { children: React.ReactNode }) => {
+const DashboardClientLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
   const [sessionUser, setSessionUser] = React.useState<any>(null);
@@ -471,7 +448,6 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
     const newTabParent = getUrlParent(item.href);
 
     if (activeTabParent && newTabParent.startsWith(activeTabParent) && !item.href.includes('[') && !activeTabParent.includes('[')) {
-        // Replace current tab if navigating within the same "folder" and not a dynamic route
         const updatedTabs = openTabs.map(tab => 
             tab.id === activeTab 
                 ? { ...tab, id: tabId, title: item.label, href: item.href, icon: item.icon, component: item.component! }
@@ -479,7 +455,6 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
         );
         setOpenTabs(updatedTabs);
     } else if (!openTabs.some(tab => tab.id === tabId)) {
-        // Open a new tab
         if(item.component){
             setOpenTabs(prev => [...prev, { id: tabId, title: item.label, href: item.href, icon: item.icon, component: item.component! }]);
         }
@@ -575,7 +550,7 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
   if (isWebsiteBuilderPage || isChatPage) {
     return <div className={cn(isDiwaliTheme && 'diwali-theme')}>{children}</div>;
   }
-  
+    
     const renderMenuItems = (items: any[], isSubmenu = false) => {
         return items.map((item: any) => {
             if (!item.component && !item.subItems) return null;
@@ -622,7 +597,7 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
       return (
         <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
             {isVerifying ? (
-                <FullPageSkeleton />
+                <DashboardClientLayout.Skeleton />
             ) : (
                 <>
                     {/* Primary Sidebar Rail */}
@@ -763,6 +738,22 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
       )
   };
 
-export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
-    return <LayoutContent>{children}</LayoutContent>;
+const LayoutContentWrapper = ({ children }: { children: React.ReactNode }) => {
+    return <SidebarProvider><LayoutContent>{children}</LayoutContent></SidebarProvider>
 }
+
+export { LayoutContentWrapper as DashboardClientLayout };
+
+
+DashboardClientLayout.Skeleton = function FullPageSkeleton() {
+    return (
+      <div className="flex h-screen w-screen bg-background">
+        <div className="w-16 border-r bg-muted/30 p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="flex-1 flex flex-col">
+            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
+            <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
+            <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
+        </div>
+      </div>
+    );
+};
