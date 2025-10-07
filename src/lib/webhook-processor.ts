@@ -1111,10 +1111,6 @@ export async function handleSingleMessageEvent(db: Db, project: WithId<Project>,
             await triggerAutoReply(db, project, contact, message, phoneNumberId);
         }
     }
-    
-    // Invalidate cache to trigger UI refresh
-    revalidatePath('/dashboard/chat');
-    revalidatePath('/dashboard/contacts');
 }
 
 
@@ -1186,9 +1182,7 @@ export async function processSingleWebhook(db: Db, project: WithId<Project>, pay
             isRead: false, createdAt: new Date(), eventType,
         });
 
-        if (logId) await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: null } });
     } catch (e: any) {
-        if (logId) await db.collection('webhook_logs').updateOne({ _id: logId }, { $set: { processed: true, error: e.message } });
         throw e;
     }
 }
@@ -1201,61 +1195,42 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
         const wamids = statuses.map(s => s.id).filter(Boolean);
         if (wamids.length === 0) return { success: 0, failed: 0 };
 
-        const contactsMap = new Map<string, WithId<any>>();
-        const contactsCursor = db.collection('broadcast_contacts').find({ messageId: { $in: wamids } });
-        for await (const contact of contactsCursor) {
-            contactsMap.set(contact.messageId, contact);
-        }
-
-        const liveChatOps: any[] = [];
         const broadcastContactOps: any[] = [];
-        const broadcastCounterUpdates: Record<string, { delivered: number; read: number; failed: number; success: number }> = {};
-        
+        const liveChatOps: any[] = [];
+        const broadcastCounterUpdates: Record<string, { delivered: number; read: number; }> = {};
+
         for (const status of statuses) {
-            if (!status?.id) continue;
             const wamid = status.id;
             const newStatus = (status.status || 'unknown').toUpperCase();
-            
-            const liveChatUpdatePayload: any = { 
-                status: status.status, 
-                [`statusTimestamps.${status.status}`]: new Date(parseInt(status.timestamp, 10) * 1000)
-            };
-            if (newStatus === 'FAILED' && status.errors?.[0]) {
-                liveChatUpdatePayload.error = `${status.errors[0].title} (Code: ${status.errors[0].code})${status.errors[0].details ? `: ${status.errors[0].details}` : ''}`;
-            }
-            liveChatOps.push({ updateOne: { filter: { wamid }, update: { $set: liveChatUpdatePayload } } });
+            const statusTimestamp = new Date(parseInt(status.timestamp, 10) * 1000);
 
-            const contact = contactsMap.get(wamid);
-            if (!contact) continue;
+            // Prepare update for live chat messages
+            liveChatOps.push({
+                updateOne: {
+                    filter: { wamid },
+                    update: { $set: { status: status.status, [`statusTimestamps.${status.status}`]: statusTimestamp } }
+                }
+            });
 
-            const broadcastIdStr = contact.broadcastId.toString();
+            // Find broadcast contacts that match this wamid
+            const broadcastContact = await db.collection('broadcast_contacts').findOne({ messageId: wamid });
+            if (!broadcastContact) continue;
+
+            const broadcastIdStr = broadcastContact.broadcastId.toString();
             if (!broadcastCounterUpdates[broadcastIdStr]) {
-                broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0, failed: 0, success: 0 };
+                broadcastCounterUpdates[broadcastIdStr] = { delivered: 0, read: 0 };
             }
 
-            const currentStatus = (contact.status || 'PENDING').toUpperCase();
-            const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, FAILED: 1, DELIVERED: 2, READ: 3 };
+            const currentStatus = (broadcastContact.status || 'PENDING').toUpperCase();
+            const statusHierarchy: Record<string, number> = { PENDING: 0, SENT: 1, DELIVERED: 2, READ: 3, FAILED: 4 };
 
-            if (newStatus === 'FAILED' && currentStatus !== 'FAILED') {
-                const error = status.errors?.[0] || { title: 'Unknown Failure', code: 'N/A' };
-                const errorString = `${error.title} (Code: ${error.code})${error.details ? `: ${error.details}` : ''}`;
-                const updateOperation = {
+            if (statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
+                 broadcastContactOps.push({
                     updateOne: {
-                        filter: { _id: contact._id },
-                        update: { $set: { status: 'FAILED', error: errorString } }
-                    }
-                };
-                broadcastContactOps.push(updateOperation);
-                broadcastCounterUpdates[broadcastIdStr].success -= 1;
-                broadcastCounterUpdates[broadcastIdStr].failed += 1;
-            } else if (statusHierarchy[newStatus] > statusHierarchy[currentStatus]) {
-                const updateOperation = {
-                    updateOne: {
-                        filter: { _id: contact._id },
+                        filter: { _id: broadcastContact._id },
                         update: { $set: { status: newStatus } }
                     }
-                };
-                broadcastContactOps.push(updateOperation);
+                });
                 if (newStatus === 'DELIVERED') broadcastCounterUpdates[broadcastIdStr].delivered += 1;
                 if (newStatus === 'READ') broadcastCounterUpdates[broadcastIdStr].read += 1;
             }
@@ -1266,26 +1241,17 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
         if (broadcastContactOps.length > 0) promises.push(db.collection('broadcast_contacts').bulkWrite(broadcastContactOps, { ordered: false }));
         
         const broadcastCounterOps = Object.entries(broadcastCounterUpdates)
-            .filter(([_, counts]) => Object.values(counts).some(v => v !== 0))
+            .filter(([_, counts]) => counts.delivered > 0 || counts.read > 0)
             .map(([broadcastId, counts]) => ({
                 updateOne: { 
                     filter: { _id: new ObjectId(broadcastId) }, 
-                    update: { 
-                        $inc: { 
-                            deliveredCount: counts.delivered, 
-                            readCount: counts.read, 
-                            errorCount: counts.failed, 
-                            successCount: counts.success 
-                        } 
-                    } 
+                    update: { $inc: { deliveredCount: counts.delivered, readCount: counts.read } } 
                 }
             }));
-
         if (broadcastCounterOps.length > 0) promises.push(db.collection('broadcasts').bulkWrite(broadcastCounterOps, { ordered: false }));
         
         if (promises.length > 0) await Promise.all(promises);
 
-        // Invalidate caches to trigger UI refresh
         revalidatePath('/dashboard/chat');
         revalidatePath('/dashboard/broadcasts');
 
@@ -1296,39 +1262,67 @@ export async function processStatusUpdateBatch(db: Db, statuses: any[]) {
     }
 }
 
-export async function processIncomingMessageBatch(db: Db, messageGroups: any[]) {
-    if (messageGroups.length === 0) return { success: 0, failed: 0 };
-    
-    const projectIds = [...new Set(messageGroups.map(group => new ObjectId(group.projectId)))];
-    const projectsArray = await db.collection<Project>('projects').find({ _id: { $in: projectIds } }).toArray();
-    const projectsMap = new Map(projectsArray.map(p => [p._id.toString(), p]));
+export async function processIncomingMessageBatch(db: Db, project: WithId<Project>, messageGroup: { message: any; contactProfile: any; phoneNumberId: string }[]) {
+     const contactOps = messageGroup.map(item => {
+        const { message, contactProfile, phoneNumberId } = item;
+        const senderWaId = message.from;
+        const senderName = contactProfile?.profile?.name || 'Unknown User';
+        let lastMessageText = message.type === 'text' ? message.text.body : `[${message.type}]`;
+        if (message.type === 'interactive') {
+            lastMessageText = message.interactive?.button_reply?.title || '[Interactive Reply]';
+        }
 
-    const processingPromises = messageGroups.map(group => {
-        return (async () => {
-            try {
-                const project = projectsMap.get(group.projectId.toString());
-                if (!project) throw new Error(`Project ${group.projectId} not found for message batch processing`);
-                
-                await handleSingleMessageEvent(db, project, group.message, group.contactProfile, group.phoneNumberId);
-                return { success: true };
-            } catch (e: any) {
-                console.error(`Error processing a message from batch for project ${group.projectId}: ${e.message}`);
-                return { success: false };
+        return {
+            updateOne: {
+                filter: { waId: senderWaId, projectId: project._id },
+                update: {
+                    $set: { name: senderName, phoneNumberId: phoneNumberId, lastMessage: lastMessageText, lastMessageTimestamp: new Date(parseInt(message.timestamp, 10) * 1000) },
+                    $inc: { unreadCount: 1 },
+                    $setOnInsert: { waId: senderWaId, projectId: project._id, createdAt: new Date(), hasReceivedWelcome: false }
+                },
+                upsert: true
             }
-        })();
+        };
     });
+    await db.collection('contacts').bulkWrite(contactOps);
+    
+    // Re-fetch contacts to get their IDs
+    const contactWaIds = messageGroup.map(g => g.message.from);
+    const contacts = await db.collection<Contact>('contacts').find({ projectId: project._id, waId: { $in: contactWaIds } }).toArray();
+    const contactsMap = new Map(contacts.map(c => [c.waId, c]));
 
-    const results = await Promise.all(processingPromises);
-    const successCount = results.filter(r => r.success).length;
-
-    if (successCount > 0) {
-        revalidatePath('/dashboard/chat');
-        revalidatePath('/dashboard/contacts');
-        revalidatePath('/dashboard/notifications');
-        revalidatePath('/dashboard', 'layout');
+    const insertOps = messageGroup.map(item => {
+        const contact = contactsMap.get(item.message.from);
+        if (!contact) return null;
+        return {
+            direction: 'in', projectId: project._id, contactId: contact._id,
+            wamid: item.message.id, messageTimestamp: new Date(parseInt(item.message.timestamp, 10) * 1000),
+            type: item.message.type, content: item.message, isRead: false, createdAt: new Date(),
+        };
+    }).filter(Boolean);
+    
+    if (insertOps.length > 0) {
+        await db.collection('incoming_messages').insertMany(insertOps as any[]);
     }
 
-    return { success: successCount, failed: results.length - successCount };
+    // Handle automations sequentially for each message
+    for (const item of messageGroup) {
+        const contact = contactsMap.get(item.message.from);
+        if (!contact) continue;
+        const wasOptInOut = await handleOptInOut(db, project, contact, item.message, item.phoneNumberId);
+        if (!wasOptInOut) {
+            const { handled, logger, flowStatus } = await handleFlowLogic(db, project, contact, item.message, item.phoneNumberId);
+            if (flowStatus === 'waiting') {
+                await db.collection('contacts').updateOne({ _id: contact._id }, { $set: { "activeFlow.waitingSince": new Date() } });
+            }
+            if (logger && (flowStatus === 'finished' || flowStatus === 'error')) {
+                logger.log("Flow execution finished.");
+                await logger.save();
+            } else if (!handled) {
+                await triggerAutoReply(db, project, contact, item.message, item.phoneNumberId);
+            }
+        }
+    }
 }
 
 export async function processCommentWebhook(db: Db, project: WithId<Project>, commentData: any) {
@@ -1682,7 +1676,7 @@ async function executeEcommNode(db: Db, project: WithId<Project>, contact: WithI
                     cart.push({ productId, productName, quantity, price });
                 }
                 currentVariables.cart = cart;
-                await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $set: { "activeEcommFlow.variables": currentVariables } });
+                await db.collection('facebook_subscribers').updateOne({ _id: contact._id }, { $set: { "activeEcommFlow.variables": currentVariables, "activeEcommFlow.cartLastUpdatedAt": new Date() } });
                 logger.log(`Added to cart: ${productName} x ${quantity}`, { cart });
                 
                 const cartEdge = flow.edges.find(e => e.source === nodeId);
