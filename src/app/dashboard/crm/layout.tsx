@@ -18,7 +18,10 @@ import {
     FileText,
     Repeat,
     BadgeInfo,
-    CreditCard
+    CreditCard,
+    GitFork,
+    MessageSquare,
+    IndianRupee
 } from 'lucide-react';
 
 export const crmMenuItems = [
