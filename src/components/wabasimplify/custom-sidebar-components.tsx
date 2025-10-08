@@ -88,4 +88,4 @@ export const WachatSidebarTopLogo = (props: React.SVGProps<SVGSVGElement>) => (
     <SabNodeLogo {...props} />
 );
 
-export { Home };
+export { Home, IndianRupee };
