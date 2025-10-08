@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -600,7 +601,7 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
   };
 
   const ActiveComponent = openTabs.find(tab => tab.id === activeTab)?.component;
-
+  
   return (
     <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
         {/* Primary Sidebar Rail */}
