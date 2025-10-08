@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { CrmEmailTemplateDialog } from './crm-email-template-dialog';
 
-export function CrmEmailTemplatesManager() {
+export function EmailTemplatesManager() {
     const [templates, setTemplates] = useState<WithId<CrmEmailTemplate>[]>([]);
     const [isLoading, startLoading] = useTransition();
     const { toast } = useToast();
@@ -41,15 +41,13 @@ export function CrmEmailTemplatesManager() {
     }, []);
 
     const handleDelete = async (templateId: string) => {
-        startLoading(async () => {
-            const result = await deleteCrmEmailTemplate(templateId);
-            if (result.success) {
-                toast({ title: 'Success', description: 'Template deleted.' });
-                fetchData();
-            } else {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            }
-        });
+        const result = await deleteCrmEmailTemplate(templateId);
+        if (result.success) {
+            toast({ title: 'Success', description: 'Template deleted.' });
+            fetchData();
+        } else {
+            toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        }
     };
 
     const handleEdit = (template: WithId<CrmEmailTemplate>) => {

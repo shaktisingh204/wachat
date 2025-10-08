@@ -10,7 +10,7 @@ import { FacebookConversationList } from './facebook-conversation-list';
 import { FacebookChatWindow } from './facebook-chat-window';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { AlertCircle, MessageSquare } from 'lucide-react';
+import { AlertCircle, MessageSquare, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { PermissionErrorDialog } from './permission-error-dialog';
 import { Card } from '../ui/card';

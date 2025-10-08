@@ -11,8 +11,6 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <Suspense fallback={<Skeleton className="h-screen w-screen" />}>
       <DashboardClientLayout>{children}</DashboardClientLayout>
-    </Suspense>
   );
 }

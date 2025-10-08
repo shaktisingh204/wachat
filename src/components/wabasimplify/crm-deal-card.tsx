@@ -1,11 +1,10 @@
 
-
 'use client';
 
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { User, Building, FolderKanban } from 'lucide-react';
+import { User, Building, FolderKanban, Plus } from 'lucide-react';
 import type { WithId, CrmDeal, CrmContact, CrmAccount } from '@/lib/definitions';
 import { Draggable } from 'react-beautiful-dnd';
 
