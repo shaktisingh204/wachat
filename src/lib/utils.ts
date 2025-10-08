@@ -26,14 +26,13 @@ export const getErrorMessage = (error: any): string => {
             }
             return message;
         }
-        if(typeof error.response.data === 'string') {
-            // If the response is a string, it might be an HTML error page.
-            if (error.response.data.trim().startsWith('<')) {
-                return `Request failed with status ${error.response.status}: An unexpected HTML response was received from the server.`;
-            }
-             return `Request failed with status ${error.response.status}: ${error.response.data}`;
+        try {
+            // Attempt to stringify JSON, which will fail for HTML and other non-JSON responses.
+            return `Request failed with status ${error.response.status}: ${JSON.stringify(error.response.data)}`;
+        } catch (e) {
+            // If stringify fails, it's likely an HTML error page or other non-JSON response.
+            return `Request failed with status ${error.response.status}: An unexpected response was received from the server.`;
         }
-        return `Request failed with status ${error.response.status}: ${JSON.stringify(error.response.data)}`;
     }
     // Axios error without a response (e.g., network error)
     if (axios.isAxiosError(error) && error.request) {
