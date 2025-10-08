@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -747,5 +746,3 @@ export default function RootDashboardLayout({ children }: { children: React.Reac
     </SidebarProvider>
   );
 }
-
-    
