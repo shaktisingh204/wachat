@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Suspense } from 'react';
@@ -12,9 +13,7 @@ export default function AdminDashboardLayout({
 }) {
   return (
     <SidebarProvider>
-      <Suspense fallback={<Skeleton className="h-screen w-screen" />}>
-        <AdminDashboardClientLayout>{children}</AdminDashboardClientLayout>
-      </Suspense>
+      <AdminDashboardClientLayout>{children}</AdminDashboardClientLayout>
     </SidebarProvider>
   );
 }
