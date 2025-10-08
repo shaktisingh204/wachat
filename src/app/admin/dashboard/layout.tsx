@@ -1,10 +1,7 @@
-
 'use client';
 
-import { Suspense } from 'react';
 import { AdminDashboardClientLayout } from '@/components/wabasimplify/admin-dashboard-client-layout';
-import { Skeleton } from '@/components/ui/skeleton';
-import { SidebarProvider } from '@/components/ui/sidebar';
+import React from 'react';
 
 export default function AdminDashboardLayout({
   children,
@@ -12,8 +9,6 @@ export default function AdminDashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
       <AdminDashboardClientLayout>{children}</AdminDashboardClientLayout>
-    </SidebarProvider>
   );
 }
