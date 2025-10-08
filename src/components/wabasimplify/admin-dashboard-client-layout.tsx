@@ -112,7 +112,7 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
           </div>
         </header>
         <div className="flex-1 min-h-0">
-          <main className="flex-1 p-2 md:p-4 overflow-y-auto">{children}</main>
+          <main className="flex-1 p-2 md:p-4 lg:p-8 overflow-y-auto">{children}</main>
         </div>
       </SidebarInset>
     </SidebarProvider>
