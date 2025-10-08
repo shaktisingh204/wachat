@@ -75,18 +75,20 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
     const handleSave = async () => {
         setIsSaving(true);
         let result;
-        const saveAction = (shop as WithId<EcommShop>).slug ? saveEcommPage : saveWebsitePage;
+        const saveAction = 'slug' in shop && (shop as WithId<EcommShop>).slug ? saveEcommPage : saveWebsitePage;
 
         const isSitePart = !pages.some(p => p._id.toString() === activeSurface);
 
         if (isSitePart) {
-            // It's a header/footer etc.
-            result = await updateEcommShopSettings(new FormData()); // This is a placeholder; need to construct FormData
+            const formData = new FormData();
+            formData.append('shopId', shop._id.toString());
+            formData.append(`${activeSurface}Layout`, JSON.stringify(layout));
+            result = await updateEcommShopSettings({}, formData);
         } else if (activePage) {
              result = await saveAction({
                 pageId: activePage._id.toString().startsWith('temp_') ? undefined : activePage._id.toString(),
-                shopId: shop._id.toString(), // or siteId
-                siteId: shop._id.toString(),
+                shopId: shop._id.toString(), // For Ecomm
+                siteId: shop._id.toString(), // For Portfolio
                 name: activePage.name,
                 slug: activePage.slug,
                 layout: layout,
@@ -107,8 +109,10 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
     };
     
     const fetchPages = async () => {
-        const newPages = await getEcommPages(shop._id.toString());
-        setPages(newPages);
+        if ('slug' in shop) { // It's an EcommShop
+             const newPages = await getEcommPages(shop._id.toString());
+             setPages(newPages);
+        }
     };
 
     const handleAddBlock = (type: WebsiteBlock['type']) => {
@@ -204,39 +208,37 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
     }, [selectedBlockId, layout]);
     
     return (
-        <form action={handleSavePage}>
-            <DragDropContext onDragEnd={onDragEnd}>
-                <div className="h-screen w-screen bg-muted flex flex-col">
-                    <WebsiteBuilderHeader site={shop} pages={pages} activeSurface={activeSurface} onSwitchSurface={handleSelectSurface} onSave={handleSave} isSaving={isSaving} />
-                    <div className="flex-1 grid grid-cols-12 min-h-0">
-                        <div className="col-span-2 bg-background border-r p-4 overflow-y-auto">
-                            <PageManagerPanel pages={pages} activePageId={activePageId} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
-                            <Separator className="my-4"/>
-                            <BlockPalette onAddBlock={handleAddBlock} />
-                        </div>
-                        <div className="col-span-7 bg-muted/50 overflow-y-auto p-4">
-                            <Canvas 
-                                layout={layout}
-                                droppableId="canvas"
-                                onBlockClick={setSelectedBlockId}
-                                selectedBlockId={selectedBlockId}
-                                onRemoveBlock={handleRemoveBlock}
-                                products={availableProducts}
-                                shopSlug={(shop as WithId<EcommShop>).slug}
-                                isEditable={true}
-                            />
-                        </div>
-                        <div className="col-span-3 bg-background border-l p-4 overflow-y-auto">
-                            <PropertiesPanel
-                                selectedBlock={selectedBlock}
-                                availableProducts={availableProducts}
-                                onUpdate={handleUpdateBlock}
-                                onRemove={handleRemoveBlock}
-                            />
-                        </div>
+        <DragDropContext onDragEnd={onDragEnd}>
+            <div className="h-screen w-screen bg-muted flex flex-col">
+                <WebsiteBuilderHeader site={shop} pages={pages} activeSurface={activeSurface} onSwitchSurface={handleSelectSurface} onSave={handleSave} isSaving={isSaving} />
+                <div className="flex-1 grid grid-cols-12 min-h-0">
+                    <div className="col-span-2 bg-background border-r p-4 overflow-y-auto">
+                        <PageManagerPanel pages={pages} activePageId={activePage?._id.toString() || ''} onSelectPage={handleSelectSurface} shopId={shop._id.toString()} onPagesUpdate={fetchPages} />
+                        <Separator className="my-4"/>
+                        <BlockPalette onAddBlock={handleAddBlock} />
+                    </div>
+                    <div className="col-span-7 bg-muted/50 overflow-y-auto p-4">
+                        <Canvas 
+                            layout={layout}
+                            droppableId="canvas"
+                            onBlockClick={setSelectedBlockId}
+                            selectedBlockId={selectedBlockId}
+                            onRemoveBlock={handleRemoveBlock}
+                            products={availableProducts}
+                            shopSlug={(shop as WithId<EcommShop>).slug}
+                            isEditable={true}
+                        />
+                    </div>
+                    <div className="col-span-3 bg-background border-l p-4 overflow-y-auto">
+                        <PropertiesPanel
+                            selectedBlock={selectedBlock}
+                            availableProducts={availableProducts}
+                            onUpdate={handleUpdateBlock}
+                            onRemove={handleRemoveBlock}
+                        />
                     </div>
                 </div>
-            </DragDropContext>
-        </form>
+            </div>
+        </DragDropContext>
     );
 }

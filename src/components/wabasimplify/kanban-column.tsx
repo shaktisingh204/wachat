@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import type { DroppableProvided } from 'react-beautiful-dnd';
 import { KanbanCard } from './kanban-card';
 import type { WithId, Contact } from '@/lib/definitions';
+import { Draggable } from 'react-beautiful-dnd';
 
 interface KanbanColumnProps {
     title: string;

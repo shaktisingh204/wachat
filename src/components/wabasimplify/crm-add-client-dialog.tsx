@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -16,7 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { LoaderCircle, Plus } from 'lucide-react';
+import { LoaderCircle, Plus, Building } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { addCrmClient } from '@/app/actions/crm.actions';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -63,7 +62,7 @@ export function CrmAddClientDialog({ onClientAdded }: CrmAddClientDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus className="mr-2 h-4 w-4" />
+          <Building className="mr-2 h-4 w-4" />
           New Client
         </Button>
       </DialogTrigger>
