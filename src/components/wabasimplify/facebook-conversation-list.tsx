@@ -81,7 +81,7 @@ export function FacebookConversationList({ sessionUser, conversations, selectedC
                                     key={convo.id}
                                     onClick={() => onSelectConversation(convo)}
                                     className={cn(
-                                        "flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-accent",
+                                        "flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-accent border-b",
                                         selectedConversationId === convo.id && "bg-accent"
                                     )}
                                 >

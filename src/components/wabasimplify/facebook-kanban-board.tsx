@@ -12,7 +12,7 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+import { DragDropContext } from 'react-beautiful-dnd';
 
 type FacebookKanbanColumnData = {
     name: string;
@@ -151,7 +151,7 @@ export function FacebookKanbanBoard() {
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Project Selected</AlertTitle>
                     <AlertDescription>
-                        Please select a project from the main dashboard page to view the Kanban board.
+                        Please select a project from the main dashboard page to view the chat kanban board.
                     </AlertDescription>
                 </Alert>
              </div>
@@ -165,14 +165,7 @@ export function FacebookKanbanBoard() {
                     <div style={{minWidth: "100%", display: "table", height: '100%'}}>
                         <div className="flex h-full w-max p-4 gap-4">
                             {boardData.map(column => (
-                                <Droppable key={column.name} droppableId={column.name}>
-                                    {(provided) => (
-                                        <div ref={provided.innerRef} {...provided.droppableProps}>
-                                            <FacebookKanbanColumn title={column.name} conversations={column.conversations} />
-                                            {provided.placeholder}
-                                        </div>
-                                    )}
-                                </Droppable>
+                                <FacebookKanbanColumn key={column.name} title={column.name} conversations={column.conversations} />
                             ))}
                             <AddList onAddList={handleAddList} />
                         </div>

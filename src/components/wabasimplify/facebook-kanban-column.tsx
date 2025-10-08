@@ -3,9 +3,10 @@
 
 import { CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
+import type { DroppableProvided } from 'react-beautiful-dnd';
 import { FacebookKanbanCard } from './facebook-kanban-card';
 import type { WithId, FacebookSubscriber } from '@/lib/definitions';
-import { cn } from '@/lib/utils';
 import { Draggable } from 'react-beautiful-dnd';
 
 interface FacebookKanbanColumnProps {
@@ -13,9 +14,13 @@ interface FacebookKanbanColumnProps {
     conversations: WithId<FacebookSubscriber>[];
 }
 
-export function FacebookKanbanColumn({ title, conversations }: FacebookKanbanColumnProps) {
+export function FacebookKanbanColumn({ title, conversations, innerRef, droppableProps, isDraggingOver }: FacebookKanbanColumnProps & { innerRef: DroppableProvided['innerRef'], droppableProps: DroppableProvided['droppableProps'], isDraggingOver: boolean }) {
     return (
-        <div className="w-80 flex-shrink-0 h-full flex flex-col rounded-lg bg-muted/50">
+        <div 
+            ref={innerRef}
+            {...droppableProps}
+            className={cn("w-80 flex-shrink-0 h-full flex flex-col rounded-lg bg-muted/50 transition-colors", isDraggingOver && 'bg-primary/10')}
+        >
             <CardHeader className="flex-shrink-0">
                 <CardTitle className="flex items-center gap-2 capitalize">
                     <span>{title.replace(/_/g, ' ')}</span>
