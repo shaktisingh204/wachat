@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -40,7 +39,7 @@ import type { Plan, WithId, Project, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ScrollArea, ScrollBar } from '../ui/scroll-area';
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { crmMenuItems } from '@/app/dashboard/crm/layout';
 
 
@@ -355,7 +354,11 @@ const FullPageSkeleton = () => (
     </div>
 );
 
-export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
+export default function RootDashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const [sessionUser, setSessionUser] = React.useState<any>(null);
