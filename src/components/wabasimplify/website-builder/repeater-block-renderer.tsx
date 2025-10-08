@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React from 'react';
@@ -123,15 +124,17 @@ export const RepeaterBlockRenderer: React.FC<RepeaterBlockRendererProps> = ({ se
     }
 
     if (layout === 'grid') {
-        const gridClasses = {
+        const gridColsClasses = {
             1: 'grid-cols-1',
             2: 'grid-cols-1 md:grid-cols-2',
             3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
             4: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4',
+            5: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5',
+            6: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6',
         }[columns] || 'grid-cols-1 md:grid-cols-3';
 
         return (
-            <div className={cn('grid gap-6', gridClasses)}>
+            <div className={cn('grid gap-6', gridColsClasses)}>
                 {items.map(item => <RepeaterItemCard key={item.id} item={item} />)}
             </div>
         );
