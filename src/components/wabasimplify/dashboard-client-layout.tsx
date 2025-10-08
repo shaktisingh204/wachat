@@ -25,7 +25,7 @@ import {
   SidebarTrigger,
   SidebarProvider,
   SidebarGroupLabel,
-  SidebarSeparator
+  SidebarSeparator,
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -80,7 +80,7 @@ const LazyPostRandomizerPage = React.lazy(() => import('@/app/dashboard/facebook
 const LazyFacebookMessagesPage = React.lazy(() => import('@/app/dashboard/facebook/messages/page'));
 const LazyFacebookKanbanPage = React.lazy(() => import('@/app/dashboard/facebook/kanban/page'));
 const LazyFacebookAutomationPage = React.lazy(() => import('@/app/dashboard/facebook/auto-reply/page'));
-const LazyFacebookAgentsPage = React.lazy(() => import('@/app/dashboard/facebook/agents/page'));
+const LazyFacebookAgentsPage = React.lazy(() import('@/app/dashboard/facebook/agents/page'));
 const LazyFacebookKnowledgePage = React.lazy(() => import('@/app/dashboard/facebook/knowledge/page'));
 const LazyCustomEcommerceDashboard = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/page'));
 const LazyEcommProductsPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/products/page'));
@@ -748,3 +748,5 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         </SidebarProvider>
     )
 }
+
+    
