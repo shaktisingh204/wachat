@@ -355,403 +355,397 @@ const FullPageSkeleton = () => (
     </div>
 );
 
-function LayoutContent({ children }: { children: React.ReactNode }) {
-    const router = useRouter();
-    const pathname = usePathname();
-    const [sessionUser, setSessionUser] = React.useState<any>(null);
-    const [projects, setProjects] = React.useState<WithId<Project>[]>([]);
-    const [activeProject, setActiveProject] = React.useState<WithId<Project> | null>(null);
-    const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
-    const [activeProjectId, setActiveProjectId] = React.useState<string | null>(null);
-    const [activeApp, setActiveApp] = React.useState('whatsapp');
-    const [isVerifying, setIsVerifying] = React.useState(true);
-    const [isDiwaliTheme, setIsDiwaliTheme] = React.useState(false);
-    
-    const [openTabs, setOpenTabs] = React.useState<Tab[]>([]);
-    const [activeTab, setActiveTab] = React.useState<string | null>(null);
-
-    const isWebsiteBuilderPage = pathname.includes('/builder');
-    const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
-
-    React.useEffect(() => {
-        const fetchAndSetData = async () => {
-            try {
-                const [session, diwaliStatus] = await Promise.all([getSession(), getDiwaliThemeStatus()]);
-                
-                if (!session?.user) {
-                    router.push('/login');
-                    return;
-                }
-                setSessionUser(session.user);
-                setIsDiwaliTheme(diwaliStatus?.enabled || false);
-
-                const { projects: fetchedProjects } = await getProjects() || { projects: [] };
-                if (!fetchedProjects || fetchedProjects.length === 0) {
-                    setProjects([]);
-                    setIsVerifying(false);
-                    if(pathname !== '/dashboard/setup') {
-                        router.push('/dashboard/setup');
-                    }
-                    return;
-                }
-                setProjects(fetchedProjects);
-
-                const storedProjectId = localStorage.getItem('activeProjectId');
-                
-                let currentApp = 'whatsapp';
-                if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
-                else if (pathname.startsWith('/dashboard/instagram')) { currentApp = 'instagram'; }
-                else if (pathname.startsWith('/dashboard/crm')) { currentApp = 'crm'; }
-                else if (pathname.startsWith('/dashboard/email')) { currentApp = 'email'; }
-                else if (pathname.startsWith('/dashboard/sms')) { currentApp = 'sms'; }
-                else if (pathname.startsWith('/dashboard/api')) { currentApp = 'api'; }
-                else if (pathname.startsWith('/dashboard/seo')) { currentApp = 'seo-suite'; }
-                else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) { currentApp = 'website-builder'; }
-                else if (pathname.startsWith('/dashboard/url-shortener')) { currentApp = 'url-shortener'; }
-                else if (pathname.startsWith('/dashboard/qr-code-maker')) { currentApp = 'qr-code-maker'; }
-                setActiveApp(currentApp);
-
-                const projectExists = fetchedProjects.some(p => p._id.toString() === storedProjectId);
-
-                if (pathname === '/dashboard') {
-                    localStorage.removeItem('activeProjectId');
-                    localStorage.removeItem('activeProjectName');
-                    setActiveProjectId(null);
-                    setActiveProjectName(null);
-                    setActiveProject(null);
-                } else if (storedProjectId && projectExists) {
-                    setActiveProjectId(storedProjectId);
-                    const currentActiveProject = fetchedProjects.find(p => p._id.toString() === storedProjectId);
-                    setActiveProject(currentActiveProject || null);
-                    setActiveProjectName(currentActiveProject?.name || 'Loading...');
-                } else {
-                    localStorage.removeItem('activeProjectId');
-                    localStorage.removeItem('activeProjectName');
-                    setActiveProjectId(null);
-                    setActiveProjectName('Select a Project');
-                    setActiveProject(null);
-                }
-            } catch (error) {
-                console.error("Failed to initialize dashboard layout:", error);
-                router.push('/login');
-            } finally {
-                setIsVerifying(false);
-            }
-        };
-        
-        fetchAndSetData();
-    }, [pathname, router]);
-
-    const getUrlParent = (url: string) => url.substring(0, url.lastIndexOf('/'));
-    
-    const openTab = React.useCallback((item: { href: string; label: string; icon: React.ElementType, component?: React.ComponentType }) => {
-        const tabId = item.href;
-        const activeTabObject = openTabs.find(tab => tab.id === activeTab);
-        const activeTabParent = activeTabObject ? getUrlParent(activeTabObject.href) : null;
-        const newTabParent = getUrlParent(item.href);
-
-        if (activeTabParent && newTabParent.startsWith(activeTabParent) && !item.href.includes('[') && !activeTabParent.includes('[')) {
-            const updatedTabs = openTabs.map(tab => 
-                tab.id === activeTab 
-                    ? { ...tab, id: tabId, title: item.label, href: item.href, icon: item.icon, component: item.component! }
-                    : tab
-            );
-            setOpenTabs(updatedTabs);
-        } else if (!openTabs.some(tab => tab.id === tabId)) {
-            if(item.component){
-                setOpenTabs(prev => [...prev, { id: tabId, title: item.label, href: item.href, icon: item.icon, component: item.component! }]);
-            }
-        }
-        setActiveTab(tabId);
-        if(pathname !== item.href) {
-            router.push(item.href, { scroll: false });
-        }
-    }, [openTabs, activeTab, router, pathname]);
-
-    const closeTab = (tabId: string) => {
-        const tabIndex = openTabs.findIndex(tab => tab.id === tabId);
-        setOpenTabs(prev => prev.filter(tab => tab.id !== tabId));
-
-        if (activeTab === tabId) {
-            const nextTab = openTabs[tabIndex - 1] || openTabs[tabIndex + 1] || null;
-            setActiveTab(nextTab?.id || null);
-            if (nextTab) {
-                router.push(nextTab.href, { scroll: false });
-            } else {
-                router.push('/dashboard', { scroll: false });
-            }
-        }
-    };
-    
-    React.useEffect(() => {
-        const matchingItem = allMenuItems.find(item => {
-            if(item.href.includes('[')) {
-                const regex = new RegExp(`^${item.href.replace(/\[\w+\]/g, '([^/]+)')}$`);
-                return regex.test(pathname);
-            }
-            return item.href === pathname;
-        });
-
-        if (matchingItem && matchingItem.component) {
-            const activeTabInList = openTabs.find(t => t.id === activeTab);
-            const title = activeTabInList ? activeTabInList.title : matchingItem.label;
-            openTab({ ...matchingItem, href: pathname, label: title });
-        }
-        
-        if (activeTab !== pathname && openTabs.some(t => t.id === pathname)) {
-        setActiveTab(pathname);
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pathname]);
-
-    const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
-
-    const currentUserRole = React.useMemo(() => {
-        if (!sessionUser || !activeProject) return 'owner'; 
-        if (sessionUser._id.toString() === activeProject.userId.toString()) return 'owner';
-        const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id);
-        return agentInfo?.role || 'none';
-    }, [sessionUser, activeProject]);
-
-    const menuGroups = React.useMemo(() => {
-        let groups: any[];
-        
-        switch (activeApp) {
-            case 'facebook': groups = facebookMenuGroups; break;
-            case 'instagram': groups = instagramMenuGroups; break;
-            case 'crm': groups = [{ title: 'CRM Suite', items: crmMenuItems }]; break;
-            case 'email': groups = [{ title: null, items: emailMenuItems }]; break;
-            case 'sms': groups = [{ title: null, items: smsMenuItems }]; break;
-            case 'api': groups = [{ title: null, items: apiMenuItems }]; break;
-            case 'seo-suite': groups = [{ title: null, items: seoMenuItems }]; break;
-            case 'website-builder': groups = [{ title: null, items: portfolioMenuItems }]; break;
-            case 'url-shortener': groups = [{ title: null, items: urlShortenerMenuItems }]; break;
-            case 'qr-code-maker': groups = [{ title: null, items: qrCodeMakerMenuItems }]; break;
-            default: groups = [{ title: null, items: wachatMenuItems }]; break;
-        }
-        
-        return groups.map((group: any) => ({
-            ...group,
-            items: (group.items || []).filter((item: any) => item.roles ? item.roles.includes(currentUserRole) : true)
-        }));
-    }, [activeApp, currentUserRole]);
-
-    const appIcons = [
-        { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat Suite', href: '/dashboard' },
-        { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
-        { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram Suite' },
-        { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite' },
-        { id: 'email', icon: Mail, label: 'Email Suite', href: '/dashboard/email' },
-        { id: 'sms', icon: MessageSquare, label: 'SMS Suite', href: '/dashboard/sms' },
-        { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api' },
-        { id: 'website-builder', icon: Brush, label: 'Website Builder', href: '/dashboard/website-builder' },
-        { id: 'url-shortener', icon: LinkIcon, label: 'URL Shortener', href: '/dashboard/url-shortener' },
-        { id: 'qr-code-maker', icon: QrCode, label: 'QR Code Maker', href: '/dashboard/qr-code-maker' },
-        { id: 'seo-suite', icon: SeoIcon, label: 'SEO Suite', href: '/dashboard/seo' },
-    ];
-    
-    if (isWebsiteBuilderPage || isChatPage) {
-        return <div className={cn(isDiwaliTheme && 'diwali-theme')}>{children}</div>;
-    }
-  
-    if (isVerifying) {
-        return <FullPageSkeleton />;
-    }
-
-    const renderMenuItems = (items: any[], isSubmenu = false) => {
-        return items.map((item: any) => {
-            if (!item.component && !item.subItems) return null;
-            const isActive = activeTab === item.href;
-            return (
-                <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                        asChild={!item.subItems}
-                        isActive={isActive}
-                        tooltip={item.label}
-                        className={isSubmenu ? 'h-8' : ''}
-                        onClick={() => item.component && openTab(item)}
-                        subItems={item.subItems}
-                    >
-                        <button>
-                            <item.icon className="h-4 w-4" />
-                            <span className="truncate">{item.label}</span>
-                            {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
-                        </button>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            );
-        });
-    };
-
-    const renderGroupedMenuItems = (groups: any[]) => {
-        return groups.map((group, groupIndex) => (
-            <React.Fragment key={group.title || groupIndex}>
-                {group.title && (
-                    <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
-                        <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
-                    </SidebarGroupLabel>
-                )}
-                
-                {group.items && renderMenuItems(group.items, false)}
-
-                {groupIndex < groups.length - 1 && <SidebarSeparator />}
-            </React.Fragment>
-        ));
-    };
-
-    const ActiveComponent = openTabs.find(tab => tab.id === activeTab)?.component;
-    
-    return (
-        <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
-            {/* Primary Sidebar Rail */}
-            <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-4 space-y-2">
-                <Link href="/dashboard" className="mb-4">
-                <SabNodeLogo className="h-8 w-auto" />
-                </Link>
-                {appIcons.map(app => (
-                    <SidebarMenuButton
-                        key={app.id}
-                        asChild
-                        tooltip={app.label}
-                        isActive={activeApp === app.id}
-                        className={cn(
-                            'h-10 w-10 rounded-lg transition-colors',
-                            activeApp === app.id ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground hover:bg-sidebar-accent'
-                        )}
-                    >
-                        <Link href={app.href} scroll={false}><app.icon className="h-5 w-5"/></Link>
-                    </SidebarMenuButton>
-                ))}
-            </div>
-
-            {/* Secondary Sidebar */}
-            <Sidebar
-                variant="sidebar"
-                collapsible="icon"
-                className="peer group/sidebar w-[240px] border-r bg-sidebar-secondary"
-            >
-            <SidebarHeader className="p-4 flex items-center gap-2">
-                <Link href="/dashboard" className="flex items-center gap-2">
-                    <SabNodeLogo className="h-8 w-auto" />
-                </Link>
-                <span className="text-lg font-semibold truncate group-data-[collapsible=icon]:hidden">
-                    SabNode
-                </span>
-            </SidebarHeader>
-            <SidebarContent>
-                <SidebarMenu>
-                {renderGroupedMenuItems(menuGroups)}
-                </SidebarMenu>
-            </SidebarContent>
-            <SidebarFooter>
-                <SidebarMenu>
-                <SidebarMenuItem>
-                    <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <SidebarMenuButton asChild tooltip="My Account">
-                        <button>
-                            <Avatar className="size-7">
-                            <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                            <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                            </Avatar>
-                            <span className="truncate group-data-[collapsible=icon]:hidden">{sessionUser?.name || 'My Account'}</span>
-                        </button>
-                        </SidebarMenuButton>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent side="right" align="start">
-                        <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                        <button className="w-full" onClick={() => openTab({ href: '/dashboard/profile', label: 'Profile', icon: Users, component: LazyProfilePage })}>Profile</button>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                        <button className="w-full" onClick={() => openTab({ href: '/dashboard/billing', label: 'Billing', icon: CreditCard, component: LazyBillingPage })}>Billing</button>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                        <Link href="/api/auth/logout">
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span>Logout</span>
-                        </Link>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                    </DropdownMenu>
-                </SidebarMenuItem>
-            </SidebarMenu>
-            </SidebarFooter>
-            </Sidebar>
-            
-            <div className="flex-1 flex flex-col min-w-0">
-                <header className="flex h-16 items-center justify-between gap-4 border-b px-4 flex-shrink-0">
-                    <div className="flex items-center gap-2">
-                        <SidebarTrigger />
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {activeApp === 'facebook' && activeProject ? (
-                            <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
-                        ) : (
-                            <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
-                                <Briefcase className="h-4 w-4" />
-                                <span className="truncate">{activeProjectName || 'No Project Selected'}</span>
-                            </div>
-                        )}
-                        <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
-                            <CreditCard className="h-4 w-4" />
-                            <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
-                        </div>
-                    </div>
-                </header>
-                <main className="flex-1 flex flex-col overflow-hidden">
-                    <div className="flex-shrink-0 border-b">
-                        <ScrollArea className="w-full whitespace-nowrap">
-                            <div className="flex w-max">
-                                {openTabs.map(tab => (
-                                    <div key={tab.id} className={cn("flex items-center border-r transition-colors", activeTab === tab.id ? 'bg-background' : 'bg-muted hover:bg-background/80')}>
-                                        <Button variant="ghost" className="h-10 px-3 rounded-none" onClick={() => openTab(tab)}>
-                                            <tab.icon className="mr-2 h-4 w-4"/> {tab.title}
-                                        </Button>
-                                        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm mr-2" onClick={() => closeTab(tab.id)}>
-                                            <X className="h-4 w-4"/>
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                            <ScrollBar orientation="horizontal" />
-                        </ScrollArea>
-                    </div>
-                    <div className="flex-1 overflow-y-auto">
-                        {openTabs.map(tab => (
-                            <div key={tab.id} className={cn("h-full w-full", activeTab === tab.id ? 'block' : 'hidden')}>
-                                <div className="p-4 md:p-6 lg:p-8">
-                                    <React.Suspense fallback={<Skeleton className="h-full w-full" />}>
-                                        {React.createElement(tab.component, { children })}
-                                    </React.Suspense>
-                                </div>
-                            </div>
-                        ))}
-                        {openTabs.length === 0 && (
-                            <div className="h-full w-full p-4 md:p-6 lg:p-8">
-                                {children}
-                            </div>
-                        )}
-                    </div>
-                </main>
-            </div>
-        </div>
-    );
-}
-
 export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
-    const [isClient, setIsClient] = React.useState(false);
-    React.useEffect(() => { setIsClient(true) }, []);
+  const router = useRouter();
+  const pathname = usePathname();
+  const [sessionUser, setSessionUser] = React.useState<any>(null);
+  const [projects, setProjects] = React.useState<WithId<Project>[]>([]);
+  const [activeProject, setActiveProject] = React.useState<WithId<Project> | null>(null);
+  const [activeProjectName, setActiveProjectName] = React.useState<string | null>(null);
+  const [activeProjectId, setActiveProjectId] = React.useState<string | null>(null);
+  const [activeApp, setActiveApp] = React.useState('whatsapp');
+  const [isVerifying, setIsVerifying] = React.useState(true);
+  const [isDiwaliTheme, setIsDiwaliTheme] = React.useState(false);
 
-    if (!isClient) {
-        return <FullPageSkeleton />;
+  const [openTabs, setOpenTabs] = React.useState<Tab[]>([]);
+  const [activeTab, setActiveTab] = React.useState<string | null>(null);
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  const isWebsiteBuilderPage = pathname.includes('/builder');
+  const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
+
+  React.useEffect(() => {
+    if (!isClient) return;
+
+    const fetchAndSetData = async () => {
+        try {
+            const [session, diwaliStatus] = await Promise.all([getSession(), getDiwaliThemeStatus()]);
+            
+            if (!session?.user) {
+                router.push('/login');
+                return;
+            }
+            setSessionUser(session.user);
+            setIsDiwaliTheme(diwaliStatus?.enabled || false);
+
+            const { projects: fetchedProjects } = await getProjects() || { projects: [] };
+            if (!fetchedProjects || fetchedProjects.length === 0) {
+                setProjects([]);
+                setIsVerifying(false);
+                if(pathname !== '/dashboard/setup') {
+                    router.push('/dashboard/setup');
+                }
+                return;
+            }
+            setProjects(fetchedProjects);
+
+            const storedProjectId = localStorage.getItem('activeProjectId');
+            
+            let currentApp = 'whatsapp';
+            if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
+            else if (pathname.startsWith('/dashboard/instagram')) { currentApp = 'instagram'; }
+            else if (pathname.startsWith('/dashboard/crm')) { currentApp = 'crm'; }
+            else if (pathname.startsWith('/dashboard/email')) { currentApp = 'email'; }
+            else if (pathname.startsWith('/dashboard/sms')) { currentApp = 'sms'; }
+            else if (pathname.startsWith('/dashboard/api')) { currentApp = 'api'; }
+            else if (pathname.startsWith('/dashboard/seo')) { currentApp = 'seo-suite'; }
+            else if (pathname.startsWith('/dashboard/website-builder') || pathname.startsWith('/dashboard/portfolio')) { currentApp = 'website-builder'; }
+            else if (pathname.startsWith('/dashboard/url-shortener')) { currentApp = 'url-shortener'; }
+            else if (pathname.startsWith('/dashboard/qr-code-maker')) { currentApp = 'qr-code-maker'; }
+            setActiveApp(currentApp);
+
+            const projectExists = fetchedProjects.some(p => p._id.toString() === storedProjectId);
+
+            if (pathname === '/dashboard') {
+                localStorage.removeItem('activeProjectId');
+                localStorage.removeItem('activeProjectName');
+                setActiveProjectId(null);
+                setActiveProjectName(null);
+                setActiveProject(null);
+            } else if (storedProjectId && projectExists) {
+                setActiveProjectId(storedProjectId);
+                const currentActiveProject = fetchedProjects.find(p => p._id.toString() === storedProjectId);
+                setActiveProject(currentActiveProject || null);
+                setActiveProjectName(currentActiveProject?.name || 'Loading...');
+            } else {
+                localStorage.removeItem('activeProjectId');
+                localStorage.removeItem('activeProjectName');
+                setActiveProjectId(null);
+                setActiveProjectName('Select a Project');
+                setActiveProject(null);
+            }
+        } catch (error) {
+            console.error("Failed to initialize dashboard layout:", error);
+            router.push('/login');
+        } finally {
+            setIsVerifying(false);
+        }
+    };
+    
+    fetchAndSetData();
+  }, [isClient, pathname, router]);
+
+  const getUrlParent = (url: string) => url.substring(0, url.lastIndexOf('/'));
+  
+  const openTab = React.useCallback((item: { href: string; label: string; icon: React.ElementType, component?: React.ComponentType }) => {
+    const tabId = item.href;
+    const activeTabObject = openTabs.find(tab => tab.id === activeTab);
+    const activeTabParent = activeTabObject ? getUrlParent(activeTabObject.href) : null;
+    const newTabParent = getUrlParent(item.href);
+
+    if (activeTabParent && newTabParent.startsWith(activeTabParent) && !item.href.includes('[') && !activeTabParent.includes('[')) {
+        const updatedTabs = openTabs.map(tab => 
+            tab.id === activeTab 
+                ? { ...tab, id: tabId, title: item.label, href: item.href, icon: item.icon, component: item.component! }
+                : tab
+        );
+        setOpenTabs(updatedTabs);
+    } else if (!openTabs.some(tab => tab.id === tabId)) {
+        if(item.component){
+            setOpenTabs(prev => [...prev, { id: tabId, title: item.label, href: item.href, icon: item.icon, component: item.component! }]);
+        }
     }
+    setActiveTab(tabId);
+    if(pathname !== item.href) {
+        router.push(item.href, { scroll: false });
+    }
+  }, [openTabs, activeTab, router, pathname]);
 
-    return (
-        <SidebarProvider>
-            <LayoutContent>{children}</LayoutContent>
-        </SidebarProvider>
-    )
+  const closeTab = (tabId: string) => {
+    const tabIndex = openTabs.findIndex(tab => tab.id === tabId);
+    setOpenTabs(prev => prev.filter(tab => tab.id !== tabId));
+
+    if (activeTab === tabId) {
+        const nextTab = openTabs[tabIndex - 1] || openTabs[tabIndex + 1] || null;
+        setActiveTab(nextTab?.id || null);
+        if (nextTab) {
+            router.push(nextTab.href, { scroll: false });
+        } else {
+            router.push('/dashboard', { scroll: false });
+        }
+    }
+  };
+  
+  React.useEffect(() => {
+    const matchingItem = allMenuItems.find(item => {
+        if(item.href.includes('[')) {
+            const regex = new RegExp(`^${item.href.replace(/\[\w+\]/g, '([^/]+)')}$`);
+            return regex.test(pathname);
+        }
+        return item.href === pathname;
+    });
+
+    if (matchingItem && matchingItem.component) {
+        const activeTabInList = openTabs.find(t => t.id === activeTab);
+        const title = activeTabInList ? activeTabInList.title : matchingItem.label;
+        openTab({ ...matchingItem, href: pathname, label: title });
+    }
+    
+    if (activeTab !== pathname && openTabs.some(t => t.id === pathname)) {
+    setActiveTab(pathname);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
+
+  const currentUserRole = React.useMemo(() => {
+    if (!sessionUser || !activeProject) return 'owner'; 
+    if (sessionUser._id.toString() === activeProject.userId.toString()) return 'owner';
+    const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id);
+    return agentInfo?.role || 'none';
+  }, [sessionUser, activeProject]);
+
+  const menuGroups = React.useMemo(() => {
+    let groups: any[];
+    
+    switch (activeApp) {
+        case 'facebook': groups = facebookMenuGroups; break;
+        case 'instagram': groups = instagramMenuGroups; break;
+        case 'crm': groups = [{ title: 'CRM Suite', items: crmMenuItems }]; break;
+        case 'email': groups = [{ title: null, items: emailMenuItems }]; break;
+        case 'sms': groups = [{ title: null, items: smsMenuItems }]; break;
+        case 'api': groups = [{ title: null, items: apiMenuItems }]; break;
+        case 'seo-suite': groups = [{ title: null, items: seoMenuItems }]; break;
+        case 'website-builder': groups = [{ title: null, items: portfolioMenuItems }]; break;
+        case 'url-shortener': groups = [{ title: null, items: urlShortenerMenuItems }]; break;
+        case 'qr-code-maker': groups = [{ title: null, items: qrCodeMakerMenuItems }]; break;
+        default: groups = [{ title: null, items: wachatMenuItems }]; break;
+    }
+    
+    return groups.map((group: any) => ({
+        ...group,
+        items: (group.items || []).filter((item: any) => item.roles ? item.roles.includes(currentUserRole) : true)
+    }));
+  }, [activeApp, currentUserRole]);
+
+  const appIcons = [
+      { id: 'whatsapp', icon: WhatsAppIcon, label: 'Wachat Suite', href: '/dashboard' },
+      { id: 'facebook', href: '/dashboard/facebook/all-projects', icon: MetaIcon, label: 'Meta Suite' },
+      { id: 'instagram', href: '/dashboard/instagram/connections', icon: InstagramIcon, label: 'Instagram Suite' },
+      { id: 'crm', href: '/dashboard/crm', icon: Handshake, label: 'CRM Suite' },
+      { id: 'email', icon: Mail, label: 'Email Suite', href: '/dashboard/email' },
+      { id: 'sms', icon: MessageSquare, label: 'SMS Suite', href: '/dashboard/sms' },
+      { id: 'api', icon: Server, label: 'API & Dev', href: '/dashboard/api' },
+      { id: 'website-builder', icon: Brush, label: 'Website Builder', href: '/dashboard/website-builder' },
+      { id: 'url-shortener', icon: LinkIcon, label: 'URL Shortener', href: '/dashboard/url-shortener' },
+      { id: 'qr-code-maker', icon: QrCode, label: 'QR Code Maker', href: '/dashboard/qr-code-maker' },
+      { id: 'seo-suite', icon: SeoIcon, label: 'SEO Suite', href: '/dashboard/seo' },
+  ];
+
+  const renderMenuItems = (items: any[], isSubmenu = false) => {
+    return items.map((item: any) => {
+        if (!item.component && !item.subItems) return null;
+        const isActive = activeTab === item.href;
+        return (
+            <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                    asChild={!item.subItems}
+                    isActive={isActive}
+                    tooltip={item.label}
+                    className={isSubmenu ? 'h-8' : ''}
+                    onClick={() => item.component && openTab(item)}
+                    subItems={item.subItems}
+                >
+                    <button>
+                        <item.icon className="h-4 w-4" />
+                        <span className="truncate">{item.label}</span>
+                        {item.beta && <Badge variant="secondary" className="ml-auto group-data-[collapsible=icon]:hidden">Beta</Badge>}
+                    </button>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+        );
+    });
+  };
+
+  const renderGroupedMenuItems = (groups: any[]) => {
+    return groups.map((group, groupIndex) => (
+        <React.Fragment key={group.title || groupIndex}>
+            {group.title && (
+                <SidebarGroupLabel className="group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-100 group-data-[collapsible=icon]:pl-2">
+                    <span className="group-data-[collapsible=icon]:hidden">{group.title}</span>
+                </SidebarGroupLabel>
+            )}
+            
+            {group.items && renderMenuItems(group.items, false)}
+
+            {groupIndex < groups.length - 1 && <SidebarSeparator />}
+        </React.Fragment>
+    ));
+  };
+  
+  if (isVerifying || !isClient) {
+    return <FullPageSkeleton />;
+  }
+
+  const ActiveComponent = openTabs.find(tab => tab.id === activeTab)?.component;
+
+  if (isWebsiteBuilderPage || isChatPage) {
+      if(ActiveComponent) {
+          return <React.Suspense fallback={<Skeleton className="h-full w-full" />}><ActiveComponent/></React.Suspense>;
+      }
+      return <div className={cn(isDiwaliTheme && 'diwali-theme')}>{children}</div>;
+  }
+  
+  return (
+    <SidebarProvider>
+      <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
+        {/* Primary Sidebar Rail */}
+        <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-4 space-y-2">
+            <Link href="/dashboard" className="mb-4">
+            <SabNodeLogo className="h-8 w-auto" />
+            </Link>
+            {appIcons.map(app => (
+                <SidebarMenuButton
+                    key={app.id}
+                    asChild
+                    tooltip={app.label}
+                    isActive={activeApp === app.id}
+                    className={cn(
+                        'h-10 w-10 rounded-lg transition-colors',
+                        activeApp === app.id ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                    )}
+                >
+                    <Link href={app.href} scroll={false}><app.icon className="h-5 w-5"/></Link>
+                </SidebarMenuButton>
+            ))}
+        </div>
+
+        {/* Secondary Sidebar */}
+        <Sidebar
+            variant="sidebar"
+            collapsible="icon"
+            className="peer group/sidebar w-[240px] border-r bg-sidebar-secondary"
+        >
+          <SidebarHeader className="p-4 flex items-center gap-2">
+              <Link href="/dashboard" className="flex items-center gap-2">
+                  <SabNodeLogo className="h-8 w-auto" />
+              </Link>
+          </SidebarHeader>
+          <SidebarContent>
+              <SidebarMenu>
+              {renderGroupedMenuItems(menuGroups)}
+              </SidebarMenu>
+          </SidebarContent>
+          <SidebarFooter>
+              <SidebarMenu>
+              <SidebarMenuItem>
+                  <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                      <SidebarMenuButton asChild tooltip="My Account">
+                      <button>
+                          <Avatar className="size-7">
+                          <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
+                          <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                          </Avatar>
+                          <span className="truncate group-data-[collapsible=icon]:hidden">{sessionUser?.name || 'My Account'}</span>
+                      </button>
+                      </SidebarMenuButton>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="right" align="start">
+                      <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                      <button className="w-full" onClick={() => openTab({ href: '/dashboard/profile', label: 'Profile', icon: Users, component: LazyProfilePage })}>Profile</button>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                      <button className="w-full" onClick={() => openTab({ href: '/dashboard/billing', label: 'Billing', icon: CreditCard, component: LazyBillingPage })}>Billing</button>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                      <Link href="/api/auth/logout">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Logout</span>
+                      </Link>
+                      </DropdownMenuItem>
+                  </DropdownMenuContent>
+                  </DropdownMenu>
+              </SidebarMenuItem>
+          </SidebarMenu>
+          </SidebarFooter>
+        </Sidebar>
+        
+        <div className="flex-1 flex flex-col min-w-0">
+            <header className="flex h-16 items-center justify-between gap-4 border-b px-4 flex-shrink-0">
+                <div className="flex items-center gap-2">
+                    <SidebarTrigger />
+                </div>
+                <div className="flex items-center gap-2">
+                    {activeApp === 'facebook' && activeProject ? (
+                        <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
+                    ) : (
+                        <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
+                            <Briefcase className="h-4 w-4" />
+                            <span className="truncate">{activeProjectName || 'No Project Selected'}</span>
+                        </div>
+                    )}
+                    <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
+                        <CreditCard className="h-4 w-4" />
+                        <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
+                    </div>
+                </div>
+            </header>
+            <main className="flex-1 flex flex-col overflow-hidden">
+                <div className="flex-shrink-0 border-b">
+                    <ScrollArea className="w-full whitespace-nowrap">
+                        <div className="flex w-max">
+                            {openTabs.map(tab => (
+                                <div key={tab.id} className={cn("flex items-center border-r transition-colors", activeTab === tab.id ? 'bg-background' : 'bg-muted hover:bg-background/80')}>
+                                    <Button variant="ghost" className="h-10 px-3 rounded-none" onClick={() => openTab(tab)}>
+                                        <tab.icon className="mr-2 h-4 w-4"/> {tab.title}
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm mr-2" onClick={() => closeTab(tab.id)}>
+                                        <X className="h-4 w-4"/>
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                        <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
+                </div>
+                <div className="flex-1 overflow-y-auto">
+                    {openTabs.map(tab => (
+                        <div key={tab.id} className={cn("h-full w-full", activeTab === tab.id ? 'block' : 'hidden')}>
+                            <div className="p-4 md:p-6 lg:p-8">
+                                <React.Suspense fallback={<Skeleton className="h-full w-full" />}>
+                                    {React.createElement(tab.component, { children })}
+                                </React.Suspense>
+                            </div>
+                        </div>
+                    ))}
+                    {openTabs.length === 0 && (
+                        <div className="h-full w-full p-4 md:p-6 lg:p-8">
+                            {children}
+                        </div>
+                    )}
+                </div>
+            </main>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
 }
