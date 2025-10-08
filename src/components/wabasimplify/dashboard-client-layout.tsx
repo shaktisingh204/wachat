@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -22,9 +23,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarTrigger,
-  SidebarProvider,
-  SidebarGroupLabel,
-  SidebarSeparator,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -354,13 +353,11 @@ const FullPageSkeleton = () => (
     </div>
 );
 
-export default function RootDashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+
+export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const { isMobile } = useSidebar();
   const [sessionUser, setSessionUser] = React.useState<any>(null);
   const [projects, setProjects] = React.useState<WithId<Project>[]>([]);
   const [activeProject, setActiveProject] = React.useState<WithId<Project> | null>(null);
@@ -615,7 +612,6 @@ export default function RootDashboardLayout({
   }
   
   return (
-    <SidebarProvider>
       <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
         {/* Primary Sidebar Rail */}
         <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-4 space-y-2">
@@ -749,6 +745,5 @@ export default function RootDashboardLayout({
             </main>
         </div>
       </div>
-    </SidebarProvider>
   );
 }
