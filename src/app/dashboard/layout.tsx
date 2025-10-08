@@ -1,9 +1,7 @@
-
 'use client';
 
 import { DashboardClientLayout } from '@/components/wabasimplify/dashboard-client-layout';
-import React, { Suspense } from 'react';
-import { Skeleton } from '@/components/ui/skeleton';
+import React from 'react';
 
 export default function DashboardLayout({
   children,

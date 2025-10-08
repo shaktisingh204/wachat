@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -23,7 +22,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarTrigger,
-  SidebarInset,
+  SidebarProvider,
 } from '@/components/ui/sidebar';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users } from 'lucide-react';
@@ -56,13 +55,6 @@ function FullPageSkeleton() {
 
 const LayoutContent = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
-
-  // Your existing state and logic for the layout
-  const [isLoading, setIsLoading] = React.useState(false); // Add your own loading logic if needed
-
-  if (isLoading) {
-    return <FullPageSkeleton />;
-  }
 
   return (
     <>
@@ -100,7 +92,7 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
           </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
-      <SidebarInset className="flex flex-col">
+      <div className="flex-1 flex flex-col">
         <header className="flex items-center justify-between p-3 border-b bg-background sticky top-0 z-10 shrink-0">
           <div className="flex items-center gap-2">
             <SidebarTrigger />
@@ -134,15 +126,17 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
         <div className="flex-1 min-h-0">
           <main className="flex-1 p-2 md:p-4 lg:p-8 overflow-y-auto">{children}</main>
         </div>
-      </SidebarInset>
+      </div>
     </>
   );
 }
 
 export function AdminDashboardClientLayout({ children }: { children: React.ReactNode }) {
   return (
-      <React.Suspense fallback={<FullPageSkeleton />}>
-        <LayoutContent>{children}</LayoutContent>
-      </React.Suspense>
+      <SidebarProvider>
+          <React.Suspense fallback={<FullPageSkeleton />}>
+            <LayoutContent>{children}</LayoutContent>
+          </React.Suspense>
+      </SidebarProvider>
   );
 }
