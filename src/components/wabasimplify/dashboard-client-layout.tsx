@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -26,7 +27,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookCopy, Contact, File as FileIcon, Star, BadgeInfo, MoreVertical, Check, ChevronsUpDown, X, Sparkles, Plus, Trash2, Edit
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookCopy, Contact, File as FileIcon, Star, BadgeInfo, MoreVertical, Check, ChevronsUpDown, X, Sparkles, Plus, Trash2, Edit, Inbox, Search
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -207,7 +208,7 @@ const facebookMenuGroups = [
     title: 'Meta Commerce',
     items: [
         { href: '/dashboard/facebook/commerce/products', label: 'Products & Collections', icon: ShoppingBag, component: LazyCommerceProductsPage },
-        { href: '/dashboard/facebook/commerce/products/[catalogId]', label: 'Catalog Products', icon: LazyCatalogProductsPage },
+        { href: '/dashboard/facebook/commerce/products/[catalogId]', label: 'Catalog Products', component: LazyCatalogProductsPage },
         { href: '/dashboard/facebook/commerce/shop', label: 'Shop Setup', icon: LayoutDashboard, component: LazyCommerceShopPage },
         { href: '/dashboard/facebook/commerce/orders', label: 'Orders', icon: Package, component: LazyCommerceOrdersPage },
         { href: '/dashboard/facebook/commerce/analytics', label: 'Analytics', icon: BarChart, component: LazyCommerceAnalyticsPage },
@@ -311,6 +312,53 @@ const seoMenuItems = [
     { href: '/dashboard/seo', label: 'Dashboard', icon: TrendingUp, component: LazySeoDashboardPage },
     { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss, component: LazyBrandRadarPage },
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, component: LazySiteExplorerPage },
+];
+
+const crmMenuItems = [
+  { href: "/dashboard/crm", label: "Dashboard", icon: BarChart, component: LazyCrmDashboardPage },
+  {
+      href: "/dashboard/crm/sales",
+      label: "Sales",
+      icon: Handshake,
+      subItems: [
+          { href: "/dashboard/crm/sales/clients", label: "Clients", icon: Building, component: React.lazy(() => import('@/app/dashboard/crm/sales/clients/page')) },
+          { href: "/dashboard/crm/sales/quotations", label: "Quotations", icon: FileText, component: React.lazy(() => import('@/app/dashboard/crm/sales/quotations/page')) },
+          { href: "/dashboard/crm/sales/invoices", label: "Invoices", icon: FileText, component: React.lazy(() => import('@/app/dashboard/crm/sales/invoices/page')) },
+          { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingBag, component: React.lazy(() => import('@/app/dashboard/crm/sales/orders/page')) },
+          { href: "/dashboard/crm/sales/receipts", label: "Payment Receipts", icon: CreditCard, component: React.lazy(() => import('@/app/dashboard/crm/sales/receipts/page')) },
+          { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes", icon: Repeat, component: React.lazy(() => import('@/app/dashboard/crm/sales/credit-notes/page')) },
+          { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans", icon: Truck, component: React.lazy(() => import('@/app/dashboard/crm/sales/delivery/page')) },
+          { href: "/dashboard/crm/sales/proforma", label: "Proforma Invoice", icon: BadgeInfo, component: React.lazy(() => import('@/app/dashboard/crm/sales/proforma/page')) },
+          { href: "/dashboard/crm/sales/forms", label: "Forms", icon: FileText, component: React.lazy(() => import('@/app/dashboard/crm/sales/forms/page')) },
+      ]
+  },
+  { href: "/dashboard/crm/contacts", label: "Contacts", icon: Users, component: React.lazy(() => import('@/app/dashboard/crm/contacts/page')) },
+  { href: "/dashboard/crm/accounts", label: "Accounts", icon: Building, component: React.lazy(() => import('@/app/dashboard/crm/accounts/page')) },
+  { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake, component: React.lazy(() => import('@/app/dashboard/crm/deals/page')) },
+  { href: "/dashboard/crm/tasks", label: "Tasks", icon: FolderKanban, component: React.lazy(() => import('@/app/dashboard/crm/tasks/page')) },
+  {
+      href: "/dashboard/crm/products",
+      label: "Products",
+      icon: ShoppingBag,
+      subItems: [
+          { href: "/dashboard/crm/products", label: "Products", icon: ShoppingBag, component: React.lazy(() => import('@/app/dashboard/crm/products/page')) },
+      ]
+  },
+  { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck, subItems: [
+      { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses", icon: Truck, component: React.lazy(() => import('@/app/dashboard/crm/inventory/warehouses/page')) },
+      { href: "/dashboard/crm/inventory/adjustments", label: "Adjustments", icon: Repeat, component: React.lazy(() => import('@/app/dashboard/crm/inventory/adjustments/page')) },
+  ]},
+  { href: '/dashboard/crm/purchases', label: 'Purchases', icon: ShoppingBag, subItems: [
+      { href: "/dashboard/crm/purchases/vendors", label: "Vendors", icon: Users, component: React.lazy(() => import('@/app/dashboard/crm/purchases/vendors/page')) },
+      { href: "/dashboard/crm/purchases/orders", label: "Purchase Orders", icon: FileText, component: React.lazy(() => import('@/app/dashboard/crm/purchases/orders/page')) },
+      { href: "/dashboard/crm/purchases/expenses", label: "Expenses", icon: IndianRupee, component: React.lazy(() => import('@/app/dashboard/crm/purchases/expenses/page')) },
+      { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes", icon: Repeat, component: React.lazy(() => import('@/app/dashboard/crm/purchases/debit-notes/page')) },
+      { href: "/dashboard/crm/purchases/payouts", label: "Payout Receipts", icon: CreditCard, component: React.lazy(() => import('@/app/dashboard/crm/purchases/payouts/page')) },
+  ] },
+  { href: "/dashboard/crm/automations", label: "Automations", icon: GitFork, component: React.lazy(() => import('@/app/dashboard/crm/automations/page')) },
+  { href: "/dashboard/crm/analytics", label: "Analytics", icon: BarChart, component: React.lazy(() => import('@/app/dashboard/crm/analytics/page')) },
+  { href: "/dashboard/crm/settings", label: "Settings", icon: Settings, component: React.lazy(() => import('@/app/dashboard/crm/settings/page')) },
+  { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare, component: React.lazy(() => import('@/app/dashboard/crm/team-chat/page')) },
 ];
 
 const allCrmMenuItems = crmMenuItems.flatMap((g) => g.subItems || [g]);
