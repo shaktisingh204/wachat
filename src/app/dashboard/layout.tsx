@@ -22,8 +22,10 @@ function FullPageSkeleton() {
 // It uses Suspense to handle the client-side data fetching within DashboardClientLayout.
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
-    <DashboardClientLayout>
-        {children}
-    </DashboardClientLayout>
+    <Suspense fallback={<FullPageSkeleton />}>
+        <DashboardClientLayout>
+            {children}
+        </DashboardClientLayout>
+    </Suspense>
   );
 }
