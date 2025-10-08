@@ -27,7 +27,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookCopy, Contact, File as FileIcon, Star, BadgeInfo, MoreVertical, Check, ChevronsUpDown, X, Sparkles, Plus, Trash2, Edit, Inbox, Search, ShieldCheck, KeyRound, IndianRupee, FilePlus
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookCopy, Contact, File as FileIcon, Star, BadgeInfo, MoreVertical, Check, ChevronsUpDown, X, Sparkles, Plus, Trash2, Edit, Inbox, ShieldCheck, IndianRupee, FilePlus
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -398,7 +398,7 @@ const FullPageSkeleton = () => (
     </div>
 );
 
-export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
+const LayoutContent = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
   const router = useRouter();
   const [sessionUser, setSessionUser] = React.useState<any>(null);
@@ -645,8 +645,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   const ActiveComponent = openTabs.find(tab => tab.id === activeTab)?.component;
 
   return (
-    <SidebarProvider>
-      <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
+    <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
         {/* Primary Sidebar Rail */}
         <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-4 space-y-2">
             <Link href="/dashboard" className="mb-4">
@@ -785,3 +784,4 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     </SidebarProvider>
   );
 }
+
