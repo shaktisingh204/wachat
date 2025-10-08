@@ -5,7 +5,11 @@ import { AdminDashboardClientLayout } from '@/components/wabasimplify/admin-dash
 import { Skeleton } from '@/components/ui/skeleton';
 import { SidebarProvider } from '@/components/ui/sidebar';
 
-export default function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
+export default function AdminDashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <SidebarProvider>
       <Suspense fallback={<Skeleton className="h-screen w-screen" />}>
