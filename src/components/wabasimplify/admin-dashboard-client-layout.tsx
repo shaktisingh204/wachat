@@ -53,90 +53,84 @@ function FullPageSkeleton() {
     );
 }
 
-const LayoutContent = ({ children }: { children: React.ReactNode }) => {
+export function AdminDashboardClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <>
-      <Sidebar>
-        <SidebarHeader>
-          <SabNodeLogo className="w-32 h-auto" />
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            {menuItems.map((item) => {
-              const isActive = (item.href === '/admin/dashboard' && pathname === item.href) || (item.href !== '/admin/dashboard' && pathname.startsWith(item.href));
-              return (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
-                    <Link href={item.href}>
-                      <item.icon className="h-4 w-4" />
-                      <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
+    <SidebarProvider>
+        <Sidebar>
+            <SidebarHeader>
+            <SabNodeLogo className="w-32 h-auto" />
+            </SidebarHeader>
+            <SidebarContent>
+            <SidebarMenu>
+                {menuItems.map((item) => {
+                const isActive = (item.href === '/admin/dashboard' && pathname === item.href) || (item.href !== '/admin/dashboard' && pathname.startsWith(item.href));
+                return (
+                    <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+                        <Link href={item.href}>
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.label}</span>
+                        </Link>
+                    </SidebarMenuButton>
+                    </SidebarMenuItem>
+                );
+                })}
+            </SidebarMenu>
+            </SidebarContent>
+            <SidebarFooter>
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton asChild tooltip="Logout">
+                        <Link href="/api/auth/admin-logout">
+                            <LogOut className="h-4 w-4" />
+                            <span>Logout</span>
+                        </Link>
+                    </SidebarMenuButton>
                 </SidebarMenuItem>
-              );
-            })}
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter>
-          <SidebarMenu>
-            <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Logout">
-                    <Link href="/api/auth/admin-logout">
-                        <LogOut className="h-4 w-4" />
-                        <span>Logout</span>
-                    </Link>
-                </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-      <div className="flex-1 flex flex-col">
-        <header className="flex items-center justify-between p-3 border-b bg-background sticky top-0 z-10 shrink-0">
-          <div className="flex items-center gap-2">
-            <SidebarTrigger />
-            <div className="text-sm font-semibold text-primary">Admin Panel</div>
-          </div>
-          <div className="flex items-center gap-1">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="flex items-center gap-2">
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://placehold.co/100x100.png" alt="Admin Avatar" data-ai-hint="person avatar"/>
-                    <AvatarFallback>A</AvatarFallback>
-                  </Avatar>
-                  <span className="hidden md:inline">Admin User</span>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                 <DropdownMenuItem asChild>
-                    <Link href="/api/auth/admin-logout">
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Logout</span>
-                    </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
-        <div className="flex-1 min-h-0">
-          <main className="flex-1 p-2 md:p-4 lg:p-8 overflow-y-auto">{children}</main>
+            </SidebarMenu>
+            </SidebarFooter>
+        </Sidebar>
+        <div className="flex-1 flex flex-col">
+            <header className="flex items-center justify-between p-3 border-b bg-background sticky top-0 z-10 shrink-0">
+            <div className="flex items-center gap-2">
+                <SidebarTrigger />
+                <div className="text-sm font-semibold text-primary">Admin Panel</div>
+            </div>
+            <div className="flex items-center gap-1">
+                <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-2">
+                    <Avatar className="h-8 w-8">
+                        <AvatarImage src="https://placehold.co/100x100.png" alt="Admin Avatar" data-ai-hint="person avatar"/>
+                        <AvatarFallback>A</AvatarFallback>
+                    </Avatar>
+                    <span className="hidden md:inline">Admin User</span>
+                    <ChevronDown className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                        <Link href="/api/auth/admin-logout">
+                            <LogOut className="mr-2 h-4 w-4" />
+                            <span>Logout</span>
+                        </Link>
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+            </header>
+            <div className="flex-1 min-h-0">
+                <main className="flex-1 p-2 md:p-4 lg:p-8 overflow-y-auto">
+                    <React.Suspense fallback={<Skeleton className="h-full w-full" />}>
+                        {children}
+                    </React.Suspense>
+                </main>
+            </div>
         </div>
-      </div>
-    </>
-  );
-}
-
-export function AdminDashboardClientLayout({ children }: { children: React.ReactNode }) {
-  return (
-      <SidebarProvider>
-          <React.Suspense fallback={<FullPageSkeleton />}>
-            <LayoutContent>{children}</LayoutContent>
-          </React.Suspense>
-      </SidebarProvider>
+    </SidebarProvider>
   );
 }
