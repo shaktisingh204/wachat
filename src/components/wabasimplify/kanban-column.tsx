@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import type { DroppableProvided } from 'react-beautiful-dnd';
 import { KanbanCard } from './kanban-card';
 import type { WithId, Contact } from '@/lib/definitions';
-import { Draggable } from 'react-beautiful-dnd';
 
 interface KanbanColumnProps {
     title: string;
@@ -30,22 +29,10 @@ export function KanbanColumn({ title, contacts, innerRef, droppableProps, isDrag
             <ScrollArea className="flex-1 p-2">
                 <div className="space-y-3">
                     {contacts.map((contact, index) => (
-                        <Draggable key={contact._id.toString()} draggableId={contact._id.toString()} index={index}>
-                            {(provided) => (
-                                <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                >
-                                    <KanbanCard contact={contact} index={index} />
-                                </div>
-                            )}
-                        </Draggable>
+                        <KanbanCard key={contact._id.toString()} contact={contact} index={index} />
                     ))}
                 </div>
             </ScrollArea>
         </div>
     );
 }
-
-    
