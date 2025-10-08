@@ -27,10 +27,10 @@ import {
 } from '@/components/ui/sidebar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookCopy, Contact, File as FileIcon, Star, BadgeInfo, MoreVertical, Check, ChevronsUpDown, X, Sparkles, Plus, Trash2, Edit, Inbox, ShieldCheck, KeyRound, FilePlus, IndianRupee
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Truck, Repeat, Video, Calendar, Package, TrendingUp, Rss, Globe, PhoneCall, Compass, Pencil, BookCopy, Contact, File as FileIcon, Star, BadgeInfo, MoreVertical, Check, ChevronsUpDown, X, Sparkles, Plus, Trash2, Edit, Inbox, ShieldCheck, KeyRound, Search, FilePlus
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
-import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
+import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon, IndianRupee } from '@/components/wabasimplify/custom-sidebar-components';
 import { cn } from '@/lib/utils';
 import { getSession, getProjects } from '@/app/actions';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
@@ -398,7 +398,7 @@ const FullPageSkeleton = () => (
     </div>
 );
 
-export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
+const LayoutContent = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const pathname = usePathname();
   const [sessionUser, setSessionUser] = React.useState<any>(null);
@@ -781,7 +781,15 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             </main>
         </div>
       </div>
-  );
+  )
 }
 
-export { DashboardClientLayout };
+export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
+  return (
+      <SidebarProvider>
+          <React.Suspense fallback={<FullPageSkeleton />}>
+            <LayoutContent>{children}</LayoutContent>
+          </React.Suspense>
+      </SidebarProvider>
+  );
+}
