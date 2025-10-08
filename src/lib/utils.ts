@@ -27,6 +27,10 @@ export const getErrorMessage = (error: any): string => {
             return message;
         }
         if(typeof error.response.data === 'string') {
+            // If the response is a string, it might be an HTML error page.
+            if (error.response.data.trim().startsWith('<')) {
+                return `Request failed with status ${error.response.status}: An unexpected HTML response was received from the server.`;
+            }
              return `Request failed with status ${error.response.status}: ${error.response.data}`;
         }
         return `Request failed with status ${error.response.status}: ${JSON.stringify(error.response.data)}`;
