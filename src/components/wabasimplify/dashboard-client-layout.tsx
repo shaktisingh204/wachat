@@ -134,18 +134,7 @@ const LazyPortfolioBuilderPage = React.lazy(() => import('@/app/dashboard/portfo
 const LazySeoDashboardPage = React.lazy(() => import('@/app/dashboard/seo/page'));
 const LazyBrandRadarPage = React.lazy(() => import('@/app/dashboard/seo/brand-radar/page'));
 const LazySiteExplorerPage = React.lazy(() => import('@/app/dashboard/seo/site-explorer/page'));
-const LazyCrmDashboardPage = React.lazy(() => import('@/app/dashboard/crm/page'));
-const LazyCrmContactsPage = React.lazy(() => import('@/app/dashboard/crm/contacts/page'));
-const LazyCrmAccountsPage = React.lazy(() => import('@/app/dashboard/crm/accounts/page'));
-const LazyCrmDealsPage = React.lazy(() => import('@/app/dashboard/crm/deals/page'));
-const LazyCrmTasksPage = React.lazy(() => import('@/app/dashboard/crm/tasks/page'));
-const LazyCrmProductsPage = React.lazy(() => import('@/app/dashboard/crm/products/page'));
-const LazyCrmInventoryLayout = React.lazy(() => import('@/app/dashboard/crm/inventory/layout'));
-const LazyCrmPurchasesLayout = React.lazy(() => import('@/app/dashboard/crm/purchases/layout'));
-const LazyCrmAutomationsPage = React.lazy(() => import('@/app/dashboard/crm/automations/page'));
-const LazyCrmAnalyticsPage = React.lazy(() => import('@/app/dashboard/crm/analytics/page'));
-const LazyCrmSettingsPage = React.lazy(() => import('@/app/dashboard/crm/settings/page'));
-const LazyCrmTeamChatPage = React.lazy(() => import('@/app/dashboard/crm/team-chat/page'));
+const LazyCrmLayout = React.lazy(() => import('@/app/dashboard/crm/layout'));
 
 // Main menu definitions
 const wachatMenuItems = [
@@ -370,7 +359,7 @@ function FullPageSkeleton() {
     );
 };
 
-const LayoutContent = ({ children }: { children: React.ReactNode }) => {
+export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [sessionUser, setSessionUser] = React.useState<any>(null);
@@ -755,10 +744,4 @@ const LayoutContent = ({ children }: { children: React.ReactNode }) => {
             </div>
         </SidebarProvider>
       )
-  };
-
-export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <LayoutContent>{children}</LayoutContent>
-    )
 }
