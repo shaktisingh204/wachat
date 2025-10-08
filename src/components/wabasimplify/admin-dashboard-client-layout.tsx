@@ -15,10 +15,9 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
-  SidebarProvider,
   Sidebar,
-  SidebarHeader,
   SidebarContent,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
@@ -45,7 +44,7 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
   const pathname = usePathname();
 
   return (
-    <SidebarProvider>
+    <>
       <Sidebar>
         <SidebarHeader>
           <SabNodeLogo className="w-32 h-auto" />
@@ -115,6 +114,6 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
           <main className="flex-1 p-2 md:p-4 lg:p-8 overflow-y-auto">{children}</main>
         </div>
       </SidebarInset>
-    </SidebarProvider>
+    </>
   );
 }
