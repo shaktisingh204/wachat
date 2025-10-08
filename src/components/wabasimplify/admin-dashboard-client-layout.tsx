@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -55,6 +56,15 @@ function FullPageSkeleton() {
 
 export function AdminDashboardClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [isClient, setIsClient] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return <FullPageSkeleton />;
+  }
 
   return (
     <SidebarProvider>
