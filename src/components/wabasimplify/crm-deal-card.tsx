@@ -26,9 +26,8 @@ export function CrmDealCard({ deal, contact, account, taskCount = 0, index }: Cr
                     ref={provided.innerRef}
                     {...provided.draggableProps}
                     {...provided.dragHandleProps}
-                    className="cursor-pointer block"
                 >
-                    <Card className="bg-card shadow-sm hover:shadow-md transition-shadow">
+                    <Card className="cursor-pointer block bg-card shadow-sm hover:shadow-md transition-shadow">
                         <CardHeader className="p-3">
                             <CardTitle className="text-sm font-semibold">{deal.name}</CardTitle>
                         </CardHeader>
