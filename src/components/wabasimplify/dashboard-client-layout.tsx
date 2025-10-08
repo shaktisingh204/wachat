@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -37,8 +36,9 @@ import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 import type { Plan, WithId, Project, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '../ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea, ScrollBar } from '../ui/scroll-area';
+import { crmMenuItems } from './crm/layout';
 
 
 // --- Lazy-loaded page components ---
@@ -313,53 +313,6 @@ const seoMenuItems = [
     { href: '/dashboard/seo', label: 'Dashboard', icon: TrendingUp, component: LazySeoDashboardPage },
     { href: '/dashboard/seo/brand-radar', label: 'Brand Radar', icon: Rss, component: LazyBrandRadarPage },
     { href: '/dashboard/seo/site-explorer', label: 'Site Explorer', icon: Globe, component: LazySiteExplorerPage },
-];
-
-const crmMenuItems = [
-  { href: "/dashboard/crm", label: "Dashboard", icon: BarChart, component: React.lazy(() => import('@/app/dashboard/crm/page')) },
-  {
-      href: "/dashboard/crm/sales",
-      label: "Sales",
-      icon: Handshake,
-      subItems: [
-          { href: "/dashboard/crm/sales/clients", label: "Clients", icon: Building, component: React.lazy(() => import('@/app/dashboard/crm/sales/clients/page')) },
-          { href: "/dashboard/crm/sales/quotations", label: "Quotations", icon: FileText, component: React.lazy(() => import('@/app/dashboard/crm/sales/quotations/page')) },
-          { href: "/dashboard/crm/sales/invoices", label: "Invoices", icon: FileText, component: React.lazy(() => import('@/app/dashboard/crm/sales/invoices/page')) },
-          { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingBag, component: React.lazy(() => import('@/app/dashboard/crm/sales/orders/page')) },
-          { href: "/dashboard/crm/sales/receipts", label: "Payment Receipts", icon: CreditCard, component: React.lazy(() => import('@/app/dashboard/crm/sales/receipts/page')) },
-          { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes", icon: Repeat, component: React.lazy(() => import('@/app/dashboard/crm/sales/credit-notes/page')) },
-          { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans", icon: Truck, component: React.lazy(() => import('@/app/dashboard/crm/sales/delivery/page')) },
-          { href: "/dashboard/crm/sales/proforma", label: "Proforma Invoice", icon: BadgeInfo, component: React.lazy(() => import('@/app/dashboard/crm/sales/proforma/page')) },
-          { href: "/dashboard/crm/sales/forms", label: "Forms", icon: FileText, component: React.lazy(() => import('@/app/dashboard/crm/sales/forms/page')) },
-      ]
-  },
-  { href: "/dashboard/crm/contacts", label: "Contacts", icon: Users, component: React.lazy(() => import('@/app/dashboard/crm/contacts/page')) },
-  { href: "/dashboard/crm/accounts", label: "Accounts", icon: Building, component: React.lazy(() => import('@/app/dashboard/crm/accounts/page')) },
-  { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake, component: React.lazy(() => import('@/app/dashboard/crm/deals/page')) },
-  { href: "/dashboard/crm/tasks", label: "Tasks", icon: FolderKanban, component: React.lazy(() => import('@/app/dashboard/crm/tasks/page')) },
-  {
-      href: "/dashboard/crm/products",
-      label: "Products",
-      icon: ShoppingBag,
-      subItems: [
-          { href: "/dashboard/crm/products", label: "Products", icon: ShoppingBag, component: React.lazy(() => import('@/app/dashboard/crm/products/page')) },
-      ]
-  },
-  { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck, subItems: [
-      { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses", icon: Truck, component: React.lazy(() => import('@/app/dashboard/crm/inventory/warehouses/page')) },
-      { href: "/dashboard/crm/inventory/adjustments", label: "Adjustments", icon: Repeat, component: React.lazy(() => import('@/app/dashboard/crm/inventory/adjustments/page')) },
-  ]},
-  { href: '/dashboard/crm/purchases', label: 'Purchases', icon: ShoppingBag, subItems: [
-      { href: "/dashboard/crm/purchases/vendors", label: "Vendors", icon: Users, component: React.lazy(() => import('@/app/dashboard/crm/purchases/vendors/page')) },
-      { href: "/dashboard/crm/purchases/orders", label: "Purchase Orders", icon: FileText, component: React.lazy(() => import('@/app/dashboard/crm/purchases/orders/page')) },
-      { href: "/dashboard/crm/purchases/expenses", label: "Expenses", icon: IndianRupee, component: React.lazy(() => import('@/app/dashboard/crm/purchases/expenses/page')) },
-      { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes", icon: Repeat, component: React.lazy(() => import('@/app/dashboard/crm/purchases/debit-notes/page')) },
-      { href: "/dashboard/crm/purchases/payouts", label: "Payout Receipts", icon: CreditCard, component: React.lazy(() => import('@/app/dashboard/crm/purchases/payouts/page')) },
-  ] },
-  { href: "/dashboard/crm/automations", label: "Automations", icon: GitFork, component: React.lazy(() => import('@/app/dashboard/crm/automations/page')) },
-  { href: "/dashboard/crm/analytics", label: "Analytics", icon: BarChart, component: React.lazy(() => import('@/app/dashboard/crm/analytics/page')) },
-  { href: "/dashboard/crm/settings", label: "Settings", icon: Settings, component: React.lazy(() => import('@/app/dashboard/crm/settings/page')) },
-  { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare, component: React.lazy(() => import('@/app/dashboard/crm/team-chat/page')) },
 ];
 
 const allCrmMenuItems = crmMenuItems.flatMap((g) => g.subItems || [g]);
@@ -646,151 +599,143 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
   const ActiveComponent = openTabs.find(tab => tab.id === activeTab)?.component;
 
   return (
-      <SidebarProvider>
-        <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
-            {/* Primary Sidebar Rail */}
-            <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-4 space-y-2">
-                <Link href="/dashboard" className="mb-4">
-                <SabNodeLogo className="h-8 w-auto" />
-                </Link>
-                {appIcons.map(app => (
-                    <SidebarMenuButton
-                        key={app.id}
-                        asChild
-                        tooltip={app.label}
-                        isActive={activeApp === app.id}
-                        className={cn(
-                            'h-10 w-10 rounded-lg transition-colors',
-                            activeApp === app.id ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground hover:bg-sidebar-accent'
-                        )}
-                    >
-                        <Link href={app.href} scroll={false}><app.icon className="h-5 w-5"/></Link>
-                    </SidebarMenuButton>
-                ))}
-            </div>
+    <SidebarProvider>
+      <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
+          {/* Primary Sidebar Rail */}
+          <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-4 space-y-2">
+              <Link href="/dashboard" className="mb-4">
+              <SabNodeLogo className="h-8 w-auto" />
+              </Link>
+              {appIcons.map(app => (
+                  <SidebarMenuButton
+                      key={app.id}
+                      asChild
+                      tooltip={app.label}
+                      isActive={activeApp === app.id}
+                      className={cn(
+                          'h-10 w-10 rounded-lg transition-colors',
+                          activeApp === app.id ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'text-sidebar-foreground hover:bg-sidebar-accent'
+                      )}
+                  >
+                      <Link href={app.href} scroll={false}><app.icon className="h-5 w-5"/></Link>
+                  </SidebarMenuButton>
+              ))}
+          </div>
 
-            {/* Secondary Sidebar */}
-            <Sidebar
-                variant="sidebar"
-                collapsible="icon"
-                className="peer group/sidebar w-[240px] border-r bg-sidebar-secondary"
-            >
-            <SidebarHeader className="p-4 flex items-center gap-2">
-                <Link href="/dashboard" className="flex items-center gap-2">
-                    <SabNodeLogo className="h-8 w-auto" />
-                </Link>
-                <span className="text-lg font-semibold truncate group-data-[collapsible=icon]:hidden">
-                    SabNode
-                </span>
-            </SidebarHeader>
-            <SidebarContent>
-                <SidebarMenu>
-                {renderGroupedMenuItems(menuGroups)}
-                </SidebarMenu>
-            </SidebarContent>
-            <SidebarFooter>
-                <SidebarMenu>
-                <SidebarMenuItem>
-                    <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <SidebarMenuButton asChild tooltip="My Account">
-                        <button>
-                            <Avatar className="size-7">
-                            <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                            <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                            </Avatar>
-                            <span className="truncate group-data-[collapsible=icon]:hidden">{sessionUser?.name || 'My Account'}</span>
-                        </button>
-                        </SidebarMenuButton>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent side="right" align="start">
-                        <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                        <button className="w-full" onClick={() => openTab({ href: '/dashboard/profile', label: 'Profile', icon: Users, component: LazyProfilePage })}>Profile</button>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                        <button className="w-full" onClick={() => openTab({ href: '/dashboard/billing', label: 'Billing', icon: CreditCard, component: LazyBillingPage })}>Billing</button>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                        <Link href="/api/auth/logout">
-                            <LogOut className="mr-2 h-4 w-4" />
-                            <span>Logout</span>
-                        </Link>
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                    </DropdownMenu>
-                </SidebarMenuItem>
-            </SidebarMenu>
-            </SidebarFooter>
-            </Sidebar>
-            
-            <div className="flex-1 flex flex-col min-w-0">
-                <header className="flex h-16 items-center justify-between gap-4 border-b px-4 flex-shrink-0">
-                    <div className="flex items-center gap-2">
-                        <SidebarTrigger />
-                    </div>
-                    <div className="flex items-center gap-2">
-                        {activeApp === 'facebook' && activeProject ? (
-                            <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
-                        ) : (
-                            <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
-                                <Briefcase className="h-4 w-4" />
-                                <span className="truncate">{activeProjectName || 'No Project Selected'}</span>
-                            </div>
-                        )}
-                        <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
-                            <CreditCard className="h-4 w-4" />
-                            <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
-                        </div>
-                    </div>
-                </header>
-                <main className="flex-1 flex flex-col overflow-hidden">
-                    <div className="flex-shrink-0 border-b">
-                        <ScrollArea className="w-full whitespace-nowrap">
-                            <div className="flex w-max">
-                                {openTabs.map(tab => (
-                                    <div key={tab.id} className={cn("flex items-center border-r transition-colors", activeTab === tab.id ? 'bg-background' : 'bg-muted hover:bg-background/80')}>
-                                        <Button variant="ghost" className="h-10 px-3 rounded-none" onClick={() => openTab(tab)}>
-                                            <tab.icon className="mr-2 h-4 w-4"/> {tab.title}
-                                        </Button>
-                                        <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm mr-2" onClick={() => closeTab(tab.id)}>
-                                            <X className="h-4 w-4"/>
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                            <ScrollBar orientation="horizontal" />
-                        </ScrollArea>
-                    </div>
-                    <div className="flex-1 overflow-y-auto">
-                        {openTabs.map(tab => (
-                            <div key={tab.id} className={cn("h-full w-full", activeTab === tab.id ? 'block' : 'hidden')}>
-                                <div className="p-4 md:p-6 lg:p-8">
-                                    <React.Suspense fallback={<Skeleton className="h-full w-full" />}>
-                                        {React.createElement(tab.component, { children })}
-                                    </React.Suspense>
-                                </div>
-                            </div>
-                        ))}
-                        {openTabs.length === 0 && (
-                            <div className="h-full w-full p-4 md:p-6 lg:p-8">
-                                {children}
-                            </div>
-                        )}
-                    </div>
-                </main>
-            </div>
-        </div>
+          {/* Secondary Sidebar */}
+          <Sidebar
+              variant="sidebar"
+              collapsible="icon"
+              className="peer group/sidebar w-[240px] border-r bg-sidebar-secondary"
+          >
+          <SidebarHeader className="p-4 flex items-center gap-2">
+              <Link href="/dashboard" className="flex items-center gap-2">
+                  <SabNodeLogo className="h-8 w-auto" />
+              </Link>
+              <span className="text-lg font-semibold truncate group-data-[collapsible=icon]:hidden">
+                  SabNode
+              </span>
+          </SidebarHeader>
+          <SidebarContent>
+              <SidebarMenu>
+              {renderGroupedMenuItems(menuGroups)}
+              </SidebarMenu>
+          </SidebarContent>
+          <SidebarFooter>
+              <SidebarMenu>
+              <SidebarMenuItem>
+                  <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                      <SidebarMenuButton asChild tooltip="My Account">
+                      <button>
+                          <Avatar className="size-7">
+                          <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
+                          <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                          </Avatar>
+                          <span className="truncate group-data-[collapsible=icon]:hidden">{sessionUser?.name || 'My Account'}</span>
+                      </button>
+                      </SidebarMenuButton>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent side="right" align="start">
+                      <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                      <button className="w-full" onClick={() => openTab({ href: '/dashboard/profile', label: 'Profile', icon: Users, component: LazyProfilePage })}>Profile</button>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                      <button className="w-full" onClick={() => openTab({ href: '/dashboard/billing', label: 'Billing', icon: CreditCard, component: LazyBillingPage })}>Billing</button>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem asChild>
+                      <Link href="/api/auth/logout">
+                          <LogOut className="mr-2 h-4 w-4" />
+                          <span>Logout</span>
+                      </Link>
+                      </DropdownMenuItem>
+                  </DropdownMenuContent>
+                  </DropdownMenu>
+              </SidebarMenuItem>
+          </SidebarMenu>
+          </SidebarFooter>
+          </Sidebar>
+          
+          <div className="flex-1 flex flex-col min-w-0">
+              <header className="flex h-16 items-center justify-between gap-4 border-b px-4 flex-shrink-0">
+                  <div className="flex items-center gap-2">
+                      <SidebarTrigger />
+                  </div>
+                  <div className="flex items-center gap-2">
+                      {activeApp === 'facebook' && activeProject ? (
+                          <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
+                      ) : (
+                          <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
+                              <Briefcase className="h-4 w-4" />
+                              <span className="truncate">{activeProjectName || 'No Project Selected'}</span>
+                          </div>
+                      )}
+                      <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
+                          <CreditCard className="h-4 w-4" />
+                          <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
+                      </div>
+                  </div>
+              </header>
+              <main className="flex-1 flex flex-col overflow-hidden">
+                  <div className="flex-shrink-0 border-b">
+                      <ScrollArea className="w-full whitespace-nowrap">
+                          <div className="flex w-max">
+                              {openTabs.map(tab => (
+                                  <div key={tab.id} className={cn("flex items-center border-r transition-colors", activeTab === tab.id ? 'bg-background' : 'bg-muted hover:bg-background/80')}>
+                                      <Button variant="ghost" className="h-10 px-3 rounded-none" onClick={() => openTab(tab)}>
+                                          <tab.icon className="mr-2 h-4 w-4"/> {tab.title}
+                                      </Button>
+                                      <Button variant="ghost" size="icon" className="h-6 w-6 rounded-sm mr-2" onClick={() => closeTab(tab.id)}>
+                                          <X className="h-4 w-4"/>
+                                      </Button>
+                                  </div>
+                              ))}
+                          </div>
+                          <ScrollBar orientation="horizontal" />
+                      </ScrollArea>
+                  </div>
+                  <div className="flex-1 overflow-y-auto">
+                      {openTabs.map(tab => (
+                          <div key={tab.id} className={cn("h-full w-full", activeTab === tab.id ? 'block' : 'hidden')}>
+                              <div className="p-4 md:p-6 lg:p-8">
+                                  <React.Suspense fallback={<Skeleton className="h-full w-full" />}>
+                                      {React.createElement(tab.component, { children })}
+                                  </React.Suspense>
+                              </div>
+                          </div>
+                      ))}
+                      {openTabs.length === 0 && (
+                          <div className="h-full w-full p-4 md:p-6 lg:p-8">
+                              {children}
+                          </div>
+                      )}
+                  </div>
+              </main>
+          </div>
+      </div>
     </SidebarProvider>
   )
 }
-export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
-    return (
-        <React.Suspense fallback={<FullPageSkeleton />}>
-          <LayoutContent>{children}</LayoutContent>
-        </React.Suspense>
-    );
-}
-
