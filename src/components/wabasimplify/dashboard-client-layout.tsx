@@ -315,7 +315,7 @@ const seoMenuItems = [
 ];
 
 const crmMenuItems = [
-  { href: "/dashboard/crm", label: "Dashboard", icon: BarChart, component: LazyCrmDashboardPage },
+  { href: "/dashboard/crm", label: "Dashboard", icon: BarChart, component: React.lazy(() => import('@/app/dashboard/crm/page')) },
   {
       href: "/dashboard/crm/sales",
       label: "Sales",
