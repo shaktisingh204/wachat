@@ -52,7 +52,6 @@ const LazyTemplatesPage = React.lazy(() => import('@/app/dashboard/templates/pag
 const LazyCreateTemplatePage = React.lazy(() => import('@/app/dashboard/templates/create/page'));
 const LazyTemplateLibraryPage = React.lazy(() => import('@/app/dashboard/templates/library/page'));
 const LazyCatalogPage = React.lazy(() => import('@/app/dashboard/catalog/page'));
-const LazyCatalogProductsPage = React.lazy(() => import('@/app/dashboard/facebook/commerce/products/[catalogId]/page'));
 const LazyCallsLayout = React.lazy(() => import('@/app/dashboard/calls/layout'));
 const LazyFlowBuilderPage = React.lazy(() => import('@/app/dashboard/flow-builder/page'));
 const LazyFlowBuilderDocsPage = React.lazy(() => import('@/app/dashboard/flow-builder/docs/page'));
@@ -136,20 +135,6 @@ const LazyBrandRadarPage = React.lazy(() => import('@/app/dashboard/seo/brand-ra
 const LazySiteExplorerPage = React.lazy(() => import('@/app/dashboard/seo/site-explorer/page'));
 const LazyCrmLayout = React.lazy(() => import('@/app/dashboard/crm/layout'));
 
-
-const FullPageSkeleton = () => (
-    <div className="flex h-screen w-screen bg-background">
-        <div className="w-16 border-r bg-muted/30 p-2"><Skeleton className="h-full w-full"/></div>
-        <div className="hidden md:block w-60 border-r bg-muted/30 p-2"><Skeleton className="h-full w-full"/></div>
-        <div className="flex-1 flex flex-col">
-            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
-            <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
-            <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
-        </div>
-    </div>
-);
-
-// Main menu definitions
 const wachatMenuItems = [
   { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'], component: null },
   { href: '/dashboard/overview', label: 'Overview', icon: LayoutDashboard, roles: ['owner', 'admin'], component: LazyDashboardOverviewPage },
@@ -354,6 +339,18 @@ type Tab = {
     component: React.ComponentType;
 };
 
+const FullPageSkeleton = () => (
+    <div className="flex h-screen w-screen bg-background">
+        <div className="w-16 border-r bg-sidebar p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="hidden md:block w-60 border-r bg-sidebar-secondary p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="flex-1 flex flex-col">
+            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
+            <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
+            <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
+        </div>
+    </div>
+);
+
 
 function LayoutContent({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -553,6 +550,10 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     if (isWebsiteBuilderPage || isChatPage) {
         return <div className={cn(isDiwaliTheme && 'diwali-theme')}>{children}</div>;
     }
+
+    if (isVerifying) {
+        return <FullPageSkeleton />;
+    }
         
     const renderMenuItems = (items: any[], isSubmenu = false) => {
         return items.map((item: any) => {
@@ -596,10 +597,6 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     };
 
     const ActiveComponent = openTabs.find(tab => tab.id === activeTab)?.component;
-
-    if (isVerifying) {
-        return <FullPageSkeleton />;
-    }
 
     return (
         <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
