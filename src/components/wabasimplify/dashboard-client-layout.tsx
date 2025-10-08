@@ -80,7 +80,7 @@ const LazyPostRandomizerPage = React.lazy(() => import('@/app/dashboard/facebook
 const LazyFacebookMessagesPage = React.lazy(() => import('@/app/dashboard/facebook/messages/page'));
 const LazyFacebookKanbanPage = React.lazy(() => import('@/app/dashboard/facebook/kanban/page'));
 const LazyFacebookAutomationPage = React.lazy(() => import('@/app/dashboard/facebook/auto-reply/page'));
-const LazyFacebookAgentsPage = React.lazy(() import('@/app/dashboard/facebook/agents/page'));
+const LazyFacebookAgentsPage = React.lazy(() => import('@/app/dashboard/facebook/agents/page'));
 const LazyFacebookKnowledgePage = React.lazy(() => import('@/app/dashboard/facebook/knowledge/page'));
 const LazyCustomEcommerceDashboard = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/page'));
 const LazyEcommProductsPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/products/page'));
@@ -366,13 +366,13 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
     const [activeApp, setActiveApp] = React.useState('whatsapp');
     const [isVerifying, setIsVerifying] = React.useState(true);
     const [isDiwaliTheme, setIsDiwaliTheme] = React.useState(false);
-
+    
     const [openTabs, setOpenTabs] = React.useState<Tab[]>([]);
     const [activeTab, setActiveTab] = React.useState<string | null>(null);
 
     const isWebsiteBuilderPage = pathname.includes('/builder');
     const isChatPage = pathname.startsWith('/dashboard/chat') || pathname.startsWith('/dashboard/facebook/messages') || pathname.startsWith('/dashboard/facebook/kanban');
-    
+
     React.useEffect(() => {
         const fetchAndSetData = async () => {
             try {
@@ -742,11 +742,16 @@ function LayoutContent({ children }: { children: React.ReactNode }) {
 }
 
 export function DashboardClientLayout({ children }: { children: React.ReactNode }) {
+    const [isClient, setIsClient] = React.useState(false);
+    React.useEffect(() => { setIsClient(true) }, []);
+
+    if (!isClient) {
+        return <FullPageSkeleton />;
+    }
+
     return (
         <SidebarProvider>
             <LayoutContent>{children}</LayoutContent>
         </SidebarProvider>
     )
 }
-
-    
