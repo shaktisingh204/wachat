@@ -1,4 +1,5 @@
 
+'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
@@ -19,13 +20,25 @@ export const dynamic = 'force-dynamic';
 async function processWebhooks() {
     const { db } = await connectToDatabase();
     
-    const pendingWebhooks = await db.collection('webhook_queue').find({
+    const pendingWebhookIds = await db.collection('webhook_queue').find({
         status: 'PENDING'
-    }).limit(BATCH_SIZE).toArray();
+    }).project({ _id: 1 }).limit(BATCH_SIZE).toArray();
 
-    if (pendingWebhooks.length === 0) {
+    if (pendingWebhookIds.length === 0) {
         return { message: 'No pending webhooks to process.' };
     }
+    
+    const idsToProcess = pendingWebhookIds.map(w => w._id);
+
+    // Atomically mark them as processing to prevent other workers from picking them up
+    const updateResult = await db.collection('webhook_queue').updateMany(
+        { _id: { $in: idsToProcess }, status: 'PENDING' },
+        { $set: { status: 'PROCESSING' } }
+    );
+
+    const pendingWebhooks = await db.collection('webhook_queue').find({
+        _id: { $in: idsToProcess }
+    }).toArray();
 
     // Group webhooks by project and then by type
     const groupedByProject: { [projectId: string]: { statuses: any[], messages: any[], comments: any[], messengerEvents: any[], others: any[] } } = {};

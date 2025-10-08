@@ -14,9 +14,12 @@ const app = next({ dev, hostname, port, dir: __dirname });
 const handle = app.getRequestHandler();
 
 if (cluster.isPrimary) {
-  const numCPUs = Math.min(os.cpus().length, 70);
+  const totalCpus = os.cpus().length;
+  // Reserve 10% of CPUs, ensure at least 1 core is used for the app
+  const numCPUs = Math.max(1, Math.floor(totalCpus * 0.9)); 
+  
   console.log(`\n\x1b[32m[Cluster] Primary process ${process.pid} is running.\x1b[0m`);
-  console.log(`\x1b[32m[Cluster] Forking for ${numCPUs} CPU cores.\x1b[0m\n`);
+  console.log(`\x1b[32m[Cluster] Total Cores: ${totalCpus}, Using: ${numCPUs} (90%) for workers.\x1b[0m\n`);
 
   for (let i = 0; i < numCPUs; i++) {
     cluster.fork();
@@ -48,7 +51,3 @@ if (cluster.isPrimary) {
     });
   });
 }
-
-  
-
-    
