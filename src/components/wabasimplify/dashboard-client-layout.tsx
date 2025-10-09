@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -228,16 +228,11 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             setIsDiwaliTheme(diwaliStatus?.enabled || false);
 
             const { projects: fetchedProjects } = await getProjects() || { projects: [] };
-            if (!fetchedProjects || fetchedProjects.length === 0) {
-                setProjects([]);
-                setIsVerifying(false);
-                if(pathname !== '/dashboard/setup' && !pathname.startsWith('/dashboard/facebook/all-projects')) {
-                    router.push('/dashboard/setup');
-                }
-                return;
-            }
-            setProjects(fetchedProjects);
+            setProjects(fetchedProjects || []);
 
+            // The redirect logic has been removed from here to prevent loops on the setup page.
+            // If there are no projects, the UI will guide the user.
+            
             let currentApp = 'whatsapp';
             if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
             else if (pathname.startsWith('/dashboard/instagram')) { currentApp = 'instagram'; }
@@ -252,7 +247,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             setActiveApp(currentApp);
 
             const storedProjectId = localStorage.getItem('activeProjectId');
-            const projectExists = fetchedProjects.some(p => p._id.toString() === storedProjectId);
+            const projectExists = (fetchedProjects || []).some(p => p._id.toString() === storedProjectId);
 
             if (pathname === '/dashboard') {
                 localStorage.removeItem('activeProjectId');
@@ -382,7 +377,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                 )}
                  {activeApp === 'crm' && (
                      <SidebarMenu>
-                        {crmMenuItems.filter(item => !item.href.includes('[')).map(item => (
+                        {crmMenuItems.filter(item => !item.subItems).map(item => (
                              <SidebarMenuItem key={item.href}>
                                 <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                                     <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
@@ -402,7 +397,72 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                         ))}
                     </SidebarMenu>
                 )}
-                {/* Other App Menus go here */}
+                 {activeApp === 'sms' && (
+                     <SidebarMenu>
+                        {smsMenuItems.map(item => (
+                             <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                                    <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                )}
+                {activeApp === 'api' && (
+                     <SidebarMenu>
+                        {apiMenuItems.map(item => (
+                             <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                                    <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                )}
+                 {activeApp === 'website-builder' && (
+                     <SidebarMenu>
+                        {portfolioMenuItems.map(item => (
+                             <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                                    <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                )}
+                {activeApp === 'url-shortener' && (
+                     <SidebarMenu>
+                        {urlShortenerMenuItems.map(item => (
+                             <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                                    <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                )}
+                 {activeApp === 'qr-code-maker' && (
+                     <SidebarMenu>
+                        {qrCodeMakerMenuItems.map(item => (
+                             <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                                    <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                )}
+                {activeApp === 'seo-suite' && (
+                     <SidebarMenu>
+                        {seoMenuItems.map(item => (
+                             <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                                    <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                )}
             </SidebarContent>
             <SidebarFooter>
                 <DropdownMenu>
@@ -410,7 +470,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                         <Button variant="ghost" className="w-full justify-start gap-2">
                              <Avatar className="size-7">
                                 <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                                <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                                <AvatarFallback>{sessionUser?.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
                             </Avatar>
                             <span className="truncate flex-1 text-left">{sessionUser?.name}</span>
                             <ChevronsUpDown className="h-4 w-4 opacity-50"/>
@@ -456,3 +516,4 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     </SidebarProvider>
   );
 }
+
