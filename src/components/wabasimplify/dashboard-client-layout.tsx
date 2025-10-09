@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -252,7 +252,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                 setActiveProjectId(null);
                 setActiveProjectName(null);
                 setActiveProject(null);
-            } else if (pathname !== '/dashboard/setup' && storedProjectId && projectExists) {
+            } else if (storedProjectId && projectExists) {
                 setActiveProjectId(storedProjectId);
                 const currentActiveProject = fetchedProjects.find(p => p._id.toString() === storedProjectId);
                 setActiveProject(currentActiveProject || null);
@@ -375,7 +375,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                 )}
                  {activeApp === 'crm' && (
                      <SidebarMenu>
-                        {crmMenuItems.filter(item => !item.subItems).map(item => (
+                        {crmMenuItems.map(item => (
                              <SidebarMenuItem key={item.href}>
                                 <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                                     <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
