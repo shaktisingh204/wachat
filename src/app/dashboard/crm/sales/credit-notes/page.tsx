@@ -11,7 +11,7 @@ import { Plus, Repeat, LoaderCircle } from "lucide-react";
 import Link from 'next/link';
 import { getCreditNotes } from '@/app/actions/crm-credit-notes.actions';
 import { getCrmAccounts } from '@/app/actions/crm-accounts.actions';
-import type { WithId, CrmCreditNote } from '@/lib/definitions';
+import type { WithId, CrmCreditNote, CrmAccount } from '@/lib/definitions';
 
 export default function CreditNotesPage() {
     const [notes, setNotes] = useState<WithId<CrmCreditNote>[]>([]);
@@ -53,7 +53,7 @@ export default function CreditNotesPage() {
                         </div>
                         <CardTitle className="mt-4 text-2xl">Credit Notes</CardTitle>
                         <CardDescription>
-                            Provide Rebates To Customers With Credit Notes. Create, Share, Track, and Manage All Credit Notes In One Place.
+                            Issue refunds or credits to your customers with professional credit notes.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="flex flex-col sm:flex-row gap-4 justify-center">
