@@ -108,7 +108,7 @@ export function ImageCarouselBlockEditor({ settings, onUpdate }: { settings: any
                                     <Label>Slide {index + 1}</Label>
                                      <div className="flex items-center gap-2">
                                         <Input type="file" accept="image/*" className="flex-1" onChange={(e) => handleFileChange(e.target.files?.[0] || null, (dataUri) => handleImageChange(index, 'src', dataUri))} />
-                                        {item.src && <Image src={item.src} alt="preview" width={40} height={40} className="rounded-md object-cover" />}
+                                        {item.src && <Image src={item.src} alt="preview" width={40} height={40} className="rounded-sm object-cover" />}
                                     </div>
                                     <Input placeholder="Link URL (Optional)" value={item.link || ''} onChange={(e) => handleImageChange(index, 'link', e.target.value)} />
                                     <Input placeholder="Caption (Optional)" value={item.caption || ''} onChange={(e) => handleImageChange(index, 'caption', e.target.value)} />
@@ -126,7 +126,7 @@ export function ImageCarouselBlockEditor({ settings, onUpdate }: { settings: any
                             </div>
                             <div className="space-y-2"><Label>Navigation</Label><Select value={settings.navigation || 'arrows_dots'} onValueChange={v => handleUpdate('navigation', v)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="none">None</SelectItem><SelectItem value="arrows">Arrows</SelectItem><SelectItem value="dots">Dots</SelectItem><SelectItem value="arrows_dots">Arrows & Dots</SelectItem></SelectContent></Select></div>
                              <div className="flex items-center justify-between"><Label>Image Stretch</Label><Switch checked={settings.imageStretch} onCheckedChange={(val) => handleUpdate('imageStretch', val)} /></div>
-                            <Separator/>
+                            <Separator />
                             <div className="flex items-center justify-between"><Label>Autoplay</Label><Switch checked={settings.autoplay || false} onCheckedChange={(val) => handleUpdate('autoplay', val)} /></div>
                             {settings.autoplay && <div className="space-y-2"><Label>Autoplay Speed (ms)</Label><Input type="number" placeholder="3000" value={settings.autoplayDelay || 3000} onChange={e => handleUpdate('autoplayDelay', Number(e.target.value))}/></div>}
                             <div className="flex items-center justify-between"><Label>Pause on Hover</Label><Switch checked={settings.pauseOnHover || false} onCheckedChange={(val) => handleUpdate('pauseOnHover', val)} /></div>
