@@ -29,6 +29,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { crmMenuItems } from '@/app/dashboard/crm/layout';
+import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 
 // --- Lazy-loaded page components ---
 const LazyDashboardOverviewPage = React.lazy(() => import('@/app/dashboard/overview/page'));
@@ -330,9 +331,9 @@ type Tab = {
 const FullPageSkeleton = () => (
     <div className="flex h-screen w-screen bg-background">
         <div className="w-16 border-r bg-sidebar p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="w-60 border-r bg-sidebar-secondary p-2"><Skeleton className="h-full w-full"/></div>
         <div className="flex-1 flex flex-col">
             <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
-            <div className="h-12 border-b p-2"><Skeleton className="h-full w-full"/></div>
             <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
         </div>
     </div>
@@ -525,23 +526,121 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   }
   
   return (
-      <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
+    <SidebarProvider>
+      <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
         {/* Primary Sidebar Rail */}
-        <div className="flex-shrink-0 w-20 border-r bg-sidebar flex flex-col items-center py-4 space-y-2 bg-glass">
+        <div className="flex-shrink-0 w-20 border-r bg-sidebar flex flex-col items-center py-4 space-y-2">
             <Link href="/dashboard" className="mb-4">
             <SabNodeLogo className="h-8 w-auto" />
             </Link>
             {appIcons.map(app => (
-                <Button key={app.id} asChild variant={activeApp === app.id ? "theme" : "ghost"} className="h-14 w-14 rounded-lg">
-                    <Link href={app.href} scroll={false}><app.icon className="h-6 w-6"/></Link>
+                 <Button key={app.id} asChild variant={activeApp === app.id ? "sidebar-active" : "ghost"} className="h-14 w-14 rounded-lg flex-col justify-center gap-1 text-xs">
+                    <Link href={app.href} scroll={false} className="h-full w-full">
+                        <app.icon className="h-5 w-5"/>
+                        <span className="text-[10px] leading-tight">{app.label.split(' ')[0]}</span>
+                    </Link>
                 </Button>
             ))}
         </div>
         
+        {/* Secondary Sidebar */}
+        <Sidebar>
+            <SidebarHeader>
+                <h2 className="text-lg font-semibold tracking-tight text-sidebar-foreground">
+                    {appIcons.find(app => app.id === activeApp)?.label || 'SabNode'}
+                </h2>
+            </SidebarHeader>
+             <SidebarContent>
+                 {activeApp === 'whatsapp' && (
+                     <SidebarMenu>
+                         {wachatMenuItems.filter(item => item.roles.includes(currentUserRole) && !item.href.includes('[')).map((item) => (
+                             <SidebarMenuItem key={item.href}>
+                                 <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                                     <Link href={item.href}><item.icon /><span>{item.label}</span></Link>
+                                 </SidebarMenuButton>
+                             </SidebarMenuItem>
+                         ))}
+                     </SidebarMenu>
+                 )}
+                 {activeApp === 'facebook' && (
+                    <SidebarMenu>
+                      {facebookMenuGroups.map(group => (
+                        <React.Fragment key={group.title}>
+                          <p className="px-3 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mt-4 mb-1">{group.title}</p>
+                          {group.items.filter(item => !item.href.includes('[')).map(item => (
+                            <SidebarMenuItem key={item.href}>
+                              <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                                <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuItem>
+                          ))}
+                        </React.Fragment>
+                      ))}
+                    </SidebarMenu>
+                )}
+                {activeApp === 'instagram' && (
+                     <SidebarMenu>
+                        {instagramMenuGroups.flatMap(g => g.items).filter(item => !item.href.includes('[')).map(item => (
+                            <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                                    <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                )}
+                 {activeApp === 'crm' && (
+                     <SidebarMenu>
+                        {crmMenuItems.filter(item => !item.href.includes('[')).map(item => (
+                             <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                                    <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                )}
+                 {activeApp === 'email' && (
+                     <SidebarMenu>
+                        {emailMenuItems.map(item => (
+                             <SidebarMenuItem key={item.href}>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                                    <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        ))}
+                    </SidebarMenu>
+                )}
+                {/* Other App Menus go here */}
+            </SidebarContent>
+            <SidebarFooter>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" className="w-full justify-start gap-2">
+                             <Avatar className="size-7">
+                                <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
+                                <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+                            </Avatar>
+                            <span className="truncate flex-1 text-left">{sessionUser?.name}</span>
+                            <ChevronsUpDown className="h-4 w-4 opacity-50"/>
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56 mb-2" align="end" side="top">
+                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                        <DropdownMenuSeparator/>
+                        <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
+                        <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
+                        <DropdownMenuSeparator/>
+                        <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4"/>Logout</Link></DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </SidebarFooter>
+        </Sidebar>
+
         <div className="flex-1 flex flex-col min-w-0">
             <header className="flex h-16 items-center justify-between gap-4 border-b px-4 flex-shrink-0">
-                 <div></div> {/* Placeholder for left content */}
-                <div className="flex items-center gap-2">
+                 <div className="flex items-center gap-2">
+                    <SidebarTrigger />
                     {activeApp === 'facebook' && activeProject ? (
                         <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
                     ) : (
@@ -550,6 +649,8 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                             <span className="truncate">{activeProjectName || 'No Project Selected'}</span>
                         </div>
                     )}
+                </div>
+                <div className="flex items-center gap-2">
                     <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
                         <CreditCard className="h-4 w-4" />
                         <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
@@ -593,6 +694,6 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             </main>
         </div>
       </div>
+    </SidebarProvider>
   );
 }
-
