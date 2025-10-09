@@ -112,6 +112,9 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
         if ('slug' in shop) { // It's an EcommShop
              const newPages = await getEcommPages(shop._id.toString());
              setPages(newPages);
+        } else { // It's a portfolio Website
+             const newPages = await getWebsitePages(shop._id.toString());
+             setPages(newPages);
         }
     };
 
@@ -242,3 +245,4 @@ export function WebsiteBuilder({ shop, initialPages, availableProducts }: { shop
         </DragDropContext>
     );
 }
+
