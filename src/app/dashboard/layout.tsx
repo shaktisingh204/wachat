@@ -555,25 +555,6 @@ export default function RootDashboardLayout({ children }: { children: React.Reac
                         <CreditCard className="h-4 w-4" />
                         <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
                     </div>
-                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="flex items-center gap-2">
-                                <Avatar className="size-7">
-                                    <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                                    <AvatarFallback>{sessionUser?.name.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                                </Avatar>
-                                <span className="hidden md:inline">{sessionUser?.name || 'My Account'}</span>
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>{sessionUser?.name || 'My Account'}</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
-                            <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4" /><span>Logout</span></Link></DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
                 </div>
             </header>
             <main className="flex-1 flex flex-col overflow-hidden">

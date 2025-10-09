@@ -6,7 +6,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 
 export const metadata: Metadata = {
   title: 'SabNode',
-  description: 'Your All-in-One Business Communication Platform',
+  description: 'Your All-in-One Business Communication and Growth Platform',
 };
 
 export const viewport: Viewport = {
