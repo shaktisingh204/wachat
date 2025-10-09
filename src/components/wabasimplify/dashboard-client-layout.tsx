@@ -72,7 +72,6 @@ const LazyCustomEcommerceDashboard = React.lazy(() => import('@/app/dashboard/fa
 const LazyEcommProductsPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/products/page'));
 const LazyEcommOrdersPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/orders/page'));
 const LazyEcommWebsiteBuilderPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/website-builder/page'));
-const LazyEcommFlowBuilderPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/flow-builder/page'));
 const LazyEcommSettingsPage = React.lazy(() => import('@/app/dashboard/facebook/custom-ecommerce/manage/[shopId]/settings/page'));
 const LazyCommerceProductsPage = React.lazy(() => import('@/app/dashboard/facebook/commerce/products/page'));
 const LazyCatalogProductsPage = React.lazy(() => import('@/app/dashboard/facebook/commerce/products/[catalogId]/page'));
@@ -190,7 +189,6 @@ const facebookMenuGroups = [
       { href: '/dashboard/facebook/custom-ecommerce/manage/[shopId]/products', label: 'Products', icon: ShoppingBag, component: LazyEcommProductsPage },
       { href: '/dashboard/facebook/custom-ecommerce/manage/[shopId]/orders', label: 'Orders', icon: Package, component: LazyEcommOrdersPage },
       { href: '/dashboard/facebook/custom-ecommerce/manage/[shopId]/website-builder', label: 'Website Builder', icon: Brush, component: LazyEcommWebsiteBuilderPage },
-      { href: '/dashboard/facebook/custom-ecommerce/manage/[shopId]/flow-builder', label: 'Chat Bot', icon: Sparkles, component: LazyEcommFlowBuilderPage },
       { href: '/dashboard/facebook/custom-ecommerce/manage/[shopId]/settings', label: 'Settings', icon: Settings, component: LazyEcommSettingsPage },
     ],
   },
@@ -597,3 +595,4 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
       </div>
   );
 }
+
