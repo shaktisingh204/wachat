@@ -3,6 +3,7 @@
 
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { MessageSquare } from "lucide-react";
+import {Calendar} from 'lucide-react';
 
 export default function InstagramMessagesPage() {
     return (
