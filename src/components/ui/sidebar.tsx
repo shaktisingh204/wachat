@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { ScrollArea } from './scroll-area';
-import { PanelLeft } from 'lucide-react';
+import { PanelLeft , Calendar } from 'lucide-react';
 
 type SidebarContextProps = {
   isOpen: boolean;
