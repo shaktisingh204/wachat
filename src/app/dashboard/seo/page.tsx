@@ -5,7 +5,7 @@ import { useEffect, useState, useTransition } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { TrendingUp, Users, Link as LinkIcon, BarChart, Globe } from 'lucide-react';
+import { Star, Users, Link as LinkIcon, BarChart, Globe } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { Skeleton } from '@/components/ui/skeleton';
 import { getSiteMetrics } from '@/app/actions/seo.actions';
@@ -54,7 +54,7 @@ export default function SeoDashboardPage() {
              <div className="flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-                        <TrendingUp className="h-8 w-8"/>
+                        <BarChart className="h-8 w-8"/>
                         SEO Dashboard
                     </h1>
                     <p className="text-muted-foreground mt-2">
@@ -88,7 +88,7 @@ export default function SeoDashboardPage() {
                 <StatCard title="Domain Authority" value={metrics.domainAuthority} icon={BarChart} gradient="card-gradient-purple" />
                 <StatCard title="Linking Domains" value={metrics.linkingDomains} icon={Globe} gradient="card-gradient-green" />
                 <StatCard title="Total Backlinks" value={metrics.totalBacklinks} icon={LinkIcon} gradient="card-gradient-blue" />
-                <StatCard title="Top Keywords" value={metrics.keywords.filter(k => k.position <= 3).length} icon={TrendingUp} gradient="card-gradient-orange" />
+                <StatCard title="Top Keywords" value={metrics.keywords.filter(k => k.position <= 3).length} icon={Star} gradient="card-gradient-orange" />
             </div>
 
             <Card>
