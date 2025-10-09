@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -252,12 +252,12 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                 setActiveProjectId(null);
                 setActiveProjectName(null);
                 setActiveProject(null);
-            } else if (storedProjectId && projectExists) {
+            } else if (pathname !== '/dashboard/setup' && storedProjectId && projectExists) {
                 setActiveProjectId(storedProjectId);
                 const currentActiveProject = fetchedProjects.find(p => p._id.toString() === storedProjectId);
                 setActiveProject(currentActiveProject || null);
                 setActiveProjectName(currentActiveProject?.name || 'Loading...');
-            } else {
+            } else if (pathname !== '/dashboard/setup') {
                 localStorage.removeItem('activeProjectId');
                 localStorage.removeItem('activeProjectName');
                 setActiveProjectId(null);
@@ -272,12 +272,8 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         }
     };
     
-    // Do not fetch data if on the setup page
-    if (!pathname.startsWith('/dashboard/setup')) {
-      fetchAndSetData();
-    } else {
-      setIsVerifying(false);
-    }
+    fetchAndSetData();
+    
   }, [pathname, router, isClient]);
 
   const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
