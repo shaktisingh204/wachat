@@ -7,6 +7,7 @@ import { WebhookLogs } from "@/components/wabasimplify/webhook-logs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Lightbulb } from "lucide-react";
+import {Calendar} from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
 
