@@ -40,7 +40,7 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
-import {Calendar} from lucide-react;
+import {Calendar} from 'lucide-react';
 
 
 type Broadcast = {
