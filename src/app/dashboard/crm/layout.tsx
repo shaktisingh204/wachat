@@ -32,6 +32,7 @@ export const crmMenuItems = [
         icon: Handshake,
         subItems: [
             { href: "/dashboard/crm/sales/clients", label: "Clients", icon: Building },
+            { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake },
             { href: "/dashboard/crm/sales/quotations", label: "Quotations", icon: FileText },
             { href: "/dashboard/crm/sales/invoices", label: "Invoices", icon: FileText },
             { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingCart },
