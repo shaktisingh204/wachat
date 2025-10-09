@@ -2,6 +2,7 @@
 'use client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BookCopy } from 'lucide-react';
+import {Calendar} from 'lucide-react';
 
 export default function KnowledgePage() {
     return (
