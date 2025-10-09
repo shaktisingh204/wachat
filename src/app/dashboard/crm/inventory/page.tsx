@@ -1,6 +1,7 @@
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { BarChart, Clock, AlertTriangle, Package } from 'lucide-react';
+import {Calendar} from 'lucide-react';
 
 const StatCard = ({ title, value, icon: Icon }: { title: string, value: string | number, icon: React.ElementType }) => (
     <Card>
