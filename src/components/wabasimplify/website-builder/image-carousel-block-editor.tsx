@@ -4,13 +4,13 @@
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, TrendingUp } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Image from 'next/image';
 import { Slider } from '@/components/ui/slider';
 
@@ -30,29 +30,10 @@ const handleFileChange = (file: File | null, callback: (dataUri: string) => void
     reader.readAsDataURL(file);
 };
 
+
 const hoverAnimationOptions = [
-    { value: 'none', label: 'None' },
-    { value: 'zoom', label: 'Zoom' },
-    { value: 'grow', label: 'Grow' },
-    { value: 'shrink', label: 'Shrink' },
-    { value: 'pulse', label: 'Pulse' },
-    { value: 'pulseGrow', label: 'Pulse Grow' },
-    { value: 'pulseShrink', label: 'Pulse Shrink' },
-    { value: 'push', label: 'Push' },
-    { value: 'pop', label: 'Pop' },
-    { value: 'bounceIn', label: 'Bounce In' },
-    { value: 'bounceOut', label: 'Bounce Out' },
-    { value: 'rotate', label: 'Rotate' },
-    { value: 'growRotate', label: 'Grow Rotate' },
-    { value: 'float', label: 'Float' },
-    { value: 'sink', label: 'Sink' },
-    { value: 'bob', label: 'Bob' },
-    { value: 'hang', label: 'Hang' },
-    { value: 'skew', label: 'Skew' },
-    { value: 'skewForward', label: 'Skew Forward' },
-    { value: 'skewBackward', label: 'Skew Backward' },
-    { value: 'wobbleHorizontal', label: 'Wobble Horizontal' },
-    { value: 'wobbleVertical', label: 'Wobble Vertical' },
+    { value: 'none', label: 'None' }, { value: 'grow', label: 'Grow' }, { value: 'shrink', label: 'Shrink' },
+    { value: 'pulse', label: 'Pulse' }, { value: 'bob', label: 'Bob' }, { value: 'wobbleHorizontal', label: 'Wobble Horizontal' },
 ];
 
 export function ImageCarouselBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
@@ -174,7 +155,10 @@ export function ImageCarouselBlockEditor({ settings, onUpdate }: { settings: any
                         <AccordionTrigger>CSS Filters</AccordionTrigger>
                         <AccordionContent className="space-y-4 pt-2">
                              <Tabs defaultValue="normal">
-                                <TabsList><TabsTrigger value="normal">Normal</TabsTrigger><TabsTrigger value="hover">Hover</TabsTrigger></TabsList>
+                                <TabsList className="grid w-full grid-cols-2">
+                                    <TabsTrigger value="normal">Normal</TabsTrigger>
+                                    <TabsTrigger value="hover">Hover</TabsTrigger>
+                                </TabsList>
                                 <TabsContent value="normal" className="pt-4 space-y-4">
                                      <div className="space-y-2"><Label>Blur (px)</Label><Slider value={[settings.filter?.blur || 0]} onValueChange={v => handleSubFieldUpdate('filter', 'blur', v[0])} min={0} max={10} step={1} /></div>
                                      <div className="space-y-2"><Label>Brightness (%)</Label><Slider value={[settings.filter?.brightness || 100]} onValueChange={v => handleSubFieldUpdate('filter', 'brightness', v[0])} min={0} max={200} step={5} /></div>
