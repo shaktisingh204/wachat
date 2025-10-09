@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -229,9 +229,6 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 
             const { projects: fetchedProjects } = await getProjects() || { projects: [] };
             setProjects(fetchedProjects || []);
-
-            // The redirect logic has been removed from here to prevent loops on the setup page.
-            // If there are no projects, the UI will guide the user.
             
             let currentApp = 'whatsapp';
             if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
@@ -275,7 +272,12 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         }
     };
     
-    fetchAndSetData();
+    // Do not fetch data if on the setup page
+    if (!pathname.startsWith('/dashboard/setup')) {
+      fetchAndSetData();
+    } else {
+      setIsVerifying(false);
+    }
   }, [pathname, router, isClient]);
 
   const facebookProjects = projects.filter(p => p.facebookPageId && !p.wabaId);
@@ -516,4 +518,3 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     </SidebarProvider>
   );
 }
-
