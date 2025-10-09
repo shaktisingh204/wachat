@@ -3,13 +3,13 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import { Button, type ButtonProps } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { ScrollArea } from './scroll-area';
+import { PanelLeft } from 'lucide-react';
 
 type SidebarContextProps = {
   isOpen: boolean;
@@ -52,13 +52,15 @@ export function Sidebar({ className, children }: { className?: string; children:
   if (isMobile) {
     return (
       <Drawer open={isOpen} onOpenChange={setIsOpen} direction="left">
-        <DrawerContent className="h-full max-w-xs p-0">{sidebarContent}</DrawerContent>
+        <DrawerContent className="h-full max-w-xs p-0 bg-sidebar-secondary-background">
+            {sidebarContent}
+        </DrawerContent>
       </Drawer>
     );
   }
 
   return (
-    <aside className={cn('flex h-screen flex-col border-r bg-sidebar transition-[width]', isOpen ? 'w-60' : 'w-16', className)}>
+    <aside className={cn('flex h-screen flex-col border-r bg-sidebar-secondary transition-[width]', isOpen ? 'w-60' : 'w-0 hidden', className)}>
       {sidebarContent}
     </aside>
   );
@@ -69,7 +71,7 @@ export const SidebarHeader = React.forwardRef<HTMLDivElement, React.HTMLAttribut
 ));
 SidebarHeader.displayName = 'SidebarHeader';
 
-export function SidebarContent({ className, children, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function SidebarContent({ className, children }: React.HTMLAttributes<HTMLDivElement>) {
   const { isOpen } = useSidebar();
   return (
     <ScrollArea className="flex-1" viewportClassName={cn(!isOpen && 'p-2')}>
@@ -104,7 +106,7 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
     const buttonContent = (
       <Button
         ref={ref}
-        variant={isActive ? 'sidebar' : 'ghost'}
+        variant={isActive ? 'sidebar-accent' : 'ghost'}
         className={cn('w-full', isOpen ? 'justify-start' : 'h-10 justify-center')}
         asChild={asChild}
         {...props}
@@ -126,7 +128,7 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
 SidebarMenuButton.displayName = 'SidebarMenuButton';
 
 export const SidebarFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>((props, ref) => (
-  <div ref={ref} className="mt-auto" {...props} />
+  <div ref={ref} className="mt-auto p-2" {...props} />
 ));
 SidebarFooter.displayName = 'SidebarFooter';
 
@@ -135,9 +137,9 @@ export const SidebarTrigger = () => {
     if (isMobile) {
         return (
             <DrawerTrigger asChild>
-                <Button variant="ghost" size="icon"><Menu /></Button>
+                <Button variant="ghost" size="icon"><PanelLeft /></Button>
             </DrawerTrigger>
         )
     }
-    return null;
+    return <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}><PanelLeft /></Button>;
 }
