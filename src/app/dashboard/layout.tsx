@@ -528,13 +528,13 @@ export default function RootDashboardLayout({ children }: { children: React.Reac
   return (
       <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')}>
         {/* Primary Sidebar Rail */}
-        <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-4 space-y-2">
+        <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-4 space-y-2 bg-glass">
             <Link href="/dashboard" className="mb-4">
             <SabNodeLogo className="h-8 w-auto" />
             </Link>
             {appIcons.map(app => (
-                <Button key={app.id} asChild variant={activeApp === app.id ? "secondary" : "ghost"} className="h-10 w-10 rounded-lg">
-                    <Link href={app.href} scroll={false}><app.icon className="h-5 w-5"/></Link>
+                <Button key={app.id} asChild variant={activeApp === app.id ? "theme" : "ghost"} className="h-12 w-12 rounded-lg">
+                    <Link href={app.href} scroll={false}><app.icon className="h-6 w-6"/></Link>
                 </Button>
             ))}
         </div>
@@ -596,4 +596,3 @@ export default function RootDashboardLayout({ children }: { children: React.Reac
       </div>
   );
 }
-
