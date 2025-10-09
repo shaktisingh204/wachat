@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -157,7 +157,7 @@ const smsMenuItems = [
 ];
 
 const apiMenuItems = [
-    { href: '/dashboard/api', label: 'API Keys', icon: KeyRound },
+    { href: '/dashboard/api', label: 'API Keys', icon: Key },
     { href: '/dashboard/api/docs', label: 'API Docs', icon: BookCopy },
 ];
 
@@ -257,7 +257,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                 const currentActiveProject = fetchedProjects.find(p => p._id.toString() === storedProjectId);
                 setActiveProject(currentActiveProject || null);
                 setActiveProjectName(currentActiveProject?.name || 'Loading...');
-            } else if (pathname !== '/dashboard/setup') {
+            } else if (pathname !== '/dashboard/setup' && pathname !== '/dashboard/bulk' && pathname !== '/dashboard/bulk/template') {
                 localStorage.removeItem('activeProjectId');
                 localStorage.removeItem('activeProjectName');
                 setActiveProjectId(null);
