@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster"
 import { PT_Sans } from 'next/font/google';
@@ -7,6 +7,14 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 export const metadata: Metadata = {
   title: 'SabNode',
   description: 'Your All-in-One Business Communication Platform',
+};
+
+export const viewport: Viewport = {
+  themeColor: 'hsl(var(--background))',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 const ptSans = PT_Sans({
