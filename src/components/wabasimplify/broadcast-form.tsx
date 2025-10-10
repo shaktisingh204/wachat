@@ -11,7 +11,7 @@ import { Label } from '../ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
-import { LoaderCircle, Send, AlertCircle, UploadCloud, Link, Check, ChevronsUpDown } from 'lucide-react';
+import { LoaderCircle, Send, AlertCircle, UploadCloud, Link as LinkIcon, Check, ChevronsUpDown } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 import type { Project, Template, Tag, MetaFlow } from '@/lib/definitions';
 import { Separator } from '@/components/ui/separator';
