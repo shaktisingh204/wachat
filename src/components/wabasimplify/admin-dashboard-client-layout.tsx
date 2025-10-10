@@ -26,7 +26,7 @@ import {
   SidebarProvider,
 } from '@/components/ui/sidebar';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users } from 'lucide-react';
+import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users, PanelLeft } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -105,7 +105,11 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
         <div className="flex-1 flex flex-col">
             <header className="flex items-center justify-between p-3 border-b bg-background sticky top-0 z-10 shrink-0">
             <div className="flex items-center gap-2">
-                <SidebarTrigger />
+                <SidebarTrigger>
+                    <Button variant="ghost" size="icon">
+                        <PanelLeft />
+                    </Button>
+                </SidebarTrigger>
                 <div className="text-sm font-semibold text-primary">Admin Panel</div>
             </div>
             <div className="flex items-center gap-1">

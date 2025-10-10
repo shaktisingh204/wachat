@@ -231,7 +231,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     const currentUserRole = React.useMemo(() => {
         if (!sessionUser || !activeProject) return 'owner'; 
         if (sessionUser._id.toString() === activeProject.userId.toString()) return 'owner';
-        const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id);
+        const agentInfo = activeProject.agents?.find(a => a.userId.toString() === sessionUser._id.toString());
         return agentInfo?.role || 'none';
     }, [sessionUser, activeProject]);
 
