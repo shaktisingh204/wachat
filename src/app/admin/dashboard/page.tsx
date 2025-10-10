@@ -1,7 +1,9 @@
 
 
+'use client';
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Briefcase, CheckSquare, Server, AlertTriangle, MessageSquare, Send, GitFork, ServerCog, Edit } from 'lucide-react';
+import { Briefcase, CheckSquare, Server, AlertTriangle, MessageSquare, Send, GitFork, ServerCog, Edit, Users } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getProjectsForAdmin } from '@/app/actions/user.actions';
 import { getAdminDashboardStats } from '@/app/actions/admin.actions';
@@ -29,10 +31,6 @@ import { AdminAssignPlanDialog } from '@/components/wabasimplify/admin-assign-pl
 import { getAllBroadcasts } from '@/app/actions';
 
 export const dynamic = 'force-dynamic';
-
-export const metadata: Metadata = {
-  title: 'Admin Dashboard | SabNode',
-};
 
 const PROJECTS_PER_PAGE = 5;
 
