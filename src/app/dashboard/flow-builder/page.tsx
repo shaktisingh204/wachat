@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -48,7 +49,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProjects } from '@/app/actions';
-import { getTemplates } from '@/app/actions/whatsapp.actions';
+import { getTemplates } from '@/app/actions/template.actions';
 import { saveFlow, getFlowById, getFlowsForProject, deleteFlow } from '@/app/actions/flow.actions';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import type { Flow, FlowNode, FlowEdge, Template, MetaFlow, Project } from '@/lib/definitions';
@@ -62,6 +63,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { generateFlowBuilderFlow } from '@/ai/flows/generate-flow-builder-flow';
 import { Separator } from '@/components/ui/separator';
+import { useProject } from '@/context/project-context';
 
 type NodeType = 'start' | 'text' | 'buttons' | 'condition' | 'webhook' | 'image' | 'input' | 'delay' | 'api' | 'carousel' | 'addToCart' | 'language' | 'sendTemplate' | 'triggerMetaFlow' | 'triggerFlow' | 'payment';
 
@@ -251,8 +253,8 @@ export const dynamic = 'force-dynamic';
 
 function PageContent() {
     // ... all the existing state and logic from the component
+    const { activeProjectId } = useProject();
     const { toast } = useToast();
-    const [projects, setProjects] = useState<WithId<Project>[]>([]);
     const [flows, setFlows] = useState<WithId<Flow>[]>([]);
     const [currentFlow, setCurrentFlow] = useState<WithId<Flow> | null>(null);
     const [nodes, setNodes] = useState<FlowNode[]>([]);
@@ -269,8 +271,6 @@ function PageContent() {
     const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
     const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
     
-    const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
-
     // Canvas state
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
@@ -282,11 +282,6 @@ function PageContent() {
     const [isFullScreen, setIsFullScreen] = useState(false);
     
      const [aiPrompt, setAiPrompt] = useState('');
-
-    useEffect(() => {
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setActiveProjectId(storedProjectId);
-    }, []);
 
     const fetchFlows = useCallback((projectId: string) => {
         startLoadingTransition(async () => {
