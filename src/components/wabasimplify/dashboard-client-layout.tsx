@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, Globe
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, Globe, ChevronsUpDown, TrendingUp
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -319,7 +319,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             <SabNodeLogo className="h-8 w-auto" />
             </Link>
             {appIcons.map(app => (
-                 <Button key={app.id} asChild variant={activeApp === app.id ? "ghost" : "ghost"} className={cn("apprailhw rounded-lg flex-col justify-center gap-1 text-xs p-0", activeApp === app.id && "active-app-icon")}>
+                 <Button key={app.id} asChild variant={activeApp === app.id ? "ghost" : "ghost"} data-theme={app.id} className={cn("h-12 w-12 rounded-lg flex-col justify-center gap-1 text-xs p-0", activeApp === app.id && "active-app-icon")}>
                     <Link href={app.href} scroll={false} className="h-full w-full flex flex-col items-center justify-center gap-1">
                         <app.icon className="h-5 w-5"/>
                     </Link>
@@ -329,7 +329,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         
         <Sidebar>
             <SidebarHeader>
-                <h2 className="text-lg font-semibold tracking-tight text-sidebar-secondary-foreground">
+                <h2 className="text-lg font-semibold tracking-tight">
                     {appIcons.find(app => app.id === activeApp)?.label || 'SabNode'}
                 </h2>
             </SidebarHeader>
@@ -464,7 +464,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             <SidebarFooter>
                  <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="w-full justify-start gap-2 bg-muted/50 border border-border">
+                        <Button variant="ghost" className="w-full justify-start gap-2 bg-muted/50 hover:bg-muted border border-border">
                              <Avatar className="size-7">
                                 <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
                                 <AvatarFallback>{sessionUser?.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
@@ -485,14 +485,16 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             </SidebarFooter>
         </Sidebar>
 
-        <div className="flex-1 flex flex-col min-w-0">
-            <header className="flex h-16 items-center justify-between gap-4 border-b bg-background px-4 flex-shrink-0">
+        <div className="flex-1 flex flex-col min-w-0 bg-card shadow-sm rounded-lg">
+            <header className="flex h-16 items-center justify-between gap-4 border-b px-4 flex-shrink-0">
                  <div className="flex items-center gap-2">
-                    <SidebarTrigger />
+                    <SidebarTrigger>
+                        <Button variant="ghost" size="icon"><PanelLeft /></Button>
+                    </SidebarTrigger>
                     {activeApp === 'facebook' && activeProject ? (
                         <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
                     ) : (
-                        <div className="hidden md:flex items-center gap-2 text-sm font-semibold text-primary">
+                        <div className="hidden md:flex items-center gap-2 text-sm font-semibold">
                             <Briefcase className="h-4 w-4" />
                             <span className="truncate">{activeProjectName || 'No Project Selected'}</span>
                         </div>
@@ -505,7 +507,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                     </div>
                 </div>
             </header>
-            <main className="flex-1 overflow-y-auto bg-card rounded-b-lg">
+            <main className="flex-1 overflow-y-auto">
                 {isChatPage || isWebsiteBuilderPage ? children : mainContent}
             </main>
         </div>
