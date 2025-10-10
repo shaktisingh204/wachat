@@ -10,7 +10,9 @@ export async function getRedisClient() {
     
     const redisUrl = process.env.REDIS_URL;
     if (!redisUrl) {
-        throw new Error('REDIS_URL not set. Please add it to your .env file.');
+        console.warn('REDIS_URL not set, some features may be unavailable. Defaulting to localhost.');
+        // This allows local dev without Redis, but will fail in a clustered prod env
+        return createClient({ url: 'redis://localhost:6379' });
     }
     
     client = createClient({
