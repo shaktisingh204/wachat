@@ -36,17 +36,20 @@ body {
     --radius: 0.5rem;
     --instagram: 327 92% 55%;
 
-    /* Sidebar variables based on the user's image */
+    /* Sidebar variables */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 220 10% 40%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 134 61% 41%;
     
-    --sidebar-secondary-background: 0 0% 100%; /* White for the secondary panel */
+    --sidebar-secondary-background: 0 0% 100%;
     --sidebar-secondary-foreground: 220 10% 25%;
     
-    --sidebar-active-background: 134 61% 95%; /* Light green for active icon background */
-    --sidebar-active-foreground: 134 61% 30%; /* Darker green for active icon */
+    --sidebar-active-background: 134 61% 41%;
+    --sidebar-active-foreground: 0 0% 100%;
+
+    --sidebar-accent: hsl(var(--primary) / 0.1);
+    --sidebar-accent-foreground: hsl(var(--primary));
   }
 
   .dark {
@@ -76,11 +79,14 @@ body {
     --sidebar-border: 220 10% 20%;
     --sidebar-ring: 134 61% 41%;
 
-    --sidebar-secondary-background: 220 10% 18%; /* Dark gray for secondary panel */
+    --sidebar-secondary-background: 210 10% 15%;
     --sidebar-secondary-foreground: 210 40% 98%;
 
-    --sidebar-active-background: 145 60% 25%;
-    --sidebar-active-foreground: 145 60% 85%;
+    --sidebar-active-background: 134 61% 41%;
+    --sidebar-active-foreground: 0 0% 100%;
+    
+    --sidebar-accent: hsl(var(--primary) / 0.1);
+    --sidebar-accent-foreground: hsl(var(--primary));
   }
 }
 
@@ -94,29 +100,11 @@ body {
 }
 
 @layer components {
-    .bg-glass {
-        background-color: hsla(0, 0%, 100%, 0.5);
-        -webkit-backdrop-filter: blur(10px);
-        backdrop-filter: blur(10px);
-        background-image: linear-gradient(180deg, hsla(0,0%,100%,0.8), hsla(0,0%,100%,0.2));
+    .apprailhw {
+        width: 48px !important;
+        height: 48px !important;
+        min-height: 48px !important;
     }
-    .dark .bg-glass {
-         background-color: hsla(220, 10%, 12%, 0.5);
-         background-image: linear-gradient(180deg, hsla(220,10%,18%,0.8), hsla(220,10%,12%,0.2));
-    }
-
-    [data-theme="whatsapp"] .theme-bg { @apply bg-green-500 text-white; }
-    [data-theme="facebook"] .theme-bg { @apply bg-blue-600 text-white; }
-    [data-theme="instagram"] .theme-bg { @apply bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white; }
-    [data-theme="crm"] .theme-bg { @apply bg-orange-500 text-white; }
-    [data-theme="email"] .theme-bg { @apply bg-sky-500 text-white; }
-    [data-theme="sms"] .theme-bg { @apply bg-purple-500 text-white; }
-    [data-theme="api"] .theme-bg { @apply bg-slate-700 text-white; }
-    [data-theme="website-builder"] .theme-bg { @apply bg-rose-500 text-white; }
-    [data-theme="url-shortener"] .theme-bg { @apply bg-indigo-500 text-white; }
-    [data-theme="qr-code-maker"] .theme-bg { @apply bg-amber-500 text-white; }
-    [data-theme="seo-suite"] .theme-bg { @apply bg-teal-500 text-white; }
-
     .card-gradient {
       @apply relative overflow-hidden;
     }
