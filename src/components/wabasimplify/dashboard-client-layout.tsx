@@ -319,7 +319,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             <SabNodeLogo className="h-8 w-auto" />
             </Link>
             {appIcons.map(app => (
-                 <Button key={app.id} asChild variant={activeApp === app.id ? 'ghost' : 'ghost'} data-theme={app.id} className={cn("h-12 w-12 rounded-lg flex-col justify-center gap-1 text-xs p-0 apprailhw", activeApp === app.id && "active-app-icon")}>
+                 <Button key={app.id} asChild variant={activeApp === app.id ? 'ghost' : 'ghost'} data-theme={app.id} className={cn("rounded-lg flex-col justify-center gap-1 text-xs p-0 apprailhw", activeApp === app.id && "active-app-icon")}>
                     <Link href={app.href} scroll={false} className="h-full w-full flex flex-col items-center justify-center gap-1">
                         <app.icon className="h-5 w-5"/>
                     </Link>
