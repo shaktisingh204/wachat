@@ -9,7 +9,7 @@
  * 1. Find projects with broadcasts in the 'QUEUED' state.
  * 2. Acquire a project-level lock to ensure only one process handles its broadcast.
  * 3. Fetch 'PENDING' contacts in batches from MongoDB.
- * 4. Send messages directly, respecting the project's concurrency settings.
+ * 4. Process these batches in parallel to maximize throughput.
  * 5. Update the status of the broadcast job and individual contacts.
  * 6. This implementation removes the dependency on Redis for queuing.
  */
@@ -24,7 +24,8 @@ import type { BroadcastJob as BroadcastJobType, Contact } from './definitions';
 import { getErrorMessage } from './utils';
 
 const API_VERSION = 'v23.0';
-const BATCH_SIZE = 500; // Number of contacts to fetch from DB at a time
+const DB_BATCH_SIZE = 1000; // How many contacts to fetch from DB at once
+const PARALLEL_SEND_LIMIT = 500; // How many messages to send concurrently in memory
 
 async function sendWhatsAppMessage(job: BroadcastJobType, contact: Contact) {
     try {
@@ -41,10 +42,11 @@ async function sendWhatsAppMessage(job: BroadcastJobType, contact: Contact) {
         if (headerComponent) {
             let parameter;
             const format = headerComponent.format?.toLowerCase();
-            if (headerMediaId) parameter = { type: format, [format]: { id: headerMediaId } };
-            else if (headerImageUrl) parameter = { type: format, [format]: { link: headerImageUrl } };
-            
-            if (format === 'TEXT' && headerComponent.text) {
+            if (headerMediaId) {
+                parameter = { type: format, [format]: { id: headerMediaId } };
+            } else if (headerImageUrl) {
+                parameter = { type: format, [format]: { link: headerImageUrl } };
+            } else if (format === 'TEXT' && headerComponent.text) {
                  const headerVars = getVars(headerComponent.text);
                  if (headerVars.length > 0) {
                      parameter = {
@@ -136,53 +138,54 @@ export async function processBroadcastJob() {
                 await db.collection('broadcasts').updateOne({ _id: job._id }, { $set: { status: 'PROCESSING', startedAt: new Date() } });
                 jobsStarted++;
                 
-                const concurrency = job.projectMessagesPerSecond || job.messagesPerSecond || 10;
                 let pendingContacts = true;
                 
                 while(pendingContacts) {
                     const contacts = await db.collection('broadcast_contacts').find({
                         broadcastId: job._id,
                         status: 'PENDING'
-                    }).limit(BATCH_SIZE).toArray();
+                    }).limit(DB_BATCH_SIZE).toArray();
 
                     if (contacts.length === 0) {
                         pendingContacts = false;
                         continue;
                     }
 
-                    const contactPromises = contacts.map(contact => 
-                        sendWhatsAppMessage(job, contact as any)
-                            .then(result => ({ contactId: contact._id, ...result }))
-                    );
-                    
-                    const results = await Promise.all(contactPromises);
-                    
-                    const bulkOps: any[] = [];
-                    let successCount = 0;
-                    let errorCount = 0;
+                    // Process contacts in parallel chunks
+                    for (let i = 0; i < contacts.length; i += PARALLEL_SEND_LIMIT) {
+                        const chunk = contacts.slice(i, i + PARALLEL_SEND_LIMIT);
+                        const contactPromises = chunk.map(contact => 
+                            sendWhatsAppMessage(job, contact as any)
+                                .then(result => ({ contactId: contact._id, ...result }))
+                        );
+                        
+                        const results = await Promise.all(contactPromises);
+                        
+                        const bulkOps: any[] = [];
+                        let successCount = 0;
+                        let errorCount = 0;
 
-                    for(const result of results) {
-                        if (result.success) {
-                            successCount++;
-                            bulkOps.push({ updateOne: { filter: { _id: result.contactId }, update: { $set: { status: 'SENT', sentAt: new Date(), messageId: result.messageId, error: null } } } });
-                        } else {
-                            errorCount++;
-                            bulkOps.push({ updateOne: { filter: { _id: result.contactId }, update: { $set: { status: 'FAILED', error: result.error } } } });
+                        for(const result of results) {
+                            if (result.success) {
+                                successCount++;
+                                bulkOps.push({ updateOne: { filter: { _id: result.contactId }, update: { $set: { status: 'SENT', sentAt: new Date(), messageId: result.messageId, error: null } } } });
+                            } else {
+                                errorCount++;
+                                bulkOps.push({ updateOne: { filter: { _id: result.contactId }, update: { $set: { status: 'FAILED', error: result.error } } } });
+                            }
                         }
+
+                        if (bulkOps.length > 0) {
+                            await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
+                        }
+                        
+                        await db.collection('broadcasts').updateOne({ _id: job._id }, { $inc: { successCount, errorCount }});
+                        totalProcessed += chunk.length;
                     }
 
-                    if (bulkOps.length > 0) {
-                        await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
-                    }
-                    
-                    await db.collection('broadcasts').updateOne({ _id: job._id }, { $inc: { successCount, errorCount }});
-                    totalProcessed += contacts.length;
-                    
-                    if (contacts.length < BATCH_SIZE) {
+                    if (contacts.length < DB_BATCH_SIZE) {
                         pendingContacts = false;
                     }
-
-                    await new Promise(resolve => setTimeout(resolve, 1000 / concurrency));
                 }
 
                 await db.collection('broadcasts').updateOne({ _id: job._id }, { $set: { status: 'Completed', completedAt: new Date() } });
