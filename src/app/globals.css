@@ -37,19 +37,19 @@ body {
     --instagram: 327 92% 55%;
 
     /* Sidebar variables */
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 10% 40%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 134 61% 41%;
+    --sidebar-background: hsl(var(--card));
+    --sidebar-foreground: hsl(var(--muted-foreground));
+    --sidebar-border: hsl(var(--border));
+    --sidebar-ring: hsl(var(--ring));
     
-    --sidebar-secondary-background: 0 0% 100%;
-    --sidebar-secondary-foreground: 220 10% 25%;
+    --sidebar-secondary-background: hsl(var(--card));
+    --sidebar-secondary-foreground: hsl(var(--card-foreground));
     
     --sidebar-active-background: hsl(var(--primary));
     --sidebar-active-foreground: hsl(var(--primary-foreground));
 
-    --sidebar-accent: hsl(var(--primary) / 0.1);
-    --sidebar-accent-foreground: hsl(var(--primary));
+    --sidebar-accent: hsl(var(--accent));
+    --sidebar-accent-foreground: hsl(var(--accent-foreground));
   }
 
   .dark {
@@ -74,19 +74,19 @@ body {
     --ring: 134 61% 41%;
 
     /* Dark mode sidebar variables */
-    --sidebar-background: 220 10% 12%; 
-    --sidebar-foreground: 210 40% 80%;
-    --sidebar-border: 220 10% 20%;
-    --sidebar-ring: 134 61% 41%;
+    --sidebar-background: hsl(var(--card));
+    --sidebar-foreground: hsl(var(--muted-foreground));
+    --sidebar-border: hsl(var(--border));
+    --sidebar-ring: hsl(var(--ring));
 
-    --sidebar-secondary-background: 210 10% 15%;
-    --sidebar-secondary-foreground: 210 40% 98%;
+    --sidebar-secondary-background: hsl(var(--card));
+    --sidebar-secondary-foreground: hsl(var(--card-foreground));
 
     --sidebar-active-background: hsl(var(--primary));
     --sidebar-active-foreground: hsl(var(--primary-foreground));
     
-    --sidebar-accent: hsl(var(--primary) / 0.1);
-    --sidebar-accent-foreground: hsl(var(--primary));
+    --sidebar-accent: hsl(var(--accent));
+    --sidebar-accent-foreground: hsl(var(--accent-foreground));
   }
 }
 
@@ -100,11 +100,6 @@ body {
 }
 
 @layer components {
-    .apprailhw {
-        width: 48px !important;
-        height: 48px !important;
-        min-height: 48px !important;
-    }
     .card-gradient {
       @apply relative overflow-hidden;
     }

@@ -60,7 +60,7 @@ export function Sidebar({ className, children }: { className?: string; children:
   }
 
   return (
-    <aside className={cn('flex h-screen flex-col border-r bg-sidebar-secondary transition-[width]', isOpen ? 'w-60' : 'w-0 hidden', className)}>
+    <aside className={cn('flex h-full flex-col bg-card rounded-lg shadow-sm transition-[width]', isOpen ? 'w-60' : 'w-0 hidden', className)}>
       {sidebarContent}
     </aside>
   );
@@ -106,7 +106,7 @@ export const SidebarMenuButton = React.forwardRef<HTMLButtonElement, SidebarMenu
     const buttonContent = (
       <Button
         ref={ref}
-        variant={isActive ? 'sidebar-accent' : 'ghost'}
+        variant={isActive ? 'sidebar-active' : 'ghost'}
         className={cn('w-full', isOpen ? 'justify-start' : 'h-10 justify-center')}
         asChild={asChild}
         {...props}
@@ -132,14 +132,16 @@ export const SidebarFooter = React.forwardRef<HTMLDivElement, React.HTMLAttribut
 ));
 SidebarFooter.displayName = 'SidebarFooter';
 
-export const SidebarTrigger = () => {
+export const SidebarTrigger = ({ children }: { children: React.ReactNode }) => {
     const { isMobile, isOpen, setIsOpen } = useSidebar();
     if (isMobile) {
         return (
             <DrawerTrigger asChild>
-                <Button variant="ghost" size="icon"><PanelLeft /></Button>
+                {children}
             </DrawerTrigger>
         )
     }
-    return <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}><PanelLeft /></Button>;
+    return React.cloneElement(children as React.ReactElement, {
+        onClick: () => setIsOpen(!isOpen),
+    });
 }
