@@ -313,12 +313,12 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     <SidebarProvider>
       <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
         {/* Primary Sidebar Rail */}
-        <div className="flex-shrink-0 w-20 border-r bg-sidebar flex flex-col items-center py-4 space-y-2">
+        <div className="flex-shrink-0 w-20 border-r bg-sidebar flex flex-col items-center py-4 space-y-1">
             <Link href="/dashboard" className="mb-4">
             <SabNodeLogo className="h-8 w-auto" />
             </Link>
             {appIcons.map(app => (
-                 <Button key={app.id} asChild variant={activeApp === app.id ? "sidebar-active" : "ghost"} className="h-14 w-14 rounded-lg flex-col justify-center gap-1 text-xs">
+                 <Button key={app.id} asChild variant={activeApp === app.id ? "sidebar-active" : "ghost"} className="h-12 w-12 rounded-lg flex-col justify-center gap-1 text-xs">
                     <Link href={app.href} scroll={false} className="h-full w-full">
                         <app.icon className="h-5 w-5"/>
                         <span className="text-[10px] leading-tight">{app.label.split(' ')[0]}</span>
@@ -515,3 +515,4 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   );
 }
 
+    
