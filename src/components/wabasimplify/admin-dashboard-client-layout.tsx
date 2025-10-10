@@ -3,7 +3,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import {
   Sidebar,
   SidebarContent,
@@ -30,7 +30,7 @@ import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, C
 import { WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { getDiwaliThemeStatus } from '@/app/actions';
+import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -62,8 +62,15 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
 
   React.useEffect(() => {
     setIsClient(true);
-    getDiwaliThemeStatus().then(status => setIsDiwaliTheme(status.enabled));
-  }, []);
+    getDiwaliThemeStatus().then(status => {
+        setIsDiwaliTheme(status.enabled);
+        if (status.enabled) {
+            document.body.classList.add('diwali-theme');
+        } else {
+            document.body.classList.remove('diwali-theme');
+        }
+    });
+  }, [pathname]); // Re-check on navigation
 
   if (!isClient) {
     return <FullPageSkeleton />;
