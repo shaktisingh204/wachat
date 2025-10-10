@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback, useTransition } from 'react';
@@ -30,7 +31,7 @@ export function ProjectProvider({
     initialProjects: WithId<Project>[], 
     user: (Omit<User, 'password'> & { _id: string, plan?: WithId<Plan> | null }) | null 
 }) {
-    const [projects, setProjects] = useState<WithId<Project>[]>(initialProjects);
+    const [projects, setProjects] = useState<WithId<Project>[]>(initialProjects || []);
     const [activeProject, setActiveProject] = useState<WithId<Project> | null>(null);
     const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
     const [activeProjectName, setActiveProjectName] = useState<string | null>(null);
@@ -52,7 +53,7 @@ export function ProjectProvider({
         } else if (storedId) {
             setActiveProjectId(storedId);
             setActiveProjectName(storedName);
-            const project = projects.find(p => p._id.toString() === storedId);
+            const project = projects?.find(p => p._id.toString() === storedId);
             if (project) {
                 setActiveProject(project);
             } else if (pathname !== '/dashboard/setup' && pathname !== '/dashboard/bulk' && pathname !== '/dashboard/bulk/template') {
@@ -60,6 +61,7 @@ export function ProjectProvider({
                  reloadProject();
             }
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [pathname, projects]);
 
     const reloadProject = useCallback(() => {
