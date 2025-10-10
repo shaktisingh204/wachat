@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, TrendingUp, Rss, Globe, ChevronsUpDown
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, TrendingUp, ChevronsUpDown
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -183,7 +183,7 @@ const seoMenuItems = [
 
 const FullPageSkeleton = () => (
     <div className="flex h-screen w-screen bg-background">
-        <div className="w-20 border-r bg-sidebar p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="w-16 border-r bg-sidebar p-2"><Skeleton className="h-full w-full"/></div>
         <div className="w-60 border-r bg-sidebar-secondary p-2"><Skeleton className="h-full w-full"/></div>
         <div className="flex-1 flex flex-col">
             <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
@@ -313,12 +313,12 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     <SidebarProvider>
       <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
         {/* Primary Sidebar Rail */}
-        <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-4 space-y-1">
+        <div className="flex-shrink-0 w-14 border-r bg-sidebar flex flex-col items-center py-2 space-y-1">
             <Link href="/dashboard" className="mb-4">
             <SabNodeLogo className="h-8 w-auto" />
             </Link>
             {appIcons.map(app => (
-                 <Button key={app.id} asChild variant={activeApp === app.id ? "sidebar-active" : "ghost"} className="h-14 w-14 rounded-lg flex-col justify-center gap-1 text-xs p-0">
+                 <Button key={app.id} asChild variant={activeApp === app.id ? "sidebar-active" : "ghost"} className="h-12 w-12 rounded-lg flex-col justify-center gap-1 text-xs p-0">
                     <Link href={app.href} scroll={false} className="h-full w-full flex flex-col items-center justify-center gap-1">
                         <app.icon className="h-5 w-5"/>
                         <span className="text-[10px] leading-tight text-center">{app.label.split(' ')[0]}</span>
@@ -328,7 +328,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         </div>
         
         {/* Secondary Sidebar */}
-        <Sidebar trigger={<SidebarTrigger />}>
+        <Sidebar>
             <SidebarHeader>
                 <h2 className="text-lg font-semibold tracking-tight text-sidebar-foreground">
                     {appIcons.find(app => app.id === activeApp)?.label || 'SabNode'}
@@ -465,7 +465,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
             <SidebarFooter>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="w-full justify-start gap-2">
+                        <Button variant="ghost" className="w-full justify-start gap-2 bg-muted/50 border border-border">
                              <Avatar className="size-7">
                                 <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
                                 <AvatarFallback>{sessionUser?.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
@@ -489,9 +489,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         <div className="flex-1 flex flex-col min-w-0">
             <header className="flex h-16 items-center justify-between gap-4 border-b px-4 flex-shrink-0">
                  <div className="flex items-center gap-2">
-                    <div className="md:hidden">
-                        <SidebarTrigger />
-                    </div>
+                    <SidebarTrigger />
                     {activeApp === 'facebook' && activeProject ? (
                         <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
                     ) : (
