@@ -42,7 +42,7 @@ export function SidebarProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Sidebar({ className, children }: { className?: string; children: React.ReactNode }) {
+export function Sidebar({ className, children, trigger }: { className?: string; children: React.ReactNode, trigger?: React.ReactNode }) {
   const { isMobile, isOpen, setIsOpen } = useSidebar();
 
   const sidebarContent = (
@@ -52,6 +52,7 @@ export function Sidebar({ className, children }: { className?: string; children:
   if (isMobile) {
     return (
       <Drawer open={isOpen} onOpenChange={setIsOpen} direction="left">
+        {trigger}
         <DrawerContent className="h-full max-w-xs p-0 bg-sidebar-secondary-background">
             {sidebarContent}
         </DrawerContent>
