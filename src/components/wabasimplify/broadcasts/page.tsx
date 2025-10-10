@@ -22,7 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock, Play, AlertCircle } from 'lucide-react';
+import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock, Play, AlertCircle, BookCopy } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +39,9 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
+import {Calendar} from 'lucide-react';
+import { useProject } from '@/context/project-context';
+import { getBroadcasts } from '@/app/actions/broadcast.actions';
 
 
 type Broadcast = {
@@ -282,7 +285,7 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
 
 
 export default function BroadcastPage() {
-  const [project, setProject] = useState<WithId<Project> | null>(null);
+  const { activeProject, activeProjectId } = useProject();
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
   const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
@@ -290,25 +293,19 @@ export default function BroadcastPage() {
   const [isSyncingTemplates, startTemplatesSyncTransition] = useTransition();
   const [isRunningCron, startCronRunTransition] = useTransition();
   const { toast } = useToast();
-  const router = useRouter();
   
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  
-  const [isClient, setIsClient] = useState(false);
-  const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
 
   const fetchData = useCallback(async (projectId: string, page: number, showToast = false) => {
     startRefreshTransition(async () => {
         try {
-            const [projectData, templatesData, historyData, metaFlowsData] = await Promise.all([
-                getProjectById(projectId),
+            const [templatesData, historyData, metaFlowsData] = await Promise.all([
                 getTemplates(projectId),
                 getBroadcasts(projectId, page, BROADCASTS_PER_PAGE),
                 getMetaFlows(projectId),
             ]);
 
-            setProject(projectData);
             setTemplates(templatesData || []);
             setMetaFlows(metaFlowsData || []);
             setHistory(historyData.broadcasts || []);
@@ -327,18 +324,7 @@ export default function BroadcastPage() {
         }
     });
   }, [toast]);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (isClient) {
-      const storedProjectId = localStorage.getItem('activeProjectId');
-      setActiveProjectId(storedProjectId);
-    }
-  }, [isClient]);
-
+  
   useEffect(() => {
     if (activeProjectId) {
       fetchData(activeProjectId, currentPage);
@@ -346,7 +332,7 @@ export default function BroadcastPage() {
   }, [activeProjectId, currentPage, fetchData]);
   
   useEffect(() => {
-    if (!isClient || !activeProjectId || isRefreshing) return;
+    if (!activeProjectId || isRefreshing) return;
 
     const hasActiveBroadcasts = history.some(b => b.status === 'QUEUED' || b.status === 'PROCESSING');
     if (!hasActiveBroadcasts) return;
@@ -356,7 +342,7 @@ export default function BroadcastPage() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [history, activeProjectId, currentPage, isClient, fetchData, isRefreshing]);
+  }, [history, activeProjectId, currentPage, fetchData, isRefreshing]);
 
   const onSyncTemplates = useCallback(async () => {
     if (!activeProjectId) {
@@ -403,7 +389,7 @@ export default function BroadcastPage() {
             : 'destructive';
   };
 
-  const isLoadingData = isRefreshing && !project;
+  const isLoadingData = isRefreshing && !activeProject;
 
   const onBroadcastSuccess = () => {
       if (activeProjectId) {
@@ -431,7 +417,6 @@ export default function BroadcastPage() {
         ) : (
             <BroadcastForm 
                 templates={templates} 
-                project={project} 
                 metaFlows={metaFlows} 
                 onSuccess={onBroadcastSuccess}
             />
