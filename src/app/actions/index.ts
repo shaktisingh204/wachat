@@ -58,4 +58,3 @@ export async function dummyAction() {
     'use server';
     // This function does nothing.
 }
-
