@@ -24,8 +24,8 @@ import type { BroadcastJob as BroadcastJobType, Contact } from './definitions';
 import { getErrorMessage } from './utils';
 
 const API_VERSION = 'v23.0';
-const DB_BATCH_SIZE = 1000; // How many contacts to fetch from DB at once
-const PARALLEL_SEND_LIMIT = 500; // How many messages to send concurrently in memory
+const DB_BATCH_SIZE = 1000000; // How many contacts to fetch from DB at once
+const PARALLEL_SEND_LIMIT = 5000000; // How many messages to send concurrently in memory
 
 async function sendWhatsAppMessage(job: BroadcastJobType, contact: Contact) {
     try {
