@@ -26,15 +26,15 @@ import {
   SidebarProvider,
 } from '@/components/ui/sidebar';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users, PanelLeft, Sparkles } from 'lucide-react';
+import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users, PanelLeft, Sparkles, Server } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
-import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
+import { getAdminSession, getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/dashboard/whatsapp-projects', label: 'WhatsApp Projects', icon: WhatsAppIcon },
+  { href: '/admin/dashboard/whatsapp-projects', label: 'WA Projects', icon: WhatsAppIcon },
   { href: '/admin/dashboard/users', label: 'Users', icon: Users },
   { href: '/admin/dashboard/plans', label: 'Plans', icon: CreditCard },
   { href: '/admin/dashboard/template-library', label: 'Template Library', icon: BookCopy },
@@ -57,23 +57,47 @@ function FullPageSkeleton() {
 
 export function AdminDashboardClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isClient, setIsClient] = React.useState(false);
+  const [isAdmin, setIsAdmin] = React.useState(false);
+  const [authLoading, setAuthLoading] = React.useState(true);
   const [isSparklesEnabled, setIsSparklesEnabled] = React.useState(false);
+  
 
   React.useEffect(() => {
     setIsClient(true);
     getDiwaliThemeStatus().then(status => {
         setIsSparklesEnabled(status.enabled);
     });
-  }, []);
 
-  if (!isClient) {
+    const checkAdminStatus = async () => {
+        const session = await getAdminSession();
+        if (!session.isAdmin) {
+            router.push('/admin-login');
+        } else {
+            setIsAdmin(true);
+        }
+        setAuthLoading(false);
+    };
+    checkAdminStatus();
+  }, [router]);
+
+  if (!isClient || authLoading) {
     return <FullPageSkeleton />;
   }
 
   return (
     <SidebarProvider>
-      <div className="admin-dashboard flex h-screen w-full">
+      <div className={cn("admin-dashboard flex h-screen w-full", isSparklesEnabled && 'diwali-theme')}>
+        {isSparklesEnabled && (
+            <div className="absolute inset-0 pointer-events-none z-0">
+                <Sparkles className="absolute top-4 right-4 h-8 w-8 text-primary/50 animate-pulse" />
+                <Sparkles className="absolute top-20 left-80 h-12 w-12 text-primary/30 animate-pulse" style={{ animationDelay: '0.5s' }} />
+                <Sparkles className="absolute bottom-16 right-20 h-16 w-16 text-primary/40 animate-pulse" style={{ animationDelay: '1s' }} />
+                <Sparkles className="absolute bottom-4 left-4 h-6 w-6 text-primary/50 animate-pulse" style={{ animationDelay: '1.5s' }} />
+                <Sparkles className="absolute top-1/2 left-1/2 h-10 w-10 text-primary/30 animate-pulse" style={{ animationDelay: '2s' }} />
+            </div>
+        )}
         <Sidebar>
             <SidebarHeader>
             <SabNodeLogo className="w-32 h-auto" />
@@ -109,15 +133,6 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
             </SidebarFooter>
         </Sidebar>
         <div className="flex-1 flex flex-col relative">
-            {isSparklesEnabled && (
-                <div className="absolute inset-0 pointer-events-none z-0">
-                    <Sparkles className="absolute top-4 right-4 h-8 w-8 text-primary/50 animate-pulse" />
-                    <Sparkles className="absolute top-20 left-80 h-12 w-12 text-primary/30 animate-pulse" style={{ animationDelay: '0.5s' }} />
-                    <Sparkles className="absolute bottom-16 right-20 h-16 w-16 text-primary/40 animate-pulse" style={{ animationDelay: '1s' }} />
-                    <Sparkles className="absolute bottom-4 left-4 h-6 w-6 text-primary/50 animate-pulse" style={{ animationDelay: '1.5s' }} />
-                    <Sparkles className="absolute top-1/2 left-1/2 h-10 w-10 text-primary/30 animate-pulse" style={{ animationDelay: '2s' }} />
-                </div>
-            )}
             <header className="flex items-center justify-between p-3 border-b bg-background sticky top-0 z-10 shrink-0">
             <div className="flex items-center gap-2">
                 <SidebarTrigger>
