@@ -204,10 +204,10 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
     
     const pathname = usePathname();
     const [activeApp, setActiveApp] = React.useState('whatsapp');
-    const [isDiwaliTheme, setIsDiwaliTheme] = React.useState(false);
+    const [isSparklesEnabled, setIsSparklesEnabled] = React.useState(false);
 
     React.useEffect(() => {
-        getDiwaliThemeStatus().then(status => setIsDiwaliTheme(status.enabled));
+        getDiwaliThemeStatus().then(status => setIsSparklesEnabled(status.enabled));
 
         let currentApp = 'whatsapp';
         if (pathname.startsWith('/dashboard/facebook')) { currentApp = 'facebook'; }
@@ -257,14 +257,14 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
     return (
         <SidebarProvider>
-            <div className={cn("flex h-screen bg-muted/30 p-2 gap-2 relative", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
-                {isDiwaliTheme && (
+            <div className="flex h-screen bg-muted/30 p-2 gap-2 relative">
+                {isSparklesEnabled && (
                     <div className="absolute inset-0 pointer-events-none z-0">
-                        <Sparkles className="absolute top-4 right-4 h-8 w-8 text-yellow-400/50 animate-pulse" />
-                        <Sparkles className="absolute top-20 left-80 h-12 w-12 text-yellow-400/30 animate-pulse" style={{ animationDelay: '0.5s' }} />
-                        <Sparkles className="absolute bottom-16 right-20 h-16 w-16 text-yellow-400/40 animate-pulse" style={{ animationDelay: '1s' }} />
-                        <Sparkles className="absolute bottom-4 left-4 h-6 w-6 text-yellow-400/50 animate-pulse" style={{ animationDelay: '1.5s' }} />
-                        <Sparkles className="absolute top-1/2 left-1/2 h-10 w-10 text-yellow-400/30 animate-pulse" style={{ animationDelay: '2s' }} />
+                        <Sparkles className="absolute top-4 right-4 h-8 w-8 text-primary/50 animate-pulse" />
+                        <Sparkles className="absolute top-20 left-80 h-12 w-12 text-primary/30 animate-pulse" style={{ animationDelay: '0.5s' }} />
+                        <Sparkles className="absolute bottom-16 right-20 h-16 w-16 text-primary/40 animate-pulse" style={{ animationDelay: '1s' }} />
+                        <Sparkles className="absolute bottom-4 left-4 h-6 w-6 text-primary/50 animate-pulse" style={{ animationDelay: '1.5s' }} />
+                        <Sparkles className="absolute top-1/2 left-1/2 h-10 w-10 text-primary/30 animate-pulse" style={{ animationDelay: '2s' }} />
                     </div>
                 )}
                 <div className="flex-shrink-0 w-16 bg-card rounded-lg shadow-sm flex flex-col items-center py-2 space-y-2">
