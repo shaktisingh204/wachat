@@ -1,8 +1,7 @@
-
-
 'use client';
 
 import { useEffect, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { getCrmTasks } from '@/app/actions/crm-tasks.actions';
 import type { WithId, CrmTask, User } from '@/lib/definitions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -28,6 +27,7 @@ export default function TasksPage() {
     const [user, setUser] = useState<User | null>(null);
     const [tasks, setTasks] = useState<WithId<CrmTask>[]>([]);
     const [isLoading, startLoading] = useTransition();
+    const router = useRouter();
 
     const fetchData = () => {
         startLoading(async () => {

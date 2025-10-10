@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,7 +53,7 @@ const blockDocs = [
         title: 'Add Condition',
         description: 'Creates a branching path based on contact data.',
         properties: [
-            { name: 'Check Variable', desc: 'The contact variable to check (e.g., {{contact.status}}).' },
+            { name: 'Check Variable', desc: 'The contact variable to check (e.g., "{{contact.status}}").' },
             { name: 'Operator', desc: 'The comparison to perform (e.g., "Equals", "Contains").' },
             { name: 'Value', desc: 'The value to compare against (e.g., "qualified").' },
         ],
@@ -66,7 +65,7 @@ export default function CrmAutomationDocsPage() {
     return (
         <div className="flex flex-col gap-8">
             <div>
-                <Button variant="ghost" asChild className="mb-4 -ml-4">
+                <Button variant="ghost" asChild className="mb-2 -ml-4">
                     <Link href="/dashboard/crm/automations">
                         <ChevronLeft className="mr-2 h-4 w-4" />
                         Back to Automations
@@ -131,4 +130,3 @@ export default function CrmAutomationDocsPage() {
         </div>
     );
 }
-
