@@ -202,7 +202,6 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         sessionUser,
     } = useProject();
     
-    const router = useRouter();
     const pathname = usePathname();
     const [activeApp, setActiveApp] = React.useState('whatsapp');
     const [isDiwaliTheme, setIsDiwaliTheme] = React.useState(false);
@@ -496,4 +495,3 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         </ProjectProvider>
     );
 }
-
