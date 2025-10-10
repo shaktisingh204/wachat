@@ -1,4 +1,5 @@
 
+'use client';
 
 import { getWhatsAppProjectsForAdmin } from '@/app/actions/project.actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,27 +10,62 @@ import { Button } from '@/components/ui/button';
 import { AdminUserSearch } from '@/components/wabasimplify/admin-user-search';
 import { WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { AdminUserFilter } from '@/components/wabasimplify/admin-user-filter';
-
-export const dynamic = 'force-dynamic';
+import { useEffect, useState, useTransition, useCallback } from 'react';
+import type { WithId } from 'mongodb';
+import type { Project, User } from '@/lib/definitions';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { Skeleton } from '@/components/ui/skeleton';
+import { LoaderCircle } from 'lucide-react';
 
 const PROJECTS_PER_PAGE = 20;
 
-export default async function WhatsAppProjectsPage({
-    searchParams,
-}: {
-    searchParams?: {
-        query?: string;
-        page?: string;
-        userId?: string;
-    };
-}) {
-    const query = searchParams?.query || '';
-    const userId = searchParams?.userId;
-    const currentPage = Number(searchParams?.page) || 1;
-    
-    const { projects, total: totalProjects, users } = await getWhatsAppProjectsForAdmin(currentPage, PROJECTS_PER_PAGE, query, userId);
-    
+function PageSkeleton() {
+    return (
+        <div className="flex flex-col gap-4">
+            <div>
+                <Skeleton className="h-10 w-80" />
+                <Skeleton className="h-4 w-96 mt-2" />
+            </div>
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-6 w-48" />
+                    <Skeleton className="h-4 w-64 mt-2" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-64 w-full" />
+                </CardContent>
+            </Card>
+        </div>
+    );
+}
+
+export default function WhatsAppProjectsPage() {
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const router = useRouter();
+
+    const [projects, setProjects] = useState<WithId<Project & { owner: { name: string; email: string } }>[]>([]);
+    const [users, setUsers] = useState<WithId<User>[]>([]);
+    const [totalProjects, setTotalProjects] = useState(0);
+    const [isLoading, startTransition] = useTransition();
+
+    const query = searchParams.get('query') || '';
+    const userId = searchParams.get('userId');
+    const currentPage = Number(searchParams.get('page')) || 1;
     const totalPages = Math.ceil(totalProjects / PROJECTS_PER_PAGE);
+
+    const fetchData = useCallback(() => {
+        startTransition(async () => {
+            const data = await getWhatsAppProjectsForAdmin(currentPage, PROJECTS_PER_PAGE, query, userId || undefined);
+            setProjects(data.projects);
+            setTotalProjects(data.total);
+            setUsers(data.users);
+        });
+    }, [currentPage, query, userId]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     const getStatusVariant = (status?: string) => {
         if (!status) return 'outline';
@@ -40,10 +76,14 @@ export default async function WhatsAppProjectsPage({
     };
 
     const createPageURL = (pageNumber: number) => {
-        const params = new URLSearchParams(searchParams as any);
+        const params = new URLSearchParams(searchParams);
         params.set('page', pageNumber.toString());
-        return `/admin/dashboard/whatsapp-projects?${params.toString()}`;
-      };
+        return `${pathname}?${params.toString()}`;
+    };
+
+    if (isLoading && projects.length === 0) {
+        return <PageSkeleton />;
+    }
 
     return (
         <div className="flex flex-col gap-4">
@@ -78,13 +118,19 @@ export default async function WhatsAppProjectsPage({
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {projects.length > 0 ? (
+                                {isLoading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="h-24 text-center">
+                                            <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                        </TableCell>
+                                    </TableRow>
+                                ) : projects.length > 0 ? (
                                     projects.map(project => (
                                         <TableRow key={project._id.toString()}>
                                             <TableCell className="font-medium">{project.name}</TableCell>
                                             <TableCell>
-                                                <div className="font-medium">{project.owner.name}</div>
-                                                <div className="text-sm text-muted-foreground">{project.owner.email}</div>
+                                                <div className="font-medium">{project.owner?.name || 'Unknown'}</div>
+                                                <div className="text-sm text-muted-foreground">{project.owner?.email || 'N/A'}</div>
                                             </TableCell>
                                             <TableCell className="font-mono text-xs">{project.wabaId}</TableCell>
                                             <TableCell>
