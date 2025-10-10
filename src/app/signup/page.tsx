@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useActionState, useState } from 'react';
+import { useActionState, useState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -28,9 +28,26 @@ function SubmitButton() {
     )
 }
 
+function DiwaliAnimation() {
+    return (
+        <svg viewBox="0 0 100 100" className="absolute -top-16 -left-16 h-32 w-32 text-yellow-400/30 opacity-50">
+            <path d="M10 80 Q 50 20 90 80 C 70 90 30 90 10 80 Z" fill="hsl(var(--primary))" className="animate-draw" style={{animationDelay: '0.5s'}}/>
+            <path d="M48 55 A 15 15 0 0 1 52 55 Q 50 70 48 55" fill="hsl(var(--secondary))" className="animate-draw-long" style={{animationDelay: '1.5s'}}/>
+        </svg>
+    )
+}
+
 export default function SignupPage() {
   const [state, formAction] = useActionState(handleSignup, initialState);
   const [showPassword, setShowPassword] = useState(false);
+  const [isDiwali, setIsDiwali] = useState(false);
+
+  useEffect(() => {
+    // This is a proxy for checking the theme. In a real app, this might come from a context.
+    if (document.body.classList.contains('diwali-theme')) {
+        setIsDiwali(true);
+    }
+  }, []);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-auth-texture p-4 sm:p-6 lg:p-8">
@@ -40,7 +57,8 @@ export default function SignupPage() {
             </Link>
         </div>
         
-        <Card className="w-full max-w-sm shadow-2xl rounded-2xl animate-fade-in-up">
+        <Card className="w-full max-w-sm shadow-2xl rounded-2xl animate-fade-in-up relative overflow-hidden">
+            {isDiwali && <DiwaliAnimation />}
             <form action={formAction}>
                 <CardHeader className="text-center">
                     <CardTitle className="text-2xl font-bold font-headline">Create your Account</CardTitle>
