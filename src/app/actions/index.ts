@@ -12,7 +12,7 @@ export * from './broadcast.actions';
 export * from './webhook.actions';
 export * from './billing.actions';
 export * from './contact.actions';
-export * from './admin.actions';
+// export * from './admin.actions'; // Avoid re-exporting from here to prevent client-side issues
 export * from './api-keys.actions';
 export * from './url-shortener.actions';
 export * from './qr-code.actions';
