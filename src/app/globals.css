@@ -74,19 +74,19 @@ body {
     --ring: 134 61% 41%;
 
     /* Dark mode sidebar variables */
-    --sidebar-background: hsl(var(--card));
-    --sidebar-foreground: hsl(var(--muted-foreground));
-    --sidebar-border: hsl(var(--border));
-    --sidebar-ring: hsl(var(--ring));
+    --sidebar-background: 220 10% 12%; 
+    --sidebar-foreground: 210 40% 80%;
+    --sidebar-border: 220 10% 20%;
+    --sidebar-ring: 134 61% 41%;
 
-    --sidebar-secondary-background: hsl(var(--card));
-    --sidebar-secondary-foreground: hsl(var(--card-foreground));
+    --sidebar-secondary-background: 210 10% 15%;
+    --sidebar-secondary-foreground: 210 40% 98%;
 
-    --sidebar-active-background: hsl(var(--primary));
-    --sidebar-active-foreground: hsl(var(--primary-foreground));
+    --sidebar-active-background: 134 61% 41%;
+    --sidebar-active-foreground: 0 0% 100%;
     
-    --sidebar-accent: hsl(var(--accent));
-    --sidebar-accent-foreground: hsl(var(--accent-foreground));
+    --sidebar-accent: hsl(var(--primary) / 0.1);
+    --sidebar-accent-foreground: hsl(var(--primary));
   }
 }
 
@@ -242,6 +242,12 @@ body {
     [data-theme='seo-suite'] .active-app-icon {
         background-color: #f0fdfa;
         color: #14b8a6;
+    }
+    
+    .apprailhw {
+      width: 48px !important;
+      height: 48px !important;
+      min-height: 48px !important;
     }
     
     @keyframes fade-in {
