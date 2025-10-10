@@ -424,7 +424,3 @@ export async function processBroadcastJob() {
         throw new Error(`Cron scheduler failed: ${getAxiosErrorMessage(error)}`);
     }
 }
-
-  
-
-    
