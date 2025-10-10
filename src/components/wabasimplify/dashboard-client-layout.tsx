@@ -37,6 +37,7 @@ import {
   SidebarTrigger,
   SidebarProvider,
 } from '@/components/ui/sidebar';
+import { Drawer, DrawerTrigger } from '../ui/drawer';
 
 const wachatMenuItems = [
   { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
@@ -312,13 +313,14 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
   return (
     <SidebarProvider>
       <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
+        <Drawer direction="left">
         {/* Primary Sidebar Rail */}
-        <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-2 space-y-2">
+        <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-2 space-y-1">
             <Link href="/dashboard" className="mb-4">
             <SabNodeLogo className="h-8 w-auto" />
             </Link>
             {appIcons.map(app => (
-                 <Button key={app.id} asChild variant={activeApp === app.id ? "secondary" : "ghost"} className="h-12 w-12 rounded-lg flex-col justify-center gap-1 text-xs p-0">
+                 <Button key={app.id} asChild variant={activeApp === app.id ? "secondary" : "ghost"} className="apprailhw rounded-lg flex-col justify-center gap-1 text-xs p-0">
                     <Link href={app.href} scroll={false} className="h-full w-full flex flex-col items-center justify-center gap-1">
                         <app.icon className="h-5 w-5"/>
                     </Link>
@@ -508,6 +510,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                 {isChatPage || isWebsiteBuilderPage ? children : mainContent}
             </main>
         </div>
+        </Drawer>
       </div>
     </SidebarProvider>
   );
