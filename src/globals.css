@@ -42,14 +42,14 @@ body {
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 134 61% 41%;
     
-    --sidebar-secondary-background: 210 17% 98%; /* same as main bg */
+    --sidebar-secondary-background: 0 0% 100%;
     --sidebar-secondary-foreground: 220 10% 25%;
     
-    --sidebar-active-background: 134 61% 95%; /* Light green for active icon background */
-    --sidebar-active-foreground: 134 61% 30%; /* Darker green for active icon */
+    --sidebar-active-background: 134 61% 41%;
+    --sidebar-active-foreground: 0 0% 100%;
 
-    --sidebar-accent: 210 40% 96.1%;
-    --sidebar-accent-foreground: 210 10% 23%;
+    --sidebar-accent: hsl(var(--primary) / 0.1);
+    --sidebar-accent-foreground: hsl(var(--primary));
   }
 
   .dark {
@@ -79,14 +79,14 @@ body {
     --sidebar-border: 220 10% 20%;
     --sidebar-ring: 134 61% 41%;
 
-    --sidebar-secondary-background: 210 10% 15%; /* same as main bg */
+    --sidebar-secondary-background: 210 10% 15%;
     --sidebar-secondary-foreground: 210 40% 98%;
 
-    --sidebar-active-background: 145 60% 25%;
-    --sidebar-active-foreground: 145 60% 85%;
+    --sidebar-active-background: 134 61% 41%;
+    --sidebar-active-foreground: 0 0% 100%;
     
-    --sidebar-accent: 210 10% 28%;
-    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-accent: hsl(var(--primary) / 0.1);
+    --sidebar-accent-foreground: hsl(var(--primary));
   }
 }
 
