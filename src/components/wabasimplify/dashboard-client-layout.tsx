@@ -313,22 +313,22 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     <SidebarProvider>
       <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
         {/* Primary Sidebar Rail */}
-        <div className="flex-shrink-0 w-20 border-r bg-sidebar flex flex-col items-center py-4 space-y-1">
+        <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-4 space-y-1">
             <Link href="/dashboard" className="mb-4">
             <SabNodeLogo className="h-8 w-auto" />
             </Link>
             {appIcons.map(app => (
-                 <Button key={app.id} asChild variant={activeApp === app.id ? "sidebar-active" : "ghost"} className="h-12 w-12 rounded-lg flex-col justify-center gap-1 text-xs">
-                    <Link href={app.href} scroll={false} className="h-full w-full">
+                 <Button key={app.id} asChild variant={activeApp === app.id ? "sidebar-active" : "ghost"} className="h-14 w-14 rounded-lg flex-col justify-center gap-1 text-xs p-0">
+                    <Link href={app.href} scroll={false} className="h-full w-full flex flex-col items-center justify-center gap-1">
                         <app.icon className="h-5 w-5"/>
-                        <span className="text-[10px] leading-tight">{app.label.split(' ')[0]}</span>
+                        <span className="text-[10px] leading-tight text-center">{app.label.split(' ')[0]}</span>
                     </Link>
                 </Button>
             ))}
         </div>
         
         {/* Secondary Sidebar */}
-        <Sidebar>
+        <Sidebar trigger={<SidebarTrigger />}>
             <SidebarHeader>
                 <h2 className="text-lg font-semibold tracking-tight text-sidebar-foreground">
                     {appIcons.find(app => app.id === activeApp)?.label || 'SabNode'}
@@ -489,7 +489,9 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         <div className="flex-1 flex flex-col min-w-0">
             <header className="flex h-16 items-center justify-between gap-4 border-b px-4 flex-shrink-0">
                  <div className="flex items-center gap-2">
-                    <SidebarTrigger />
+                    <div className="md:hidden">
+                        <SidebarTrigger />
+                    </div>
                     {activeApp === 'facebook' && activeProject ? (
                         <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
                     ) : (
@@ -514,5 +516,3 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     </SidebarProvider>
   );
 }
-
-    
