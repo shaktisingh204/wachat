@@ -1,4 +1,3 @@
-
 'use server';
 
 import { getSession, getProjectById } from '@/app/actions/user.actions';
@@ -623,6 +622,7 @@ export async function getWhatsAppProjectsForAdmin(
             users: JSON.parse(JSON.stringify(users))
         };
     } catch(e) {
+        console.error("Failed to get all broadcasts for admin:", e);
         return { projects: [], total: 0, users: [] };
     }
 }
