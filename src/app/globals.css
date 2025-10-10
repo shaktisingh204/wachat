@@ -7,6 +7,10 @@ body {
   font-family: 'PT Sans', sans-serif;
 }
 
+.admin-dashboard body {
+    display: flex;
+}
+
 @layer base {
   :root {
     --background: 210 17% 98%;
@@ -127,17 +131,6 @@ body {
   body {
     @apply bg-background text-foreground;
   }
-  .admin-dashboard body {
-    display: flex;
-  }
-
-   .diwali-theme {
-      background-color: hsl(var(--background));
-      background-image:
-        radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.5) 1px, transparent 0),
-        radial-gradient(circle at 15px 15px, hsl(var(--border) / 0.5) 1px, transparent 0);
-      background-size: 30px 30px;
-    }
 }
 
 @layer components {
@@ -167,41 +160,21 @@ body {
         @apply bg-primary/10 border-2 border-dashed border-primary rounded-lg;
     }
 
-    .diwali-theme .card {
-      position: relative;
-      overflow: hidden;
-      border-width: 1px;
-      border-color: hsl(var(--border));
+    .diwali-theme {
+      background-color: hsl(var(--background));
+      background-image:
+        radial-gradient(circle at 1px 1px, hsl(var(--border) / 0.2) 1px, transparent 0),
+        radial-gradient(circle at 15px 15px, hsl(var(--border) / 0.2) 1px, transparent 0);
+      background-size: 40px 40px;
     }
 
-    .diwali-theme .card::before,
-    .diwali-theme .card::after {
-      content: '';
-      position: absolute;
-      width: 80px;
-      height: 80px;
-      background-repeat: no-repeat;
-      opacity: 0.3;
-      pointer-events: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M10 80 Q 50 20 90 80 C 70 90 30 90 10 80 Z' fill='hsl(35 90% 60%)'/%3E%3Cpath d='M48 55 A 15 15 0 0 1 52 55 Q 50 70 48 55' fill='hsl(45 95% 55%)'/%3E%3C/svg%3E");
-    }
-
-    .diwali-theme .card::before {
-      top: -15px;
-      left: -15px;
-      background-size: 50px;
-      transform: rotate(-45deg);
+    .diwali-theme h1, .diwali-theme h2, .diwali-theme h3, .diwali-theme h4, .diwali-theme h5, .diwali-theme h6 {
+        color: hsl(var(--primary));
+        text-shadow: 0 0 8px hsl(var(--primary) / 0.5);
     }
     
-    .diwali-theme .card::after {
-      bottom: -15px;
-      right: -15px;
-      background-size: 50px;
-      transform: rotate(135deg);
-    }
-
-     .diwali-theme h1, .diwali-theme h2, .diwali-theme h3 {
-        text-shadow: 0 0 8px hsl(var(--primary) / 0.5);
+    .diwali-theme p, .diwali-theme label, .diwali-theme span {
+        color: hsl(var(--foreground));
     }
 
     .diwali-theme .button-glow {
