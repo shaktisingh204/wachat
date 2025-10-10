@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, Globe, ChevronsUpDown, TrendingUp
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, Globe
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -183,12 +183,12 @@ const seoMenuItems = [
 ];
 
 const FullPageSkeleton = () => (
-    <div className="flex h-screen w-screen bg-background">
-        <div className="w-16 border-r bg-sidebar p-2"><Skeleton className="h-full w-full"/></div>
-        <div className="w-60 border-r bg-sidebar-secondary p-2"><Skeleton className="h-full w-full"/></div>
-        <div className="flex-1 flex flex-col">
-            <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
-            <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
+    <div className="flex h-screen w-screen bg-background p-2 gap-2">
+        <div className="w-16 rounded-lg bg-card p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="w-60 rounded-lg bg-card p-2"><Skeleton className="h-full w-full"/></div>
+        <div className="flex-1 flex flex-col gap-2">
+            <div className="h-16 rounded-lg bg-card p-4"><Skeleton className="h-full w-full"/></div>
+            <div className="flex-1 rounded-lg bg-card p-4"><Skeleton className="h-full w-full"/></div>
         </div>
     </div>
 );
@@ -312,10 +312,9 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
 
   return (
     <SidebarProvider>
-      <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
-        <Drawer direction="left">
+      <div className={cn("flex h-screen bg-muted/30 p-2 gap-2", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
         {/* Primary Sidebar Rail */}
-        <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-2 space-y-1">
+        <div className="flex-shrink-0 w-16 bg-card rounded-lg shadow-sm flex flex-col items-center py-2 space-y-1">
             <Link href="/dashboard" className="mb-4">
             <SabNodeLogo className="h-8 w-auto" />
             </Link>
@@ -330,7 +329,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         
         <Sidebar>
             <SidebarHeader>
-                <h2 className="text-lg font-semibold tracking-tight text-sidebar-foreground">
+                <h2 className="text-lg font-semibold tracking-tight text-sidebar-secondary-foreground">
                     {appIcons.find(app => app.id === activeApp)?.label || 'SabNode'}
                 </h2>
             </SidebarHeader>
@@ -487,7 +486,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         </Sidebar>
 
         <div className="flex-1 flex flex-col min-w-0">
-            <header className="flex h-16 items-center justify-between gap-4 border-b px-4 flex-shrink-0">
+            <header className="flex h-16 items-center justify-between gap-4 border-b bg-background px-4 flex-shrink-0">
                  <div className="flex items-center gap-2">
                     <SidebarTrigger />
                     {activeApp === 'facebook' && activeProject ? (
@@ -506,11 +505,10 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
                     </div>
                 </div>
             </header>
-            <main className="flex-1 overflow-y-auto">
+            <main className="flex-1 overflow-y-auto bg-card rounded-b-lg">
                 {isChatPage || isWebsiteBuilderPage ? children : mainContent}
             </main>
         </div>
-        </Drawer>
       </div>
     </SidebarProvider>
   );
