@@ -3,13 +3,28 @@
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId } from 'mongodb';
-import { getAdminSession } from '@/app/actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { createAdminSessionToken } from '@/lib/auth';
+import { createAdminSessionToken, verifyAdminJwt } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { headers } from 'next/headers';
+
+export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
+    const cookieStore = cookies();
+    const sessionCookie = cookieStore.get('admin_session')?.value;
+    
+    if (!sessionCookie) {
+        return { isAdmin: false };
+    }
+
+    const payload = await verifyAdminJwt(sessionCookie);
+    if (payload && payload.role === 'admin') {
+        return { isAdmin: true };
+    }
+
+    return { isAdmin: false };
+}
 
 export async function getAdminDashboardStats(): Promise<{
     totalUsers: number;

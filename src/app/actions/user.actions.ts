@@ -268,22 +268,6 @@ export async function handleSyncWabas(prevState: any, formData: FormData): Promi
     }
 }
 
-export async function getAdminSession(): Promise<{ isAdmin: boolean }> {
-    const cookieStore = await cookies();
-    const sessionCookie = cookieStore.get('admin_session')?.value;
-    
-    if (!sessionCookie) {
-        return { isAdmin: false };
-    }
-
-    const payload = await verifyAdminJwt(sessionCookie);
-    if (payload && payload.role === 'admin') {
-        return { isAdmin: true };
-    }
-
-    return { isAdmin: false };
-}
-
 export async function handleLogin(prevState: any, formData: FormData): Promise<{ error?: string }> {
     const headersList = headers();
     const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
