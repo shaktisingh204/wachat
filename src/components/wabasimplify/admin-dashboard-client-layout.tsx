@@ -29,6 +29,8 @@ import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users, PanelLeft } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
+import { getDiwaliThemeStatus } from '@/app/actions';
 
 const menuItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -44,8 +46,7 @@ const menuItems = [
 function FullPageSkeleton() {
     return (
         <div className="flex h-screen w-screen bg-background">
-            <div className="w-16 border-r bg-sidebar p-2"><Skeleton className="h-full w-full"/></div>
-            <div className="w-60 border-r bg-sidebar-secondary p-2"><Skeleton className="h-full w-full"/></div>
+            <div className="w-60 border-r bg-sidebar p-2"><Skeleton className="h-full w-full"/></div>
             <div className="flex-1 flex flex-col">
                 <div className="h-16 border-b p-4"><Skeleton className="h-full w-full"/></div>
                 <div className="flex-1 p-4"><Skeleton className="h-full w-full"/></div>
@@ -57,9 +58,11 @@ function FullPageSkeleton() {
 export function AdminDashboardClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [isClient, setIsClient] = React.useState(false);
+  const [isDiwaliTheme, setIsDiwaliTheme] = React.useState(false);
 
   React.useEffect(() => {
     setIsClient(true);
+    getDiwaliThemeStatus().then(status => setIsDiwaliTheme(status.enabled));
   }, []);
 
   if (!isClient) {
@@ -68,7 +71,7 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
 
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-full bg-background">
+      <div className={cn("admin-dashboard flex h-screen w-full bg-background", isDiwaliTheme && 'diwali-theme')}>
         <Sidebar>
             <SidebarHeader>
             <SabNodeLogo className="w-32 h-auto" />

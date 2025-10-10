@@ -132,7 +132,7 @@ export const SidebarFooter = React.forwardRef<HTMLDivElement, React.HTMLAttribut
 ));
 SidebarFooter.displayName = 'SidebarFooter';
 
-export const SidebarTrigger = ({ children }: { children: React.ReactNode }) => {
+export const SidebarTrigger = ({ children }: { children?: React.ReactNode }) => {
     const { isMobile, isOpen, setIsOpen } = useSidebar();
     if (isMobile) {
         return (
@@ -142,7 +142,13 @@ export const SidebarTrigger = ({ children }: { children: React.ReactNode }) => {
         )
     }
 
-    if (!children) return null;
+    if (!children) {
+      return (
+        <Button variant="ghost" size="icon" onClick={() => setIsOpen(!isOpen)}>
+          <PanelLeft />
+        </Button>
+      );
+    }
 
     return React.cloneElement(children as React.ReactElement, {
         onClick: () => setIsOpen(!isOpen),
