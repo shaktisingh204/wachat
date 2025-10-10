@@ -20,6 +20,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { useProject } from '@/context/project-context';
 
 
 const initialState = {
@@ -49,12 +50,12 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
 
 interface BroadcastFormProps {
     templates: WithId<Template>[];
-    project: Pick<WithId<Project>, '_id' | 'phoneNumbers' | 'tags'> | null;
     metaFlows: WithId<MetaFlow>[];
     onSuccess: () => void;
 }
 
-export function BroadcastForm({ templates, project, metaFlows, onSuccess }: BroadcastFormProps) {
+export function BroadcastForm({ templates, metaFlows, onSuccess }: BroadcastFormProps) {
+  const { activeProject } = useProject();
   const [state, formAction] = useActionState(handleStartBroadcast, initialState);
   const { toast } = useToast();
   const formRef = useRef<HTMLFormElement>(null);
@@ -91,7 +92,7 @@ export function BroadcastForm({ templates, project, metaFlows, onSuccess }: Broa
   }, [state, toast, onSuccess]);
 
 
-  if (!project) {
+  if (!activeProject) {
     return (
         <Card className="card-gradient card-gradient-green">
             <CardHeader>
@@ -122,7 +123,7 @@ export function BroadcastForm({ templates, project, metaFlows, onSuccess }: Broa
   return (
     <Card className="card-gradient card-gradient-green">
       <form ref={formRef} action={formAction}>
-          <input type="hidden" name="projectId" value={project._id.toString()} />
+          <input type="hidden" name="projectId" value={activeProject._id.toString()} />
           {selectedTagIds.map(id => <input key={id} type="hidden" name="tagIds" value={id} />)}
           <CardHeader>
           <CardTitle>New Broadcast Campaign</CardTitle>
@@ -147,7 +148,7 @@ export function BroadcastForm({ templates, project, metaFlows, onSuccess }: Broa
                     <SelectValue placeholder="Choose a number..." />
                 </SelectTrigger>
                 <SelectContent>
-                    {(project?.phoneNumbers || []).map((phone) => (
+                    {(activeProject?.phoneNumbers || []).map((phone) => (
                     <SelectItem key={phone.id} value={phone.id}>
                         {phone.display_phone_number} ({phone.verified_name})
                     </SelectItem>
@@ -213,7 +214,7 @@ export function BroadcastForm({ templates, project, metaFlows, onSuccess }: Broa
                                     <CommandList>
                                         <CommandEmpty>No tags found.</CommandEmpty>
                                         <CommandGroup>
-                                            {(project?.tags || []).map((tag) => (
+                                            {(activeProject?.tags || []).map((tag: Tag) => (
                                                 <CommandItem
                                                     key={tag._id}
                                                     value={tag.name}
@@ -249,7 +250,7 @@ export function BroadcastForm({ templates, project, metaFlows, onSuccess }: Broa
                     <div className="md:col-span-2 space-y-4">
                         <Label>Header Media (Required)</Label>
                         <RadioGroup name="mediaSource" value={headerMediaSource} onValueChange={(val) => setHeaderMediaSource(val as any)} className="flex gap-4 pt-1">
-                            <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="source-url" /><Label htmlFor="source-url" className="flex items-center gap-2"><Link className="h-4 w-4"/>Use public URL</Label></div>
+                            <div className="flex items-center space-x-2"><RadioGroupItem value="url" id="source-url" /><Label htmlFor="source-url" className="flex items-center gap-2"><LinkIcon className="h-4 w-4"/>Use public URL</Label></div>
                             <div className="flex items-center space-x-2"><RadioGroupItem value="file" id="source-file" /><Label htmlFor="source-file" className="flex items-center gap-2"><UploadCloud className="h-4 w-4"/>Upload file</Label></div>
                         </RadioGroup>
                         

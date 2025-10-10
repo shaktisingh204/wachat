@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { MessagesSquare, CheckCircle, XCircle, Send, AlertCircle, CheckCheck, Eye } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
+import { useProject } from '@/context/project-context';
 
 const AnalyticsChart = dynamic(
   () => import('@/components/wabasimplify/analytics-chart').then(mod => mod.AnalyticsChart),
@@ -17,7 +18,6 @@ const AnalyticsChart = dynamic(
     loading: () => <Skeleton className="min-h-[300px] w-full" />,
   }
 );
-
 
 type DashboardStats = {
   totalMessages: number;
@@ -57,33 +57,22 @@ function StatCardSkeleton() {
 }
 
 export default function DashboardOverviewPage() {
+  const { activeProjectId } = useProject();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, startLoadingTransition] = useTransition();
-  const [isClient, setIsClient] = useState(false);
-  const [projectId, setProjectId] = useState<string | null>(null);
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  useEffect(() => {
-    if (isClient) {
-      document.title = "Dashboard Overview | SabNode";
-      const storedProjectId = localStorage.getItem('activeProjectId');
-      setProjectId(storedProjectId);
-      if (storedProjectId) {
-        startLoadingTransition(() => {
-            getDashboardStats(storedProjectId).then(data => {
-                setStats(data);
-            });
-        });
-      } else {
-        // If no project is selected, just show the placeholder, don't redirect.
-        // The main layout handles redirection if no projects exist at all.
-        setStats(null);
-      }
+    document.title = "Dashboard Overview | SabNode";
+    if (activeProjectId) {
+      startLoadingTransition(() => {
+          getDashboardStats(activeProjectId).then(data => {
+              setStats(data);
+          });
+      });
+    } else {
+      setStats(null);
     }
-  }, [isClient]);
+  }, [activeProjectId]);
 
   const sentPercentage = stats ? (stats.totalMessages > 0 ? ((stats.totalSent / stats.totalMessages) * 100).toFixed(1) : '0.0') : '0.0';
   const deliveredPercentage = stats ? (stats.totalSent > 0 ? ((stats.totalDelivered / stats.totalSent) * 100).toFixed(1) : '0.0') : '0.0';
@@ -97,7 +86,7 @@ export default function DashboardOverviewPage() {
         <p className="text-muted-foreground">Your message analytics for the selected project.</p>
       </div>
 
-       {!projectId ? (
+       {!activeProjectId ? (
         <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertTitle>No Project Selected</AlertTitle>
