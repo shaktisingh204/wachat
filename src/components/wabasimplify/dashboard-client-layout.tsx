@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, Globe, ChevronsUpDown, TrendingUp
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -314,12 +314,12 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     <SidebarProvider>
       <div className={cn("flex h-screen bg-muted/30 p-2 gap-2", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
         {/* Primary Sidebar Rail */}
-        <div className="flex-shrink-0 w-16 bg-card rounded-lg shadow-sm flex flex-col items-center py-2 space-y-1">
+        <div className="flex-shrink-0 w-16 bg-card rounded-lg shadow-sm flex flex-col items-center py-2 space-y-2">
             <Link href="/dashboard" className="mb-4">
             <SabNodeLogo className="h-8 w-auto" />
             </Link>
             {appIcons.map(app => (
-                 <Button key={app.id} asChild variant={activeApp === app.id ? "ghost" : "ghost"} data-theme={app.id} className={cn("h-12 w-12 rounded-lg flex-col justify-center gap-1 text-xs p-0", activeApp === app.id && "active-app-icon")}>
+                 <Button key={app.id} asChild variant={activeApp === app.id ? "ghost" : "ghost"} data-theme={app.id} className={cn("h-12 w-12 rounded-lg flex-col justify-center gap-1 text-xs p-0 apprailhw", activeApp === app.id && "active-app-icon")}>
                     <Link href={app.href} scroll={false} className="h-full w-full flex flex-col items-center justify-center gap-1">
                         <app.icon className="h-5 w-5"/>
                     </Link>
