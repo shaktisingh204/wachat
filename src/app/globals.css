@@ -94,33 +94,25 @@ body {
   }
 
   .diwali-theme {
-    --background: 25 10% 10%; /* Deep brown */
-    --foreground: 30 80% 85%; /* Soft cream */
-    --card: 28 15% 15%;
-    --card-foreground: 30 80% 85%;
-    --popover: 28 15% 15%;
-    --popover-foreground: 30 80% 85%;
-    --primary: 35 90% 60%; /* Saffron/Orange */
-    --primary-foreground: 25 10% 10%;
-    --secondary: 45 95% 55%; /* Gold */
-    --secondary-foreground: 25 10% 10%;
-    --muted: 28 15% 20%;
-    --muted-foreground: 30 50% 70%;
-    --accent: 35 90% 60% / 0.2;
-    --accent-foreground: 35 90% 70%;
-    --destructive: 0 70% 50%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 30 15% 30%;
-    --input: 30 15% 25%;
-    --ring: 45 95% 55%;
-
-    --sidebar-background: 28 15% 12%;
-    --sidebar-secondary-background: 28 15% 12%;
-    --sidebar-foreground: 30 50% 70%;
-    --sidebar-active-background: hsl(var(--primary));
-    --sidebar-active-foreground: hsl(var(--primary-foreground));
-    --sidebar-accent: hsl(var(--primary) / 0.1);
-    --sidebar-accent-foreground: hsl(var(--accent-foreground));
+    --background: 224 63% 11%; /* #0B132B */
+    --foreground: 0 0% 97.3%; /* #F8F8F8 */
+    --card: 240 27% 17%; /* #1F1F38 */
+    --card-foreground: 0 0% 97.3%;
+    --popover: 240 27% 17%;
+    --popover-foreground: 0 0% 97.3%;
+    --primary: 51 100% 50%; /* #FFD700 */
+    --primary-foreground: 224 63% 11%;
+    --secondary: 283 70% 45%; /* #6A0DAD adjusted */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 240 27% 22%;
+    --muted-foreground: 0 0% 77.3%; /* #C5C5C5 */
+    --accent: 45 100% 51%; /* #FFC107 */
+    --accent-foreground: 224 63% 11%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 97.3%;
+    --border: 283 93% 33%; /* #6A0DAD */
+    --input: 240 27% 20%;
+    --ring: 45 100% 51%;
   }
 }
 
@@ -161,22 +153,23 @@ body {
     }
 
     .diwali-theme {
-      background-color: hsl(var(--background));
-      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='hsl(35, 90%, 60%)' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23FFC107' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3Cpath d='M63 38c0 .552-.448 1-1 1s-1-.448-1-1 .448-1 1-1 1 .448 1 1zm0 2c-.552 0-1 .448-1 1s.448 1 1 1 1-.448 1-1-.448-1-1-1zm0 2c-.552 0-1 .448-1 1s.448 1 1 1 1-.448 1-1-.448-1-1-1zm-2-2c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-2 0c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-2 0c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-2 0c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-2 0c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-2 0c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-2 0c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-2 0c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
     }
 
     .diwali-theme h1, .diwali-theme h2, .diwali-theme h3, .diwali-theme h4, .diwali-theme h5, .diwali-theme h6 {
         color: hsl(var(--primary));
         text-shadow: 0 0 8px hsl(var(--primary) / 0.5);
     }
-    
-    .diwali-theme p, .diwali-theme label, .diwali-theme span {
-        color: hsl(var(--foreground));
-    }
-    
-    .diwali-theme svg {
-        color: hsl(var(--primary));
-    }
+
+    .diwali-theme h1 { font-weight: 700; color: hsl(51, 100%, 50%) }
+    .diwali-theme h2 { font-weight: 600; color: hsl(33, 100%, 50%) }
+    .diwali-theme h3 { font-weight: 500; color: hsl(45, 100%, 51%) }
+    .diwali-theme p { color: hsl(0, 0%, 97.3%) }
+    .diwali-theme span { color: hsl(0, 0%, 97.3%) }
+    .diwali-theme label { color: hsl(0, 0%, 97.3%) }
+    .diwali-theme .text-muted-foreground { color: hsl(0, 0%, 77.3%) !important; }
+    .diwali-theme a { color: hsl(51, 100%, 50%); }
+    .diwali-theme a:hover { text-decoration: underline; }
 
     .diwali-theme .button-glow {
         box-shadow: 0 0 15px hsl(var(--primary) / 0.6), 0 0 5px hsl(var(--primary) / 0.8);
@@ -253,12 +246,6 @@ body {
     .animate-kanban-drag {
         animation: kanban-drag 7s ease-in-out infinite;
         animation-delay: 2.5s;
-    }
-    
-    .apprailhw {
-      width: 48px !important;
-      height: 48px !important;
-      min-height: 48px !important;
     }
     
     @keyframes fade-in {
