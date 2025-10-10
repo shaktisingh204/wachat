@@ -1,4 +1,5 @@
 
+
 import { getWhatsAppProjectsForAdmin } from '@/app/actions/project.actions';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -39,7 +40,7 @@ export default async function WhatsAppProjectsPage({
     };
 
     const createPageURL = (pageNumber: number) => {
-        const params = new URLSearchParams(searchParams);
+        const params = new URLSearchParams(searchParams as any);
         params.set('page', pageNumber.toString());
         return `/admin/dashboard/whatsapp-projects?${params.toString()}`;
       };
