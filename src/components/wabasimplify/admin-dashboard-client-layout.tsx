@@ -26,7 +26,7 @@ import {
   SidebarProvider,
 } from '@/components/ui/sidebar';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
-import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users, PanelLeft } from 'lucide-react';
+import { LayoutDashboard, ShieldCheck, Settings, LogOut, ChevronDown, History, CreditCard, GitFork, BookCopy, Users, PanelLeft, Sparkles } from 'lucide-react';
 import { WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -78,7 +78,7 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
 
   return (
     <SidebarProvider>
-      <div className={cn("admin-dashboard flex h-screen w-full bg-background", isDiwaliTheme && 'diwali-theme')}>
+      <div className={cn("admin-dashboard flex h-screen w-full", isDiwaliTheme && 'diwali-theme')}>
         <Sidebar>
             <SidebarHeader>
             <SabNodeLogo className="w-32 h-auto" />
