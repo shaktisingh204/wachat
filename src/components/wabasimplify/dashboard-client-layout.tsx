@@ -35,6 +35,7 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarTrigger,
+  SidebarProvider,
 } from '@/components/ui/sidebar';
 import { Drawer, DrawerTrigger } from '../ui/drawer';
 import { ProjectProvider, useProject } from '@/context/project-context';
