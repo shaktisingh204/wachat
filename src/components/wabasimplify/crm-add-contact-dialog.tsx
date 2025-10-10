@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useActionState, useEffect, useRef, useState } from 'react';
@@ -21,6 +20,7 @@ import { useToast } from '@/hooks/use-toast';
 import { addCrmContact } from '@/app/actions/crm.actions';
 import type { CrmAccount, WithId } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Separator } from '../ui/separator';
 
 const initialState = { message: null, error: null };
 
