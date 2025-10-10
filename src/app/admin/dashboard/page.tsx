@@ -1,8 +1,10 @@
 
+
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Briefcase, CheckSquare, Server, AlertTriangle, MessageSquare, Send, GitFork, ServerCog, Edit } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getProjectsForAdmin } from '@/app/actions/user.actions';
+import { getAdminDashboardStats } from '@/app/actions/admin.actions';
 import { getPlans } from '@/app/actions/plan.actions';
 import type { Project } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
@@ -34,7 +36,7 @@ export const metadata: Metadata = {
 
 const PROJECTS_PER_PAGE = 5;
 
-const StatCard = ({ title, value, icon: Icon, gradientClass }: { title: string, value: string, icon: React.ElementType, gradientClass?: string }) => (
+const StatCard = ({ title, value, icon: Icon, gradientClass, description }: { title: string, value: string | number, icon: React.ElementType, gradientClass?: string, description?: string }) => (
     <Card className={cn(gradientClass)}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{title}</CardTitle>
@@ -42,6 +44,7 @@ const StatCard = ({ title, value, icon: Icon, gradientClass }: { title: string, 
         </CardHeader>
         <CardContent>
             <div className="text-2xl font-bold">{value}</div>
+            {description && <p className="text-xs text-muted-foreground">{description}</p>}
         </CardContent>
     </Card>
 );
@@ -56,9 +59,12 @@ export default async function AdminDashboardPage({
 }) {
   const query = searchParams?.query || '';
   const currentPage = Number(searchParams?.page) || 1;
+  
   const { projects, total: totalProjects } = await getProjectsForAdmin(currentPage, PROJECTS_PER_PAGE, query);
-  const { broadcasts: recentBroadcasts } = await getAllBroadcasts(1, 5); // Get 5 most recent
+  const { broadcasts: recentBroadcasts } = await getAllBroadcasts(1, 5);
   const allPlans = await getPlans();
+  const { totalUsers, totalWabas, totalMessages, totalCampaigns, totalFlows } = await getAdminDashboardStats();
+  
   const totalPages = Math.ceil(totalProjects / PROJECTS_PER_PAGE);
 
   return (
@@ -76,7 +82,7 @@ export default async function AdminDashboardPage({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalProjects.toLocaleString()}</div>
-            <p className="text-xs text-muted-foreground">Total projects created on the platform.</p>
+            <p className="text-xs text-muted-foreground">All project types on the platform.</p>
           </CardContent>
         </Card>
         <Card>
@@ -85,8 +91,8 @@ export default async function AdminDashboardPage({
             <CheckSquare className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2,134</div>
-            <p className="text-xs text-muted-foreground">+120 since last month</p>
+            <div className="text-2xl font-bold">{totalWabas.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">Total connected WhatsApp accounts.</p>
           </CardContent>
         </Card>
         <Card>
@@ -101,12 +107,12 @@ export default async function AdminDashboardPage({
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">API Error Rate</CardTitle>
-            <AlertTriangle className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Total Users</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0.02%</div>
-            <p className="text-xs text-muted-foreground">Stable</p>
+            <div className="text-2xl font-bold">{totalUsers.toLocaleString()}</div>
+             <p className="text-xs text-muted-foreground">Total registered users.</p>
           </CardContent>
         </Card>
       </div>
@@ -114,34 +120,15 @@ export default async function AdminDashboardPage({
       <Card>
         <CardHeader>
           <CardTitle>Platform Insights</CardTitle>
-          <CardDescription>View key metrics over different time periods.</CardDescription>
+          <CardDescription>Live metrics from across the platform.</CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="24h" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="24h">24 Hours</TabsTrigger>
-              <TabsTrigger value="7d">7 Days</TabsTrigger>
-              <TabsTrigger value="30d">30 Days</TabsTrigger>
-            </TabsList>
-            <TabsContent value="24h" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <StatCard title="Total Chats" value="1,205" icon={MessageSquare} />
-              <StatCard title="Campaigns Sent" value="89" icon={Send} />
-              <StatCard title="Flowbuilder Triggers" value="3,450" icon={GitFork} />
-              <StatCard title="Meta Flows Used" value="1,890" icon={ServerCog} />
-            </TabsContent>
-            <TabsContent value="7d" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Chats" value="9,820" icon={MessageSquare} />
-                <StatCard title="Campaigns Sent" value="621" icon={Send} />
-                <StatCard title="Flowbuilder Triggers" value="25,102" icon={GitFork} />
-                <StatCard title="Meta Flows Used" value="14,331" icon={ServerCog} />
-            </TabsContent>
-            <TabsContent value="30d" className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <StatCard title="Total Chats" value="45,231" icon={MessageSquare} />
-                <StatCard title="Campaigns Sent" value="2,845" icon={Send} />
-                <StatCard title="Flowbuilder Triggers" value="112,899" icon={GitFork} />
-                <StatCard title="Meta Flows Used" value="65,443" icon={ServerCog} />
-            </TabsContent>
-          </Tabs>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <StatCard title="Total Messages Sent" value={totalMessages.toLocaleString()} icon={MessageSquare} description="All-time outgoing messages." />
+              <StatCard title="Total Campaigns Run" value={totalCampaigns.toLocaleString()} icon={Send} description="All-time broadcast jobs."/>
+              <StatCard title="Total Flow Executions" value={totalFlows.toLocaleString()} icon={GitFork} description="Total times any flow has run."/>
+              <StatCard title="Meta Flows Used" value="0" icon={ServerCog} description="Coming soon."/>
+            </div>
         </CardContent>
       </Card>
       
