@@ -141,6 +141,9 @@ export const SidebarTrigger = ({ children }: { children: React.ReactNode }) => {
             </DrawerTrigger>
         )
     }
+
+    if (!children) return null;
+
     return React.cloneElement(children as React.ReactElement, {
         onClick: () => setIsOpen(!isOpen),
     });
