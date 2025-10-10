@@ -11,6 +11,39 @@ import { createAdminSessionToken } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/rate-limiter';
 import { headers } from 'next/headers';
 
+export async function getAdminDashboardStats(): Promise<{
+    totalUsers: number;
+    totalWabas: number;
+    totalMessages: number;
+    totalCampaigns: number;
+    totalFlows: number;
+}> {
+    try {
+        const { db } = await connectToDatabase();
+
+        const [
+            totalUsers,
+            totalWabas,
+            totalMessages,
+            totalCampaigns,
+            totalFlows
+        ] = await Promise.all([
+            db.collection('users').countDocuments(),
+            db.collection('projects').countDocuments({ wabaId: { $exists: true, $ne: null } }),
+            db.collection('outgoing_messages').countDocuments(),
+            db.collection('broadcasts').countDocuments(),
+            db.collection('flow_logs').countDocuments(),
+        ]);
+        
+        return { totalUsers, totalWabas, totalMessages, totalCampaigns, totalFlows };
+
+    } catch (error) {
+        console.error("Failed to fetch admin dashboard stats:", error);
+        return { totalUsers: 0, totalWabas: 0, totalMessages: 0, totalCampaigns: 0, totalFlows: 0 };
+    }
+}
+
+
 export async function handleAdminLogin(prevState: any, formData: FormData): Promise<{ error?: string }> {
     const headersList = await headers();
     const ip = headersList.get('x-forwarded-for') || '127.0.0.1';
