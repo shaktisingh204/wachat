@@ -45,8 +45,8 @@ body {
     --sidebar-secondary-background: 0 0% 100%;
     --sidebar-secondary-foreground: 220 10% 25%;
     
-    --sidebar-active-background: 134 61% 41%;
-    --sidebar-active-foreground: 0 0% 100%;
+    --sidebar-active-background: hsl(var(--primary));
+    --sidebar-active-foreground: hsl(var(--primary-foreground));
 
     --sidebar-accent: hsl(var(--primary) / 0.1);
     --sidebar-accent-foreground: hsl(var(--primary));
@@ -82,8 +82,8 @@ body {
     --sidebar-secondary-background: 210 10% 15%;
     --sidebar-secondary-foreground: 210 40% 98%;
 
-    --sidebar-active-background: 134 61% 41%;
-    --sidebar-active-foreground: 0 0% 100%;
+    --sidebar-active-background: hsl(var(--primary));
+    --sidebar-active-foreground: hsl(var(--primary-foreground));
     
     --sidebar-accent: hsl(var(--primary) / 0.1);
     --sidebar-accent-foreground: hsl(var(--primary));
@@ -202,6 +202,51 @@ body {
     .animate-kanban-drag {
         animation: kanban-drag 7s ease-in-out infinite;
         animation-delay: 2.5s;
+    }
+    
+    [data-theme='whatsapp'] .active-app-icon {
+        background-color: #e6f8f0;
+        color: #16a34a;
+    }
+    [data-theme='facebook'] .active-app-icon {
+        background-color: #e8f3ff;
+        color: #1877f2;
+    }
+    [data-theme='instagram'] .active-app-icon {
+        background-color: #fce8f3;
+        color: #d62976;
+    }
+     [data-theme='crm'] .active-app-icon {
+        background-color: #fef3e8;
+        color: #f97316;
+    }
+     [data-theme='email'] .active-app-icon {
+        background-color: #eff6ff;
+        color: #3b82f6;
+    }
+     [data-theme='sms'] .active-app-icon {
+        background-color: #f0f9ff;
+        color: #0ea5e9;
+    }
+    [data-theme='api'] .active-app-icon {
+        background-color: #f1f5f9;
+        color: #475569;
+    }
+    [data-theme='website-builder'] .active-app-icon {
+        background-color: #f5f3ff;
+        color: #7c3aed;
+    }
+     [data-theme='url-shortener'] .active-app-icon {
+        background-color: #ecfdf5;
+        color: #22c55e;
+    }
+    [data-theme='qr-code-maker'] .active-app-icon {
+        background-color: #f1f5f9;
+        color: #1e293b;
+    }
+    [data-theme='seo-suite'] .active-app-icon {
+        background-color: #f0fdfa;
+        color: #14b8a6;
     }
     
     @keyframes fade-in {
