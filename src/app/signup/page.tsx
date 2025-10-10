@@ -12,6 +12,7 @@ import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, Eye, EyeOff, LoaderCircle } from 'lucide-react';
 import { handleSignup } from '@/app/actions';
+import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 
 const initialState = {
   message: null,
@@ -43,10 +44,15 @@ export default function SignupPage() {
   const [isDiwali, setIsDiwali] = useState(false);
 
   useEffect(() => {
-    // This is a proxy for checking the theme. In a real app, this might come from a context.
-    if (document.body.classList.contains('diwali-theme')) {
-        setIsDiwali(true);
-    }
+    getDiwaliThemeStatus().then(status => {
+        if (status.enabled) {
+            document.body.classList.add('diwali-theme');
+            setIsDiwali(true);
+        } else {
+            document.body.classList.remove('diwali-theme');
+            setIsDiwali(false);
+        }
+    });
   }, []);
 
   return (
