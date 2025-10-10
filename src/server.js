@@ -6,7 +6,7 @@ const cluster = require('cluster');
 const os = require('os');
 
 const dev = process.env.NODE_ENV !== 'production';
-const hostname = '0.0.0.0'; // Changed from 'localhost' for production environments
+const hostname = '0.0.0.0';
 const port = parseInt(process.env.PORT, 10) || 3001;
 
 // For Next.js app
@@ -15,13 +15,13 @@ const handle = app.getRequestHandler();
 
 if (cluster.isPrimary) {
   const totalCpus = os.cpus().length;
-  // Reserve 10% of CPUs, ensure at least 1 core is used for the app
-  const numCPUs = Math.max(1, Math.floor(totalCpus * 0.9)); 
-  
-  console.log(`\n\x1b[32m[Cluster] Primary process ${process.pid} is running.\x1b[0m`);
-  console.log(`\x1b[32m[Cluster] Total Cores: ${totalCpus}, Using: ${numCPUs} (90%) for workers.\x1b[0m\n`);
+  // Use a significant portion of CPUs for workers, but leave some for the OS.
+  const numWorkers = Math.max(1, Math.floor(totalCpus * 0.9)); 
 
-  for (let i = 0; i < numCPUs; i++) {
+  console.log(`\n\x1b[32m[Cluster] Primary process ${process.pid} is running.\x1b[0m`);
+  console.log(`\x1b[32m[Cluster] Total Cores: ${totalCpus}, Forking ${numWorkers} app workers.\x1b[0m\n`);
+
+  for (let i = 0; i < numWorkers; i++) {
     cluster.fork();
   }
 
