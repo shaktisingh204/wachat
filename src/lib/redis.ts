@@ -10,15 +10,7 @@ export async function getRedisClient() {
     
     const redisUrl = process.env.REDIS_URL;
     if (!redisUrl) {
-        console.warn('REDIS_URL not set. Broadcast queue will not work. Please add it to your .env file.');
-        // Return a mock client if Redis is not configured
-        return {
-            lPush: async () => {},
-            brPop: async () => { await new Promise(resolve => setTimeout(resolve, 60000)); return null; },
-            on: () => {},
-            connect: async () => {},
-            isOpen: false,
-        } as any;
+        throw new Error('REDIS_URL not set. Please add it to your .env file.');
     }
     
     client = createClient({
