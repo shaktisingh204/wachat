@@ -68,6 +68,7 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
 
   return (
     <SidebarProvider>
+      <div className="flex h-screen w-full bg-background">
         <Sidebar>
             <SidebarHeader>
             <SabNodeLogo className="w-32 h-auto" />
@@ -145,6 +146,7 @@ export function AdminDashboardClientLayout({ children }: { children: React.React
                 </main>
             </div>
         </div>
+      </div>
     </SidebarProvider>
   );
 }
