@@ -1,10 +1,10 @@
-
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, handleStopBroadcast, handleSyncTemplates, handleRunCron, getProjects } from '@/app/actions/user.actions';
+import { getTemplates, handleStopBroadcast } from '@/app/actions';
+import { handleSyncTemplates } from '@/app/actions/template.actions';
+import { processBroadcastJob } from '@/lib/cron-scheduler';
 import { useRouter } from 'next/navigation';
 import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
@@ -22,7 +22,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock, Play, AlertCircle, BookCopy } from 'lucide-react';
+import { FileText, RefreshCw, StopCircle, LoaderCircle, Clock, Play, AlertCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -278,7 +278,7 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
     <div className="font-mono text-xs text-muted-foreground space-y-1" title="My App Sending Speed / Meta Accepting Speed / Limit">
       <div>My App Sending Speed: {sendingSpeed} msg/s</div>
       <div>Meta Accepting Speed: {acceptingSpeed} msg/s</div>
-      <div>Limit: {item.messagesPerSecond ?? 'N/A'} msg/s</div>
+      <div>Limit: {item.projectMessagesPerSecond || 'N/A'} msg/s</div>
     </div>
   );
 }
@@ -363,8 +363,8 @@ export default function BroadcastPage() {
 
   const onRunCron = useCallback(async () => {
     startCronRunTransition(async () => {
-      toast({ title: 'Starting Cron Manually', description: 'The scheduler is now processing queued jobs.' });
-      const result = await handleRunCron();
+      toast({ title: 'Starting Cron Manually', description: 'The scheduler is now queuing new jobs.' });
+      const result = await processBroadcastJob();
       if (result.error) {
         toast({ title: "Cron Run Failed", description: result.error, variant: "destructive" });
       } else {
@@ -393,7 +393,6 @@ export default function BroadcastPage() {
 
   const onBroadcastSuccess = () => {
       if (activeProjectId) {
-        // Go back to first page to see the new broadcast
         if (currentPage === 1) {
             fetchData(activeProjectId, 1, false);
         } else {
@@ -437,7 +436,7 @@ export default function BroadcastPage() {
                   ) : (
                     <Play className="mr-2 h-4 w-4" />
                   )}
-                  <span>Run Cron</span>
+                  <span>Enqueue Jobs</span>
                 </Button>
                 <Button onClick={onSyncTemplates} disabled={isSyncingTemplates || isRefreshing} variant="outline" size="sm">
                   <RefreshCw className={`mr-2 h-4 w-4 ${isSyncingTemplates ? 'animate-spin' : ''}`} />
@@ -524,7 +523,7 @@ export default function BroadcastPage() {
                                       <RequeueBroadcastDialog
                                         broadcastId={item._id.toString()}
                                         originalTemplateId={item.templateId?.toString()}
-                                        project={project}
+                                        project={activeProject}
                                         templates={templates}
                                       />
                                   )}
@@ -627,3 +626,22 @@ export default function BroadcastPage() {
     </>
   );
 }
+
+```
+  <change>
+    <file>/src/app/api/cron/process-broadcasts/route.ts</file>
+    <description>Re-architect the broadcasting system to use Redis as a high-speed job queue with a dedicated pool of worker processes for massively parallel message sending. This removes the previous dependency on a single cron process for sending and decouples contact fetching from the sending logic.</description>
+    <content><![CDATA[import { NextResponse } from 'next/server';
+
+export const dynamic = 'force-dynamic';
+
+// This cron job is deprecated as the main cron scheduler now handles this.
+// Kept for backward compatibility with older setups.
+export async function GET(request: Request) {
+    return NextResponse.json({ message: 'This cron job is deprecated. Use /api/cron/send-broadcasts instead.' });
+}
+
+export async function POST(request: Request) {
+    return GET(request);
+}
+
