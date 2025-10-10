@@ -8,12 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, TrendingUp } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Lightbulb, TrendingUp } from 'lucide-react';
+import { Lightbulb } from 'lucide-react';
 
 export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUpdate: (newSettings: any) => void }) {
     const handleUpdate = (field: string, value: any) => {
@@ -193,7 +193,7 @@ export function HeadingBlockEditor({ settings, onUpdate }: { settings: any, onUp
                                 <div className="flex items-center justify-between"><Label htmlFor="showOnTablet" className="font-normal">Show on Tablet</Label><Switch id="showOnTablet" checked={settings.responsiveVisibility?.tablet !== false} onCheckedChange={(val) => handleSubFieldUpdate('responsiveVisibility', 'tablet', val)} /></div>
                                 <div className="flex items-center justify-between"><Label htmlFor="showOnMobile" className="font-normal">Show on Mobile</Label><Switch id="showOnMobile" checked={settings.responsiveVisibility?.mobile !== false} onCheckedChange={(val) => handleSubFieldUpdate('responsiveVisibility', 'mobile', val)} /></div>
                             </div>
-                            <Separator/>
+                            <Separator />
                             <Label>Responsive Alignment</Label>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2"><Label className="text-xs">Tablet</Label><Select value={settings.tabletTextAlign || 'default'} onValueChange={v => handleUpdate('tabletTextAlign', v === 'default' ? undefined : v)}><SelectTrigger><SelectValue placeholder="Inherit"/></SelectTrigger><SelectContent><SelectItem value="default">Inherit</SelectItem><SelectItem value="left">Left</SelectItem><SelectItem value="center">Center</SelectItem><SelectItem value="right">Right</SelectItem></SelectContent></Select></div>
