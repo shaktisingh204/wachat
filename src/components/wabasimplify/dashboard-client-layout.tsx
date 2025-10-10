@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { 
-    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft 
+    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles 
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -35,7 +35,6 @@ import {
   SidebarMenuButton,
   SidebarFooter,
   SidebarTrigger,
-  SidebarProvider,
 } from '@/components/ui/sidebar';
 import { Drawer, DrawerTrigger } from '../ui/drawer';
 import { ProjectProvider, useProject } from '@/context/project-context';
@@ -257,7 +256,16 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
     return (
         <SidebarProvider>
-            <div className={cn("flex h-screen bg-muted/30 p-2 gap-2", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
+            <div className={cn("flex h-screen bg-muted/30 p-2 gap-2 relative", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
+                {isDiwaliTheme && (
+                    <div className="absolute inset-0 pointer-events-none z-0">
+                        <Sparkles className="absolute top-4 right-4 h-8 w-8 text-yellow-400/50 animate-pulse" />
+                        <Sparkles className="absolute top-20 left-80 h-12 w-12 text-yellow-400/30 animate-pulse" style={{ animationDelay: '0.5s' }} />
+                        <Sparkles className="absolute bottom-16 right-20 h-16 w-16 text-yellow-400/40 animate-pulse" style={{ animationDelay: '1s' }} />
+                        <Sparkles className="absolute bottom-4 left-4 h-6 w-6 text-yellow-400/50 animate-pulse" style={{ animationDelay: '1.5s' }} />
+                        <Sparkles className="absolute top-1/2 left-1/2 h-10 w-10 text-yellow-400/30 animate-pulse" style={{ animationDelay: '2s' }} />
+                    </div>
+                )}
                 <div className="flex-shrink-0 w-16 bg-card rounded-lg shadow-sm flex flex-col items-center py-2 space-y-2">
                     <Link href="/dashboard" className="mb-4">
                         <SabNodeLogo className="h-8 w-auto" />
