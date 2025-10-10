@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -393,6 +394,7 @@ export default function BroadcastPage() {
 
   const onBroadcastSuccess = () => {
       if (activeProjectId) {
+        // Go back to first page to see the new broadcast
         if (currentPage === 1) {
             fetchData(activeProjectId, 1, false);
         } else {
@@ -576,7 +578,7 @@ export default function BroadcastPage() {
                                 <RequeueBroadcastDialog
                                   broadcastId={item._id.toString()}
                                   originalTemplateId={item.templateId?.toString()}
-                                  project={project}
+                                  project={activeProject}
                                   templates={templates}
                                 />
                               )}
@@ -626,22 +628,3 @@ export default function BroadcastPage() {
     </>
   );
 }
-
-```
-  <change>
-    <file>/src/app/api/cron/process-broadcasts/route.ts</file>
-    <description>Re-architect the broadcasting system to use Redis as a high-speed job queue with a dedicated pool of worker processes for massively parallel message sending. This removes the previous dependency on a single cron process for sending and decouples contact fetching from the sending logic.</description>
-    <content><![CDATA[import { NextResponse } from 'next/server';
-
-export const dynamic = 'force-dynamic';
-
-// This cron job is deprecated as the main cron scheduler now handles this.
-// Kept for backward compatibility with older setups.
-export async function GET(request: Request) {
-    return NextResponse.json({ message: 'This cron job is deprecated. Use /api/cron/send-broadcasts instead.' });
-}
-
-export async function POST(request: Request) {
-    return GET(request);
-}
-

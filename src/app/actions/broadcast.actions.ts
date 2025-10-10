@@ -430,7 +430,8 @@ export async function getBroadcasts(
                                 createdAt: 1,
                                 startedAt: 1,
                                 completedAt: 1,
-                                messagesPerSecond: 1
+                                messagesPerSecond: 1,
+                                projectMessagesPerSecond: hasAccess.messagesPerSecond,
                             }
                         }
                     ],
@@ -768,7 +769,3 @@ export async function handleBulkBroadcast(prevState: any, formData: FormData): P
         return { error: getErrorMessage(e) };
     }
 }
-
-    
-
-    
