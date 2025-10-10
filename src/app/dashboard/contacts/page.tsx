@@ -5,7 +5,7 @@
 import { useEffect, useState, useCallback, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import { getProjects, getContactsPageData } from '@/app/actions';
+import { getContactsPageData } from '@/app/actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, Tag } from '@/lib/definitions';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -23,7 +23,7 @@ import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
-import {Calendar} from 'lucide-react';
+import { useProject } from '@/context/project-context';
 
 
 const CONTACTS_PER_PAGE = 20;
@@ -102,12 +102,10 @@ function TagsFilter({ tags, selectedTags, onSelectionChange }: { tags: Tag[], se
 }
 
 export default function ContactsPage() {
-    const [project, setProject] = useState<WithId<Project> | null>(null);
+    const { activeProject, activeProjectId } = useProject();
     const [contacts, setContacts] = useState<WithId<Contact>[]>([]);
     const [isLoading, startTransition] = useTransition();
     const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState<string>('');
-    const [isClient, setIsClient] = useState(false);
-    const [activeProjectId, setActiveProjectId] = useState<string | null>(null);
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -121,8 +119,6 @@ export default function ContactsPage() {
     const fetchData = useCallback((projectId: string, phoneId: string, page: number, query: string, tags: string[]) => {
         startTransition(async () => {
             const data = await getContactsPageData(projectId, phoneId, page, query, tags);
-            
-            setProject(data.project);
             setContacts(data.contacts);
             setTotalPages(Math.ceil(data.total / CONTACTS_PER_PAGE));
             
@@ -132,29 +128,11 @@ export default function ContactsPage() {
         });
     }, []);
 
-    useEffect(() => {
-        setIsClient(true);
-        const storedProjectId = localStorage.getItem('activeProjectId');
-        setActiveProjectId(storedProjectId);
-    }, []);
-    
      useEffect(() => {
-        if (isClient) {
-            if (activeProjectId) {
-                fetchData(activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags);
-            } else {
-                 startTransition(async () => {
-                    const { projects } = await getProjects();
-                    if (projects && projects.length > 0) {
-                        router.push('/dashboard');
-                    } else {
-                        router.push('/dashboard/setup');
-                    }
-                });
-            }
+        if (activeProjectId) {
+            fetchData(activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags);
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isClient, activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags]);
+    }, [activeProjectId, selectedPhoneNumberId, currentPage, searchQuery, selectedTags, fetchData]);
 
 
     const updateSearchParam = useDebouncedCallback((key: string, value: string | null) => {
@@ -188,11 +166,11 @@ export default function ContactsPage() {
              <div>
                 <h1 className="text-3xl font-bold font-headline">Contacts</h1>
                 <p className="text-muted-foreground">
-                    {project ? `Manage the contact list for project "${project.name}".` : 'Manage your customer contact list.'}
+                    {activeProject ? `Manage the contact list for project "${activeProject.name}".` : 'Manage your customer contact list.'}
                 </p>
             </div>
             
-            {!activeProjectId && isClient ? (
+            {!activeProjectId ? (
                  <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Project Selected</AlertTitle>
@@ -211,10 +189,10 @@ export default function ContactsPage() {
                                 <CardDescription>Select a business number to view its associated contacts.</CardDescription>
                             </div>
                             <div className="flex items-center gap-2">
-                                {project && (
+                                {activeProject && (
                                     <>
-                                        <ImportContactsDialog project={project} selectedPhoneNumberId={selectedPhoneNumberId} />
-                                        <AddContactDialog project={project} selectedPhoneNumberId={selectedPhoneNumberId} />
+                                        <ImportContactsDialog project={activeProject} selectedPhoneNumberId={selectedPhoneNumberId} />
+                                        <AddContactDialog project={activeProject} selectedPhoneNumberId={selectedPhoneNumberId} />
                                     </>
                                 )}
                             </div>
@@ -222,12 +200,12 @@ export default function ContactsPage() {
                     </CardHeader>
                     <CardContent>
                          <div className="mb-4 flex flex-wrap gap-4 items-center">
-                            <Select value={selectedPhoneNumberId} onValueChange={handlePhoneChange} disabled={!project?.phoneNumbers || project.phoneNumbers.length === 0}>
+                            <Select value={selectedPhoneNumberId} onValueChange={handlePhoneChange} disabled={!activeProject?.phoneNumbers || activeProject.phoneNumbers.length === 0}>
                                 <SelectTrigger id="phoneNumberId" className="w-full sm:w-auto sm:min-w-[250px]">
                                     <SelectValue placeholder="Select a phone number..." />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {(project?.phoneNumbers || []).map((phone) => (
+                                    {(activeProject?.phoneNumbers || []).map((phone) => (
                                         <SelectItem key={phone.id} value={phone.id}>
                                             {phone.display_phone_number} ({phone.verified_name})
                                         </SelectItem>
@@ -244,7 +222,7 @@ export default function ContactsPage() {
                                 />
                             </div>
                             <TagsFilter 
-                                tags={project?.tags || []} 
+                                tags={activeProject?.tags || []} 
                                 selectedTags={selectedTags}
                                 onSelectionChange={(tags) => updateSearchParam('tags', tags.join(','))}
                             />
@@ -276,7 +254,7 @@ export default function ContactsPage() {
                                             <TableCell>
                                                 <div className="flex flex-wrap gap-1">
                                                     {(contact.tagIds || []).map(tagId => {
-                                                        const tag = project?.tags?.find(t => t._id === tagId);
+                                                        const tag = activeProject?.tags?.find(t => t._id === tagId);
                                                         return tag ? (
                                                             <Badge key={tagId} className="rounded" style={{ backgroundColor: tag.color, color: '#fff' }}>
                                                                 {tag.name}

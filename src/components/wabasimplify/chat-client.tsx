@@ -1,10 +1,9 @@
 
-
 'use client';
 
 import { useEffect, useState, useCallback, useTransition, useMemo, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { getInitialChatData, getConversation, findOrCreateContact, getProjects, getSession, markConversationAsRead } from '@/app/actions';
+import { getInitialChatData, getConversation, markConversationAsRead } from '@/app/actions';
 import { getContactsPageData } from '@/app/actions/contact.actions';
 import type { WithId } from 'mongodb';
 import type { Project, Contact, AnyMessage, Template, User, Plan } from '@/lib/definitions';
@@ -18,6 +17,7 @@ import { NewChatDialog } from './new-chat-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Card } from '../ui/card';
+import { useProject } from '@/context/project-context';
 
 const CONTACTS_PER_PAGE = 30;
 
@@ -29,16 +29,16 @@ function ChatPageSkeleton() {
 export function ChatClient() {
     const searchParams = useSearchParams();
     const router = useRouter();
+    const { activeProject, activeProjectId, sessionUser, reloadProject } = useProject();
+
     const initialContactId = useMemo(() => searchParams.get('contactId'), [searchParams]);
     const initialPhoneId = useMemo(() => searchParams.get('phoneId'), [searchParams]);
     
-    const [project, setProject] = useState<WithId<Project> | null>(null);
     const [contacts, setContacts] = useState<WithId<Contact>[]>([]);
     const [selectedContact, setSelectedContact] = useState<WithId<Contact> | null>(null);
     const [conversation, setConversation] = useState<AnyMessage[]>([]);
     const [templates, setTemplates] = useState<WithId<Template>[]>([]);
-    const [sessionUser, setSessionUser] = useState<(Omit<User, 'password' | 'planId'> & { _id: string, plan?: WithId<Plan> | null }) | null>(null);
-
+    
 
     const [isLoading, startLoadingTransition] = useTransition();
     const [loadingConversation, startConversationLoadTransition] = useTransition();
@@ -47,7 +47,6 @@ export function ChatClient() {
     const [selectedPhoneNumberId, setSelectedPhoneNumberId] = useState<string>('');
     const [isNewChatDialogOpen, setIsNewChatDialogOpen] = useState(false);
     const [isInfoPanelOpen, setIsInfoPanelOpen] = useState(false);
-    const [isClient, setIsClient] = useState(false);
     const { toast } = useToast();
 
     // Pagination state for contacts
@@ -58,45 +57,29 @@ export function ChatClient() {
 
     // Initial data load
     const fetchInitialData = useCallback(async (phoneId?: string | null) => {
+        if (!activeProjectId) return;
         startLoadingTransition(async () => {
-            const storedProjectId = localStorage.getItem('activeProjectId');
-            if (!storedProjectId) {
-                getProjects().then(projects => {
-                    if (projects && projects.length > 0) {
-                        router.push('/dashboard');
-                    } else {
-                        router.push('/dashboard/setup');
-                    }
-                });
-                return;
-            }
-
-            const [initialData, sessionData] = await Promise.all([
+            const [initialData] = await Promise.all([
                 getInitialChatData(
-                    storedProjectId, 
+                    activeProjectId, 
                     phoneId || initialPhoneId,
                     initialContactId
                 ),
-                getSession()
             ]);
 
-            setProject(initialData.project);
             setContacts(initialData.contacts);
             setHasMoreContacts(initialData.contacts.length < initialData.totalContacts);
             setSelectedContact(initialData.selectedContact);
             setConversation(initialData.conversation);
             setTemplates(initialData.templates);
             setSelectedPhoneNumberId(initialData.selectedPhoneNumberId);
-            setSessionUser(sessionData?.user || null);
             setContactPage(1); 
         });
-    }, [initialContactId, initialPhoneId, router, startLoadingTransition]);
+    }, [activeProjectId, initialContactId, initialPhoneId]);
 
     useEffect(() => {
-        setIsClient(true);
         fetchInitialData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [fetchInitialData]);
 
     const handlePhoneNumberChange = (phoneId: string) => {
         setSelectedContact(null);
@@ -118,12 +101,12 @@ export function ChatClient() {
     }, []);
 
     const loadMoreContacts = useCallback(async () => {
-        if (!project || !selectedPhoneNumberId || isFetchingMore || !hasMoreContacts) return;
+        if (!activeProject || !selectedPhoneNumberId || isFetchingMore || !hasMoreContacts) return;
         
         setIsFetchingMore(true);
         try {
             const nextPage = contactPage + 1;
-            const { contacts: newContacts, total } = await getContactsPageData(project._id.toString(), selectedPhoneNumberId, nextPage, '', undefined);
+            const { contacts: newContacts, total } = await getContactsPageData(activeProject._id.toString(), selectedPhoneNumberId, nextPage, '', undefined);
             
             if (newContacts.length > 0) {
                 setContacts(prev => [...prev, ...newContacts]);
@@ -141,7 +124,7 @@ export function ChatClient() {
         } finally {
             setIsFetchingMore(false);
         }
-    }, [project, selectedPhoneNumberId, isFetchingMore, hasMoreContacts, contactPage, contacts.length, toast]);
+    }, [activeProject, selectedPhoneNumberId, isFetchingMore, hasMoreContacts, contactPage, contacts.length, toast]);
 
     // Intersection Observer for infinite scroll
     useEffect(() => {
@@ -168,12 +151,12 @@ export function ChatClient() {
     
     // Polling for real-time updates
     useEffect(() => {
-        if (!isClient || isLoading) return;
+        if (isLoading) return;
 
         const interval = setInterval(() => {
             startPollingTransition(async () => {
-                if (project && selectedPhoneNumberId) {
-                     const { contacts: updatedContacts, total } = await getContactsPageData(project._id.toString(), selectedPhoneNumberId, 1, '', undefined);
+                if (activeProject && selectedPhoneNumberId) {
+                     const { contacts: updatedContacts, total } = await getContactsPageData(activeProject._id.toString(), selectedPhoneNumberId, 1, '', undefined);
                     setContacts(prev => {
                         const updatedMap = new Map(updatedContacts.map(c => [c._id.toString(), c]));
                         const mergedContacts = prev.map(old => updatedMap.get(old._id.toString()) || old);
@@ -191,21 +174,20 @@ export function ChatClient() {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [isClient, selectedContact, project, selectedPhoneNumberId, isLoading]);
+    }, [selectedContact, activeProject, selectedPhoneNumberId, isLoading]);
 
     const handleNewChat = async (waId: string) => {
-        if (!project || !selectedPhoneNumberId) {
+        if (!activeProject || !selectedPhoneNumberId) {
             toast({ title: 'Error', description: 'Project and phone number must be selected.', variant: 'destructive' });
             return;
         }
-        const result = await findOrCreateContact(project._id.toString(), selectedPhoneNumberId, waId);
-        if (result.error) {
-            toast({ title: 'Error', description: result.error, variant: 'destructive' });
+        const { contact, error } = await getInitialChatData(activeProjectId!, selectedPhoneNumberId, undefined, waId);
+        if (error || !contact) {
+            toast({ title: 'Error', description: error || 'Could not find or create contact.', variant: 'destructive' });
         }
-        if (result.contact) {
-            // Optimistically update the UI instead of a full re-fetch
-            setContacts(prev => [result.contact!, ...prev.filter(c => c._id.toString() !== result.contact?._id.toString())]);
-            handleSelectContact(result.contact);
+        if (contact) {
+            setContacts(prev => [contact, ...prev.filter(c => c._id.toString() !== contact?._id.toString())]);
+            handleSelectContact(contact);
             setIsNewChatDialogOpen(false);
         }
     };
@@ -217,10 +199,24 @@ export function ChatClient() {
         ));
     };
 
-    if (!isClient || (isLoading && !project)) {
+    if (isLoading && !activeProject) {
         return <ChatPageSkeleton />;
     }
 
+    if (!activeProjectId) {
+         return (
+             <div className="h-full flex items-center justify-center p-4">
+                <Alert variant="destructive" className="max-w-md">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>No Project Selected</AlertTitle>
+                    <AlertDescription>
+                        Please select a project from the main dashboard to use the chat interface.
+                    </AlertDescription>
+                </Alert>
+            </div>
+        );
+    }
+    
     return (
         <>
             <NewChatDialog
@@ -233,7 +229,7 @@ export function ChatClient() {
                     <div className={cn("w-full flex-col border-r bg-background md:w-[320px] flex-shrink-0", selectedContact ? "hidden md:flex" : "flex")}>
                         <ChatContactList
                             sessionUser={sessionUser}
-                            project={project}
+                            project={activeProject}
                             contacts={contacts}
                             selectedContactId={selectedContact?._id.toString()}
                             onSelectContact={handleSelectContact}
@@ -247,10 +243,10 @@ export function ChatClient() {
                     </div>
 
                     <div className={cn("w-full flex-col flex-1", selectedContact ? "flex" : "hidden md:flex")}>
-                         {selectedContact && project ? (
+                         {selectedContact && activeProject ? (
                             <ChatWindow
                                 key={selectedContact._id.toString()}
-                                project={project}
+                                project={activeProject}
                                 contact={selectedContact}
                                 conversation={conversation}
                                 templates={templates}
@@ -268,10 +264,10 @@ export function ChatClient() {
                             </div>
                         )}
                     </div>
-                     {isInfoPanelOpen && selectedContact && project && (
+                     {isInfoPanelOpen && selectedContact && activeProject && (
                         <div className="w-[340px] border-l hidden lg:block flex-shrink-0 bg-background">
                             <ContactInfoPanel 
-                                project={project}
+                                project={activeProject}
                                 contact={selectedContact}
                                 onContactUpdate={handleContactUpdate}
                             />

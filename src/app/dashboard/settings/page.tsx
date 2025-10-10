@@ -1,14 +1,13 @@
 
+
 'use client';
 
 import { useEffect, useState, useActionState, useRef, useTransition, Suspense } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useSearchParams } from 'next/navigation';
 import { 
-    getProjectById, 
     getSession, 
-    handleUpdateUserProfile, 
-    getProjects 
+    handleUpdateUserProfile
 } from '@/app/actions';
 import { 
     handleUpdateProjectSettings, 
@@ -16,9 +15,6 @@ import {
     handleUpdateMasterSwitch, 
     handleUpdateOptInOutSettings, 
     handleSaveUserAttributes, 
-    saveCannedMessageAction, 
-    deleteCannedMessage, 
-    getCannedMessages, 
     handleInviteAgent, 
     handleRemoveAgent 
 } from '@/app/actions/project.actions';
@@ -44,6 +40,7 @@ import { useRouter } from 'next/navigation';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { TagsSettingsTab } from '@/components/wabasimplify/tags-settings-tab';
 import { FeatureLock, FeatureLockOverlay } from '@/components/wabasimplify/feature-lock';
+import { useProject } from '@/context/project-context';
 
 const updateSettingsInitialState = { message: null, error: null };
 const updateAutoReplyInitialState = { message: null, error: null };
@@ -508,53 +505,19 @@ function UserAttributesForm({ project, user }: { project: WithId<Project>, user:
 }
 
 function SettingsPageContent() {
-  const [project, setProject] = useState<WithId<Project> | null>(null);
-  const [user, setUser] = useState<(Omit<User, 'password' | 'planId'> & { plan?: WithId<Plan> | null }) | null>(null);
-  const [isLoading, startLoadingTransition] = useTransition();
-  const [isClient, setIsClient] = useState(false);
-  const [activeProjectId, setActiveProjectId] = useState<string|null>(null);
+  const { activeProject, activeProjectId, sessionUser, isLoadingProject } = useProject();
   const [messagesPerSecond, setMessagesPerSecond] = useState(1000);
   const { toast } = useToast();
   const [state, formAction] = useActionState(handleUpdateProjectSettings, updateSettingsInitialState);
-  const router = useRouter();
 
   const searchParams = useSearchParams();
   const initialTab = searchParams.get('tab') || 'broadcast';
-
+  
   useEffect(() => {
-    setIsClient(true);
-    const storedProjectId = localStorage.getItem('activeProjectId');
-    setActiveProjectId(storedProjectId);
-  }, []);
-
-  useEffect(() => {
-    if (isClient && activeProjectId) {
-        document.title = 'Project Settings | SabNode';
-        startLoadingTransition(async () => {
-            const [projectData, sessionData] = await Promise.all([
-                getProjectById(activeProjectId),
-                getSession()
-            ]);
-            if (projectData) {
-                setProject(projectData);
-                setMessagesPerSecond(projectData.messagesPerSecond || 1000);
-            }
-            if (sessionData?.user) {
-                const userWithPlan = { ...sessionData.user, plan: projectData?.plan };
-                setUser(userWithPlan as any);
-            }
-        });
-    } else if (isClient && !activeProjectId) {
-        startLoadingTransition(async () => {
-             const projects = await getProjects();
-                 if (projects && projects.length > 0) {
-                router.push('/dashboard');
-            } else {
-                router.push('/dashboard/setup');
-            }
-        });
+    if (activeProject) {
+        setMessagesPerSecond(activeProject.messagesPerSecond || 1000);
     }
-  }, [isClient, activeProjectId, router]);
+  }, [activeProject]);
 
   useEffect(() => {
     if (state?.message) {
@@ -572,7 +535,7 @@ function SettingsPageContent() {
     }
   }, [state, toast]);
   
-  if (isLoading || !project || !user) {
+  if (isLoadingProject && !activeProject) {
     return (
       <div className="flex flex-col gap-8">
         <div>
@@ -586,12 +549,24 @@ function SettingsPageContent() {
       </div>
     );
   }
+
+  if (!activeProject || !sessionUser) {
+    return (
+        <div className="p-4">
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>No Project Selected</AlertTitle>
+                <AlertDescription>Please select a project from the main dashboard to configure its settings.</AlertDescription>
+            </Alert>
+        </div>
+    );
+  }
   
-  const planFeatures = project.plan?.features;
+  const planFeatures = activeProject.plan?.features;
 
   return (
      <div className="flex flex-col gap-8">
-      <div><h1 className="text-3xl font-bold font-headline">Project Settings</h1><p className="text-muted-foreground">Manage settings for project "{project.name}".</p></div>
+      <div><h1 className="text-3xl font-bold font-headline">Project Settings</h1><p className="text-muted-foreground">Manage settings for project "{activeProject.name}".</p></div>
 
       <Tabs defaultValue={initialTab} className="w-full">
         <ScrollArea className="w-full whitespace-nowrap rounded-md border-b">
@@ -612,7 +587,7 @@ function SettingsPageContent() {
             <FeatureLockOverlay isAllowed={!!planFeatures?.settingsBroadcast} featureName="Broadcast Settings" />
             <FeatureLock isAllowed={!!planFeatures?.settingsBroadcast}>
                 <form action={formAction}>
-                <input type="hidden" name="projectId" value={project._id.toString()} />
+                <input type="hidden" name="projectId" value={activeProject._id.toString()} />
                 <Card>
                     <CardHeader>
                         <CardTitle>Broadcast Settings</CardTitle>
@@ -634,7 +609,7 @@ function SettingsPageContent() {
           <TabsContent value="auto-reply" className="mt-6 space-y-6 relative">
             <FeatureLockOverlay isAllowed={!!planFeatures?.settingsAutoReply} featureName="Auto-Reply Settings" />
             <FeatureLock isAllowed={!!planFeatures?.settingsAutoReply}>
-                <MasterSwitch project={project} />
+                <MasterSwitch project={activeProject} />
                 <Tabs defaultValue="welcome" className="w-full">
                     <ScrollArea className="w-full whitespace-nowrap rounded-md border-b">
                     <TabsList className="inline-flex h-auto p-1 bg-transparent w-max">
@@ -645,10 +620,10 @@ function SettingsPageContent() {
                     </TabsList>
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
-                <TabsContent value="welcome" className="mt-4"><Card><WelcomeMessageForm project={project} /></Card></TabsContent>
-                <TabsContent value="general" className="mt-4"><Card><GeneralReplyForm project={project} /></Card></TabsContent>
-                <TabsContent value="inactive" className="mt-4"><Card><InactiveHoursForm project={project} /></Card></TabsContent>
-                <TabsContent value="ai" className="mt-4"><Card><AiAssistantForm project={project} /></Card></TabsContent>
+                <TabsContent value="welcome" className="mt-4"><Card><WelcomeMessageForm project={activeProject} /></Card></TabsContent>
+                <TabsContent value="general" className="mt-4"><Card><GeneralReplyForm project={activeProject} /></Card></TabsContent>
+                <TabsContent value="inactive" className="mt-4"><Card><InactiveHoursForm project={activeProject} /></Card></TabsContent>
+                <TabsContent value="ai" className="mt-4"><Card><AiAssistantForm project={activeProject} /></Card></TabsContent>
                 </Tabs>
             </FeatureLock>
           </TabsContent>
@@ -678,34 +653,34 @@ function SettingsPageContent() {
           <TabsContent value="canned-messages" className="mt-6 relative">
             <FeatureLockOverlay isAllowed={!!planFeatures?.settingsCannedMessages} featureName="Canned Messages" />
             <FeatureLock isAllowed={!!planFeatures?.settingsCannedMessages}>
-                <CannedMessagesSettingsTab project={project} />
+                <CannedMessagesSettingsTab project={activeProject} />
             </FeatureLock>
           </TabsContent>
 
           <TabsContent value="agents-roles" className="mt-6 relative">
              <FeatureLockOverlay isAllowed={!!planFeatures?.settingsAgentsRoles} featureName="Agents & Roles" />
              <FeatureLock isAllowed={!!planFeatures?.settingsAgentsRoles}>
-                <AgentsRolesSettingsTab project={project} user={user} />
+                <AgentsRolesSettingsTab project={activeProject} user={sessionUser} />
              </FeatureLock>
           </TabsContent>
 
           <TabsContent value="compliance" className="mt-6 relative">
               <FeatureLockOverlay isAllowed={!!planFeatures?.settingsCompliance} featureName="Compliance Settings" />
               <FeatureLock isAllowed={!!planFeatures?.settingsCompliance}>
-                <Card><OptInOutForm project={project} /></Card>
+                <Card><OptInOutForm project={activeProject} /></Card>
               </FeatureLock>
           </TabsContent>
 
           <TabsContent value="attributes" className="mt-6 relative">
             <FeatureLockOverlay isAllowed={!!planFeatures?.settingsUserAttributes} featureName="User Attributes" />
             <FeatureLock isAllowed={!!planFeatures?.settingsUserAttributes}>
-                <UserAttributesForm project={project} user={user} />
+                <UserAttributesForm project={activeProject} user={sessionUser} />
             </FeatureLock>
           </TabsContent>
           
           <TabsContent value="tags" className="mt-6 relative">
             <FeatureLockOverlay isAllowed={true} featureName="Tags" />
-            <TagsSettingsTab user={user} />
+            <TagsSettingsTab user={sessionUser!} />
           </TabsContent>
 
         </Tabs>
