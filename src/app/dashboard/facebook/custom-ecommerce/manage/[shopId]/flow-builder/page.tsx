@@ -52,7 +52,7 @@ import { getEcommShopById } from '@/app/actions/custom-ecommerce.actions';
 import type { EcommFlow, EcommFlowNode, EcommFlowEdge, EcommShop } from '@/lib/definitions';
 import type { WithId } from 'mongodb';
 import { Separator } from '@/components/ui/separator';
-import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
@@ -177,7 +177,7 @@ const NodeComponent = ({
 }) => {
     const BlockIcon = [...blockTypes, {type: 'start', label: 'Start', icon: Play}].find(b => b.type === node.type)?.icon || MessageSquare;
 
-    const Handle = ({ position, id, style }: { position: 'left' | 'right', id: string, style?: React.CSSProperties }) => (
+    const Handle = ({ position, id, style }: { position: 'left' | 'right' | 'top' | 'bottom', id: string, style?: React.CSSProperties }) => (
         <div 
             id={id}
             data-handle-pos={position}
@@ -228,7 +228,7 @@ const NodeComponent = ({
                     return <Handle key={btn.id || index} position="right" id={`${node.id}-btn-${index}`} style={{ top: topPosition, transform: 'translateY(-50%)' }} />;
                 })
             ) : (
-                 <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />
+                 node.type !== 'addToCart' && <Handle position="right" id={`${node.id}-output-main`} style={{top: '50%', transform: 'translateY(-50%)'}} />
             )}
         </div>
     );
@@ -255,7 +255,7 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode }: { selecte
             toast({ title: "Limit Reached", description: "You can add a maximum of 13 Quick Replies.", variant: "destructive" });
             return;
         }
-        const newButtons: ButtonConfig[] = [...currentButtons, { id: `btn-${Date.now()}`, text: '' }];
+        const newButtons: ButtonConfig[] = [...currentButtons, { id: `btn-${Date.now()}`, text: '', type: 'text' }];
         handleDataChange('buttons', newButtons);
     };
 
@@ -666,7 +666,7 @@ const FlowsAndBlocksPanel = ({
                             <div key={flow._id.toString()} className="flex items-center group">
                                 <Button 
                                     variant="ghost" 
-                                    className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && "bg-muted font-semibold")}
+                                    className={cn("w-full justify-start font-normal", currentFlow?._id.toString() === flow._id.toString() && 'bg-muted font-semibold')}
                                     onClick={() => handleSelectFlow(flow._id.toString())}
                                 >
                                     <File className="mr-2 h-4 w-4"/>
@@ -762,6 +762,15 @@ export default function EcommFlowBuilderPage() {
     const [isSaving, startSaveTransition] = useTransition();
     const [isLoading, startLoadingTransition] = useTransition();
     
+    // AI Generation State
+    const [prompt, setPrompt] = useState('');
+    const [isGenerating, startGeneration] = useTransition();
+
+
+    const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
+    const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
+
+    // Canvas state
     const [pan, setPan] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
     const [isPanning, setIsPanning] = useState(false);
@@ -769,9 +778,6 @@ export default function EcommFlowBuilderPage() {
     const [draggingNode, setDraggingNode] = useState<string | null>(null);
     const [connecting, setConnecting] = useState<{ sourceNodeId: string; sourceHandleId: string; startPos: { x: number; y: number } } | null>(null);
     const [mousePosition, setMousePosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-
-    const [isBlocksSheetOpen, setIsBlocksSheetOpen] = useState(false);
-    const [isPropsSheetOpen, setIsPropsSheetOpen] = useState(false);
     const [isFullScreen, setIsFullScreen] = useState(false);
 
     const params = useParams();
@@ -896,6 +902,7 @@ export default function EcommFlowBuilderPage() {
         }
     }
     
+    // ... all the other handlers ...
     const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
         e.preventDefault();
         e.stopPropagation();
@@ -1050,7 +1057,7 @@ export default function EcommFlowBuilderPage() {
     
     if (!shopId || !shop) {
          return (
-             <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-8">
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>No Shop Found</AlertTitle>
@@ -1061,7 +1068,7 @@ export default function EcommFlowBuilderPage() {
     }
 
     return (
-        <div className="flex flex-col h-full gap-4">
+        <div className="flex h-full w-full flex-col gap-4">
             <div className="flex-shrink-0 flex flex-wrap items-center justify-between gap-4">
                 <div>
                     <Input 

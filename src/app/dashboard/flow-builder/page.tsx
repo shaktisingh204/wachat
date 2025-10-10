@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -49,7 +48,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getProjects } from '@/app/actions';
-import { getTemplates } from '@/app/actions/template.actions';
+import { getTemplates } from '@/app/actions/whatsapp.actions';
 import { saveFlow, getFlowById, getFlowsForProject, deleteFlow } from '@/app/actions/flow.actions';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
 import type { Flow, FlowNode, FlowEdge, Template, MetaFlow, Project } from '@/lib/definitions';
@@ -577,7 +576,7 @@ function PageContent() {
     
     // ... The rest of the JSX for rendering the flow builder
     return (
-        <div className="flex flex-col h-full gap-4">
+        <div className="flex h-full w-full flex-col gap-4">
             {/* The rest of the component's JSX */}
              <Card className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 w-full max-w-lg shadow-2xl">
                 <CardContent className="p-2">
@@ -654,5 +653,3 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
     
     return null;
 }
-
-    
