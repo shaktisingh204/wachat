@@ -313,21 +313,20 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     <SidebarProvider>
       <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
         {/* Primary Sidebar Rail */}
-        <div className="flex-shrink-0 w-14 border-r bg-sidebar flex flex-col items-center py-2 space-y-1">
+        <div className="flex-shrink-0 w-14 border-r bg-sidebar flex flex-col items-center py-2 space-y-0.5">
             <Link href="/dashboard" className="mb-4">
             <SabNodeLogo className="h-8 w-auto" />
             </Link>
             {appIcons.map(app => (
-                 <Button key={app.id} asChild variant={activeApp === app.id ? "sidebar-active" : "ghost"} className="h-12 w-12 rounded-lg flex-col justify-center gap-1 text-xs p-0">
+                 <Button key={app.id} asChild variant={activeApp === app.id ? "sidebar-active" : "ghost"} className="h-9 w-9 rounded-lg flex-col justify-center gap-1 text-xs p-0">
                     <Link href={app.href} scroll={false} className="h-full w-full flex flex-col items-center justify-center gap-1">
-                        <app.icon className="h-5 w-5"/>
-                        <span className="text-[10px] leading-tight text-center">{app.label.split(' ')[0]}</span>
+                        <app.icon className="h-4 w-4"/>
+                        <span className="text-[9px] leading-tight text-center">{app.label.split(' ')[0]}</span>
                     </Link>
                 </Button>
             ))}
         </div>
         
-        {/* Secondary Sidebar */}
         <Sidebar>
             <SidebarHeader>
                 <h2 className="text-lg font-semibold tracking-tight text-sidebar-foreground">
