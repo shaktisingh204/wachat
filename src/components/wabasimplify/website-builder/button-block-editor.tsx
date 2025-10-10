@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, TrendingUp } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -80,7 +80,7 @@ export function ButtonBlockEditor({ settings, onUpdate }: { settings: any, onUpd
                              <div className="space-y-2"><Label>Icon</Label><Select value={settings.icon || ''} onValueChange={(val) => handleUpdate('icon', val)}><SelectTrigger><SelectValue placeholder="No Icon"/></SelectTrigger><SelectContent>{iconNames.map(iconName => (<SelectItem key={iconName} value={iconName}>{iconName}</SelectItem>))}</SelectContent></Select></div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2"><Label>Position</Label><Select value={settings.iconPosition || 'left'} onValueChange={(val) => handleUpdate('iconPosition', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="left">Before</SelectItem><SelectItem value="right">After</SelectItem></SelectContent></Select></div>
-                                <div className="space-y-2"><Label>Spacing (px)</Label><Input type="number" value={settings.iconSpacing || '8'} onChange={(e) => handleUpdate('iconSpacing', e.target.value)} /></div>
+                                <div className="space-y-2"><Label>Spacing (px)</Label><Input type="number" value={settings.iconSpacing || '8'} onChange={e => handleUpdate('iconSpacing', e.target.value)} /></div>
                             </div>
                         </AccordionContent>
                     </AccordionItem>

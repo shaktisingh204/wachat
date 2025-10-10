@@ -11,7 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, TrendingUp } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Separator } from '@/components/ui/separator';
 
