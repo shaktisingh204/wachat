@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, TrendingUp, ChevronsUpDown, Globe
+    LayoutDashboard, MessageSquare, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, Globe, ChevronsUpDown
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -34,8 +34,8 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarFooter,
-  SidebarProvider,
   SidebarTrigger,
+  SidebarProvider,
 } from '@/components/ui/sidebar';
 
 const wachatMenuItems = [
@@ -313,7 +313,7 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
     <SidebarProvider>
       <div className={cn("flex h-screen bg-background", isDiwaliTheme && 'diwali-theme')} data-theme={activeApp}>
         {/* Primary Sidebar Rail */}
-        <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-2 space-y-1">
+        <div className="flex-shrink-0 w-16 border-r bg-sidebar flex flex-col items-center py-2 space-y-2">
             <Link href="/dashboard" className="mb-4">
             <SabNodeLogo className="h-8 w-auto" />
             </Link>
