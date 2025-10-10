@@ -5,9 +5,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { ProjectSearch } from '@/components/wabasimplify/project-search';
+import { AdminUserSearch } from '@/components/wabasimplify/admin-user-search';
 import { WhatsAppIcon } from '@/components/wabasimplify/custom-sidebar-components';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AdminUserFilter } from '@/components/wabasimplify/admin-user-filter';
 
 export const dynamic = 'force-dynamic';
@@ -39,6 +38,12 @@ export default async function WhatsAppProjectsPage({
         return 'destructive';
     };
 
+    const createPageURL = (pageNumber: number) => {
+        const params = new URLSearchParams(searchParams);
+        params.set('page', pageNumber.toString());
+        return `/admin/dashboard/whatsapp-projects?${params.toString()}`;
+      };
+
     return (
         <div className="flex flex-col gap-4">
             <div>
@@ -55,7 +60,7 @@ export default async function WhatsAppProjectsPage({
                     <div className="flex flex-wrap gap-4 items-center justify-between">
                          <CardDescription>View all WABAs and filter by owner.</CardDescription>
                          <div className="flex items-center gap-2">
-                             <ProjectSearch placeholder="Search by project name..." />
+                             <AdminUserSearch placeholder="Search by project name..." />
                              <AdminUserFilter users={users} />
                          </div>
                     </div>
@@ -98,10 +103,29 @@ export default async function WhatsAppProjectsPage({
                             </TableBody>
                         </Table>
                     </div>
-                    {/* Pagination controls will go here */}
+                     <div className="flex items-center justify-end space-x-2 py-4">
+                        <span className="text-sm text-muted-foreground">
+                            Page {currentPage} of {totalPages > 0 ? totalPages : 1}
+                        </span>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            asChild
+                            disabled={currentPage <= 1}
+                        >
+                            <Link href={createPageURL(currentPage - 1)}>Previous</Link>
+                        </Button>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            asChild
+                            disabled={currentPage >= totalPages}
+                        >
+                             <Link href={createPageURL(currentPage + 1)}>Next</Link>
+                        </Button>
+                    </div>
                 </CardContent>
             </Card>
         </div>
     );
 }
-
