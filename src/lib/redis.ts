@@ -1,9 +1,9 @@
 
-import { createClient } from 'redis';
+const { createClient } = require('redis');
 
 let client: ReturnType<typeof createClient> | null = null;
 
-export async function getRedisClient() {
+async function getRedisClient() {
     if (client && client.isOpen) {
         return client;
     }
@@ -19,7 +19,7 @@ export async function getRedisClient() {
         url: redisUrl
     });
 
-    client.on('error', (err) => console.error('Redis Client Error', err));
+    client.on('error', (err: any) => console.error('Redis Client Error', err));
 
     try {
         await client.connect();
@@ -30,3 +30,5 @@ export async function getRedisClient() {
         throw err;
     }
 }
+
+module.exports = { getRedisClient };
