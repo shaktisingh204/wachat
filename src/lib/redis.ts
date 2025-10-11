@@ -1,7 +1,7 @@
 
 const { createClient } = require('redis');
 
-let client: ReturnType<typeof createClient> | null = null;
+let client = null;
 
 async function getRedisClient() {
     if (client && client.isOpen) {
@@ -19,7 +19,7 @@ async function getRedisClient() {
         url: redisUrl
     });
 
-    client.on('error', (err: any) => console.error('Redis Client Error', err));
+    client.on('error', (err) => console.error('Redis Client Error', err));
 
     try {
         await client.connect();
