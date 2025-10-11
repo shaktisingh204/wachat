@@ -1,16 +1,16 @@
 
-import { MongoClient, Db } from 'mongodb';
-import { config } from 'dotenv';
+const { MongoClient, Db } = require('mongodb');
+const { config } = require('dotenv');
 
 config(); // Load environment variables from .env file
 
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB;
 
-let cachedClient: MongoClient | null = null;
-let cachedDb: Db | null = null;
+let cachedClient = null;
+let cachedDb = null;
 
-export async function connectToDatabase() {
+async function connectToDatabase() {
   if (!uri) {
     throw new Error('Please define the MONGODB_URI environment variable inside .env');
   }
@@ -23,7 +23,7 @@ export async function connectToDatabase() {
   }
 
   // Cap the connection pool size to 90% of the default (100)
-  const client = new MongoClient(uri!, {
+  const client = new MongoClient(uri, {
     maxPoolSize: 90,
   });
 
@@ -36,3 +36,5 @@ export async function connectToDatabase() {
 
   return { client, db };
 }
+
+module.exports = { connectToDatabase };
