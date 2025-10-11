@@ -1,7 +1,7 @@
 
 'use server';
 
-import { getSession, getProjectById } from '@/app/actions/user.actions';
+import { getSession, getProjectsForAdmin } from '@/app/actions/user.actions';
 import { handleSubscribeProjectWebhook, handleSyncPhoneNumbers } from '@/app/actions/whatsapp.actions';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getErrorMessage } from '@/lib/utils';
@@ -9,6 +9,46 @@ import type { Project, Plan, OptInOutSettings, UserAttribute, CannedMessage, Age
 import { ObjectId, type WithId, Filter } from 'mongodb';
 import axios from 'axios';
 import { revalidatePath } from 'next/cache';
+
+export async function getProjectById(projectId: string, userId?: string) {
+    if (!ObjectId.isValid(projectId)) {
+        console.error("Invalid Project ID in getProjectById:", projectId);
+        return null;
+    }
+
+    try {
+        const { db } = await connectToDatabase();
+        const projectObjectId = new ObjectId(projectId);
+
+        let query: Filter<Project> = { _id: projectObjectId };
+
+        if (!userId) {
+            const session = await getSession();
+            if (!session?.user) return null;
+            userId = session.user._id;
+        }
+
+        query = {
+            ...query,
+            $or: [
+                { userId: new ObjectId(userId) },
+                { 'agents.userId': new ObjectId(userId) }
+            ]
+        };
+        
+        const project = await db.collection('projects').findOne(query);
+
+        if (!project) return null;
+        
+        const plan = project.planId ? await db.collection('plans').findOne({ _id: project.planId }) : null;
+        const finalProject = { ...project, plan };
+        
+        return JSON.parse(JSON.stringify(finalProject));
+    } catch (error) {
+        console.error("Failed to fetch project by ID:", error);
+        return null;
+    }
+}
 
 export async function handleManualWachatSetup(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
     const session = await getSession();
@@ -515,5 +555,51 @@ export async function handleUpdateContactDetails(prevState: any, formData: FormD
         return { success: true };
     } catch (e: any) {
         return { success: false, error: 'Failed to update contact.' };
+    }
+}
+
+
+export async function handleBulkUpdateAppId(prevState: any, formData: FormData): Promise<{ success: boolean; error?: string }> {
+    const session = await getSession();
+    if (!session?.user) return { success: false, error: 'Access denied.' };
+
+    const projectIdsString = formData.get('projectIds') as string;
+    const newAppId = formData.get('appId') as string;
+
+    if (!projectIdsString || !newAppId) {
+        return { success: false, error: 'Project IDs and a new App ID are required.' };
+    }
+    
+    const projectIds = projectIdsString.split(',');
+    console.log(`Bulk updating App ID for ${projectIds.length} projects to ${newAppId}`);
+    
+    try {
+        const { db } = await connectToDatabase();
+        const objectIds = projectIds.map(id => new ObjectId(id));
+        
+        // Ensure user owns all selected projects
+        const ownedProjectsCount = await db.collection('projects').countDocuments({
+            _id: { $in: objectIds },
+            userId: new ObjectId(session.user._id)
+        });
+
+        if (ownedProjectsCount !== projectIds.length) {
+            return { success: false, error: 'You do not have permission to modify one or more of the selected projects.' };
+        }
+
+        const result = await db.collection('projects').updateMany(
+            { _id: { $in: objectIds } },
+            { $set: { appId: newAppId } }
+        );
+
+        if (result.matchedCount === 0) {
+            return { success: false, error: 'No matching projects found to update.' };
+        }
+
+        revalidatePath('/dashboard');
+        return { success: true };
+
+    } catch (e: any) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
