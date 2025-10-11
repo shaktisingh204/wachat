@@ -1,18 +1,21 @@
 
-
 const path = require('path');
 const { connectToDatabase } = require(path.join(__dirname, 'mongodb.ts'));
-const { getRedisClient } = require(path.join(__dirname, 'redis.ts'));
-const axios = require('axios');
 const { getErrorMessage } = require(path.join(__dirname, 'utils.ts'));
+const axios = require('axios');
 const { ObjectId } = require('mongodb');
+const { Kafka } = require('kafkajs');
 
 const API_VERSION = 'v23.0';
+const KAFKA_BROKERS = [process.env.KAFKA_BROKERS || '127.0.0.1:9092'];
+const KAFKA_TOPIC = 'messages';
+const GROUP_ID = 'whatsapp-broadcaster-group';
 
 /**
- * Sends a single WhatsApp message using a pre-constructed job and contact object.
+ * Sends a single WhatsApp message.
  */
 async function sendWhatsAppMessage(job, contact) {
+    // This function remains largely the same as before
     try {
         const { accessToken, phoneNumberId, templateName, language, components, headerImageUrl, headerMediaId, variableMappings } = job;
         
@@ -79,68 +82,70 @@ async function sendWhatsAppMessage(job, contact) {
 }
 
 /**
- * The main function for a worker process. It continuously pulls jobs from Redis and processes them.
+ * Main worker function. Consumes jobs from Kafka and sends WhatsApp messages.
  */
 async function startBroadcastWorker(workerId) {
-  console.log(`[Worker ${workerId}] Connecting to databases...`);
+  console.log(`[KAFKA-WORKER ${workerId}] Connecting...`);
   const { db } = await connectToDatabase();
-  const redis = await getRedisClient();
-  console.log(`[Worker ${workerId}] Connections established. Listening to 'broadcast-queue'.`);
-  
-  while (true) {
-    try {
-      // Blocking pop from the right of the list (FIFO). Waits indefinitely for a job.
-      const result = await redis.blPop('broadcast-queue', 0);
-      const jobString = result.element;
-      
-      const { jobDetails, contacts } = JSON.parse(jobString);
-      
-      console.log(`[Worker ${workerId}] Processing micro-batch of ${contacts.length} for broadcast ${jobDetails._id}`);
+  const kafka = new Kafka({
+    clientId: `whatsapp-worker-${workerId}`,
+    brokers: KAFKA_BROKERS,
+  });
+  const consumer = kafka.consumer({ groupId: GROUP_ID });
 
-      const contactPromises = contacts.map(contact => 
-        sendWhatsAppMessage(jobDetails, contact)
-            .then(result => ({ contactId: contact._id, ...result }))
-      );
-      
-      const results = await Promise.allSettled(contactPromises);
-      
-      const bulkOps = [];
-      let successCount = 0;
-      let errorCount = 0;
+  await consumer.connect();
+  await consumer.subscribe({ topic: KAFKA_TOPIC, fromBeginning: false });
+  console.log(`[KAFKA-WORKER ${workerId}] Connected and subscribed to topic "${KAFKA_TOPIC}"`);
 
-      for (const res of results) {
-          if (res.status === 'fulfilled') {
-              const { contactId, success, messageId, error } = res.value;
-              if (success) {
-                  successCount++;
-                  bulkOps.push({ updateOne: { filter: { _id: new ObjectId(contactId) }, update: { $set: { status: 'SENT', sentAt: new Date(), messageId, error: null } } } });
-              } else {
-                  errorCount++;
-                  bulkOps.push({ updateOne: { filter: { _id: new ObjectId(contactId) }, update: { $set: { status: 'FAILED', error } } } });
-              }
-          } else {
-              errorCount++;
-              console.error(`[Worker ${workerId}] A send promise was rejected:`, res.reason);
-          }
+  await consumer.run({
+    eachMessage: async ({ topic, partition, message }) => {
+      try {
+        const { jobDetails, contacts } = JSON.parse(message.value.toString());
+        console.log(`[KAFKA-WORKER ${workerId}] Processing batch of ${contacts.length} for broadcast ${jobDetails._id}`);
+
+        const contactPromises = contacts.map(contact => 
+          sendWhatsAppMessage(jobDetails, contact)
+              .then(result => ({ contactId: contact._id, ...result }))
+        );
+        
+        const results = await Promise.allSettled(contactPromises);
+        
+        const bulkOps = [];
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const res of results) {
+            if (res.status === 'fulfilled') {
+                const { contactId, success, messageId, error } = res.value;
+                if (success) {
+                    successCount++;
+                    bulkOps.push({ updateOne: { filter: { _id: new ObjectId(contactId) }, update: { $set: { status: 'SENT', sentAt: new Date(), messageId, error: null } } } });
+                } else {
+                    errorCount++;
+                    bulkOps.push({ updateOne: { filter: { _id: new ObjectId(contactId) }, update: { $set: { status: 'FAILED', error } } } });
+                }
+            } else {
+                errorCount++;
+                console.error(`[KAFKA-WORKER ${workerId}] A send promise was rejected:`, res.reason);
+            }
+        }
+
+        if (bulkOps.length > 0) {
+            await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
+        }
+        
+        await db.collection('broadcasts').updateOne(
+          { _id: new ObjectId(jobDetails._id) },
+          { $inc: { successCount, errorCount } }
+        );
+        
+        console.log(`[KAFKA-WORKER ${workerId}] Finished batch for broadcast ${jobDetails._id}. Success: ${successCount}, Failed: ${errorCount}.`);
+
+      } catch (err) {
+        console.error(`[KAFKA-WORKER ${workerId}] Error processing message from Kafka:`, err);
       }
-
-      if (bulkOps.length > 0) {
-          await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
-      }
-      
-      await db.collection('broadcasts').updateOne(
-        { _id: new ObjectId(jobDetails._id) },
-        { $inc: { successCount, errorCount } }
-      );
-      
-      console.log(`[Worker ${workerId}] Finished micro-batch for broadcast ${jobDetails._id}. Success: ${successCount}, Failed: ${errorCount}.`);
-
-    } catch (error) {
-      console.error(`[Worker ${workerId}] Critical error in processing loop:`, error);
-      // Wait for a moment before trying to pull another job to prevent a fast failure loop
-      await new Promise(resolve => setTimeout(resolve, 5000));
-    }
-  }
+    },
+  });
 }
 
 module.exports = { startBroadcastWorker };
