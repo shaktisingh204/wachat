@@ -1,6 +1,4 @@
 
-'use server';
-
 import { NextResponse } from 'next/server';
 import { processBroadcastJob } from '@/lib/cron-scheduler';
 
