@@ -13,22 +13,26 @@ const port = parseInt(process.env.PORT, 10) || 3001;
 const app = next({ dev, hostname, port, dir: __dirname });
 const handle = app.getRequestHandler();
 
-if (cluster.isPrimary) {
-  const totalCpus = os.cpus().length;
-  // Use a significant portion of CPUs for workers, but leave some for the OS and main Next.js process
-  const numWorkers = Math.max(1, Math.floor(totalCpus * 0.8));
+const isPrimaryProcess = dev ? cluster.isPrimary : (process.env.NODE_APP_INSTANCE === '0' || !process.env.NODE_APP_INSTANCE);
+const runWorkers = true; // Always run workers for both dev and prod
 
-  console.log(`\n\x1b[32m[Cluster] Primary process ${process.pid} is running.\x1b[0m`);
-  console.log(`\x1b[32m[Cluster] Total Cores: ${totalCpus}, Forking ${numWorkers} broadcast workers.\x1b[0m\n`);
+if (isPrimaryProcess) {
+  if (runWorkers) {
+      const totalCpus = os.cpus().length;
+      const numWorkers = Math.max(1, Math.floor(totalCpus * 0.8));
 
-  for (let i = 0; i < numWorkers; i++) {
-    cluster.fork();
+      console.log(`\n\x1b[32m[Cluster] Primary process ${process.pid} is running.\x1b[0m`);
+      console.log(`\x1b[32m[Cluster] Total Cores: ${totalCpus}, Forking ${numWorkers} broadcast workers.\x1b[0m\n`);
+
+      for (let i = 0; i < numWorkers; i++) {
+        cluster.fork();
+      }
+
+      cluster.on('exit', (worker, code, signal) => {
+        console.log(`\x1b[31m[Cluster] Worker ${worker.process.pid} died. Forking a new one...\x1b[0m`);
+        cluster.fork();
+      });
   }
-
-  cluster.on('exit', (worker, code, signal) => {
-    console.log(`\x1b[31m[Cluster] Worker ${worker.process.pid} died. Forking a new one...\x1b[0m`);
-    cluster.fork();
-  });
 
   // The primary process will also run the Next.js server
   app.prepare().then(() => {
