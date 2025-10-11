@@ -1,9 +1,10 @@
 
 
-const { connectToDatabase } = require('./mongodb');
-const { getRedisClient } = require('./redis');
+const path = require('path');
+const { connectToDatabase } = require(path.join(__dirname, 'mongodb.ts'));
+const { getRedisClient } = require(path.join(__dirname, 'redis.ts'));
 const axios = require('axios');
-const { getErrorMessage } = require('./utils');
+const { getErrorMessage } = require(path.join(__dirname, 'utils.ts'));
 const { ObjectId } = require('mongodb');
 
 const API_VERSION = 'v23.0';
