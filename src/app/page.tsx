@@ -6,6 +6,7 @@ import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import Link from 'next/link';
 import { Sparkles, Calendar } from 'lucide-react';
 import { getSession } from '@/app/actions';
+import CountdownTimer from '@/components/wabasimplify/countdown-timer';
 
 export default function Home() {
   const [session, setSession] = React.useState<any>(null);
@@ -54,6 +55,8 @@ export default function Home() {
                 <p className="mt-4 text-lg text-gray-300">
                     Our platform is getting ready for a grand celebration of light and technology.
                 </p>
+
+                <CountdownTimer targetDate="2024-10-20T00:00:00" />
             </div>
         </main>
         
