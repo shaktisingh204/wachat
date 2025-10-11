@@ -1,13 +1,12 @@
+const { clsx } = require("clsx");
+const { twMerge } = require("tailwind-merge");
+const axios = require('axios');
 
-import { type ClassValue, clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
-import axios from 'axios';
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+function cn(...inputs) {
+  return twMerge(clsx(inputs));
 }
 
-export const getErrorMessage = (error: any): string => {
+const getErrorMessage = (error) => {
     // Axios error with a response from the server
     if (axios.isAxiosError(error) && error.response) {
         const apiError = error.response.data?.error;
@@ -53,3 +52,5 @@ export const getErrorMessage = (error: any): string => {
     // Fallback for other types
     return String(error) || 'An unknown error occurred';
 };
+
+module.exports = { cn, getErrorMessage };
