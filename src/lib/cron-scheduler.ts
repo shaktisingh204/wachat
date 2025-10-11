@@ -25,7 +25,7 @@ async function getKafkaProducer() {
     });
 
     producer = kafka.producer({
-        acks: 1, // Don't wait for all replicas, a good balance for speed and safety.
+        acks: 1, 
     });
 
     await producer.connect();
@@ -45,7 +45,8 @@ export async function processBroadcastJob() {
 
         const jobDetails = await db.collection<BroadcastJobType>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
-            { $set: { status: 'PROCESSING', startedAt: new Date() } }
+            { $set: { status: 'PROCESSING', startedAt: new Date() } },
+            { returnDocument: 'after' }
         );
 
         if (!jobDetails) {
