@@ -1,7 +1,7 @@
 
 
-const { connectToDatabase } = require('@/lib/mongodb');
-const { getRedisClient } = require('@/lib/redis');
+const { connectToDatabase } = require('./mongodb');
+const { getRedisClient } = require('./redis');
 const axios = require('axios');
 const { getErrorMessage } = require('./utils');
 const { ObjectId } = require('mongodb');
