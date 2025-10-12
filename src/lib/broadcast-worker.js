@@ -7,6 +7,7 @@ const { ObjectId } = require('mongodb');
 const { Kafka } = require('kafkajs');
 
 const API_VERSION = 'v23.0';
+// Environment variables are now passed from the primary process
 const KAFKA_BROKERS = [process.env.KAFKA_BROKERS || '127.0.0.1:9092'];
 const KAFKA_TOPIC = 'messages';
 const GROUP_ID = 'whatsapp-broadcaster-group';
@@ -84,7 +85,11 @@ async function sendWhatsAppMessage(job, contact) {
  * Main worker function. Consumes jobs from Kafka and sends WhatsApp messages.
  */
 async function startBroadcastWorker(workerId) {
-  console.log(`[KAFKA-WORKER ${workerId}] Connecting...`);
+  if (!process.env.KAFKA_BROKERS) {
+    console.error(`[KAFKA-WORKER ${workerId}] FATAL: KAFKA_BROKERS environment variable is not set. Worker cannot start.`);
+    process.exit(1);
+  }
+  console.log(`[KAFKA-WORKER ${workerId}] Connecting with brokers: ${KAFKA_BROKERS}`);
   const { db } = await connectToDatabase();
   const kafka = new Kafka({
     clientId: `whatsapp-worker-${workerId}`,
@@ -99,8 +104,20 @@ async function startBroadcastWorker(workerId) {
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
       try {
+        if (!message.value) {
+          console.warn(`[KAFKA-WORKER ${workerId}] Received an empty message from Kafka. Skipping.`);
+          return;
+        }
+
         const { jobDetails, contacts } = JSON.parse(message.value.toString());
-        const mps = jobDetails.messagesPerSecond || 50; 
+
+        // Defensive check to ensure jobDetails is valid
+        if (!jobDetails || !jobDetails.messagesPerSecond || !contacts) {
+            console.error(`[KAFKA-WORKER ${workerId}] Received invalid job data from Kafka. Skipping batch.`, { jobDetails, contactCount: contacts?.length });
+            return;
+        }
+
+        const mps = jobDetails.messagesPerSecond; 
 
         console.log(`[KAFKA-WORKER ${workerId}] Processing batch of ${contacts.length} for broadcast ${jobDetails._id} at ${mps} MPS`);
 
@@ -139,10 +156,12 @@ async function startBroadcastWorker(workerId) {
                 await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
             }
             
-            await db.collection('broadcasts').updateOne(
-              { _id: new ObjectId(jobDetails._id) },
-              { $inc: { successCount, errorCount } }
-            );
+            if (successCount > 0 || errorCount > 0) {
+                 await db.collection('broadcasts').updateOne(
+                  { _id: new ObjectId(jobDetails._id) },
+                  { $inc: { successCount, errorCount } }
+                );
+            }
 
             // Throttle to respect MPS
             const duration = Date.now() - startTime;
@@ -152,7 +171,7 @@ async function startBroadcastWorker(workerId) {
             }
         }
         
-        console.log(`[KAFKA-WORKER ${workerId}] Finished batch for broadcast ${jobDetails._id}.`);
+        console.log(`[KAFKA-WORKER ${workerId}] Finished processing batch for broadcast ${jobDetails._id}.`);
 
       } catch (err) {
         console.error(`[KAFKA-WORKER ${workerId}] Error processing message from Kafka:`, err);
