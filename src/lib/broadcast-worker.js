@@ -8,7 +8,7 @@ const { Kafka } = require('kafkajs');
 
 const API_VERSION = 'v23.0';
 // Environment variables are now passed from the primary process
-const KAFKA_BROKERS = [process.env.KAFKA_BROKERS || '127.0.0.1:9092'];
+const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 const KAFKA_TOPIC = 'messages';
 const GROUP_ID = 'whatsapp-broadcaster-group';
 
@@ -112,7 +112,7 @@ async function startBroadcastWorker(workerId) {
         const { jobDetails, contacts } = JSON.parse(message.value.toString());
 
         // Defensive check to ensure jobDetails is valid
-        if (!jobDetails || !jobDetails.messagesPerSecond || !contacts) {
+        if (!jobDetails || !jobDetails._id || !jobDetails.messagesPerSecond || !contacts) {
             console.error(`[KAFKA-WORKER ${workerId}] Received invalid job data from Kafka. Skipping batch.`, { jobDetails, contactCount: contacts?.length });
             return;
         }

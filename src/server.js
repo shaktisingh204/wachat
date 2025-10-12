@@ -1,11 +1,11 @@
 
+require('dotenv').config(); // Load environment variables at the very top
 const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
 const cluster = require('cluster');
 const os = require('os');
 const { startBroadcastWorker } = require('./lib/broadcast-worker.js');
-require('dotenv').config(); // Load environment variables
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = '0.0.0.0';
@@ -22,30 +22,26 @@ if (isPrimaryProcess) {
   if (runWorkers) {
       const totalCpus = os.cpus().length;
       // Leave at least one core for the main app and OS
-      const numWorkers = Math.max(1, totalCpus - 1);
+      const numWorkers = Math.max(1, Math.floor(totalCpus * 0.75));
 
       console.log(`\n\x1b[32m[Cluster] Primary process ${process.pid} is running.\x1b[0m`);
       console.log(`\x1b[32m[Cluster] Total Cores: ${totalCpus}, Forking ${numWorkers} broadcast workers.\x1b[0m\n`);
+      
+      const workerEnv = { 
+            KAFKA_BROKERS: process.env.KAFKA_BROKERS,
+            MONGODB_URI: process.env.MONGODB_URI,
+            MONGODB_DB: process.env.MONGODB_DB
+        };
 
       for (let i = 0; i < numWorkers; i++) {
         // Explicitly pass environment variables to the worker
-        cluster.fork({ 
-          WORKER_ID: i + 1,
-          KAFKA_BROKERS: process.env.KAFKA_BROKERS,
-          MONGODB_URI: process.env.MONGODB_URI,
-          MONGODB_DB: process.env.MONGODB_DB
-        });
+        cluster.fork(workerEnv);
       }
 
       cluster.on('exit', (worker, code, signal) => {
         console.log(`\x1b[31m[Cluster] Worker ${worker.process.pid} died. Forking a new one...\x1b[0m`);
         // Re-fork with the same environment variables
-        cluster.fork({ 
-            WORKER_ID: worker.process.env.WORKER_ID,
-            KAFKA_BROKERS: process.env.KAFKA_BROKERS,
-            MONGODB_URI: process.env.MONGODB_URI,
-            MONGODB_DB: process.env.MONGODB_DB
-        });
+        cluster.fork(workerEnv);
       });
   }
 
@@ -67,7 +63,7 @@ if (isPrimaryProcess) {
 } else {
   // Worker processes will NOT run the Next.js server.
   // They will exclusively process the broadcast queue.
-  const workerId = process.env.WORKER_ID;
+  const workerId = cluster.worker.id;
   console.log(`\x1b[36m[Worker ${workerId}]\x1b[0m Started and listening to broadcast queue.`);
   startBroadcastWorker(workerId).catch(err => {
     console.error(`\x1b[31m[Worker ${workerId}]\x1b[0m encountered a fatal error:`, err, '\x1b[0m');
