@@ -38,6 +38,7 @@ async function getKafkaProducer() {
  */
 export async function processBroadcastJob() {
     let db: Db;
+    let broadcastId: ObjectId | undefined;
     try {
         const conn = await connectToDatabase();
         db = conn.db;
@@ -49,13 +50,12 @@ export async function processBroadcastJob() {
             { returnDocument: 'after' }
         );
 
-        // **CRITICAL FIX**: Ensure jobDetails and its _id are valid before proceeding.
         if (!jobDetails?._id) {
             console.log("[KAFKA-PRODUCER] No broadcast jobs to process.");
             return { message: 'No broadcast jobs to process.' };
         }
 
-        const broadcastId = jobDetails._id;
+        broadcastId = jobDetails._id;
         console.log(`[KAFKA-PRODUCER] Starting to process broadcast: ${broadcastId}`);
 
         const contactsCursor = db.collection('broadcast_contacts').find({
@@ -95,15 +95,37 @@ export async function processBroadcastJob() {
         const message = `Successfully pushed ${totalPushed} contacts to Kafka for broadcast ${broadcastId}.`;
         console.log(`[KAFKA-PRODUCER] ${message}`);
         
-        // If no contacts were pushed, the job is effectively done.
+        // If no contacts were pushed, the job has failed because it was marked as processing but had nothing to do.
         if (totalPushed === 0) {
-            await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { status: 'Completed', completedAt: new Date() } });
+            await db.collection('broadcasts').updateOne(
+                { _id: broadcastId }, 
+                { 
+                    $set: { 
+                        status: 'Failed', 
+                        completedAt: new Date(),
+                        error: 'Job was processed but no pending contacts were found to send.'
+                    } 
+                }
+            );
+            console.error(`[KAFKA-PRODUCER] Broadcast ${broadcastId} failed: No pending contacts found.`);
         }
 
         return { message };
 
     } catch (error: any) {
         console.error("[KAFKA-PRODUCER] Main processing function failed:", error);
+        // If a broadcastId was fetched, mark it as failed to avoid it being stuck in processing
+        if (broadcastId && db) {
+            await db.collection('broadcasts').updateOne(
+                { _id: broadcastId }, 
+                { 
+                    $set: { 
+                        status: 'Failed', 
+                        error: `Producer Error: ${error.message}` 
+                    } 
+                }
+            );
+        }
         throw new Error(`Broadcast Kafka producer failed: ${error.message}`);
     }
 }
