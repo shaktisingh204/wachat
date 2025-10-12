@@ -9,6 +9,7 @@ This document provides a comprehensive guide to setting up, running, and using t
 3.  [Running the Application](#running-the-application)
     - [Development Mode](#development-mode)
     - [Production Mode](#production-mode)
+    - [Running in Production with PM2](#running-in-production-with-pm2)
 4.  [High-Throughput Broadcasting System](#high-throughput-broadcasting-system)
     - [1. Start Redpanda (Kafka)](#1-start-redpanda-kafka)
     - [2. Run the Broadcast Producer (Optional Test)](#2-run-the-broadcast-producer-optional-test)
@@ -93,6 +94,32 @@ This mode builds the application for production and starts a clustered server op
     ```bash
     npm start
     ```
+This will start the application in the foreground of your terminal.
+
+### Running in Production with PM2
+
+To keep the application running in the background and automatically restart it on crashes, we recommend using PM2, a production process manager for Node.js applications.
+
+1.  **Install PM2 Globally**:
+    If you don't have PM2 installed, open your terminal and run:
+    ```bash
+    npm install pm2 -g
+    ```
+
+2.  **Start the Application with PM2**:
+    Make sure you have already built the application (`npm run build`). Then, from your project root, run:
+    ```bash
+    npm run start:pm2
+    ```
+    This command will start the application cluster in the background, managed by PM2. Your `server.js` file is already configured to handle clustering, and PM2 will manage the primary process.
+
+3.  **Managing the Application**:
+    Here are some common commands to manage your application with PM2:
+    *   **List all running applications**: `pm2 list`
+    *   **View logs**: `pm2 logs sabnode`
+    *   **Stop the application**: `pm2 stop sabnode`
+    *   **Restart the application**: `pm2 restart sabnode`
+    *   **Delete the application from PM2's list**: `pm2 delete sabnode`
 
 ## High-Throughput Broadcasting System
 
@@ -123,20 +150,20 @@ You will see output indicating the message sending progress and final throughput
 The workers are the consumers that actually process the broadcast queue and send WhatsApp messages.
 
 *   **In Development**: You do not need to run a separate worker command. The main `npm run dev` process handles this.
-*   **In Production**: The `npm start` command automatically forks a worker process for each available CPU core, using the `server.js` script.
+*   **In Production**: The `npm start` or `npm run start:pm2` command automatically forks a worker process for each available CPU core, using the `server.js` script.
 
 ### 4. Triggering a WhatsApp Broadcast
 
 Here is the complete workflow for sending a broadcast:
 
 1.  **Ensure Redpanda is running** (from Step 1).
-2.  **Start the application** (`npm run dev` or `npm start`).
+2.  **Start the application** (`npm run dev` or `npm start` / `npm run start:pm2`).
 3.  **Queue a Broadcast**: Go to the SabNode dashboard, navigate to "Campaigns", and create a new broadcast campaign by selecting a template and uploading a contact list.
 4.  **Trigger the Cron Job**: The system uses a cron job to find queued broadcasts and push them to Kafka. In production, this happens automatically. In development, you must trigger it manually by opening this URL in your browser:
     ```
     http://localhost:3001/api/cron/send-broadcasts
     ```
-5.  **Monitor the Output**: Check the terminal where you are running your application (`npm run dev` or `npm start`). You will see logs from the workers as they pick up and process the message batches from Kafka.
+5.  **Monitor the Output**: Check the terminal where you are running your application (`npm run dev` or `npm start`) or use `pm2 logs sabnode` if using PM2. You will see logs from the workers as they pick up and process the message batches from Kafka.
 
 ---
 That's it! Your SabNode application is now fully configured for development and production, including the high-performance broadcasting system.
