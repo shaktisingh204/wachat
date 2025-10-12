@@ -49,6 +49,7 @@ export async function processBroadcastJob() {
             { returnDocument: 'after' }
         );
 
+        // Robust check to ensure we only proceed with a valid job.
         if (!jobDetails) {
             console.log("[KAFKA-PRODUCER] No broadcast jobs to process.");
             return { message: 'No broadcast jobs to process.' };
