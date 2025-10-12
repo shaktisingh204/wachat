@@ -49,14 +49,14 @@ export async function processBroadcastJob() {
             { returnDocument: 'after' }
         );
 
-        // Robust check to ensure we only proceed with a valid job.
-        if (!jobDetails) {
+        // **CRITICAL FIX**: Ensure jobDetails and its _id are valid before proceeding.
+        if (!jobDetails?._id) {
             console.log("[KAFKA-PRODUCER] No broadcast jobs to process.");
             return { message: 'No broadcast jobs to process.' };
         }
 
-        console.log(`[KAFKA-PRODUCER] Starting to process broadcast: ${jobDetails._id}`);
         const broadcastId = jobDetails._id;
+        console.log(`[KAFKA-PRODUCER] Starting to process broadcast: ${broadcastId}`);
 
         const contactsCursor = db.collection('broadcast_contacts').find({
             broadcastId: new ObjectId(broadcastId),
