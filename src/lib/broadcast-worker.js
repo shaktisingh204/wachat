@@ -6,8 +6,12 @@ const axios = require('axios');
 const { ObjectId } = require('mongodb');
 const { Kafka } = require('kafkajs');
 
+if (!process.env.KAFKA_BROKERS) {
+  console.error(`[KAFKA-WORKER] FATAL: KAFKA_BROKERS environment variable is not set. Worker cannot start.`);
+  process.exit(1);
+}
+
 const API_VERSION = 'v23.0';
-// Environment variables are now passed from the primary process
 const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 const KAFKA_TOPIC = 'messages';
 const GROUP_ID = 'whatsapp-broadcaster-group';
@@ -85,10 +89,6 @@ async function sendWhatsAppMessage(job, contact) {
  * Main worker function. Consumes jobs from Kafka and sends WhatsApp messages.
  */
 async function startBroadcastWorker(workerId) {
-  if (!process.env.KAFKA_BROKERS) {
-    console.error(`[KAFKA-WORKER ${workerId}] FATAL: KAFKA_BROKERS environment variable is not set. Worker cannot start.`);
-    process.exit(1);
-  }
   console.log(`[KAFKA-WORKER ${workerId}] Connecting with brokers: ${KAFKA_BROKERS}`);
   const { db } = await connectToDatabase();
   const kafka = new Kafka({
@@ -110,14 +110,13 @@ async function startBroadcastWorker(workerId) {
         }
 
         const { jobDetails, contacts } = JSON.parse(message.value.toString());
-
-        // Defensive check to ensure jobDetails is valid
-        if (!jobDetails || !jobDetails._id || !jobDetails.messagesPerSecond || !contacts) {
+        
+        if (!jobDetails || !jobDetails._id || !contacts || contacts.length === 0) {
             console.error(`[KAFKA-WORKER ${workerId}] Received invalid job data from Kafka. Skipping batch.`, { jobDetails, contactCount: contacts?.length });
             return;
         }
 
-        const mps = jobDetails.messagesPerSecond; 
+        const mps = jobDetails.messagesPerSecond || 50; 
 
         console.log(`[KAFKA-WORKER ${workerId}] Processing batch of ${contacts.length} for broadcast ${jobDetails._id} at ${mps} MPS`);
 
