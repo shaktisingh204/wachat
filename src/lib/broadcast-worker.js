@@ -1,10 +1,8 @@
 
-
 const path = require('path');
 const { connectToDatabase } = require(path.join(__dirname, 'mongodb.ts'));
 const { getErrorMessage } = require(path.join(__dirname, 'utils.ts'));
 const axios = require('axios');
-const http2 = require('http2');
 const { ObjectId } = require('mongodb');
 const { Kafka } = require('kafkajs');
 
@@ -13,22 +11,10 @@ const KAFKA_BROKERS = [process.env.KAFKA_BROKERS || '127.0.0.1:9092'];
 const KAFKA_TOPIC = 'messages';
 const GROUP_ID = 'whatsapp-broadcaster-group';
 
-// Create a single, reusable HTTP/2-enabled Axios instance for the worker
-const http2Agent = new http2.Agent({
-  maxSessions: 10,
-  maxFreeSessions: 10,
-});
-const axiosHttp2 = axios.create({
-    httpAgent: http2Agent,
-    httpsAgent: http2Agent,
-});
-
-
 /**
- * Sends a single WhatsApp message using an HTTP/2-enabled axios instance.
+ * Sends a single WhatsApp message.
  */
 async function sendWhatsAppMessage(job, contact) {
-    // This function remains largely the same as before
     try {
         const { accessToken, phoneNumberId, templateName, language, components, headerImageUrl, headerMediaId, variableMappings } = job;
         
@@ -82,7 +68,7 @@ async function sendWhatsAppMessage(job, contact) {
             template: { name: templateName, language: { code: language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
         };
         
-        const response = await axiosHttp2.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, messageData, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, messageData, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         
         const messageId = response.data?.messages?.[0]?.id;
         if (!messageId) return { success: false, error: "No message ID returned from Meta." };
@@ -114,7 +100,7 @@ async function startBroadcastWorker(workerId) {
     eachMessage: async ({ topic, partition, message }) => {
       try {
         const { jobDetails, contacts } = JSON.parse(message.value.toString());
-        const mps = jobDetails.messagesPerSecond || 50; // Default to 50 MPS if not specified
+        const mps = jobDetails.messagesPerSecond || 50; 
 
         console.log(`[KAFKA-WORKER ${workerId}] Processing batch of ${contacts.length} for broadcast ${jobDetails._id} at ${mps} MPS`);
 
