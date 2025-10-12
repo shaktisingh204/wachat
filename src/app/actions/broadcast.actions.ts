@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -17,27 +16,6 @@ import { checkRateLimit } from '@/lib/rate-limiter';
 import type { Project, BroadcastJob, BroadcastState, Template, Contact, BroadcastAttempt } from '@/lib/definitions';
 
 const BATCH_SIZE = 1000;
-
-export async function getBroadcastById(broadcastId: string) {
-    if (!ObjectId.isValid(broadcastId)) {
-        console.error("Invalid Broadcast ID in getBroadcastById:", broadcastId);
-        return null;
-    }
-
-    try {
-        const { db } = await connectToDatabase();
-        const broadcast = await db.collection('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
-        if (!broadcast) return null;
-        
-        const hasAccess = await getProjectById(broadcast.projectId.toString());
-        if (!hasAccess) return null;
-
-        return JSON.parse(JSON.stringify(broadcast));
-    } catch (error) {
-        console.error('Failed to fetch broadcast by ID:', error);
-        return null;
-    }
-}
 
 const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial<Contact>[], variablesFromColumn: boolean = true) => {
     if (batch.length === 0) return { insertedCount: 0 };
@@ -612,7 +590,7 @@ export async function handleRequeueBroadcast(
             templateName: newTemplate.name,
             phoneNumberId: originalBroadcast.phoneNumberId,
             accessToken: originalBroadcast.accessToken,
-            status: 'QUEUED' as const,
+            status: 'DRAFT' as const,
             createdAt: new Date(),
             contactCount: 0, 
             fileName: `Requeue of ${originalBroadcast.fileName}`,
@@ -657,13 +635,14 @@ export async function handleRequeueBroadcast(
             newContactsCount += result.insertedCount;
         }
         
-        await db.collection('broadcasts').updateOne({ _id: newBroadcastId }, { $set: { contactCount: newContactsCount } });
-
         if (newContactsCount === 0) {
             await db.collection('broadcasts').deleteOne({ _id: newBroadcastId });
             const scopeText = requeueScope.toLowerCase();
             return { error: `No ${scopeText} contacts found to requeue from the original broadcast.` };
         }
+        
+        await db.collection('broadcasts').updateOne({ _id: newBroadcastId }, { $set: { contactCount: newContactsCount, status: 'QUEUED' } });
+
         
         revalidatePath('/dashboard/broadcasts');
 
@@ -735,7 +714,7 @@ export async function handleBulkBroadcast(prevState: any, formData: FormData): P
                 templateName: template.name,
                 phoneNumberId: project.phoneNumbers[0].id,
                 accessToken: project.accessToken,
-                status: 'QUEUED',
+                status: 'DRAFT',
                 createdAt: new Date(),
                 contactCount: 0,
                 fileName: `Bulk: ${contactFile.name}`,
@@ -753,7 +732,7 @@ export async function handleBulkBroadcast(prevState: any, formData: FormData): P
             if (contactChunk.length > 0) {
                 const { insertedCount } = await processContactBatch(db, broadcastId, contactChunk, true);
                 if (insertedCount > 0) {
-                    await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount: insertedCount } });
+                    await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount: insertedCount, status: 'QUEUED' } });
                     jobsCreated++;
                 } else {
                     await db.collection('broadcasts').deleteOne({ _id: broadcastId });
@@ -769,3 +748,5 @@ export async function handleBulkBroadcast(prevState: any, formData: FormData): P
         return { error: getErrorMessage(e) };
     }
 }
+
+    
