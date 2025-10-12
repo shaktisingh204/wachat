@@ -49,8 +49,8 @@ export async function processBroadcastJob() {
             { $set: { status: 'PROCESSING', startedAt: new Date() } },
             { returnDocument: 'after' }
         );
-
-        if (!jobDetails?._id) {
+        
+        if (!jobDetails || !jobDetails._id) {
             console.log("[KAFKA-PRODUCER] No broadcast jobs to process.");
             return { message: 'No broadcast jobs to process.' };
         }
@@ -92,13 +92,10 @@ export async function processBroadcastJob() {
             totalPushed += contactBatch.length;
         }
 
-        const message = `Successfully pushed ${totalPushed} contacts to Kafka for broadcast ${broadcastId}.`;
-        console.log(`[KAFKA-PRODUCER] ${message}`);
-        
-        // If no contacts were pushed, the job has failed because it was marked as processing but had nothing to do.
         if (totalPushed === 0) {
+            // If we successfully marked the job as PROCESSING but found no contacts, fail it.
             await db.collection('broadcasts').updateOne(
-                { _id: broadcastId }, 
+                { _id: broadcastId },
                 { 
                     $set: { 
                         status: 'Failed', 
@@ -107,9 +104,14 @@ export async function processBroadcastJob() {
                     } 
                 }
             );
-            console.error(`[KAFKA-PRODUCER] Broadcast ${broadcastId} failed: No pending contacts found.`);
+            const failMessage = `Broadcast ${broadcastId} failed: No pending contacts were found.`;
+            console.error(`[KAFKA-PRODUCER] ${failMessage}`);
+            return { message: failMessage };
         }
 
+
+        const message = `Successfully pushed ${totalPushed} contacts to Kafka for broadcast ${broadcastId}.`;
+        console.log(`[KAFKA-PRODUCER] ${message}`);
         return { message };
 
     } catch (error: any) {

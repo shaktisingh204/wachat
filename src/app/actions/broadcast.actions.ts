@@ -158,7 +158,7 @@ export async function handleStartApiBroadcast(
         templateName: template.name,
         phoneNumberId,
         accessToken,
-        status: 'QUEUED',
+        status: 'DRAFT',
         createdAt: new Date(),
         contactCount: 0,
         fileName: 'API Request',
@@ -188,7 +188,7 @@ export async function handleStartApiBroadcast(
         return { error: 'No valid contacts with phone numbers found to send to.' };
     }
     
-    await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount } });
+    await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount, status: 'QUEUED' } });
 
     revalidatePath('/dashboard/broadcasts');
     return { message: `Broadcast successfully queued via API for ${contactCount} contacts. Sending will begin shortly.` };
@@ -302,7 +302,7 @@ export async function handleStartBroadcast(
         templateName: template.name,
         phoneNumberId,
         accessToken,
-        status: 'QUEUED',
+        status: 'DRAFT',
         createdAt: new Date(),
         contactCount: 0,
         fileName: contactFileName,
@@ -365,13 +365,13 @@ export async function handleStartBroadcast(
         }
     }
 
-
     if (contactCount === 0) {
         await db.collection('broadcasts').deleteOne({ _id: broadcastId });
         return { error: 'No valid contacts with phone numbers found to send to.' };
     }
     
-    await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount } });
+    // Atomically update the status to QUEUED now that contacts are inserted.
+    await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount, status: 'QUEUED' } });
 
     revalidatePath('/dashboard/broadcasts');
     return { message: `Broadcast successfully queued for ${contactCount} contacts. Sending will begin shortly.` };
