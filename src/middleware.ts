@@ -8,7 +8,8 @@ export async function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get('session')?.value
   const adminSessionToken = request.cookies.get('admin_session')?.value
 
-  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup') || pathname.startsWith('/admin-login');
+  const isAuthPage = pathname.startsWith('/login') || pathname.startsWith('/signup');
+  const isAdminAuthPage = pathname.startsWith('/admin-login');
   const isDashboard = pathname.startsWith('/dashboard');
   const isAdminDashboard = pathname.startsWith('/admin/dashboard');
 
@@ -18,28 +19,33 @@ export async function middleware(request: NextRequest) {
   const sessionValid = !!sessionPayload;
   const adminSessionValid = !!adminSessionPayload;
 
+  // If on admin dashboard and session is not valid, redirect to admin login
   if (isAdminDashboard && !adminSessionValid) {
-    return NextResponse.redirect(new URL('/admin-login', request.url));
+    const response = NextResponse.redirect(new URL('/admin-login', request.url));
+    response.cookies.delete('admin_session');
+    return response;
   }
 
+  // If on user dashboard and session is not valid, redirect to user login
   if (isDashboard && !sessionValid) {
-    return NextResponse.redirect(new URL('/login', request.url));
+    const response = NextResponse.redirect(new URL('/login', request.url));
+    response.cookies.delete('session');
+    return response;
   }
 
-  if (isAuthPage) {
-    if (sessionValid && !pathname.startsWith('/admin')) {
-      return NextResponse.redirect(new URL('/dashboard', request.url));
-    }
-    if (adminSessionValid && pathname.startsWith('/admin')) {
-      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-    }
+  // If trying to access a login page while already logged in
+  if ((isAuthPage && sessionValid) || (isAdminAuthPage && adminSessionValid)) {
+      if (adminSessionValid) {
+          return NextResponse.redirect(new URL('/admin/dashboard', request.url));
+      }
+      if (sessionValid) {
+          return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
   }
 
   return NextResponse.next();
 }
 
-// Updated matcher to be simpler. It protects dashboards and handles auth page redirects.
-// It no longer needs to exclude short URL paths because they are not protected.
 export const config = {
   matcher: ['/dashboard/:path*', '/admin/dashboard/:path*', '/login', '/signup', '/admin-login'],
 }

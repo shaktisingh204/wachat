@@ -1,4 +1,5 @@
-const { Kafka } = require('kafkajs');
+
+const { Kafka, Partitioners } = require('kafkajs');
 
 // --- Configuration ---
 const kafka = new Kafka({
@@ -7,9 +8,7 @@ const kafka = new Kafka({
 });
 
 const producer = kafka.producer({
-  // Don't wait for acknowledgements from all replicas. This is faster but less safe.
-  // For benchmarking, acks: 1 is a good balance. For max speed, acks: 0.
-  acks: 1, 
+  createPartitioner: Partitioners.DefaultPartitioner
 });
 
 const topic = 'messages';

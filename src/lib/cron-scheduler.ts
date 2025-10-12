@@ -5,7 +5,7 @@ import { config } from 'dotenv';
 config();
 
 import { connectToDatabase } from '@/lib/mongodb';
-import { Kafka } from 'kafkajs';
+import { Kafka, Partitioners } from 'kafkajs';
 import { Db, ObjectId } from 'mongodb';
 import type { BroadcastJob as BroadcastJobType } from './definitions';
 
@@ -25,7 +25,7 @@ async function getKafkaProducer() {
     });
 
     producer = kafka.producer({
-        acks: 1, 
+        createPartitioner: Partitioners.DefaultPartitioner,
     });
 
     await producer.connect();
@@ -50,6 +50,7 @@ export async function processBroadcastJob() {
         );
 
         if (!jobDetails) {
+            console.log("[KAFKA-PRODUCER] No broadcast jobs to process.");
             return { message: 'No broadcast jobs to process.' };
         }
 
