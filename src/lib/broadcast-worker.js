@@ -1,8 +1,10 @@
 
+
 const path = require('path');
 const { connectToDatabase } = require(path.join(__dirname, 'mongodb.ts'));
 const { getErrorMessage } = require(path.join(__dirname, 'utils.ts'));
 const axios = require('axios');
+const http2 = require('http2');
 const { ObjectId } = require('mongodb');
 const { Kafka } = require('kafkajs');
 
@@ -11,8 +13,19 @@ const KAFKA_BROKERS = [process.env.KAFKA_BROKERS || '127.0.0.1:9092'];
 const KAFKA_TOPIC = 'messages';
 const GROUP_ID = 'whatsapp-broadcaster-group';
 
+// Create a single, reusable HTTP/2-enabled Axios instance for the worker
+const http2Agent = new http2.Agent({
+  maxSessions: 10,
+  maxFreeSessions: 10,
+});
+const axiosHttp2 = axios.create({
+    httpAgent: http2Agent,
+    httpsAgent: http2Agent,
+});
+
+
 /**
- * Sends a single WhatsApp message.
+ * Sends a single WhatsApp message using an HTTP/2-enabled axios instance.
  */
 async function sendWhatsAppMessage(job, contact) {
     // This function remains largely the same as before
@@ -69,7 +82,7 @@ async function sendWhatsAppMessage(job, contact) {
             template: { name: templateName, language: { code: language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
         };
         
-        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, messageData, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        const response = await axiosHttp2.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, messageData, { headers: { 'Authorization': `Bearer ${accessToken}` } });
         
         const messageId = response.data?.messages?.[0]?.id;
         if (!messageId) return { success: false, error: "No message ID returned from Meta." };
@@ -101,45 +114,59 @@ async function startBroadcastWorker(workerId) {
     eachMessage: async ({ topic, partition, message }) => {
       try {
         const { jobDetails, contacts } = JSON.parse(message.value.toString());
-        console.log(`[KAFKA-WORKER ${workerId}] Processing batch of ${contacts.length} for broadcast ${jobDetails._id}`);
+        const mps = jobDetails.messagesPerSecond || 50; // Default to 50 MPS if not specified
 
-        const contactPromises = contacts.map(contact => 
-          sendWhatsAppMessage(jobDetails, contact)
-              .then(result => ({ contactId: contact._id, ...result }))
-        );
-        
-        const results = await Promise.allSettled(contactPromises);
-        
-        const bulkOps = [];
-        let successCount = 0;
-        let errorCount = 0;
+        console.log(`[KAFKA-WORKER ${workerId}] Processing batch of ${contacts.length} for broadcast ${jobDetails._id} at ${mps} MPS`);
 
-        for (const res of results) {
-            if (res.status === 'fulfilled') {
-                const { contactId, success, messageId, error } = res.value;
-                if (success) {
-                    successCount++;
-                    bulkOps.push({ updateOne: { filter: { _id: new ObjectId(contactId) }, update: { $set: { status: 'SENT', sentAt: new Date(), messageId, error: null } } } });
+        for (let i = 0; i < contacts.length; i += mps) {
+            const chunk = contacts.slice(i, i + mps);
+            const startTime = Date.now();
+            
+            const contactPromises = chunk.map(contact => 
+              sendWhatsAppMessage(jobDetails, contact)
+                  .then(result => ({ contactId: contact._id, ...result }))
+            );
+            
+            const results = await Promise.allSettled(contactPromises);
+            
+            const bulkOps = [];
+            let successCount = 0;
+            let errorCount = 0;
+
+            for (const res of results) {
+                if (res.status === 'fulfilled') {
+                    const { contactId, success, messageId, error } = res.value;
+                    if (success) {
+                        successCount++;
+                        bulkOps.push({ updateOne: { filter: { _id: new ObjectId(contactId) }, update: { $set: { status: 'SENT', sentAt: new Date(), messageId, error: null } } } });
+                    } else {
+                        errorCount++;
+                        bulkOps.push({ updateOne: { filter: { _id: new ObjectId(contactId) }, update: { $set: { status: 'FAILED', error } } } });
+                    }
                 } else {
                     errorCount++;
-                    bulkOps.push({ updateOne: { filter: { _id: new ObjectId(contactId) }, update: { $set: { status: 'FAILED', error } } } });
+                    console.error(`[KAFKA-WORKER ${workerId}] A send promise was rejected:`, res.reason);
                 }
-            } else {
-                errorCount++;
-                console.error(`[KAFKA-WORKER ${workerId}] A send promise was rejected:`, res.reason);
+            }
+
+            if (bulkOps.length > 0) {
+                await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
+            }
+            
+            await db.collection('broadcasts').updateOne(
+              { _id: new ObjectId(jobDetails._id) },
+              { $inc: { successCount, errorCount } }
+            );
+
+            // Throttle to respect MPS
+            const duration = Date.now() - startTime;
+            const delay = 1000 - duration;
+            if (delay > 0) {
+                await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
-
-        if (bulkOps.length > 0) {
-            await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
-        }
         
-        await db.collection('broadcasts').updateOne(
-          { _id: new ObjectId(jobDetails._id) },
-          { $inc: { successCount, errorCount } }
-        );
-        
-        console.log(`[KAFKA-WORKER ${workerId}] Finished batch for broadcast ${jobDetails._id}. Success: ${successCount}, Failed: ${errorCount}.`);
+        console.log(`[KAFKA-WORKER ${workerId}] Finished batch for broadcast ${jobDetails._id}.`);
 
       } catch (err) {
         console.error(`[KAFKA-WORKER ${workerId}] Error processing message from Kafka:`, err);
