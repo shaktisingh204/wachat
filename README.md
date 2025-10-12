@@ -150,7 +150,7 @@ You will see output indicating the message sending progress and final throughput
 The workers are the consumers that actually process the broadcast queue and send WhatsApp messages.
 
 *   **In Development**: You do not need to run a separate worker command. The main `npm run dev` process handles this.
-*   **In Production**: The `npm start` or `npm run start:pm2` command automatically forks a worker process for each available CPU core, using the `server.js` script.
+*   **In Production**: The `npm start` or `npm run start:pm2` command automatically forks a worker process for each available CPU core, using the `server.js` script. **You do not need to run a separate command for the workers.** They run in the background as part of the main application process.
 
 ### 4. Triggering a WhatsApp Broadcast
 
