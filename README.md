@@ -149,17 +149,17 @@ You will see output indicating the message sending progress and final throughput
 
 The workers are the consumers that actually process the broadcast queue and send WhatsApp messages.
 
-*   **In Development**: You do not need to run a separate worker command. The main `npm run dev` process handles this.
-*   **In Production**: The `npm start` or `npm run start:pm2` command automatically forks a worker process for each available CPU core, using the `server.js` script. **You do not need to run a separate command for the workers.** They run in the background as part of the main application process.
+*   **In Development**: The development server (`npm run dev`) does not automatically start background workers. You must manually trigger the cron job to process broadcasts in the same process.
+*   **In Production**: **This step is automatic.** The `npm start` or `npm run start:pm2` command automatically starts multiple background worker processes for you using the `server.js` script. **You do not need to run a separate command for the workers.** They run in the background as part of the main application process, consuming messages from Kafka.
 
 ### 4. Triggering a WhatsApp Broadcast
 
 Here is the complete workflow for sending a broadcast:
 
 1.  **Ensure Redpanda is running** (from Step 1).
-2.  **Start the application** (`npm run dev` or `npm start` / `npm run start:pm2`).
+2.  **Start the application** (`npm run dev` for development, or `npm start` / `npm run start:pm2` for production).
 3.  **Queue a Broadcast**: Go to the SabNode dashboard, navigate to "Campaigns", and create a new broadcast campaign by selecting a template and uploading a contact list.
-4.  **Trigger the Cron Job**: The system uses a cron job to find queued broadcasts and push them to Kafka. In production, this happens automatically. In development, you must trigger it manually by opening this URL in your browser:
+4.  **Trigger the Cron Job**: The system uses a cron job to find queued broadcasts and push them to the Kafka `messages` topic. In production, this happens automatically. In development, you must trigger it manually by opening this URL in your browser:
     ```
     http://localhost:3001/api/cron/send-broadcasts
     ```
