@@ -5,6 +5,7 @@ const next = require('next');
 const cluster = require('cluster');
 const os = require('os');
 const { startBroadcastWorker } = require('./lib/broadcast-worker.js');
+require('dotenv').config(); // Load environment variables
 
 const dev = process.env.NODE_ENV !== 'production';
 const hostname = '0.0.0.0';
@@ -13,24 +14,38 @@ const port = parseInt(process.env.PORT, 10) || 3001;
 const app = next({ dev, hostname, port, dir: __dirname });
 const handle = app.getRequestHandler();
 
+// Use PM2 instance variable if available, otherwise fallback to cluster.isPrimary
 const isPrimaryProcess = dev ? cluster.isPrimary : (process.env.NODE_APP_INSTANCE === '0' || !process.env.NODE_APP_INSTANCE);
-const runWorkers = true; 
+const runWorkers = !dev; // Only run workers in production
 
 if (isPrimaryProcess) {
   if (runWorkers) {
       const totalCpus = os.cpus().length;
-      const numWorkers = Math.max(1, Math.floor(totalCpus * 0.8));
+      // Leave at least one core for the main app and OS
+      const numWorkers = Math.max(1, totalCpus - 1);
 
       console.log(`\n\x1b[32m[Cluster] Primary process ${process.pid} is running.\x1b[0m`);
       console.log(`\x1b[32m[Cluster] Total Cores: ${totalCpus}, Forking ${numWorkers} broadcast workers.\x1b[0m\n`);
 
       for (let i = 0; i < numWorkers; i++) {
-        cluster.fork({ WORKER_ID: i + 1 });
+        // Explicitly pass environment variables to the worker
+        cluster.fork({ 
+          WORKER_ID: i + 1,
+          KAFKA_BROKERS: process.env.KAFKA_BROKERS,
+          MONGODB_URI: process.env.MONGODB_URI,
+          MONGODB_DB: process.env.MONGODB_DB
+        });
       }
 
       cluster.on('exit', (worker, code, signal) => {
         console.log(`\x1b[31m[Cluster] Worker ${worker.process.pid} died. Forking a new one...\x1b[0m`);
-        cluster.fork({ WORKER_ID: worker.process.env.WORKER_ID });
+        // Re-fork with the same environment variables
+        cluster.fork({ 
+            WORKER_ID: worker.process.env.WORKER_ID,
+            KAFKA_BROKERS: process.env.KAFKA_BROKERS,
+            MONGODB_URI: process.env.MONGODB_URI,
+            MONGODB_DB: process.env.MONGODB_DB
+        });
       });
   }
 
