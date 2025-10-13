@@ -21,6 +21,11 @@ async function getKafkaProducer() {
         return producer;
     }
 
+    if (!process.env.KAFKA_BROKERS) {
+        console.error('[KAFKA-PRODUCER] FATAL: KAFKA_BROKERS environment variable is not set. Producer cannot start.');
+        throw new Error('KAFKA_BROKERS not set');
+    }
+
     kafka = new Kafka({
       clientId: 'broadcast-producer',
       brokers: KAFKA_BROKERS,
@@ -34,7 +39,7 @@ async function getKafkaProducer() {
     return producer;
 }
 
-const addBroadcastLog = async (db: Db, broadcastId: ObjectId, projectId: ObjectId, level: 'INFO' | 'ERROR', message: string, meta?: Record<string, any>) => {
+const addBroadcastLog = async (db: Db, broadcastId: ObjectId, projectId: ObjectId, level: 'INFO' | 'ERROR' | 'WARN', message: string, meta?: Record<string, any>) => {
     try {
         await db.collection('broadcast_logs').insertOne({
             broadcastId,
@@ -49,10 +54,6 @@ const addBroadcastLog = async (db: Db, broadcastId: ObjectId, projectId: ObjectI
     }
 };
 
-/**
- * The main function for processing broadcast jobs. It now acts as a Kafka producer.
- * It pulls a queued job, reads its contacts, and pushes them in batches to a Kafka topic.
- */
 export async function processBroadcastJob() {
     let db: Db;
     let broadcastId: ObjectId | undefined;
@@ -90,7 +91,16 @@ export async function processBroadcastJob() {
         for await (const contact of contactsCursor) {
             contactBatch.push(contact);
             if (contactBatch.length >= BATCH_SIZE) {
-                const message = { value: JSON.stringify({ jobDetails, contacts: contactBatch }) };
+                // **THE FIX IS HERE**: Ensure all ObjectIDs are strings before stringifying
+                const serializableJobDetails = {
+                    ...jobDetails,
+                    _id: jobDetails._id.toString(),
+                    projectId: jobDetails.projectId.toString(),
+                    ...(jobDetails.templateId && { templateId: jobDetails.templateId.toString() })
+                };
+                const serializableContacts = contactBatch.map(c => ({...c, _id: c._id.toString(), broadcastId: c.broadcastId.toString()}));
+                
+                const message = { value: JSON.stringify({ jobDetails: serializableJobDetails, contacts: serializableContacts }) };
                 await kafkaProducer.send({ topic: KAFKA_TOPIC, messages: [message] });
                 totalPushed += contactBatch.length;
                 await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Pushed batch of ${contactBatch.length} contacts to Kafka.`);
@@ -99,7 +109,15 @@ export async function processBroadcastJob() {
         }
 
         if (contactBatch.length > 0) {
-            const message = { value: JSON.stringify({ jobDetails, contacts: contactBatch }) };
+             const serializableJobDetails = {
+                ...jobDetails,
+                _id: jobDetails._id.toString(),
+                projectId: jobDetails.projectId.toString(),
+                ...(jobDetails.templateId && { templateId: jobDetails.templateId.toString() })
+            };
+            const serializableContacts = contactBatch.map(c => ({...c, _id: c._id.toString(), broadcastId: c.broadcastId.toString()}));
+            
+            const message = { value: JSON.stringify({ jobDetails: serializableJobDetails, contacts: serializableContacts }) };
             await kafkaProducer.send({ topic: KAFKA_TOPIC, messages: [message] });
             totalPushed += contactBatch.length;
             await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Pushed final batch of ${contactBatch.length} contacts to Kafka.`);
