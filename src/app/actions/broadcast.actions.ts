@@ -14,11 +14,11 @@ import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '@/app/actions';
 import { getErrorMessage } from '@/lib/utils';
 import { checkRateLimit } from '@/lib/rate-limiter';
-import type { Project, BroadcastJob, BroadcastState, Template, Contact, BroadcastAttempt } from '@/lib/definitions';
+import type { Project, BroadcastJob, BroadcastState, Template, Contact, BroadcastAttempt, BroadcastLog } from '@/lib/definitions';
 
 const BATCH_SIZE = 1000;
 
-const addBroadcastLog = async (db: Db, broadcastId: ObjectId, projectId: ObjectId, level: 'INFO' | 'ERROR', message: string, meta?: Record<string, any>) => {
+const addBroadcastLog = async (db: Db, broadcastId: ObjectId, projectId: ObjectId, level: 'INFO' | 'ERROR' | 'WARN', message: string, meta?: Record<string, any>) => {
     try {
         await db.collection('broadcast_logs').insertOne({
             broadcastId,
@@ -796,4 +796,21 @@ export async function handleBulkBroadcast(prevState: any, formData: FormData): P
     }
 }
 
+export async function getBroadcastById(broadcastId: string): Promise<WithId<BroadcastJob> | null> {
+    if (!ObjectId.isValid(broadcastId)) return null;
+
+    try {
+        const { db } = await connectToDatabase();
+        const broadcast = await db.collection<BroadcastJob>('broadcasts').findOne({ _id: new ObjectId(broadcastId) });
+        if (!broadcast) return null;
+
+        const hasAccess = await getProjectById(broadcast.projectId.toString());
+        if (!hasAccess) return null;
+
+        return JSON.parse(JSON.stringify(broadcast));
+    } catch(e) {
+        console.error("Failed to get broadcast by ID:", e);
+        return null;
+    }
+}
     
