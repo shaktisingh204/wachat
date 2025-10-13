@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { config } from 'dotenv';
@@ -17,18 +16,19 @@ const KAFKA_TOPIC = 'messages';
 
 let kafka: Kafka | null = null;
 let producer: Producer | null = null;
+let isConnecting = false;
+let isConnected = false;
 
 async function getKafkaProducer(): Promise<Producer> {
-  if (producer) {
-    try {
-      // A quick check to see if the producer is still connected
-      await kafka!.admin().describeCluster();
-      return producer;
-    } catch (e) {
-      console.warn('[KAFKA-PRODUCER] Producer seems disconnected. Attempting to reconnect.');
-      await producer.disconnect().catch(err => console.error("Error during forced disconnect:", err));
-      producer = null;
-    }
+  if (producer && isConnected) {
+    return producer;
+  }
+
+  if (isConnecting) {
+    // Wait for the existing connection attempt to complete
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    if (producer && isConnected) return producer;
+    throw new Error('Kafka producer is still connecting from a previous attempt.');
   }
 
   if (!process.env.KAFKA_BROKERS) {
@@ -36,7 +36,15 @@ async function getKafkaProducer(): Promise<Producer> {
     throw new Error('KAFKA_BROKERS not set');
   }
 
+  isConnecting = true;
+
   try {
+    if (producer) {
+        await producer.disconnect().catch(err => console.error("Error during producer cleanup:", err));
+        producer = null;
+        isConnected = false;
+    }
+
     kafka = new Kafka({
       clientId: 'broadcast-producer',
       brokers: KAFKA_BROKERS,
@@ -44,16 +52,21 @@ async function getKafkaProducer(): Promise<Producer> {
     });
 
     const newProducer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner });
-    console.log('[KAFKA-PRODUCER] Connecting to Kafka...');
-    await newProducer.connect();
-    console.log('[KAFKA-PRODUCER] Kafka Producer connected successfully.');
-    
+
+    newProducer.on(newProducer.events.CONNECT, () => {
+        console.log('[KAFKA-PRODUCER] Kafka Producer connected successfully.');
+        isConnected = true;
+    });
+
     newProducer.on(newProducer.events.DISCONNECT, () => {
       console.error('[KAFKA-PRODUCER] Kafka Producer disconnected. Will attempt to reconnect on next job.');
+      isConnected = false;
       producer = null;
     });
 
+    await newProducer.connect();
     producer = newProducer;
+    isConnecting = false;
     return producer;
   } catch (e) {
     console.error('[KAFKA-PRODUCER] Failed to create or connect Kafka producer.', e);
@@ -61,6 +74,8 @@ async function getKafkaProducer(): Promise<Producer> {
         await producer.disconnect().catch((err: any) => console.error("Failed to disconnect errored producer", err));
     }
     producer = null;
+    isConnected = false;
+    isConnecting = false;
     throw e;
   }
 }
@@ -92,31 +107,24 @@ export async function processBroadcastJob() {
     }
     
     let jobDetails: WithId<BroadcastJobType> | null = null;
+    let broadcastId: ObjectId | null = null;
 
     try {
         // Step 1: Find a single QUEUED job.
-        const queuedJob = await db.collection<BroadcastJobType>('broadcasts').findOne({ status: 'QUEUED' });
+        const jobResult = await db.collection('broadcasts').findOneAndUpdate(
+            { status: 'QUEUED' },
+            { $set: { status: 'PROCESSING', startedAt: new Date() } },
+            { returnDocument: 'after' }
+        );
 
-        if (!queuedJob) {
+        jobDetails = jobResult; // In MongoDB 5+, findOneAndUpdate returns the document directly
+
+        if (!jobDetails) {
             console.log('[CRON-SCHEDULER] No broadcast jobs with status QUEUED found.');
             return { message: 'No broadcast jobs to process.' };
         }
         
-        // Step 2: Atomically "lock" this specific job by its unique _id.
-        const lockResult = await db.collection('broadcasts').updateOne(
-            { _id: queuedJob._id, status: 'QUEUED' },
-            { $set: { status: 'PROCESSING', startedAt: new Date() } }
-        );
-
-        if (lockResult.matchedCount === 0) {
-            console.log(`[CRON-SCHEDULER] Job ${queuedJob._id} was picked up by another process. Skipping.`);
-            return { message: `Job ${queuedJob._id} was processed by another worker.` };
-        }
-        
-        jobDetails = await db.collection<WithId<BroadcastJobType>>('broadcasts').findOne({ _id: queuedJob._id });
-        if (!jobDetails) throw new Error("Failed to re-fetch job after locking.");
-
-        const broadcastId = jobDetails._id;
+        broadcastId = jobDetails._id;
         const projectId = jobDetails.projectId;
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Cron job picked up broadcast ${broadcastId} and set status to PROCESSING.`);
 
@@ -145,18 +153,11 @@ export async function processBroadcastJob() {
             throw new Error(`Failed to connect to Kafka: ${e.message}`);
         }
 
-        // The job details object needs to be stringifiable for Kafka.
-        // We ensure all BSON types like ObjectId are converted to strings.
-        const serializableJobDetails = { 
-            ...jobDetails, 
-            _id: jobDetails._id.toString(),
-            projectId: jobDetails.projectId.toString(),
-            templateId: jobDetails.templateId?.toString()
-        };
+        const serializableJobDetails = JSON.parse(JSON.stringify(jobDetails));
 
         const messagePayload = {
             jobDetails: serializableJobDetails,
-            contacts: contacts.map(c => ({...c, _id: c._id.toString(), broadcastId: c.broadcastId.toString()}))
+            contacts: contacts.map(c => JSON.parse(JSON.stringify(c)))
         };
 
         try {
@@ -180,11 +181,11 @@ export async function processBroadcastJob() {
 
     } catch (error: any) {
         console.error("[CRON-SCHEDULER] Main processing function failed:", error);
-        if (jobDetails?._id && jobDetails?.projectId && db) {
+        if (broadcastId && jobDetails?.projectId && db) {
             const errorMessage = `Cron Scheduler Error: ${getErrorMessage(error)}`;
-            await addBroadcastLog(db, jobDetails._id, jobDetails.projectId, 'ERROR', errorMessage, { stack: error.stack });
+            await addBroadcastLog(db, broadcastId, jobDetails.projectId, 'ERROR', errorMessage, { stack: error.stack });
             await db.collection('broadcasts').updateOne(
-                { _id: jobDetails._id }, 
+                { _id: broadcastId }, 
                 { $set: { status: 'Failed', error: errorMessage, completedAt: new Date() } }
             );
         }
