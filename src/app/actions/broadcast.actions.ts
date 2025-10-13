@@ -83,33 +83,22 @@ const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial
 
 
 const processStreamedContacts = async (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId): Promise<number> => {
-    return new Promise<number>((resolve, reject) => {
-        let contactBatch: any[] = [];
+    return new Promise<number>(async (resolve, reject) => {
         let totalProcessedCount = 0;
+        const allRows: any[] = [];
         
         const parser = Papa.parse(inputStream, {
             header: true,
             skipEmptyLines: true,
             dynamicTyping: false,
-            step: async (results, stepParser) => {
-                contactBatch.push(results.data);
-                if (contactBatch.length >= BATCH_SIZE) {
-                    stepParser.pause();
-                    try {
-                        const { insertedCount } = await processContactBatch(db, broadcastId, contactBatch, true);
-                        totalProcessedCount += insertedCount;
-                        contactBatch = [];
-                    } catch(err) {
-                        return reject(err);
-                    } finally {
-                        stepParser.resume();
-                    }
-                }
+            step: (results) => {
+                allRows.push(results.data);
             },
             complete: async () => {
                 try {
-                     if (contactBatch.length > 0) {
-                        const { insertedCount } = await processContactBatch(db, broadcastId, contactBatch, true);
+                    for (let i = 0; i < allRows.length; i += BATCH_SIZE) {
+                        const batch = allRows.slice(i, i + BATCH_SIZE);
+                        const { insertedCount } = await processContactBatch(db, broadcastId, batch, true);
                         totalProcessedCount += insertedCount;
                     }
                     resolve(totalProcessedCount);
