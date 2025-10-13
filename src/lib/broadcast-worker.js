@@ -133,7 +133,7 @@ async function startBroadcastWorker(workerId) {
             const errorMessage = `[KAFKA-WORKER ${workerId}] Received invalid job data from Kafka. Skipping batch.`;
             console.error(errorMessage, { jobDetails, contactCount: contacts?.length });
             if (jobDetails?._id && jobDetails?.projectId) {
-                await addBroadcastLog(db, new ObjectId(jobDetails._id), new ObjectId(jobDetails.projectId), 'ERROR', 'Worker received invalid job data.', { workerId });
+                await addBroadcastLog(db, new ObjectId(jobDetails._id), new ObjectId(jobDetails.projectId), 'ERROR', 'Worker received invalid job data.', { workerId, receivedData: message.value.toString() });
             }
             return;
         }
@@ -142,7 +142,7 @@ async function startBroadcastWorker(workerId) {
         const broadcastId = new ObjectId(jobDetails._id);
         const projectId = new ObjectId(jobDetails.projectId);
         
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} picked up batch of ${contacts.length} contacts.`);
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} picked up batch of ${contacts.length} contacts.`, { mps });
 
 
         for (let i = 0; i < contacts.length; i += mps) {
