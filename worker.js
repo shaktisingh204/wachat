@@ -8,7 +8,12 @@ const workerId = process.env.pm_id || process.pid;
 
 console.log(`[Worker Script] Starting worker with ID: ${workerId}`);
 
-startBroadcastWorker(workerId).catch(err => {
-    console.error(`[Worker Script] Worker ${workerId} encountered a fatal error:`, err);
-    process.exit(1);
-});
+// IIFE to run the async function
+(async () => {
+    try {
+        await startBroadcastWorker(workerId);
+    } catch (err) {
+        console.error(`[Worker Script] Worker ${workerId} encountered a fatal error:`, err);
+        process.exit(1); // Exit with an error code, PM2 will restart it.
+    }
+})();
