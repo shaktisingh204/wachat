@@ -3,13 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack -p 3001",
+    "dev": "next dev -p 3001",
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
-    "start": "pm2 start ecosystem.config.js --env production",
-    "start:pm2": "pm2 start ecosystem.config.js --env production",
-    "stop:pm2": "pm2 stop all",
+    "start": "pm2 start next --name sabnode-web -- start -p 3001 && pm2 start ecosystem.config.js",
+    "start:pm2": "npm run build && npm run start",
+    "stop:pm2": "pm2 stop all && pm2 delete all",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "db:assign-plan": "tsx scripts/assign-default-plan.ts"
