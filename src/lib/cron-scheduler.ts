@@ -18,19 +18,9 @@ let producer: any = null;
 
 async function getKafkaProducer() {
   if (producer) {
-    try {
-      // A lightweight check could be to get cluster metadata, but for now we'll rely on send error handling.
-      // If send fails, we'll assume disconnection and the logic below will handle it.
-      return producer;
-    } catch (e) {
-      console.warn('[KAFKA-PRODUCER] Producer connection check failed, will try to reconnect.', e);
-      try {
-        await producer.disconnect();
-      } catch (disconnectErr) {
-        console.error('[KAFKA-PRODUCER] Error during graceful disconnect:', disconnectErr);
-      }
-      producer = null;
-    }
+    // A simple check might be to see if the producer is still "connected"
+    // but kafkajs handles reconnections internally. A failed send will trigger the disconnect handler.
+    return producer;
   }
 
   if (!process.env.KAFKA_BROKERS) {
@@ -44,7 +34,7 @@ async function getKafkaProducer() {
       brokers: KAFKA_BROKERS,
       retry: {
         initialRetryTime: 300,
-        retries: 5
+        retries: 8
       }
     });
 
@@ -56,15 +46,18 @@ async function getKafkaProducer() {
     await producer.connect();
     console.log('[KAFKA-PRODUCER] Kafka Producer connected successfully.');
     
-    producer.on('disconnect', () => {
+    producer.on(producer.events.DISCONNECT, () => {
       console.error('[KAFKA-PRODUCER] Kafka Producer disconnected. Will attempt to reconnect on next job.');
-      producer = null;
+      producer = null; // Set to null to force re-creation on next call
     });
 
     return producer;
   } catch (e) {
     console.error('[KAFKA-PRODUCER] Failed to create or connect Kafka producer.', e);
-    producer = null; // Ensure producer is null on failure
+    if (producer) {
+        await producer.disconnect().catch((err: any) => console.error("Failed to disconnect errored producer", err));
+    }
+    producer = null;
     throw e;
   }
 }
@@ -96,39 +89,23 @@ export async function processBroadcastJob() {
         db = conn.db;
         console.log('[CRON-SCHEDULER] Database connection successful.');
 
-        // Step 1: Find a single queued job
-        jobDetails = await db.collection<BroadcastJobType>('broadcasts').findOne(
+        const jobResult = await db.collection<BroadcastJobType>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
-            { sort: { createdAt: 1 } }
+            { $set: { status: 'PROCESSING', startedAt: new Date() } },
+            { sort: { createdAt: 1 }, returnDocument: 'after' }
         );
 
-        if (!jobDetails) {
+        if (!jobResult) {
             console.log("[CRON-SCHEDULER] No 'QUEUED' broadcast jobs found to process.");
             return { message: 'No broadcast jobs to process.' };
         }
         
+        jobDetails = jobResult;
         broadcastId = jobDetails._id;
         projectId = jobDetails.projectId;
-        console.log(`[CRON-SCHEDULER] Found job ${broadcastId}. Attempting to lock.`);
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Cron job picked up broadcast ${broadcastId}.`);
+        console.log(`[CRON-SCHEDULER] Found and locked job ${broadcastId}.`);
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Cron job picked up broadcast ${broadcastId} and set status to PROCESSING.`);
 
-
-        // Step 2: Atomically update its status to 'PROCESSING' to "lock" it
-        const updateResult = await db.collection('broadcasts').updateOne(
-            { _id: broadcastId, status: 'QUEUED' }, // Ensure we only update if it's still queued
-            { $set: { status: 'PROCESSING', startedAt: new Date() } }
-        );
-
-        if (updateResult.modifiedCount === 0) {
-            console.log(`[CRON-SCHEDULER] Job ${broadcastId} was picked up by another process. Skipping.`);
-            return { message: `Job ${broadcastId} was already processed.` };
-        }
-        
-        console.log(`[CRON-SCHEDULER] Job ${broadcastId} locked. Fetching contacts.`);
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Job status updated to PROCESSING. Fetching pending contacts.`);
-
-
-        // Step 3: Fetch pending contacts for the locked job
         const contactsCursor = db.collection('broadcast_contacts').find({
             broadcastId: broadcastId,
             status: 'PENDING'
@@ -136,12 +113,17 @@ export async function processBroadcastJob() {
 
         let contactBatch: any[] = [];
         let totalPushed = 0;
+        let kafkaProducer;
+
+        try {
+            kafkaProducer = await getKafkaProducer();
+        } catch(e: any) {
+            throw new Error(`Failed to connect to Kafka: ${e.message}`);
+        }
 
         for await (const contact of contactsCursor) {
             contactBatch.push(contact);
             if (contactBatch.length >= BATCH_SIZE) {
-                const kafkaProducer = await getKafkaProducer();
-                
                 const serializableJobDetails = { ...jobDetails, _id: jobDetails._id.toString(), projectId: jobDetails.projectId.toString(), templateId: jobDetails.templateId?.toString() };
                 const serializableContacts = contactBatch.map(c => ({...c, _id: c._id.toString(), broadcastId: c.broadcastId.toString()}));
                 
@@ -153,8 +135,6 @@ export async function processBroadcastJob() {
         }
 
         if (contactBatch.length > 0) {
-            const kafkaProducer = await getKafkaProducer();
-            
             const serializableJobDetails = { ...jobDetails, _id: jobDetails._id.toString(), projectId: jobDetails.projectId.toString(), templateId: jobDetails.templateId?.toString() };
             const serializableContacts = contactBatch.map(c => ({...c, _id: c._id.toString(), broadcastId: c.broadcastId.toString()}));
             
@@ -187,7 +167,6 @@ export async function processBroadcastJob() {
                 { $set: { status: 'Failed', error: errorMessage, completedAt: new Date() } }
             );
         }
-        // Re-throw the error to ensure the calling context knows about the failure.
         throw new Error(`Broadcast processing failed: ${error.message}`);
     }
 }
