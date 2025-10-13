@@ -1,19 +1,20 @@
 
+
 'use client';
 
 import { useState, useEffect, useTransition, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { WithId } from 'mongodb';
-import { getBroadcastById, getBroadcastAttempts, getBroadcastAttemptsForExport } from '@/app/actions/broadcast.actions';
-import type { BroadcastAttempt } from '@/lib/definitions';
+import { getBroadcastById, getBroadcastAttempts, getBroadcastAttemptsForExport, getBroadcastLogs } from '@/app/actions/broadcast.actions';
+import type { BroadcastAttempt, BroadcastLog } from '@/lib/definitions';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, RefreshCw, Check, CheckCheck, XCircle, FileText, Clock, Users, Send, AlertTriangle, Eye, Download, LoaderCircle, CircleDashed } from 'lucide-react';
+import { ArrowLeft, RefreshCw, Check, CheckCheck, XCircle, FileText, Clock, Users, Send, AlertTriangle, Eye, Download, LoaderCircle, CircleDashed, Info, List } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import Papa from 'papaparse';
@@ -59,6 +60,7 @@ function BroadcastReportSkeleton() {
 export default function BroadcastReportPage() {
   const [broadcast, setBroadcast] = useState<WithId<Broadcast> | null>(null);
   const [attempts, setAttempts] = useState<BroadcastAttempt[]>([]);
+  const [logs, setLogs] = useState<WithId<BroadcastLog>[]>([]);
   const [isPageLoading, setIsPageLoading] = useState(true);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isExporting, startExportTransition] = useTransition();
@@ -78,15 +80,17 @@ export default function BroadcastReportPage() {
     
     startRefreshTransition(async () => {
         try {
-            const [broadcastData, attemptsData] = await Promise.all([
+            const [broadcastData, attemptsData, logsData] = await Promise.all([
                 getBroadcastById(id),
                 getBroadcastAttempts(id, page, ATTEMPTS_PER_PAGE, filterValue),
+                getBroadcastLogs(id)
             ]);
 
             if (broadcastData) {
                 setBroadcast(broadcastData);
                 setAttempts(attemptsData.attempts);
                 setTotalPages(Math.ceil(attemptsData.total / ATTEMPTS_PER_PAGE));
+                setLogs(logsData);
             } else {
                 toast({ title: "Error", description: "Broadcast not found.", variant: "destructive" });
                 router.push('/dashboard/broadcasts');
@@ -193,6 +197,12 @@ export default function BroadcastReportPage() {
     }
   };
 
+  const getLogLevelVariant = (level: BroadcastLog['level']) => {
+    if (level === 'ERROR') return 'text-destructive';
+    if (level === 'WARN') return 'text-yellow-600';
+    return 'text-muted-foreground';
+  }
+
   if (isPageLoading) {
     return <BroadcastReportSkeleton />;
   }
@@ -287,88 +297,112 @@ export default function BroadcastReportPage() {
             </Card>
         </div>
 
-        <Card>
-            <CardHeader>
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <div>
-                        <CardTitle>Delivery Results</CardTitle>
-                        <p className="text-sm text-muted-foreground">Live status for each contact. This report updates automatically for active campaigns.</p>
-                    </div>
-                     <Badge variant={getStatusVariant(broadcast.status)} className="capitalize text-base px-4 py-2">
-                        {broadcast.status}
-                    </Badge>
-                </div>
-            </CardHeader>
-            <CardContent>
-                <Tabs defaultValue="ALL" className="mb-4" onValueChange={handleFilterChange}>
-                    <TabsList>
-                        <TabsTrigger value="ALL">All</TabsTrigger>
-                        <TabsTrigger value="SENT">Sent</TabsTrigger>
-                        <TabsTrigger value="DELIVERED">Delivered</TabsTrigger>
-                        <TabsTrigger value="READ">Read</TabsTrigger>
-                        <TabsTrigger value="FAILED">Failed</TabsTrigger>
-                        <TabsTrigger value="PENDING">Pending</TabsTrigger>
-                    </TabsList>
-                </Tabs>
-                <ScrollArea className="h-[50vh]">
-                    <Table>
-                        <TableHeader className="sticky top-0 bg-background">
-                            <TableRow>
-                                <TableHead>Phone Number</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Message ID / Error Details</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {isRefreshing && attempts.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={3} className="h-24 text-center">
-                                        <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                                    </TableCell>
-                                </TableRow>
-                            ) : allAttempts.length > 0 ? allAttempts.map((attempt) => (
-                                <TableRow key={attempt._id}>
-                                    <TableCell className="font-mono">{attempt.phone}</TableCell>
-                                    <TableCell>
-                                        {getAttemptStatusBadge(attempt.status)}
-                                    </TableCell>
-                                    <TableCell className="font-mono text-xs">
-                                        {attempt.detail}
-                                    </TableCell>
-                                </TableRow>
-                            )) : (
-                                <TableRow>
-                                    <TableCell colSpan={3} className="h-24 text-center">
-                                        No {filter.toLowerCase()} results to display for this broadcast.
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </ScrollArea>
-                 <div className="flex items-center justify-end space-x-2 py-4">
-                    <span className="text-sm text-muted-foreground">
-                        Page {currentPage} of {totalPages > 0 ? totalPages : 1}
-                    </span>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(p => p - 1)}
-                        disabled={currentPage <= 1 || isRefreshing}
-                    >
-                        Previous
-                    </Button>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setCurrentPage(p => p + 1)}
-                        disabled={currentPage >= totalPages || isRefreshing}
-                    >
-                        Next
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <div className="lg:col-span-2">
+                <Card>
+                    <CardHeader>
+                        <div className="flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <CardTitle>Delivery Results</CardTitle>
+                                <p className="text-sm text-muted-foreground">Live status for each contact. This report updates automatically for active campaigns.</p>
+                            </div>
+                            <Badge variant={getStatusVariant(broadcast.status)} className="capitalize text-base px-4 py-2">
+                                {broadcast.status}
+                            </Badge>
+                        </div>
+                    </CardHeader>
+                    <CardContent>
+                        <Tabs defaultValue="ALL" className="mb-4" onValueChange={handleFilterChange}>
+                            <TabsList>
+                                <TabsTrigger value="ALL">All</TabsTrigger>
+                                <TabsTrigger value="SENT">Sent</TabsTrigger>
+                                <TabsTrigger value="DELIVERED">Delivered</TabsTrigger>
+                                <TabsTrigger value="READ">Read</TabsTrigger>
+                                <TabsTrigger value="FAILED">Failed</TabsTrigger>
+                                <TabsTrigger value="PENDING">Pending</TabsTrigger>
+                            </TabsList>
+                        </Tabs>
+                        <ScrollArea className="h-[50vh]">
+                            <Table>
+                                <TableHeader className="sticky top-0 bg-background">
+                                    <TableRow>
+                                        <TableHead>Phone Number</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>Message ID / Error Details</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {isRefreshing && attempts.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={3} className="h-24 text-center">
+                                                <LoaderCircle className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : allAttempts.length > 0 ? allAttempts.map((attempt) => (
+                                        <TableRow key={attempt._id}>
+                                            <TableCell className="font-mono">{attempt.phone}</TableCell>
+                                            <TableCell>
+                                                {getAttemptStatusBadge(attempt.status)}
+                                            </TableCell>
+                                            <TableCell className="font-mono text-xs">
+                                                {attempt.detail}
+                                            </TableCell>
+                                        </TableRow>
+                                    )) : (
+                                        <TableRow>
+                                            <TableCell colSpan={3} className="h-24 text-center">
+                                                No {filter.toLowerCase()} results to display for this broadcast.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </ScrollArea>
+                        <div className="flex items-center justify-end space-x-2 py-4">
+                            <span className="text-sm text-muted-foreground">
+                                Page {currentPage} of {totalPages > 0 ? totalPages : 1}
+                            </span>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(p => p - 1)}
+                                disabled={currentPage <= 1 || isRefreshing}
+                            >
+                                Previous
+                            </Button>
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setCurrentPage(p => p + 1)}
+                                disabled={currentPage >= totalPages || isRefreshing}
+                            >
+                                Next
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="lg:col-span-1">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/>Broadcast Log</CardTitle>
+                        <CardDescription>A real-time log of events for this campaign.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <ScrollArea className="h-[60vh] border rounded-md p-2">
+                             <div className="space-y-3">
+                                {logs.length > 0 ? logs.map(log => (
+                                    <div key={log._id.toString()} className="text-xs font-mono">
+                                        <span className="text-muted-foreground/70">[{new Date(log.timestamp).toLocaleTimeString()}] </span>
+                                        <span className={getLogLevelVariant(log.level)}>{log.message}</span>
+                                    </div>
+                                )) : <p className="text-xs text-muted-foreground text-center p-4">No log entries yet.</p>}
+                             </div>
+                        </ScrollArea>
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
       </div>
     </>
   );
