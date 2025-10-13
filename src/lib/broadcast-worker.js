@@ -129,9 +129,12 @@ async function startBroadcastWorker(workerId) {
 
         const { jobDetails, contacts } = JSON.parse(message.value.toString());
         
-        // **CRITICAL FIX**: Validate the data received from Kafka before processing.
         if (!jobDetails || !jobDetails._id || !Array.isArray(contacts) || contacts.length === 0) {
-            console.error(`[KAFKA-WORKER ${workerId}] Received invalid job data from Kafka. Skipping batch.`, { jobDetails, contactCount: contacts?.length });
+            const errorMessage = `[KAFKA-WORKER ${workerId}] Received invalid job data from Kafka. Skipping batch.`;
+            console.error(errorMessage, { jobDetails, contactCount: contacts?.length });
+            if (jobDetails?._id && jobDetails?.projectId) {
+                await addBroadcastLog(db, new ObjectId(jobDetails._id), new ObjectId(jobDetails.projectId), 'ERROR', 'Worker received invalid job data.', { workerId });
+            }
             return;
         }
 

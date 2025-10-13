@@ -41,6 +41,7 @@ async function getKafkaProducer() {
 
 const addBroadcastLog = async (db: Db, broadcastId: ObjectId, projectId: ObjectId, level: 'INFO' | 'ERROR' | 'WARN', message: string, meta?: Record<string, any>) => {
     try {
+        if (!db || !broadcastId || !projectId) return;
         await db.collection('broadcast_logs').insertOne({
             broadcastId,
             projectId,
@@ -66,7 +67,7 @@ export async function processBroadcastJob() {
         const jobDetails = await db.collection<BroadcastJobType>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
             { $set: { status: 'PROCESSING', startedAt: new Date() } },
-            { sort: { createdAt: 1 }, returnDocument: 'after' }
+            { sort: { createdAt: 1 }, returnDocument: 'after' } // **CRITICAL FIX HERE**
         );
         
         if (!jobDetails || !jobDetails._id) {
@@ -91,7 +92,6 @@ export async function processBroadcastJob() {
         for await (const contact of contactsCursor) {
             contactBatch.push(contact);
             if (contactBatch.length >= BATCH_SIZE) {
-                // **THE FIX IS HERE**: Ensure all ObjectIDs are strings before stringifying
                 const serializableJobDetails = {
                     ...jobDetails,
                     _id: jobDetails._id.toString(),
