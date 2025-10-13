@@ -34,13 +34,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // If trying to access a login page while already logged in
-  if ((isAuthPage && sessionValid) || (isAdminAuthPage && adminSessionValid)) {
-      if (adminSessionValid) {
-          return NextResponse.redirect(new URL('/admin/dashboard', request.url));
-      }
-      if (sessionValid) {
-          return NextResponse.redirect(new URL('/dashboard', request.url));
-      }
+  if (isAuthPage && sessionValid) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+  if (isAdminAuthPage && adminSessionValid) {
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url));
   }
 
   return NextResponse.next();

@@ -1,4 +1,5 @@
 
+require('dotenv').config();
 const path = require('path');
 const { connectToDatabase } = require(path.join(__dirname, 'mongodb.ts'));
 const { getErrorMessage } = require(path.join(__dirname, 'utils.ts'));
@@ -6,8 +7,9 @@ const axios = require('axios');
 const { ObjectId } = require('mongodb');
 const { Kafka } = require('kafkajs');
 
+
 if (!process.env.KAFKA_BROKERS) {
-  console.error(`[KAFKA-WORKER] FATAL: KAFKA_BROKERS environment variable is not set. Worker cannot start.`);
+  console.error('[KAFKA-WORKER] FATAL: KAFKA_BROKERS environment variable is not set. Worker cannot start.');
   process.exit(1);
 }
 
