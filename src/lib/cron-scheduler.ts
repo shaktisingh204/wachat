@@ -13,11 +13,13 @@ const BATCH_SIZE = 10000;
 const KAFKA_BROKERS = [process.env.KAFKA_BROKERS || '127.0.0.1:9092'];
 const KAFKA_TOPIC = 'messages';
 
-let kafka;
-let producer;
+let kafka: Kafka | null = null;
+let producer: any = null;
 
 async function getKafkaProducer() {
-    if (producer) return producer;
+    if (producer && producer.connection) {
+        return producer;
+    }
 
     kafka = new Kafka({
       clientId: 'broadcast-producer',
@@ -43,13 +45,14 @@ export async function processBroadcastJob() {
         const conn = await connectToDatabase();
         db = conn.db;
         
-
+        // Atomically find a 'QUEUED' job and update it to 'PROCESSING'
         const jobDetails = await db.collection<BroadcastJobType>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
             { $set: { status: 'PROCESSING', startedAt: new Date() } },
             { sort: { createdAt: 1 }, returnDocument: 'after' } // FIFO
         );
         
+        // If no job is found, we're done.
         if (!jobDetails || !jobDetails._id) {
             console.log("[KAFKA-PRODUCER] No broadcast jobs to process.");
             return { message: 'No broadcast jobs to process.' };
@@ -96,9 +99,8 @@ export async function processBroadcastJob() {
             console.log(`[KAFKA-PRODUCER] Pushed final batch of ${contactBatch.length} contacts for broadcast ${broadcastId}.`);
         }
 
+        // If a job was marked 'PROCESSING' but no pending contacts were found, it means it's done.
         if (totalPushed === 0) {
-            // This is the crucial check: if the job was marked PROCESSING but no contacts were found,
-            // it means the job is actually complete or was created without contacts.
             await db.collection('broadcasts').updateOne(
                 { _id: broadcastId },
                 { 
