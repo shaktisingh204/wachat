@@ -18,17 +18,18 @@ let producer: any = null;
 
 async function getKafkaProducer() {
   if (producer) {
-    // Basic check to see if the producer is still connected. This is not foolproof.
-    // A more robust solution might involve a health check endpoint on the producer/broker.
     try {
-      // A lightweight operation to check connectivity. This might vary based on the client library.
-      // For kafkajs, there isn't a simple "isConnected" check, so we rely on error handling.
-      // If it's disconnected, the next `send` will throw an error, and we'll handle it there.
+      // A lightweight operation to check connectivity might not be available.
+      // We rely on error handling during send. If it fails, we'll reconnect.
       return producer;
     } catch (e) {
       console.warn('[KAFKA-PRODUCER] Producer connection check failed, will try to reconnect.', e);
-      await producer.disconnect().catch(() => {}); // Attempt to clean up
-      producer = null; // Force re-creation
+      try {
+        await producer.disconnect();
+      } catch (disconnectErr) {
+        console.error('[KAFKA-PRODUCER] Error during graceful disconnect:', disconnectErr);
+      }
+      producer = null;
     }
   }
 
@@ -57,16 +58,17 @@ async function getKafkaProducer() {
     
     producer.on('disconnect', () => {
       console.error('[KAFKA-PRODUCER] Kafka Producer disconnected. Will attempt to reconnect on next job.');
-      producer = null; // Nullify to force re-connection
+      producer = null;
     });
 
     return producer;
   } catch (e) {
     console.error('[KAFKA-PRODUCER] Failed to create or connect Kafka producer.', e);
-    producer = null; // Ensure we try again next time
+    producer = null;
     throw e;
   }
 }
+
 
 const addBroadcastLog = async (db: Db, broadcastId: ObjectId, projectId: ObjectId, level: 'INFO' | 'ERROR' | 'WARN', message: string, meta?: Record<string, any>) => {
     try {
@@ -98,9 +100,10 @@ export async function processBroadcastJob() {
             { sort: { createdAt: 1 }, returnDocument: 'after' }
         );
         
-        jobDetails = jobResult;
+        jobDetails = jobResult; // Directly assign the result which should be the document or null
 
         if (!jobDetails || !jobDetails._id) {
+             console.log("No 'QUEUED' broadcast jobs found to process.");
             return { message: 'No broadcast jobs to process.' };
         }
 

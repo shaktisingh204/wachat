@@ -1,5 +1,6 @@
 
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -81,8 +82,8 @@ const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial
 };
 
 
-const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId): Promise<number> => {
-     return new Promise<number>((resolve, reject) => {
+const processStreamedContacts = async (inputStream: NodeJS.ReadableStream | string, db: Db, broadcastId: ObjectId): Promise<number> => {
+    return new Promise<number>((resolve, reject) => {
         let contactBatch: any[] = [];
         let totalProcessedCount = 0;
         
@@ -93,7 +94,7 @@ const processStreamedContacts = (inputStream: NodeJS.ReadableStream | string, db
             step: async (results, stepParser) => {
                 contactBatch.push(results.data);
                 if (contactBatch.length >= BATCH_SIZE) {
-                    stepParser.pause(); 
+                    stepParser.pause();
                     try {
                         const { insertedCount } = await processContactBatch(db, broadcastId, contactBatch, true);
                         totalProcessedCount += insertedCount;
