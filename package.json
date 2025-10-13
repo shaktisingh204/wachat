@@ -8,9 +8,9 @@
     "genkit:dev": "genkit start -- tsx src/ai/dev.ts",
     "genkit:watch": "genkit start -- tsx --watch src/ai/dev.ts",
     "build": "next build",
-    "zoru": "next start -p 3001",
-    "start": "NODE_ENV=production node server.js",
-    "start:pm2": "pm2 start server.js --name sabnode -- -p 3001",
+    "start": "pm2 start ecosystem.config.js --env production",
+    "start:pm2": "pm2 start ecosystem.config.js --env production",
+    "stop:pm2": "pm2 stop all",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "db:assign-plan": "tsx scripts/assign-default-plan.ts"
