@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -16,6 +17,21 @@ import { checkRateLimit } from '@/lib/rate-limiter';
 import type { Project, BroadcastJob, BroadcastState, Template, Contact, BroadcastAttempt } from '@/lib/definitions';
 
 const BATCH_SIZE = 1000;
+
+const addBroadcastLog = async (db: Db, broadcastId: ObjectId, projectId: ObjectId, level: 'INFO' | 'ERROR', message: string, meta?: Record<string, any>) => {
+    try {
+        await db.collection('broadcast_logs').insertOne({
+            broadcastId,
+            projectId,
+            level,
+            message,
+            meta,
+            timestamp: new Date(),
+        });
+    } catch (e) {
+        console.error("Failed to write broadcast log:", e);
+    }
+};
 
 const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial<Contact>[], variablesFromColumn: boolean = true) => {
     if (batch.length === 0) return { insertedCount: 0 };
@@ -149,6 +165,8 @@ export async function handleStartApiBroadcast(
     const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData as any);
     broadcastId = broadcastResult.insertedId;
     
+    await addBroadcastLog(db, broadcastId, broadcastJobData.projectId, 'INFO', 'API broadcast job created in DRAFT state.');
+    
     let contactCount = 0;
     if (contacts.length > BATCH_SIZE) {
       for (let i = 0; i < contacts.length; i += BATCH_SIZE) {
@@ -163,10 +181,13 @@ export async function handleStartApiBroadcast(
 
     if (contactCount === 0) {
         await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+        await addBroadcastLog(db, broadcastId, broadcastJobData.projectId, 'ERROR', 'Broadcast creation failed: no valid contacts provided.', { finalContactCount: 0 });
         return { error: 'No valid contacts with phone numbers found to send to.' };
     }
     
     await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount, status: 'QUEUED' } });
+    await addBroadcastLog(db, broadcastId, broadcastJobData.projectId, 'INFO', `Broadcast moved to QUEUED state with ${contactCount} contacts ready.`);
+
 
     revalidatePath('/dashboard/broadcasts');
     return { message: `Broadcast successfully queued via API for ${contactCount} contacts. Sending will begin shortly.` };
@@ -175,6 +196,7 @@ export async function handleStartApiBroadcast(
     if (broadcastId) {
       await db.collection('broadcasts').deleteOne({ _id: broadcastId });
       await db.collection('broadcast_contacts').deleteMany({ broadcastId });
+      await addBroadcastLog(db, broadcastId, new ObjectId(projectId), 'ERROR', `Broadcast creation failed: ${getErrorMessage(e)}`);
     }
     return { error: getErrorMessage(e) };
   }
@@ -294,6 +316,8 @@ export async function handleStartBroadcast(
 
     const broadcastResult = await db.collection('broadcasts').insertOne(broadcastJobData as any);
     broadcastId = broadcastResult.insertedId;
+    await addBroadcastLog(db, broadcastId, projectObjectId, 'INFO', `Broadcast job created in DRAFT state with file ${contactFileName}.`);
+
 
     let contactCount = 0;
     
@@ -345,11 +369,13 @@ export async function handleStartBroadcast(
 
     if (contactCount === 0) {
         await db.collection('broadcasts').deleteOne({ _id: broadcastId });
+        await addBroadcastLog(db, broadcastId, projectObjectId, 'ERROR', 'Broadcast creation failed: no valid contacts found.', { finalContactCount: 0 });
         return { error: 'No valid contacts with phone numbers found to send to.' };
     }
     
     // Atomically update the status to QUEUED now that contacts are inserted.
     await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount, status: 'QUEUED' } });
+    await addBroadcastLog(db, broadcastId, projectObjectId, 'INFO', `Broadcast moved to QUEUED state with ${contactCount} contacts ready.`);
 
     revalidatePath('/dashboard/broadcasts');
     return { message: `Broadcast successfully queued for ${contactCount} contacts. Sending will begin shortly.` };
@@ -357,6 +383,7 @@ export async function handleStartBroadcast(
   } catch (e: any) {
     console.error('Failed to queue broadcast:', e);
     if (broadcastId) {
+        await addBroadcastLog(db, broadcastId, new ObjectId(formData.get('projectId') as string), 'ERROR', `Broadcast creation failed: ${getErrorMessage(e)}`);
         await db.collection('broadcasts').deleteOne({ _id: broadcastId });
         await db.collection('broadcast_contacts').deleteMany({ broadcastId: broadcastId });
     }
@@ -431,6 +458,19 @@ export async function getBroadcasts(
         return { broadcasts: [], total: 0 };
     }
 }
+
+export async function getBroadcastLogs(broadcastId: string): Promise<any[]> {
+    if (!ObjectId.isValid(broadcastId)) return [];
+    try {
+        const { db } = await connectToDatabase();
+        const logs = await db.collection('broadcast_logs').find({ broadcastId: new ObjectId(broadcastId) }).sort({ timestamp: -1 }).limit(100).toArray();
+        return JSON.parse(JSON.stringify(logs));
+    } catch (e) {
+        console.error("Failed to fetch broadcast logs:", e);
+        return [];
+    }
+}
+
 
 export async function getAllBroadcasts(
     page: number = 1,
@@ -528,6 +568,9 @@ export async function handleStopBroadcast(broadcastId: string): Promise<{ messag
             { _id: broadcastObjectId },
             { $set: { status: 'Cancelled', completedAt: new Date() } }
         );
+        
+        await addBroadcastLog(db, broadcastObjectId, broadcast.projectId, 'WARN', `Broadcast manually stopped by user.`);
+
 
         if (updateResult.modifiedCount === 0) {
             const currentBroadcast = await db.collection('broadcasts').findOne({ _id: broadcastObjectId });
@@ -541,6 +584,9 @@ export async function handleStopBroadcast(broadcastId: string): Promise<{ messag
             broadcastId: broadcastObjectId,
             status: 'PENDING'
         });
+        
+        await addBroadcastLog(db, broadcastObjectId, broadcast.projectId, 'INFO', `${deleteResult.deletedCount} pending messages were cancelled.`);
+
 
         revalidatePath('/dashboard/broadcasts');
 
@@ -601,6 +647,7 @@ export async function handleRequeueBroadcast(
 
         const newBroadcastResult = await db.collection('broadcasts').insertOne(newBroadcastData);
         const newBroadcastId = newBroadcastResult.insertedId;
+        await addBroadcastLog(db, newBroadcastId, originalBroadcast.projectId, 'INFO', `Requeue job created from original broadcast ${originalBroadcastId}. Scope: ${requeueScope}.`);
 
         const contactQuery: any = { broadcastId: originalBroadcastId };
         if (requeueScope === 'FAILED') {
@@ -642,7 +689,7 @@ export async function handleRequeueBroadcast(
         }
         
         await db.collection('broadcasts').updateOne({ _id: newBroadcastId }, { $set: { contactCount: newContactsCount, status: 'QUEUED' } });
-
+        await addBroadcastLog(db, newBroadcastId, originalBroadcast.projectId, 'INFO', `Requeue job moved to QUEUED with ${newContactsCount} contacts.`);
         
         revalidatePath('/dashboard/broadcasts');
 

@@ -34,6 +34,21 @@ async function getKafkaProducer() {
     return producer;
 }
 
+const addBroadcastLog = async (db: Db, broadcastId: ObjectId, projectId: ObjectId, level: 'INFO' | 'ERROR', message: string, meta?: Record<string, any>) => {
+    try {
+        await db.collection('broadcast_logs').insertOne({
+            broadcastId,
+            projectId,
+            level,
+            message,
+            meta,
+            timestamp: new Date(),
+        });
+    } catch (e) {
+        console.error("Failed to write broadcast log:", e);
+    }
+};
+
 /**
  * The main function for processing broadcast jobs. It now acts as a Kafka producer.
  * It pulls a queued job, reads its contacts, and pushes them in batches to a Kafka topic.
@@ -41,25 +56,26 @@ async function getKafkaProducer() {
 export async function processBroadcastJob() {
     let db: Db;
     let broadcastId: ObjectId | undefined;
+    let projectId: ObjectId | undefined;
+
     try {
         const conn = await connectToDatabase();
         db = conn.db;
         
-        // Atomically find a 'QUEUED' job and update it to 'PROCESSING'
         const jobDetails = await db.collection<BroadcastJobType>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
             { $set: { status: 'PROCESSING', startedAt: new Date() } },
-            { sort: { createdAt: 1 }, returnDocument: 'after' } // FIFO
+            { sort: { createdAt: 1 }, returnDocument: 'after' }
         );
         
-        // If no job is found, we're done.
         if (!jobDetails || !jobDetails._id) {
             console.log("[KAFKA-PRODUCER] No broadcast jobs to process.");
             return { message: 'No broadcast jobs to process.' };
         }
 
         broadcastId = jobDetails._id;
-        console.log(`[KAFKA-PRODUCER] Starting to process broadcast: ${broadcastId}`);
+        projectId = jobDetails.projectId;
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', 'Broadcast job picked up for processing.');
 
         const kafkaProducer = await getKafkaProducer();
 
@@ -74,64 +90,42 @@ export async function processBroadcastJob() {
         for await (const contact of contactsCursor) {
             contactBatch.push(contact);
             if (contactBatch.length >= BATCH_SIZE) {
-                const message = {
-                    value: JSON.stringify({ jobDetails, contacts: contactBatch })
-                };
-                await kafkaProducer.send({
-                    topic: KAFKA_TOPIC,
-                    messages: [message],
-                });
+                const message = { value: JSON.stringify({ jobDetails, contacts: contactBatch }) };
+                await kafkaProducer.send({ topic: KAFKA_TOPIC, messages: [message] });
                 totalPushed += contactBatch.length;
-                console.log(`[KAFKA-PRODUCER] Pushed batch of ${contactBatch.length} contacts for broadcast ${broadcastId}.`);
+                await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Pushed batch of ${contactBatch.length} contacts to Kafka.`);
                 contactBatch = [];
             }
         }
 
         if (contactBatch.length > 0) {
-            const message = {
-                value: JSON.stringify({ jobDetails, contacts: contactBatch })
-            };
-            await kafkaProducer.send({
-                topic: KAFKA_TOPIC,
-                messages: [message],
-            });
+            const message = { value: JSON.stringify({ jobDetails, contacts: contactBatch }) };
+            await kafkaProducer.send({ topic: KAFKA_TOPIC, messages: [message] });
             totalPushed += contactBatch.length;
-            console.log(`[KAFKA-PRODUCER] Pushed final batch of ${contactBatch.length} contacts for broadcast ${broadcastId}.`);
+            await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Pushed final batch of ${contactBatch.length} contacts to Kafka.`);
         }
 
-        // If a job was marked 'PROCESSING' but no pending contacts were found, it means it's done.
         if (totalPushed === 0) {
             await db.collection('broadcasts').updateOne(
                 { _id: broadcastId },
-                { 
-                    $set: { 
-                        status: 'Completed', 
-                        completedAt: new Date(),
-                        error: null // Clear any previous errors
-                    } 
-                }
+                { $set: { status: 'Completed', completedAt: new Date() } }
             );
             const completionMessage = `Broadcast ${broadcastId} had no pending contacts to send and is now marked as Completed.`;
-            console.log(`[KAFKA-PRODUCER] ${completionMessage}`);
+            await addBroadcastLog(db, broadcastId, projectId, 'WARN', completionMessage);
             return { message: completionMessage };
         }
 
-
         const message = `Successfully queued ${totalPushed} contacts to Kafka for broadcast ${broadcastId}.`;
-        console.log(`[KAFKA-PRODUCER] ${message}`);
         return { message };
 
     } catch (error: any) {
         console.error("[KAFKA-PRODUCER] Main processing function failed:", error);
-        if (broadcastId && db) {
+        if (broadcastId && projectId && db) {
+            const errorMessage = `Producer Error: ${error.message}`;
+            await addBroadcastLog(db, broadcastId, projectId, 'ERROR', errorMessage, { stack: error.stack });
             await db.collection('broadcasts').updateOne(
                 { _id: broadcastId }, 
-                { 
-                    $set: { 
-                        status: 'Failed', 
-                        error: `Producer Error: ${error.message}` 
-                    } 
-                }
+                { $set: { status: 'Failed', error: errorMessage } }
             );
         }
         throw new Error(`Broadcast Kafka producer failed: ${error.message}`);

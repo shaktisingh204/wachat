@@ -18,6 +18,22 @@ const KAFKA_BROKERS = process.env.KAFKA_BROKERS.split(',');
 const KAFKA_TOPIC = 'messages';
 const GROUP_ID = 'whatsapp-broadcaster-group';
 
+const addBroadcastLog = async (db, broadcastId, projectId, level, message, meta) => {
+    try {
+        if (!db || !broadcastId || !projectId) return;
+        await db.collection('broadcast_logs').insertOne({
+            broadcastId,
+            projectId,
+            level,
+            message,
+            meta,
+            timestamp: new Date(),
+        });
+    } catch (e) {
+        console.error("Failed to write broadcast log in worker:", e);
+    }
+};
+
 /**
  * Sends a single WhatsApp message.
  */
@@ -120,8 +136,11 @@ async function startBroadcastWorker(workerId) {
         }
 
         const mps = jobDetails.messagesPerSecond || 50; 
+        const broadcastId = new ObjectId(jobDetails._id);
+        const projectId = new ObjectId(jobDetails.projectId);
+        
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} picked up batch of ${contacts.length} contacts.`);
 
-        console.log(`[KAFKA-WORKER ${workerId}] Processing batch of ${contacts.length} for broadcast ${jobDetails._id} at ${mps} MPS`);
 
         for (let i = 0; i < contacts.length; i += mps) {
             const chunk = contacts.slice(i, i + mps);
@@ -160,7 +179,7 @@ async function startBroadcastWorker(workerId) {
             
             if (successCount > 0 || errorCount > 0) {
                  await db.collection('broadcasts').updateOne(
-                  { _id: new ObjectId(jobDetails._id) },
+                  { _id: broadcastId },
                   { $inc: { successCount, errorCount } }
                 );
             }
@@ -173,7 +192,7 @@ async function startBroadcastWorker(workerId) {
             }
         }
         
-        console.log(`[KAFKA-WORKER ${workerId}] Finished processing batch for broadcast ${jobDetails._id}.`);
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} finished processing batch of ${contacts.length}.`);
 
       } catch (err) {
         console.error(`[KAFKA-WORKER ${workerId}] Error processing message from Kafka:`, err);
