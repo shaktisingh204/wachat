@@ -42,12 +42,12 @@ export async function processBroadcastJob() {
     try {
         const conn = await connectToDatabase();
         db = conn.db;
-        const kafkaProducer = await getKafkaProducer();
+        
 
         const jobDetails = await db.collection<BroadcastJobType>('broadcasts').findOneAndUpdate(
             { status: 'QUEUED' },
             { $set: { status: 'PROCESSING', startedAt: new Date() } },
-            { returnDocument: 'after' }
+            { sort: { createdAt: 1 }, returnDocument: 'after' } // FIFO
         );
         
         if (!jobDetails || !jobDetails._id) {
@@ -57,6 +57,8 @@ export async function processBroadcastJob() {
 
         broadcastId = jobDetails._id;
         console.log(`[KAFKA-PRODUCER] Starting to process broadcast: ${broadcastId}`);
+
+        const kafkaProducer = await getKafkaProducer();
 
         const contactsCursor = db.collection('broadcast_contacts').find({
             broadcastId: new ObjectId(broadcastId),
@@ -77,6 +79,7 @@ export async function processBroadcastJob() {
                     messages: [message],
                 });
                 totalPushed += contactBatch.length;
+                console.log(`[KAFKA-PRODUCER] Pushed batch of ${contactBatch.length} contacts for broadcast ${broadcastId}.`);
                 contactBatch = [];
             }
         }
@@ -90,33 +93,34 @@ export async function processBroadcastJob() {
                 messages: [message],
             });
             totalPushed += contactBatch.length;
+            console.log(`[KAFKA-PRODUCER] Pushed final batch of ${contactBatch.length} contacts for broadcast ${broadcastId}.`);
         }
 
         if (totalPushed === 0) {
-            // If we successfully marked the job as PROCESSING but found no contacts, fail it.
+            // This is the crucial check: if the job was marked PROCESSING but no contacts were found,
+            // it means the job is actually complete or was created without contacts.
             await db.collection('broadcasts').updateOne(
                 { _id: broadcastId },
                 { 
                     $set: { 
-                        status: 'Failed', 
+                        status: 'Completed', 
                         completedAt: new Date(),
-                        error: 'Job was processed but no pending contacts were found to send.'
+                        error: null // Clear any previous errors
                     } 
                 }
             );
-            const failMessage = `Broadcast ${broadcastId} failed: No pending contacts were found.`;
-            console.error(`[KAFKA-PRODUCER] ${failMessage}`);
-            return { message: failMessage };
+            const completionMessage = `Broadcast ${broadcastId} had no pending contacts to send and is now marked as Completed.`;
+            console.log(`[KAFKA-PRODUCER] ${completionMessage}`);
+            return { message: completionMessage };
         }
 
 
-        const message = `Successfully pushed ${totalPushed} contacts to Kafka for broadcast ${broadcastId}.`;
+        const message = `Successfully queued ${totalPushed} contacts to Kafka for broadcast ${broadcastId}.`;
         console.log(`[KAFKA-PRODUCER] ${message}`);
         return { message };
 
     } catch (error: any) {
         console.error("[KAFKA-PRODUCER] Main processing function failed:", error);
-        // If a broadcastId was fetched, mark it as failed to avoid it being stuck in processing
         if (broadcastId && db) {
             await db.collection('broadcasts').updateOne(
                 { _id: broadcastId }, 
