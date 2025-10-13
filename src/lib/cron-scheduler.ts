@@ -35,6 +35,8 @@ export async function processBroadcastJob() {
     let kafka: Kafka | null = null;
     let producer: Producer | null = null;
     let jobDetails: WithId<BroadcastJobType> | null = null;
+    let broadcastId: ObjectId | undefined;
+    let projectId: ObjectId | undefined;
 
     try {
         const conn = await connectToDatabase();
@@ -45,18 +47,22 @@ export async function processBroadcastJob() {
     }
     
     try {
-        jobDetails = await db.collection<BroadcastJobType>('findOneAndUpdate', { status: 'QUEUED' }, { $set: { status: 'PROCESSING', startedAt: new Date() } }, { returnDocument: 'after' });
+        const jobResult = await db.collection('broadcasts').findOneAndUpdate(
+            { status: 'QUEUED' },
+            { $set: { status: 'PROCESSING', startedAt: new Date() } },
+            { returnDocument: 'after' }
+        );
         
-        // Use the modern return value from findOneAndUpdate
+        jobDetails = jobResult;
+
         if (!jobDetails) {
-            console.log('[CRON-SCHEDULER] No broadcast jobs with status QUEUED found.');
             return { message: 'No broadcast jobs to process.' };
         }
 
-        const broadcastId = jobDetails._id;
-        const projectId = jobDetails.projectId;
+        broadcastId = jobDetails._id;
+        projectId = jobDetails.projectId;
         
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Cron job locked broadcast ${broadcastId} and set status to PROCESSING.`);
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Cron job picked up broadcast ${broadcastId} and set status to PROCESSING.`);
 
         const contacts = await db.collection('broadcast_contacts').find({
             broadcastId: broadcastId,
@@ -95,26 +101,21 @@ export async function processBroadcastJob() {
         }
 
         const successMessage = `Successfully queued ${contacts.length} contacts to Kafka in ${messagesSent} messages for broadcast ${broadcastId}.`;
-        console.log(`[CRON-SCHEDULER] ${successMessage}`);
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', successMessage);
         return { message: successMessage };
 
     } catch (error: any) {
-        const broadcastId = jobDetails?._id;
-        const projectId = jobDetails?.projectId;
-        const baseErrorMessage = `Broadcast processing failed for job ${broadcastId || 'unknown'}:`;
-        console.error(`[CRON-SCHEDULER] ${baseErrorMessage}`, error);
+        const baseErrorMessage = `Broadcast processing failed for job ${broadcastId || 'unknown'}: ${getErrorMessage(error)}`;
+        console.error(`[CRON-SCHEDULER] ${baseErrorMessage}`, error.stack);
 
         if (broadcastId && projectId && db) {
-            const detailedError = getErrorMessage(error);
-            await addBroadcastLog(db, broadcastId, projectId, 'ERROR', `${baseErrorMessage} ${detailedError}`, { stack: error.stack });
+            await addBroadcastLog(db, broadcastId, projectId, 'ERROR', baseErrorMessage, { stack: error.stack });
             await db.collection('broadcasts').updateOne(
                 { _id: broadcastId, status: 'PROCESSING' },
-                { $set: { status: 'Failed', error: detailedError, completedAt: new Date() } }
+                { $set: { status: 'Failed', error: baseErrorMessage, completedAt: new Date() } }
             );
         }
-        // Re-throw to ensure the API route returns an error status
-        throw new Error(`${baseErrorMessage} ${getErrorMessage(error)}`);
+        throw new Error(baseErrorMessage);
     } finally {
         if (producer) {
             await producer.disconnect().catch(e => console.error("[CRON-SCHEDULER] Error disconnecting Kafka producer:", e));
