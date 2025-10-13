@@ -1021,6 +1021,16 @@ export type BroadcastAttempt = {
     error?: string; 
 };
 
+export type BroadcastLog = {
+    _id: ObjectId;
+    projectId: ObjectId;
+    broadcastId: ObjectId;
+    timestamp: Date;
+    level: 'INFO' | 'ERROR' | 'WARN';
+    message: string;
+    meta?: Record<string, any>;
+};
+
 export type Notification = {
     _id: ObjectId;
     projectId: ObjectId;
@@ -1252,7 +1262,7 @@ export type BroadcastJob = {
     flowName?: string;
     phoneNumberId: string;
     accessToken: string;
-    status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled';
+    status: 'DRAFT' | 'QUEUED' | 'PROCESSING' | 'Completed' | 'Partial Failure' | 'Failed' | 'Cancelled';
     createdAt: Date;
     startedAt?: Date;
     completedAt?: Date;
