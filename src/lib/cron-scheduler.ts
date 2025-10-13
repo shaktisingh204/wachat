@@ -7,7 +7,7 @@ config();
 import { connectToDatabase } from '@/lib/mongodb';
 import { Kafka, Partitioners, type Producer } from 'kafkajs';
 import { Db, ObjectId } from 'mongodb';
-import type { BroadcastJob as BroadcastJobType } from './definitions';
+import type { BroadcastJob as BroadcastJobType, WithId } from './definitions';
 import { getErrorMessage } from './utils';
 
 const BATCH_SIZE = 10000;
@@ -20,14 +20,15 @@ let producer: Producer | null = null;
 async function getKafkaProducer(): Promise<Producer> {
   if (producer) {
     try {
-      // A quick check to see if the producer is still connected.
-      // This is not foolproof but can catch some disconnected states.
+      // A quick check to see if the producer is still connected by trying a lightweight operation.
+      // describeCluster is a good choice as it's non-disruptive.
       await kafka!.admin().describeCluster();
       return producer;
     } catch (e) {
       console.warn('[KAFKA-PRODUCER] Producer seems disconnected. Attempting to reconnect.');
       await producer.disconnect().catch(err => console.error("Error during forced disconnect:", err));
       producer = null;
+      // Continue to create a new one.
     }
   }
 
@@ -99,27 +100,38 @@ export async function processBroadcastJob() {
     }
     
     let jobDetails: WithId<BroadcastJobType> | null = null;
+    let broadcastId: ObjectId;
 
     try {
-        const findAndLockResult = await db.collection<BroadcastJobType>('broadcasts').findOneAndUpdate(
-            { status: 'QUEUED' },
-            { $set: { status: 'PROCESSING', startedAt: new Date() } },
-            { sort: { createdAt: 1 }, returnDocument: 'after' }
-        );
+        // Step 1: Find a single QUEUED job. This is a non-blocking read.
+        const queuedJob = await db.collection<BroadcastJobType>('broadcasts').findOne({ status: 'QUEUED' });
 
-        if (!findAndLockResult) {
+        if (!queuedJob) {
             console.log('[CRON-SCHEDULER] No broadcast jobs with status QUEUED found.');
             return { message: 'No broadcast jobs to process.' };
         }
-
-        jobDetails = findAndLockResult;
-        const broadcastId = jobDetails._id; // This is an ObjectId
-        const projectId = jobDetails.projectId;
         
+        broadcastId = queuedJob._id; // Guaranteed to be an ObjectId
+
+        // Step 2: Atomically "lock" this specific job by its unique _id.
+        const lockResult = await db.collection('broadcasts').findOneAndUpdate(
+            { _id: broadcastId, status: 'QUEUED' }, // Ensure it hasn't been picked up by another process
+            { $set: { status: 'PROCESSING', startedAt: new Date() } },
+            { returnDocument: 'after' }
+        );
+
+        if (!lockResult) {
+            console.log(`[CRON-SCHEDULER] Job ${broadcastId} was picked up by another process. Skipping.`);
+            return { message: `Job ${broadcastId} was processed by another worker.` };
+        }
+        
+        jobDetails = lockResult;
+        const projectId = jobDetails.projectId;
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Cron job picked up broadcast ${broadcastId} and set status to PROCESSING.`);
 
+        // Step 3: Fetch contacts for the locked job.
         const contactsCursor = db.collection('broadcast_contacts').find({
-            broadcastId: broadcastId, // Use the ObjectId for the query
+            broadcastId: broadcastId, // CRITICAL: Use the ObjectId here for the query
             status: 'PENDING'
         });
 

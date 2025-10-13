@@ -1,6 +1,5 @@
 
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -70,7 +69,8 @@ const processContactBatch = async (db: Db, broadcastId: ObjectId, batch: Partial
     }
 
     try {
-        const result = await db.collection('broadcast_contacts').insertMany(contactsToInsert as any[], { ordered: false });
+        // IMPORTANT: Ensure broadcastId is passed as an ObjectId
+        const result = await db.collection('broadcast_contacts').insertMany(contactsToInsert.map(c => ({...c, broadcastId: new ObjectId(broadcastId)})), { ordered: false });
         return { insertedCount: result.insertedCount };
     } catch(err: any) {
         if (err.code === 11000) { 
