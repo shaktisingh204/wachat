@@ -153,7 +153,7 @@ async function startBroadcastWorker(workerId) {
         const broadcastId = new ObjectId(jobDetails._id);
         const projectId = new ObjectId(jobDetails.projectId);
 
-        const mps = jobDetails.projectMessagesPerSecond || jobDetails.messagesPerSecond || 80; 
+        const mps = jobDetails.projectMessagesPerSecond || 80; 
         
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} picked up batch of ${contacts.length} contacts. Throttling at ${mps} MPS.`, { mps });
 
@@ -224,3 +224,5 @@ async function startBroadcastWorker(workerId) {
 }
 
 module.exports = { startBroadcastWorker };
+
+    

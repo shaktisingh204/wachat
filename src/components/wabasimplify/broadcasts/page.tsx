@@ -1,12 +1,10 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
-import { getTemplates, handleStopBroadcast } from '@/app/actions';
+import { getTemplates, handleStopBroadcast, handleRunCron } from '@/app/actions';
 import { handleSyncTemplates } from '@/app/actions/template.actions';
-import { handleRunCron } from '@/app/actions/user.actions';
 import { useRouter } from 'next/navigation';
 import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
@@ -60,7 +58,6 @@ type Broadcast = {
   createdAt: string;
   completedAt?: string;
   startedAt?: string;
-  messagesPerSecond?: number;
   projectMessagesPerSecond?: number;
 };
 
@@ -286,7 +283,7 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
 export default function BroadcastPage() {
   const { activeProject, activeProjectId } = useProject();
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
-  const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
+  const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>(([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isSyncingTemplates, startTemplatesSyncTransition] = useTransition();
@@ -377,6 +374,7 @@ export default function BroadcastPage() {
 
   const getStatusVariant = (item: WithId<Broadcast>) => {
     const status = item.status;
+    if (!status) return 'outline';
     return status === 'QUEUED'
             ? 'outline'
             : status === 'PROCESSING'
@@ -581,7 +579,7 @@ export default function BroadcastPage() {
                                 />
                               )}
                               <Button asChild variant="outline" size="sm">
-                                  <Link href={`/dashboard/broadcasts/${item._id.toString()}`}>
+                                  <Link href={`/dashboard/broadcasts/${item._id.toString()}>
                                       <FileText className="mr-2 h-4 w-4" />
                                       <span>Report</span>
                                   </Link>
@@ -626,3 +624,5 @@ export default function BroadcastPage() {
     </>
   );
 }
+
+    

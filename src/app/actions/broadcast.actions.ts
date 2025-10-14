@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { revalidatePath } from 'next/cache';
@@ -359,13 +358,13 @@ export async function handleStartBroadcast(
 
     if (contactCount === 0) {
         await db.collection('broadcasts').deleteOne({ _id: broadcastId });
-        await addBroadcastLog(db, broadcastId, projectObjectId, 'ERROR', 'Broadcast creation failed: no valid contacts found.', { finalContactCount: 0 });
+        await addBroadcastLog(db, projectObjectId, broadcastId, 'ERROR', 'Broadcast creation failed: no valid contacts found.', { finalContactCount: 0 });
         return { error: 'No valid contacts with phone numbers found to send to.' };
     }
     
     // Atomically update the status to QUEUED now that contacts are inserted.
     await db.collection('broadcasts').updateOne({ _id: broadcastId }, { $set: { contactCount, status: 'QUEUED' } });
-    await addBroadcastLog(db, broadcastId, projectObjectId, 'INFO', `Broadcast moved to QUEUED state with ${contactCount} contacts ready.`);
+    await addBroadcastLog(db, projectObjectId, broadcastId, 'INFO', `Broadcast moved to QUEUED state with ${contactCount} contacts ready.`);
 
     revalidatePath('/dashboard/broadcasts');
     return { message: `Broadcast successfully queued for ${contactCount} contacts. Sending will begin shortly.` };
@@ -373,7 +372,7 @@ export async function handleStartBroadcast(
   } catch (e: any) {
     console.error('Failed to queue broadcast:', e);
     if (broadcastId) {
-        await addBroadcastLog(db, broadcastId, new ObjectId(formData.get('projectId') as string), 'ERROR', `Broadcast creation failed: ${getErrorMessage(e)}`);
+        await addBroadcastLog(db, new ObjectId(formData.get('projectId') as string), broadcastId, 'ERROR', `Broadcast creation failed: ${getErrorMessage(e)}`);
         await db.collection('broadcasts').deleteOne({ _id: broadcastId });
         await db.collection('broadcast_contacts').deleteMany({ broadcastId: broadcastId });
     }
@@ -425,7 +424,6 @@ export async function getBroadcasts(
                                 createdAt: 1,
                                 startedAt: 1,
                                 completedAt: 1,
-                                messagesPerSecond: 1,
                                 projectMessagesPerSecond: hasAccess.messagesPerSecond,
                             }
                         }
@@ -803,4 +801,6 @@ export async function getBroadcastById(broadcastId: string): Promise<WithId<Broa
         return null;
     }
 }
+    
+
     
