@@ -61,6 +61,7 @@
     "next": "15.3.3",
     "node-cache": "^5.1.2",
     "nodemailer": "^6.9.14",
+    "p-throttle": "^5.0.0",
     "papaparse": "^5.4.1",
     "patch-package": "^8.0.0",
     "razorpay": "^2.9.4",
