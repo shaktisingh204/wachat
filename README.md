@@ -112,9 +112,24 @@ The WhatsApp broadcasting feature uses Redpanda (a Kafka-compatible event stream
 
 The easiest way to run Redpanda is with Docker. Open a new terminal window and run the following command. Keep this terminal open while you work.
 
+**Standard Command (Default 1MB message limit)**
 ```bash
 docker run --rm -it -p 9092:9092 -p 9644:9644 redpandadata/redpanda:latest \
   redpanda start --smp 1 --overprovisioned --node-id 0 --kafka-addr 0.0.0.0:9092 --advertise-kafka-addr 127.0.0.1:9092
+```
+
+**High-Throughput Command (100MB message limit)**
+If you are sending very large broadcasts (tens of thousands of contacts), use this command to increase the message size limit.
+```bash
+docker run --rm -it -p 9022:9092 -p 9644:9644 redpandadata/redpanda:latest \
+  redpanda start \
+    --smp 1 \
+    --overprovisioned \
+    --node-id 0 \
+    --kafka-addr 0.0.0.0:9092 \
+    --advertise-kafka-addr 127.0.0.1:9092 \
+    --set redpanda.kafka_message_max_bytes=104857600 \
+    --set redpanda.kafka_max_request_size=104857600
 ```
 This command starts a single Redpanda broker and makes it available on `localhost:9092`.
 
