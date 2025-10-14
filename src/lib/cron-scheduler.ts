@@ -32,8 +32,6 @@ const addBroadcastLog = async (db: Db, broadcastId: ObjectId, projectId: ObjectI
 
 export async function processBroadcastJob() {
     let db: Db;
-    let kafka: Kafka | null = null;
-    let producer: Producer | null = null;
     let jobDetails: WithId<BroadcastJobType> | null = null;
     let broadcastId: ObjectId | undefined;
     let projectId: ObjectId | undefined;
@@ -42,7 +40,8 @@ export async function processBroadcastJob() {
         const conn = await connectToDatabase();
         db = conn.db;
     } catch (dbError) {
-        console.error("[CRON-SCHEDULER] Database connection failed:", dbError);
+        const errorMsg = getErrorMessage(dbError);
+        console.error("[CRON-SCHEDULER] Database connection failed:", errorMsg);
         throw new Error("Could not connect to the database.");
     }
     
@@ -54,7 +53,7 @@ export async function processBroadcastJob() {
         );
         
         jobDetails = jobResult;
-
+        
         if (!jobDetails) {
             return { message: 'No broadcast jobs to process.' };
         }
@@ -81,28 +80,49 @@ export async function processBroadcastJob() {
         
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Found ${contacts.length} pending contacts for broadcast.`);
         
-        kafka = new Kafka({ clientId: 'broadcast-producer', brokers: KAFKA_BROKERS });
-        producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner });
-        await producer.connect();
+        const kafka = new Kafka({ clientId: 'broadcast-producer', brokers: KAFKA_BROKERS });
+        const producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner });
         
-        let messagesSent = 0;
-        for (let i = 0; i < contacts.length; i += KAFKA_MESSAGE_BATCH_SIZE) {
-            const batch = contacts.slice(i, i + KAFKA_MESSAGE_BATCH_SIZE);
-            const messagePayload = {
-                jobDetails: JSON.parse(JSON.stringify(jobDetails)),
-                contacts: JSON.parse(JSON.stringify(batch))
-            };
+        try {
+            await producer.connect();
+        
+            let messagesSent = 0;
+            for (let i = 0; i < contacts.length; i += KAFKA_MESSAGE_BATCH_SIZE) {
+                const batch = contacts.slice(i, i + KAFKA_MESSAGE_BATCH_SIZE);
+                const messagePayload = {
+                    jobDetails: JSON.parse(JSON.stringify(jobDetails)),
+                    contacts: JSON.parse(JSON.stringify(batch))
+                };
+                
+                const messageString = JSON.stringify(messagePayload);
+                const messageSize = Buffer.from(messageString).length;
 
-            await producer.send({
-                topic: KAFKA_TOPIC,
-                messages: [{ value: JSON.stringify(messagePayload) }]
-            });
-            messagesSent++;
+                console.log(`[CRON-SCHEDULER] Preparing to send batch ${messagesSent + 1} of size ${messageSize / 1024} KB`);
+
+                await producer.send({
+                    topic: KAFKA_TOPIC,
+                    messages: [{ value: messageString }]
+                });
+                messagesSent++;
+            }
+
+            const successMessage = `Successfully queued ${contacts.length} contacts to Kafka in ${messagesSent} messages for broadcast ${broadcastId}.`;
+            await addBroadcastLog(db, broadcastId, projectId, 'INFO', successMessage);
+            await producer.disconnect();
+            return { message: successMessage };
+
+        } catch(kafkaError: any) {
+             // This block now provides detailed error logging
+            console.error(`[CRON-SCHEDULER] KAFKA SEND ERROR for job ${broadcastId}:`, kafkaError);
+            const detailedErrorMessage = `Failed to push job ${broadcastId} to Kafka. Reason: ${kafkaError.message}`;
+            await addBroadcastLog(db, broadcastId, projectId, 'ERROR', detailedErrorMessage, { stack: kafkaError.stack });
+            throw new Error(detailedErrorMessage);
+        } finally {
+            // Ensure producer is disconnected even if send fails
+            if (producer) {
+                 await producer.disconnect().catch(e => console.error("[CRON-SCHEDULER] Error disconnecting Kafka producer on failure:", e));
+            }
         }
-
-        const successMessage = `Successfully queued ${contacts.length} contacts to Kafka in ${messagesSent} messages for broadcast ${broadcastId}.`;
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', successMessage);
-        return { message: successMessage };
 
     } catch (error: any) {
         const baseErrorMessage = `Broadcast processing failed for job ${broadcastId || 'unknown'}: ${getErrorMessage(error)}`;
@@ -116,9 +136,5 @@ export async function processBroadcastJob() {
             );
         }
         throw new Error(baseErrorMessage);
-    } finally {
-        if (producer) {
-            await producer.disconnect().catch(e => console.error("[CRON-SCHEDULER] Error disconnecting Kafka producer:", e));
-        }
     }
 }
