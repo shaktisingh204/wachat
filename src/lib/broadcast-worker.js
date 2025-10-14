@@ -3,11 +3,10 @@ require('dotenv').config();
 const path = require('path');
 const { connectToDatabase } = require(path.join(__dirname, 'mongodb.ts'));
 const { getErrorMessage } = require(path.join(__dirname, 'utils.ts'));
-const axios = require('axios');
+const { request } = require('undici');
 const { ObjectId } = require('mongodb');
 const { Kafka } = require('kafkajs');
 
-// This needs to be a dynamic import because p-throttle is an ESM-only package
 let pThrottle;
 const importPThrottle = async () => {
     if (!pThrottle) {
@@ -44,7 +43,7 @@ const addBroadcastLog = async (db, broadcastId, projectId, level, message, meta)
 };
 
 /**
- * Sends a single WhatsApp message.
+ * Sends a single WhatsApp message using undici.
  */
 async function sendWhatsAppMessage(job, contact) {
     try {
@@ -100,9 +99,22 @@ async function sendWhatsAppMessage(job, contact) {
             template: { name: templateName, language: { code: language || 'en_US' }, ...(payloadComponents.length > 0 && { components: payloadComponents }) },
         };
         
-        const response = await axios.post(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, messageData, { headers: { 'Authorization': `Bearer ${accessToken}` } });
+        const { statusCode, body } = await request(`https://graph.facebook.com/${API_VERSION}/${phoneNumberId}/messages`, {
+            method: 'POST',
+            headers: { 
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(messageData),
+        });
+
+        const responseData = await body.json();
         
-        const messageId = response.data?.messages?.[0]?.id;
+        if (statusCode < 200 || statusCode >= 300) {
+            throw new Error(`API request failed with status ${statusCode}: ${JSON.stringify(responseData)}`);
+        }
+        
+        const messageId = responseData?.messages?.[0]?.id;
         if (!messageId) return { success: false, error: "No message ID returned from Meta." };
 
         return { success: true, messageId };
@@ -224,5 +236,3 @@ async function startBroadcastWorker(workerId) {
 }
 
 module.exports = { startBroadcastWorker };
-
-    
