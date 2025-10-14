@@ -54,10 +54,11 @@ type Broadcast = {
   contactCount: number;
   successCount?: number;
   errorCount?: number;
-  status: 'DRAFT' | 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure' | 'Cancelled';
+  status: 'QUEUED' | 'PROCESSING' | 'Completed' | 'Failed' | 'Partial Failure' | 'Cancelled';
   createdAt: string;
   completedAt?: string;
   startedAt?: string;
+  messagesPerSecond?: number;
   projectMessagesPerSecond?: number;
 };
 
@@ -233,42 +234,34 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
   const [acceptingSpeed, setAcceptingSpeed] = useState(0);
 
   useEffect(() => {
-    if (!item.startedAt || item.status !== 'PROCESSING') {
-      // Calculate final speed if completed
-      if(item.startedAt && item.completedAt) {
-          const durationSeconds = (new Date(item.completedAt).getTime() - new Date(item.startedAt).getTime()) / 1000;
-          if (durationSeconds > 0) {
+    const calculateSpeeds = () => {
+        if (!item.startedAt) {
+            setSendingSpeed(0);
+            setAcceptingSpeed(0);
+            return;
+        }
+        
+        // Use completedAt if available, otherwise use now.
+        const endTime = item.completedAt ? new Date(item.completedAt) : new Date();
+        const durationSeconds = (endTime.getTime() - new Date(item.startedAt).getTime()) / 1000;
+        
+        if (durationSeconds > 0) {
             const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
             setSendingSpeed(Math.round(totalProcessed / durationSeconds));
             setAcceptingSpeed(Math.round((item.successCount || 0) / durationSeconds));
-          }
-      }
-      return;
-    }
-
-    const calculateSpeeds = () => {
-      const now = new Date();
-      const durationSeconds = (now.getTime() - new Date(item.startedAt!).getTime()) / 1000;
-      
-      if (durationSeconds > 0) {
-        const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
-        setSendingSpeed(Math.round(totalProcessed / durationSeconds));
-        setAcceptingSpeed(Math.round((item.successCount || 0) / durationSeconds));
-      } else {
-        setSendingSpeed(0);
-        setAcceptingSpeed(0);
-      }
+        } else {
+            setSendingSpeed(0);
+            setAcceptingSpeed(0);
+        }
     };
     
     calculateSpeeds(); // Initial calculation
-    const intervalId = setInterval(calculateSpeeds, 2000); // Update every 2 seconds for active jobs
-
-    return () => clearInterval(intervalId);
+    
+    if (item.status === 'PROCESSING') {
+        const intervalId = setInterval(calculateSpeeds, 2000); // Update every 2 seconds for active jobs
+        return () => clearInterval(intervalId);
+    }
   }, [item]);
-
-  if (!item.startedAt) {
-    return <span>-</span>;
-  }
 
   return (
     <div className="font-mono text-xs text-muted-foreground space-y-1" title="My App Sending Speed / Meta Accepting Speed / Limit">
@@ -283,7 +276,7 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
 export default function BroadcastPage() {
   const { activeProject, activeProjectId } = useProject();
   const [templates, setTemplates] = useState<WithId<Template>[]>([]);
-  const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>(([]);
+  const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
   const [history, setHistory] = useState<WithId<Broadcast>[]>([]);
   const [isRefreshing, startRefreshTransition] = useTransition();
   const [isSyncingTemplates, startTemplatesSyncTransition] = useTransition();
@@ -579,7 +572,7 @@ export default function BroadcastPage() {
                                 />
                               )}
                               <Button asChild variant="outline" size="sm">
-                                  <Link href={`/dashboard/broadcasts/${item._id.toString()}>
+                                  <Link href={`/dashboard/broadcasts/${item._id.toString()}`}>
                                       <FileText className="mr-2 h-4 w-4" />
                                       <span>Report</span>
                                   </Link>
@@ -624,5 +617,3 @@ export default function BroadcastPage() {
     </>
   );
 }
-
-    
