@@ -153,11 +153,10 @@ async function startBroadcastWorker(workerId) {
         const broadcastId = new ObjectId(jobDetails._id);
         const projectId = new ObjectId(jobDetails.projectId);
 
-        const mps = jobDetails.projectMessagesPerSecond || jobDetails.messagesPerSecond || 5000; 
+        const mps = jobDetails.projectMessagesPerSecond || jobDetails.messagesPerSecond || 80; 
         
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} picked up batch of ${contacts.length} contacts. Throttling at ${mps} MPS.`, { mps });
 
-        // Create a throttled function that respects the MPS limit
         const throttle = pThrottle({
             limit: mps,
             interval: 1000
@@ -167,7 +166,6 @@ async function startBroadcastWorker(workerId) {
             return sendWhatsAppMessage(jobDetails, contact).then(result => ({ contactId: contact._id, ...result }));
         });
 
-        // Map all contacts to throttled promises and execute in parallel
         const contactPromises = contacts.map(contact => throttledSendMessage(contact));
 
         const results = await Promise.allSettled(contactPromises);
@@ -197,10 +195,23 @@ async function startBroadcastWorker(workerId) {
         }
         
         if (successCount > 0 || errorCount > 0) {
-            await db.collection('broadcasts').updateOne(
+            const updatedBroadcast = await db.collection('broadcasts').findOneAndUpdate(
               { _id: broadcastId },
-              { $inc: { successCount, errorCount } }
+              { $inc: { successCount, errorCount } },
+              { returnDocument: 'after' }
             );
+
+            // Check if the broadcast is complete
+            if (updatedBroadcast) {
+                const { successCount: finalSuccess, errorCount: finalError, contactCount } = updatedBroadcast;
+                if ((finalSuccess || 0) + (finalError || 0) >= contactCount) {
+                    await db.collection('broadcasts').updateOne(
+                        { _id: broadcastId },
+                        { $set: { status: 'Completed', completedAt: new Date() } }
+                    );
+                    await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Broadcast ${broadcastId} marked as Completed.`);
+                }
+            }
         }
 
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} finished processing batch of ${contacts.length}. Success: ${successCount}, Failed: ${errorCount}.`);

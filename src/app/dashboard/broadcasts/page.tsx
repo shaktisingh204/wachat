@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition } from 'react';
@@ -276,9 +277,9 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
 
   return (
     <div className="font-mono text-xs text-muted-foreground space-y-1" title="My App Sending Speed / Meta Accepting Speed / Limit">
-      <div>My App Sending Speed: {sendingSpeed} msg/s</div>
-      <div>Meta Accepting Speed: {acceptingSpeed} msg/s</div>
-      <div>Limit: {item.messagesPerSecond ?? 'N/A'} msg/s</div>
+      <div>App Speed: {sendingSpeed} msg/s</div>
+      <div>Meta Speed: {acceptingSpeed} msg/s</div>
+      <div>Limit: {item.projectMessagesPerSecond ?? 'N/A'} msg/s</div>
     </div>
   );
 }
@@ -437,7 +438,7 @@ export default function BroadcastPage() {
                   ) : (
                     <Play className="mr-2 h-4 w-4" />
                   )}
-                  <span>Run Cron</span>
+                  <span>Enqueue Jobs</span>
                 </Button>
                 <Button onClick={onSyncTemplates} disabled={isSyncingTemplates || isRefreshing} variant="outline" size="sm">
                   <RefreshCw className={`mr-2 h-4 w-4 ${isSyncingTemplates ? 'animate-spin' : ''}`} />
