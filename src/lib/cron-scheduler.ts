@@ -13,6 +13,7 @@ import { getErrorMessage } from './utils';
 const KAFKA_BROKERS = [process.env.KAFKA_BROKERS || '127.0.0.1:9092'];
 const KAFKA_TOPIC = 'messages';
 const KAFKA_MESSAGE_BATCH_SIZE = 500; // Number of contacts per Kafka message
+const ONE_HUNDRED_MEGABYTES = 100 * 1024 * 1024;
 
 const addBroadcastLog = async (db: Db, broadcastId: ObjectId, projectId: ObjectId, level: 'INFO' | 'ERROR' | 'WARN', message: string, meta?: Record<string, any>) => {
     try {
@@ -81,7 +82,11 @@ export async function processBroadcastJob() {
         await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Found ${contacts.length} pending contacts for broadcast.`);
         
         const kafka = new Kafka({ clientId: 'broadcast-producer', brokers: KAFKA_BROKERS });
-        const producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner });
+        const producer = kafka.producer({
+             createPartitioner: Partitioners.DefaultPartitioner,
+             // Set the max request size for the producer to match the broker's limit
+             maxRequestSize: ONE_HUNDRED_MEGABYTES,
+        });
         
         try {
             await producer.connect();
@@ -108,19 +113,16 @@ export async function processBroadcastJob() {
 
             const successMessage = `Successfully queued ${contacts.length} contacts to Kafka in ${messagesSent} messages for broadcast ${broadcastId}.`;
             await addBroadcastLog(db, broadcastId, projectId, 'INFO', successMessage);
-            await producer.disconnect();
             return { message: successMessage };
 
         } catch(kafkaError: any) {
-             // This block now provides detailed error logging
             console.error(`[CRON-SCHEDULER] KAFKA SEND ERROR for job ${broadcastId}:`, kafkaError);
             const detailedErrorMessage = `Failed to push job ${broadcastId} to Kafka. Reason: ${kafkaError.message}`;
             await addBroadcastLog(db, broadcastId, projectId, 'ERROR', detailedErrorMessage, { stack: kafkaError.stack });
             throw new Error(detailedErrorMessage);
         } finally {
-            // Ensure producer is disconnected even if send fails
-            if (producer) {
-                 await producer.disconnect().catch(e => console.error("[CRON-SCHEDULER] Error disconnecting Kafka producer on failure:", e));
+             if (producer) {
+                 await producer.disconnect().catch(e => console.error("[CRON-SCHEDULER] Error disconnecting Kafka producer:", e));
             }
         }
 
