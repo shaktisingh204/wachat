@@ -6,7 +6,7 @@ import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getTemplates, handleStopBroadcast } from '@/app/actions';
 import { handleSyncTemplates } from '@/app/actions/template.actions';
-import { processBroadcastJob } from '@/lib/cron-scheduler';
+import { handleRunCron } from '@/app/actions/user.actions';
 import { useRouter } from 'next/navigation';
 import type { Project, Template, MetaFlow } from '@/lib/definitions';
 import { BroadcastForm } from '@/components/wabasimplify/broadcast-form';
@@ -236,37 +236,34 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
   const [acceptingSpeed, setAcceptingSpeed] = useState(0);
 
   useEffect(() => {
-    if (!item.startedAt) {
-      setSendingSpeed(0);
-      setAcceptingSpeed(0);
+    if (!item.startedAt || item.status !== 'PROCESSING') {
+      // Calculate final speed if completed
+      if(item.startedAt && item.completedAt) {
+          const durationSeconds = (new Date(item.completedAt).getTime() - new Date(item.startedAt).getTime()) / 1000;
+          if (durationSeconds > 0) {
+            const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
+            setSendingSpeed(Math.round(totalProcessed / durationSeconds));
+            setAcceptingSpeed(Math.round((item.successCount || 0) / durationSeconds));
+          }
+      }
       return;
     }
 
     const calculateSpeeds = () => {
       const now = new Date();
-      // Use completedAt if available, otherwise use now.
-      const endTime = item.completedAt ? new Date(item.completedAt) : now;
-      const durationSeconds = (endTime.getTime() - new Date(item.startedAt!).getTime()) / 1000;
+      const durationSeconds = (now.getTime() - new Date(item.startedAt!).getTime()) / 1000;
       
       if (durationSeconds > 0) {
-        // App's total processing speed (successful API calls + failed API calls)
         const totalProcessed = (item.successCount || 0) + (item.errorCount || 0);
         setSendingSpeed(Math.round(totalProcessed / durationSeconds));
-        
-        // Meta's acceptance rate (only successful API calls)
-        const totalAccepted = (item.successCount || 0);
-        setAcceptingSpeed(Math.round(totalAccepted / durationSeconds));
+        setAcceptingSpeed(Math.round((item.successCount || 0) / durationSeconds));
       } else {
         setSendingSpeed(0);
         setAcceptingSpeed(0);
       }
     };
-
-    if (item.status !== 'PROCESSING') {
-      calculateSpeeds();
-      return; // No need for an interval if the job is done
-    }
-
+    
+    calculateSpeeds(); // Initial calculation
     const intervalId = setInterval(calculateSpeeds, 2000); // Update every 2 seconds for active jobs
 
     return () => clearInterval(intervalId);
@@ -278,9 +275,9 @@ function SpeedDisplay({ item }: { item: WithId<Broadcast> }) {
 
   return (
     <div className="font-mono text-xs text-muted-foreground space-y-1" title="My App Sending Speed / Meta Accepting Speed / Limit">
-      <div>My App Sending Speed: {sendingSpeed} msg/s</div>
-      <div>Meta Accepting Speed: {acceptingSpeed} msg/s</div>
-      <div>Limit: {item.projectMessagesPerSecond || 'N/A'} msg/s</div>
+      <div>App Speed: {sendingSpeed} msg/s</div>
+      <div>Meta Speed: {acceptingSpeed} msg/s</div>
+      <div>Limit: {item.projectMessagesPerSecond ?? 'N/A'} msg/s</div>
     </div>
   );
 }
@@ -365,8 +362,8 @@ export default function BroadcastPage() {
 
   const onRunCron = useCallback(async () => {
     startCronRunTransition(async () => {
-      toast({ title: 'Starting Cron Manually', description: 'The scheduler is now queuing new jobs.' });
-      const result = await processBroadcastJob();
+      toast({ title: 'Starting Cron Manually', description: 'The scheduler is now processing queued jobs.' });
+      const result = await handleRunCron();
       if (result.error) {
         toast({ title: "Cron Run Failed", description: result.error, variant: "destructive" });
       } else {

@@ -7,6 +7,15 @@ const axios = require('axios');
 const { ObjectId } = require('mongodb');
 const { Kafka } = require('kafkajs');
 
+// This needs to be a dynamic import because p-throttle is an ESM-only package
+let pThrottle;
+const importPThrottle = async () => {
+    if (!pThrottle) {
+        pThrottle = (await import('p-throttle')).default;
+    }
+    return pThrottle;
+};
+
 
 if (!process.env.KAFKA_BROKERS) {
   console.error('[KAFKA-WORKER] FATAL: KAFKA_BROKERS environment variable is not set. Worker cannot start.');
@@ -107,6 +116,7 @@ async function sendWhatsAppMessage(job, contact) {
  * Main worker function. Consumes jobs from Kafka and sends WhatsApp messages.
  */
 async function startBroadcastWorker(workerId) {
+  const pThrottle = await importPThrottle();
   console.log(`[KAFKA-WORKER ${workerId}] Connecting with brokers: ${KAFKA_BROKERS}`);
   const { db } = await connectToDatabase();
   const kafka = new Kafka({
@@ -143,62 +153,57 @@ async function startBroadcastWorker(workerId) {
         const broadcastId = new ObjectId(jobDetails._id);
         const projectId = new ObjectId(jobDetails.projectId);
 
-        const mps = jobDetails.messagesPerSecond || 50; 
+        const mps = jobDetails.projectMessagesPerSecond || jobDetails.messagesPerSecond || 50; 
         
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} picked up batch of ${contacts.length} contacts.`, { mps });
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} picked up batch of ${contacts.length} contacts. Throttling at ${mps} MPS.`, { mps });
 
+        // Create a throttled function that respects the MPS limit
+        const throttle = pThrottle({
+            limit: mps,
+            interval: 1000
+        });
 
-        for (let i = 0; i < contacts.length; i += mps) {
-            const chunk = contacts.slice(i, i + mps);
-            const startTime = Date.now();
-            
-            const contactPromises = chunk.map(contact => 
-              sendWhatsAppMessage(jobDetails, contact)
-                  .then(result => ({ contactId: contact._id, ...result }))
-            );
-            
-            const results = await Promise.allSettled(contactPromises);
-            
-            const bulkOps = [];
-            let successCount = 0;
-            let errorCount = 0;
+        const throttledSendMessage = throttle(async (contact) => {
+            return sendWhatsAppMessage(jobDetails, contact).then(result => ({ contactId: contact._id, ...result }));
+        });
 
-            for (const res of results) {
-                if (res.status === 'fulfilled') {
-                    const { contactId, success, messageId, error } = res.value;
-                    if (success) {
-                        successCount++;
-                        bulkOps.push({ updateOne: { filter: { _id: new ObjectId(contactId) }, update: { $set: { status: 'SENT', sentAt: new Date(), messageId, error: null } } } });
-                    } else {
-                        errorCount++;
-                        bulkOps.push({ updateOne: { filter: { _id: new ObjectId(contactId) }, update: { $set: { status: 'FAILED', error } } } });
-                    }
+        // Map all contacts to throttled promises and execute in parallel
+        const contactPromises = contacts.map(contact => throttledSendMessage(contact));
+
+        const results = await Promise.allSettled(contactPromises);
+
+        const bulkOps = [];
+        let successCount = 0;
+        let errorCount = 0;
+
+        for (const res of results) {
+            if (res.status === 'fulfilled') {
+                const { contactId, success, messageId, error } = res.value;
+                if (success) {
+                    successCount++;
+                    bulkOps.push({ updateOne: { filter: { _id: new ObjectId(contactId) }, update: { $set: { status: 'SENT', sentAt: new Date(), messageId, error: null } } } });
                 } else {
                     errorCount++;
-                    console.error(`[KAFKA-WORKER ${workerId}] A send promise was rejected:`, res.reason);
+                    bulkOps.push({ updateOne: { filter: { _id: new ObjectId(contactId) }, update: { $set: { status: 'FAILED', error } } } });
                 }
-            }
-
-            if (bulkOps.length > 0) {
-                await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
-            }
-            
-            if (successCount > 0 || errorCount > 0) {
-                 await db.collection('broadcasts').updateOne(
-                  { _id: broadcastId },
-                  { $inc: { successCount, errorCount } }
-                );
-            }
-
-            // Throttle to respect MPS
-            const duration = Date.now() - startTime;
-            const delay = 1000 - duration;
-            if (delay > 0) {
-                await new Promise(resolve => setTimeout(resolve, delay));
+            } else {
+                errorCount++;
+                console.error(`[KAFKA-WORKER ${workerId}] A throttled promise was rejected:`, res.reason);
             }
         }
         
-        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} finished processing batch of ${contacts.length}.`);
+        if (bulkOps.length > 0) {
+            await db.collection('broadcast_contacts').bulkWrite(bulkOps, { ordered: false });
+        }
+        
+        if (successCount > 0 || errorCount > 0) {
+            await db.collection('broadcasts').updateOne(
+              { _id: broadcastId },
+              { $inc: { successCount, errorCount } }
+            );
+        }
+
+        await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} finished processing batch of ${contacts.length}. Success: ${successCount}, Failed: ${errorCount}.`);
 
       } catch (err) {
         console.error(`[KAFKA-WORKER ${workerId}] Error processing message from Kafka:`, err);
