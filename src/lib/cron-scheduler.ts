@@ -44,6 +44,21 @@ async function resetStuckJobs(db: Db) {
     }
 }
 
+async function markCompletedJobs(db: Db) {
+    const result = await db.collection('broadcasts').updateMany(
+        {
+            status: 'PROCESSING',
+            $expr: { $gte: [ { $add: [ "$successCount", "$errorCount" ] }, "$contactCount" ] }
+        },
+        {
+            $set: { status: 'Completed', completedAt: new Date() }
+        }
+    );
+     if (result.modifiedCount > 0) {
+        console.log(`[CRON-SCHEDULER] Marked ${result.modifiedCount} finished broadcast job(s) as Completed.`);
+    }
+}
+
 export async function processBroadcastJob() {
     let db: Db;
     try {
@@ -56,6 +71,7 @@ export async function processBroadcastJob() {
     }
 
     await resetStuckJobs(db);
+    await markCompletedJobs(db);
 
     let jobsProcessed = 0;
     const allErrors: string[] = [];
@@ -68,13 +84,11 @@ export async function processBroadcastJob() {
         let projectId: ObjectId | undefined;
 
         try {
-            const result = await db.collection<BroadcastJobType>('broadcasts').findOneAndUpdate(
+            job = await db.collection<BroadcastJobType>('broadcasts').findOneAndUpdate(
                 { status: 'QUEUED' },
                 { $set: { status: 'PROCESSING', startedAt: new Date() } },
                 { returnDocument: 'after', sort: { createdAt: 1 } }
             );
-
-            job = result;
 
             if (!job) {
                 // No more jobs to process, break the loop silently
