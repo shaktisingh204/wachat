@@ -62,6 +62,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'assets.sabnode.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   webpack: (config, { isServer }) => {
