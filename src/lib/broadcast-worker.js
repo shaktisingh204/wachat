@@ -124,6 +124,7 @@ async function startBroadcastWorker(workerId) {
 
     console.log(`[KAFKA-WORKER ${workerId}] Starting for topic: "${KAFKA_TOPIC}"`);
     const { db } = await connectToDatabase();
+    const { Kafka } = require('kafkajs');
     const kafka = new Kafka({
         clientId: `whatsapp-worker-${workerId}-${KAFKA_TOPIC}`,
         brokers: KAFKA_BROKERS,
@@ -134,7 +135,7 @@ async function startBroadcastWorker(workerId) {
         rebalanceTimeout: 90000,
         heartbeatInterval: 3000,
     });
-
+    
     await consumer.connect();
     await consumer.subscribe({ topic: KAFKA_TOPIC, fromBeginning: false });
     console.log(`[KAFKA-WORKER ${workerId}] Connected and subscribed to topic "${KAFKA_TOPIC}"`);
@@ -158,6 +159,7 @@ async function startBroadcastWorker(workerId) {
                     return;
                 }
 
+                const { ObjectId } = require('mongodb');
                 const broadcastId = new ObjectId(jobDetails._id);
                 const projectId = new ObjectId(jobDetails.projectId);
                 const mps = jobDetails.projectMessagesPerSecond || 80;
@@ -199,22 +201,10 @@ async function startBroadcastWorker(workerId) {
                 }
                 
                 if (successCount > 0 || errorCount > 0) {
-                    const updatedBroadcast = await db.collection('broadcasts').findOneAndUpdate(
+                    await db.collection('broadcasts').updateOne(
                       { _id: broadcastId },
-                      { $inc: { successCount, errorCount } },
-                      { returnDocument: 'after' }
+                      { $inc: { successCount, errorCount } }
                     );
-
-                    if (updatedBroadcast) {
-                        const { successCount: finalSuccess, errorCount: finalError, contactCount } = updatedBroadcast;
-                        if ((finalSuccess || 0) + (finalError || 0) >= contactCount) {
-                            await db.collection('broadcasts').updateOne(
-                                { _id: broadcastId },
-                                { $set: { status: 'Completed', completedAt: new Date() } }
-                            );
-                            await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Broadcast ${broadcastId} marked as Completed.`);
-                        }
-                    }
                 }
 
                 await addBroadcastLog(db, broadcastId, projectId, 'INFO', `Worker ${workerId} finished processing batch of ${contacts.length}. Success: ${successCount}, Failed: ${errorCount}.`);
