@@ -1,19 +1,18 @@
 
-// This is the dedicated entry point for our broadcast workers.
-// PM2 will run this file in a cluster to process Kafka messages.
 require('dotenv').config();
-const { startBroadcastWorker } = require('./src/lib/broadcast-worker.js');
+const path = require('path');
 
-const workerId = process.env.pm_id || process.pid;
+// Ensure we are requiring from the compiled output directory in production
+const workerPath = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, '.next', 'server', 'src', 'lib', 'broadcast-worker.js')
+  : path.join(__dirname, 'src', 'lib', 'broadcast-worker.js');
 
-console.log(`[Worker Script] Starting worker with ID: ${workerId}`);
-
-// IIFE to run the async function
-(async () => {
-    try {
-        await startBroadcastWorker(workerId);
-    } catch (err) {
-        console.error(`[Worker Script] Worker ${workerId} encountered a fatal error:`, err);
-        process.exit(1); // Exit with an error code, PM2 will restart it.
-    }
-})();
+try {
+  const { startBroadcastWorker } = require(workerPath);
+  const workerId = process.env.PM2_INSTANCE_ID || process.pid;
+  console.log(`[Worker Script] Starting worker with ID: ${workerId}`);
+  startBroadcastWorker(workerId);
+} catch (err) {
+  console.error('[Worker Script] Failed to start worker:', err);
+  process.exit(1);
+}

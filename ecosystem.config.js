@@ -5,19 +5,30 @@ module.exports = {
       name: 'sabnode-web',
       script: 'node_modules/next/dist/bin/next',
       args: 'start -p 3001',
-      instances: 'max', // Or a specific number, e.g., 2
-      exec_mode: 'cluster',
+      instances: 1,
+      exec_mode: 'fork',
       env: {
         NODE_ENV: 'production',
       },
     },
     {
-      name: 'sabnode-worker',
+      name: 'sabnode-worker-low',
       script: 'worker.js',
-      instances: 'max', // Use all available CPUs for workers
+      instances: 1, // A single worker for smaller jobs
       exec_mode: 'cluster',
       env: {
         NODE_ENV: 'production',
+        KAFKA_TOPIC: 'low-priority-broadcasts',
+      },
+    },
+    {
+      name: 'sabnode-worker-high',
+      script: 'worker.js',
+      instances: 2, // Two workers for larger jobs
+      exec_mode: 'cluster',
+      env: {
+        NODE_ENV: 'production',
+        KAFKA_TOPIC: 'high-priority-broadcasts',
       },
     },
   ],
