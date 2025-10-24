@@ -73,6 +73,7 @@ const crmMenuItems = [
             { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingBag },
             { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans", icon: Bot },
             { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes", icon: Repeat },
+            { href: "/dashboard/crm/sales/forms", label: "Forms", icon: FileText },
         ]
     },
     {
@@ -340,36 +341,56 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
     return (
         <SidebarProvider>
-            <div className="flex h-screen bg-muted/30 p-2 gap-2 relative">
-                {isSparklesEnabled && (
-                    <div className="absolute inset-0 pointer-events-none z-0">
-                        <Sparkles className="absolute top-4 right-4 h-8 w-8 text-primary/50 animate-pulse" />
-                        <Sparkles className="absolute top-20 left-80 h-12 w-12 text-primary/30 animate-pulse" style={{ animationDelay: '0.5s' }} />
-                        <Sparkles className="absolute bottom-16 right-20 h-16 w-16 text-primary/40 animate-pulse" style={{ animationDelay: '1s' }} />
-                        <Sparkles className="absolute bottom-4 left-4 h-6 w-6 text-primary/50 animate-pulse" style={{ animationDelay: '1.5s' }} />
-                        <Sparkles className="absolute top-1/2 left-1/2 h-10 w-10 text-primary/30 animate-pulse" style={{ animationDelay: '2s' }} />
+            <div className="flex h-screen w-full flex-col bg-muted/30">
+                <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-4">
+                    <div className="flex items-center gap-2">
+                         <SidebarTrigger>
+                            <Button variant="ghost" size="icon" className="md:hidden">
+                                <PanelLeft />
+                            </Button>
+                        </SidebarTrigger>
+                        <Link href="/dashboard" className="hidden font-bold sm:inline-block">
+                          SabNode
+                        </Link>
+                        <Separator orientation="vertical" className="h-6 mx-2 hidden md:block" />
+                        <nav className="hidden items-center gap-1 md:flex">
+                           {appIcons.map(app => (
+                                <Button key={app.id} asChild variant={activeApp === app.id ? 'secondary' : 'ghost'} size="sm">
+                                    <Link href={app.href} className="flex items-center gap-2">
+                                        <app.icon className="h-4 w-4"/>
+                                        {app.label}
+                                    </Link>
+                                </Button>
+                           ))}
+                        </nav>
                     </div>
-                )}
-                <div className="flex-shrink-0 w-16 bg-card rounded-lg shadow-sm flex flex-col items-center py-2 space-y-2">
-                    <Link href="/dashboard" className="mb-4">
-                        <SabNodeLogo className="h-8 w-auto" />
-                    </Link>
-                    {appIcons.map(app => (
-                        <Button key={app.id} asChild variant={activeApp === app.id ? 'ghost' : 'ghost'} data-theme={app.id} className={cn("rounded-lg flex-col justify-center gap-1 text-xs p-0 apprailhw", activeApp === app.id && "active-app-icon")}>
-                            <Link href={app.href} scroll={false} className="h-full w-full flex flex-col items-center justify-center gap-1">
-                                <app.icon className="h-5 w-5"/>
-                            </Link>
-                        </Button>
-                    ))}
-                </div>
-                
-                <Sidebar>
-                    <SidebarHeader>
-                        <h2 className="text-lg font-semibold tracking-tight">
-                            {appIcons.find(app => app.id === activeApp)?.label || 'SabNode'}
-                        </h2>
-                    </SidebarHeader>
-                    <SidebarContent>
+
+                    <div className="flex items-center gap-2">
+                        <div className="font-medium text-sm hidden md:block">{activeProjectName}</div>
+                         <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                                <Avatar>
+                                    <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
+                                    <AvatarFallback>{sessionUser?.name.charAt(0) || 'U'}</AvatarFallback>
+                                </Avatar>
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                <DropdownMenuSeparator/>
+                                <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
+                                <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
+                                <DropdownMenuSeparator/>
+                                <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4"/>Logout</Link></DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                </header>
+
+                <div className="flex flex-1 overflow-hidden">
+                    <Sidebar className="hidden md:flex">
+                        <SidebarContent>
                         {activeApp === 'whatsapp' && (
                             <SidebarMenu>
                                 {wachatMenuItems.filter(item => item.roles.includes(currentUserRole) && !item.href.includes('[')).map((item) => (
@@ -436,53 +457,8 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 {seoMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
-                    </SidebarContent>
-                    <SidebarFooter>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="w-full justify-start gap-2 bg-muted/50 hover:bg-muted border border-border">
-                                    <Avatar className="size-7">
-                                        <AvatarImage src="https://placehold.co/100x100.png" alt="User Avatar" data-ai-hint="person avatar"/>
-                                        <AvatarFallback>{sessionUser?.name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
-                                    </Avatar>
-                                    <span className="truncate flex-1 text-left">{sessionUser?.name}</span>
-                                    <ChevronsUpDown className="h-4 w-4 opacity-50"/>
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56 mb-2" align="end" side="top">
-                                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                                <DropdownMenuSeparator/>
-                                <DropdownMenuItem asChild><Link href="/dashboard/profile">Profile</Link></DropdownMenuItem>
-                                <DropdownMenuItem asChild><Link href="/dashboard/billing">Billing</Link></DropdownMenuItem>
-                                <DropdownMenuSeparator/>
-                                <DropdownMenuItem asChild><Link href="/api/auth/logout"><LogOut className="mr-2 h-4 w-4"/>Logout</Link></DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    </SidebarFooter>
-                </Sidebar>
-
-                <div className="flex-1 flex flex-col min-w-0 bg-card shadow-sm rounded-lg">
-                    <header className="flex h-16 items-center justify-between gap-4 border-b px-4 flex-shrink-0">
-                        <div className="flex items-center gap-2">
-                            <SidebarTrigger>
-                                <Button variant="ghost" size="icon"><PanelLeft /></Button>
-                            </SidebarTrigger>
-                            {activeApp === 'facebook' && activeProject ? (
-                                <FacebookProjectSwitcher projects={facebookProjects} activeProject={activeProject} />
-                            ) : (
-                                <div className="hidden md:flex items-center gap-2 text-sm font-semibold">
-                                    <Briefcase className="h-4 w-4" />
-                                    <span className="truncate">{activeProjectName || 'No Project Selected'}</span>
-                                </div>
-                            )}
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <div className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted px-3 py-1.5 rounded-md">
-                                <CreditCard className="h-4 w-4" />
-                                <span>Credits: {sessionUser?.credits?.toLocaleString() || 0}</span>
-                            </div>
-                        </div>
-                    </header>
+                        </SidebarContent>
+                    </Sidebar>
                     <main className="flex-1 overflow-y-auto">
                         {isChatPage || isWebsiteBuilderPage ? children : mainContent}
                     </main>
