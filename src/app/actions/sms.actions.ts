@@ -6,7 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { ObjectId, WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '.';
-import type { SmsProviderSettings, Project, SmsCampaign, SmsContact, DltAccount } from '@/lib/definitions';
+import type { SmsProviderSettings, Project, SmsCampaign, SmsContact, DltAccount, SmsHeader } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import twilio from 'twilio';
 import Papa from 'papaparse';
@@ -26,7 +26,8 @@ export async function saveSmsSettings(prevState: any, formData: FormData): Promi
                 authToken: formData.get('authToken') as string,
                 fromNumber: formData.get('fromNumber') as string,
             },
-            dlt: hasAccess.smsProviderSettings?.dlt || []
+            dlt: hasAccess.smsProviderSettings?.dlt || [],
+            headers: hasAccess.smsProviderSettings?.headers || []
         };
         
         if (!settings.twilio.accountSid || !settings.twilio.authToken || !settings.twilio.fromNumber) {
@@ -302,6 +303,70 @@ export async function deleteDltAccount(projectId: string, dltAccountId: string):
         revalidatePath('/dashboard/sms/dlt');
         return { success: true };
 
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
+    }
+}
+
+export async function getSmsHeaders(projectId: string): Promise<WithId<SmsHeader>[]> {
+    const project = await getProjectById(projectId);
+    if (!project) return [];
+    return project.smsProviderSettings?.headers || [];
+}
+
+export async function saveSmsHeader(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    if (!projectId) return { error: 'Project ID is missing.' };
+
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: 'Access denied.' };
+
+    try {
+        const newHeader: Omit<SmsHeader, '_id'> = {
+            name: (formData.get('name') as string).toUpperCase(),
+            type: formData.get('type') as SmsHeader['type'],
+            status: 'PENDING',
+            createdAt: new Date(),
+        };
+
+        if (!newHeader.name || !newHeader.type) {
+            return { error: 'Header name and type are required.' };
+        }
+        if (newHeader.name.length > 6) {
+             return { error: 'Header name must be 6 characters or less.' };
+        }
+
+        const { db } = await connectToDatabase();
+        
+        // This simulates submitting to DLT portal. In a real scenario, this would be an API call.
+        // For now, we'll just add it with a PENDING status.
+        newHeader.status = 'APPROVED'; // Forcing APPROVED for demo purposes.
+
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $push: { 'smsProviderSettings.headers': { ...newHeader, _id: new ObjectId() } as any } }
+        );
+
+        revalidatePath('/dashboard/sms/header-management');
+        return { message: `Header "${newHeader.name}" submitted successfully.` };
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+export async function deleteSmsHeader(projectId: string, headerId: string): Promise<{ success: boolean; error?: string }> {
+     if (!projectId || !headerId) return { success: false, error: 'Project and Header IDs are required.' };
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { success: false, error: 'Access denied.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $pull: { 'smsProviderSettings.headers': { _id: new ObjectId(headerId) } } }
+        );
+        revalidatePath('/dashboard/sms/header-management');
+        return { success: true };
     } catch (e) {
         return { success: false, error: getErrorMessage(e) };
     }
