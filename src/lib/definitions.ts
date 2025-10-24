@@ -331,6 +331,7 @@ export type SmsCampaign = {
     message: string;
     sentAt: Date;
     scheduledAt?: Date;
+    status?: 'scheduled' | 'sent';
     recipientCount: number;
     successCount: number;
     failedCount: number;
@@ -1847,5 +1848,5 @@ export type Backlink = {
 };
 
 // --- Security Types ---
-export type SessionPayload = { userId: string; email: string; jti: string; expires: number };
-export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; expires: number };
+export type SessionPayload = { userId: string; email: string; jti: string; exp: number };
+export type AdminSessionPayload = { role: 'admin'; loggedInAt: number; jti: string; exp: number };

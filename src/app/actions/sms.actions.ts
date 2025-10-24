@@ -1,10 +1,11 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
-import { getProjectById, getSession } from '.';
+import { getProjectById } from '.';
 import type { SmsProviderSettings, Project, SmsCampaign, SmsContact, DltAccount, SmsHeader, DltSmsTemplate, SmsMessage } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import twilio from 'twilio';
