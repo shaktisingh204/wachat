@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useActionState, useRef } from 'react';
@@ -135,6 +134,10 @@ export default function DltManagementPage() {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="grid md:grid-cols-2 gap-4">
+                             <div className="space-y-2">
+                                <Label htmlFor="entityName">Entity Name</Label>
+                                <Input id="entityName" name="entityName" placeholder="Your Registered Company Name" required />
+                            </div>
                             <div className="space-y-2">
                                 <Label htmlFor="dlt-provider">Select DLT Provider</Label>
                                 <Select name="provider" onValueChange={setSelectedProviderId} required>
@@ -144,10 +147,10 @@ export default function DltManagementPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="principal-id">Principal Entity ID</Label>
-                                <Input id="principal-id" name="principalEntityId" placeholder="Your 19-digit DLT Principal Entity ID" required />
-                            </div>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="principal-id">Principal Entity ID</Label>
+                            <Input id="principal-id" name="principalEntityId" placeholder="Your 19-digit DLT Principal Entity ID" required />
                         </div>
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
@@ -175,6 +178,7 @@ export default function DltManagementPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Provider</TableHead>
+                                <TableHead>Entity Name</TableHead>
                                 <TableHead>Entity ID</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead className="text-right">Actions</TableHead>
@@ -185,8 +189,9 @@ export default function DltManagementPage() {
                                 connectedAccounts.map(acc => (
                                     <TableRow key={acc._id.toString()}>
                                         <TableCell className="capitalize">{dltProviders.find(p => p.id === acc.provider)?.name || acc.provider}</TableCell>
+                                        <TableCell>{acc.entityName}</TableCell>
                                         <TableCell>{acc.principalEntityId}</TableCell>
-                                        <TableCell><Badge>Connected</Badge></TableCell>
+                                        <TableCell><Badge>{acc.status || 'Active'}</Badge></TableCell>
                                         <TableCell className="text-right">
                                              <DeleteButton dltAccountId={acc._id.toString()} onDeleted={reloadProject} />
                                         </TableCell>
@@ -194,7 +199,7 @@ export default function DltManagementPage() {
                                 ))
                             ) : (
                                 <TableRow>
-                                    <TableCell colSpan={4} className="h-24 text-center">No DLT accounts connected yet.</TableCell>
+                                    <TableCell colSpan={5} className="h-24 text-center">No DLT accounts connected yet.</TableCell>
                                 </TableRow>
                             )}
                         </TableBody>
