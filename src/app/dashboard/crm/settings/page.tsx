@@ -11,7 +11,7 @@ import { getProjects, getSession } from '@/app/actions';
 import { getEmailSettings } from '@/app/actions/email.actions';
 import { saveCrmProviders } from '@/app/actions/crm.actions';
 import { saveCrmPermissions } from '@/app/actions/crm.actions';
-import { useEffect, useState, useTransition, useActionState, useRef } from 'react';
+import { useEffect, useState, useTransition, useActionState, useRef, Suspense } from 'react';
 import type { CrmEmailSettings, Project, WithId, User } from '@/lib/definitions';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -26,7 +26,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 import { CrmEmailTemplatesManager } from "@/components/wabasimplify/crm-email-templates-manager";
 
 
@@ -54,8 +53,8 @@ function CrmSettingsPageContent() {
             const session = await getSession();
             if (session?.user) {
                 setUser(session.user as any);
-                const fetchedSettings = await getEmailSettings(session.user._id.toString());
-                setSettings(fetchedSettings);
+                const fetchedSettings = await getEmailSettings();
+                setSettings(fetchedSettings[0]);
             }
         });
     }, []);
