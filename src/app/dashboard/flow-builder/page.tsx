@@ -47,7 +47,6 @@ import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getTemplates } from '@/app/actions/whatsapp.actions';
 import { saveFlow, getFlowById, getFlowsForProject, deleteFlow } from '@/app/actions/flow.actions';
 import { getMetaFlows } from '@/app/actions/meta-flow.actions';
@@ -369,11 +368,34 @@ const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, 
             case 'api':
             case 'webhook':
                 return (
-                    <Tabs defaultValue="request">
-                        <TabsList className="grid w-full grid-cols-2"><TabsTrigger value="request">Request</TabsTrigger><TabsTrigger value="response">Response</TabsTrigger></TabsList>
-                        <TabsContent value="request" className="space-y-4 pt-2"><Select value={selectedNode.data.apiRequest?.method || 'GET'} onValueChange={(val) => handleApiChange('method', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="GET">GET</SelectItem><SelectItem value="POST">POST</SelectItem><SelectItem value="PUT">PUT</SelectItem></SelectContent></Select><Input placeholder="https://api.example.com" value={selectedNode.data.apiRequest?.url || ''} onChange={(e) => handleApiChange('url', e.target.value)} /><Textarea placeholder='Headers (JSON format)\n{\n  "Authorization": "Bearer ..."\n}' className="font-mono text-xs h-24" value={selectedNode.data.apiRequest?.headers || ''} onChange={(e) => handleApiChange('headers', e.target.value)} /><Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={selectedNode.data.apiRequest?.body || ''} onChange={(e) => handleApiChange('body', e.target.value)} /></TabsContent>
-                        <TabsContent value="response" className="space-y-4 pt-2"><Label>Save Response to Variables</Label><div className="space-y-3">{(selectedNode.data.apiRequest?.responseMappings || []).map((mapping: any, index: number) => (<div key={index} className="p-2 border rounded-md space-y-2 relative"><Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeMapping(index)}><Trash2 className="h-3 w-3" /></Button><Input placeholder="Variable Name (e.g. user_email)" value={mapping.variable || ''} onChange={(e) => handleMappingChange(index, 'variable', e.target.value)} /><Input placeholder="Response Path (e.g. data.email)" value={mapping.path || ''} onChange={(e) => handleMappingChange(index, 'path', e.target.value)} /></div>))}<Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addMapping}><Plus className="mr-2 h-4 w-4" />Add Mapping</Button><p className="text-xs text-muted-foreground">e.g., to access a field, use {'{{variable_name}}'}</p></TabsContent>
-                    </Tabs>
+                    <div className="space-y-4">
+                        <div>
+                            <h4 className="font-medium mb-2">Request</h4>
+                            <div className="p-3 border rounded-md space-y-3">
+                                <Select value={selectedNode.data.apiRequest?.method || 'GET'} onValueChange={(val) => handleApiChange('method', val)}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value="GET">GET</SelectItem><SelectItem value="POST">POST</SelectItem><SelectItem value="PUT">PUT</SelectItem></SelectContent></Select>
+                                <Input placeholder="https://api.example.com" value={selectedNode.data.apiRequest?.url || ''} onChange={(e) => handleApiChange('url', e.target.value)} />
+                                <Textarea placeholder='Headers (JSON format)' className="font-mono text-xs h-24" value={selectedNode.data.apiRequest?.headers || ''} onChange={(e) => handleApiChange('headers', e.target.value)} />
+                                <Textarea placeholder="Request Body (JSON)" className="font-mono text-xs h-32" value={selectedNode.data.apiRequest?.body || ''} onChange={(e) => handleApiChange('body', e.target.value)} />
+                            </div>
+                        </div>
+                         <div>
+                            <h4 className="font-medium mb-2">Response</h4>
+                            <div className="p-3 border rounded-md space-y-3">
+                                <Label>Save Response to Variables</Label>
+                                <div className="space-y-3">
+                                    {(selectedNode.data.apiRequest?.responseMappings || []).map((mapping: any, index: number) => (
+                                        <div key={index} className="p-2 border rounded-md space-y-2 relative bg-background">
+                                            <Button type="button" variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6" onClick={() => removeMapping(index)}><Trash2 className="h-3 w-3" /></Button>
+                                            <Input placeholder="Variable Name (e.g. user_email)" value={mapping.variable || ''} onChange={(e) => handleMappingChange(index, 'variable', e.target.value)} />
+                                            <Input placeholder="Response Path (e.g. data.email)" value={mapping.path || ''} onChange={(e) => handleMappingChange(index, 'path', e.target.value)} />
+                                        </div>
+                                    ))}
+                                </div>
+                                <Button type="button" variant="outline" size="sm" className="w-full mt-2" onClick={addMapping}><Plus className="mr-2 h-4 w-4" />Add Mapping</Button>
+                                <p className="text-xs text-muted-foreground">e.g., to access a field, use {'{{variable_name}}'}</p>
+                           </div>
+                        </div>
+                    </div>
                 );
             case 'carousel':
                 return (
@@ -493,6 +515,8 @@ const FlowsAndBlocksPanel = ({
         </Card>
     </>
 );
+
+export const dynamic = 'force-dynamic';
 
 function PageContent() {
     const { activeProjectId } = useProject();
@@ -1004,5 +1028,3 @@ const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
     
     return null;
 }
-
-    
