@@ -313,6 +313,7 @@ export type SmsCampaign = {
     name: string;
     message: string;
     sentAt: Date;
+    scheduledAt?: Date;
     recipientCount: number;
     successCount: number;
     failedCount: number;
