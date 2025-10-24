@@ -1,3 +1,4 @@
+
 'use client';
 
 import * as React from 'react';
@@ -73,7 +74,6 @@ const crmMenuItems = [
             { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingBag },
             { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans", icon: Bot },
             { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes", icon: Repeat },
-            { href: "/dashboard/crm/sales/forms", label: "Forms", icon: FileText },
         ]
     },
     {
@@ -95,7 +95,7 @@ const crmMenuItems = [
     { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake },
     { href: "/dashboard/crm/tasks", label: "Tasks", icon: FolderKanban },
     { href: "/dashboard/crm/products", label: "Products", icon: ShoppingBag },
-    { href: "/dashboard/crm/forms", label: "Forms", icon: FileText },
+    { href: "/dashboard/crm/sales/forms", label: "Forms", icon: FileText },
     {
         href: '/dashboard/crm/inventory',
         label: 'Inventory',
@@ -209,7 +209,8 @@ const smsMenuItems = [
     { href: '/dashboard/sms', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/dashboard/sms/campaigns', label: 'Campaigns', icon: Send },
     { href: '/dashboard/sms/contacts', label: 'Contacts', icon: Users },
-    { href: '/dashboard/sms/dlt', label: 'DLT Management', icon: Database },
+    { href: '/dashboard/sms/dlt', label: 'Connect DLT', icon: Database },
+    { href: '/dashboard/sms/entity-management', label: 'Entity Management', icon: Database },
     { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart },
     { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
 ];
@@ -385,7 +386,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
 
     return (
         <SidebarProvider>
-            <div className="flex h-screen w-full flex-col bg-muted/30">
+            <div className={cn("flex h-screen w-full flex-col bg-muted/30", appRailPosition === 'top' ? 'app-rail-top' : 'app-rail-left')}>
                 <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center justify-between gap-4 border-b bg-background px-4">
                     <div className="flex items-center gap-2">
                          <SidebarTrigger>
