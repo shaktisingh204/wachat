@@ -14,7 +14,11 @@ export default function PurchasesLayout({ children }: { children: React.ReactNod
     const activeTab = purchasesNavItems.find(item => pathname.startsWith(item.href))?.href || "/dashboard/crm/purchases/vendors";
 
     return (
-        <div className="flex flex-col gap-6 h-full p-4 md:p-6 lg:p-8">
+        <div className="flex flex-col gap-6 h-full">
+            <div>
+                <h1 className="text-3xl font-bold font-headline">Purchases</h1>
+                <p className="text-muted-foreground">Manage your vendors, orders, and expenses.</p>
+            </div>
             <Tabs defaultValue={activeTab} className="w-full">
                 <TabsList className="overflow-x-auto whitespace-nowrap">
                     {purchasesNavItems.map(item => (

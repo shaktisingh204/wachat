@@ -21,13 +21,16 @@ import {
     CreditCard,
     GitFork,
     MessageSquare,
-    IndianRupee
+    IndianRupee,
+    Star,
+    Contact
 } from 'lucide-react';
 
 export const crmMenuItems = [
     { href: "/dashboard/crm", label: "Dashboard", icon: BarChart },
     { href: "/dashboard/crm/sales", label: "Sales", icon: Handshake, subItems: [
-            { href: "/dashboard/crm/sales/clients", label: "Clients", icon: Building },
+            { href: "/dashboard/crm/sales/clients", label: "Clients", icon: Users },
+            { href: "/dashboard/crm/sales/pipelines", label: "Pipelines", icon: GitFork },
             { href: "/dashboard/crm/sales/quotations", label: "Quotations", icon: FileText },
             { href: "/dashboard/crm/sales/invoices", label: "Invoices", icon: FileText },
             { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingCart },
@@ -38,6 +41,15 @@ export const crmMenuItems = [
             { href: "/dashboard/crm/sales/forms", label: "Forms", icon: FileText },
         ]
     },
+    { href: "/dashboard/crm/purchases", label: 'Purchases', icon: ShoppingCart, subItems: [
+        { href: "/dashboard/crm/purchases/vendors", label: "Vendors", icon: Users },
+        { href: "/dashboard/crm/purchases/leads", label: "Leads", icon: Contact },
+        { href: "/dashboard/crm/purchases/orders", label: "Purchase Orders", icon: FileText },
+        { href: "/dashboard/crm/purchases/expenses", label: "Expenses", icon: IndianRupee },
+        { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes", icon: Repeat },
+        { href: "/dashboard/crm/purchases/payouts", label: "Payout Receipts", icon: CreditCard },
+        { href: "/dashboard/crm/purchases/hire", label: "Hire The Best", icon: Star },
+    ] },
     { href: "/dashboard/crm/contacts", label: "Contacts", icon: Users },
     { href: "/dashboard/crm/accounts", label: "Accounts", icon: Building },
     { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake },
@@ -47,13 +59,6 @@ export const crmMenuItems = [
         { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses", icon: Truck },
         { href: "/dashboard/crm/inventory/adjustments", label: "Adjustments", icon: Repeat },
     ]},
-    { href: '/dashboard/crm/purchases', label: 'Purchases', icon: ShoppingCart, subItems: [
-        { href: "/dashboard/crm/purchases/vendors", label: "Vendors", icon: Users },
-        { href: "/dashboard/crm/purchases/orders", label: "Purchase Orders", icon: FileText },
-        { href: "/dashboard/crm/purchases/expenses", label: "Expenses", icon: IndianRupee },
-        { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes", icon: Repeat },
-        { href: "/dashboard/crm/purchases/payouts", label: "Payout Receipts", icon: CreditCard },
-    ] },
     { href: "/dashboard/crm/automations", label: "Automations", icon: GitFork },
     { href: "/dashboard/crm/analytics", label: "Analytics", icon: BarChart },
     { href: "/dashboard/crm/settings", label: "Settings", icon: Settings },
