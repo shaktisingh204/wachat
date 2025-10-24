@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
@@ -16,7 +15,7 @@ export default function EntityManagementPage() {
     const { activeProject } = useProject();
     
     // For now, we'll just display the first connected DLT account.
-    // A more advanced version might have a selector.
+    // A more advanced version might have a selector if multiple DLT accounts are connected.
     const dltAccount = activeProject?.smsProviderSettings?.dlt?.[0];
 
     if (!activeProject) {
