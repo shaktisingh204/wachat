@@ -564,3 +564,5 @@ export function DashboardClientLayout({ children }: { children: React.ReactNode 
         </ProjectProvider>
     );
 }
+
+    

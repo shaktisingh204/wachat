@@ -5,7 +5,7 @@
 import { useState, useEffect, useCallback, useTransition } from 'react';
 import type { WithId } from 'mongodb';
 import { getSmsHistory } from '@/app/actions/sms.actions';
-import type { SmsMessage, DltSmsTemplate, SmsHeader } from '@/lib/definitions';
+import type { SmsMessage, DltSmsTemplate, SmsHeader, User } from '@/lib/definitions';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Search, LoaderCircle, History } from 'lucide-react';
 import { useDebouncedCallback } from 'use-debounce';
-import { useProject } from '@/context/project-context';
+import { getSession } from '@/app/actions';
 import { format } from 'date-fns';
 
 const MESSAGES_PER_PAGE = 20;
@@ -30,7 +30,7 @@ const getStatusVariant = (status?: string): "default" | "secondary" | "destructi
 };
 
 export default function MessageHistoryPage() {
-    const { activeProject } = useProject();
+    const [user, setUser] = useState<WithId<User> | null>(null);
     const [messages, setMessages] = useState<WithId<SmsMessage>[]>([]);
     const [isLoading, startTransition] = useTransition();
     
@@ -38,20 +38,20 @@ export default function MessageHistoryPage() {
     const [totalPages, setTotalPages] = useState(0);
     const [searchQuery, setSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('all');
-
-    const templates = activeProject?.smsProviderSettings?.dltTemplates || [];
-    const headers = activeProject?.smsProviderSettings?.headers || [];
+    
+    const templates = user?.smsProviderSettings?.dltTemplates || [];
+    const headers = user?.smsProviderSettings?.headers || [];
 
     const fetchData = useCallback((page: number, query: string, status: string) => {
-        if (!activeProject) return;
         startTransition(async () => {
-            const result = await getSmsHistory(activeProject._id.toString(), page, MESSAGES_PER_PAGE, query, status === 'all' ? undefined : status);
+            const result = await getSmsHistory(page, MESSAGES_PER_PAGE, query, status === 'all' ? undefined : status);
             setMessages(result.messages);
             setTotalPages(Math.ceil(result.total / MESSAGES_PER_PAGE));
         });
-    }, [activeProject]);
+    }, []);
 
     useEffect(() => {
+        getSession().then(session => setUser(session?.user || null));
         fetchData(currentPage, searchQuery, statusFilter);
     }, [currentPage, searchQuery, statusFilter, fetchData]);
 
@@ -140,3 +140,5 @@ export default function MessageHistoryPage() {
         </div>
     );
 }
+
+    
