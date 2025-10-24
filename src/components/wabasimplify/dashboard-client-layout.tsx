@@ -1,4 +1,3 @@
-
 'use client';
 
 import * as React from 'react';
@@ -16,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
-    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar
+    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Star, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight, Calendar, Database
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -74,6 +73,7 @@ const crmMenuItems = [
             { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingBag },
             { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans", icon: Bot },
             { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes", icon: Repeat },
+            { href: "/dashboard/crm/sales/forms", label: "Forms", icon: FileText },
         ]
     },
     {
@@ -95,6 +95,7 @@ const crmMenuItems = [
     { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake },
     { href: "/dashboard/crm/tasks", label: "Tasks", icon: FolderKanban },
     { href: "/dashboard/crm/products", label: "Products", icon: ShoppingBag },
+    { href: "/dashboard/crm/forms", label: "Forms", icon: FileText },
     {
         href: '/dashboard/crm/inventory',
         label: 'Inventory',
@@ -208,6 +209,7 @@ const smsMenuItems = [
     { href: '/dashboard/sms', label: 'Dashboard', icon: LayoutDashboard },
     { href: '/dashboard/sms/campaigns', label: 'Campaigns', icon: Send },
     { href: '/dashboard/sms/contacts', label: 'Contacts', icon: Users },
+    { href: '/dashboard/sms/dlt', label: 'DLT Management', icon: Database },
     { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart },
     { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
 ];
