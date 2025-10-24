@@ -207,12 +207,31 @@ const emailMenuItems = [
 
 const smsMenuItems = [
     { href: '/dashboard/sms', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/dashboard/sms/campaigns', label: 'Campaigns', icon: Send },
     { href: '/dashboard/sms/contacts', label: 'Contacts', icon: Users },
-    { href: '/dashboard/sms/dlt', label: 'Connect DLT', icon: Database },
-    { href: '/dashboard/sms/entity-management', label: 'Entity Management', icon: Database },
+    {
+        href: "/dashboard/sms/messaging",
+        label: "Messaging",
+        icon: MessageSquare,
+        subItems: [
+             { href: "/dashboard/sms/campaigns", label: "Send SMS", icon: Send },
+             { href: "/dashboard/sms/message-history", label: "Message History", icon: History },
+             { href: "/dashboard/sms/delivery-reports", label: "Delivery Reports", icon: FileText },
+        ]
+    },
+    {
+        href: '/dashboard/sms/dlt',
+        label: 'DLT Management',
+        icon: Database,
+        subItems: [
+            { href: "/dashboard/sms/dlt", label: "Connect DLT Account" },
+            { href: "/dashboard/sms/entity-management", label: "Entity Management" },
+            { href: "/dashboard/sms/header-management", label: "Header Management" },
+            { href: "/dashboard/sms/template-management", label: "Template Management" },
+        ]
+    },
     { href: '/dashboard/sms/analytics', label: 'Analytics', icon: BarChart },
     { href: '/dashboard/sms/settings', label: 'Settings', icon: Settings },
+    { href: '/dashboard/sms/integrations', label: 'Integrations', icon: Zap },
 ];
 
 const apiMenuItems = [
@@ -316,7 +335,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         return (
             <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive} tooltip={item.label} className={cn(isSubItem && "pl-10")}>
-                    <Link href={item.href}><LinkIcon /><span>{item.label}</span></Link>
+                    <Link href={item.href}>{LinkIcon && <LinkIcon />}<span>{item.label}</span></Link>
                 </SidebarMenuButton>
             </SidebarMenuItem>
         );
@@ -327,7 +346,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         return (
             <Collapsible defaultOpen={isOpen}>
                 <CollapsibleTrigger asChild>
-                    <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
+                     <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
                         <item.icon /><span>{item.label}</span><ChevronRight className="ml-auto transition-transform group-data-[state=open]:rotate-90"/>
                     </SidebarMenuButton>
                 </CollapsibleTrigger>
@@ -471,9 +490,9 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 {emailMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
-                        {activeApp === 'sms' && (
+                         {activeApp === 'sms' && (
                             <SidebarMenu>
-                                {smsMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
+                                {smsMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         {activeApp === 'api' && (
