@@ -31,12 +31,8 @@ import {
 
 
 const dltProviders = [
-    { id: 'airtel', name: 'Airtel' },
-    { id: 'vil', name: 'Vodafone Idea (Vi)' },
-    { id: 'smartping', name: 'SmartPing' },
-    { id: 'bsnl', name: 'BSNL' },
-    { id: 'jio', name: 'Jio TrueConnect' },
-    { id: 'other', name: 'Other' },
+    { id: 'airtel', name: 'Airtel DLT (DLTConnect)' },
+    { id: 'bsnl', name: 'BSNL DLT Portal' },
 ];
 
 const saveInitialState = { message: null, error: null };
@@ -51,16 +47,55 @@ function SaveButton() {
     )
 }
 
+function DeleteButton({ dltAccountId, onDeleted }: { dltAccountId: string, onDeleted: () => void }) {
+    const { activeProjectId } = useProject();
+    const [isPending, startTransition] = useTransition();
+    const { toast } = useToast();
+
+    const handleDelete = () => {
+        if (!activeProjectId) return;
+        startTransition(async () => {
+            const result = await deleteDltAccount(activeProjectId, dltAccountId);
+            if(result.success) {
+                toast({ title: 'Success', description: 'DLT account removed.' });
+                onDeleted();
+            } else {
+                toast({ title: 'Error', description: result.error, variant: 'destructive' });
+            }
+        });
+    }
+
+    return (
+        <AlertDialog>
+            <AlertDialogTrigger asChild>
+                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Delete DLT Account?</AlertDialogTitle>
+                    <AlertDialogDescription>Are you sure you want to remove this account? This will not affect your DLT registration.</AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete} disabled={isPending}>
+                        {isPending && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
+                        Delete
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+    );
+}
+
 export default function DltManagementPage() {
     const { activeProjectId, activeProject, reloadProject } = useProject();
     const [state, formAction] = useActionState(saveDltAccount, saveInitialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
-    const [isDeleting, startDeleteTransition] = useTransition();
-
+    
     useEffect(() => {
         if (state.message) {
-            toast({ title: 'Success', description: state.message });
+            toast({ title: 'Success!', description: state.message });
             formRef.current?.reset();
             reloadProject(); // Re-fetch project data to show new DLT account
         }
@@ -69,19 +104,6 @@ export default function DltManagementPage() {
         }
     }, [state, toast, reloadProject]);
     
-    const handleDelete = (dltAccountId: string) => {
-        if (!activeProjectId) return;
-        startDeleteTransition(async () => {
-            const result = await deleteDltAccount(activeProjectId, dltAccountId);
-            if(result.success) {
-                toast({ title: 'Success', description: 'DLT account removed.' });
-                reloadProject();
-            } else {
-                toast({ title: 'Error', description: result.error, variant: 'destructive' });
-            }
-        });
-    }
-
     if (!activeProjectId) {
          return (
             <Alert variant="destructive">
@@ -148,28 +170,11 @@ export default function DltManagementPage() {
                             {connectedAccounts.length > 0 ? (
                                 connectedAccounts.map(acc => (
                                     <TableRow key={acc._id.toString()}>
-                                        <TableCell className="capitalize">{acc.provider}</TableCell>
+                                        <TableCell className="capitalize">{dltProviders.find(p => p.id === acc.provider)?.name || acc.provider}</TableCell>
                                         <TableCell>{acc.principalEntityId}</TableCell>
                                         <TableCell><Badge>Connected</Badge></TableCell>
                                         <TableCell className="text-right">
-                                             <AlertDialog>
-                                                <AlertDialogTrigger asChild>
-                                                    <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive"/></Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Delete DLT Account?</AlertDialogTitle>
-                                                        <AlertDialogDescription>Are you sure you want to remove this account? This will not affect your DLT registration.</AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                        <AlertDialogAction onClick={() => handleDelete(acc._id.toString())} disabled={isDeleting}>
-                                                            {isDeleting && <LoaderCircle className="mr-2 h-4 w-4 animate-spin"/>}
-                                                            Delete
-                                                        </AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
+                                             <DeleteButton dltAccountId={acc._id.toString()} onDeleted={reloadProject} />
                                         </TableCell>
                                     </TableRow>
                                 ))
