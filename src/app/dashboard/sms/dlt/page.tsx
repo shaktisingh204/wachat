@@ -6,10 +6,10 @@ import { useFormStatus } from 'react-dom';
 import { Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from "@/components/ui/badge";
 import { Plus, Trash2, Database, Key, LoaderCircle, AlertCircle } from 'lucide-react';
 import { getProjectById } from '@/app/actions';
 import { saveDltAccount, deleteDltAccount } from '@/app/actions/sms.actions';
@@ -31,8 +31,12 @@ import {
 
 
 const dltProviders = [
-    { id: 'airtel', name: 'Airtel DLT (DLTConnect)' },
-    { id: 'bsnl', name: 'BSNL DLT Portal' },
+    { id: 'airtel', name: 'Airtel DLT (DLTConnect)', endpoint: 'https://dltconnect.airtel.in/api/' },
+    { id: 'jio', name: 'Jio DLT (TrueConnect)', endpoint: 'https://trueconnect.jio.com/api/' },
+    { id: 'voda', name: 'Vi DLT (Vodafone Idea)', endpoint: 'https://www.vilpower.in/api/' },
+    { id: 'bsnl', name: 'BSNL DLT Portal', endpoint: 'https://www.ucc-bsnl.co.in/api/' },
+    { id: 'smartping', name: 'Smartping (PingConnect)', endpoint: 'https://pingconnect.in/api/' },
+    { id: 'other', name: 'Other', endpoint: '' },
 ];
 
 const saveInitialState = { message: null, error: null };
@@ -92,6 +96,9 @@ export default function DltManagementPage() {
     const [state, formAction] = useActionState(saveDltAccount, saveInitialState);
     const { toast } = useToast();
     const formRef = useRef<HTMLFormElement>(null);
+    const [selectedProviderId, setSelectedProviderId] = useState('');
+    
+    const selectedProvider = dltProviders.find(p => p.id === selectedProviderId);
     
     useEffect(() => {
         if (state.message) {
@@ -129,7 +136,7 @@ export default function DltManagementPage() {
                         <div className="grid md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="dlt-provider">Select DLT Provider</Label>
-                                <Select name="provider" required>
+                                <Select name="provider" onValueChange={setSelectedProviderId} required>
                                     <SelectTrigger id="dlt-provider"><SelectValue placeholder="Select a provider..."/></SelectTrigger>
                                     <SelectContent>
                                         {dltProviders.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
@@ -141,9 +148,15 @@ export default function DltManagementPage() {
                                 <Input id="principal-id" name="principalEntityId" placeholder="Your 19-digit DLT Principal Entity ID" required />
                             </div>
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="api-key">API Key / Credentials</Label>
-                            <Input id="api-key" name="apiKey" type="password" placeholder="Enter your API Key" required />
+                        <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="api-key">API Key / Credentials</Label>
+                                <Input id="api-key" name="apiKey" type="password" placeholder="Enter your API Key" required />
+                            </div>
+                            <div className="space-y-2">
+                                <Label>API Endpoint</Label>
+                                <Input value={selectedProvider?.endpoint || ''} disabled readOnly />
+                            </div>
                         </div>
                     </CardContent>
                     <CardFooter>
@@ -190,3 +203,4 @@ export default function DltManagementPage() {
         </div>
     )
 }
+ 
