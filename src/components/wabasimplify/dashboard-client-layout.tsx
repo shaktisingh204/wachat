@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import * as React from 'react';
@@ -107,7 +106,6 @@ const crmMenuItems = [
         ]
     },
     { href: "/dashboard/crm/automations", label: "Automations", icon: GitFork },
-    { href: "/dashboard/crm/sales/forms", label: "Forms", icon: FileText },
     { href: "/dashboard/crm/analytics", label: "Analytics", icon: BarChart },
     { href: "/dashboard/crm/settings", label: "Settings", icon: Settings },
     { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare },
@@ -355,6 +353,18 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                     ))}
                 </SidebarMenu>
             </SidebarContent>
+             <SidebarFooter>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild tooltip="User Settings">
+                            <Link href="/dashboard/user/settings">
+                                <Settings className="h-4 w-4" />
+                                <span className="sr-only">Settings</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
         </Sidebar>
     );
     
