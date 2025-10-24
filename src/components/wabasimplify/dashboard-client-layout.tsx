@@ -15,8 +15,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
-import { 
-    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles 
+import {
+    LayoutDashboard, MessageSquare, Globe, Users, Send, GitFork, Settings, Briefcase, ChevronDown, FileText, Phone, Webhook, History, LogOut, CreditCard, LoaderCircle, Megaphone, ServerCog, ShoppingBag, Newspaper, Clapperboard, Wrench, Link as LinkIcon, QrCode, BarChart, Server, Brush, Handshake, Building, Mail, Zap, FolderKanban, Repeat, Inbox, Package, Compass, Search, Calendar, Video, Bot, ShieldCheck, Key, BookCopy, Rss, ChevronsUpDown, TrendingUp, PanelLeft, Sparkles, ChevronRight
 } from 'lucide-react';
 import { SabNodeLogo } from '@/components/wabasimplify/logo';
 import { MetaIcon, WhatsAppIcon, SeoIcon, CustomEcommerceIcon, WaPayIcon, InstagramIcon } from '@/components/wabasimplify/custom-sidebar-components';
@@ -25,7 +25,6 @@ import { getSession, getProjects } from '@/app/actions';
 import { getDiwaliThemeStatus } from '@/app/actions/admin.actions';
 import type { Plan, WithId, Project, User } from '@/lib/definitions';
 import { FacebookProjectSwitcher } from '@/components/wabasimplify/facebook-project-switcher';
-import { crmMenuItems } from '@/app/dashboard/crm/layout';
 import {
   Sidebar,
   SidebarContent,
@@ -39,6 +38,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Drawer, DrawerTrigger } from '../ui/drawer';
 import { ProjectProvider, useProject } from '@/context/project-context';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 const wachatMenuItems = [
   { href: '/dashboard', label: 'All Projects', icon: Briefcase, roles: ['owner', 'admin', 'agent'] },
@@ -57,6 +57,59 @@ const wachatMenuItems = [
   { href: '/dashboard/webhooks', label: 'Webhooks', icon: Webhook, roles: ['owner', 'admin'] },
   { href: '/dashboard/settings', label: 'Settings', icon: Settings, roles: ['owner', 'admin'] },
 ];
+
+const crmMenuItems = [
+    { href: "/dashboard/crm", label: "Dashboard", icon: BarChart, exact: true },
+    {
+        href: "/dashboard/crm/sales",
+        label: "Sales",
+        icon: Handshake,
+        subItems: [
+            { href: "/dashboard/crm/sales/clients", label: "Clients & Prospects", icon: Users },
+            { href: "/dashboard/crm/sales/quotations", label: "Quotation & Estimates", icon: FileText },
+            { href: "/dashboard/crm/sales/proforma", label: "Proforma Invoices", icon: FileText },
+            { href: "/dashboard/crm/sales/invoices", label: "Invoices", icon: FileText },
+            { href: "/dashboard/crm/sales/receipts", label: "Payment Receipts", icon: CreditCard },
+            { href: "/dashboard/crm/sales/orders", label: "Sales Orders", icon: ShoppingBag },
+            { href: "/dashboard/crm/sales/delivery", label: "Delivery Challans", icon: Bot },
+            { href: "/dashboard/crm/sales/credit-notes", label: "Credit Notes", icon: Repeat },
+        ]
+    },
+    {
+        href: "/dashboard/crm/purchases",
+        label: 'Purchases',
+        icon: ShoppingBag,
+        subItems: [
+            { href: "/dashboard/crm/purchases/leads", label: "Vendors Leads", icon: Users },
+            { href: "/dashboard/crm/purchases/vendors", label: "Vendors & Suppliers", icon: Briefcase },
+            { href: "/dashboard/crm/purchases/expenses", label: "Purchases & Expenses", icon: CreditCard },
+            { href: "/dashboard/crm/purchases/orders", label: "Purchase Orders", icon: FileText },
+            { href: "/dashboard/crm/purchases/payouts", label: "Payout Receipts", icon: CreditCard },
+            { href: "/dashboard/crm/purchases/debit-notes", label: "Debit Notes", icon: Repeat },
+            { href: "/dashboard/crm/purchases/hire", label: "Hire The Best Vendors", icon: Star },
+        ]
+    },
+    { href: "/dashboard/crm/contacts", label: "Contacts", icon: Users },
+    { href: "/dashboard/crm/accounts", label: "Accounts", icon: Building },
+    { href: "/dashboard/crm/deals", label: "Deals", icon: Handshake },
+    { href: "/dashboard/crm/tasks", label: "Tasks", icon: FolderKanban },
+    { href: "/dashboard/crm/products", label: "Products", icon: ShoppingBag },
+    {
+        href: '/dashboard/crm/inventory',
+        label: 'Inventory',
+        icon: Briefcase,
+        subItems: [
+            { href: "/dashboard/crm/inventory", label: "Dashboard", icon: LayoutDashboard },
+            { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses", icon: Server },
+            { href: "/dashboard/crm/inventory/adjustments", label: "Adjustments", icon: Repeat },
+        ]
+    },
+    { href: "/dashboard/crm/automations", label: "Automations", icon: GitFork },
+    { href: "/dashboard/crm/analytics", label: "Analytics", icon: BarChart },
+    { href: "/dashboard/crm/settings", label: "Settings", icon: Settings },
+    { href: '/dashboard/crm/team-chat', label: 'Team Chat', icon: MessageSquare },
+];
+
 
 const facebookMenuGroups = [
   {
@@ -255,6 +308,36 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
         </div>
     );
 
+    const SidebarItem = ({ item, isSubItem = false }: { item: any; isSubItem?: boolean }) => {
+        const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+        const LinkIcon = item.icon;
+        return (
+            <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive} tooltip={item.label} className={cn(isSubItem && "pl-10")}>
+                    <Link href={item.href}><LinkIcon /><span>{item.label}</span></Link>
+                </SidebarMenuButton>
+            </SidebarMenuItem>
+        );
+    }
+
+    const CollapsibleSidebarItem = ({ item }: { item: any }) => {
+        const isOpen = pathname.startsWith(item.href);
+        return (
+            <Collapsible defaultOpen={isOpen}>
+                <CollapsibleTrigger asChild>
+                    <SidebarMenuButton isActive={isOpen} tooltip={item.label} className="w-full">
+                        <item.icon /><span>{item.label}</span><ChevronRight className="ml-auto transition-transform group-data-[state=open]:rotate-90"/>
+                    </SidebarMenuButton>
+                </CollapsibleTrigger>
+                <CollapsibleContent asChild>
+                    <SidebarMenu className="pl-4">
+                        {item.subItems.map((subItem: any) => <SidebarItem key={subItem.href} item={subItem} isSubItem={true} />)}
+                    </SidebarMenu>
+                </CollapsibleContent>
+            </Collapsible>
+        )
+    }
+
     return (
         <SidebarProvider>
             <div className="flex h-screen bg-muted/30 p-2 gap-2 relative">
@@ -290,11 +373,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                         {activeApp === 'whatsapp' && (
                             <SidebarMenu>
                                 {wachatMenuItems.filter(item => item.roles.includes(currentUserRole) && !item.href.includes('[')).map((item) => (
-                                    <SidebarMenuItem key={item.href}>
-                                        <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                                            <Link href={item.href}><item.icon /><span>{item.label}</span></Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
+                                    <SidebarItem key={item.href} item={item} />
                                 ))}
                             </SidebarMenu>
                         )}
@@ -304,11 +383,7 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                                 <React.Fragment key={group.title}>
                                 <p className="px-3 text-xs font-semibold text-sidebar-foreground/50 uppercase tracking-wider mt-4 mb-1">{group.title}</p>
                                 {group.items.filter(item => !item.href.includes('[')).map(item => (
-                                    <SidebarMenuItem key={item.href}>
-                                    <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                                        <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
-                                    </SidebarMenuButton>
-                                    </SidebarMenuItem>
+                                    <SidebarItem key={item.href} item={item} />
                                 ))}
                                 </React.Fragment>
                             ))}
@@ -317,100 +392,48 @@ function DashboardLayoutContent({ children }: { children: React.ReactNode }) {
                         {activeApp === 'instagram' && (
                             <SidebarMenu>
                                 {instagramMenuGroups.flatMap(g => g.items).filter(item => !item.href.includes('[')).map(item => (
-                                    <SidebarMenuItem key={item.href}>
-                                        <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                                            <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
+                                    <SidebarItem key={item.href} item={item} />
                                 ))}
                             </SidebarMenu>
                         )}
                         {activeApp === 'crm' && (
                             <SidebarMenu>
-                                {crmMenuItems.map(item => (
-                                    <SidebarMenuItem key={item.href}>
-                                        <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                                            <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
+                                {crmMenuItems.map(item => item.subItems ? <CollapsibleSidebarItem key={item.href} item={item} /> : <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         {activeApp === 'email' && (
                             <SidebarMenu>
-                                {emailMenuItems.map(item => (
-                                    <SidebarMenuItem key={item.href}>
-                                        <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                                            <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
+                                {emailMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         {activeApp === 'sms' && (
                             <SidebarMenu>
-                                {smsMenuItems.map(item => (
-                                    <SidebarMenuItem key={item.href}>
-                                        <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                                            <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
+                                {smsMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         {activeApp === 'api' && (
                             <SidebarMenu>
-                                {apiMenuItems.map(item => (
-                                    <SidebarMenuItem key={item.href}>
-                                        <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                                            <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
+                                {apiMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         {activeApp === 'website-builder' && (
                             <SidebarMenu>
-                                {portfolioMenuItems.map(item => (
-                                    <SidebarMenuItem key={item.href}>
-                                        <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                                            <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
+                                {portfolioMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         {activeApp === 'url-shortener' && (
                             <SidebarMenu>
-                                {urlShortenerMenuItems.map(item => (
-                                    <SidebarMenuItem key={item.href}>
-                                        <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                                            <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
+                                {urlShortenerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         {activeApp === 'qr-code-maker' && (
                             <SidebarMenu>
-                                {qrCodeMakerMenuItems.map(item => (
-                                    <SidebarMenuItem key={item.href}>
-                                        <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                                            <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
+                                {qrCodeMakerMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                         {activeApp === 'seo-suite' && (
                             <SidebarMenu>
-                                {seoMenuItems.map(item => (
-                                    <SidebarMenuItem key={item.href}>
-                                        <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
-                                            <Link href={item.href}><item.icon/><span>{item.label}</span></Link>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
+                                {seoMenuItems.map(item => <SidebarItem key={item.href} item={item} />)}
                             </SidebarMenu>
                         )}
                     </SidebarContent>
