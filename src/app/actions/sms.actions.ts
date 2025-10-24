@@ -1,11 +1,12 @@
 
+
 'use server';
 
 import { revalidatePath } from 'next/cache';
 import { ObjectId, WithId, Filter } from 'mongodb';
 import { connectToDatabase } from '@/lib/mongodb';
 import { getProjectById, getSession } from '.';
-import type { SmsProviderSettings, Project, SmsCampaign, SmsContact } from '@/lib/definitions';
+import type { SmsProviderSettings, Project, SmsCampaign, SmsContact, DltAccount } from '@/lib/definitions';
 import { getErrorMessage } from '@/lib/utils';
 import twilio from 'twilio';
 import Papa from 'papaparse';
@@ -241,5 +242,64 @@ export async function getSmsCampaigns(projectId: string): Promise<WithId<SmsCamp
         return JSON.parse(JSON.stringify(campaigns));
     } catch (e) {
         return [];
+    }
+}
+
+export async function saveDltAccount(prevState: any, formData: FormData): Promise<{ message?: string; error?: string }> {
+    const projectId = formData.get('projectId') as string;
+    if (!projectId) return { error: 'Project ID is missing.' };
+
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { error: 'Access denied or project not found.' };
+
+    try {
+        const newAccount: DltAccount = {
+            _id: new ObjectId(),
+            provider: formData.get('provider') as string,
+            principalEntityId: formData.get('principalEntityId') as string,
+            apiKey: formData.get('apiKey') as string, // In a real app, encrypt this
+        };
+
+        if (!newAccount.provider || !newAccount.principalEntityId || !newAccount.apiKey) {
+            return { error: 'All DLT account fields are required.' };
+        }
+
+        const { db } = await connectToDatabase();
+        await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $push: { 'smsProviderSettings.dlt': newAccount } }
+        );
+
+        revalidatePath('/dashboard/sms/dlt');
+        return { message: 'DLT account connected successfully!' };
+
+    } catch (e) {
+        return { error: getErrorMessage(e) };
+    }
+}
+
+
+export async function deleteDltAccount(projectId: string, dltAccountId: string): Promise<{ success: boolean; error?: string }> {
+    if (!projectId || !dltAccountId) return { success: false, error: 'Project and DLT Account IDs are required.' };
+
+    const hasAccess = await getProjectById(projectId);
+    if (!hasAccess) return { success: false, error: 'Access denied or project not found.' };
+
+    try {
+        const { db } = await connectToDatabase();
+        const result = await db.collection('projects').updateOne(
+            { _id: new ObjectId(projectId) },
+            { $pull: { 'smsProviderSettings.dlt': { _id: new ObjectId(dltAccountId) } } }
+        );
+
+        if (result.modifiedCount === 0) {
+            return { success: false, error: 'DLT Account not found or could not be removed.' };
+        }
+
+        revalidatePath('/dashboard/sms/dlt');
+        return { success: true };
+
+    } catch (e) {
+        return { success: false, error: getErrorMessage(e) };
     }
 }
