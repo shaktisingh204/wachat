@@ -23,7 +23,8 @@ import {
     MessageSquare,
     IndianRupee,
     Star,
-    Contact
+    Contact,
+    LayoutDashboard
 } from 'lucide-react';
 
 export const crmMenuItems = [
@@ -56,8 +57,10 @@ export const crmMenuItems = [
     { href: "/dashboard/crm/tasks", label: "Tasks", icon: FolderKanban },
     { href: "/dashboard/crm/products", label: "Products", icon: ShoppingCart },
     { href: '/dashboard/crm/inventory', label: 'Inventory', icon: Truck, subItems: [
+        { href: "/dashboard/crm/inventory", label: "Dashboard", icon: LayoutDashboard },
         { href: "/dashboard/crm/inventory/warehouses", label: "Warehouses", icon: Truck },
         { href: "/dashboard/crm/inventory/adjustments", label: "Adjustments", icon: Repeat },
+        { href: "/dashboard/crm/inventory/purchase-orders", label: "Purchase Orders", icon: FileText },
     ]},
     { href: "/dashboard/crm/automations", label: "Automations", icon: GitFork },
     { href: "/dashboard/crm/analytics", label: "Analytics", icon: BarChart },
@@ -71,7 +74,7 @@ export default function CrmTabLayout({ children }: { children: React.ReactNode }
     const renderNav = () => {
         const topLevelItem = crmMenuItems.find(item => item.href !== '/dashboard/crm' && pathname.startsWith(item.href) && item.subItems);
         if (topLevelItem && topLevelItem.subItems) {
-            const activeTab = topLevelItem.subItems.find(item => pathname.startsWith(item.href))?.href || topLevelItem.subItems[0]?.href;
+            const activeTab = topLevelItem.subItems.find(item => pathname === item.href || (item.href !== '/dashboard/crm/inventory' && pathname.startsWith(item.href)))?.href || topLevelItem.href;
             return (
                 <Tabs defaultValue={activeTab} className="w-full">
                     <TabsList className="overflow-x-auto whitespace-nowrap">
