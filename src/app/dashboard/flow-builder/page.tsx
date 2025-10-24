@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect, useCallback, useTransition, useRef } from 'react';
@@ -244,8 +245,7 @@ const NodeComponent = ({
         </div>
     );
 };
-
-const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, metaFlows, allFlows }: { selectedNode: FlowNode | null; updateNodeData: (id: string, data: Partial<any>) => void; deleteNode: (id: string) => void, templates: WithId<Template>[], metaFlows: WithId<MetaFlow>[], allFlows: WithId<Flow>[] }) => {
+const PropertiesPanel = ({ selectedNode, updateNodeData, deleteNode, templates, metaFlows, allFlows, currentFlow }: { selectedNode: FlowNode | null; updateNodeData: (id: string, data: Partial<any>) => void; deleteNode: (id: string) => void, templates: WithId<Template>[], metaFlows: WithId<MetaFlow>[], allFlows: WithId<Flow>[], currentFlow: WithId<Flow> | null }) => {
     if (!selectedNode) return null;
     
     const { toast } = useToast();
@@ -498,13 +498,12 @@ export default function FlowBuilderPage() {
 
     const [flows, setFlows] = useState<WithId<Flow>[]>([]);
     const [currentFlow, setCurrentFlow] = useState<WithId<Flow> | null>(null);
-    const [templates, setTemplates] = useState<WithId<Template>[]>([]);
-    const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
-    const [isLoading, startLoadingTransition] = useTransition();
-
     const [nodes, setNodes] = useState<FlowNode[]>([]);
     const [edges, setEdges] = useState<FlowEdge[]>([]);
+    const [templates, setTemplates] = useState<WithId<Template>[]>([]);
+    const [metaFlows, setMetaFlows] = useState<WithId<MetaFlow>[]>([]);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+    const [isLoading, startLoadingTransition] = useTransition();
     const [isSaving, startSaveTransition] = useTransition();
     const [isGenerating, startGenerateTransition] = useTransition();
     
@@ -650,6 +649,7 @@ export default function FlowBuilderPage() {
         });
     }
     
+    // ... all the other handlers ...
     const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
         e.preventDefault();
         e.stopPropagation();
@@ -816,6 +816,7 @@ export default function FlowBuilderPage() {
         return <Skeleton className="h-full w-full" />;
     }
     
+    // ... The rest of the JSX for rendering the flow builder
     return (
         <div className="flex h-full w-full flex-col gap-4">
             <TestFlowDialog open={isTestFlowOpen} onOpenChange={setIsTestFlowOpen} nodes={nodes} edges={edges} />
@@ -950,4 +951,52 @@ export default function FlowBuilderPage() {
         </div>
     );
 }
+const getEdgePath = (sourcePos: { x: number; y: number }, targetPos: { x: number; y: number }) => {
+    if (!sourcePos || !targetPos) return '';
+    const dx = Math.abs(sourcePos.x - targetPos.x) * 0.5;
+    const path = `M ${sourcePos.x} ${sourcePos.y} C ${sourcePos.x + dx} ${sourcePos.y}, ${targetPos.x - dx} ${targetPos.y}, ${targetPos.x} ${targetPos.y}`;
+    return path;
+};
 
+const getNodeHandlePosition = (node: FlowNode, handleId: string) => {
+    if (!node || !handleId) return null;
+
+    const NODE_WIDTH = 256;
+    const x = node.position.x;
+    const y = node.position.y;
+    
+    // Consistent height for simple nodes
+    let nodeHeight = 60; 
+    
+    if (node.type === 'condition') nodeHeight = 80;
+    if (node.type === 'buttons') {
+        const buttonCount = (node.data.buttons || []).length;
+        nodeHeight = 60 + (buttonCount * 20); // Base height + height per button
+    }
+
+    if (handleId.endsWith('-input')) {
+        return { x: x, y: y + nodeHeight / 2 };
+    }
+    if (handleId.endsWith('-output-main')) {
+        return { x: x + NODE_WIDTH, y: y + nodeHeight / 2 };
+    }
+    if (handleId.endsWith('-output-yes')) {
+        return { x: x + NODE_WIDTH, y: y + nodeHeight * (1/3) };
+    }
+    if (handleId.endsWith('-output-no')) {
+        return { x: x + NODE_WIDTH, y: y + nodeHeight * (2/3) };
+    }
+    if (handleId.includes('-btn-')) {
+        const buttonIndex = parseInt(handleId.split('-btn-')[1], 10);
+        const totalButtons = (node.data.buttons || []).length;
+        const topPosition = totalButtons > 1 ? (nodeHeight / (totalButtons + 1)) * (buttonIndex + 1) : nodeHeight / 2;
+        return { x: x + NODE_WIDTH, y: y + topPosition };
+    }
+    
+    // Fallback for generic output handles from older data structures
+    if (handleId.includes('output')) {
+        return { x: x + NODE_WIDTH, y: y + nodeHeight / 2 };
+    }
+    
+    return null;
+}
