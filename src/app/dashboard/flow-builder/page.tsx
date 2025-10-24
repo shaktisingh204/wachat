@@ -525,23 +525,21 @@ export default function FlowBuilderPage() {
      const [aiPrompt, setAiPrompt] = useState('');
 
     const fetchFlows = useCallback((projectId: string) => {
-        if(projectId) {
-            startLoadingTransition(async () => {
-                const [flowsData, templatesData, metaFlowsData] = await Promise.all([
-                    getFlowsForProject(projectId),
-                    getTemplates(projectId),
-                    getMetaFlows(projectId),
-                ]);
-                setFlows(flowsData);
-                setTemplates(templatesData);
-                setMetaFlows(metaFlowsData);
-                if (flowsData.length > 0 && !currentFlow) {
-                    handleSelectFlow(flowsData[0]._id.toString());
-                } else if (flowsData.length === 0) {
-                    handleCreateNewFlow();
-                }
-            });
-        }
+        startLoadingTransition(async () => {
+            const [flowsData, templatesData, metaFlowsData] = await Promise.all([
+                getFlowsForProject(projectId),
+                getTemplates(projectId),
+                getMetaFlows(projectId),
+            ]);
+            setFlows(flowsData);
+            setTemplates(templatesData);
+            setMetaFlows(metaFlowsData);
+            if (flowsData.length > 0 && !currentFlow) {
+                handleSelectFlow(flowsData[0]._id.toString());
+            } else if (flowsData.length === 0) {
+                handleCreateNewFlow();
+            }
+        });
     }, [currentFlow]); // dependency array is correct
 
     useEffect(() => {
